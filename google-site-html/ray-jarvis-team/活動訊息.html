@@ -321,6 +321,16 @@
 			}
 			
 			function imgError(imgDiv) {
+				let currentSrc = imgDiv.src;
+
+				// 1. 如果目前是 .jpg 且還沒嘗試過切換為 .png
+				if (currentSrc.endsWith('.jpg') && !imgDiv.dataset.triedPng) {
+					imgDiv.dataset.triedPng = "true"; // 設定標記，避免無限迴圈
+					imgDiv.src = currentSrc.replace(/\.jpg$/, '.png'); // 嘗試改載入 .png
+					return; // 結束本次 onerror，給瀏覽器時間載入新圖片
+				}
+
+				// 2. 如果連 .png 也載入失敗（或原本就不是 .jpg），才替換成 Icon
 				let html = `<i class="fa-solid fa-calendar-days img-placeholder-icon"></i>`;
 				$(imgDiv).replaceWith(html);
 			}
@@ -348,12 +358,12 @@
 			html, body {
 				background-color: transparent;
 				color: var(--text-main);
-				font-family: 'Roboto', "Microsoft JhengHei", "微軟正黑體", sans-serif;
+				font-family: 'Roboto', sans-serif;
 				padding: 15px 8px;
 			}
 
 			h1, h2, h3, h4, .brand-font {
-				font-family: 'Montserrat', "Microsoft JhengHei", "微軟正黑體", sans-serif;
+				font-family: 'Montserrat', sans-serif;
 			}
 			
 			/* 載入中 Spinner */
