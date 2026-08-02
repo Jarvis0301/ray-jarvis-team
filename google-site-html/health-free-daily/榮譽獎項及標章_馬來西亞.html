@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>榮譽獎項及標章_馬來西亞</title>
+		
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+		
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+
+		<script>
+			$(document).ready(function() {
+				// Google 試算表 ID
+				const SHEET_ID = '1bs8fVTroG3vTN6vjlPw6rtgelNYlJ6XIK9tYI9o4yOE';
+				// 試算表工作表名稱
+				const SHEET_NAME = '馬來西亞';
+				// Google Visualization API Endpoint
+				const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+				// 預設示範資料 (若未設定 Sheet ID 或連線失敗時顯示)
+				const fallbackData = [
+					{ type: "Corporate", year: "2025", title: "Direct Selling Century", detail: "“Unveiling the Mystery of UVACO’s Direct Selling Success”" },
+					{ type: "Corporate", year: "2025", title: "Business Weekly", detail: "“Taiwan’s Top Direct Selling Brand “UVACO” Unveils New Identity, Announcing Foray into Malaysia as First Step Towards International Expansion”" },
+					{ type: "Products", year: "2025", title: "ProbioticsD", detail: "Grape King Bio GKM3® was awarded the 21st National Innovation Award (2025)" },
+					{ type: "Products", year: "2025", title: "Liprofac", detail: "Grape King Bio Antrodia Cinnamomea Mycelia Fermentation Product was awarded Gold Medal at the 2025 International Innovation and Invention Competition" },
+					{ type: "Products", year: "2025", title: "Liprofac", detail: "Grape King Bio Antrodia Cinnamomea Mycelia Fermentation Product was awarded Gold Medal at the International Invention Fair in the Middle East 2025" }
+				];
+
+				let allAwards = [];
+				let currentTab = "Corporate";
+				let searchText = "";
+
+				// 1. 發起 AJAX 抓取 Google 試算表資料
+				$.ajax({
+					url: gvizUrl,
+					dataType: 'text',
+					success: function(response) {
+						try {
+							const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
+							const data = JSON.parse(jsonString);
+							const rows = data.table.rows;
+
+							if (rows && rows.length > 0) {
+								allAwards = [];
+								rows.forEach(row => {
+									if (!row.c) return;
+									const type   = row.c[0] && row.c[0].v ? String(row.c[0].v).trim() : 'Corporate';
+									const year   = row.c[1] && row.c[1].v ? String(row.c[1].v).trim() : '';
+									const title  = row.c[2] && row.c[2].v ? String(row.c[2].v).trim() : '';
+									const detail = row.c[3] && row.c[3].v ? String(row.c[3].v).trim() : '';
+
+									if (title || detail) {
+										allAwards.push({ type, year, title, detail });
+									}
+								});
+							} else {
+								allAwards = fallbackData;
+							}
+							renderAwards();
+
+						} catch (e) {
+							console.warn('解析試算表失敗，載入備用榮譽資料:', e);
+							allAwards = fallbackData;
+							renderAwards();
+						}
+					},
+					error: function() {
+						console.warn('無法連線試算表，載入備用榮譽資料');
+						allAwards = fallbackData;
+						renderAwards();
+					}
+				});
+
+				// 2. 頁籤切換事件
+				$('.award-tab-btn').on('click', function() {
+					$('.award-tab-btn').removeClass('active');
+					$(this).addClass('active');
+					currentTab = $(this).data('type');
+					renderAwards();
+				});
+
+				// 3. 即時搜尋事件
+				$('#award-search').on('input', function() {
+					searchText = $(this).val().toLowerCase().trim();
+					renderAwards();
+				});
+
+				// 4. 判斷勳章 Icon 與 色彩類別
+				function getAwardBadge(detailText) {
+					const text = detailText || '';
+					if (text.includes('Gold Medal Award') || text.includes('Gold Award') || text.includes('Gold Medal') || text.includes('First Place')) {
+						return { class: 'gold-badge', icon: 'fa-solid fa-trophy', label: 'Gold Award' };
+					} else if (text.includes('Silver Medal Award') || text.includes('Silver Award') || text.includes('Silver Medal') || text.includes('Second Place')) {
+						return { class: 'silver-badge', icon: 'fa-solid fa-award', label: 'Silver Award' };
+					} else if (text.includes('Bronze Medal Award') || text.includes('Bronze Award') || text.includes('Bronze Medal') || text.includes('Third Place')) {
+						return { class: 'bronze-badge', icon: 'fa-solid fa-medal', label: 'Bronze Award' };
+					}
+					return { class: 'green-badge', icon: 'fa-solid fa-certificate', label: 'Certification' };
+				}
+
+				// 5. 渲染卡片視圖
+				function renderAwards() {
+					const $grid = $('#awards-grid');
+					$grid.empty();
+
+					// 依據頁籤與搜尋字串過濾
+					const filtered = allAwards.filter(item => {
+						const matchType = item.type === currentTab;
+						const matchSearch = searchText === "" || 
+											item.year.toLowerCase().includes(searchText) || 
+											item.title.toLowerCase().includes(searchText) || 
+											item.detail.toLowerCase().includes(searchText);
+						return matchType && matchSearch;
+					});
+
+					if (filtered.length === 0) {
+						$grid.html(`
+							<div class="text-center py-5 text-muted col-12">
+								<i class="fa-solid fa-magnifying-glass mb-3 fs-1 text-secondary opacity-50"></i>
+								<div>目前無符合「${searchText}」的榮譽紀錄</div>
+							</div>
+						`);
+						return;
+					}
+
+					// 按年份降冪排列 (最新的年份在最上面)
+					const grouped = {};
+					filtered.forEach(item => {
+						const y = item.year || 'History';
+						if (!grouped[y]) grouped[y] = [];
+						grouped[y].push(item);
+					});
+
+					const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+
+					sortedYears.forEach(year => {
+						let cardsHtml = '';
+						grouped[year].forEach(item => {
+							const badgeInfo = getAwardBadge(item.detail);
+
+							cardsHtml += `
+								<div class="col-12 col-md-6 col-lg-4 mb-3">
+									<div class="award-card">
+										<div class="d-flex justify-content-between align-items-center mb-2">
+											<span class="award-year-tag">${year}</span>
+											<span class="award-badge ${badgeInfo.class}">
+												<i class="${badgeInfo.icon} me-1"></i> ${badgeInfo.label}
+											</span>
+										</div>
+										<div class="award-title">${item.title}</div>
+										<div class="award-detail">${item.detail}</div>
+									</div>
+								</div>
+							`;
+						});
+
+						$grid.append(`
+							<div class="col-12 mt-3 mb-2">
+								<div class="year-divider">
+									<span class="year-divider-text">${year}</span>
+								</div>
+							</div>
+							${cardsHtml}
+						`);
+					});
+				}
+			});
+		</script>
+
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				background-color: transparent;
+				font-family: 'Roboto', "Microsoft JhengHei", "微軟正黑體", "PingFang TC", sans-serif;
+				color: #F1F5F9;
+			}
+			
+			/* 載入中 Spinner */
+			#loading-spinner {
+				text-align: center;
+				padding: 40px 0;
+				color: #10B981;
+			}
+
+			.awards-container {
+				max-width: 1000px;
+				margin: 0 auto;
+				padding: 15px 10px;
+			}
+
+			/* 綠色控制面板 */
+			.controls-wrapper {
+				background: #0B1E19;
+				border: 1px solid #133E32;
+				border-radius: 12px;
+				padding: 12px 16px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+			}
+
+			/* 導覽頁籤 (Green Tabs) */
+			.award-tab-btn {
+				background: transparent;
+				border: 1px solid #133E32;
+				color: #A7F3D0;
+				font-weight: 700;
+				padding: 8px 20px;
+				border-radius: 30px;
+				transition: all 0.3s ease;
+			}
+
+			.award-tab-btn:hover {
+				color: #34D399;
+				border-color: #34D399;
+			}
+
+			.award-tab-btn.active {
+				background: linear-gradient(135deg, #047857 0%, #10B981 100%);
+				border-color: #34D399;
+				color: #FFFFFF;
+				box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+			}
+
+			/* 搜尋框 */
+			.search-input-group .form-control {
+				background: #041410;
+				border: 1px solid #133E32;
+				color: #ECFDF5;
+				border-radius: 20px 0 0 20px;
+			}
+
+			.search-input-group .form-control:focus {
+				background: #041410;
+				color: #ECFDF5;
+				border-color: #34D399;
+				box-shadow: none;
+			}
+
+			.search-input-group .input-group-text {
+				background: #041410;
+				border: 1px solid #133E32;
+				border-left: none;
+				color: #34D399;
+				border-radius: 0 20px 20px 0;
+			}
+
+			/* 年份分隔線 */
+			.year-divider { display: flex; align-items: center; margin: 10px 0; }
+			.year-divider::before, .year-divider::after { content: ''; flex: 1; border-bottom: 1px solid #133E32; }
+
+			.year-divider-text {
+				padding: 0 12px;
+				font-family: 'Montserrat', sans-serif;
+				font-weight: 800;
+				color: #34D399;
+				font-size: 1.1rem;
+				letter-spacing: 1px;
+			}
+
+			/* 深綠質感卡片 (#0B1E19) */
+			.award-card {
+				background: #0B1E19;
+				border: 1px solid #133E32;
+				border-radius: 10px;
+				padding: 16px;
+				height: 100%;
+				transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+			}
+
+			.award-card:hover {
+				transform: translateY(-3px);
+				background: #102B24;
+				border-color: #34D399;
+				box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.25);
+			}
+
+			.award-year-tag { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.82rem; color: #A7F3D0; }
+			.award-title { color: #FACC15; font-weight: 700; font-size: 1.05rem; margin-bottom: 6px; }
+			.award-detail { color: #ECFDF5; font-size: 0.92rem; line-height: 1.6; }
+
+			/* 勳章顏色 */
+			.award-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+
+			.gold-badge {
+				background: rgba(250, 204, 21, 0.15);
+				color: #FACC15;
+				border: 1px solid rgba(250, 204, 21, 0.4);
+			}
+
+			.silver-badge {
+				background: rgba(226, 232, 240, 0.15);
+				color: #E2E8F0;
+				border: 1px solid rgba(226, 232, 240, 0.4);
+			}
+
+			.bronze-badge {
+				background: rgba(217, 119, 6, 0.15);
+				color: #F59E0B;
+				border: 1px solid rgba(217, 119, 6, 0.4);
+			}
+
+			.green-badge {
+				background: rgba(16, 185, 129, 0.15);
+				color: #34D399;
+				border: 1px solid rgba(16, 185, 129, 0.4);
+			}
+		</style>
+	</head>
+
+	<body>
+	<div class="awards-container">
+		<div class="controls-wrapper mb-4">
+			<div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+				<div class="d-flex gap-2">
+					<button class="award-tab-btn active" data-type="Corporate">
+						<i class="fa-solid fa-building me-1"></i> Corporate
+					</button>
+					<button class="award-tab-btn" data-type="Products">
+						<i class="fa-solid fa-leaf me-1"></i> Products
+					</button>
+				</div>
+				
+				<div class="search-input-group input-group" style="max-width: 280px;">
+					<input type="text" id="award-search" class="form-control" placeholder="Search...">
+					<span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+				</div>
+			</div>
+		</div>
+
+		<div class="row g-2" id="awards-grid">
+			<div id="loading-spinner" class="text-center col-12">
+				<div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+				<div>榮譽資料同步中...</div>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>
