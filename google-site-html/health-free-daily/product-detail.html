@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>個別產品詳情</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+        
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+        <script>
+            // Google 試算表設定 (請替換為您發布至 Web 的 Google 試算表 ID)
+            const SPREADSHEET_ID = '18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I';
+
+            // 本地模擬資料庫 (當無 Sheet ID 或網路連線失敗時之備用回退機制)
+            const FALLBACK_DATA = {
+                "TW": [
+                    {
+                        "產品編號": "P001",
+                        "產品名稱": "衛傑 (Wei-Jie)",
+                        "產品簡稱": "衛傑",
+                        "產品型態": "膠囊產品",
+                        "包裝規格": "100 粒/瓶",
+                        "售價": "NT$ 1,680",
+                        "全球 SV": "1,400",
+                        "上市日期": "2018-05-10",
+                        "更新日期": "2026-01-01",
+                        "認證產品": "SNQ國家品質標章",
+                        "特色與主要功能主要成分": "含有山藥粉、猴頭菇菌絲體粉末、食用蕈菇菌絲體粉末及複合乳酸菌。<br>專為現代高壓外食族群設計，幫助維持身體舒適與日常順暢。",
+                        "產品獨立網頁": "#",
+                        "圖片網址": "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0103003_衛傑_20251016_1.png",
+                        "官方網站": "https://www.uvaco.com.tw/Products/51/62/TW0103003",
+                        "廣告文案": "外食比例高、工作步調緊湊，是現代上班族與工程師的日常常態。當生活節奏無法瞬間放慢，給予身體適當的日常滋養與防護，就是最明智的健康投資。<br><br>衛傑結合多重優質營養成分，專為應對現代忙碌生活設計，讓你在高壓的日常工作中，依然能輕鬆維持優質的營養補充與健康防護力。",
+                        "直式廣告海報網址": "https://via.placeholder.com/600x800/0d221a/34d399?text=Dark+Emerald+Vertical+Poster"
+                    }
+                ],
+                "MY": [
+                    {
+                        "產品編號": "P001",
+                        "產品名稱": "Wei-Jie Capsule",
+                        "產品簡稱": "Wei-Jie",
+                        "產品型態": "膠囊產品",
+                        "包裝規格": "100 Capsules/Bottle",
+                        "售價": "RM 250",
+                        "全球 SV": "1,400",
+                        "上市日期": "2020-08-15",
+                        "更新日期": "2026-01-01",
+                        "認證產品": "HALAL 清真認證",
+                        "特色與主要功能主要成分": "Contains Yam Powder, Hericium Erinaceus Mycelium, and Probiotics for daily digestive care.",
+                        "產品獨立網頁": "#",
+                        "圖片網址": "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0103003_衛傑_20251016_1.png",
+                        "官方網站": "https://www.uvaco.com.my",
+                        "廣告文案": "Formulated for modern busy lifestyles to maintain daily vitality and wellness.",
+                        "直式廣告海報網址": "https://via.placeholder.com/600x800/0d221a/34d399?text=Malaysia+Vertical+Poster"
+                    }
+                ],
+                "TYPES": [
+                    {
+                        "中文": "膠囊產品",
+                        "英文": "Capsule",
+                        "Font Awesome Icon": "fa-capsules",
+                        "文字與外框顏色": "#34d399",
+                        "標籤背景顏色": "rgba(52, 211, 153, 0.15)"
+                    }
+                ],
+                "SERIES": [
+                    {
+                        "編號": "S01",
+                        "中文": "日常養護系列",
+                        "英文": "Daily Care",
+                        "Font Awesome Icon": "fa-shield-heart",
+                        "文字與外框顏色": "#10b981",
+                        "標籤背景顏色": "rgba(16, 185, 129, 0.15)"
+                    }
+                ]
+            };
+
+            let currentRegion = 'TW';
+            let currentProductId = 'TW0101001';
+            let sheetDatabase = {};
+
+            $(document).ready(function () {
+                currentProductId = getUrlParameter('id') || 'TW0101001';
+                currentRegion = getUrlParameter('region') || 'TW';
+
+                // 開始初始化資料
+                initDataAndRender();
+            });
+
+            // 解析 URL 參數
+            function getUrlParameter(sParam) {
+                let sPageURL = window.location.search.substring(1);
+                let sURLVariables = sPageURL.split('&');
+                for (let i = 0; i < sURLVariables.length; i++) {
+                    let sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            }
+
+             // 從 Google 試算表（GViz CSV 端點）讀取工作表
+            function fetchGoogleSheetTab(tabName) {
+                return new Promise((resolve, reject) => {
+                    if (!SPREADSHEET_ID || SPREADSHEET_ID === 'YOUR_GOOGLE_SHEET_ID_HERE') {
+                        reject('無效的 Sheet ID，啟動備用資料庫');
+                        return;
+                    }
+                    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+                    Papa.parse(url, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (results) => resolve(results.data),
+                        error: (err) => reject(err)
+                    });
+                });
+            }
+
+            // 初始化並串載 4 個工作表
+            function initDataAndRender() {
+                $('#loadingSpinner').removeClass('d-none');
+                $('#productContainer').addClass('d-none');
+
+                Promise.all([
+                    fetchGoogleSheetTab('台灣'),
+                    fetchGoogleSheetTab('馬來西亞'),
+                    fetchGoogleSheetTab('產品系列'),
+                    fetchGoogleSheetTab('產品型態')
+                ]).then(([twData, myData, seriesData, typesData]) => {
+                    sheetDatabase = {
+                        'TW': twData,
+                        'MY': myData,
+                        'SERIES': seriesData,
+                        'TYPES': typesData
+                    };
+                    renderProductView();
+                }).catch((err) => {
+                    console.warn('使用本地預設備用資料庫載入中:', err);
+                    sheetDatabase = FALLBACK_DATA;
+                    renderProductView();
+                });
+            }
+
+            // 動態渲染產品資料
+            function renderProductView() {
+                $('#loadingSpinner').removeClass('d-none');
+                $('#productContainer').addClass('d-none');
+
+                setTimeout(function () {
+                    let dataset = sheetDatabase[currentRegion] || sheetDatabase['TW'];
+                    let product = dataset.find(p => p["產品編號"] === currentProductId) || dataset[0];
+                    let typeStyle = sheetDatabase["TYPES"][product["產品型態"]] || {
+                        "Icon": "fa-tablets",
+                        "Color": "#34d399",
+                        "BgColor": "rgba(52, 211, 153, 0.12)"
+                    };
+
+                    // 填入資料
+                    $('#productName').text(product["產品名稱"]);
+                    $('#productSubName').text(product["產品簡稱"]);
+                    $('#productBrief').text(product["產品簡稱"] + " ── 順暢保衛，為現代忙碌生活打造的日常養護");
+                    $('#productImage').attr('src', product["圖片網址"]);
+                    $('#productPrice').text(product["售價"]);
+                    $('#productSV').text(product["全球 SV"]);
+                    $('#productSpec').text(product["包裝規格"]);
+
+                    // 渲染直式廣告海報與廣告文案
+                    $('#adPosterImage').attr('src', product["直式廣告海報網址"] || product["圖片網址"]);
+                    $('#adCopyContent').html(product["廣告文案"] || "專為現代上班族打造的隨身養護方案，讓每日營養補充更有感。");
+                    
+                    // 渲染官方成分
+                    $('#officialIngredients').html(product["特色與主要功能主要成分"]);
+
+                    $('#productID').text(product["產品編號"]);
+                    $('#launchDate').text(product["上市日期"]);
+                    $('#updateDate').text(product["更新日期"]);
+                    $('#certInfo').text(product["認證產品"] || "總公司檢驗合格");
+
+                    // 按鈕連結綁定
+                    $('#officialBtn').attr('href', product["官方網站"]);
+                    $('#consultBtn, #consultBtnBottom').attr('href', 'https://line.me');
+
+                    // 動態型態 Badge
+                    let typeBadgeHtml = `
+                        <span class="custom-badge" style="background-color: ${typeStyle.BgColor}; color: ${typeStyle.Color}; border: 1px solid rgba(52, 211, 153, 0.25);">
+                            <i class="fa-solid ${typeStyle.Icon}"></i> ${product["產品型態"]}
+                        </span>
+                    `;
+                    $('#productTypeBadge').html(typeBadgeHtml);
+
+                    // 認證 Badge
+                    if (product["認證產品"]) {
+                        let certBadgeHtml = `
+                            <span class="custom-badge bg-warning text-dark">
+                                <i class="fa-solid fa-award"></i> ${product["認證產品"]}
+                            </span>
+                        `;
+                        $('#certBadge').html(certBadgeHtml);
+                    } else {
+                        $('#certBadge').empty();
+                    }
+
+                    $('#loadingSpinner').addClass('d-none');
+                    $('#productContainer').removeClass('d-none');
+                }, 300);
+            }
+        </script>
+
+        <style>
+            :root {
+                --dark-bg: #081612;
+                --card-bg: #10231d;
+                --card-inner-bg: #0b1a15;
+                --primary-emerald: #34d399;
+                --accent-emerald: #10b981;
+                --hover-emerald: #059669;
+                --text-light: #f0fdf4;
+                --text-sub: #a7f3d0;
+                --text-muted: #9ca3af;
+                --border-glow: rgba(52, 211, 153, 0.18);
+            }
+
+            body {
+                font-family: 'Noto Sans TC', sans-serif;
+                background-color: var(--dark-bg);
+                color: var(--text-light);
+                line-height: 1.7;
+                padding-top: 2rem;
+                padding-bottom: 3.5rem;
+            }
+
+            /* 主卡片通用樣式 (深色發光邊框) */
+            .content-card {
+                background-color: var(--card-bg);
+                border-radius: 20px;
+                border: 1px solid var(--border-glow);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+            }
+
+            /* 官方產品照片區 */
+            .product-image-box {
+                background-color: var(--card-inner-bg);
+                border-radius: 16px;
+                border: 1px solid rgba(52, 211, 153, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                min-height: 360px;
+            }
+
+            .product-image-box img {
+                max-height: 300px;
+                object-fit: contain;
+                transition: transform 0.3s ease;
+            }
+
+            .product-image-box img:hover {
+                transform: scale(1.03);
+            }
+
+            /* Badge 標籤與價格 */
+            .custom-badge {
+                align-items: center;
+                padding: 0.4rem 0.85rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                margin-right: 0.5rem;
+                margin-bottom: 0.5rem;
+                border: 1px solid transparent;
+            }
+
+            .price-tag {
+                color: var(--primary-emerald);
+                font-size: 2.1rem;
+                font-weight: 700;
+                text-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+            }
+
+            .sv-tag {
+                background-color: rgba(52, 211, 153, 0.12);
+                color: var(--primary-emerald);
+                border: 1px solid rgba(52, 211, 153, 0.25);
+                font-weight: 600;
+                padding: 0.25rem 0.75rem;
+                border-radius: 8px;
+                font-size: 0.95rem;
+            }
+
+            /* 重構區塊：直式廣告圖片與文案混排區 */
+            .ad-showcase-card {
+                background-color: var(--card-bg);
+                border-radius: 20px;
+                border: 1px solid var(--border-glow);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+            }
+
+            .vertical-poster-wrapper {
+                background-color: var(--card-inner-bg);
+                border-radius: 16px;
+                border: 1px solid rgba(52, 211, 153, 0.1);
+                padding: 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+            }
+
+            .vertical-poster-img {
+                width: 100%;
+                max-height: 480px;
+                object-fit: contain;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+                transition: transform 0.3s ease;
+            }
+
+            .vertical-poster-img:hover {
+                transform: scale(1.02);
+            }
+
+            .target-group-badge {
+                background-color: rgba(52, 211, 153, 0.12);
+                color: var(--primary-emerald);
+                border: 1px solid rgba(52, 211, 153, 0.25);
+                padding: 0.35rem 0.85rem;
+                border-radius: 12px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                display: inline-block;
+                margin-right: 0.4rem;
+                margin-bottom: 0.5rem;
+            }
+
+            /* Accordion 可摺疊規格卡 (深色主題) */
+            .accordion-custom .accordion-item {
+                border: 1px solid rgba(52, 211, 153, 0.2);
+                border-radius: 12px !important;
+                margin-bottom: 0.75rem;
+                background-color: var(--card-inner-bg);
+                overflow: hidden;
+            }
+
+            .accordion-custom .accordion-button {
+                background-color: var(--card-inner-bg);
+                color: var(--primary-emerald);
+                font-weight: 600;
+            }
+
+            .accordion-custom .accordion-button:not(.collapsed) {
+                background-color: rgba(52, 211, 153, 0.15);
+                color: var(--text-light);
+                box-shadow: none;
+            }
+
+            .accordion-custom .accordion-button::after {
+                filter: invert(70%) sepia(50%) saturate(500%) hue-rotate(100deg);
+            }
+
+            .accordion-custom .accordion-body {
+                background-color: var(--card-inner-bg);
+                color: var(--text-sub);
+            }
+
+            /* 轉化 CTA 按鈕 */
+            .btn-cta-green {
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: #ffffff;
+                font-weight: 600;
+                padding: 0.85rem 2rem;
+                border-radius: 30px;
+                border: none;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+            }
+
+            .btn-cta-green:hover {
+                background: linear-gradient(135deg, #059669, #047857);
+                color: #ffffff;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 22px rgba(16, 185, 129, 0.45);
+            }
+
+            .btn-outline-green {
+                border: 2px solid var(--primary-emerald);
+                color: var(--primary-emerald);
+                font-weight: 600;
+                padding: 0.85rem 2rem;
+                border-radius: 30px;
+                background-color: transparent;
+                transition: all 0.3s ease;
+            }
+
+            .btn-outline-green:hover {
+                background-color: rgba(52, 211, 153, 0.15);
+                color: var(--text-light);
+            }
+
+            /* Loading Spinner */
+            #loadingSpinner {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 450px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="container">
+
+            <div id="loadingSpinner">
+                <div class="spinner-border text-emerald" role="status" style="width: 3rem; height: 3rem; color: var(--primary-emerald);">
+                    <span class="visually-hidden">資料載入中...</span>
+                </div>
+            </div>
+
+            <div id="productContainer" class="d-none">
+                
+                <div class="content-card p-4 mb-4">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-lg-5">
+                            <div class="product-image-box">
+                                <img id="productImage" src="" alt="官方產品照片" class="img-fluid">
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-7">
+                            <div class="mb-2">
+                                <span id="productTypeBadge"></span>
+                                <span id="certBadge"></span>
+                            </div>
+                            <h1 id="productName" class="fw-bold mb-2" style="color: var(--primary-emerald);"></h1>
+                            <h5 id="productSubName" class="text-secondary mb-3"></h5>
+                            
+                            <p id="productBrief" class="lead fs-6 mb-4 text-light-50"></p>
+                            
+                            <div class="p-3 rounded-3 mb-4 border" style="background-color: var(--card-inner-bg); border-color: rgba(52, 211, 153, 0.15) !important;">
+                                <div class="d-flex align-items-baseline gap-3">
+                                    <span class="price-tag" id="productPrice"></span>
+                                    <span class="sv-tag">
+                                        <i class="fa-solid fa-star"></i> 全球 SV：<span id="productSV"></span>
+                                    </span>
+                                </div>
+                                <div class="small mt-2">
+                                    <i class="fa-solid fa-box"></i> 包裝規格：<span id="productSpec" class="text-light"></span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-3">
+                                <a id="consultBtn" href="#" target="_blank" class="btn btn-cta-green">
+                                    <i class="fa-solid fa-comments"></i> 預約專屬諮詢
+                                </a>
+                                <a id="officialBtn" href="#" target="_blank" class="btn btn-outline-green">
+                                    <i class="fa-solid fa-up-right-from-square"></i> 官方網站介紹
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ad-showcase-card p-4 mb-4">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-lg-5">
+                            <div class="vertical-poster-wrapper">
+                                <img id="adPosterImage" src="" alt="直式廣告海報" class="vertical-poster-img">
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-7">
+                            <div class="ps-lg-3">
+                                <h4 class="fw-bold mb-3" style="color: var(--primary-emerald);">
+                                    <i class="fa-solid fa-bullhorn"></i> 生活情境與養護觀念
+                                </h4>
+                                <div class="mb-3">
+                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 三餐外食族</span>
+                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 工作快節奏</span>
+                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 作息不規律</span>
+                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 日常基礎養護</span>
+                                </div>
+                                <div id="adCopyContent" class="lh-lg fs-6 text-light pe-lg-2">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="content-card p-4 h-100">
+                            <h4 class="fw-bold mb-3" style="color: var(--primary-emerald);">
+                                <i class="fa-solid fa-vial"></i> 官方成分與特色說明
+                            </h4>
+                            <hr style="border-color: rgba(52, 211, 153, 0.25);" class="mb-4">
+                            <div id="officialIngredients" class="lh-lg text-light">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="content-card p-4 h-100">
+                            <h4 class="fw-bold mb-3" style="color: var(--primary-emerald);">
+                                <i class="fa-solid fa-shield-halved"></i> 產品規格與認證
+                            </h4>
+                            <hr style="border-color: rgba(52, 211, 153, 0.25);" class="mb-4">
+                            
+                            <div class="accordion accordion-custom" id="specAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                            <i class="fa-solid fa-list-check"></i> 基本規格數據
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#specAccordion">
+                                        <div class="accordion-body small">
+                                            <ul class="list-unstyled mb-0">
+                                                <li class="mb-2"><strong>產品編號：</strong><span id="productID" class="text-light"></span></li>
+                                                <li class="mb-2"><strong>上市日期：</strong><span id="launchDate" class="text-light"></span></li>
+                                                <li class="mb-2"><strong>更新日期：</strong><span id="updateDate" class="text-light"></span></li>
+                                                <li><strong>認證標章：</strong><span id="certInfo" class="text-light"></span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                            <i class="fa-solid fa-circle-info"></i> 食用與保存說明
+                                        </button>
+                                    </h2>
+                                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#specAccordion">
+                                        <div class="accordion-body small">
+                                            請置於陰涼乾燥處，避免陽光直射。開封後請儘速食用完畢。如有特殊體質者，請諮詢專業醫師或營養師建議。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card p-4 mb-4">
+                    <h4 class="fw-bold mb-3" style="color: var(--primary-emerald);">
+                        <i class="fa-solid fa-comments"></i> 使用者體驗與口碑分享
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border" style="background-color: var(--card-inner-bg); border-color: rgba(52, 211, 153, 0.15) !important;">
+                                <div class="text-warning mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <p class="mb-1 text-light small">
+                                    「平時工作節奏緊湊經常外食，養成每日隨身補充的習慣後，整體生活步調維持得非常順暢舒適！」
+                                </p>
+                                <small>── 外食上班族 K 小姐體驗分享</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border" style="background-color: var(--card-inner-bg); border-color: rgba(52, 211, 153, 0.15) !important;">
+                                <div class="text-warning mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <p class="mb-1 text-light small">
+                                    「成分標示非常透明讓人放心，口感溫和，已經成為辦公桌上的日常保養好幫手。」
+                                </p>
+                                <small>── 科技業工程師 L 先生體驗分享</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center p-4 content-card">
+                    <h5 class="fw-bold mb-2" style="color: var(--primary-emerald);">
+                        <i class="fa-solid fa-seedling"></i> 想了解更多產品搭配與專屬建議？
+                    </h5>
+                    <p class="small mb-3">歡迎聯繫我們的專業顧問團隊，為您提供一對一健康營養諮詢。</p>
+                    <a id="consultBtnBottom" href="#" target="_blank" class="btn btn-cta-green">
+                        <i class="fa-solid fa-comments"></i> 立即預約一對一諮詢
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        
+    </body>
+</html>
