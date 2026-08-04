@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>產品專利與核心技術 | UVACO 葡眾生技</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark-primary: #081612;
+            --bg-dark-secondary: #0f2922;
+            --bg-card: #13372c;
+            --bg-card-hover: #194638;
+            --border-color: #1f5242;
+            --brand-emerald: #10b981;
+            --brand-mint: #34d399;
+            --accent-gold: #f59e0b;
+            --text-main: #f8fafc;
+            --text-main: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark-primary);
+            color: var(--text-main);
+            font-family: 'Roboto', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 3rem;
+        }
+
+        /* Hero 區塊設計 */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(8, 22, 18, 0.95) 0%, rgba(15, 41, 34, 0.9) 100%),
+                        url('https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            border-bottom: 1px solid var(--border-color);
+            padding: 4rem 0 3rem 0;
+            position: relative;
+        }
+
+        .hero-title {
+            color: var(--brand-mint);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .hero-badge {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--brand-mint);
+            border: 1px solid var(--brand-emerald);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        /* 統計高光卡片 */
+        .stat-card {
+            background: rgba(19, 55, 44, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--brand-emerald);
+            background: rgba(25, 70, 56, 0.8);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-main);
+        }
+
+        /* 搜尋與篩選列 */
+        .filter-section {
+            background-color: var(--bg-dark-secondary);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input {
+            background-color: var(--bg-dark-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+        }
+
+        .search-input:focus {
+            background-color: var(--bg-dark-primary);
+            border-color: var(--brand-emerald);
+            color: var(--text-main);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-main);
+        }
+
+        .btn-filter {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 20px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .btn-filter:hover, .btn-filter.active {
+            background-color: var(--brand-emerald);
+            border-color: var(--brand-emerald);
+            color: #000000;
+            font-weight: 600;
+        }
+
+        /* 專利卡片設計 */
+        .patent-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .patent-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--brand-mint);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(52, 211, 153, 0.15);
+        }
+
+        .patent-header {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .patent-category-tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+
+        .tag-probiotics { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .tag-cicadae { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+        .tag-encapsulation { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .tag-fermentation { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+        .tag-fungi { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+
+        .patent-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .patent-no {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 500;
+        }
+
+        .patent-body {
+            padding: 1.25rem 1.5rem;
+            flex-grow: 1;
+        }
+
+        .patent-desc {
+            font-size: 0.925rem;
+            color: var(--text-main);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .feature-list li {
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li i {
+            color: var(--brand-mint);
+            margin-right: 0.5rem;
+        }
+
+        .patent-footer {
+            padding: 1rem 1.5rem 1.25rem 1.5rem;
+            background-color: rgba(8, 22, 18, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .award-badge {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-patent-detail {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--brand-mint);
+            border: 1px solid var(--brand-emerald);
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-patent-detail:hover {
+            background-color: var(--brand-emerald);
+            color: #000000;
+            font-weight: 600;
+        }
+
+        /* 深度技術剖析區塊 */
+        .tech-deep-dive {
+            background-color: var(--bg-dark-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-top: 4rem;
+        }
+
+        .tech-icon-box {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--brand-emerald);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: var(--brand-mint);
+            margin-bottom: 1.25rem;
+        }
+
+        /* Modal 彈窗樣式 */
+        .modal-content {
+            background-color: var(--bg-dark-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 16px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* 響應式微調 */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2.5rem 0 2rem 0;
+            }
+            .tech-deep-dive {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mx-auto text-center">
+                    <div class="hero-badge">
+                        <i class="fas fa-shield-halved"></i> 研發護城河 ‧ 獨家專利技術
+                    </div>
+                    <h1 class="hero-title display-5 mb-3">母集團葡萄王生技 頂尖生技專利矩陣</h1>
+                    <p class="lead text-light opacity-75 mb-4">
+                        結合東方養生智慧與現代發酵科技，打造無法被複製的技術壁壘。從靈魂益生菌、珍稀蟬花到多層包埋與 150 噸液態發酵槽，為全家人健康提供 100% 底氣。
+                    </p>
+                    
+                    <div class="row g-3 mt-2">
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number"><i class="fas fa-award"></i> 100+</div>
+                                <div class="stat-label">全球發明專利與獎項</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number"><i class="fas fa-vial-circle-check"></i> 150 噸</div>
+                                <div class="stat-label">生物發酵槽單次產能</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number"><i class="fas fa-dna"></i> 6 代</div>
+                                <div class="stat-label">小分子菌絲體穿透演進</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number"><i class="fas fa-earth-americas"></i> 多國</div>
+                                <div class="stat-label">台/美/德/日/馬專利布局</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="filter-section">
+        <div class="container">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="search-wrapper">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <input type="text" id="patentSearchInput" class="form-control search-input" placeholder="搜尋專利名稱、菌株代號、獎項或專利號...">
+                    </div>
+                </div>
+                <div class="col-md-7 text-md-end">
+                    <div class="filter-buttons">
+                        <button class="btn btn-filter active" data-filter="all"><i class="fas fa-border-all"></i> 全部專利</button>
+                        <button class="btn btn-filter" data-filter="probiotics"><i class="fas fa-bacteria"></i> 益生菌專利</button>
+                        <button class="btn btn-filter" data-filter="cicadae"><i class="fas fa-eye"></i> 蟬花與草本</button>
+                        <button class="btn btn-filter" data-filter="encapsulation"><i class="fas fa-capsules"></i> 多層包埋技術</button>
+                        <button class="btn btn-filter" data-filter="fermentation"><i class="fas fa-flask-vial"></i> 液態發酵技術</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="container my-5">
+        <div class="row g-4" id="patentGrid">
+
+            <div class="col-12 col-md-6 col-lg-4 patent-item" data-category="probiotics">
+                <div class="patent-card">
+                    <div class="patent-header">
+                        <span class="patent-category-tag tag-probiotics"><i class="fas fa-bacteria"></i> 益生菌專利</span>
+                        <h3 class="patent-title">植物乳桿菌 GKM3® 專利菌株</h3>
+                        <div class="patent-no"><i class="fas fa-certificate"></i> 專利字號：I752109 / 第 21 屆國家新創獎</div>
+                    </div>
+                    <div class="patent-body">
+                        <p class="patent-desc">從台灣在地特有發酵食品中篩選分離之優良乳酸菌，具備優異之體質調節與代謝促進活性。</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-circle-check"></i> 榮獲 2025 年第 21 屆國家新創獎精準醫療肯定</li>
+                            <li><i class="fas fa-circle-check"></i> 有助於調節身體機能、促進新陳代謝</li>
+                            <li><i class="fas fa-circle-check"></i> 通過胃酸與膽鹽耐受度實驗，維持消化道菌種平衡</li>
+                        </ul>
+                    </div>
+                    <div class="patent-footer">
+                        <span class="award-badge"><i class="fas fa-trophy"></i> 2025 國家新創獎</span>
+                        <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#patentModal1"><i class="fas fa-circle-info"></i> 查看專利</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 patent-item" data-category="probiotics">
+                <div class="patent-card">
+                    <div class="patent-header">
+                        <span class="patent-category-tag tag-probiotics"><i class="fas fa-bacteria"></i> 益生菌專利</span>
+                        <h3 class="patent-title">乳雙歧桿菌 GKK2 專利菌株</h3>
+                        <div class="patent-no"><i class="fas fa-certificate"></i> 專利字號：2024 馬來西亞 ITEX 金獎</div>
+                    </div>
+                    <div class="patent-body">
+                        <p class="patent-desc">專為現代人飲食不規律設計之防護型菌株，經專利發酵技術精製，維持消化道機能與順暢體驗。</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-circle-check"></i> 榮獲 2024 馬來西亞 ITEX 國際發明展金牌獎</li>
+                            <li><i class="fas fa-circle-check"></i> 改善腸道菌叢生態，促進使排便順暢</li>
+                            <li><i class="fas fa-circle-check"></i> 高定殖力與高活性，全家人皆適用</li>
+                        </ul>
+                    </div>
+                    <div class="patent-footer">
+                        <span class="award-badge"><i class="fas fa-trophy"></i> 馬來西亞 ITEX 金獎</span>
+                        <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#patentModal2"><i class="fas fa-circle-info"></i> 查看專利</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 patent-item" data-category="encapsulation">
+                <div class="patent-card">
+                    <div class="patent-header">
+                        <span class="patent-category-tag tag-encapsulation"><i class="fas fa-capsules"></i> 獨家包埋技術</span>
+                        <h3 class="patent-title">MAOC-LAB 多層抗氧化包埋微膠囊</h3>
+                        <div class="patent-no"><i class="fas fa-certificate"></i> 專利字號：多國包埋發明專利</div>
+                    </div>
+                    <div class="patent-body">
+                        <p class="patent-desc">突破傳統益生菌容易因常溫、胃酸破壞而失效的痛點，採用多層結構保護包覆活性好菌。</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-circle-check"></i> 第一層抗酸層：阻絕胃酸侵蝕，活菌直達腸道</li>
+                            <li><i class="fas fa-circle-check"></i> 第二層抗氧化層：隔離空氣濕度與高溫氧化</li>
+                            <li><i class="fas fa-circle-check"></i> 第三層定釋層：於腸道環境精準釋放 100% 活性</li>
+                        </ul>
+                    </div>
+                    <div class="patent-footer">
+                        <span class="award-badge"><i class="fas fa-shield"></i> 活性存活率 > 95%</span>
+                        <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#patentModal3"><i class="fas fa-circle-info"></i> 查看專利</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 patent-item" data-category="cicadae">
+                <div class="patent-card">
+                    <div class="patent-header">
+                        <span class="patent-category-tag tag-cicadae"><i class="fas fa-eye"></i> 蟬花與草本專利</span>
+                        <h3 class="patent-title">蟬花菌絲體發酵萃取專利 (Isaria cicadae)</h3>
+                        <div class="patent-no"><i class="fas fa-certificate"></i> 專利字號：2021 MTE / 2022 烏克蘭發明展金獎</div>
+                    </div>
+                    <div class="patent-body">
+                        <p class="patent-desc">運用頂尖生物反應器技術培育珍稀蟬花菌絲體，富含腺苷、蟲草素與多醣體，帶來晶亮舒緩。</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-circle-check"></i> 榮獲 2021 馬來西亞 MTE 國際發明展金牌獎</li>
+                            <li><i class="fas fa-circle-check"></i> 榮獲 2022 烏克蘭國際發明展金牌獎</li>
+                            <li><i class="fas fa-circle-check"></i> 有助於舒緩乾澀、晶亮守護與肌膚水潤補水</li>
+                        </ul>
+                    </div>
+                    <div class="patent-footer">
+                        <span class="award-badge"><i class="fas fa-trophy"></i> 雙國國際發明展金獎</span>
+                        <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#patentModal4"><i class="fas fa-circle-info"></i> 查看專利</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 patent-item" data-category="fermentation">
+                <div class="patent-card">
+                    <div class="patent-header">
+                        <span class="patent-category-tag tag-fermentation"><i class="fas fa-flask-vial"></i> 液態發酵技術</span>
+                        <h3 class="patent-title">電腦化精準 150 噸液態發酵量產技術</h3>
+                        <div class="patent-no"><i class="fas fa-certificate"></i> 專利字號：生技發酵核心製程專利</div>
+                    </div>
+                    <div class="patent-body">
+                        <p class="patent-desc">擺脫傳統固態培養耗時且易受污染之缺點，以自動化發酵槽實現純化培養與無菌充填。</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-circle-check"></i> 亞洲最大規模生技級 150 噸發酵槽矩陣</li>
+                            <li><i class="fas fa-circle-check"></i> 精準控制溫度、溶氧與 pH 值，活性指標最大化</li>
+                            <li><i class="fas fa-circle-check"></i> 免煎煮隨身包，無重金屬與農藥殘留風險</li>
+                        </ul>
+                    </div>
+                    <div class="patent-footer">
+                        <span class="award-badge"><i class="fas fa-industry"></i> 亞洲生技製造標竿</span>
+                        <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#patentModal5"><i class="fas fa-circle-info"></i> 查看專利</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 patent-item" data-category="fermentation">
+                <div class="patent-card">
+                    <div class="patent-header">
+                        <span class="patent-category-tag tag-fungi"><i class="fas fa-plant-wilt"></i> 珍稀菇菌專利</span>
+                        <h3 class="patent-title">專利樟芝菌絲體與猴頭菇發酵技術</h3>
+                        <div class="patent-no"><i class="fas fa-certificate"></i> 專利字號：美/德/台/日 多國發明專利</div>
+                    </div>
+                    <div class="patent-body">
+                        <p class="patent-desc">獨家技術富含 4-acetylantroquinonol B 等關鍵活性成分，提供精神旺盛與全方位滋補強身。</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-circle-check"></i> 通過 90 天餵食毒性試驗，獲得官方安全核可</li>
+                            <li><i class="fas fa-circle-check"></i> 美國及德國國際專利背書，鞏固頂級養生地位</li>
+                            <li><i class="fas fa-circle-check"></i> 小分子深層穿透，吸收率顯著提升</li>
+                        </ul>
+                    </div>
+                    <div class="patent-footer">
+                        <span class="award-badge"><i class="fas fa-globe"></i> 美德台日多國專利</span>
+                        <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#patentModal6"><i class="fas fa-circle-info"></i> 查看專利</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="tech-deep-dive">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <div class="tech-icon-box">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h2 class="h3 fw-bold text-mint mb-3"><i class="fas fa-vial"></i> 為何葡萄王生技的「發酵與包埋技術」能領先同業 10 年？</h2>
+                    <p class="text-light opacity-75 mb-3">
+                        一般傳統草本保養品多採乾粉混合或煎煮法，不僅分子過大難以吸收，且易因保存不當造成活性流失。葡萄王生技作為國內生技發酵巨頭，投入數十億打造國際級研發中心與六大顧問團隊：
+                    </p>
+                    <div class="row g-3 my-2">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark rounded border border-secondary">
+                                <h4 class="h6 text-warning mb-2"><i class="fas fa-bolt"></i> 奈米級小分子精準穿透</h4>
+                                <p class="small text-main mb-0">突破傳統草本大分子障礙，進化至五、六代技術，直達滋養核心。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark rounded border border-secondary">
+                                <h4 class="h6 text-warning mb-2"><i class="fas fa-box-archive"></i> 隨身撕開即飲免煎煮</h4>
+                                <p class="small text-main mb-0">降低使用者摩擦力，撕開即可即時補充，完美融入現代快節奏生活。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center mt-4 mt-lg-0">
+                    <div class="p-4 rounded-4" style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--brand-emerald);">
+                        <i class="fas fa-file-contract fa-3x text-mint mb-3"></i>
+                        <h3 class="h5 text-white mb-2">想了解更多專利成分產品應用？</h3>
+                        <p class="small text-main mb-4">歡迎查閱我們的官方產品目錄，或與專屬健康顧問諮詢。</p>
+                        <a href="product-catalog.html" class="btn btn-outline-success text-mint border-emerald w-100"><i class="fas fa-book-open"></i> 前往完整產品頁面</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-3 text-center" style="background-color: rgba(15, 41, 34, 0.4); border: 1px solid var(--border-color);">
+            <p class="small text-main mb-0">
+                <i class="fas fa-shield-halved"></i> <strong>免責聲明與合規宣導：</strong> 本頁面展示之專利技術與發明獎項均為母集團葡萄王生技股份有限公司之研發成果與專利證書摘要。本網站為經銷團隊健康科普與資訊展示頁面，產品均屬營養食品，不具療效亦不得替代醫療診斷。購買與正式會員開戶請前往《UVACO 葡眾官方網站》。
+            </p>
+        </div>
+    </main>
+
+    <div class="modal fade" id="patentModal1" tabindex="-1" aria-labelledby="patentModalLabel1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-mint" id="patentModalLabel1"><i class="fas fa-bacteria"></i> 植物乳桿菌 GKM3® 專利證書與獎項細節</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-content-body p-4">
+                    <div class="badge bg-success mb-2"><i class="fas fa-certificate"></i> 台灣發明專利 I752109</div>
+                    <h4 class="h5 text-white mb-3">植物乳桿菌 GKM3® 及其於促進體質調節之應用</h4>
+                    <p class="text-main">GKM3® 是葡萄王生技研發團隊自台灣特有傳統發酵食品中經多年篩選分離之特有菌株。具有高度之耐酸、耐膽鹽能力，經動物及人體臨床相關試驗驗證，能有助於促進新陳代謝與腸道健康。</p>
+                    <hr class="border-secondary">
+                    <h6 class="text-warning"><i class="fas fa-trophy"></i> 獲獎紀錄與認證：</h6>
+                    <ul class="text-light opacity-75 small">
+                        <li>2025 年第 21 屆國家新創獎 - 精準醫療與健康生技類</li>
+                        <li>多國發明展金牌獎項認證</li>
+                        <li>食品安全 ISO 22000 / HACCP 國際品質認證</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-xmark"></i> 關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1. 分類標籤動態篩選功能
+            $('.btn-filter').on('click', function() {
+                $('.btn-filter').removeClass('active');
+                $(this).addClass('active');
+
+                var filterValue = $(this).attr('data-filter');
+
+                if (filterValue === 'all') {
+                    $('.patent-item').fadeIn(300);
+                } else {
+                    $('.patent-item').hide();
+                    $('.patent-item[data-category="' + filterValue + '"]').fadeIn(300);
+                }
+            });
+
+            // 2. 關鍵字即時搜尋功能
+            $('#patentSearchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase().trim();
+
+                $('.patent-item').filter(function() {
+                    var cardText = $(this).text().toLowerCase();
+                    $(this).toggle(cardText.indexOf(value) > -1);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
