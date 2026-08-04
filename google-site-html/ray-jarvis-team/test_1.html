@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葡眾事業 - 私域戰情版獎金計算模擬系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0B132B;
+            --bg-card: #1C2541;
+            --accent-blue: #38BDF8;
+            --light-blue: #7DD3FC;
+            --accent-gold: #FACC15;
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-glow: rgba(56, 189, 248, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding-bottom: 50px;
+        }
+
+        .navbar-custom {
+            background-color: rgba(28, 37, 65, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .war-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .war-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .accent-text-blue {
+            color: var(--accent-blue);
+        }
+
+        .accent-text-gold {
+            color: var(--accent-gold);
+        }
+
+        .text-light-blue {
+            color: var(--light-blue);
+        }
+
+        .form-control, .form-select {
+            background-color: #0B132B;
+            border: 1px solid var(--border-glow);
+            color: var(--text-light);
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #0B132B;
+            border-color: var(--accent-blue);
+            color: var(--text-light);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #38BDF8 0%, #1D4ED8 100%);
+            color: #FFFFFF;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            background: rgba(11, 19, 43, 0.6);
+            border-left: 4px solid var(--accent-gold);
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .bonus-badge {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .downline-item {
+            background: rgba(11, 19, 43, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand font-weight-bold" href="#">
+                <i class="fas fa-chart-line accent-text-blue"></i> 葡眾戰情室 | 獎金計算模擬器
+            </a>
+            <span class="navbar-text text-light-blue fs-7 d-none d-md-inline">
+                <i class="fas fa-shield-halved"></i> 內部事業數據精算終端
+            </span>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="war-card p-4">
+                    <h3 class="accent-text-blue mb-3">
+                        <i class="fas fa-calculator"></i> 葡眾獎金與制度試算中心
+                    </h3>
+                    <p class="text-light-blue mb-2">
+                        本系統根據葡眾事業《實踐夢想 機會與權益》官方制度精算邏輯建構，提供經銷商與團隊領導人進行事業佈局、下線組織試算與當月預估收益模擬。
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="bonus-badge"><i class="fas fa-check"></i> 階差獎金 20%</span>
+                        <span class="bonus-badge"><i class="fas fa-check"></i> 菁英獎金 15%</span>
+                        <span class="bonus-badge"><i class="fas fa-check"></i> 領導獎金 20%</span>
+                        <span class="bonus-badge"><i class="fas fa-check"></i> 珍鑽分紅 15%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="war-card p-4 h-100">
+                    <h4 class="accent-text-blue mb-4">
+                        <i class="fas fa-sliders"></i> 戰略參數設定
+                    </h4>
+                    
+                    <form id="calculatorForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user"></i> 個人當月 SV 積分
+                            </label>
+                            <input type="number" class="form-control" id="personalSV" value="200" min="0">
+                            <div class="form-text text-muted">合格個人責任額為 160 SV</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-award"></i> 當前目標職級
+                            </label>
+                            <select class="form-select" id="userRank">
+                                <option value="member">會員 (5%)</option>
+                                <option value="leader">主任 (10%)</option>
+                                <option value="submanager">副理 (15%)</option>
+                                <option value="manager" selected>經理 (20%)</option>
+                                <option value="pine">松柏 (1線經理)</option>
+                                <option value="evergreen">長青 (2線經理)</option>
+                                <option value="pearl">珍珠 (4線經理)</option>
+                                <option value="emerald">翡翠 (6線經理)</option>
+                                <option value="diamond">藍鑽 (10線經理)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-users"></i> 小組當月 SV 總積分
+                            </label>
+                            <input type="number" class="form-control" id="groupSV" value="3200" min="0">
+                            <div class="form-text text-muted">合格經理小組責任額為 3,200 SV</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fas fa-sitemap"></i> 下線組織線路配置
+                                </label>
+                                <button type="button" class="btn btn-sm btn-outline-info" id="addDownlineBtn">
+                                    <i class="fas fa-plus"></i> 新增線路
+                                </button>
+                            </div>
+                            <div id="downlineList">
+                                </div>
+                        </div>
+
+                        <button type="button" class="btn btn-action w-100 mt-3" id="btnCalculate">
+                            <i class="fas fa-bolt"></i> 立即執行戰術試算
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="war-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h4 class="accent-text-blue mb-4">
+                            <i class="fas fa-chart-pie"></i> 預估收益分析儀表板
+                        </h4>
+
+                        <div class="result-box mb-4">
+                            <span class="text-muted text-uppercase fw-bold">當月預估總獎金 (NTD)</span>
+                            <h2 class="accent-text-gold font-weight-black my-2" id="totalBonusDisplay">$ 0</h2>
+                            <small class="text-light-blue">
+                                <i class="fas fa-circle-info"></i> 已自動折算 PV 預估換算率 (PV=25)
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-3 text-light-blue">
+                                <i class="fas fa-list-check"></i> 獎金結構組成明細
+                            </h6>
+                            
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+                                <span><i class="fas fa-layer-group text-info"></i> 階差獎金</span>
+                                <span class="fw-bold fs-5 text-light" id="bonusDifferential">$ 0</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+                                <span><i class="fas fa-star text-warning"></i> 菁英獎金</span>
+                                <span class="fw-bold fs-5 text-light" id="bonusElite">$ 0</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+                                <span><i class="fas fa-crown text-danger"></i> 領導獎金</span>
+                                <span class="fw-bold fs-5 text-light" id="bonusLeadership">$ 0</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2">
+                                <span><i class="fas fa-gem text-primary"></i> 珍鑽分紅與福利基金</span>
+                                <span class="fw-bold fs-5 text-light" id="bonusDiamond">$ 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 mt-3 rounded style-advice" style="background: rgba(56, 189, 248, 0.05); border: 1px dashed var(--accent-blue);">
+                        <h6 class="accent-text-blue fw-bold mb-1">
+                            <i class="fas fa-lightbulb"></i> 戰術優化建議
+                        </h6>
+                        <p class="small text-muted mb-0" id="strategyAdvice">
+                            請輸入組織參數並點擊試算，系統將自動分析當前槓桿效益。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="war-card p-4">
+                    <h5 class="accent-text-blue mb-3">
+                        <i class="fas fa-book-bookmark"></i> 葡眾獎金制度要點說明
+                    </h5>
+                    <div class="row g-3 text-muted small">
+                        <div class="col-md-3">
+                            <div class="p-2 border border-secondary rounded">
+                                <strong class="text-light"><i class="fas fa-user-check"></i> 個人責任額：</strong><br>
+                                經理級以下需達 160 SV，始具備當月領取獎金資格。
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-2 border border-secondary rounded">
+                                <strong class="text-light"><i class="fas fa-users-viewfinder"></i> 小組責任額：</strong><br>
+                                合格經理小組需達 3,200 SV，享有菁英獎金分紅權益。
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-2 border border-secondary rounded">
+                                <strong class="text-light"><i class="fas fa-diagram-next"></i> 領導獎金：</strong><br>
+                                採緊縮制(Compress)，按職級可領取 2 至 6 代 6% 領導獎金。
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-2 border border-secondary rounded">
+                                <strong class="text-light"><i class="fas fa-coins"></i> 點值與 PV：</strong><br>
+                                PV 固定值約為 25，點值(Point Value)依當月公司總業績浮動(預設採0.7)。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // 初始化預設下線線路
+            let defaultDownlines = [
+                { rank: 'submanager', sv: 2000 },
+                { rank: 'leader', sv: 1000 }
+            ];
+
+            function renderDownlines() {
+                $('#downlineList').empty();
+                defaultDownlines.forEach((item, index) => {
+                    let html = `
+                        <div class="downline-item d-flex align-items-center gap-2" data-index="${index}">
+                            <div class="flex-grow-1">
+                                <select class="form-select form-select-sm downline-rank">
+                                    <option value="member" ${item.rank === 'member' ? 'selected' : ''}>會員 (5%)</option>
+                                    <option value="leader" ${item.rank === 'leader' ? 'selected' : ''}>主任 (10%)</option>
+                                    <option value="submanager" ${item.rank === 'submanager' ? 'selected' : ''}>副理 (15%)</option>
+                                    <option value="manager" ${item.rank === 'manager' ? 'selected' : ''}>經理 (20%)</option>
+                                </select>
+                            </div>
+                            <div class="flex-grow-1">
+                                <input type="number" class="form-control form-control-sm downline-sv" value="${item.sv}" placeholder="SV">
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-line">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    $('#downlineList').append(html);
+                });
+            }
+
+            renderDownlines();
+
+            // 新增線路
+            $('#addDownlineBtn').click(function() {
+                defaultDownlines.push({ rank: 'member', sv: 1000 });
+                renderDownlines();
+            });
+
+            // 刪除線路
+            $(document).on('click', '.remove-line', function() {
+                let idx = $(this).closest('.downline-item').data('index');
+                defaultDownlines.splice(idx, 1);
+                renderDownlines();
+            });
+
+            // 核心計算邏輯
+            function calculateBonus() {
+                const PV = 25;
+                const pointValue = 0.7;
+
+                let personalSV = parseFloat($('#personalSV').val()) || 0;
+                let userRank = $('#userRank').val();
+                let groupSV = parseFloat($('#groupSV').val()) || 0;
+
+                // 判斷個人職級比率
+                let rankRates = {
+                    'member': 0.05,
+                    'leader': 0.10,
+                    'submanager': 0.15,
+                    'manager': 0.20,
+                    'pine': 0.20,
+                    'evergreen': 0.20,
+                    'pearl': 0.20,
+                    'emerald': 0.20,
+                    'diamond': 0.20
+                };
+
+                let myRate = rankRates[userRank] || 0.05;
+
+                // 1. 階差獎金計算
+                let diffBonus = personalSV * myRate;
+
+                // 收集下線數據
+                let downlineCount = 0;
+                let qualifiedManagerLines = 0;
+
+                $('.downline-item').each(function() {
+                    let dRank = $(this).find('.downline-rank').val();
+                    let dSV = parseFloat($(this).find('.downline-sv').val()) || 0;
+                    let dRate = rankRates[dRank] || 0.05;
+
+                    if (myRate > dRate) {
+                        diffBonus += dSV * (myRate - dRate);
+                    }
+
+                    if (dRank === 'manager') {
+                        qualifiedManagerLines++;
+                    }
+                    downlineCount++;
+                });
+
+                diffBonus = diffBonus * PV;
+
+                // 2. 菁英獎金計算 (需達經理級以上且小組滿 3200 SV)
+                let eliteBonus = 0;
+                if (myRate >= 0.20 && groupSV >= 3200) {
+                    // 合格小組與經理權重估算
+                    eliteBonus = groupSV * 0.15 * pointValue * PV;
+                }
+
+                // 3. 領導獎金計算
+                let leadershipBonus = 0;
+                let allowedGenerations = 0;
+                
+                if (userRank === 'pine') allowedGenerations = 2;
+                else if (userRank === 'evergreen') allowedGenerations = 3;
+                else if (userRank === 'pearl') allowedGenerations = 4;
+                else if (userRank === 'emerald') allowedGenerations = 5;
+                else if (userRank === 'diamond') allowedGenerations = 6;
+
+                if (allowedGenerations > 0 && qualifiedManagerLines > 0) {
+                    leadershipBonus = qualifiedManagerLines * 3200 * 0.06 * allowedGenerations * pointValue * PV;
+                }
+
+                // 4. 珍鑽分紅與福利基金
+                let diamondBonus = 0;
+                if (['pearl', 'emerald', 'diamond'].includes(userRank)) {
+                    diamondBonus = groupSV * 0.05 * pointValue * PV;
+                }
+                if (userRank === 'diamond') {
+                    diamondBonus += 15000; // 額外購車與高階加碼估計
+                }
+
+                // 總計
+                let totalBonus = diffBonus + eliteBonus + leadershipBonus + diamondBonus;
+
+                // 渲染至 UI
+                $('#bonusDifferential').text('$' + Math.round(diffBonus).toLocaleString());
+                $('#bonusElite').text('$' + Math.round(eliteBonus).toLocaleString());
+                $('#bonusLeadership').text('$' + Math.round(leadershipBonus).toLocaleString());
+                $('#bonusDiamond').text('$' + Math.round(diamondBonus).toLocaleString());
+                $('#totalBonusDisplay').text('$' + Math.round(totalBonus).toLocaleString());
+
+                // 動態建議
+                let advice = "";
+                if (personalSV < 160) {
+                    advice = "⚠️ 注意：當前個人 SV 未達 160，無法領取任何獎金！請優先完成個人責任額。";
+                } else if (userRank === 'manager' && groupSV < 3200) {
+                    advice = "💡 提示：小組 SV 尚未達到 3,200 SV 門檻，補足後即可解鎖「菁英獎金」分紅。";
+                } else if (qualifiedManagerLines >= 4 && userRank !== 'pearl') {
+                    advice = "🚀 戰術建議：您已具備 4 線合格經理，建議申請晉升「珍珠」職級，啟動 4 代領導獎金與珍鑽分紅！";
+                } else {
+                    advice = "✅ 當前組織佈局良好，請持續維持小組責任額，並複製合格經理線路以極大化領導獎金。";
+                }
+                $('#strategyAdvice').text(advice);
+            }
+
+            // 綁定事件
+            $('#btnCalculate').click(calculateBonus);
+            $(document).on('input change', 'input, select', calculateBonus);
+
+            // 頁面加載完成後自動執行首次試算
+            calculateBonus();
+        });
+    </script>
+</body>
+</html>

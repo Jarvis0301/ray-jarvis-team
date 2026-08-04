@@ -1,0 +1,480 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獎金計算制度解析 | UVACO 內部戰情版</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b1329;
+            --bg-card: #132238;
+            --bg-card-hover: #1c2d42;
+            --border-color: #1e3a5f;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #38bdf8;
+            --light-blue: #7dd3fc;
+            --accent-gold: #facc15;
+            --accent-green: #34d399;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding-bottom: 3rem;
+        }
+
+        /* 頂部 Header Banner */
+        .page-header {
+            background: linear-gradient(135deg, #0d1b3e 0%, #172a4d 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            color: var(--accent-blue);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* 卡片通用樣式 */
+        .custom-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .custom-card:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--accent-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.15);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Badge 徽章樣式 */
+        .badge-custom {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 0.35em 0.65em;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        .badge-gold {
+            background-color: rgba(250, 204, 21, 0.15);
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+        }
+
+        .badge-green {
+            background-color: rgba(52, 211, 153, 0.15);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        /* 階差獎金列表 */
+        .tier-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .tier-list-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 制度護城河特點列表 */
+        .advantage-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .advantage-icon {
+            color: var(--accent-green);
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+            margin-top: 0.2rem;
+        }
+
+        /* 自訂表格樣式 */
+        .table-custom {
+            color: var(--text-primary);
+            vertical-align: middle;
+            margin-bottom: 0;
+        }
+
+        .table-custom th {
+            background-color: #172a4d;
+            color: var(--accent-blue);
+            border-color: var(--border-color);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .table-custom td {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+            text-align: center;
+        }
+
+        /* 公式提示區塊 */
+        .formula-box {
+            background-color: rgba(15, 23, 42, 0.8);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1rem;
+        }
+
+        .formula-title {
+            color: var(--light-blue);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .formula-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="header-title">
+                        <i class="fas fa-calculator"></i> 獎金計算制度解析
+                    </h1>
+                    <p class="header-subtitle">
+                        透明、穩健、累計不歸零的資產型收入架構 | 《榮祥葡眾團隊》內部戰情中心
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="badge badge-custom me-1">
+                        <i class="fas fa-shield-alt"></i> 公平透明
+                    </span>
+                    <span class="badge badge-green me-1">
+                        <i class="fas fa-chart-line"></i> 永續累計
+                    </span>
+                    <span class="badge badge-gold">
+                        <i class="fas fa-crown"></i> 榮耀分紅
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="mb-5">
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="h4 mb-0 text-white">
+                    <i class="fas fa-layer-group text-info me-2"></i> 三大核心獎金結構
+                </h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="custom-card">
+                        <div class="card-icon">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                        <h3 class="card-title">
+                            <i class="fas fa-tags"></i> 銷售與階差獎金
+                        </h3>
+                        <p class="text-secondary small">
+                            消費即享有回饋，隨職級提升享有最高 20% 階差分潤，越吃越便宜，分享賺差額。
+                        </p>
+                        <div class="tier-list mt-3">
+                            <div class="tier-list-item">
+                                <span><i class="fas fa-user-check text-secondary"></i> 會員級</span>
+                                <span class="badge badge-custom">5% 回饋</span>
+                            </div>
+                            <div class="tier-list-item">
+                                <span><i class="fas fa-user-tag text-info"></i> 主任級 (6,000 SV)</span>
+                                <span class="badge badge-custom">10% 回饋</span>
+                            </div>
+                            <div class="tier-list-item">
+                                <span><i class="fas fa-user-shield text-primary"></i> 副理級 (12,000 SV)</span>
+                                <span class="badge badge-custom">15% 回饋</span>
+                            </div>
+                            <div class="tier-list-item">
+                                <span><i class="fas fa-user-tie text-warning"></i> 經理級 (合格小組)</span>
+                                <span class="badge badge-gold">20% 封頂回饋</span>
+                            </div>
+                        </div>
+                        <div class="formula-box">
+                            <div class="formula-title">
+                                <i class="fas fa-square-root-variable"></i> 階差計算原理
+                            </div>
+                            <p class="formula-text">
+                                階差獎金 = 下線小組 SV × (自己% - 下線%)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="custom-card">
+                        <div class="card-icon">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        <h3 class="card-title">
+                            <i class="fas fa-users-gear"></i> 組織培育獎金
+                        </h3>
+                        <p class="text-secondary small">
+                            晉升經理後，協助夥伴建立經營團隊，享有黃金六代小組業績提成，發揮團隊槓桿效益。
+                        </p>
+                        <ul class="list-unstyled text-secondary small mt-3">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-info"></i> <strong>黃金六代 6% 提成：</strong> 組織深度培育獎金，穩定可持續。
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-info"></i> <strong>經理小組權益：</strong> 輔導夥伴晉升經理，開啟世代領取資格。
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-info"></i> <strong>團隊共享業績：</strong> 上下資源互助，不需單打獨鬥。
+                            </li>
+                        </ul>
+                        <div class="formula-box">
+                            <div class="formula-title">
+                                <i class="fas fa-calculator"></i> 組織提成原理
+                            </div>
+                            <p class="formula-text">
+                                世代獎金 = 該代合格經理小組 SV × 1.5% (或六代分配率)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="custom-card">
+                        <div class="card-icon">
+                            <i class="fas fa-trophy text-warning"></i>
+                        </div>
+                        <h3 class="card-title">
+                            <i class="fas fa-crown text-warning"></i> 高階分紅與榮耀獎勵
+                        </h3>
+                        <p class="text-secondary small">
+                            伴隨組織規模成長，高階領導人可參與公司全國總業績分紅與多元福利獎勵。
+                        </p>
+                        <div class="mt-3">
+                            <div class="mb-2">
+                                <span class="badge badge-gold me-1"><i class="fas fa-gem"></i> 珍珠級</span>
+                                <span class="text-light small">享珍珠全國分紅 + 啟動業績自動補救</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge badge-gold me-1"><i class="fas fa-leaf"></i> 翡翠級</span>
+                                <span class="text-light small">享翡翠全國分紅 + 海外榮耀旅遊獎勵</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge badge-gold me-1"><i class="fas fa-diamond"></i> 藍鑽級以上</span>
+                                <span class="text-light small">享藍鑽全國分紅 + 購車基金補助/名車過戶</span>
+                            </div>
+                        </div>
+                        <div class="formula-box">
+                            <div class="formula-title">
+                                <i class="fas fa-gift"></i> 永續收益保障
+                            </div>
+                            <p class="formula-text">
+                                經營成果具備繼承權，打造世代傳承的資產水管。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <div class="custom-card">
+                <h2 class="h4 mb-4 text-white">
+                    <i class="fas fa-shield-halved text-success me-2"></i> 葡眾獎金制度四大護城河
+                </h2>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 text-white fw-bold mb-1">
+                                    <i class="fas fa-infinity text-info"></i> 積分累計不歸零
+                                </h4>
+                                <p class="text-secondary small mb-0">
+                                    業績永不歸零，消費與分享持續累積，努力終將獲得對應回饋。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 text-white fw-bold mb-1">
+                                    <i class="fas fa-user-lock text-warning"></i> 職級上聘不下聘
+                                </h4>
+                                <p class="text-secondary small mb-0">
+                                    聘級終身保留，不上降階梯，免去囤貨維持聘級的心理壓力。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-kit-medical"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 text-white fw-bold mb-1">
+                                    <i class="fas fa-rotate text-success"></i> 業績自動補救
+                                </h4>
+                                <p class="text-secondary small mb-0">
+                                    獨家珍珠自動補救與代數壓縮機制，完整保護領導人權益不中斷。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-hand-holding-dollar"></i>
+                            </div>
+                            <div>
+                                <h4 class="h6 text-white fw-bold mb-1">
+                                    <i class="fas fa-calendar-check text-primary"></i> 零月銷壓力
+                                </h4>
+                                <p class="text-secondary small mb-0">
+                                    每年僅需 160 SV（約數千元）即可維持續約資格，安心兼職無負擔。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="h4 mb-0 text-white">
+                    <i class="fas fa-table-list text-primary me-2"></i> 職級權益與獎金資格對照表
+                </h2>
+            </div>
+            <div class="table-responsive rounded-3 border border-secondary">
+                <table class="table table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>職級 (Rank)</th>
+                            <th>累積 SV / 條件</th>
+                            <th>階差回饋%</th>
+                            <th>組織培育獎金</th>
+                            <th>高階分紅與榮耀權益</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-custom"><i class="fas fa-user"></i> 會員</span></td>
+                            <td>入會即享有 (1,200 SV 以下)</td>
+                            <td><strong class="text-info">5%</strong></td>
+                            <td class="text-secondary">無</td>
+                            <td class="text-secondary">消費回饋、越吃越便宜</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-custom"><i class="fas fa-user-check"></i> 主任</span></td>
+                            <td>累積 6,000 SV</td>
+                            <td><strong class="text-info">10%</strong></td>
+                            <td class="text-secondary">無</td>
+                            <td class="text-secondary">享受 10% 階差價差分潤</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-custom"><i class="fas fa-user-gear"></i> 副理</span></td>
+                            <td>累積 12,000 SV</td>
+                            <td><strong class="text-info">15%</strong></td>
+                            <td class="text-secondary">無</td>
+                            <td class="text-secondary">享受 15% 階差價差分潤</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-gold"><i class="fas fa-user-tie"></i> 經理</span></td>
+                            <td>小組 12,000 SV / 合格小組 3,000 SV</td>
+                            <td><strong class="text-warning">20% (最高)</strong></td>
+                            <td><i class="fas fa-check text-success"></i> 啟動組織代數獎金</td>
+                            <td>最高階差回饋，開啟組織事業</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-gold"><i class="fas fa-gem"></i> 珍珠級以上</span></td>
+                            <td>輔導 5 組合格經理線以上</td>
+                            <td><strong class="text-warning">20%</strong></td>
+                            <td><i class="fas fa-check text-success"></i> 黃金六代 6% 提成</td>
+                            <td><i class="fas fa-star text-warning"></i> 珍珠分紅 + 自動補救 + 購車補助/旅遊</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="p-4 rounded-3 text-center" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
+            <p class="text-secondary small mb-1">
+                <i class="fas fa-circle-info text-info me-1"></i> 本頁面為《榮祥葡眾團隊》內部事業制度說明，非公開試算工具，所有發放標準均以葡眾企業官方營業守則與當月公告為準。
+            </p>
+            <p class="text-secondary micro-text mb-0" style="font-size: 0.8rem;">
+                © 2026 Ray's Team UVACO Strategic War Room. All rights reserved.
+            </p>
+        </footer>
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 卡片懸停動態效果加強
+            $('.custom-card').hover(
+                function() {
+                    $(this).find('.card-icon').css('color', '#7dd3fc');
+                },
+                function() {
+                    $(this).find('.card-icon').css('color', '#38bdf8');
+                }
+            );
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職級晉升戰略地圖 - 榮祥葡眾團隊戰情室</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0B132B;
+            --bg-card: #1C2541;
+            --bg-card-hover: #233154;
+            --accent-blue: #38BDF8;
+            --light-blue: #7DD3FC;
+            --accent-gold: #FACC15;
+            --border-blue: rgba(56, 189, 248, 0.2);
+            --border-gold: rgba(250, 204, 21, 0.3);
+            --text-light: #F8FAFC;
+        }
+
+        body {
+            background-color: transparent;
+            color: var(--text-light);
+            font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+            padding-bottom: 50px;
+        }
+
+        /* 戰情室 Hero 標題區 */
+        .warroom-header {
+            background: linear-gradient(135deg, #0B132B 0%, #1C2541 100%);
+            border-bottom: 1px solid var(--border-blue);
+            padding: 40px 0 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .warroom-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .warroom-badge {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid var(--border-blue);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        /* 戰略指標卡片 */
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-blue);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.15);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+
+        /* 篩選膠囊按鈕 */
+        .nav-pills-custom .nav-link {
+            color: var(--text-light);
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-blue);
+            margin: 0 4px 8px;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pills-custom .nav-link:hover {
+            color: var(--light-blue);
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+
+        .nav-pills-custom .nav-link.active {
+            color: #0B132B;
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        /* 職級卡片 */
+        .rank-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-blue);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .rank-card:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--light-blue);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .rank-card.highlight-gold {
+            border-color: var(--accent-gold);
+            background: linear-gradient(145deg, #1C2541 0%, #2A365C 100%);
+        }
+
+        .rank-card.highlight-gold::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, transparent 50%, var(--accent-gold) 50%);
+            border-top-right-radius: 15px;
+            opacity: 0.2;
+        }
+
+        .rank-badge-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-member { background-color: rgba(148, 163, 184, 0.2); color: #CBD5E1; border: 1px solid #94A3B8; }
+        .badge-executive { background-color: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .badge-gold { background-color: rgba(250, 204, 21, 0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+
+        .rank-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            color: var(--text-light);
+        }
+
+        .benefit-tag {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 試算器區塊 */
+        .calculator-box {
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            border: 1px solid var(--accent-blue);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-control-custom {
+            background-color: rgba(11, 19, 43, 0.8);
+            border: 1px solid var(--border-blue);
+            color: var(--text-light);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+
+        .form-control-custom:focus {
+            background-color: rgba(11, 19, 43, 0.95);
+            border-color: var(--accent-blue);
+            color: var(--text-light);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-calc {
+            background: linear-gradient(90deg, #0EA5E9 0%, #38BDF8 100%);
+            color: #0B132B;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-calc:hover {
+            background: linear-gradient(90deg, #38BDF8 0%, #7DD3FC 100%);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .result-box {
+            background-color: rgba(56, 189, 248, 0.08);
+            border: 1px dashed var(--accent-blue);
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+        }
+
+        /* 響應式微調 */
+        @media (max-width: 768px) {
+            .warroom-header { padding: 25px 0; }
+            .rank-card { padding: 18px; }
+            .calculator-box { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="warroom-header text-center mb-5">
+        <div class="container">
+            <span class="warroom-badge"><i class="fas fa-shield-halved"></i> 榮祥葡眾團隊私域軍備庫</span>
+            <h1 class="fw-bold display-5 text-white mb-3"><i class="fas fa-chart-line text-info"></i> 職級晉升與事業發展地圖</h1>
+            <p class="text-light lead mx-auto" style="max-width: 750px;">
+                全球唯一保護勞方制度架構：<strong class="text-info">積分累計不歸零</strong>、<strong class="text-info">職級上聘不下聘</strong>，協助夥伴以最穩健的步調建構永續被動收入。
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-lock"></i></div>
+                    <h5 class="fw-bold text-white"><i class="fas fa-check-circle text-info"></i> 職級終身不下聘</h5>
+                    <p class="text-light small mb-0">一旦晉升該職級（經理/珍珠/藍鑽等），職級永不降聘，零囤貨與買聘壓力。</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-infinity"></i></div>
+                    <h5 class="fw-bold text-white"><i class="fas fa-check-circle text-info"></i> 積分累計不歸零</h5>
+                    <p class="text-light small mb-0">個人與小組累計業績 SV 永遠保留，消費即可持續累積，邁向晉升階梯。</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+                    <h5 class="fw-bold text-white"><i class="fas fa-check-circle text-info"></i> 黃金六代 6% 領導獎金</h5>
+                    <p class="text-light small mb-0">培育合格經理線可啟動被動收入，享有最高 6 代 6% 組織領導獎金與珍鑽分紅。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mb-4">
+            <ul class="nav nav-pills nav-pills-custom" id="rankTab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-filter="all"><i class="fas fa-list"></i> 全部職級地圖</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-filter="basic"><i class="fas fa-seedling"></i> 基層幹部 (會員-經理)</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-filter="leader"><i class="fas fa-crown"></i> 領導高階 (松柏-藍鑽)</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="row" id="rankGrid">
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="basic">
+                <div class="rank-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-member"><i class="fas fa-user"></i> 入門階段</span>
+                        <span class="text-info fw-bold"><i class="fas fa-coins"></i> 階差 5%</span>
+                    </div>
+                    <h3 class="rank-title"><i class="fas fa-address-card text-secondary"></i> 會員 (Member)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-id-card"></i> 晉升條件：填寫入會申請書（資料袋 $1,000 元）。</p>
+                    <div class="benefit-tag"><i class="fas fa-gift text-info"></i> 個人當月達 160SV 享 5% 購物回饋</div>
+                    <div class="benefit-tag"><i class="fas fa-shield-alt text-info"></i> 終身享受優惠產品購買權額</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="basic">
+                <div class="rank-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-member"><i class="fas fa-layer-group"></i> 累積階段</span>
+                        <span class="text-info fw-bold"><i class="fas fa-coins"></i> 階差 10%</span>
+                    </div>
+                    <h3 class="rank-title"><i class="fas fa-user-check text-info"></i> 主任 (Supervisor)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-chart-line"></i> 晉升條件：當月個人 160SV，整組累計達 1,200SV。</p>
+                    <div class="benefit-tag"><i class="fas fa-percent text-info"></i> 享受 10% 階差銷售獎金</div>
+                    <div class="benefit-tag"><i class="fas fa-users text-info"></i> 開始領取下線會員 5% 階差獎金</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="basic">
+                <div class="rank-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-member"><i class="fas fa-layer-group"></i> 累積階段</span>
+                        <span class="text-info fw-bold"><i class="fas fa-coins"></i> 階差 15%</span>
+                    </div>
+                    <h3 class="rank-title"><i class="fas fa-user-gear text-info"></i> 副理 (Manager)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-chart-line"></i> 晉升條件：當月個人 160SV，整組累計達 6,000SV。</p>
+                    <div class="benefit-tag"><i class="fas fa-percent text-info"></i> 享受 15% 階差銷售獎金</div>
+                    <div class="benefit-tag"><i class="fas fa-sitemap text-info"></i> 領取主任 5%、會員 10% 階差獎金</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="basic">
+                <div class="rank-card border-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-executive"><i class="fas fa-star"></i> 事業核心基石</span>
+                        <span class="text-info fw-bold"><i class="fas fa-coins"></i> 階差 20%</span>
+                    </div>
+                    <h3 class="rank-title text-info"><i class="fas fa-briefcase"></i> 經理 (Executive / MR)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-bullseye"></i> 晉升條件：當月個人 160SV、當月小組 3,200SV，整組累計達 12,000SV。</p>
+                    <div class="benefit-tag"><i class="fas fa-trophy text-info"></i> 享最高 20% 階差獎金</div>
+                    <div class="benefit-tag"><i class="fas fa-chart-pie text-info"></i> 可參與合格小組 (10%) 與合格經理 (5%) 獎金分配</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="leader">
+                <div class="rank-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-executive"><i class="fas fa-tree"></i> 領導階梯</span>
+                        <span class="text-info fw-bold"><i class="fas fa-sitemap"></i> 1 條合格經理線</span>
+                    </div>
+                    <h3 class="rank-title"><i class="fas fa-tree text-success"></i> 松柏經理 (Pine)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-user-plus"></i> 晉升條件：當月本人合格經理，直屬培育 1 條合格經理線。</p>
+                    <div class="benefit-tag"><i class="fas fa-network-wired text-info"></i> 可領取 1~2 代 6% 全球領導獎金</div>
+                    <div class="benefit-tag"><i class="fas fa-shield-cat text-info"></i> 啟動組織代數收益護城河</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="leader">
+                <div class="rank-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-executive"><i class="fas fa-seedling"></i> 領導階梯</span>
+                        <span class="text-info fw-bold"><i class="fas fa-sitemap"></i> 2~3 條合格經理線</span>
+                    </div>
+                    <h3 class="rank-title"><i class="fas fa-leaf text-success"></i> 長青經理 (Evergreen)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-users-gear"></i> 晉升條件：當月本人合格經理，直屬培育 2~3 條合格經理線。</p>
+                    <div class="benefit-tag"><i class="fas fa-network-wired text-info"></i> 可領取 1~3 代 6% 全球領導獎金</div>
+                    <div class="benefit-tag"><i class="fas fa-arrow-trend-up text-info"></i> 組織複製力顯著提升</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="leader">
+                <div class="rank-card highlight-gold">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-gold"><i class="fas fa-gem"></i> 高階領導 / 被動收入水龍頭</span>
+                        <span class="text-warning fw-bold"><i class="fas fa-sitemap"></i> 4 條合格經理線</span>
+                    </div>
+                    <h3 class="rank-title text-warning"><i class="fas fa-gem"></i> 珍珠經理 (Pearl)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-crown"></i> 晉升條件：當月本人合格經理，直屬培育 4 條合格經理線。</p>
+                    <div class="benefit-tag"><i class="fas fa-water text-warning"></i> 啟動「珍珠自動補救」系統，被動收入流</div>
+                    <div class="benefit-tag"><i class="fas fa-certificate text-warning"></i> 可領取 1~4 代 6% 領導獎金 + 珍鑽分紅 5% + 旅遊/卓越獎勵</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="leader">
+                <div class="rank-card highlight-gold">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-gold"><i class="fas fa-gem"></i> 高階領導</span>
+                        <span class="text-warning fw-bold"><i class="fas fa-sitemap"></i> 6 條合格經理線</span>
+                    </div>
+                    <h3 class="rank-title text-warning"><i class="fas fa-dragon"></i> 翡翠經理 (Emerald)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-calendar-check"></i> 晉升條件：連續三個月每月具 6 條合格經理線（第3個月晉升）。</p>
+                    <div class="benefit-tag"><i class="fas fa-network-wired text-warning"></i> 可領取 1~5 代 6% 全球領導獎金</div>
+                    <div class="benefit-tag"><i class="fas fa-award text-warning"></i> 享珍鑽分紅、年度卓越獎金與海外旅遊</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 rank-item" data-category="leader">
+                <div class="rank-card highlight-gold">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="rank-badge-pill badge-gold"><i class="fas fa-car-side"></i> 頂級榮耀 / 贈車基金</span>
+                        <span class="text-warning fw-bold"><i class="fas fa-sitemap"></i> 10 條合格經理線</span>
+                    </div>
+                    <h3 class="rank-title text-warning"><i class="fas fa-diamond"></i> 藍鑽經理 (Blue Diamond)</h3>
+                    <p class="text-light small mb-3"><i class="fas fa-trophy"></i> 晉升條件：連續四個月具 10 條合格經理線（含3條直屬珍珠線）且整組達 10 萬 SV。</p>
+                    <div class="benefit-tag"><i class="fas fa-car text-warning"></i> 享 Mercedes-Benz / BMW 購車基金（70萬頭期款 + 月貸款）</div>
+                    <div class="benefit-tag"><i class="fas fa-layer-group text-warning"></i> 領取滿額 1~6 代 6% 領導獎金 + 全額珍鑽分紅</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="calculator-box mt-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h3 class="fw-bold text-white mb-2"><i class="fas fa-calculator text-info"></i> 個人晉升目標動態試算器</h3>
+                    <p class="text-light small mb-4">輸入您當前累積的整組總 SV 積分與直屬合格經理線數，戰情系統將自動分析您目前的職級與邁向下一階段的晉升差距。</p>
+                    
+                    <form id="calcForm">
+                        <div class="mb-3">
+                            <label class="form-label text-light small"><i class="fas fa-chart-simple text-info"></i> 目前整組累計 SV 積分</label>
+                            <input type="number" class="form-control form-control-custom" id="inputSv" placeholder="例如：8500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-light small"><i class="fas fa-sitemap text-info"></i> 當月直屬合格經理線數 (MR)</label>
+                            <input type="number" class="form-control form-control-custom" id="inputLines" placeholder="例如：2" value="0" min="0">
+                        </div>
+                        <button type="submit" class="btn btn-calc"><i class="fas fa-rocket"></i> 即時分析晉升進度</button>
+                    </form>
+                </div>
+
+                <div class="col-lg-6 mt-4 mt-lg-0">
+                    <div class="result-box" id="resultBox">
+                        <h5 class="text-info fw-bold mb-3"><i class="fas fa-square-poll-vertical"></i> 戰情系統分析結果</h5>
+                        <div class="mb-2"><span class="text-light">當前評定職級：</span><strong class="text-white fs-5" id="resRank">-</strong></div>
+                        <div class="mb-2"><span class="text-light">階差銷售獎金比率：</span><strong class="text-info fs-5" id="resBonus">-</strong></div>
+                        <hr class="border-secondary my-3">
+                        <div class="mb-2"><span class="text-light">下一階段目標：</span><strong class="text-warning" id="resNextRank">-</strong></div>
+                        <div class="mb-0"><span class="text-light">晉升差距分析：</span><span class="text-light" id="resGap">-</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document.body).ready(function () {
+
+            // 1. 職級類別動態篩選
+            $('.nav-pills-custom .nav-link').on('click', function () {
+                $('.nav-pills-custom .nav-link').removeClass('active');
+                $(this).addClass('active');
+
+                var filter = $(this).data('filter');
+                if (filter === 'all') {
+                    $('.rank-item').fadeIn(300);
+                } else {
+                    $('.rank-item').hide();
+                    $('.rank-item[data-category="' + filter + '"]').fadeIn(300);
+                }
+            });
+
+            // 2. 晉升目標試算邏輯
+            $('#calcForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var sv = parseInt($('#inputSv').val()) || 0;
+                var lines = parseInt($('#inputLines').val()) || 0;
+
+                var currentRank = "";
+                var currentBonus = "";
+                var nextRank = "";
+                var gapText = "";
+
+                if (lines >= 10 && sv >= 100000) {
+                    currentRank = "藍鑽經理 (Blue Diamond)";
+                    currentBonus = "20% + 全額珍鑽分紅 + 購車基金";
+                    nextRank = "雙藍鑽 / 耀星藍鑽";
+                    gapText = "恭喜您已達最高榮譽階梯！持續深耕體系領取 6 代 6% 領導獎金。";
+                } else if (lines >= 6) {
+                    currentRank = "翡翠經理 (Emerald)";
+                    currentBonus = "20% + 珍鑽分紅 + 5代6%領導獎金";
+                    nextRank = "藍鑽經理 (需 10 條合格經理線且整組達 10萬 SV)";
+                    gapText = "距離藍鑽尚缺 " + Math.max(0, 10 - lines) + " 條合格經理線，及整組 SV 補足：" + Math.max(0, 100000 - sv).toLocaleString() + " SV。";
+                } else if (lines >= 4) {
+                    currentRank = "珍珠經理 (Pearl)";
+                    currentBonus = "20% + 珍鑽分紅 + 4代6%領導獎金";
+                    nextRank = "翡翠經理 (需連續三個月具備 6 條合格經理線)";
+                    gapText = "距離翡翠尚缺 " + (6 - lines) + " 條合格經理線。";
+                } else if (lines >= 2) {
+                    currentRank = "長青經理 (Evergreen)";
+                    currentBonus = "20% + 3代6%領導獎金";
+                    nextRank = "珍珠經理 (需培育 4 條合格經理線)";
+                    gapText = "距離珍珠尚缺 " + (4 - lines) + " 條合格經理線。啟動被動收入水龍頭！";
+                } else if (lines >= 1) {
+                    currentRank = "松柏經理 (Pine)";
+                    currentBonus = "20% + 2代6%領導獎金";
+                    nextRank = "長青經理 (需培育 2~3 條合格經理線)";
+                    gapText = "距離長青尚缺 1 條合格經理線。";
+                } else if (sv >= 12000) {
+                    currentRank = "經理 (Executive / MR)";
+                    currentBonus = "20% 階差銷售獎金 + 合格小組/經理獎金權利";
+                    nextRank = "松柏經理 (需培育 1 條直屬合格經理線)";
+                    gapText = "累計業績已達標！輔導第一位夥伴升經理即可晉升松柏。";
+                } else if (sv >= 6000) {
+                    currentRank = "副理 (Manager)";
+                    currentBonus = "15% 階差銷售獎金";
+                    nextRank = "經理 (需整組累計達 12,000 SV 且當月小組 3,200 SV)";
+                    gapText = "距離經理累計 SV 尚缺 " + (12000 - sv).toLocaleString() + " SV。";
+                } else if (sv >= 1200) {
+                    currentRank = "主任 (Supervisor)";
+                    currentBonus = "10% 階差銷售獎金";
+                    nextRank = "副理 (需整組累計達 6,000 SV)";
+                    gapText = "距離副理累計 SV 尚缺 " + (6000 - sv).toLocaleString() + " SV。";
+                } else {
+                    currentRank = "會員 (Member)";
+                    currentBonus = "5% 購物回饋";
+                    nextRank = "主任 (需整組累計達 1,200 SV)";
+                    gapText = "距離主任累計 SV 尚缺 " + (1200 - sv).toLocaleString() + " SV。";
+                }
+
+                $('#resRank').text(currentRank);
+                $('#resBonus').text(currentBonus);
+                $('#resNextRank').text(nextRank);
+                $('#resGap').text(gapText);
+
+                $('#resultBox').slideDown(300);
+            });
+
+        });
+    </script>
+</body>
+</html>
