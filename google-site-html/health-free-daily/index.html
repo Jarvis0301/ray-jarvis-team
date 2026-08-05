@@ -15,24 +15,7 @@
 
         <script>
             // 設定 Google 試算表 CSV 發布連結 (請替換為實際公開的 CSV 網址)
-            //const SPREADSHEET_ID = '';
             const SPREADSHEET_ID = '1nY-6mo9trXLMwkRGOqdvBU_va75DmsxIONIraMtTv2k';
-
-            // 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
-            const fallbackMenuData = [
-                { ID: 'm1', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'index.html', FontAwesomeIcon: 'fas fa-house', 是否有效: 'Y' },
-                { ID: 'm2', 中文: '關於我們', 英文: 'About Us', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-building', 是否有效: 'Y' },
-                { ID: 'm2_1', 中文: '公司簡介', 英文: 'Company Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-uvaco.html', FontAwesomeIcon: 'fas fa-award', 是否有效: 'Y' },
-                { ID: 'm2_2', 中文: '團隊簡介', 英文: 'Team Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-team.html', FontAwesomeIcon: 'fas fa-users-gear', 是否有效: 'Y' },
-                { ID: 'm3', 中文: '產品護城河', 英文: 'Products', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-box-open', 是否有效: 'Y' },
-                { ID: 'm3_1', 中文: '產品目錄總覽', 英文: 'Product Catalog', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'products.html', FontAwesomeIcon: 'fas fa-list-check', 是否有效: 'Y' },
-                { ID: 'm3_2', 中文: '產品特點與優勢', 英文: 'Product Advantages', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-advantages.html', FontAwesomeIcon: 'fas fa-shield-halved', 是否有效: 'Y' },
-                { ID: 'm3_3', 中文: '研發專利成果', 英文: 'Patents & Research', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-patents.html', FontAwesomeIcon: 'fas fa-microscope', 是否有效: 'Y' },
-                { ID: 'm4', 中文: '事業經營', 英文: 'Business', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-chart-line', 是否有效: 'Y' },
-                { ID: 'm4_1', 中文: '制度特點優勢', 英文: 'System Advantages', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'system-advantages.html', FontAwesomeIcon: 'fas fa-trophy', 是否有效: 'Y' },
-                { ID: 'm4_2', 中文: '職級晉升藍圖', 英文: 'Rank Advancement', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'rank-advancement.html', FontAwesomeIcon: 'fas fa-ranking-star', 是否有效: 'Y' },
-                { ID: 'm5', 中文: '官方企業網站', 英文: 'Official Site', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'https://www.pro-partner.com.tw', FontAwesomeIcon: 'fas fa-globe', 是否有效: 'Y' }
-            ];
 
             $(document.body).ready(function() {
                 initSidebarToggle();
@@ -40,7 +23,7 @@
                 initDesktopSitemapObserver();
                 
                 // 預設載入首頁內容
-                loadPage('index.html');
+                loadPage('home.html');
             });
 
             // 1. 左側選單收折邏輯
@@ -118,7 +101,7 @@
                                     <span class="menu-icon-box"><i class="${iconClass}"></i></span>
                                     <span class="menu-text"> ${root.中文}</span>
                                 </div>
-                                <i class="fas fa-chevron-down submenu-arrow small text-muted"></i>
+                                <i class="fas fa-chevron-down submenu-arrow small"></i>
                             </a>
                             <ul class="submenu-container" id="submenu-${root.ID}">`;
 
@@ -201,13 +184,6 @@
                 // 關閉手機側邊欄
                 $('#portalSidebar').removeClass('mobile-open');
 
-                // 若為首頁模擬內容
-                if (pageUrl === 'index.html') {
-                    renderDefaultHomeView();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-
                 // 非同步 Ajax 載入目標 html 檔案
                 $('#page-content-container').html(`
                     <div class="text-center py-5">
@@ -232,7 +208,7 @@
                                     <i class="fas fa-laptop-code text-success display-4 mb-3"></i>
                                     <h3>頁面建置中 (${pageUrl})</h3>
                                     <p class="text-muted">已成功觸發動態路由！目標頁面檔案 <code>${pageUrl}</code> 部署完成後即可自動無縫渲染。</p>
-                                    <button class="btn btn-outline-success mt-2" onclick="loadPage('index.html')">
+                                    <button class="btn btn-outline-success mt-2" onclick="loadPage('home.html')">
                                         <i class="fas fa-house"></i> 返回戰情室首頁
                                     </button>
                                 </div>
@@ -241,55 +217,6 @@
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 });
-            }
-
-            // 預設首頁 UI 渲染
-            function renderDefaultHomeView() {
-                $('#page-content-container').html(`
-                    <div class="row g-4 mb-4">
-                        <div class="col-12">
-                            <div class="p-4 p-md-5 rounded-4" style="background: linear-gradient(135deg, #0d281e 0%, #081612 100%); border: 1px solid var(--border-color);">
-                                <span class="badge bg-success mb-3"><i class="fas fa-star"></i> 團隊公域門戶總樞紐</span>
-                                <h1 class="fw-bold text-white mb-3">美滿生活 就此展開</h1>
-                                <p class="text-muted leading-relaxed col-lg-8">
-                                    歡迎來到《榮祥團隊 Ray's Team》數位公域門戶。本系統整合產品護城河、事業經營藍圖與自動化計算工具，為全網夥伴與消費受眾提供最權威、合規的資訊支援。
-                                </p>
-                                <div class="d-flex flex-wrap gap-3 mt-4">
-                                    <button class="btn btn-success px-4 py-2" onclick="loadPage('products.html')">
-                                        <i class="fas fa-basket-shopping"></i> 探索產品目錄
-                                    </button>
-                                    <button class="btn btn-outline-light px-4 py-2" onclick="loadPage('about-team.html')">
-                                        <i class="fas fa-users"></i> 了解榮祥團隊
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 h-100" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                                <div class="text-success fs-3 mb-3"><i class="fas fa-shield-halved"></i></div>
-                                <h5 class="fw-bold text-light">頂尖產品專利</h5>
-                                <p class="text-muted small">整合葡萄王生技母公司數十年生物科技結晶，包含全球發明獎項與專利菌株。</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 h-100" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                                <div class="text-success fs-3 mb-3"><i class="fas fa-chart-pie"></i></div>
-                                <h5 class="fw-bold text-light">人性化事業制度</h5>
-                                <p class="text-muted small">累積不歸零、職級不下聘、自動補救機制，實現永續被動收入與事業保障。</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 h-100" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                                <div class="text-success fs-3 mb-3"><i class="fas fa-graduation-cap"></i></div>
-                                <h5 class="fw-bold text-light">團隊複製系統</h5>
-                                <p class="text-muted small">模組化教學、線上工具庫與一對一領袖陪跑機制，幫助夥伴輕鬆開啟創業之路。</p>
-                            </div>
-                        </div>
-                    </div>
-                `);
             }
 
             // 5. 電腦版 Sitemap 滾動到最下方才出現的 IntersectionObserver 機制
@@ -508,6 +435,7 @@
             }
 
             #page-content-container {
+                background-color: #192821;
                 flex: 1;
                 animation: fadeIn 0.4s ease-in-out;
             }
@@ -637,6 +565,7 @@
             }
         </style>
     </head>
+
     <body>
 
         <header class="portal-header">
@@ -644,7 +573,7 @@
                 <button class="toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation">
                     <i class="fas fa-bars"></i> 選單
                 </button>
-                <a href="#" class="brand-logo" onclick="loadPage('index.html'); return false;">
+                <a href="#" class="brand-logo" onclick="loadPage('home.html'); return false;">
                     <i class="fas fa-leaf"></i> 榮祥團隊 Ray's Team
                 </a>
             </div>
@@ -659,7 +588,7 @@
             
             <aside class="portal-sidebar" id="portalSidebar">
                 <ul class="sidebar-menu" id="dynamicMenuContainer">
-                    <li class="text-center py-4 text-muted" id="menuLoadingSpinner">
+                    <li class="text-center py-4" id="menuLoadingSpinner">
                         <i class="fas fa-spinner fa-spin"></i> 正在載入選單...
                     </li>
                 </ul>
@@ -667,8 +596,6 @@
 
             <main class="portal-content">
                 <div id="page-content-container"></div>
-
-                
             </main>
         </div>
 
