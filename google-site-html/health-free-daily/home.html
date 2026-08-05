@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVACO 葡眾｜美滿生活 就此展開 - 官方團隊首頁</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #081612;
+            --bg-secondary: #0d231b;
+            --bg-card: #132e25;
+            --bg-card-hover: #1a3f33;
+            --border-color: rgba(52, 211, 153, 0.18);
+            --text-main: #f8fafc;
+            --text-sub: #cbd5e1;
+            --accent-emerald: #10b981;
+            --accent-mint: #34d399;
+            --accent-gold: #f59e0b;
+            --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            background-color: transparent;
+            color: var(--text-main);
+            font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+            overflow-x: hidden;
+            padding-top: 76px;
+        }
+
+        /* 導覽列樣式 */
+        .custom-navbar {
+            background-color: rgba(8, 22, 18, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: var(--accent-mint) !important;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-link {
+            color: var(--text-sub) !important;
+            font-weight: 500;
+            padding: 0.5rem 0.8rem !important;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-mint) !important;
+        }
+
+        .dropdown-menu {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .dropdown-item {
+            color: var(--text-sub);
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--accent-mint);
+        }
+
+        /* Hero 視覺區塊 */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(8, 22, 18, 0.95) 0%, rgba(13, 35, 27, 0.85) 100%),
+                        url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            padding: 100px 0 80px 0;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero-badge {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-mint);
+            border: 1px solid var(--accent-emerald);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-mint) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            color: var(--text-sub);
+            margin-bottom: 35px;
+            max-width: 700px;
+        }
+
+        /* 按鈕樣式 */
+        .btn-emerald {
+            background-color: var(--accent-emerald);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-emerald:hover {
+            background-color: #0d9668;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-outline-emerald {
+            background-color: transparent;
+            color: var(--accent-mint);
+            border: 1px solid var(--accent-emerald);
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-emerald:hover {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #ffffff;
+            border-color: var(--accent-mint);
+            transform: translateY(-2px);
+        }
+
+        /* KPI 數據卡片 */
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-50px);
+            background-color: var(--bg-card-hover);
+            border-color: var(--accent-mint);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-mint);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        /* 通用卡片設計 */
+        .custom-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .custom-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-mint);
+            box-shadow: var(--shadow-glow);
+            background-color: var(--bg-card-hover);
+        }
+
+        .card-icon {
+            width: 55px;
+            height: 55px;
+            background-color: rgba(16, 185, 129, 0.12);
+            color: var(--accent-mint);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            color: var(--text-main);
+            font-size: 1.05rem;
+            margin-bottom: 45px;
+        }
+
+        /* 明星產品卡片 */
+        .product-preview-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .product-preview-card:hover {
+            border-color: var(--accent-mint);
+            transform: translateY(-5px);
+        }
+
+        .product-img-wrapper {
+            height: 200px;
+            background-color: #06110e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: var(--accent-gold);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 頁尾樣式 */
+        footer {
+            background-color: #040b09;
+            border-top: 1px solid var(--border-color);
+            padding: 60px 0 30px 0;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .footer-title {
+            color: var(--text-main);
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-mint);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-section {
+                padding: 60px 0 40px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-leaf"></i> UVACO 葡眾
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="切換導覽列">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <i class="fas fa-home"></i> 首頁
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDailyCare" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-heartbeat"></i> 日常保養
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDailyCare">
+                            <li><a class="dropdown-item" href="health-concepts.html"><i class="fas fa-book-medical"></i> 保健觀念</a></li>
+                            <li><a class="dropdown-item" href="product-advantages.html"><i class="fas fa-shield-alt"></i> 產品特點</a></li>
+                            <li><a class="dropdown-item" href="product-patents.html"><i class="fas fa-microscope"></i> 產品專利</a></li>
+                            <li><a class="dropdown-item" href="products.html"><i class="fas fa-boxes"></i> 產品介紹</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarBusiness" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-briefcase"></i> 事業經營
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarBusiness">
+                            <li><a class="dropdown-item" href="system-advantages.html"><i class="fas fa-chart-line"></i> 制度特點</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarEvents" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bullhorn"></i> 最新活動
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarEvents">
+                            <li><a class="dropdown-item" href="events.html"><i class="fas fa-calendar-alt"></i> 活動訊息</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarAbout" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-info-circle"></i> 關於我們
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarAbout">
+                            <li><a class="dropdown-item" href="about-uvaco.html"><i class="fas fa-building"></i> 公司簡介</a></li>
+                            <li><a class="dropdown-item" href="about-team.html"><i class="fas fa-users"></i> 團隊簡介</a></li>
+                            <li><a class="dropdown-item" href="disclaimer.html"><i class="fas fa-file-contract"></i> 網站聲明</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarContact" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-envelope"></i> 聯絡我們
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarContact">
+                            <li><a class="dropdown-item" href="consultation.html"><i class="fas fa-comments"></i> 線上諮詢</a></li>
+                            <li><a class="dropdown-item" href="social-media.html"><i class="fas fa-share-alt"></i> 社群媒體</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarOfficial" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-globe"></i> 葡眾官網
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarOfficial">
+                            <li><a class="dropdown-item" href="https://www.uvaco.com.tw/" target="_blank"><i class="fas fa-external-link-alt"></i> 台灣官方網站</a></li>
+                            <li><a class="dropdown-item" href="https://www.uvaco.com.my/" target="_blank"><i class="fas fa-external-link-alt"></i> 馬來西亞官方網站</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="hero-badge">
+                        <i class="fas fa-star"></i> 品牌煥新 邁向國際
+                    </span>
+                    <h1 class="hero-title">
+                        UVACO 葡眾<br>美滿生活 就此展開
+                    </h1>
+                    <p class="hero-desc">
+                        Life at Its Fullest. 融合東方養生智慧與現代生物科技，立足台灣本土直銷第一品牌。我們致力於為您打造全方位的健康防護與無壓力的微型事業機會。
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="products.html" class="btn btn-emerald">
+                            <i class="fas fa-boxes"></i> 探索產品目錄
+                        </a>
+                        <a href="system-advantages.html" class="btn btn-outline-emerald">
+                            <i class="fas fa-chart-line"></i> 了解事業優勢
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background-color: var(--bg-secondary);">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            <i class="fas fa-trophy"></i> No.1
+                        </div>
+                        <div class="stat-label">全台本土直銷企業第一名</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            <i class="fas fa-coins"></i> 100億+
+                        </div>
+                        <div class="stat-label">年度營業額新台幣突破</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            <i class="fas fa-users"></i> 30萬+
+                        </div>
+                        <div class="stat-label">全台信任會員與夥伴</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            <i class="fas fa-award"></i> 356+
+                        </div>
+                        <div class="stat-label">國內外專業獎項認證</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="text-center">
+                <h2 class="section-title">全方位健康與事業生態系</h2>
+                <p class="section-subtitle">從頂尖生物科技研發到透明穩健的事業平台，滿足您對生活品質的極致追求</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div>
+                            <div class="card-icon">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <h4 class="text-white mb-3">日常養護與品質產品</h4>
+                            <p class="text-main fs-6 mb-4">
+                                嚴選草本複方與專利發酵技術，提供全家人每日所需的營養補充方案。
+                            </p>
+                        </div>
+                        <a href="product-advantages.html" class="btn btn-outline-emerald w-100">
+                            <i class="fas fa-arrow-right"></i> 查看產品特點
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div>
+                            <div class="card-icon">
+                                <i class="fas fa-microscope"></i>
+                            </div>
+                            <h4 class="text-white mb-3">頂尖科研與專利技術</h4>
+                            <p class="text-main fs-6 mb-4">
+                                依托葡萄王生技生物科技研究所，擁有多國專利包埋與發酵核心技術。
+                            </p>
+                        </div>
+                        <a href="product-patents.html" class="btn btn-outline-emerald w-100">
+                            <i class="fas fa-arrow-right"></i> 探索研發成果
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div>
+                            <div class="card-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4 class="text-white mb-3">人性化事業發展制度</h4>
+                            <p class="text-main fs-6 mb-4">
+                                零屯貨壓力、職級不上不下聘、業績可累計，設計給普通人的創業備胎。
+                            </p>
+                        </div>
+                        <a href="system-advantages.html" class="btn btn-outline-emerald w-100">
+                            <i class="fas fa-arrow-right"></i> 解密制度優勢
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div>
+                            <div class="card-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <h4 class="text-white mb-3">上市母公司半世紀底蘊</h4>
+                            <p class="text-main fs-6 mb-4">
+                                葡萄王生技（股票代碼：1707）堅實後盾，ESG 評鑑前 5% 的誠信品質。
+                            </p>
+                        </div>
+                        <a href="about-uvaco.html" class="btn btn-outline-emerald w-100">
+                            <i class="fas fa-arrow-right"></i> 認識公司背景
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background-color: var(--bg-secondary);">
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="section-title mb-1">熱門明星產品系列</h2>
+                    <p class="text-main mb-0">深受市場數十萬家庭喜愛的優質保健選擇</p>
+                </div>
+                <a href="products.html" class="btn btn-outline-emerald d-none d-md-inline-block">
+                    <i class="fas fa-th-list"></i> 查看全部產品
+                </a>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-preview-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-badge"><i class="fas fa-fire"></i> 熱銷榜首</span>
+                            <i class="fas fa-bacteria fa-4x text-success"></i>
+                        </div>
+                        <div class="product-content">
+                            <h5 class="product-title">康爾喜益生菌顆粒</h5>
+                            <p class="product-desc">包含 13 株複合益生菌，專利包埋技術，維持消化道機能與調整體質。</p>
+                            <a href="products.html" class="btn btn-emerald btn-sm w-100">
+                                <i class="fas fa-search"></i> 瞭解詳細資訊
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-preview-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-badge"><i class="fas fa-crown"></i> 經典旗艦</span>
+                            <i class="fas fa-flask fa-4x text-info"></i>
+                        </div>
+                        <div class="product-content">
+                            <h5 class="product-title">995 超級營養液</h5>
+                            <p class="product-desc">游離型短胜肽液態發酵技術，好吸收，為您帶來強勁活力與營養補給。</p>
+                            <a href="products.html" class="btn btn-emerald btn-sm w-100">
+                                <i class="fas fa-search"></i> 瞭解詳細資訊
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-preview-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-badge"><i class="fas fa-certificate"></i> 獨家專利</span>
+                            <i class="fas fa-capsules fa-4x text-warning"></i>
+                        </div>
+                        <div class="product-content">
+                            <h5 class="product-title">樟芝益菌絲體液</h5>
+                            <p class="product-desc">榮獲多國發明專利，調節生理機能，精氣神補給的極致選擇。</p>
+                            <a href="products.html" class="btn btn-emerald btn-sm w-100">
+                                <i class="fas fa-search"></i> 瞭解詳細資訊
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-preview-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-badge"><i class="fas fa-heart"></i> 全家適用</span>
+                            <i class="fas fa-mortar-pestle fa-4x text-danger"></i>
+                        </div>
+                        <div class="product-content">
+                            <h5 class="product-title">葡眾餐包</h5>
+                            <p class="product-desc">均衡營養比例，濃縮多種草本與維生素，隨身包設計方便每日補充。</p>
+                            <a href="products.html" class="btn btn-emerald btn-sm w-100">
+                                <i class="fas fa-search"></i> 瞭解詳細資訊
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4 d-md-none">
+                <a href="products.html" class="btn btn-outline-emerald w-100">
+                    <i class="fas fa-th-list"></i> 查看全部產品
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="hero-badge"><i class="fas fa-history"></i> 品牌進化史</span>
+                    <h2 class="section-title mb-3">二十餘年穩健前行<br>累積無可替代的品牌誠信</h2>
+                    <p class="text-main fs-6 mb-4">
+                        葡眾自 1998 年正式轉型為多層次傳銷企業以來，白紙黑字向公平交易委員會報備。在母公司葡萄王生技半世紀研發基底護航下，業績連年突破百億，榮登本土直銷龍頭。
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <a href="milestones-uvaco.html" class="btn btn-outline-emerald btn-sm">
+                            <i class="fas fa-clock"></i> 查看公司大事記
+                        </a>
+                        <a href="awards-uvaco.html" class="btn btn-outline-emerald btn-sm">
+                            <i class="fas fa-medal"></i> 檢視榮譽獎項標章
+                        </a>
+                        <a href="about-team.html" class="btn btn-outline-emerald btn-sm">
+                            <i class="fas fa-handshake"></i> 了解榮祥團隊文化
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-4 rounded-3" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
+                        <h4 class="text-white mb-3"><i class="fas fa-shield-alt text-success"></i> 雙重安全與品質防線</h4>
+                        <ul class="list-unstyled text-sub mb-0">
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <span><strong>國際最高食品安全認證：</strong>通過 FSSC 22000、ISO 22000、HACCP 及 NSF GMP 廠房標準。</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <span><strong>永續治理 ESG 標竿：</strong>連續五年入選臺灣證券交易所「公司治理評鑑前 5%」。</span>
+                            </li>
+                            <li class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <span><strong>全球專利佈局：</strong>累積獲得 8 國 224 項國際專利與 356 項國際發明金牌獎項。</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background-color: var(--bg-secondary);">
+        <div class="container text-center py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h2 class="section-title mb-3">準備好開啟您的美滿生活了嗎？</h2>
+                    <p class="section-subtitle mb-4">
+                        不論您是希望了解適合自己與家人的日常保養方案，或是正在尋找無負擔的第二收入備胎，我們的團隊將為您提供最專業且無壓力的諮詢支援。
+                    </p>
+                    <div class="d-flex justify-content-center flex-wrap gap-3">
+                        <a href="consultation.html" class="btn btn-emerald btn-lg">
+                            <i class="fas fa-comments"></i> 預約免費線上諮詢
+                        </a>
+                        <a href="events.html" class="btn btn-outline-emerald btn-lg">
+                            <i class="fas fa-calendar-alt"></i> 查看最新線上活動
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-lg-4">
+                    <h5 class="footer-title"><i class="fas fa-leaf text-success"></i> UVACO 葡眾團隊資訊站</h5>
+                    <p class="text-main">
+                        本網站為榮祥葡眾團隊之健康知識推廣與微型事業資訊門戶。我們致力於傳遞正確的保健觀念與無壓力的事業發展系統，協助每個人實現身心平衡的美滿生活。
+                    </p>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h5 class="footer-title">日常保養</h5>
+                    <ul class="footer-links">
+                        <li><a href="health-concepts.html"><i class="fas fa-book-medical"></i> 保健觀念</a></li>
+                        <li><a href="product-advantages.html"><i class="fas fa-shield-alt"></i> 產品特點</a></li>
+                        <li><a href="product-patents.html"><i class="fas fa-microscope"></i> 產品專利</a></li>
+                        <li><a href="products.html"><i class="fas fa-boxes"></i> 產品介紹</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h5 class="footer-title">事業與活動</h5>
+                    <ul class="footer-links">
+                        <li><a href="system-advantages.html"><i class="fas fa-chart-line"></i> 制度特點</a></li>
+                        <li><a href="events.html"><i class="fas fa-calendar-alt"></i> 最新活動</a></li>
+                        <li><a href="consultation.html"><i class="fas fa-comments"></i> 線上諮詢</a></li>
+                        <li><a href="social-media.html"><i class="fas fa-share-alt"></i> 社群媒體</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h5 class="footer-title">關於我們</h5>
+                    <ul class="footer-links">
+                        <li><a href="about-uvaco.html"><i class="fas fa-building"></i> 公司簡介</a></li>
+                        <li><a href="about-team.html"><i class="fas fa-users"></i> 團隊簡介</a></li>
+                        <li><a href="milestones-uvaco.html"><i class="fas fa-clock"></i> 公司大事記</a></li>
+                        <li><a href="awards-uvaco.html"><i class="fas fa-medal"></i> 榮譽獎項</a></li>
+                        <li><a href="disclaimer.html"><i class="fas fa-file-contract"></i> 網站聲明</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h5 class="footer-title">官方平台</h5>
+                    <ul class="footer-links">
+                        <li><a href="https://www.uvaco.com.tw/" target="_blank"><i class="fas fa-external-link-alt"></i> 葡眾台灣官網</a></li>
+                        <li><a href="https://www.uvaco.com.my/" target="_blank"><i class="fas fa-external-link-alt"></i> 葡眾馬來西亞官網</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-top pt-4 text-center" style="border-color: rgba(255,255,255,0.08) !important;">
+                <p class="mb-2 text-main fs-7">
+                    合規聲明：本網站內容白紙黑字嚴格遵守相關法規，網站內文提及之產品補充方案均為日常養護習慣與生活提案，非用於疾病診斷、治療或預防。正式下單與經銷入會請至葡眾官方網站辦理。
+                </p>
+                <p class="mb-0 text-main fs-7">
+                    &copy; 2026 UVACO 榮祥團隊. All Rights Reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 滾動時導覽列動態陰影
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.custom-navbar').css('box-shadow', '0 4px 20px rgba(0,0,0,0.5)');
+                } else {
+                    $('.custom-navbar').css('box-shadow', 'none');
+                }
+            });
+
+            // 手機版點擊選單連結後自動收合 navbar
+            $('.dropdown-item, .nav-link:not(.dropdown-toggle)').click(function() {
+                $('.navbar-collapse').collapse('hide');
+            });
+        });
+    </script>
+</body>
+</html>

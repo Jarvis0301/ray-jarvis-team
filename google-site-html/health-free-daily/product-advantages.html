@@ -15,13 +15,14 @@
             --accent-emerald: #4ADE80;
             --accent-gold: #FACE15;
             --text-light: #F3F4F6;
+            --text-muted: #A0AEC0;
             --border-color: rgba(74, 222, 128, 0.18);
         }
 
         body {
-            background-color: transparent;
+            background-color: var(--bg-main);
             color: var(--text-light);
-            font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             overflow-x: hidden;
         }
 
@@ -42,13 +43,41 @@
 
         /* Hero 區塊 */
         .hero-section {
-            padding: 100px 0 60px;
+            padding: 120px 0 60px;
             background: radial-gradient(circle at 50% 30%, rgba(74, 222, 128, 0.08) 0%, transparent 70%);
         }
 
         .hero-title {
             color: var(--accent-emerald);
             font-weight: 700;
+        }
+
+        /* 圖片佔位框通用樣式 */
+        .img-placeholder {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .img-placeholder:hover {
+            border-color: var(--accent-emerald);
+            color: var(--accent-emerald);
+            background-color: rgba(74, 222, 128, 0.05);
+        }
+
+        .img-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
         }
 
         /* 卡片通用樣式 */
@@ -67,15 +96,15 @@
         }
 
         .icon-box {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background-color: rgba(74, 222, 128, 0.1);
             color: var(--accent-emerald);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             margin-bottom: 1rem;
         }
 
@@ -104,22 +133,7 @@
             border-radius: 2px;
         }
 
-        /* 標籤頁與過濾器 */
-        .nav-pills .nav-link {
-            color: var(--text-light);
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            margin: 0 5px 10px;
-            border-radius: 20px;
-        }
-
-        .nav-pills .nav-link.active {
-            background-color: var(--accent-emerald);
-            color: var(--bg-main) !important;
-            font-weight: 700;
-        }
-
-        /* 明星產品特效 */
+        /* 明星產品標籤 */
         .star-badge {
             position: absolute;
             top: 15px;
@@ -130,16 +144,17 @@
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 20px;
+            z-index: 2;
         }
 
-        /* 食藥署免責聲明頁尾區 */
+        /* 免責聲明 */
         .disclaimer-box {
             background-color: rgba(0, 0, 0, 0.25);
             border-left: 4px solid var(--accent-gold);
             padding: 1.25rem;
             border-radius: 4px;
             font-size: 0.875rem;
-            color: var(--text-light);
+            color: var(--text-muted);
         }
 
         /* 回頂部按鈕 */
@@ -194,18 +209,29 @@
         </div>
     </nav>
 
-    <section class="hero-section text-center">
+    <section class="hero-section">
         <div class="container">
-            <span class="badge bg-outline-emerald text-emerald mb-3 px-3 py-2 border border-success">
-                <i class="fa-solid fa-shield-halved"></i> 頂尖生物科技 ✕ 草本滋補
-            </span>
-            <h1 class="display-4 hero-title mb-4">科學淬鍊．打造全家人的健康護城河</h1>
-            <p class="lead text-light max-w-2xl mx-auto mb-5">
-                葡眾結合母公司葡萄王生技五十餘年強大研發實力，以嚴謹的液態發酵技術與國際級品質把關，提供安全、有效、溫和的全方位保健方案。
-            </p>
-            <a href="#highlights" class="btn btn-emerald btn-lg px-4 py-2 me-2" style="background-color: var(--accent-emerald); color: var(--bg-main); font-weight: 600;">
-                <i class="fa-solid fa-compass"></i> 探索八大核心特點
-            </a>
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="badge bg-outline-emerald text-emerald mb-3 px-3 py-2 border border-success">
+                        <i class="fa-solid fa-shield-halved"></i> 頂尖生物科技 ✕ 草本滋補
+                    </span>
+                    <h1 class="display-5 hero-title mb-4">科學淬鍊．打造全家人的健康護城河</h1>
+                    <p class="lead text-muted mb-4">
+                        葡眾結合母公司葡萄王生技五十餘年強大研發實力，以嚴謹的液態發酵技術與國際級品質把關，提供安全、有效、溫和的全方位保健方案。
+                    </p>
+                    <a href="#highlights" class="btn btn-emerald btn-lg px-4 py-2" style="background-color: var(--accent-emerald); color: var(--bg-main); font-weight: 600;">
+                        <i class="fa-solid fa-compass"></i> 探索八大核心特點
+                    </a>
+                </div>
+                <div class="col-lg-6">
+                    <div class="img-placeholder" style="height: 360px;">
+                        <i class="fa-regular fa-image fa-3x mb-2"></i>
+                        <span class="fw-bold">【預留圖位】品牌主視覺 / 生技發酵情境圖</span>
+                        <small class="text-muted">建議尺寸：1200 x 800 px (JPG / WebP)</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -213,125 +239,161 @@
         <div class="container">
             <div class="section-header">
                 <h2><i class="fa-solid fa-gem"></i> 八大核心特點總覽</h2>
-                <p class="text-light mt-2">嚴謹標準與極致工藝，堆砌出不可替代的品質實力</p>
+                <p class="text-muted mt-2">嚴謹標準與極致工藝，堆砌出不可替代的品質實力</p>
             </div>
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-seedling"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-seedling text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】漢方草本示意圖</small>
                         </div>
-                        <h5 class="fw-bold">天然溫和</h5>
-                        <p class="text-light small mb-0">嚴選漢方草本與天然菌種，秉持不添加有害化學物質原則，性質溫和適合長期調理。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-seedling text-emerald"></i>
+                            <h5 class="fw-bold mb-0">天然溫和</h5>
+                        </div>
+                        <p class="text-muted small mb-0">嚴選漢方草本與天然菌種，秉持不添加有害化學物質原則，性質溫和適合長期調理。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-bolt"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-bolt text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】小分子吸收示意圖</small>
                         </div>
-                        <h5 class="fw-bold">易於吸收</h5>
-                        <p class="text-light small mb-0">運用高科技液態發酵與小分子化技術，大幅提升生物利用率與身體吸收率。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-bolt text-emerald"></i>
+                            <h5 class="fw-bold mb-0">易於吸收</h5>
+                        </div>
+                        <p class="text-muted small mb-0">運用高科技液態發酵與小分子化技術，大幅提升生物利用率與身體吸收率。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-box-archive"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-box-archive text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】隨身條包情境圖</small>
                         </div>
-                        <h5 class="fw-bold">輕巧方便</h5>
-                        <p class="text-light small mb-0">獨立隨身包裝設計，免去傳統煎煮麻煩，防潮好攜帶，隨時隨地輕鬆補充。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-box-archive text-emerald"></i>
+                            <h5 class="fw-bold mb-0">輕巧方便</h5>
+                        </div>
+                        <p class="text-muted small mb-0">獨立隨身包裝設計，免去傳統煎煮麻煩，防潮好攜帶，隨時隨地輕鬆補充。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-pills"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-pills text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】多樣化型態特寫</small>
                         </div>
-                        <h5 class="fw-bold">多元型態</h5>
-                        <p class="text-light small mb-0">涵蓋顆粒、膠囊、液態飲品及外用保養，滿足不同年齡層與使用情境的需求。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-pills text-emerald"></i>
+                            <h5 class="fw-bold mb-0">多元型態</h5>
+                        </div>
+                        <p class="text-muted small mb-0">涵蓋顆粒、膠囊、液態飲品及外用保養，滿足不同年齡層與使用情境的需求。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-border-all"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-border-all text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】系列產品合照</small>
                         </div>
-                        <h5 class="fw-bold">完整系列</h5>
-                        <p class="text-light small mb-0">劃分消化道保養、免疫調節、體質調理與美顏抗老，提供精準健康管理。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-border-all text-emerald"></i>
+                            <h5 class="fw-bold mb-0">完整系列</h5>
+                        </div>
+                        <p class="text-muted small mb-0">劃分消化道保養、免疫調節、體質調理與美顏抗老，提供精準健康管理。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-crown"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-crown text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】熱銷明星商品區</small>
                         </div>
-                        <h5 class="fw-bold">明星產品</h5>
-                        <p class="text-light small mb-0">旗艦商品如 995 營養液、康爾喜，榮獲百萬家庭肯定，回購率業界領先。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-crown text-emerald"></i>
+                            <h5 class="fw-bold mb-0">明星產品</h5>
+                        </div>
+                        <p class="text-muted small mb-0">旗艦商品如 995 營養液、康爾喜，榮獲百萬家庭肯定，回購率業界領先。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-lightbulb"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-lightbulb text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】專利證書特寫</small>
                         </div>
-                        <h5 class="fw-bold">獨家專利</h5>
-                        <p class="text-light small mb-0">擁有多項國際發明專利認證，奠定真菌菇類發酵與乳酸菌包埋技術優勢。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-lightbulb text-emerald"></i>
+                            <h5 class="fw-bold mb-0">獨家專利</h5>
+                        </div>
+                        <p class="text-muted small mb-0">擁有多項國際發明專利認證，奠定真菌菇類發酵與乳酸菌包埋技術優勢。</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100">
-                        <div class="icon-box">
-                            <i class="fa-solid fa-circle-check"></i>
+                    <div class="custom-card p-3 h-100">
+                        <div class="img-placeholder mb-3" style="height: 120px;">
+                            <i class="fa-solid fa-circle-check text-emerald mb-1"></i>
+                            <small class="text-muted">【預留圖位】SGS 檢驗標章</small>
                         </div>
-                        <h5 class="fw-bold">權威認證</h5>
-                        <p class="text-light small mb-0">通過 ISO22000、HACCP、SNQ 國家品質標章及逐批嚴格檢驗，食用最安心。</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-circle-check text-emerald"></i>
+                            <h5 class="fw-bold mb-0">權威認證</h5>
+                        </div>
+                        <p class="text-muted small mb-0">通過 ISO22000、HACCP、SNQ 國家品質標章及逐批嚴格檢驗，食用最安心。</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="biotech" class="py-5 bg-opacity-10 style-emerald-bg" style="background-color: rgba(34, 53, 43, 0.4);">
+    <section id="biotech" class="py-5 style-emerald-bg" style="background-color: rgba(34, 53, 43, 0.4);">
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-lg-6">
                     <span class="text-emerald fw-bold mb-2 d-block"><i class="fa-solid fa-flask-vial"></i> 生物科技的核心突破</span>
                     <h2 class="fw-bold mb-4">草本精華 ✕ 液態發酵<br>實現「天然溫和」與「高效吸收」</h2>
-                    <p class="text-light mb-4">
+                    <p class="text-muted mb-4">
                         傳統漢方養生常面臨燉煮繁瑣、有效成分難以完全釋放的痛點。葡眾團隊採用微電腦控制液態發酵技術，精準控制溫度與酸鹼值，萃取出高純度多醣體與小分子胜肽。
                     </p>
                     <div class="d-flex mb-3">
                         <div class="me-3 text-emerald"><i class="fa-solid fa-leaf fa-2x"></i></div>
                         <div>
                             <h5 class="fw-bold mb-1">天然溫和不刺激</h5>
-                            <p class="text-light small">摒棄西藥速效副作用，以植萃與真菌養分滋補，性質平和，適合全家人長期使用。</p>
+                            <p class="text-muted small mb-0">摒棄西藥速效副作用，以植萃與真菌養分滋補，性質平和，適合全家人長期使用。</p>
                         </div>
                     </div>
                     <div class="d-flex">
                         <div class="me-3 text-emerald"><i class="fa-solid fa-dna fa-2x"></i></div>
                         <div>
                             <h5 class="fw-bold mb-1">小分子高透穿力</h5>
-                            <p class="text-light small">經專利發酵破壁處理，將大分子營養轉化為小分子結構，腸道吸收率大幅超越傳統煎劑。</p>
+                            <p class="text-muted small mb-0">經專利發酵破壁處理，將大分子營養轉化為小分子結構，腸道吸收率大幅超越傳統煎劑。</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="custom-card p-4 text-center">
-                        <i class="fa-solid fa-microscope text-emerald mb-3" style="font-size: 4rem;"></i>
-                        <h4 class="fw-bold">國家級生技研發中心</h4>
-                        <p class="text-light small mb-4">擁有數十位專業博士與碩士團隊，堅持每批產品進行第三方 SGS 與毒理試驗。</p>
-                        <div class="row text-start">
-                            <div class="col-6 mb-3">
-                                <div class="p-3 border border-secondary rounded">
-                                    <div class="h3 fw-bold text-emerald mb-0">100%</div>
-                                    <small class="text-light">逐批毒理無毒檢驗</small>
+                    <div class="custom-card p-3 text-center">
+                        <div class="img-placeholder mb-3" style="height: 250px;">
+                            <i class="fa-solid fa-microscope fa-3x mb-2 text-emerald"></i>
+                            <span class="fw-bold">【預留圖位】國家級生技研發中心 / 發酵槽實體圖</span>
+                            <small class="text-muted">建議尺寸：800 x 500 px</small>
+                        </div>
+                        <h4 class="fw-bold mb-1">葡萄王生技龍潭研發中心</h4>
+                        <p class="text-muted small mb-3">擁有數十位專業博士與碩士團隊，堅持每批產品進行第三方 SGS 與毒理試驗。</p>
+                        <div class="row text-start g-2">
+                            <div class="col-6">
+                                <div class="p-2 border border-secondary rounded text-center">
+                                    <div class="h4 fw-bold text-emerald mb-0">100%</div>
+                                    <small class="text-muted">逐批毒理無毒檢驗</small>
                                 </div>
                             </div>
-                            <div class="col-6 mb-3">
-                                <div class="p-3 border border-secondary rounded">
-                                    <div class="h3 fw-bold text-emerald mb-0">0%</div>
-                                    <small class="text-light">重金屬與西藥殘留</small>
+                            <div class="col-6">
+                                <div class="p-2 border border-secondary rounded text-center">
+                                    <div class="h4 fw-bold text-emerald mb-0">0%</div>
+                                    <small class="text-muted">重金屬與西藥殘留</small>
                                 </div>
                             </div>
                         </div>
@@ -345,124 +407,98 @@
         <div class="container">
             <div class="section-header">
                 <h2><i class="fa-solid fa-cubes"></i> 貼心產品型態與輕巧體驗</h2>
-                <p class="text-light mt-2">針對忙碌現代人設計，隨身攜帶，無縫融入每日生活情境</p>
+                <p class="text-muted mt-2">針對忙碌現代人設計，隨身攜帶，無縫融入每日生活情境</p>
             </div>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="custom-card p-4 text-center h-100">
-                        <div class="icon-box mx-auto">
-                            <i class="fa-solid fa-file-powerpoint"></i>
+                    <div class="custom-card p-3 text-center h-100">
+                        <div class="img-placeholder mb-3" style="height: 180px;">
+                            <i class="fa-solid fa-file-powerpoint fa-2x mb-2 text-emerald"></i>
+                            <small class="fw-bold">【預留圖位】顆粒隨身包撕開實拍圖</small>
                         </div>
-                        <h4 class="fw-bold mb-3">獨立隨身條包</h4>
-                        <p class="text-light small">顆粒與粉末產品採用鋁箔防潮獨立撕開包裝。放進包包或口袋，出差、旅遊隨時補充，免去分裝麻煩。</p>
+                        <h4 class="fw-bold mb-2">獨立隨身條包</h4>
+                        <p class="text-muted small mb-0">顆粒與粉末產品採用鋁箔防潮獨立撕開包裝。放進包包或口袋，出差、旅遊隨時補充，免去分裝麻煩。</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="custom-card p-4 text-center h-100">
-                        <div class="icon-box mx-auto">
-                            <i class="fa-solid fa-bottle-water"></i>
+                    <div class="custom-card p-3 text-center h-100">
+                        <div class="img-placeholder mb-3" style="height: 180px;">
+                            <i class="fa-solid fa-bottle-water fa-2x mb-2 text-emerald"></i>
+                            <small class="fw-bold">【預留圖位】高濃度液態安瓶/玻璃瓶實拍圖</small>
                         </div>
-                        <h4 class="fw-bold mb-3">高濃度液態飲品</h4>
-                        <p class="text-light small">專利玻璃瓶與密封充填技術，鎖住發酵活性成分，即開即飲，口感順暢好吸收。</p>
+                        <h4 class="fw-bold mb-2">高濃度液態飲品</h4>
+                        <p class="text-muted small mb-0">專利玻璃瓶與密封充填技術，鎖住發酵活性成分，即開即飲，口感順暢好吸收。</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="custom-card p-4 text-center h-100">
-                        <div class="icon-box mx-auto">
-                            <i class="fa-solid fa-capsules"></i>
+                    <div class="custom-card p-3 text-center h-100">
+                        <div class="img-placeholder mb-3" style="height: 180px;">
+                            <i class="fa-solid fa-capsules fa-2x mb-2 text-emerald"></i>
+                            <small class="fw-bold">【預留圖位】專利膠囊與PTP排裝實拍圖</small>
                         </div>
-                        <h4 class="fw-bold mb-3">專利包覆膠囊</h4>
-                        <p class="text-light small">採用植物性膠囊與微膠囊包埋技術，耐胃酸抗膽鹽，確保有效成分精準釋放。</p>
+                        <h4 class="fw-bold mb-2">專利包覆膠囊</h4>
+                        <p class="text-muted small mb-0">採用植物性膠囊與微膠囊包埋技術，耐胃酸抗膽鹽，確保有效成分精準釋放。</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="series" class="py-5 style-emerald-bg" style="background-color: rgba(34, 53, 43, 0.4);">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fa-solid fa-layer-group"></i> 四大主題產品系列</h2>
-                <p class="text-light mt-2">全方位滿足不同年齡與性別的健康調理需求</p>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100 border-start border-4 border-emerald">
-                        <h5 class="fw-bold text-emerald mb-2"><i class="fa-solid fa-heart-pulse"></i> 消化與體質調理</h5>
-                        <p class="text-light small mb-0">包含專利益生菌與草本調整配方，維護腸道菌相平衡，奠定健康基礎。</p>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100 border-start border-4 border-emerald">
-                        <h5 class="fw-bold text-emerald mb-2"><i class="fa-solid fa-shield-virus"></i> 滋補強身與防禦</h5>
-                        <p class="text-light small mb-0">嚴選樟芝、樟芝菌絲體與多醣體成分，為長期疲憊體質提供保護力。</p>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100 border-start border-4 border-emerald">
-                        <h5 class="fw-bold text-emerald mb-2"><i class="fa-solid fa-wand-magic-sparkles"></i> 養顏美容與女性</h5>
-                        <p class="text-light small mb-0">結合膠原蛋白、植物雌激素與抗氧化因子，由內而外透出好氣色。</p>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="custom-card p-4 h-100 border-start border-4 border-emerald">
-                        <h5 class="fw-bold text-emerald mb-2"><i class="fa-solid fa-child"></i> 兒童與熟齡專屬</h5>
-                        <p class="text-light small mb-0">溫和微粒配方與易吞嚥設計，專為成長期學童與銀髮族精心調配。</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="star-products" class="py-5">
+    <section id="star-products" class="py-5 style-emerald-bg" style="background-color: rgba(34, 53, 43, 0.4);">
         <div class="container">
             <div class="section-header">
                 <h2><i class="fa-solid fa-crown"></i> 熱銷明星產品矩陣</h2>
-                <p class="text-light mt-2">經歷無數家庭口碑驗證，品牌熱銷不敗經典</p>
+                <p class="text-muted mt-2">經歷無數家庭口碑驗證，品牌熱銷不敗經典</p>
             </div>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="custom-card p-4 h-100 position-relative">
+                    <div class="custom-card p-3 h-100 position-relative">
                         <span class="star-badge"><i class="fa-solid fa-fire"></i> 熱銷 Top 1</span>
-                        <div class="text-center mb-3">
-                            <i class="fa-solid fa-wine-bottle text-emerald mb-2" style="font-size: 3rem;"></i>
-                            <h4 class="fw-bold">995 生技營養液</h4>
+                        <div class="img-placeholder mb-3" style="height: 200px;">
+                            <i class="fa-solid fa-wine-bottle fa-3x mb-2 text-emerald"></i>
+                            <span class="fw-bold">【預留圖位】995 生技營養液盒裝與瓶裝照</span>
+                            <small class="text-muted">建議尺寸：600 x 600 px</small>
                         </div>
-                        <p class="text-light small mb-3">經典液態大豆發酵營養液，富含活性胜肽與多醣體，提供大病初癒或日常極致滋補體力。</p>
-                        <ul class="list-unstyled small text-light mb-0">
-                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i>  專利大豆液態發酵</li>
-                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i>  小分子高吸收效率</li>
-                            <li><i class="fa-solid fa-check text-emerald"></i>  補充體力與維持元氣</li>
+                        <h4 class="fw-bold text-center mb-2">995 生技營養液</h4>
+                        <p class="text-muted small mb-3">經典液態大豆發酵營養液，富含活性胜肽與多醣體，提供大病初癒或日常極致滋補體力。</p>
+                        <ul class="list-unstyled small text-muted mb-0">
+                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i> 專利大豆液態發酵</li>
+                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i> 小分子高吸收效率</li>
+                            <li><i class="fa-solid fa-check text-emerald"></i> 補充體力與維持元氣</li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="custom-card p-4 h-100 position-relative">
+                    <div class="custom-card p-3 h-100 position-relative">
                         <span class="star-badge"><i class="fa-solid fa-thumbs-up"></i> 全家必備</span>
-                        <div class="text-center mb-3">
-                            <i class="fa-solid fa-bacteria text-emerald mb-2" style="font-size: 3rem;"></i>
-                            <h4 class="fw-bold">康爾喜益生菌</h4>
+                        <div class="img-placeholder mb-3" style="height: 200px;">
+                            <i class="fa-solid fa-bacteria fa-3x mb-2 text-emerald"></i>
+                            <span class="fw-bold">【預留圖位】康爾喜益生菌外盒與條包照</span>
+                            <small class="text-muted">建議尺寸：600 x 600 px</small>
                         </div>
-                        <p class="text-light small mb-3">嚴選 13 種複合優質益生菌，搭配專利微膠囊包埋技術，順暢消化道機能首選。</p>
-                        <ul class="list-unstyled small text-light mb-0">
-                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i>  多菌株協同作用</li>
-                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i>  耐酸抗鹼包埋技術</li>
-                            <li><i class="fa-solid fa-check text-emerald"></i>  隨身包美味方便</li>
+                        <h4 class="fw-bold text-center mb-2">康爾喜益生菌</h4>
+                        <p class="text-muted small mb-3">嚴選 13 種複合優質益生菌，搭配專利微膠囊包埋技術，順暢消化道機能首選。</p>
+                        <ul class="list-unstyled small text-muted mb-0">
+                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i> 多菌株協同作用</li>
+                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i> 耐酸抗鹼包埋技術</li>
+                            <li><i class="fa-solid fa-check text-emerald"></i> 隨身包美味方便</li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="custom-card p-4 h-100 position-relative">
+                    <div class="custom-card p-3 h-100 position-relative">
                         <span class="star-badge"><i class="fa-solid fa-award"></i> 獨家專利</span>
-                        <div class="text-center mb-3">
-                            <i class="fa-solid fa-capsules text-emerald mb-2" style="font-size: 3rem;"></i>
-                            <h4 class="fw-bold">百克斯膠囊</h4>
+                        <div class="img-placeholder mb-3" style="height: 200px;">
+                            <i class="fa-solid fa-capsules fa-3x mb-2 text-emerald"></i>
+                            <span class="fw-bold">【預留圖位】百克斯膠囊瓶裝照</span>
+                            <small class="text-muted">建議尺寸：600 x 600 px</small>
                         </div>
-                        <p class="text-light small mb-3">結合冬蟲夏草菌絲體與多種草本精華，為上班族與辛苦長輩提供深層的活力補給。</p>
-                        <ul class="list-unstyled small text-light mb-0">
-                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i>  國家研發專利字號</li>
-                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i>  草本複方平衡調理</li>
-                            <li><i class="fa-solid fa-check text-emerald"></i>  促進新陳代謝</li>
+                        <h4 class="fw-bold text-center mb-2">百克斯膠囊</h4>
+                        <p class="text-muted small mb-3">結合冬蟲夏草菌絲體與多種草本精華，為上班族與辛苦長輩提供深層的活力補給。</p>
+                        <ul class="list-unstyled small text-muted mb-0">
+                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i> 國家研發專利字號</li>
+                            <li class="mb-1"><i class="fa-solid fa-check text-emerald"></i> 草本複方平衡調理</li>
+                            <li><i class="fa-solid fa-check text-emerald"></i> 促進新陳代謝</li>
                         </ul>
                     </div>
                 </div>
@@ -470,57 +506,66 @@
         </div>
     </section>
 
-    <section id="certifications" class="py-5 style-emerald-bg" style="background-color: rgba(34, 53, 43, 0.4);">
+    <section id="certifications" class="py-5">
         <div class="container">
             <div class="section-header">
                 <h2><i class="fa-solid fa-certificate"></i> 頂尖專利與權威認證</h2>
-                <p class="text-light mt-2">用白紙黑字的國際榮譽，為您的健康做最堅實的後盾</p>
+                <p class="text-muted mt-2">用白紙黑字的國際榮譽，為您的健康做最堅實的後盾</p>
             </div>
+            
             <div class="row g-4 mb-5 text-center">
                 <div class="col-6 col-md-3">
                     <div class="p-3 border border-secondary rounded">
                         <div class="display-6 fw-bold text-emerald">234+</div>
-                        <div class="text-light small mt-1"><i class="fa-solid fa-lightbulb"></i> 全球發明專利</div>
+                        <div class="text-muted small mt-1"><i class="fa-solid fa-lightbulb"></i> 全球發明專利</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="p-3 border border-secondary rounded">
                         <div class="display-6 fw-bold text-emerald">356+</div>
-                        <div class="text-light small mt-1"><i class="fa-solid fa-trophy"></i> 國際發明金牌獎</div>
+                        <div class="text-muted small mt-1"><i class="fa-solid fa-trophy"></i> 國際發明金牌獎</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="p-3 border border-secondary rounded">
                         <div class="display-6 fw-bold text-emerald">100%</div>
-                        <div class="text-light small mt-1"><i class="fa-solid fa-shield-cat"></i> 安全檢驗合格</div>
+                        <div class="text-muted small mt-1"><i class="fa-solid fa-shield-cat"></i> 安全檢驗合格</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="p-3 border border-secondary rounded">
                         <div class="display-6 fw-bold text-emerald">SNQ</div>
-                        <div class="text-light small mt-1"><i class="fa-solid fa-award"></i> 國家品質標章</div>
+                        <div class="text-muted small mt-1"><i class="fa-solid fa-award"></i> 國家品質標章</div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="row g-4">
                 <div class="col-md-6">
-                    <div class="custom-card p-4">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-stamp text-emerald"></i> 工廠與品質體系認證</h5>
-                        <ul class="list-unstyled text-light mb-0">
-                            <li class="mb-2"><i class="fa-solid fa-check-double text-emerald"></i>  ISO 22000 食品安全管理體系認證</li>
-                            <li class="mb-2"><i class="fa-solid fa-check-double text-emerald"></i>  HACCP 危害分析重要管制點認證</li>
-                            <li><i class="fa-solid fa-check-double text-emerald"></i>  NSF GMP 優良製造規範合格認證</li>
+                    <div class="custom-card p-4 h-100">
+                        <div class="img-placeholder mb-3" style="height: 160px;">
+                            <i class="fa-solid fa-file-contract fa-2x mb-2 text-emerald"></i>
+                            <span class="fw-bold">【預留圖位】ISO 22000 & HACCP 國際證書輪播位</span>
+                        </div>
+                        <h5 class="fw-bold mb-2"><i class="fa-solid fa-stamp text-emerald"></i> 工廠與品質體系認證</h5>
+                        <ul class="list-unstyled text-muted small mb-0">
+                            <li class="mb-1"><i class="fa-solid fa-check-double text-emerald"></i> ISO 22000 食品安全管理體系認證</li>
+                            <li class="mb-1"><i class="fa-solid fa-check-double text-emerald"></i> HACCP 危害分析重要管制點認證</li>
+                            <li><i class="fa-solid fa-check-double text-emerald"></i> NSF GMP 優良製造規範合格認證</li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="custom-card p-4">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-microchip text-emerald"></i> 獨家專利生技領域</h5>
-                        <ul class="list-unstyled text-light mb-0">
-                            <li class="mb-2"><i class="fa-solid fa-check-double text-emerald"></i>  樟芝菌絲體專利培育技術</li>
-                            <li class="mb-2"><i class="fa-solid fa-check-double text-emerald"></i>  猴頭菇保護因子專利萃取</li>
-                            <li><i class="fa-solid fa-check-double text-emerald"></i>  多重耐酸乳酸菌包埋專利</li>
+                    <div class="custom-card p-4 h-100">
+                        <div class="img-placeholder mb-3" style="height: 160px;">
+                            <i class="fa-solid fa-award fa-2x mb-2 text-emerald"></i>
+                            <span class="fw-bold">【預留圖位】專利證書與日內瓦發明展金牌獎狀</span>
+                        </div>
+                        <h5 class="fw-bold mb-2"><i class="fa-solid fa-microchip text-emerald"></i> 獨家專利生技領域</h5>
+                        <ul class="list-unstyled text-muted small mb-0">
+                            <li class="mb-1"><i class="fa-solid fa-check-double text-emerald"></i> 樟芝菌絲體專利培育技術</li>
+                            <li class="mb-1"><i class="fa-solid fa-check-double text-emerald"></i> 猴頭菇保護因子專利萃取</li>
+                            <li><i class="fa-solid fa-check-double text-emerald"></i> 多重耐酸乳酸菌包埋專利</li>
                         </ul>
                     </div>
                 </div>
@@ -536,11 +581,11 @@
             </div>
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    <p class="text-light small mb-0">&copy; 2026 葡眾健康網 Pro-Partner. All Rights Reserved.</p>
+                    <p class="text-muted small mb-0">&copy; 2026 葡眾健康網 Pro-Partner. All Rights Reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <a href="#" class="text-light me-3 text-decoration-none small"><i class="fa-solid fa-user-shield"></i> 隱私權政策</a>
-                    <a href="#" class="text-light text-decoration-none small"><i class="fa-solid fa-file-contract"></i> 服務條款</a>
+                    <a href="#" class="text-muted me-3 text-decoration-none small"><i class="fa-solid fa-user-shield"></i> 隱私權政策</a>
+                    <a href="#" class="text-muted text-decoration-none small"><i class="fa-solid fa-file-contract"></i> 服務條款</a>
                 </div>
             </div>
         </div>

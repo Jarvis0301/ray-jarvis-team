@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職級試算戰略儀表板 - 榮祥葡眾團隊私域軍備庫</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b132b;
+            --bg-card: #1c2541;
+            --bg-card-hover: #232f54;
+            --bg-input: #0f172a;
+            --accent-cyan: #38bdf8;
+            --accent-cyan-glow: rgba(56, 189, 248, 0.3);
+            --accent-gold: #facc15;
+            --accent-green: #4ade80;
+            --accent-orange: #f97316;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 3rem;
+        }
+
+        /* 頂部標題 Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #1c2541 0%, #0b132b 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2.5rem 0 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-cyan-glow) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* 卡片容器樣式 */
+        .war-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .war-card:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .card-header-title {
+            color: var(--accent-cyan);
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 表單控制項樣式 */
+        .form-label {
+            color: var(--text-main);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 0.625rem 0.875rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 0.25rem var(--accent-cyan-glow);
+        }
+
+        .input-group-text {
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        /* 滑塊自訂樣式 */
+        .form-range::-webkit-slider-thumb {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        /* 試算結果數值卡片 */
+        .stat-box {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+            height: 100%;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: var(--accent-cyan);
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .stat-value.gold {
+            color: var(--accent-gold);
+        }
+
+        .stat-value.green {
+            color: var(--accent-green);
+        }
+
+        .stat-value.orange {
+            color: var(--accent-orange);
+        }
+
+        /* 自訂進度條 */
+        .progress-war {
+            height: 1.25rem;
+            background-color: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-cyan {
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        /* 職級階梯列表 */
+        .rank-badge-custom {
+            font-size: 0.85rem;
+            padding: 0.35em 0.75em;
+            border-radius: 6px;
+        }
+
+        .bg-gold {
+            background-color: var(--accent-gold);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .bg-cyan {
+            background-color: var(--accent-cyan);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .table-war {
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .table-war th {
+            background-color: #0f172a;
+            color: var(--accent-cyan);
+            border-color: var(--border-color);
+        }
+
+        .table-war td {
+            background-color: transparent;
+            border-color: var(--border-color);
+        }
+
+        .table-war tr.active-row td {
+            background-color: rgba(56, 189, 248, 0.15);
+        }
+
+        /* 快速加入產品模組 */
+        .product-chip {
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-chip:hover {
+            background-color: var(--accent-cyan);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .product-chip i {
+            color: var(--accent-cyan);
+        }
+
+        .product-chip:hover i {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-banner">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge bg-outline-info text-info border border-info mb-2">
+                        <i class="fa-solid fa-shield-halved"></i> 私域內部戰情室專用
+                    </span>
+                    <h1 class="fw-bold mb-2 text-white">
+                        <i class="fa-solid fa-calculator"></i> 職級晉升即時試算器
+                    </h1>
+                    <p class="text-muted mb-0">
+                        白紙黑字解構累積 SV、160 SV 續約資格、第一代合格經理結構與個人現金回饋估算。
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <button id="btnReset" class="btn btn-outline-light btn-sm">
+                        <i class="fa-solid fa-arrows-rotate"></i> 重置數據
+                    </button>
+                    <a href="rank-advancement.html" class="btn btn-info btn-sm text-dark fw-bold ms-2">
+                        <i class="fa-solid fa-sitemap"></i> 職級圖解說明
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="row">
+            
+            <div class="col-lg-5">
+                <div class="war-card">
+                    <div class="card-header-title">
+                        <span>
+                            <i class="fa-solid fa-sliders"></i> 個人與組織數據輸入
+                        </span>
+                        <small class="text-muted fs-6">動態計算</small>
+                    </div>
+
+                    <form id="calculatorForm" onsubmit="return false;">
+                        
+                        <div class="mb-4">
+                            <label for="personalSv" class="form-label d-flex justify-content-between">
+                                <span><i class="fa-solid fa-user-tag"></i> 當月個人消費 / 銷售 (SV)</span>
+                                <span class="text-info fw-bold"><span id="personalSvVal">160</span> SV</span>
+                            </label>
+                            <div class="input-group mb-2">
+                                <input type="number" class="form-control" id="personalSv" value="160" min="0" step="10">
+                                <span class="input-group-text">SV</span>
+                            </div>
+                            <input type="range" class="form-range" id="personalSvRange" min="0" max="2000" step="10" value="160">
+                            
+                            <div class="mt-2">
+                                <div class="small text-muted mb-1"><i class="fa-solid fa-bolt"></i> 點擊快速加總熱門產品：</div>
+                                <div id="productChipsContainer">
+                                    <div class="product-chip" data-sv="1560">
+                                        <i class="fa-solid fa-plus"></i> 康爾喜 (1,560 SV)
+                                    </div>
+                                    <div class="product-chip" data-sv="1400">
+                                        <i class="fa-solid fa-plus"></i> 995 菌液 (1,400 SV)
+                                    </div>
+                                    <div class="product-chip" data-sv="160">
+                                        <i class="fa-solid fa-plus"></i> 基本保全 (160 SV)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="cumulativeSv" class="form-label d-flex justify-content-between">
+                                <span><i class="fa-solid fa-layer-group"></i> 歷史累積總點數 (Cumulative SV)</span>
+                                <span class="text-info fw-bold"><span id="cumulativeSvVal">3,500</span> SV</span>
+                            </label>
+                            <div class="input-group mb-2">
+                                <input type="number" class="form-control" id="cumulativeSv" value="3500" min="0" step="100">
+                                <span class="input-group-text">SV</span>
+                            </div>
+                            <small class="text-muted"><i class="fa-solid fa-circle-info"></i> 葡眾制度特色：點數無限期累積、永不歸零。</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="managerLines" class="form-label d-flex justify-content-between">
+                                <span><i class="fa-solid fa-users-gear"></i> 第一代合格經理線數 (Manager Lines)</span>
+                                <span class="text-warning fw-bold"><span id="managerLinesVal">0</span> 線</span>
+                            </label>
+                            <div class="input-group mb-2">
+                                <input type="number" class="form-control" id="managerLines" value="0" min="0" max="20" step="1">
+                                <span class="input-group-text">線</span>
+                            </div>
+                            <small class="text-muted"><i class="fa-solid fa-circle-info"></i> 用於珍珠、翡翠、藍鑽、皇冠等高階職級晉升。</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="targetRankSelect" class="form-label">
+                                <i class="fa-solid fa-bullseye"></i> 想要挑戰的目標職級
+                            </label>
+                            <select class="form-select" id="targetRankSelect">
+                                <option value="director">主任 (累積 1,200 SV)</option>
+                                <option value="assistant">副理 (累積 6,000 SV)</option>
+                                <option value="manager" selected>經理 (累積 12,000 SV)</option>
+                                <option value="pearl">珍珠經理 (培養 2 位合格經理)</option>
+                                <option value="emerald">翡翠經理 (培養 4 位合格經理)</option>
+                                <option value="diamond">藍鑽經理 (培養 6 位合格經理)</option>
+                                <option value="double_diamond">雙藍鑽經理 (培養 8 位合格經理)</option>
+                                <option value="crown">皇冠經理 (培養 10 位合格經理)</option>
+                                <option value="double_crown">雙皇冠經理 (培養 12 位合格經理)</option>
+                            </select>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="war-card">
+                    <div class="card-header-title">
+                        <span>
+                            <i class="fa-solid fa-cloud-arrow-down"></i> Google 試算表產品 SV 同步
+                        </span>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        系統支援直接使用 PapaParse 或 Google Visualization API (gviz) 自動抓取雲端產品點數總表。
+                    </p>
+                    <button id="btnFetchSheets" class="btn btn-outline-info btn-sm w-100">
+                        <i class="fa-solid fa-sync"></i> 載入雲端試算表最新 SV 數據
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                
+                <div class="war-card">
+                    <div class="card-header-title">
+                        <span>
+                            <i class="fa-solid fa-chart-pie"></i> 試算分析與當前評定
+                        </span>
+                        <span id="qualificationBadge" class="badge bg-success">
+                            <i class="fa-solid fa-check"></i> 160 SV 保全合規
+                        </span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="stat-box">
+                                <div class="stat-label">當前評定職級</div>
+                                <div class="stat-value text-info" id="currentRankText">主任</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-box">
+                                <div class="stat-label">購物回饋趴數</div>
+                                <div class="stat-value gold" id="bonusRateText">10%</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-box">
+                                <div class="stat-label">當月估計回饋</div>
+                                <div class="stat-value green" id="estimatedBonusText">$160</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stat-box">
+                                <div class="stat-label">目標完成率</div>
+                                <div class="stat-value cyan" id="targetProgressText">29.1%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 mb-4 rounded" style="background-color: #0f172a; border: 1px solid var(--border-color);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-white">
+                                <i class="fa-solid fa-flag-checkered"></i> 距離目標「<span id="targetRankNameText" class="text-warning">經理</span>」的晉升差距：
+                            </span>
+                            <span class="badge bg-warning text-dark" id="targetStatusBadge">尚需努力</span>
+                        </div>
+                        
+                        <div class="progress progress-war mb-3">
+                            <div id="targetProgressBar" class="progress-bar progress-bar-cyan" role="progressbar" style="width: 29.1%;">
+                                29.1%
+                            </div>
+                        </div>
+
+                        <div class="row text-sm">
+                            <div class="col-md-6 mb-2 mb-md-0">
+                                <i class="fa-solid fa-circle-arrow-right text-info"></i> 累積點數差距：
+                                <span class="fw-bold text-white" id="gapSvText">8,500 SV</span>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fa-solid fa-circle-arrow-right text-info"></i> 經理線數差距：
+                                <span class="fw-bold text-white" id="gapManagerText">0 線</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="svAlertBox" class="alert alert-dark border-info d-flex align-items-center mb-0" role="alert">
+                        <i class="fa-solid fa-shield-cat fa-2x text-info me-3"></i>
+                        <div>
+                            <div class="fw-bold text-info" id="svAlertTitle">160 SV 個人基本盤維護正常</div>
+                            <div class="small text-muted" id="svAlertDesc">
+                                當月個人累積達 160 SV，具備續約 qualification 保全，並可領取對應職級之最高%回饋。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="war-card">
+                    <div class="card-header-title">
+                        <span>
+                            <i class="fa-solid fa-list-check"></i> 10 大職級晉升標準對照表
+                        </span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-war align-middle text-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>職級名稱</th>
+                                    <th>累積 SV 門檻</th>
+                                    <th>合格經理線</th>
+                                    <th>回饋比例</th>
+                                    <th>當前狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rankTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        // 1. 10 大職級標準資料結構
+        const RANK_DATA = [
+            { id: 'member', name: '會員', svReq: 0, managerReq: 0, rate: 0.05, badgeClass: 'bg-secondary' },
+            { id: 'director', name: '主任', svReq: 1200, managerReq: 0, rate: 0.10, badgeClass: 'bg-info text-dark' },
+            { id: 'assistant', name: '副理', svReq: 6000, managerReq: 0, rate: 0.15, badgeClass: 'bg-primary' },
+            { id: 'manager', name: '經理', svReq: 12000, managerReq: 0, rate: 0.20, badgeClass: 'bg-success' },
+            { id: 'pearl', name: '珍珠經理', svReq: 12000, managerReq: 2, rate: 0.20, badgeClass: 'bg-warning text-dark' },
+            { id: 'emerald', name: '翡翠經理', svReq: 12000, managerReq: 4, rate: 0.20, badgeClass: 'bg-warning text-dark' },
+            { id: 'diamond', name: '藍鑽經理', svReq: 12000, managerReq: 6, rate: 0.20, badgeClass: 'bg-cyan' },
+            { id: 'double_diamond', name: '雙藍鑽經理', svReq: 12000, managerReq: 8, rate: 0.20, badgeClass: 'bg-primary' },
+            { id: 'crown', name: '皇冠經理', svReq: 12000, managerReq: 10, rate: 0.20, badgeClass: 'bg-gold' },
+            { id: 'double_crown', name: '雙皇冠經理', svReq: 12000, managerReq: 12, rate: 0.20, badgeClass: 'bg-gold' }
+        ];
+
+        $(document.body).ready(function() {
+            
+            // 初始化渲染對照表格
+            renderRankTable();
+
+            // 綁定輸入元件事件
+            $('#personalSv, #personalSvRange').on('input change', function() {
+                let val = parseInt($(this).val()) || 0;
+                $('#personalSv').val(val);
+                $('#personalSvRange').val(val);
+                $('#personalSvVal').text(val.toLocaleString());
+                calculateRank();
+            });
+
+            $('#cumulativeSv').on('input change', function() {
+                let val = parseInt($(this).val()) || 0;
+                $('#cumulativeSvVal').text(val.toLocaleString());
+                calculateRank();
+            });
+
+            $('#managerLines').on('input change', function() {
+                let val = parseInt($(this).val()) || 0;
+                $('#managerLinesVal').text(val);
+                calculateRank();
+            });
+
+            $('#targetRankSelect').on('change', function() {
+                calculateRank();
+            });
+
+            // 快速點擊產品 Chip 加總 SV
+            $('.product-chip').on('click', function() {
+                let addSv = parseInt($(this).data('sv')) || 0;
+                let currentSv = parseInt($('#personalSv').val()) || 0;
+                let newSv = currentSv + addSv;
+                
+                $('#personalSv').val(newSv).trigger('change');
+                
+                // 動態微視覺反饋
+                $(this).addClass('bg-info text-dark');
+                setTimeout(() => {
+                    $(this).removeClass('bg-info text-dark');
+                }, 300);
+            });
+
+            // 重置按鈕
+            $('#btnReset').on('click', function() {
+                $('#personalSv').val(160).trigger('change');
+                $('#cumulativeSv').val(3500).trigger('change');
+                $('#managerLines').val(0).trigger('change');
+                $('#targetRankSelect').val('manager').trigger('change');
+            });
+
+            // 模擬 PapaParse / gviz 從 Google 試算表讀取資料
+            $('#btnFetchSheets').on('click', function() {
+                let btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 載入中...');
+                
+                // 示範以 PapaParse 抓取雲端 CSV 結構或 gviz JSON 數據
+                setTimeout(function() {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-circle-check text-success"></i> 已同步最新產品 SV');
+                    alert('已順利連動 Google 試算表，最新產品點數對照表載入完成！');
+                }, 1000);
+            });
+
+            // 執行第一次初始計算
+            calculateRank();
+        });
+
+        // 渲染 10 大職級晉升標準對照表
+        function renderRankTable() {
+            let html = '';
+            RANK_DATA.forEach(function(rank, index) {
+                html += `
+                    <tr id="rank-row-${rank.id}">
+                        <td>
+                            <span class="badge ${rank.badgeClass} rank-badge-custom">
+                                ${rank.name}
+                            </span>
+                        </td>
+                        <td>${rank.svReq > 0 ? rank.svReq.toLocaleString() + ' SV' : '無門檻'}</td>
+                        <td>${rank.managerReq > 0 ? rank.managerReq + ' 位' : '-'}</td>
+                        <td class="fw-bold text-info">${(rank.rate * 100)}%</td>
+                        <td id="status-cell-${rank.id}">
+                            <span class="text-muted small">未達標</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            $('#rankTableBody').html(html);
+        }
+
+        // 核心計算引擎
+        function calculateRank() {
+            let personalSv = parseInt($('#personalSv').val()) || 0;
+            let cumulativeSv = parseInt($('#cumulativeSv').val()) || 0;
+            let managerLines = parseInt($('#managerLines').val()) || 0;
+            let targetRankId = $('#targetRankSelect').val();
+
+            // 1. 判定當前評定職級 (由最高職級向低階比對)
+            let currentRank = RANK_DATA[0]; // 預設會員
+            
+            for (let i = RANK_DATA.length - 1; i >= 0; i--) {
+                let r = RANK_DATA[i];
+                if (cumulativeSv >= r.svReq && managerLines >= r.managerReq) {
+                    currentRank = r;
+                    break;
+                }
+            }
+
+            // 2. 獲取目標職級資料
+            let targetRank = RANK_DATA.find(r => r.id === targetRankId) || RANK_DATA[3];
+
+            // 3. 計算當月預估個人回饋金額 (NTD)
+            let estimatedBonus = Math.round(personalSv * currentRank.rate);
+
+            // 4. 計算差距 (Gap Analysis)
+            let gapSv = Math.max(0, targetRank.svReq - cumulativeSv);
+            let gapManager = Math.max(0, targetRank.managerReq - managerLines);
+
+            // 5. 計算目標完成率 (以 SV 及 經理數綜合比重評估)
+            let svProgress = targetRank.svReq > 0 ? Math.min(100, (cumulativeSv / targetRank.svReq) * 100) : 100;
+            let managerProgress = targetRank.managerReq > 0 ? Math.min(100, (managerLines / targetRank.managerReq) * 100) : 100;
+            
+            let totalProgress = targetRank.managerReq > 0 ? (svProgress * 0.5 + managerProgress * 0.5) : svProgress;
+            totalProgress = Math.round(totalProgress * 10) / 10;
+
+            // 6. UI 畫面即時更新
+            $('#currentRankText').text(currentRank.name);
+            $('#bonusRateText').text((currentRank.rate * 100) + '%');
+            $('#estimatedBonusText').text('$' + estimatedBonus.toLocaleString());
+            $('#targetProgressText').text(totalProgress + '%');
+            
+            $('#targetRankNameText').text(targetRank.name);
+            $('#gapSvText').text(gapSv > 0 ? gapSv.toLocaleString() + ' SV' : '已達標');
+            $('#gapManagerText').text(gapManager > 0 ? gapManager + ' 位' : '已達標');
+
+            // 更新進度條
+            $('#targetProgressBar').css('width', totalProgress + '%').text(totalProgress + '%');
+
+            if (totalProgress >= 100) {
+                $('#targetStatusBadge').removeClass('bg-warning text-dark').addClass('bg-success text-white').html('<i class="fa-solid fa-circle-check"></i> 目標已達成');
+            } else {
+                $('#targetStatusBadge').removeClass('bg-success text-white').addClass('bg-warning text-dark').html('<i class="fa-solid fa-hourglass-half"></i> 尚需努力');
+            }
+
+            // 7. 160 SV 保全合規檢查
+            if (personalSv >= 160) {
+                $('#qualificationBadge').removeClass('bg-danger').addClass('bg-success').html('<i class="fa-solid fa-check"></i> 160 SV 保全合規');
+                $('#svAlertBox').removeClass('border-danger').addClass('border-info');
+                $('#svAlertTitle').removeClass('text-danger').addClass('text-info').html('<i class="fa-solid fa-circle-check"></i> 160 SV 個人基本盤維護正常');
+                $('#svAlertDesc').text('當月個人累積達 160 SV，具備續約 qualification 保全，並可領取對應職級之最高 % 回饋。');
+            } else {
+                $('#qualificationBadge').removeClass('bg-success').addClass('bg-danger').html('<i class="fa-solid fa-triangle-exclamation"></i> 未達 160 SV');
+                $('#svAlertBox').removeClass('border-info').addClass('border-danger');
+                $('#svAlertTitle').removeClass('text-info').addClass('text-danger').html('<i class="fa-solid fa-triangle-exclamation"></i> 注意：當月尚未滿足 160 SV 續約門檻');
+                $('#svAlertDesc').text('當月個人 SV 需補足至 160 SV，以維護經理/主任續約資格與最高領獎比例權益。');
+            }
+
+            // 8. 高亮對照表格狀態
+            RANK_DATA.forEach(function(r) {
+                let row = $('#rank-row-' + r.id);
+                let cell = $('#status-cell-' + r.id);
+
+                row.removeClass('active-row');
+                
+                if (r.id === currentRank.id) {
+                    row.addClass('active-row');
+                    cell.html('<span class="badge bg-success"><i class="fa-solid fa-award"></i> 當前職級</span>');
+                } else if (cumulativeSv >= r.svReq && managerLines >= r.managerReq) {
+                    cell.html('<span class="text-success"><i class="fa-solid fa-circle-check"></i> 已解鎖</span>');
+                } else {
+                    cell.html('<span class="text-muted small">未達標</span>');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

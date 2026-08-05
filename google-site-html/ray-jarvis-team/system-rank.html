@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職級晉升事業藍圖 - 榮祥葡眾團隊私域戰情室</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b132b;
+            --bg-card: #1c2541;
+            --bg-card-hover: #233154;
+            --accent-blue: #38bdf8;
+            --accent-cyan: #2dd4bf;
+            --accent-gold: #facc15;
+            --accent-green: #34d399;
+            --accent-purple: #c084fc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-blue: rgba(56, 189, 248, 0.25);
+            --border-blue-hover: rgba(56, 189, 248, 0.6);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        /* 頂部戰情 Header */
+        .war-room-header {
+            background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            border-bottom: 2px solid var(--accent-blue);
+            padding: 2.5rem 0 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-badge {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 0.35rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+
+        /* 卡片與模組容器 */
+        .custom-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-card:hover {
+            border-color: var(--border-blue-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.15);
+        }
+
+        /* 標題與圖示 */
+        .section-title {
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            color: var(--accent-cyan);
+        }
+
+        /* 預留圖片容器 (Image Placeholder) */
+        .img-placeholder-box {
+            background: rgba(11, 19, 43, 0.7);
+            border: 2px dashed var(--accent-blue);
+            border-radius: 10px;
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--accent-blue);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .img-placeholder-box:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .img-placeholder-box i.main-icon {
+            font-size: 2.8rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .img-placeholder-box .badge-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--accent-blue);
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-blue);
+        }
+
+        /* 職級階梯三大階段卡片 */
+        .stage-card {
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .stage-card.stage-mid {
+            border-left-color: var(--accent-cyan);
+        }
+
+        .stage-card.stage-high {
+            border-left-color: var(--accent-gold);
+        }
+
+        .stage-badge {
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        /* 4大護城河特色 */
+        .feature-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 10大職級對照表格 */
+        .custom-table-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-blue);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-dark-custom {
+            margin-bottom: 0;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .table-dark-custom th {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--border-blue);
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 1rem 0.75rem;
+        }
+
+        .table-dark-custom td {
+            border-color: rgba(255, 255, 255, 0.05);
+            padding: 0.9rem 0.75rem;
+            background-color: transparent;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .rank-tag {
+            font-weight: bold;
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.88rem;
+        }
+
+        .rank-base { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+        .rank-mid { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); }
+        .rank-lead { background: rgba(45, 212, 191, 0.2); color: var(--accent-cyan); }
+        .rank-high { background: rgba(250, 204, 21, 0.2); color: var(--accent-gold); }
+
+        /* Modal 暗色調優化 */
+        .modal-content-dark {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-blue);
+            color: var(--text-main);
+        }
+
+        .modal-header-dark {
+            border-bottom: 1px solid var(--border-blue);
+        }
+
+        .modal-footer-dark {
+            border-top: 1px solid var(--border-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="war-room-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="header-badge">
+                        <i class="fas fa-shield-halved me-2"></i> 榮祥葡眾團隊 · 私域戰情室內部版
+                    </span>
+                    <h1 class="fw-bold mb-2 text-white">
+                        <i class="fas fa-chart-line text-info me-2"></i> 職級晉升藍圖與事業發展地圖
+                    </h1>
+                    <p class="text-muted mb-0">
+                        透明、公平、無限累積的事業階梯。解構 10 大職級發展路徑、三大成長階段與四大制度安全護城河。
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <div class="p-3 rounded-3" style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--border-blue);">
+                        <div class="text-muted small mb-1">
+                            <i class="fas fa-clock me-2"></i> 制度核心精神
+                        </div>
+                        <div class="text-info fw-bold">
+                            <i class="fas fa-lock-open me-2"></i> 累計不歸零 · 職級不下聘
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="mb-5">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-7">
+                    <div class="custom-card">
+                        <h2 class="section-title">
+                            <i class="fas fa-map-location-dot me-2"></i> 職級晉升戰略全景圖
+                        </h2>
+                        <p class="text-muted">
+                            葡眾事業制度設計以「助人與共好」為核心，從最初的產品體驗者（會員），一步步跨越至事業經營者（經理），再延伸至團隊領導人（珍珠、藍鑽與皇冠）。整套系統具備**「累積不歸零」**與**「職級不下聘」**機制，讓每一份努力都能永久鎖定成果。
+                        </p>
+                        <div class="row g-3 mt-2">
+                            <div class="col-sm-6">
+                                <div class="p-3 rounded" style="background: rgba(11, 19, 43, 0.6); border-left: 3px solid var(--accent-blue);">
+                                    <div class="text-info fw-bold mb-1">
+                                        <i class="fas fa-arrow-up-right-dots me-2"></i> 累積不歸零
+                                    </div>
+                                    <div class="small text-muted">業績跨月無限期累積，無時間壓力，順暢晉升。</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 rounded" style="background: rgba(11, 19, 43, 0.6); border-left: 3px solid var(--accent-gold);">
+                                    <div class="text-warning fw-bold mb-1">
+                                        <i class="fas fa-lock me-2"></i> 職級不下聘
+                                    </div>
+                                    <div class="small text-muted">上了聘位永不降級，無囤貨壓力，零傳銷陷阱。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="img-placeholder-box" onclick="showImgModal('職級晉升全景地圖 (職級晉升圖.png)', '此處預留放置《職級晉升圖.png》高清圖解卡片，展示 10 大職級階梯與視覺示意圖。')">
+                        <span class="badge-tag">
+                            <i class="fas fa-image me-2"></i> 預留圖片空間
+                        </span>
+                        <i class="fas fa-network-wired main-icon"></i>
+                        <h5 class="fw-bold text-white mb-1">
+                            <i class="fas fa-expand me-2"></i> [ 預留圖片：職級晉升全景圖 ]
+                        </h5>
+                        <p class="small text-muted mb-0 px-3">
+                            點擊預覽示意圖放置規範 (建議尺寸: 1200x800, 檔名: `職級晉升圖.png`)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="section-title mb-4">
+                <i class="fas fa-shield-halved me-2"></i> 制度 4 大安全護城河 (Compliance & Security)
+            </h2>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div class="feature-icon-box">
+                            <i class="fas fa-calculator me-2"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">整組計算與共享</h5>
+                        <p class="small text-muted mb-0">
+                            打破個人孤軍奮戰模式，全組夥伴與上線資源業績積分共享，團隊互助共好。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div class="feature-icon-box" style="color: var(--accent-cyan); background: rgba(45, 212, 191, 0.15);">
+                            <i class="fas fa-infinity me-2"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">業績累計不歸零</h5>
+                        <p class="small text-muted mb-0">
+                            消費與銷售積分跨月持續累積，沒有月底歸零倒數壓力，按照自己節奏晉升。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div class="feature-icon-box" style="color: var(--accent-gold); background: rgba(250, 204, 21, 0.15);">
+                            <i class="fas fa-user-lock me-2"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">職級終身不下聘</h5>
+                        <p class="small text-warning mb-0">
+                            一旦達成位階，永不滑落降級。不需要為保住職級而盲目囤貨，零傳銷陷阱。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="custom-card">
+                        <div class="feature-icon-box" style="color: var(--accent-green); background: rgba(52, 211, 153, 0.15);">
+                            <i class="fas fa-life-ring me-2"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">珍珠自動補救</h5>
+                        <p class="small text-muted mb-0">
+                            晉升珍珠經理以上，啟動組織合格線自動補救機制，確保領取永續水龍頭被動收入。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="section-title mb-4">
+                <i class="fas fa-stairs me-2"></i> 職級晉升三大階段地圖 (3 Career Stages)
+            </h2>
+            <div class="row g-4">
+                
+                <div class="col-lg-4">
+                    <div class="custom-card stage-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="stage-badge bg-primary text-white">
+                                <i class="fas fa-seedling me-2"></i> 階段一
+                            </span>
+                            <span class="text-info small fw-bold">5% ~ 20% 階差</span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-2">初階累積期</h4>
+                        <p class="small text-muted mb-3">
+                            包含：**會員 $\rightarrow$ 主任 $\rightarrow$ 副理 $\rightarrow$ 經理**。此階段重點在於體驗產品、分享體驗，累積消費 SV 積分。
+                        </p>
+                        <ul class="list-unstyled small text-muted mb-4 space-y-2">
+                            <li class="mb-2"><i class="fas fa-check text-info me-2"></i> **會員 (5%)**：入會即享回饋，越吃越便宜。</li>
+                            <li class="mb-2"><i class="fas fa-check text-info me-2"></i> **主任 (10%)**：小組累計達 6,000 SV。</li>
+                            <li class="mb-2"><i class="fas fa-check text-info me-2"></i> **副理 (15%)**：小組累計達 12,000 SV。</li>
+                            <li class="mb-2"><i class="fas fa-check text-info me-2"></i> **經理 (20%)**：12,000 SV + 當月個人 160 SV & 小組 3,000 SV。</li>
+                        </ul>
+
+                        <div class="img-placeholder-box p-3 min-h-auto" onclick="showImgModal('初階晉升條件圖 (職級晉升條件.png)', '預留放置《職級晉升條件.png》圖解，說明會員至經理的累計路徑。')">
+                            <i class="fas fa-file-image me-2 mb-2" style="font-size:1.8rem;"></i>
+                            <span class="small fw-bold">[ 預留圖片：初階條件對照圖 ]</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="custom-card stage-card stage-mid">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="stage-badge bg-info text-dark">
+                                <i class="fas fa-users-rays me-2"></i> 階段二
+                            </span>
+                            <span class="text-cyan small fw-bold">2 ~ 6 代組織獎金</span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-2">中階組織領導期</h4>
+                        <p class="small text-muted mb-3">
+                            包含：**松柏 $\rightarrow$ 長青 $\rightarrow$ 珍珠**。輔導下線夥伴培育合格經理線，啟動組織代數獎金與自動補救機制。
+                        </p>
+                        <ul class="list-unstyled small text-muted mb-4 space-y-2">
+                            <li class="mb-2"><i class="fas fa-check text-cyan me-2"></i> **松柏經理**：培育 1 線合格經理，領 2 代獎金。</li>
+                            <li class="mb-2"><i class="fas fa-check text-cyan me-2"></i> **長青經理**：培育 2 線合格經理，領 4 代獎金。</li>
+                            <li class="mb-2"><i class="fas fa-check text-cyan me-2"></i> **珍珠經理**：培育 3 線合格經理，領 6 代獎金，**啟動自動補救**。</li>
+                        </ul>
+
+                        <div class="img-placeholder-box p-3 min-h-auto" onclick="showImgModal('珍珠自動補救機制結構圖', '預留放置《珍珠自動補救與水龍頭被動收入結構圖》，呈現組織安全網。')">
+                            <i class="fas fa-diagram-project me-2 mb-2" style="font-size:1.8rem; color: var(--accent-cyan);"></i>
+                            <span class="small fw-bold text-cyan">[ 預留圖片：自動補救結構圖 ]</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="custom-card stage-card stage-high">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="stage-badge bg-warning text-dark">
+                                <i class="fas fa-crown me-2"></i> 階段三
+                            </span>
+                            <span class="text-warning small fw-bold">全國分紅 & 車基</span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-2">高階企業家分紅期</h4>
+                        <p class="small text-muted mb-3">
+                            包含：**翡翠 $\rightarrow$ 藍鑽 $\rightarrow$ 耀星藍鑽 / 皇冠**。享有全國業績分紅、海外旅遊與購車基金，實現資產永續傳承。
+                        </p>
+                        <ul class="list-unstyled small text-muted mb-4 space-y-2">
+                            <li class="mb-2"><i class="fas fa-check text-warning me-2"></i> **翡翠經理**：培育 4 線，享全國分紅 + 海外旅遊。</li>
+                            <li class="mb-2"><i class="fas fa-check text-warning me-2"></i> **藍鑽經理**：培育 6 線，享藍鑽分紅 + **購車基金**。</li>
+                            <li class="mb-2"><i class="fas fa-check text-warning me-2"></i> **皇冠 / 耀星藍鑽**：培育 8 線以上，環球頂級榮耀與資產傳承。</li>
+                        </ul>
+
+                        <div class="img-placeholder-box p-3 min-h-auto" onclick="showImgModal('高階企業家榮耀實景圖', '預留放置《海外旅遊表揚、名車過戶交車實景照片》，建立目標嚮往感。')">
+                            <i class="fas fa-car-side me-2 mb-2" style="font-size:1.8rem; color: var(--accent-gold);"></i>
+                            <span class="small fw-bold text-warning">[ 預留圖片：高階榮耀實景圖 ]</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h2 class="section-title mb-0">
+                    <i class="fas fa-table-list me-2"></i> 10 大職級晉升條件與權益總表
+                </h2>
+                <span class="badge bg-secondary text-light">
+                    <i class="fas fa-info-circle me-2"></i> 單位：SV 積分 (1 SV $\approx$ 1 元)
+                </span>
+            </div>
+
+            <div class="custom-table-container">
+                <div class="table-responsive">
+                    <table class="table table-dark-custom text-nowrap">
+                        <thead>
+                            <tr>
+                                <th scope="col"><i class="fas fa-layer-group me-2"></i> 職級名稱</th>
+                                <th scope="col"><i class="fas fa-bullseye me-2"></i> 晉升條件 (積分 / 線數)</th>
+                                <th scope="col"><i class="fas fa-percent me-2"></i> 階差獎金</th>
+                                <th scope="col"><i class="fas fa-sitemap me-2"></i> 組織代數獎金</th>
+                                <th scope="col"><i class="fas fa-gift me-2"></i> 專屬福利與榮耀權益</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="rank-tag rank-base"><i class="fas fa-user me-2"></i> 會員</span></td>
+                                <td>入會完成 (1,200 SV 以下)</td>
+                                <td class="text-info fw-bold">5%</td>
+                                <td class="text-muted">-</td>
+                                <td class="small">享有個人消費回饋 5%，共享團隊組織權益。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-base"><i class="fas fa-user-check me-2"></i> 主任</span></td>
+                                <td>小組累計達 <strong>6,000 SV</strong></td>
+                                <td class="text-info fw-bold">10%</td>
+                                <td class="text-muted">-</td>
+                                <td class="small">享有 10% 階差獎金，業績累計不歸零。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-base"><i class="fas fa-user-gear me-2"></i> 副理</span></td>
+                                <td>小組累計達 <strong>12,000 SV</strong></td>
+                                <td class="text-info fw-bold">15%</td>
+                                <td class="text-muted">-</td>
+                                <td class="small">享有 15% 階差獎金，職級永遠不下聘。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-mid"><i class="fas fa-user-tie me-2"></i> 經理</span></td>
+                                <td>累計 12,000 SV + 當月個人 160 SV & 小組 3,000 SV</td>
+                                <td class="text-info fw-bold">20% (頂級)</td>
+                                <td class="text-muted">-</td>
+                                <td class="small text-info">開啟培育合格經理資格，享有頂級 20% 階差。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-lead"><i class="fas fa-tree me-2"></i> 松柏經理</span></td>
+                                <td>培育 <strong>1 線</strong> 合格經理</td>
+                                <td class="text-info fw-bold">20%</td>
+                                <td class="text-cyan fw-bold">2 代組織獎金</td>
+                                <td class="small">第一代 6%、第二代 5% 組織發展津貼。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-lead"><i class="fas fa-leaf me-2"></i> 長青經理</span></td>
+                                <td>培育 <strong>2 線</strong> 合格經理</td>
+                                <td class="text-info fw-bold">20%</td>
+                                <td class="text-cyan fw-bold">4 代組織獎金</td>
+                                <td class="small">組織深度拓展，穩健被動收入基石。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-lead"><i class="fas fa-gem me-2"></i> 珍珠經理</span></td>
+                                <td>培育 <strong>3 線</strong> 合格經理</td>
+                                <td class="text-info fw-bold">20%</td>
+                                <td class="text-cyan fw-bold">6 代組織獎金</td>
+                                <td class="small text-success"><strong>啟動自動補救機制</strong>，享有全國總業績分紅。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-high"><i class="fas fa-award me-2"></i> 翡翠經理</span></td>
+                                <td>培育 <strong>4 線</strong> 合格經理</td>
+                                <td class="text-info fw-bold">20%</td>
+                                <td class="text-warning">6 代 + 全國分紅</td>
+                                <td class="small text-warning">享 5.5% 翡翠分紅 + 海外榮耀旅遊獎勵。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-high"><i class="fas fa-diamond me-2"></i> 藍鑽經理</span></td>
+                                <td>培育 <strong>6 線</strong> 合格經理</td>
+                                <td class="text-info fw-bold">20%</td>
+                                <td class="text-warning">6 代 + 藍鑽分紅</td>
+                                <td class="small text-warning">享 1.5% 藍鑽分紅 + <strong>購車基金 (名車補貼)</strong>。</td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-tag rank-high"><i class="fas fa-chess-king me-2"></i> 皇冠 / 耀星藍鑽</span></td>
+                                <td>培育 <strong>8 線以上</strong> 合格經理與體系</td>
+                                <td class="text-info fw-bold">20%</td>
+                                <td class="text-warning">全球頂級分紅</td>
+                                <td class="small text-warning">環球奢華旅遊、永續資產傳承權益。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="p-4 rounded-3 text-center" style="background: linear-gradient(135deg, #1c2541 0%, #0b132b 100%); border: 1px solid var(--accent-blue);">
+                <h4 class="fw-bold text-white mb-2">
+                    <i class="fas fa-compass me-2"></i> 準備好開始規劃您的葡眾事業藍圖了嗎？
+                </h4>
+                <p class="text-muted small mb-3">
+                    本戰情室頁面內容僅供榮祥團隊內部經營夥伴事業學習與訓練使用。合規營業，紮實服務，共享健康與自由生活。
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="resources.html" class="btn btn-outline-info">
+                        <i class="fas fa-folder-open me-2"></i> 前往團隊資源總庫
+                    </a>
+                    <a href="getting-started.html" class="btn btn-info text-dark fw-bold">
+                        <i class="fas fa-rocket me-2"></i> 新人第一天 SOP 手冊
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-dark">
+                <div class="modal-header modal-header-dark">
+                    <h5 class="modal-title fw-bold text-info" id="modalImgTitle">
+                        <i class="fas fa-image me-2"></i> 圖片預留位說明
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="p-4 rounded mb-3" style="background: rgba(11,19,43,0.8); border: 2px dashed var(--accent-blue);">
+                        <i class="fas fa-photo-film fa-3x text-info mb-3"></i>
+                        <h6 class="fw-bold text-white" id="modalImgSubtitle">[ 圖片預留區塊 ]</h6>
+                        <p class="small text-muted mb-0" id="modalImgDesc">
+                            此處未來可直接替換為正式的 JPEG/PNG 實體圖檔標籤 `&lt;img src="..." class="img-fluid rounded"&gt;`。
+                        </p>
+                    </div>
+                    <div class="alert alert-info small mb-0 text-start">
+                        <i class="fas fa-lightbulb me-2"></i> **榮祥隊長提醒**：預留放圖片的空間能有效打散長文，降低閱讀疲勞度，提升經營者夥伴學習留存率。
+                    </div>
+                </div>
+                <div class="modal-footer modal-footer-dark">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-xmark me-2"></i> 關閉視窗
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 圖片預留彈窗控制函數
+        function showImgModal(title, desc) {
+            $('#modalImgSubtitle').text(title);
+            $('#modalImgDesc').text(desc);
+            var myModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            myModal.show();
+        }
+
+        $(document).ready(function() {
+            // 表格 Hover 微互動日誌
+            $('.table-dark-custom tbody tr').hover(
+                function() {
+                    $(this).css('transition', 'all 0.2s ease');
+                },
+                function() {
+                    // Reset
+                }
+            );
+        });
+    </script>
+</body>
+</html>

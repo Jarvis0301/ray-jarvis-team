@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂購試算小工具 - 榮祥葡眾團隊私域戰情室</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0b132b;
+            --bg-card: #1c2541;
+            --bg-card-hover: #232f52;
+            --bg-input: #0e1738;
+            --border-color: rgba(56, 189, 248, 0.2);
+            --border-highlight: rgba(56, 189, 248, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-cyan: #00d2ff;
+            --accent-gold: #facc15;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* 頂部標題 Header */
+        .page-header {
+            background: linear-gradient(135deg, #0c2340 0%, #1c2541 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* 卡片通用樣式 */
+        .war-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.25s ease;
+        }
+
+        .war-card:hover {
+            border-color: var(--border-highlight);
+        }
+
+        /* 搜尋與過濾區塊 */
+        .search-input, .form-select-custom {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+        }
+
+        .search-input:focus, .form-select-custom:focus {
+            background-color: var(--bg-input);
+            border-color: var(--accent-blue);
+            color: var(--text-main);
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+        }
+
+        .category-btn {
+            background-color: rgba(28, 37, 65, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 20px;
+            padding: 0.35rem 0.9rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background-color: var(--accent-blue);
+            color: #0b132b;
+            font-weight: 600;
+            border-color: var(--accent-blue);
+        }
+
+        /* 產品列表卡片 */
+        .product-item-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .product-item-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-blue);
+            background-color: var(--bg-card-hover);
+        }
+
+        .product-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .product-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .product-price-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .price-num {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .sv-num {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* 數量控制器 */
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.8rem;
+        }
+
+        .btn-qty {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--accent-blue);
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.15s ease;
+        }
+
+        .btn-qty:hover {
+            background-color: var(--accent-blue);
+            color: #0b132b;
+        }
+
+        .qty-input {
+            width: 48px;
+            height: 32px;
+            text-align: center;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* 右側/底部結帳清單 Sticky Card */
+        .cart-summary-card {
+            position: sticky;
+            top: 20px;
+            background: linear-gradient(180deg, #16233b 0%, #1c2541 100%);
+            border: 1px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+            font-size: 0.88rem;
+        }
+
+        .cart-item-title {
+            color: var(--text-main);
+            font-weight: 500;
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-shipping {
+            height: 8px;
+            background-color: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.4rem;
+        }
+
+        .progress-bar-custom {
+            background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .stat-highlight-box {
+            background-color: rgba(14, 23, 56, 0.6);
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-action-primary {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-action-primary:hover {
+            background: linear-gradient(135deg, #7dd3fc 0%, #0369a1 100%);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-action-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 8px;
+            padding: 0.5rem;
+            width: 100%;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-action-secondary:hover {
+            background-color: rgba(248, 113, 113, 0.15);
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        /* 免運提示 Banner */
+        .shipping-alert-box {
+            font-size: 0.82rem;
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .shipping-alert-warning {
+            background-color: rgba(250, 204, 21, 0.1);
+            color: var(--accent-gold);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+        }
+
+        .shipping-alert-success {
+            background-color: rgba(52, 211, 153, 0.1);
+            color: var(--accent-green);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        /* 複製成功浮動提示 Toast */
+        .toast-custom {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+            background-color: #0284c7;
+            color: #ffffff;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="page-header">
+        <div class="container-fluid px-md-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                <div>
+                    <h1 class="page-title mb-1">
+                        <i class="fas fa-calculator text-info"></i> 訂購金額與 SV 積分即時試算儀表板
+                    </h1>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-shield-halved text-success"></i> 榮祥葡眾團隊私域專用 ｜ 數據即時運算 ｜ 自動累算運費門檻與獎金回饋
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-dark border border-info text-info p-2">
+                        <i class="fas fa-database"></i> <span id="data-status-text">載入預設商品庫</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-info" id="btn-reload-data">
+                        <i class="fas fa-rotate"></i> 重新同步
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container-fluid px-md-4">
+        <div class="row g-3">
+            
+            <div class="col-lg-8">
+                
+                <div class="war-card">
+                    <div class="row g-2 align-items-center mb-3">
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-muted">
+                                    <i class="fas fa-magnifying-glass"></i>
+                                </span>
+                                <input type="text" id="search-input" class="form-control search-input" placeholder="搜尋產品名稱或編號（如：康爾喜、995、1301）...">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="rank-select" class="text-nowrap small text-muted">
+                                    <i class="fas fa-user-graduate"></i> 預估職級：
+                                </label>
+                                <select id="rank-select" class="form-select form-select-custom form-select-sm">
+                                    <option value="0.05">會員 (5% 回饋)</option>
+                                    <option value="0.10">主任 (10% 回饋)</option>
+                                    <option value="0.15">副理 (15% 回饋)</option>
+                                    <option value="0.20" selected>經理以上 (20% 回饋)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2" id="category-btn-group">
+                        <button class="category-btn active" data-cat="ALL">
+                            <i class="fas fa-border-all"></i> 全部商品
+                        </button>
+                        <button class="category-btn" data-cat="01">
+                            <i class="fas fa-shield-halved"></i> 全能防護
+                        </button>
+                        <button class="category-btn" data-cat="02">
+                            <i class="fas fa-arrows-rotate"></i> 順暢保衛
+                        </button>
+                        <button class="category-btn" data-cat="03">
+                            <i class="fas fa-dna"></i> 關鍵調理
+                        </button>
+                        <button class="category-btn" data-cat="04">
+                            <i class="fas fa-pump-soap"></i> 個人保養
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-3" id="product-grid">
+                    </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="cart-summary-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-white font-weight-bold">
+                            <i class="fas fa-receipt text-info"></i> 訂購明細摘要
+                        </h5>
+                        <span class="badge bg-info text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
+                    </div>
+
+                    <div id="cart-items-container" style="max-height: 280px; overflow-y: auto;" class="mb-3 pr-1">
+                        <div class="text-center text-muted py-4" id="empty-cart-msg">
+                            <i class="fas fa-basket-shopping fa-2x mb-2 d-block opacity-50"></i>
+                            尚未選擇任何商品，請從左側點擊加號選擇。
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-muted"><i class="fas fa-truck-fast"></i> NT$ 5,000 免運費門檻</span>
+                            <span id="shipping-progress-text" class="text-info font-weight-bold">0 / 5,000</span>
+                        </div>
+                        <div class="progress-shipping">
+                            <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <div id="shipping-alert" class="shipping-alert-box shipping-alert-warning">
+                            <i class="fas fa-circle-info"></i> 還差 NT$ 5,000 可享有免運費（運費 NT$ 100）
+                        </div>
+                    </div>
+
+                    <div class="stat-highlight-box">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small"><i class="fas fa-coins"></i> 產品金額總計：</span>
+                            <span class="h5 mb-0 price-num">NT$ <span id="summary-subtotal">0</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small"><i class="fas fa-truck"></i> 物流運費：</span>
+                            <span class="text-white font-weight-bold" id="summary-shipping">NT$ 0</span>
+                        </div>
+                        <hr class="my-2 border-secondary">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-white font-weight-bold"><i class="fas fa-wallet"></i> 應付總金額：</span>
+                            <span class="h4 mb-0 text-warning font-weight-bold">NT$ <span id="summary-grand-total">0</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small"><i class="fas fa-chart-line"></i> 累積總積分 (SV)：</span>
+                            <span class="h5 mb-0 sv-num"><span id="summary-total-sv">0</span> SV</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small"><i class="fas fa-hand-holding-dollar"></i> 預估回饋金 (現金)：</span>
+                            <span class="text-success font-weight-bold">NT$ <span id="summary-rebate-cash">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn-action-primary" id="btn-copy-line">
+                            <i class="fas fa-copy"></i> 複製 LINE 格式訂單文字
+                        </button>
+                        <button class="btn-action-secondary" id="btn-clear-all">
+                            <i class="fas fa-trash-can"></i> 清空重選
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="copy-toast" class="toast-custom">
+        <i class="fas fa-circle-check"></i> 已成功複製訂單明細至剪貼簿！可直接貼至 LINE。
+    </div>
+
+    <script>
+        // 預設產品資料庫 (與 Google 試算表結構對齊)
+        const defaultProducts = [
+            { id: "1301", name: "康爾喜複合乳酸菌", category: "02", price: 1760, sv: 1510, desc: "雙層包埋技術 專利菌株" },
+            { id: "1302", name: "康爾喜-N複合乳酸菌", category: "02", price: 1760, sv: 1510, desc: "升級版 13 株專利益生菌" },
+            { id: "1101", name: "995超級營養液 (24包)", category: "01", price: 5540, sv: 4800, desc: "大豆發酵液 迅速補充體力" },
+            { id: "1102", name: "樟芝益菌絲體液 (24包)", category: "01", price: 5540, sv: 4800, desc: "樟芝專利發酵 滋補強身" },
+            { id: "1201", name: "百克斯膠囊", category: "01", price: 1470, sv: 1260, desc: "黑松露、黑蒜精華 活力充沛" },
+            { id: "1202", name: "衛傑膠囊", category: "02", price: 1470, sv: 1260, desc: "猴頭菇與山藥精華 消化順暢" },
+            { id: "1203", name: "愛益膠囊", category: "01", price: 1470, sv: 1260, desc: "花粉與花蜜濃縮 調節體質" },
+            { id: "1401", name: "葡眾餐包 (原味/30包)", category: "01", price: 1470, sv: 1260, desc: "燕麥與高鈣配方 全家營養" },
+            { id: "1204", name: "迪斯尼膠囊", category: "03", price: 1470, sv: 1260, desc: "晶亮守護 枸杞與決明子萃取" },
+            { id: "0301", name: "雅姿蘭護手霜", category: "04", price: 880, sv: 700, desc: "草本保濕 潤澤修護" },
+            { id: "1205", name: "活英華膠囊", category: "03", price: 2940, sv: 2520, desc: "關鍵靈活 葡萄糖胺升級" },
+            { id: "1206", name: "和悅膠囊", category: "01", price: 1470, sv: 1260, desc: "循環順暢 專利納豆激酶" }
+        ];
+
+        // 系統動態狀態管理
+        let productsData = [...defaultProducts];
+        let cartState = {}; // { id: quantity }
+        let currentCategory = "ALL";
+        let currentSearchQuery = "";
+
+        // Google 試算表 CSV URL (預留介面，可置換為團隊真實 Google Sheet 連結)
+        const GOOGLE_SHEET_CSV_URL = "";
+
+        $(document).ready(function () {
+            // 初始化渲染產品列表
+            renderProducts();
+
+            // 監聽搜尋輸入
+            $("#search-input").on("input", function () {
+                currentSearchQuery = $(this).val().trim().toLowerCase();
+                renderProducts();
+            });
+
+            // 監聽分類按鈕切換
+            $("#category-btn-group").on("click", ".category-btn", function () {
+                $("#category-btn-group .category-btn").removeClass("active");
+                $(this).addClass("active");
+                currentCategory = $(this).data("cat");
+                renderProducts();
+            });
+
+            // 監聽職級%數切換
+            $("#rank-select").on("change", function () {
+                updateCartSummary();
+            });
+
+            // 清空按鈕
+            $("#btn-clear-all").on("click", function () {
+                if (Object.keys(cartState).length === 0) return;
+                if (confirm("確定要清空目前已選擇的所有商品嗎？")) {
+                    cartState = {};
+                    renderProducts();
+                    updateCartSummary();
+                }
+            });
+
+            // 複製 LINE 格式訂單
+            $("#btn-copy-line").on("click", function () {
+                copyOrderToClipboard();
+            });
+
+            // 重新載入數據按鈕
+            $("#btn-reload-data").on("click", function () {
+                fetchGoogleSheetData();
+            });
+
+            // 嘗試從 Google Sheet 載入動態資料 (若有設定網址)
+            if (GOOGLE_SHEET_CSV_URL) {
+                fetchGoogleSheetData();
+            }
+        });
+
+        // 渲染產品網格
+        function renderProducts() {
+            const $grid = $("#product-grid");
+            $grid.empty();
+
+            const filtered = productsData.filter(item => {
+                const matchCat = (currentCategory === "ALL") || (item.category === currentCategory);
+                const matchSearch = (item.name.toLowerCase().includes(currentSearchQuery)) || (item.id.includes(currentSearchQuery));
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                $grid.append(`
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="fas fa-magnifying-glass-minus fa-3x mb-3 opacity-50"></i>
+                        <p class="mb-0">未找到符合「${currentSearchQuery}」條件的產品</p>
+                    </div>
+                `);
+                return;
+            }
+
+            filtered.forEach(item => {
+                const qty = cartState[item.id] || 0;
+                const cardHtml = `
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="product-item-card">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="product-badge"><i class="fas fa-hashtag"></i> ${item.id}</span>
+                                    <span class="small text-muted"><i class="fas fa-tag"></i> 經典熱銷</span>
+                                </div>
+                                <h6 class="product-title">${item.name}</h6>
+                                <p class="small text-muted mb-2">${item.desc || ""}</p>
+                            </div>
+                            <div>
+                                <div class="product-price-info d-flex justify-content-between align-items-center mb-1">
+                                    <span>售價: <span class="price-num">NT$ ${item.price.toLocaleString()}</span></span>
+                                    <span>積分: <span class="sv-num">${item.sv.toLocaleString()} SV</span></span>
+                                </div>
+                                <div class="qty-control">
+                                    <button class="btn-qty btn-minus" data-id="${item.id}">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="qty-input" value="${qty}" min="0" data-id="${item.id}">
+                                    <button class="btn-qty btn-plus" data-id="${item.id}">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $grid.append(cardHtml);
+            });
+
+            // 綁定動態加減按鈕事件
+            $(".btn-plus").off("click").on("click", function () {
+                const id = $(this).data("id");
+                cartState[id] = (cartState[id] || 0) + 1;
+                updateItemQtyUI(id);
+                updateCartSummary();
+            });
+
+            $(".btn-minus").off("click").on("click", function () {
+                const id = $(this).data("id");
+                if (cartState[id] && cartState[id] > 0) {
+                    cartState[id] -= 1;
+                    if (cartState[id] === 0) delete cartState[id];
+                    updateItemQtyUI(id);
+                    updateCartSummary();
+                }
+            });
+
+            $(".qty-input").off("change input").on("change input", function () {
+                const id = $(this).data("id");
+                let val = parseInt($(this).val()) || 0;
+                if (val < 0) val = 0;
+                if (val === 0) {
+                    delete cartState[id];
+                } else {
+                    cartState[id] = val;
+                }
+                updateCartSummary();
+            });
+        }
+
+        // 更新單一卡片輸入框 UI
+        function updateItemQtyUI(id) {
+            const qty = cartState[id] || 0;
+            $(`.qty-input[data-id="${id}"]`).val(qty);
+        }
+
+        // 核心：更新總金額與購物車摘要計算
+        function updateCartSummary() {
+            const $container = $("#cart-items-container");
+            $container.empty();
+
+            let totalItemsCount = 0;
+            let subtotalPrice = 0;
+            let totalSV = 0;
+            const selectedKeys = Object.keys(cartState);
+
+            if (selectedKeys.length === 0) {
+                $container.html(`
+                    <div class="text-center text-muted py-4" id="empty-cart-msg">
+                        <i class="fas fa-basket-shopping fa-2x mb-2 d-block opacity-50"></i>
+                        尚未選擇任何商品，請從左側點擊加號選擇。
+                    </div>
+                `);
+            } else {
+                selectedKeys.forEach(id => {
+                    const qty = cartState[id];
+                    const product = productsData.find(p => p.id === id);
+                    if (product && qty > 0) {
+                        const itemTotalPrice = product.price * qty;
+                        const itemTotalSV = product.sv * qty;
+
+                        subtotalPrice += itemTotalPrice;
+                        totalSV += itemTotalSV;
+                        totalItemsCount += qty;
+
+                        $container.append(`
+                            <div class="cart-item-row">
+                                <div class="cart-item-title" title="${product.name}">
+                                    <i class="fas fa-box text-info"></i> ${product.name}
+                                </div>
+                                <div class="text-muted small">
+                                    x ${qty}
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-warning font-weight-bold">NT$ ${itemTotalPrice.toLocaleString()}</div>
+                                    <div class="text-info style="font-size: 0.75rem;">${itemTotalSV.toLocaleString()} SV</div>
+                                </div>
+                            </div>
+                        `);
+                    }
+                });
+            }
+
+            // 免運邏輯計算 (NT$ 5,000 免運，否則 NT$ 100 運費)
+            const FREE_SHIPPING_THRESHOLD = 5000;
+            const SHIPPING_FEE = 100;
+            let shippingFee = 0;
+
+            if (subtotalPrice > 0 && subtotalPrice < FREE_SHIPPING_THRESHOLD) {
+                shippingFee = SHIPPING_FEE;
+                const gap = FREE_SHIPPING_THRESHOLD - subtotalPrice;
+                $("#shipping-alert")
+                    .removeClass("shipping-alert-success")
+                    .addClass("shipping-alert-warning")
+                    .html(`<i class="fas fa-circle-info"></i> 還差 NT$ ${gap.toLocaleString()} 可享有免運費（運費 NT$ ${SHIPPING_FEE}）`);
+            } else if (subtotalPrice >= FREE_SHIPPING_THRESHOLD) {
+                shippingFee = 0;
+                $("#shipping-alert")
+                    .removeClass("shipping-alert-warning")
+                    .addClass("shipping-alert-success")
+                    .html(`<i class="fas fa-circle-check"></i> 已達 NT$ 5,000 免運費門檻！`);
+            } else {
+                shippingFee = 0;
+                $("#shipping-alert")
+                    .removeClass("shipping-alert-success")
+                    .addClass("shipping-alert-warning")
+                    .html(`<i class="fas fa-circle-info"></i> 還差 NT$ 5,000 可享有免運費（運費 NT$ ${SHIPPING_FEE}）`);
+            }
+
+            const shippingPercent = Math.min(100, (subtotalPrice / FREE_SHIPPING_THRESHOLD) * 100);
+            $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
+            $("#shipping-progress-text").text(`${subtotalPrice.toLocaleString()} / ${FREE_SHIPPING_THRESHOLD.toLocaleString()}`);
+
+            const grandTotal = subtotalPrice + shippingFee;
+
+            // 預估回饋金計算 (SV * 回饋比率)
+            const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
+            const estimatedRebate = Math.round(totalSV * rankRatio);
+
+            // 更新介面數字
+            $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
+            $("#summary-subtotal").text(subtotalPrice.toLocaleString());
+            $("#summary-shipping").text(shippingFee > 0 ? `NT$ ${shippingFee}` : "免運費");
+            $("#summary-grand-total").text(grandTotal.toLocaleString());
+            $("#summary-total-sv").text(totalSV.toLocaleString());
+            $("#summary-rebate-cash").text(estimatedRebate.toLocaleString());
+        }
+
+        // 複製 LINE 格式文字
+        function copyOrderToClipboard() {
+            const selectedKeys = Object.keys(cartState);
+            if (selectedKeys.length === 0) {
+                alert("請先選擇至少一項商品後再進行複製！");
+                return;
+            }
+
+            let subtotal = 0;
+            let totalSV = 0;
+            let orderLines = [];
+
+            orderLines.push("🛒 【榮祥葡眾團隊】線上訂購試算單");
+            orderLines.push("---------------------------------");
+
+            selectedKeys.forEach(id => {
+                const qty = cartState[id];
+                const product = productsData.find(p => p.id === id);
+                if (product && qty > 0) {
+                    const price = product.price * qty;
+                    const sv = product.sv * qty;
+                    subtotal += price;
+                    totalSV += sv;
+                    orderLines.push(`• ${product.name} (${id})`);
+                    orderLines.push(`  數量：${qty} 箱/盒 ｜ 小計：NT$ ${price.toLocaleString()} (${sv.toLocaleString()} SV)`);
+                }
+            });
+
+            const FREE_SHIPPING_THRESHOLD = 5000;
+            const shipping = (subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD) ? 100 : 0;
+            const grandTotal = subtotal + shipping;
+            const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
+            const rebate = Math.round(totalSV * rankRatio);
+
+            orderLines.push("---------------------------------");
+            orderLines.push(`📦 產品小計：NT$ ${subtotal.toLocaleString()}`);
+            orderLines.push(`🚚 物流運費：${shipping > 0 ? "NT$ 100" : "免運費"}`);
+            orderLines.push(`💰 應付總額：NT$ ${grandTotal.toLocaleString()}`);
+            orderLines.push(`🌟 累積總積分：${totalSV.toLocaleString()} SV`);
+            orderLines.push(`💵 預估購物金回饋：約 NT$ ${rebate.toLocaleString()}`);
+            orderLines.push("---------------------------------");
+            orderLines.push("📅 訂購日期：" + new Date().toLocaleDateString("zh-TW"));
+
+            const textToCopy = orderLines.join("\n");
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast();
+            }).catch(err => {
+                alert("複製失敗，請手動複製文字：\n\n" + textToCopy);
+            });
+        }
+
+        // 顯示浮動 Toast 提示
+        function showToast() {
+            const $toast = $("#copy-toast");
+            $toast.stop().fadeIn(300).delay(2500).fadeOut(400);
+        }
+
+        // 透過 PapaParse 從 Google 試算表動態獲取產品資料
+        function fetchGoogleSheetData() {
+            $("#data-status-text").html('<i class="fas fa-spinner fa-spin"></i> 同步雲端資料中...');
+            
+            Papa.parse(GOOGLE_SHEET_CSV_URL, {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    if (results.data && results.data.length > 0) {
+                        // 轉換 Google 試算表資料格式
+                        const parsedData = results.data.filter(row => row.id && row.name).map(row => ({
+                            id: row.id,
+                            name: row.name,
+                            category: row.category || "01",
+                            price: parseInt(row.price) || 0,
+                            sv: parseInt(row.sv) || 0,
+                            desc: row.desc || ""
+                        }));
+
+                        if (parsedData.length > 0) {
+                            productsData = parsedData;
+                            renderProducts();
+                            updateCartSummary();
+                            $("#data-status-text").html('<i class="fas fa-circle-check text-success"></i> 已同步最新雲端價目');
+                            return;
+                        }
+                    }
+                    $("#data-status-text").html('<i class="fas fa-triangle-exclamation text-warning"></i> 使用備用資料庫');
+                },
+                error: function () {
+                    $("#data-status-text").html('<i class="fas fa-triangle-exclamation text-warning"></i> 使用離線資料庫');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
