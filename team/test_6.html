@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方案 A：Google OAuth + GAS 白名單動態存取系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        .card-dark {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .text-accent {
+            color: #38bdf8;
+        }
+        .border-dark-subtle {
+            border-color: #334155 !important;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #38bdf8;
+        }
+        table.dataTable {
+            color: #f8fafc !important;
+        }
+        .dataTables_wrapper .dataTables_length, 
+        .dataTables_wrapper .dataTables_filter, 
+        .dataTables_wrapper .dataTables_info, 
+        .dataTables_wrapper .dataTables_paginate {
+            color: #94a3b8 !important;
+        }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="container py-5">
+        <header class="pb-3 mb-4 border-bottom border-dark-subtle d-flex justify-content-between align-items-center flex-wrap">
+            <div class="d-flex align-items-center mb-2 mb-md-0">
+                <i class="fa-solid fa-shield-halved fa-2x text-accent me-3"></i>
+                <div>
+                    <h1 class="h3 mb-0 fw-bold">方案 A：白名單動態權限管控系統</h1>
+                    <small class="text-secondary">Google OAuth 2.0 + GAS + 試算表資料庫</small>
+                </div>
+            </div>
+            <div id="userInfoHeader" class="d-none align-items-center">
+                <img id="userImg" src="" alt="User Avatar" class="user-avatar me-2">
+                <div class="text-end me-3">
+                    <div id="userName" class="fw-bold small">--</div>
+                    <small id="userEmail" class="text-secondary small">--</small>
+                </div>
+                <button id="btnLogout" class="btn btn-outline-danger btn-sm">
+                    <i class="fa-solid fa-right-from-bracket"></i> 登出
+                </button>
+            </div>
+        </header>
+
+        <section id="loginSection" class="row justify-content-center my-5">
+            <div class="col-md-6 text-center">
+                <div class="card card-dark p-4 p-md-5">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-lock fa-4x text-accent mb-3"></i>
+                        <h2 class="h4 fw-bold">系統受保護</h2>
+                        <p class="text-secondary small">本網站資料均保存在後端資料庫，請使用已授權之 Gmail 登入以獲取存取權限。</p>
+                    </div>
+
+                    <div id="loginAlert" class="alert alert-danger d-none" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span id="alertText"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-center my-3">
+                        <div id="g_id_onload"
+                             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                             data-callback="handleCredentialResponse"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="filled_dark"
+                             data-text="sign_in_with"
+                             data-shape="rectangular">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="loadingSection" class="text-center my-5 d-none">
+            <div class="spinner-border text-info my-3" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="text-secondary"><i class="fa-solid fa-spinner fa-spin me-2"></i> 正在向 GAS API 驗證 Token 並比對試算表白名單...</h5>
+        </section>
+
+        <main id="contentSection" class="d-none">
+            <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+                <i class="fa-solid fa-circle-check fa-lg me-2"></i>
+                <div>身分驗證通過！已成功由後端 API 取得受保護資料。</div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card card-dark p-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-user-check fa-2x text-success me-3"></i>
+                            <div>
+                                <small class="text-secondary">白名單狀態</small>
+                                <h5 class="mb-0 text-success fw-bold">存取授權成功</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-dark p-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-file-excel fa-2x text-warning me-3"></i>
+                            <div>
+                                <small class="text-secondary">資料庫來源</small>
+                                <h5 class="mb-0 fw-bold">Google Sheets API</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-dark p-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-code fa-2x text-accent me-3"></i>
+                            <div>
+                                <small class="text-secondary">驗證服務</small>
+                                <h5 class="mb-0 fw-bold">GAS Backend Service</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card card-dark p-4 h-100">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie text-accent"></i> 團隊數據動態視覺化</h5>
+                        <div class="chart-container" style="position: relative; height: 220px;">
+                            <canvas id="analyticsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card card-dark p-4 h-100">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check text-accent"></i> 身分核對詳細紀錄</h5>
+                        <ul class="list-group list-group-flush bg-transparent">
+                            <li class="list-group-item bg-transparent text-secondary border-dark-subtle">
+                                <i class="fa-solid fa-check text-success"></i> JWT 憑證簽章：通過 (Google OAuth 2.0)
+                            </li>
+                            <li class="list-group-item bg-transparent text-secondary border-dark-subtle">
+                                <i class="fa-solid fa-check text-success"></i> Email 驗證狀態：True
+                            </li>
+                            <li class="list-group-item bg-transparent text-secondary border-dark-subtle">
+                                <i class="fa-solid fa-check text-success"></i> 試算表 WhiteList 比對：匹配成功
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-dark p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-table text-accent"></i> 動態釋出數據表 (Data Sheet)</h5>
+                <div class="table-responsive">
+                    <table id="dataTable" class="table table-dark table-striped table-hover w-100">
+                        <thead>
+                            <tr id="tableHeaderRow">
+                                </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // 設定部署後的 GAS Web App URL
+        const GAS_API_URL = "https://script.google.com/macros/s/YOUR_GAS_WEB_APP_ID/exec";
+
+        // Google 登入完成 CallBack
+        function handleCredentialResponse(response) {
+            const idToken = response.credential;
+
+            $("#loginSection").addClass("d-none");
+            $("#loadingSection").removeClass("d-none");
+            $("#loginAlert").addClass("d-none");
+
+            // 發送 Token 至 GAS 比對試算表白名單
+            fetch(GAS_API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ id_token: idToken })
+            })
+            .then(res => res.json())
+            .then(data => {
+                $("#loadingSection").addClass("d-none");
+
+                if (data.status === "success") {
+                    renderProtectedContent(data);
+                } else {
+                    $("#loginSection").removeClass("d-none");
+                    $("#alertText").text(data.message || "驗證失敗：您不在白名單清單內。");
+                    $("#loginAlert").removeClass("d-none");
+                }
+            })
+            .catch(err => {
+                console.error("API Fetch Error:", err);
+                $("#loadingSection").addClass("d-none");
+                $("#loginSection").removeClass("d-none");
+                $("#alertText").text("無法連線至 API 驗證伺服器。");
+                $("#loginAlert").removeClass("d-none");
+            });
+        }
+
+        // 渲染驗證成功後的頁面
+        function renderProtectedContent(responseData) {
+            $("#userImg").attr("src", responseData.user.picture);
+            $("#userName").text(responseData.user.name);
+            $("#userEmail").text(responseData.user.email);
+            $("#userInfoHeader").removeClass("d-none").addClass("d-flex");
+
+            // 渲染 DataTable
+            const headers = responseData.data.headers;
+            const rows = responseData.data.rows;
+
+            let headerHtml = "";
+            headers.forEach(h => {
+                headerHtml += `<th>${h}</th>`;
+            });
+            $("#tableHeaderRow").html(headerHtml);
+
+            $("#dataTable").DataTable({
+                data: rows,
+                destroy: true,
+                language: {
+                    search: "<i class=\"fa-solid fa-magnifying-glass\"></i> 搜尋：",
+                    lengthMenu: "顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: "下一頁",
+                        previous: "上一頁"
+                    }
+                }
+            });
+
+            // 初始化 Chart.js
+            initAnalyticsChart();
+
+            // 顯示受保護頁面
+            $("#contentSection").removeClass("d-none");
+        }
+
+        function initAnalyticsChart() {
+            const ctx = document.getElementById("analyticsChart").getContext("2d");
+            new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["北部體系", "中部體系", "南部體系"],
+                    datasets: [{
+                        data: [50, 30, 20],
+                        backgroundColor: ["#38bdf8", "#818cf8", "#f43f5e"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: { color: "#94a3b8" }
+                        }
+                    }
+                }
+            });
+        }
+
+        $("#btnLogout").on("click", function() {
+            location.reload();
+        });
+    </script>
+</body>
+</html>
