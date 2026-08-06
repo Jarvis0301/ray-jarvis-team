@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Card 卡片元件 (遵循 Bootstrap 5 變數擴充)
+   ========================================================================== */
+.card-custom {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 0.75rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid var(--uvaco-border-color);
+        color: var(--uvaco-primary);
+        font-weight: 600;
+        padding: 1rem 1.25rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+        color: var(--uvaco-text-primary);
+    }
+
+    &:hover {
+        border-color: var(--uvaco-primary);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.35);
+    }
+}

@@ -1,0 +1,42 @@
+// ==========================================================================
+// 1-abstracts/_variables-global.scss
+// 全局通用非色彩抽象變數（字型、排版、圓角、陰影、轉場與圖層層級）
+// ==========================================================================
+
+:root {
+    // 字型設定 ( 指定使用 Noto Sans TC 與 Roboto )
+    --uvaco-font-family-base: 'Noto Sans TC', 'Roboto', sans-serif;
+    --uvaco-font-family-code: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    // 基本排版規格
+    --uvaco-font-size-base: 1rem;       // 16px
+    --uvaco-line-height-base: 1.6;
+    --uvaco-font-weight-regular: 400;
+    --uvaco-font-weight-medium: 500;
+    --uvaco-font-weight-bold: 700;
+
+    // 圓角規格 ( Border Radius )
+    --uvaco-border-radius-sm: 0.375rem; // 6px
+    --uvaco-border-radius-base: 0.5rem;   // 8px
+    --uvaco-border-radius-lg: 0.75rem;  // 12px
+    --uvaco-border-radius-pill: 50rem;
+
+    // 陰影規格 ( Box Shadow )
+    --uvaco-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.25);
+    --uvaco-shadow-base: 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+    --uvaco-shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.45);
+
+    // 轉場時間 ( Transition )
+    --uvaco-transition-fast: all 0.15s ease-in-out;
+    --uvaco-transition-base: all 0.25s ease-in-out;
+    --uvaco-transition-slow: all 0.4s ease-in-out;
+
+    // 圖層順序 ( Z-index )
+    --uvaco-zindex-dropdown: 1000;
+    --uvaco-zindex-sticky: 1020;
+    --uvaco-zindex-fixed: 1030;
+    --uvaco-zindex-modal-backdrop: 1040;
+    --uvaco-zindex-modal: 1050;
+    --uvaco-zindex-popover: 1060;
+    --uvaco-zindex-tooltip: 1070;
+}

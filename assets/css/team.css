@@ -1,0 +1,154 @@
+@charset "UTF-8";
+:root {
+  --uvaco-font-family-base: 'Noto Sans TC', 'Roboto', sans-serif;
+  --uvaco-font-family-code: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --uvaco-font-size-base: 1rem;
+  --uvaco-line-height-base: 1.6;
+  --uvaco-font-weight-regular: 400;
+  --uvaco-font-weight-medium: 500;
+  --uvaco-font-weight-bold: 700;
+  --uvaco-border-radius-sm: 0.375rem;
+  --uvaco-border-radius-base: 0.5rem;
+  --uvaco-border-radius-lg: 0.75rem;
+  --uvaco-border-radius-pill: 50rem;
+  --uvaco-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.25);
+  --uvaco-shadow-base: 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+  --uvaco-shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.45);
+  --uvaco-transition-fast: all 0.15s ease-in-out;
+  --uvaco-transition-base: all 0.25s ease-in-out;
+  --uvaco-transition-slow: all 0.4s ease-in-out;
+  --uvaco-zindex-dropdown: 1000;
+  --uvaco-zindex-sticky: 1020;
+  --uvaco-zindex-fixed: 1030;
+  --uvaco-zindex-modal-backdrop: 1040;
+  --uvaco-zindex-modal: 1050;
+  --uvaco-zindex-popover: 1060;
+  --uvaco-zindex-tooltip: 1070;
+}
+
+body {
+  background-color: transparent;
+  color: var(--uvaco-text-primary);
+  font-family: var(--uvaco-font-family-base);
+  line-height: var(--uvaco-line-height-base);
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Card 卡片元件 (遵循 Bootstrap 5 變數擴充)
+   ========================================================================== */
+.card-custom {
+  background-color: var(--uvaco-bg-card);
+  border: 1px solid var(--uvaco-border-color);
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card-custom .card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--uvaco-border-color);
+  color: var(--uvaco-primary);
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+}
+.card-custom .card-body {
+  padding: 1.25rem;
+  color: var(--uvaco-text-primary);
+}
+.card-custom:hover {
+  border-color: var(--uvaco-primary);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.35);
+}
+
+/* 1. 先定義國旗圖標的通用外觀（與 Font Awesome 對齊） */
+.flag-icon {
+  display: inline-block;
+  width: 1.33em; /* 國旗常見的 4:3 或 3:2 寬高比 */
+  height: 1em; /* 隨文字大小縮放 */
+  vertical-align: -0.15em; /* 修正水平對齊線，使其與文字並排時不突兀 */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 2. 分別載入各自的彩色國旗 SVG 路徑 */
+.flag-tw {
+  background-image: url("../images/flag/Flag_of_the_Republic_of_China.svg");
+}
+
+.flag-jp {
+  background-image: url("../images/flag/Flag_of_Japan.svg");
+}
+
+.flag-my {
+  background-image: url("../images/flag/Flag_of_Malaysia.svg");
+}
+
+.flag-au {
+  background-image: url("../images/flag/Flag_of_Japan.svg");
+}
+
+.flag-ca {
+  background-image: url("../images/flag/Flag_of_Canada.svg");
+}
+
+.flag-fr {
+  background-image: url("../images/flag/Flag_of_France.svg");
+}
+
+.flag-id {
+  background-image: url("../images/flag/Flag_of_Indonesia.svg");
+}
+
+.flag-sg {
+  background-image: url("../images/flag/Flag_of_Singapore.svg");
+}
+
+.flag-kr {
+  background-image: url("../images/flag/Flag_of_South_Korea.svg");
+}
+
+.flag-th {
+  background-image: url("../images/flag/Flag_of_Thailand.svg");
+}
+
+.flag-uk {
+  background-image: url("../images/flag/Flag_of_the_United_Kingdom.svg");
+}
+
+.flag-us {
+  background-image: url("../images/flag/Flag_of_the_United_States.svg");
+}
+
+.flag-un {
+  background-image: url("../images/flag/Flag_of_the_United_Nations.svg");
+}
+
+.flag-eu {
+  background-image: url("../images/flag/Flag_of_Europe.svg");
+}
+
+.flag-asean {
+  background-image: url("../images/flag/Flag_of_ASEAN.svg");
+}
+
+:root,
+[data-bs-theme=dark-blue] {
+  --uvaco-bg-primary: #0a1120;
+  --uvaco-bg-secondary: #0f172a;
+  --uvaco-bg-card: #112240;
+  --uvaco-border-color: rgba(52, 211, 153, 0.2);
+  --uvaco-text-primary: #f0f9ff;
+  --uvaco-text-secondary: #7dd3fc;
+  --uvaco-text-muted: #94a3af;
+  --uvaco-primary: #38bdf8;
+  --uvaco-primary-hover: #0284c7;
+  --uvaco-accent: #38bdf8;
+  --bs-body-bg: var(--uvaco-bg-primary);
+  --bs-body-color: var(--uvaco-text-primary);
+  --bs-card-bg: var(--uvaco-bg-card);
+  --bs-card-border-color: var(--uvaco-border-color);
+  --bs-border-color: var(--uvaco-border-color);
+  --bs-tertiary-bg: var(--uvaco-bg-secondary);
+  --bs-primary: var(--uvaco-primary);
+  --bs-primary-rgb: 56, 189, 248;
+}

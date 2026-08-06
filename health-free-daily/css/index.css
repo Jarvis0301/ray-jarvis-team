@@ -1,0 +1,306 @@
+:root {
+    /*--bg-main: #081612;*/
+    --bg-sidebar: #0d1f18;
+    /*--uvaco-bg-card: #12251e;*/
+    --bg-header: #0a1b14;
+    /*--uvaco-primary: #10b981;*/
+    /*--uvaco-secondary: #34d399;*/
+    --accent-hover: rgba(52, 211, 153, 0.15);
+    /*--uvaco-border-color: rgba(52, 211, 153, 0.2);*/
+    /*--text-main: #f1f5f9;*/
+    /*--text-muted: #94a3b8;*/
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --header-height: 70px;
+}
+
+body {
+    background-color: var(--uvaco-bg-primary);
+    /*color: var(--uvaco-text-primary);*/
+    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /*overflow-x: hidden;*/
+}
+
+/* 1. 頂部標題欄 */
+.portal-header {
+    height: var(--header-height);
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--uvaco-border-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.brand-logo {
+    color: var(--uvaco-secondary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-btn {
+    background: transparent;
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-secondary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background-color: var(--accent-hover);
+    color: #ffffff;
+}
+
+/* 2. 主區域佈局容器 */
+.portal-wrapper {
+    display: flex;
+    flex: 1;
+    margin-top: var(--header-height);
+    position: relative;
+}
+
+/* 3. 左側動態選單 */
+.portal-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--uvaco-border-color);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 桌機收折狀態 */
+.portal-sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.portal-sidebar.collapsed .menu-text,
+.portal-sidebar.collapsed .submenu-arrow {
+    display: none !important;
+}
+
+.portal-sidebar.collapsed .nav-item-link {
+    justify-content: center;
+    padding: 0.8rem 0;
+}
+
+.portal-sidebar.collapsed .submenu-container {
+    display: none !important;
+}
+
+/* 選單樣式 */
+.sidebar-menu, .submenu-container {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu {
+    padding: 1rem 0.75rem;
+}
+
+.submenu-container {
+    padding-left: 1rem;
+    display: none;
+}
+
+.submenu-container.show {
+    display: block;
+}
+
+.nav-item-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    color: var(--uvaco-text-primary);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 0.3rem;
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+}
+
+.nav-item-link:hover, .nav-item-link.active {
+    background-color: var(--accent-hover);
+    color: var(--uvaco-secondary);
+    border-left: 3px solid var(--uvaco-primary);
+}
+
+.menu-icon-box {
+    width: 24px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--uvaco-primary);
+}
+
+/* 4. 中央動態內容區塊 */
+.portal-content {
+    background-color: var(--uvaco-bg-primary);
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: calc(100vh - var(--header-height));
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-wrapper.sidebar-collapsed .portal-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* 關鍵：iFrame 容器樣式（徹底銷毀二次卷軸） */
+#page-content-container {
+    flex: 1;
+    width: 100%;
+    position: relative;
+}
+
+.seamless-iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    border: none;
+    overflow: hidden;
+    display: block;
+}
+
+/* 5. 頁尾樣式 */
+.portal-footer {
+    background-color: var(--bg-header);
+    border-top: 1px solid var(--uvaco-border-color);
+    padding: 2rem 2rem 2rem 2rem;
+    margin-top: auto;
+}
+
+.desktop-sitemap {
+    border-bottom: 1px solid var(--uvaco-border-color);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.desktop-sitemap.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.sitemap-title {
+    color: var(--uvaco-secondary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.sitemap-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sitemap-list li {
+    margin-bottom: 0.5rem;
+}
+
+.sitemap-list a {
+    color: var(--uvaco-text-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.2s ease;
+}
+
+.sitemap-list a:hover {
+    color: var(--uvaco-secondary);
+}
+
+.footer-social-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.social-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+    background-color: var(--uvaco-primary);
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.copyright-text {
+    color: var(--uvaco-text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.copyright-text a {
+    color: var(--uvaco-secondary);
+    text-decoration: none;
+}
+
+.copyright-text a:hover {
+    text-decoration: underline;
+}
+
+/* RWD 移動端適應 */
+@media (max-width: 991.98px) {
+    .portal-sidebar {
+        transform: translateX(-100%);
+        width: 260px !important;
+    }
+
+    .portal-sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .portal-content {
+        margin-left: 0 !important;
+    }
+
+    .desktop-sitemap {
+        display: none !important;
+    }
+}

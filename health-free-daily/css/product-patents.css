@@ -1,0 +1,332 @@
+:root {
+    /*--uvaco-bg-primary: #081612;*/
+    /*--uvaco-bg-secondary: #0f2922;*/
+    /*--uvaco-bg-card: #13372c;*/
+    /*--uvaco-bg-card-hover: #194638;*/
+    /*--uvaco-border-color: #1f5242;*/
+    /*--uvaco-primary: #10b981;*/
+    /*--uvaco-secondary: #34d399;*/
+    /*--uvaco-accent: #f59e0b;*/
+    /*--uvaco-text-primary: #f8fafc;*/
+}
+
+body {
+    /*background-color: transparent;*/
+    /*color: var(--uvaco-text-primary);*/
+    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 3rem;
+}
+
+/* Hero 區塊設計 */
+.hero-section {
+    background: linear-gradient(135deg, rgba(8, 22, 18, 0.95) 0%, rgba(15, 41, 34, 0.9) 100%),
+                url('https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+    border-bottom: 1px solid var(--uvaco-border-color);
+    padding: 4rem 0 3rem 0;
+    position: relative;
+}
+
+.hero-title {
+    color: var(--uvaco-secondary);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.hero-badge {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--uvaco-secondary);
+    border: 1px solid var(--uvaco-primary);
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+/* 統計高光卡片 */
+.stat-card {
+    background: rgba(19, 55, 44, 0.6);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--uvaco-primary);
+    background: rgba(25, 70, 56, 0.8);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--uvaco-accent);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* 搜尋與篩選列 */
+.filter-section {
+    background-color: var(--uvaco-bg-secondary);
+    border-top: 1px solid var(--uvaco-border-color);
+    border-bottom: 1px solid var(--uvaco-border-color);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.search-input {
+    background-color: var(--uvaco-bg-primary);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-primary);
+    border-radius: 8px;
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+}
+
+.search-input:focus {
+    background-color: var(--uvaco-bg-primary);
+    border-color: var(--uvaco-primary);
+    color: var(--uvaco-text-primary);
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.btn-filter {
+    background-color: transparent;
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--text-muted);
+    border-radius: 20px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+.btn-filter:hover, .btn-filter.active {
+    background-color: var(--uvaco-primary);
+    border-color: var(--uvaco-primary);
+    color: #000000;
+    font-weight: 600;
+}
+
+.sync-status-badge {
+    font-size: 0.85rem;
+    color: var(--uvaco-secondary);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--uvaco-border-color);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* 專利卡片設計 */
+.patent-card {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.patent-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--uvaco-secondary);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(52, 211, 153, 0.15);
+}
+
+.patent-img-wrapper {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    overflow: hidden;
+    background-color: var(--uvaco-bg-primary);
+    cursor: pointer;
+}
+
+.patent-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.patent-card:hover .patent-img-wrapper img {
+    transform: scale(1.08);
+}
+
+.patent-img-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(8, 22, 18, 0.2) 0%, rgba(19, 55, 44, 0.85) 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    transition: background 0.3s ease;
+}
+
+.patent-card:hover .patent-img-overlay {
+    background: linear-gradient(to bottom, rgba(8, 22, 18, 0.1) 0%, rgba(16, 185, 129, 0.75) 100%);
+}
+
+.img-zoom-hint {
+    color: #ffffff;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.patent-header {
+    padding: 1.25rem 1.5rem 0.75rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.patent-category-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.patent-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--uvaco-text-primary);
+    margin-bottom: 0.35rem;
+}
+
+.patent-no {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    color: var(--uvaco-accent);
+    font-weight: 500;
+}
+
+.patent-body {
+    padding: 1rem 1.5rem;
+    flex-grow: 1;
+}
+
+.patent-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.feature-list li {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    margin-bottom: 0.4rem;
+    align-items: center;
+}
+
+.feature-list li i {
+    color: var(--uvaco-secondary);
+    margin-right: 0.5rem;
+}
+
+.patent-footer {
+    padding: 0.85rem 1.5rem 1rem 1.5rem;
+    background-color: rgba(8, 22, 18, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.award-badge {
+    font-size: 0.8rem;
+    color: var(--uvaco-accent);
+    align-items: center;
+}
+
+.btn-patent-detail {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--uvaco-secondary);
+    border: 1px solid var(--uvaco-primary);
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.btn-patent-detail:hover {
+    background-color: var(--uvaco-primary);
+    color: #000000;
+    font-weight: 600;
+}
+
+.modal-patent-img {
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--uvaco-border-color);
+    margin-bottom: 1.25rem;
+}
+
+.modal-content {
+    background-color: var(--uvaco-bg-secondary);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-primary);
+    border-radius: 16px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--uvaco-border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--uvaco-border-color);
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2.5rem 0 2rem 0;
+    }
+    .patent-img-wrapper {
+        height: 160px;
+    }
+}

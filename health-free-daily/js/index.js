@@ -1,0 +1,287 @@
+// 設定 Google 試算表 CSV 發布連結
+const SPREADSHEET_ID = '1nY-6mo9trXLMwkRGOqdvBU_va75DmsxIONIraMtTv2k';
+
+// 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
+const fallbackMenuData = [
+    { ID: 'm1', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'index.html', FontAwesomeIcon: 'fas fa-house', 是否有效: 'Y' },
+    { ID: 'm2', 中文: '關於我們', 英文: 'About Us', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-building', 是否有效: 'Y' },
+    { ID: 'm2_1', 中文: '公司簡介', 英文: 'Company Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-uvaco.html', FontAwesomeIcon: 'fas fa-award', 是否有效: 'Y' },
+    { ID: 'm2_2', 中文: '團隊簡介', 英文: 'Team Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-team.html', FontAwesomeIcon: 'fas fa-users-gear', 是否有效: 'Y' },
+    { ID: 'm3', 中文: '產品護城河', 英文: 'Products', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-box-open', 是否有效: 'Y' },
+    { ID: 'm3_1', 中文: '產品目錄總覽', 英文: 'Product Catalog', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'products.html', FontAwesomeIcon: 'fas fa-list-check', 是否有效: 'Y' },
+    { ID: 'm3_2', 中文: '產品特點與優勢', 英文: 'Product Advantages', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-advantages.html', FontAwesomeIcon: 'fas fa-shield-halved', 是否有效: 'Y' },
+    { ID: 'm3_3', 中文: '研發專利成果', 英文: 'Patents & Research', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-patents.html', FontAwesomeIcon: 'fas fa-microscope', 是否有效: 'Y' },
+    { ID: 'm4', 中文: '事業經營', 英文: 'Business', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-chart-line', 是否有效: 'Y' },
+    { ID: 'm4_1', 中文: '制度特點優勢', 英文: 'System Advantages', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'system-advantages.html', FontAwesomeIcon: 'fas fa-trophy', 是否有效: 'Y' },
+    { ID: 'm4_2', 中文: '職級晉升藍圖', 英文: 'Rank Advancement', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'rank-advancement.html', FontAwesomeIcon: 'fas fa-ranking-star', 是否有效: 'Y' },
+    { ID: 'm5', 中文: '官方企業網站', 英文: 'Official Site', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'https://www.pro-partner.com.tw', FontAwesomeIcon: 'fas fa-globe', 是否有效: 'Y' }
+];
+
+let menuTreeMap = new Map();
+
+// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
+window.addEventListener('vendorReady', function() {
+    initSidebarToggle();
+    fetchGoogleSheetMenu();
+    initDesktopSitemapObserver();
+    initIframeResizeListener();
+    
+    // 預設載入首頁內容
+    loadPage('home.html');
+});
+
+// 1. 左側選單收折邏輯
+function initSidebarToggle() {
+    $('#sidebarToggle').on('click', function() {
+        if ($(window).width() >= 992) {
+            $('#portalSidebar').toggleClass('collapsed');
+            $('#portalWrapper').toggleClass('sidebar-collapsed');
+        } else {
+            $('#portalSidebar').toggleClass('mobile-open');
+        }
+    });
+
+    $(document).on('click', function(e) {
+        if ($(window).width() < 992) {
+            if (!$(e.target).closest('#portalSidebar, #sidebarToggle').length) {
+                $('#portalSidebar').removeClass('mobile-open');
+            }
+        }
+    });
+}
+
+// 2. 抓取 Google 試算表資料（索引解耦模式）
+function fetchGoogleSheetMenu() {
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("公開版")}`;
+    
+    Papa.parse(url, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+            if (results.data && results.data.length > 1) {
+                processAndRenderMenu(results.data.slice(1));
+            } else {
+                processAndRenderMenu(fallbackMenuRawRows);
+            }
+        },
+        error: function(err) {
+            console.warn('Google 試算表抓取失敗，啟用備用選單數據:', err);
+            processAndRenderMenu(fallbackMenuRawRows);
+        }
+    });
+}
+
+// 3. 處理數據並生成樹狀導覽
+function processAndRenderMenu(rawRows) {
+    menuTreeMap.clear();
+
+    const items = rawRows.map(row => {
+        const isValidRaw = String(row[7] || '').trim().toUpperCase();
+        const isValid = (isValidRaw === 'Y' || isValidRaw === 'TRUE' || isValidRaw === '1' || isValidRaw === '是');
+
+        return {
+            id: String(row[0] || '').trim(),
+            titleCn: String(row[1] || '').trim(),
+            titleEn: String(row[2] || '').trim(),
+            level: parseInt(String(row[3] || '0').trim(), 10) || 0,
+            parentId: String(row[4] || 'root').trim(),
+            link: String(row[5] || '#').trim(),
+            icon: String(row[6] || 'fas fa-circle-dot').trim(),
+            isActive: isValid
+        };
+    }).filter(item => item.id !== '' && item.isActive);
+
+    items.forEach(item => {
+        const pid = item.parentId || 'root';
+        if (!menuTreeMap.has(pid)) {
+            menuTreeMap.set(pid, []);
+        }
+        menuTreeMap.get(pid).push(item);
+    });
+
+    const $menuContainer = $('#dynamicMenuContainer');
+    $menuContainer.empty().append(buildRecursiveMenuHtml('root', 0));
+    renderSitemapFooter();
+
+    $('.parent-toggle').off('click').on('click', function(e) {
+        e.preventDefault();
+        const targetId = $(this).data('target');
+        $(`#${targetId}`).slideToggle(200).toggleClass('show');
+        $(this).find('.submenu-arrow').first().toggleClass('fa-rotate-180');
+    });
+}
+
+// 4. 遞歸構建無限層級選單 HTML
+function buildRecursiveMenuHtml(parentId, depth) {
+    const children = menuTreeMap.get(parentId) || [];
+    if (children.length === 0) return '';
+
+    const ulClass = (depth === 0) ? 'sidebar-menu' : 'submenu-container';
+    const ulId = (depth > 0) ? `id="submenu-${parentId}"` : '';
+    
+    let html = `<ul class="${ulClass}" ${ulId}>`;
+
+    children.forEach(item => {
+        const subChildren = menuTreeMap.get(item.id) || [];
+        const hasChildren = subChildren.length > 0;
+        const isExternal = item.link.startsWith('http://') || item.link.startsWith('https://');
+
+        html += `<li class="nav-item">`;
+
+        if (hasChildren) {
+            html += `
+                <a href="#" class="nav-item-link parent-toggle" data-target="submenu-${item.id}">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="menu-icon-box"><i class="${item.icon}"></i></span>
+                        <span class="menu-text"> ${item.titleCn}</span>
+                    </div>
+                    <i class="fas fa-chevron-down submenu-arrow small"></i>
+                </a>
+                ${buildRecursiveMenuHtml(item.id, depth + 1)}
+            `;
+        } else {
+            const targetAttr = isExternal ? 'target="_blank"' : '';
+            const clickHandler = isExternal ? '' : `onclick="loadPage('${item.link}'); return false;"`;
+
+            html += `
+                <a href="${item.link}" ${targetAttr} ${clickHandler} class="nav-item-link">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="menu-icon-box"><i class="${item.icon}"></i></span>
+                        <span class="menu-text"> ${item.titleCn}</span>
+                    </div>
+                    ${isExternal ? '<i class="fas fa-arrow-up-right-from-square small"></i>' : ''}
+                </a>
+            `;
+        }
+
+        html += `</li>`;
+    });
+
+    html += `</ul>`;
+    return html;
+}
+
+// 5. 【關鍵核心】iFrame 無縫切換與 100% JS 變數隔離引擎
+function loadPage(pageUrl) {
+    if (!pageUrl || pageUrl === '#') return;
+
+    $('#portalSidebar').removeClass('mobile-open');
+
+    // 使用 iFrame 載入頁面，徹底達成 JS 作用域完全隔離！
+    const $container = $('#page-content-container');
+    $container.html(`
+        <iframe id="portal-subpage-frame" 
+                class="seamless-iframe" 
+                src="${pageUrl}" 
+                scrolling="no" 
+                title="Subpage Content">
+        </iframe>
+    `);
+
+    // 綁定 iFrame 載入事件與自動高度調整
+    const frame = document.getElementById('portal-subpage-frame');
+    frame.onload = function() {
+        autoResizeIframe(frame);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+}
+
+// 6. 消弭二次卷軸：動態即時同步 iFrame 高度與 Body
+function autoResizeIframe(frame) {
+    try {
+        if (frame && frame.contentWindow && frame.contentWindow.document.body) {
+            // 取得子頁面實際 DOM 高度
+            const body = frame.contentWindow.document.body;
+            const html = frame.contentWindow.document.documentElement;
+            const contentHeight = Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+
+            // 強制套用高度給 iFrame，消除內部滾動條
+            frame.style.height = contentHeight + 'px';
+
+            // 監聽子頁面 DOM 變動（例如展開摺疊或載入資料）
+            if (frame.contentWindow.ResizeObserver) {
+                const observer = new frame.contentWindow.ResizeObserver(() => {
+                    frame.style.height = frame.contentWindow.document.body.scrollHeight + 'px';
+                });
+                observer.observe(frame.contentWindow.document.body);
+            }
+        }
+    } catch (e) {
+        console.warn('iFrame 跨網域存取受限，採用預設高度設定:', e);
+        frame.style.height = '800px';
+    }
+}
+
+// 7. 監聽視窗縮放，自動調整 iFrame
+function initIframeResizeListener() {
+    $(window).on('resize', function() {
+        const frame = document.getElementById('portal-subpage-frame');
+        if (frame) {
+            autoResizeIframe(frame);
+        }
+    });
+}
+
+// 8. 電腦版 Sitemap 頁尾
+function renderSitemapFooter() {
+    const $sitemapContainer = $('#sitemapContainer');
+    $sitemapContainer.empty();
+
+    const rootNodes = menuTreeMap.get('root') || [];
+
+    rootNodes.forEach(root => {
+        const children = menuTreeMap.get(root.id) || [];
+        const iconClass = root.icon || 'fas fa-circle-dot';
+
+        let sitemapBlockHtml = `
+            <div class="col-lg-3 col-md-4">
+                <div class="fw-bold text-success mb-2">
+                    <i class="${iconClass}"></i> ${root.titleCn}
+                </div>`;
+
+        if (children.length > 0) {
+            sitemapBlockHtml += `<ul class="sitemap-list">`;
+            children.forEach(child => {
+                const childExternal = child.link.startsWith('http://') || child.link.startsWith('https://');
+                const targetAttr = childExternal ? 'target="_blank"' : '';
+                const clickHandler = childExternal ? '' : `onclick="loadPage('${child.link}'); return false;"`;
+
+                sitemapBlockHtml += `
+                    <li>
+                        <a href="${child.link}" ${targetAttr} ${clickHandler}>
+                            <i class="${child.icon} me-1"></i> ${child.titleCn}
+                        </a>
+                    </li>`;
+            });
+            sitemapBlockHtml += `</ul>`;
+        }
+
+        sitemapBlockHtml += `</div>`;
+        $sitemapContainer.append(sitemapBlockHtml);
+    });
+}
+
+// 9. IntersectionObserver 觸發 Sitemap 漸顯
+function initDesktopSitemapObserver() {
+    if (!('IntersectionObserver' in window)) {
+        $('#desktopSitemap').addClass('visible');
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                $('#desktopSitemap').addClass('visible');
+            }
+        });
+    }, { threshold: 0.2 });
+
+    const footerTarget = document.getElementById('portalFooter');
+    if (footerTarget) {
+        observer.observe(footerTarget);
+    }
+}

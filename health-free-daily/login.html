@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>榮祥葡眾團隊 - 身分驗證</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxYk-8LshkBJ0MOeTB1mnkdJbBqv7h01sjLOquzXW3aZK2aCcjlWPvanDvHe8BIHJ1ADw/exec";
+            const SESSION_KEY = 'uvaco_auth_session';
+
+            function handleCredentialResponse(response) {
+                let idToken = response.credential;
+                
+                $('#authSpinner').removeClass('d-none');
+                $('#authAlert').addClass('d-none');
+
+                $.ajax({
+                    url: GAS_API_URL,
+                    type: "POST",
+                    data: JSON.stringify({
+                        idToken: idToken,
+                        targetSystem: "public" // 指名驗證 public 公開版權限
+                    }),
+                    contentType: "text/plain;charset=utf-8",
+                    dataType: "json",
+                    success: function(res) {
+                        $('#authSpinner').addClass('d-none');
+                        if (res.success) {
+                            // 寫入 7 天效期之 Session 快取
+                            const expireDays = 7;
+                            const sessionData = {
+                                user: res.user,
+                                userName: res.userName,
+                                role: res.role,
+                                permissions: res.permissions,
+                                expireAt: new Date().getTime() + (expireDays * 24 * 60 * 60 * 1000)
+                            };
+                            localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+
+                            // 重定向至原本想存取的頁面，或進入首頁 index.html
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirectUrl = urlParams.get('redirect');
+                            window.location.href = (redirectUrl) ? decodeURIComponent(redirectUrl) : 'index.html';
+                        } else {
+                            showAuthError(res.message || "驗證失敗：您的帳號無權存取公開版！");
+                        }
+                    },
+                    error: function() {
+                        $('#authSpinner').addClass('d-none');
+                        showAuthError("無法連線至驗證伺服器，請檢查 GAS API 部署。");
+                    }
+                });
+            }
+
+            function showAuthError(msg) {
+                $('#authAlert').removeClass('d-none').text(msg);
+            }
+        </script>
+
+        <style>
+            body {
+                background-color: #0b1329;
+                color: #e2e8f0;
+                font-family: system-ui, -apple-system, sans-serif;
+            }
+            .card-custom {
+                background-color: #1e293b;
+                border: 1px solid #3b82f633;
+                border-radius: 12px;
+            }
+            .text-blue-custom {
+                color: #38bdf8;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+            <div class="container-fluid">
+                <a class="navbar-brand text-blue-custom fw-bold" href="#">
+                    <i class="fa-solid fa-shield-halved"></i> 榮祥葡眾團隊戰情室
+                </a>
+            </div>
+        </nav>
+
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card card-custom p-4 text-center shadow-lg">
+                        <h3 class="text-blue-custom mb-3">
+                            <i class="fa-solid fa-lock"></i> 團隊內部白名單驗證
+                        </h3>
+                        <p class="text-secondary mb-4">請點擊下方按鈕登入獲授權之 Google 帳號。首次驗證成功後，系統將提供 7 天免登入極速存取。</p>
+                        
+                        <div class="d-flex justify-content-center mb-3">
+                            <div id="g_id_onload"
+                                data-client_id="640635151045-bmu6985u73vbcgc6ef12pkgfa89pa8d8.apps.googleusercontent.com"
+                                data-callback="handleCredentialResponse"
+                                data-auto_prompt="false">
+                            </div>
+                            <div class="g_id_signin"
+                                data-type="standard"
+                                data-size="large"
+                                data-theme="filled_dark"
+                                data-text="sign_in_with">
+                            </div>
+                        </div>
+                        
+                        <div id="authSpinner" class="text-blue-custom d-none my-2">
+                            <i class="fa-solid fa-spinner fa-spin"></i> 核對試算表權限中...
+                        </div>
+                        <div id="authAlert" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+</html>

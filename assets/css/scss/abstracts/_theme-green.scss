@@ -1,0 +1,40 @@
+// ==========================================================================
+// 1-abstracts/_theme-green.scss
+// 公開版《健康生活與自由日常》：翡翠綠色系深色主題 (Dark Emerald Green)
+// ==========================================================================
+
+:root,
+[data-bs-theme="dark-green"] {
+    // Ray's Team 專屬系統語意化色彩 Token
+    --uvaco-bg-primary: #051811;            // 主背景 (極深草本綠底)
+    --uvaco-bg-secondary: #0D231B;          // 次要區塊背景
+    --uvaco-bg-card: #10241b;               // 卡片容器底色
+    --uvaco-bg-card-hover: #1a3f33;         // 卡片容器底色（Hover 狀態）
+
+    --uvaco-border-color: rgba(52, 211, 153, 0.2);  // 邊框線條
+
+    --uvaco-text-primary: #ecfdf5;          // 主文字 (白綠)
+    --uvaco-text-secondary: #6ee7b7;        // 次要輔助文字
+    --uvaco-text-muted: #9ca3af;            // 灰色說明文字
+
+    --uvaco-primary: #10b981;               // 主要色彩 (翡翠綠 emerald)
+    --uvaco-primary-hover: #059669;         // 主要色彩（Hover 狀態）
+    --uvaco-secondary: #34d399;             // 次要色彩 (薄荷綠 mint)
+    --uvaco-accent: #f59e0b;                // 亮點色彩（琥珀橘 gold）
+    --uvaco-dark: #062E1E;                  // 深色色彩 (深草本綠 dark green)
+
+
+    // Bootstrap 5 原生 CSS 變數雙向覆蓋 ( 無縫相容 BS5 原生元件 )
+    --bs-body-bg: var(--uvaco-bg-primary);
+    --bs-body-color: var(--uvaco-text-primary);
+    
+    --bs-card-bg: var(--uvaco-bg-card);
+    --bs-card-border-color: var(--uvaco-border-color);
+
+    --bs-border-color: var(--uvaco-border-color);
+
+    --bs-tertiary-bg: var(--uvaco-bg-secondary);
+
+    --bs-primary: var(--uvaco-primary);
+    --bs-primary-rgb: 16, 185, 129;
+}

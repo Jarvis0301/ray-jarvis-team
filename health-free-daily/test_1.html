@@ -1,703 +1,273 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>健康生活與自由日常 | 榮祥團隊 Ray's Team</title>
-        
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-        
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-        <script>
-            // 設定 Google 試算表 CSV 發布連結 (請替換為實際公開的 CSV 網址)
-            const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_KEY/pub?output=csv';
-
-            // 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
-            const fallbackMenuData = [
-                { ID: 'm1', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'index.html', FontAwesomeIcon: 'fas fa-house', 是否有效: 'Y' },
-                { ID: 'm2', 中文: '關於我們', 英文: 'About Us', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-building', 是否有效: 'Y' },
-                { ID: 'm2_1', 中文: '公司簡介', 英文: 'Company Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-uvaco.html', FontAwesomeIcon: 'fas fa-award', 是否有效: 'Y' },
-                { ID: 'm2_2', 中文: '團隊簡介', 英文: 'Team Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-team.html', FontAwesomeIcon: 'fas fa-users-gear', 是否有效: 'Y' },
-                { ID: 'm3', 中文: '產品護城河', 英文: 'Products', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-box-open', 是否有效: 'Y' },
-                { ID: 'm3_1', 中文: '產品目錄總覽', 英文: 'Product Catalog', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'products.html', FontAwesomeIcon: 'fas fa-list-check', 是否有效: 'Y' },
-                { ID: 'm3_2', 中文: '產品特點與優勢', 英文: 'Product Advantages', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-advantages.html', FontAwesomeIcon: 'fas fa-shield-halved', 是否有效: 'Y' },
-                { ID: 'm3_3', 中文: '研發專利成果', 英文: 'Patents & Research', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-patents.html', FontAwesomeIcon: 'fas fa-microscope', 是否有效: 'Y' },
-                { ID: 'm4', 中文: '事業經營', 英文: 'Business', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-chart-line', 是否有效: 'Y' },
-                { ID: 'm4_1', 中文: '制度特點優勢', 英文: 'System Advantages', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'system-advantages.html', FontAwesomeIcon: 'fas fa-trophy', 是否有效: 'Y' },
-                { ID: 'm4_2', 中文: '職級晉升藍圖', 英文: 'Rank Advancement', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'rank-advancement.html', FontAwesomeIcon: 'fas fa-ranking-star', 是否有效: 'Y' },
-                { ID: 'm5', 中文: '官方企業網站', 英文: 'Official Site', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'https://www.pro-partner.com.tw', FontAwesomeIcon: 'fas fa-globe', 是否有效: 'Y' }
-            ];
-
-            $(document.body).ready(function() {
-                initSidebarToggle();
-                fetchGoogleSheetMenu();
-                initDesktopSitemapObserver();
-                
-                // 預設載入首頁內容
-                loadPage('index.html');
-            });
-
-            // 1. 左側選單收折邏輯
-            function initSidebarToggle() {
-                $('#sidebarToggle').on('click', function() {
-                    if ($(window).width() >= 992) {
-                        $('#portalSidebar').toggleClass('collapsed');
-                        $('#portalWrapper').toggleClass('sidebar-collapsed');
-                    } else {
-                        $('#portalSidebar').toggleClass('mobile-open');
-                    }
-                });
-
-                // 點擊外部自動關閉手機選單
-                $(document).on('click', function(e) {
-                    if ($(window).width() < 992) {
-                        if (!$(e.target).closest('#portalSidebar, #sidebarToggle').length) {
-                            $('#portalSidebar').removeClass('mobile-open');
-                        }
-                    }
-                });
-            }
-
-            // 2. 抓取 Google 試算表資料並解析選單
-            function fetchGoogleSheetMenu() {
-                Papa.parse(GOOGLE_SHEET_CSV_URL, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        if (results.data && results.data.length > 0) {
-                            renderDynamicMenu(results.data);
-                        } else {
-                            renderDynamicMenu(fallbackMenuData);
-                        }
-                    },
-                    error: function(err) {
-                        console.warn('Google 試算表抓取失敗，啟用備用選單數據:', err);
-                        renderDynamicMenu(fallbackMenuData);
-                    }
-                });
-            }
-
-            // 3. 動態渲染樹狀選單與 Sitemap
-            function renderDynamicMenu(data) {
-                const $container = $('#dynamicMenuContainer');
-                const $sitemapContainer = $('#sitemapContainer');
-                $container.empty();
-                $sitemapContainer.empty();
-
-                // 過濾有效數據
-                const validData = data.filter(item => {
-                    const valid = (item['是否有效'] || '').toUpperCase();
-                    return valid === 'Y' || valid === 'TRUE' || valid === '1' || valid === '是';
-                });
-
-                // 分離根選單與子選單
-                const rootItems = validData.filter(item => String(item['所屬階層']) === '0' || item['父頁面選單ID'] === 'root');
-                const childItems = validData.filter(item => String(item['所屬階層']) === '1');
-
-                rootItems.forEach(root => {
-                    const children = childItems.filter(child => child['父頁面選單ID'] === root.ID);
-                    const hasChild = children.length > 0;
-                    const iconClass = root.FontAwesomeIcon || 'fas fa-circle-dot';
-                    const isExternal = root.連結.startsWith('http://') || root.連結.startsWith('https://');
-
-                    // 構建左側選單 HTML
-                    let menuItemHtml = `<li class="nav-item">`;
-                    
-                    if (hasChild) {
-                        menuItemHtml += `
-                            <a href="#" class="nav-item-link parent-toggle" data-target="submenu-${root.ID}">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="menu-icon-box"><i class="${iconClass}"></i></span>
-                                    <span class="menu-text"> ${root.中文}</span>
-                                </div>
-                                <i class="fas fa-chevron-down submenu-arrow small text-muted"></i>
-                            </a>
-                            <ul class="submenu-container" id="submenu-${root.ID}">`;
-
-                        let sitemapSubHtml = '';
-                        children.forEach(child => {
-                            const childExternal = child.連結.startsWith('http://') || child.連結.startsWith('https://');
-                            const childIcon = child.FontAwesomeIcon || 'fas fa-angle-right';
-                            const targetAttr = childExternal ? 'target="_blank"' : '';
-                            const clickHandler = childExternal ? '' : `onclick="loadPage('${child.連結}'); return false;"`;
-
-                            menuItemHtml += `
-                                <li>
-                                    <a href="${child.連結}" ${targetAttr} ${clickHandler} class="submenu-link">
-                                        <i class="${childIcon} me-2 small"></i>
-                                        <span class="menu-text"> ${child.中文}</span>
-                                    </a>
-                                </li>`;
-
-                            sitemapSubHtml += `
-                                <li>
-                                    <a href="${child.連結}" ${targetAttr} ${clickHandler}>
-                                        <i class="${childIcon} me-1"></i> ${child.中文}
-                                    </a>
-                                </li>`;
-                        });
-
-                        menuItemHtml += `</ul>`;
-
-                        // 構建電腦版 Sitemap 欄位
-                        $sitemapContainer.append(`
-                            <div class="col-lg-3 col-md-4">
-                                <div class="fw-bold text-success mb-2">
-                                    <i class="${iconClass}"></i> ${root.中文}
-                                </div>
-                                <ul class="sitemap-list">${sitemapSubHtml}</ul>
-                            </div>
-                        `);
-
-                    } else {
-                        const targetAttr = isExternal ? 'target="_blank"' : '';
-                        const clickHandler = isExternal ? '' : `onclick="loadPage('${root.連結}'); return false;"`;
-
-                        menuItemHtml += `
-                            <a href="${root.連結}" ${targetAttr} ${clickHandler} class="nav-item-link">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="menu-icon-box"><i class="${iconClass}"></i></span>
-                                    <span class="menu-text"> ${root.中文}</span>
-                                </div>
-                                ${isExternal ? '<i class="fas fa-arrow-up-right-from-square small text-muted"></i>' : ''}
-                            </a>`;
-
-                        $sitemapContainer.append(`
-                            <div class="col-lg-3 col-md-4">
-                                <div class="fw-bold text-success mb-2">
-                                    <a href="${root.連結}" ${targetAttr} ${clickHandler} class="text-decoration-none text-success">
-                                        <i class="${iconClass}"></i> ${root.中文}
-                                    </a>
-                                </div>
-                            </div>
-                        `);
-                    }
-
-                    menuItemHtml += `</li>`;
-                    $container.append(menuItemHtml);
-                });
-
-                // 綁定動態折疊事件
-                $('.parent-toggle').on('click', function(e) {
-                    e.preventDefault();
-                    const targetId = $(this).data('target');
-                    $(`#${targetId}`).slideToggle(200).toggleClass('show');
-                    $(this).find('.submenu-arrow').toggleClass('fa-rotate-180');
-                });
-            }
-
-            // 4. 無縫切換中央頁面（避免二次卷軸）
-            function loadPage(pageUrl) {
-                if (!pageUrl || pageUrl === '#') return;
-
-                // 關閉手機側邊欄
-                $('#portalSidebar').removeClass('mobile-open');
-
-                // 若為首頁模擬內容
-                if (pageUrl === 'index.html') {
-                    renderDefaultHomeView();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-
-                // 非同步 Ajax 載入目標 html 檔案
-                $('#page-content-container').html(`
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-success" role="status"></div>
-                        <p class="text-muted mt-3"><i class="fas fa-file-code"></i> 正在載入頁面內容...</p>
-                    </div>
-                `);
-
-                $.ajax({
-                    url: pageUrl,
-                    type: 'GET',
-                    dataType: 'html',
-                    success: function(response) {
-                        $('#page-content-container').html(response);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    },
-                    error: function() {
-                        // 若單獨 HTML 尚未上傳，顯示提示預覽卡片
-                        $('#page-content-container').html(`
-                            <div class="card bg-dark border-success text-light p-4 my-4">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-laptop-code text-success display-4 mb-3"></i>
-                                    <h3>頁面建置中 (${pageUrl})</h3>
-                                    <p class="text-muted">已成功觸發動態路由！目標頁面檔案 <code>${pageUrl}</code> 部署完成後即可自動無縫渲染。</p>
-                                    <button class="btn btn-outline-success mt-2" onclick="loadPage('index.html')">
-                                        <i class="fas fa-house"></i> 返回戰情室首頁
-                                    </button>
-                                </div>
-                            </div>
-                        `);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                });
-            }
-
-            // 預設首頁 UI 渲染
-            function renderDefaultHomeView() {
-                $('#page-content-container').html(`
-                    <div class="row g-4 mb-4">
-                        <div class="col-12">
-                            <div class="p-4 p-md-5 rounded-4" style="background: linear-gradient(135deg, #0d281e 0%, #081612 100%); border: 1px solid var(--border-color);">
-                                <span class="badge bg-success mb-3"><i class="fas fa-star"></i> 團隊公域門戶總樞紐</span>
-                                <h1 class="fw-bold text-white mb-3">美滿生活 就此展開</h1>
-                                <p class="text-muted leading-relaxed col-lg-8">
-                                    歡迎來到《榮祥團隊 Ray's Team》數位公域門戶。本系統整合產品護城河、事業經營藍圖與自動化計算工具，為全網夥伴與消費受眾提供最權威、合規的資訊支援。
-                                </p>
-                                <div class="d-flex flex-wrap gap-3 mt-4">
-                                    <button class="btn btn-success px-4 py-2" onclick="loadPage('products.html')">
-                                        <i class="fas fa-basket-shopping"></i> 探索產品目錄
-                                    </button>
-                                    <button class="btn btn-outline-light px-4 py-2" onclick="loadPage('about-team.html')">
-                                        <i class="fas fa-users"></i> 了解榮祥團隊
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 h-100" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                                <div class="text-success fs-3 mb-3"><i class="fas fa-shield-halved"></i></div>
-                                <h5 class="fw-bold text-light">頂尖產品專利</h5>
-                                <p class="text-muted small">整合葡萄王生技母公司數十年生物科技結晶，包含全球發明獎項與專利菌株。</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 h-100" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                                <div class="text-success fs-3 mb-3"><i class="fas fa-chart-pie"></i></div>
-                                <h5 class="fw-bold text-light">人性化事業制度</h5>
-                                <p class="text-muted small">累積不歸零、職級不下聘、自動補救機制，實現永續被動收入與事業保障。</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-4 rounded-3 h-100" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                                <div class="text-success fs-3 mb-3"><i class="fas fa-graduation-cap"></i></div>
-                                <h5 class="fw-bold text-light">團隊複製系統</h5>
-                                <p class="text-muted small">模組化教學、線上工具庫與一對一領袖陪跑機制，幫助夥伴輕鬆開啟創業之路。</p>
-                            </div>
-                        </div>
-                    </div>
-                `);
-            }
-
-            // 5. 電腦版 Sitemap 滾動到最下方才出現的 IntersectionObserver 機制
-            function initDesktopSitemapObserver() {
-                if (!('IntersectionObserver' in window)) {
-                    $('#desktopSitemap').addClass('visible');
-                    return;
-                }
-
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            $('#desktopSitemap').addClass('visible');
-                        }
-                    });
-                }, {
-                    threshold: 0.2
-                });
-
-                const footerTarget = document.getElementById('portalFooter');
-                if (footerTarget) {
-                    observer.observe(footerTarget);
-                }
-            }
-        </script>
-        
-        <style>
-            :root {
-                --bg-main: #081612;
-                --bg-sidebar: #0d1f18;
-                --bg-card: #12251e;
-                --bg-header: #0a1b14;
-                --accent-emerald: #10b981;
-                --accent-green-bright: #34d399;
-                --accent-hover: rgba(52, 211, 153, 0.15);
-                --border-color: rgba(52, 211, 153, 0.2);
-                --text-main: #f1f5f9;
-                --text-muted: #94a3b8;
-                --sidebar-width: 280px;
-                --sidebar-collapsed-width: 80px;
-                --header-height: 70px;
-            }
-
-            body {
-                background-color: var(--bg-main);
-                color: var(--text-main);
-                font-family: 'Noto Sans TC', sans-serif;
-                margin: 0;
-                padding: 0;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                overflow-x: hidden;
-            }
-
-            /* 頂部標題欄 */
-            .portal-header {
-                height: var(--header-height);
-                background-color: var(--bg-header);
-                border-bottom: 1px solid var(--border-color);
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1030;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 1.5rem;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            }
-
-            .brand-logo {
-                color: var(--accent-green-bright);
-                font-size: 1.25rem;
-                font-weight: 700;
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-            .toggle-btn {
-                background: transparent;
-                border: 1px solid var(--border-color);
-                color: var(--accent-green-bright);
-                padding: 0.4rem 0.8rem;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .toggle-btn:hover {
-                background-color: var(--accent-hover);
-                color: #ffffff;
-            }
-
-            /* 主區域佈局容器 */
-            .portal-wrapper {
-                display: flex;
-                margin-top: var(--header-height);
-                flex: 1;
-                position: relative;
-            }
-
-            /* 左側動態選單 */
-            .portal-sidebar {
-                width: var(--sidebar-width);
-                background-color: var(--bg-sidebar);
-                border-right: 1px solid var(--border-color);
-                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                position: fixed;
-                top: var(--header-height);
-                bottom: 0;
-                left: 0;
-                z-index: 1020;
-                overflow-y: auto;
-                overflow-x: hidden;
-                display: flex;
-                flex-direction: column;
-            }
-
-            /* 桌機收折狀態 */
-            .portal-sidebar.collapsed {
-                width: var(--sidebar-collapsed-width);
-            }
-
-            .portal-sidebar.collapsed .menu-text,
-            .portal-sidebar.collapsed .submenu-arrow {
-                display: none !important;
-            }
-
-            .portal-sidebar.collapsed .nav-item-link {
-                justify-content: center;
-                padding: 0.8rem 0;
-            }
-
-            .portal-sidebar.collapsed .submenu-container {
-                display: none !important;
-            }
-
-            /* 選單項目樣式 */
-            .sidebar-menu {
-                list-style: none;
-                padding: 1rem 0.75rem;
-                margin: 0;
-            }
-
-            .nav-item-link {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0.75rem 1rem;
-                color: var(--text-main);
-                text-decoration: none;
-                border-radius: 8px;
-                margin-bottom: 0.3rem;
-                transition: all 0.25s ease;
-                font-size: 0.95rem;
-            }
-
-            .nav-item-link:hover, .nav-item-link.active {
-                background-color: var(--accent-hover);
-                color: var(--accent-green-bright);
-                border-left: 3px solid var(--accent-emerald);
-            }
-
-            .menu-icon-box {
-                width: 24px;
-                text-align: center;
-                font-size: 1.1rem;
-                color: var(--accent-emerald);
-            }
-
-            .submenu-container {
-                list-style: none;
-                padding-left: 1.5rem;
-                margin-top: 0.2rem;
-                margin-bottom: 0.5rem;
-                display: none;
-            }
-
-            .submenu-container.show {
-                display: block;
-            }
-
-            .submenu-link {
-                display: flex;
-                align-items: center;
-                padding: 0.5rem 1rem;
-                color: var(--text-muted);
-                text-decoration: none;
-                font-size: 0.88rem;
-                border-radius: 6px;
-                transition: all 0.2s ease;
-            }
-
-            .submenu-link:hover, .submenu-link.active {
-                color: var(--accent-green-bright);
-                background-color: rgba(52, 211, 153, 0.08);
-            }
-
-            /* 中央動態內容區塊（無二次卷軸） */
-            .portal-content {
-                flex: 1;
-                margin-left: var(--sidebar-width);
-                transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                padding: 2rem;
-                min-height: calc(100vh - var(--header-height));
-                display: flex;
-                flex-direction: column;
-            }
-
-            .portal-wrapper.sidebar-collapsed .portal-content {
-                margin-left: var(--sidebar-collapsed-width);
-            }
-
-            #page-content-container {
-                flex: 1;
-                animation: fadeIn 0.4s ease-in-out;
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(8px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-
-            /* 頁尾樣式 */
-            .portal-footer {
-                background-color: var(--bg-header);
-                border-top: 1px solid var(--border-color);
-                padding: 2.5rem 1.5rem 1.5rem 1.5rem;
-                margin-top: auto;
-            }
-
-            /* 電腦端滾動到最下面才出現的網站地圖 */
-            .desktop-sitemap {
-                border-bottom: 1px solid var(--border-color);
-                padding-bottom: 2rem;
-                margin-bottom: 2rem;
-                opacity: 0;
-                transform: translateY(20px);
-                transition: opacity 0.6s ease, transform 0.6s ease;
-            }
-
-            .desktop-sitemap.visible {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            .sitemap-title {
-                color: var(--accent-green-bright);
-                font-size: 1.1rem;
-                font-weight: 700;
-                margin-bottom: 1rem;
-            }
-
-            .sitemap-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .sitemap-list li {
-                margin-bottom: 0.5rem;
-            }
-
-            .sitemap-list a {
-                color: var(--text-muted);
-                text-decoration: none;
-                font-size: 0.88rem;
-                transition: color 0.2s ease;
-            }
-
-            .sitemap-list a:hover {
-                color: var(--accent-green-bright);
-            }
-
-            /* 社群圖示與聲明區 */
-            .footer-social-btns {
-                display: flex;
-                gap: 1rem;
-                justify-content: center;
-                margin-bottom: 1.5rem;
-            }
-
-            .social-btn {
-                width: 42px;
-                height: 42px;
-                border-radius: 50%;
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-color);
-                color: var(--accent-green-bright);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-decoration: none;
-                font-size: 1.2rem;
-                transition: all 0.3s ease;
-            }
-
-            .social-btn:hover {
-                background-color: var(--accent-emerald);
-                color: #ffffff;
-                transform: translateY(-3px);
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-            }
-
-            .copyright-text {
-                color: var(--text-muted);
-                font-size: 0.85rem;
-                text-align: center;
-                line-height: 1.6;
-            }
-
-            .copyright-text a {
-                color: var(--accent-green-bright);
-                text-decoration: none;
-            }
-
-            .copyright-text a:hover {
-                text-decoration: underline;
-            }
-
-            /* 響應式斷點調整 (Mobile RWD) */
-            @media (max-width: 991.98px) {
-                .portal-sidebar {
-                    transform: translateX(-100%);
-                    width: 260px !important;
-                }
-
-                .portal-sidebar.mobile-open {
-                    transform: translateX(0);
-                    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
-                }
-
-                .portal-content {
-                    margin-left: 0 !important;
-                    padding: 1.25rem;
-                }
-
-                .desktop-sitemap {
-                    display: none !important; /* 手機版本隱藏網站地圖 */
-                }
-            }
-        </style>
-    </head>
-    <body>
-
-        <header class="portal-header">
-            <div class="d-flex align-items-center gap-3">
-                <button class="toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation">
-                    <i class="fas fa-bars"></i> 選單
-                </button>
-                <a href="#" class="brand-logo" onclick="loadPage('index.html'); return false;">
-                    <i class="fas fa-leaf"></i> 榮祥團隊 Ray's Team
-                </a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨國市場產品戰情室 - 榮祥團隊</title>
+
+    <script src="../assets/js/vendor-loader.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #061410;
+            --card-dark: #0d221a;
+            --border-green: #1b4233;
+            --accent-emerald: #10b981;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Noto Sans TC', sans-serif;
+            padding: 1.5rem 0;
+        }
+
+        .bg-card-custom {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border-green);
+            border-radius: 12px;
+        }
+
+        .text-emerald {
+            color: var(--accent-emerald);
+        }
+
+        /* 國旗膠囊標籤樣式 */
+        .flag-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-green);
+            font-size: 0.875rem;
+        }
+
+        /* Select2 暗黑主題覆蓋 */
+        .select2-container--default .select2-selection--single {
+            background-color: var(--bg-dark) !important;
+            border-color: var(--border-green) !important;
+            height: 38px !important;
+            border-radius: 6px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-light) !important;
+            line-height: 36px !important;
+        }
+
+        .select2-dropdown {
+            background-color: var(--card-dark) !important;
+            border-color: var(--border-green) !important;
+            color: var(--text-light) !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--accent-emerald) !important;
+        }
+
+        /* DataTable 3.0.1 暗黑模式適用 */
+        .dt-container .dt-search input {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-green);
+            color: var(--text-light);
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="p-4 bg-card-custom shadow-lg mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="h4 mb-1 text-white">
+                    <i class="fas fa-globe text-emerald"></i> UVACO 葡眾全球產品戰情室
+                </h1>
+                <p class="text-muted mb-0">已成功套用 flag-icons (v7.2.3) 與 14 大前端最新套件</p>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-2">
-                    <i class="fas fa-shield-halved"></i> 公開版官網
+            <div class="d-flex gap-2 flex-wrap">
+                <span class="flag-badge">
+                    <span class="fi fi-tw"></span> 台灣總部
+                </span>
+                <span class="flag-badge">
+                    <span class="fi fi-my"></span> 馬來西亞營運中心
                 </span>
             </div>
-        </header>
-
-        <div class="portal-wrapper" id="portalWrapper">
-            
-            <aside class="portal-sidebar" id="portalSidebar">
-                <ul class="sidebar-menu" id="dynamicMenuContainer">
-                    <li class="text-center py-4 text-muted" id="menuLoadingSpinner">
-                        <i class="fas fa-spinner fa-spin"></i> 正在載入選單...
-                    </li>
-                </ul>
-            </aside>
-
-            <main class="portal-content">
-                <div id="page-content-container"></div>
-
-                
-            </main>
         </div>
 
-        <footer class="portal-footer" id="portalFooter">
-            <div class="desktop-sitemap d-none d-lg-block" id="desktopSitemap">
-                <div class="sitemap-title">
-                    <i class="fas fa-sitemap"></i> 網站地圖 (Site Map)
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-6">
+                <div class="p-4 bg-card-custom shadow-lg h-100">
+                    <label class="form-label text-white fw-bold mb-2">
+                        <i class="fas fa-magnifying-glass text-emerald"></i> 快速搜尋市場產品 (Select2)：
+                    </label>
+                    <select id="productSelect" class="form-select w-100">
+                        <option value="">請選擇或輸入產品...</option>
+                    </select>
                 </div>
-                <div class="row g-4" id="sitemapContainer"></div>
             </div>
 
-            <div class="footer-social-btns">
-                <a href="https://facebook.com" target="_blank" class="social-btn" title="Facebook 社群">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://instagram.com" target="_blank" class="social-btn" title="Instagram 專頁">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="https://discord.com" target="_blank" class="social-btn" title="Discord 交流群">
-                    <i class="fab fa-discord"></i>
-                </a>
+            <div class="col-12 col-md-6">
+                <div class="p-4 bg-card-custom shadow-lg h-100">
+                    <h2 class="h6 text-white mb-3">
+                        <i class="fas fa-chart-pie text-emerald"></i> 跨國市場 SV 銷售比率
+                    </h2>
+                    <div style="position: relative; height: 180px;">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="copyright-text">
-                © 2026 榮祥團隊 Ray's Team | 本網站由榮祥團隊獨立運營，非葡眾官方網站 | 
-                <a href="#" onclick="loadPage('website-statement.html'); return false;">
-                    <i class="fas fa-file-contract"></i> 網站聲明
-                </a>
+        <div class="p-4 bg-card-custom shadow-lg">
+            <h2 class="h6 text-white mb-3">
+                <i class="fas fa-list-check text-emerald"></i> 全球產品規格清單
+            </h2>
+            <div class="table-responsive">
+                <table id="productTable" class="table table-dark table-hover w-100">
+                    <thead>
+                        <tr>
+                            <th>適用地區</th>
+                            <th>產品名稱</th>
+                            <th>全球 SV</th>
+                            <th>當地建議售價</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </div>
-        </footer>
+        </div>
+    </div>
 
-        
-    </body>
+    <script>
+        // 監聽 'vendor-ready'，確保 14 大套件完整載入後才初始化
+        window.addEventListener('vendor-ready', function() {
+            console.log('14 大套件 (含 flag-icons) 載入完畢！開始渲染 UI...');
+
+            initSelect2();
+            initChart();
+            fetchSheetData();
+        });
+
+        // 1. 初始化 Select2
+        function initSelect2() {
+            $('#productSelect').select2({
+                placeholder: '請選擇產品...'
+            });
+        }
+
+        // 2. 初始化 Chart.js
+        let chartInstance;
+        function initChart() {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['台灣市場', '馬來西亞市場'],
+                    datasets: [{
+                        data: [82, 18],
+                        backgroundColor: ['#10b981', '#0284c7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. PapaParse 數據抓取與欄位解耦合
+        function fetchSheetData() {
+            const rawCsv = `REGION_CODE,PROD_TITLE,POINTS_SV,LOCAL_PRICE,CURRENCY
+tw,995生技營養品,164,5980,NT$
+tw,康爾喜(N),52,1960,NT$
+my,995 Bio-Tech Drink,164,880,MYR
+my,Probiotics Cleansing Soap,24,120,MYR`;
+
+            Papa.parse(rawCsv, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    // 解耦合：將原始試算表轉換為標準 key 物件
+                    const cleanData = results.data.map(row => ({
+                        region: row['REGION_CODE'] || 'tw',
+                        title: row['PROD_TITLE'] || '未命名',
+                        sv: row['POINTS_SV'] || 0,
+                        price: row['LOCAL_PRICE'] || 0,
+                        currency: row['CURRENCY'] || '$'
+                    }));
+
+                    updateSelect2Options(cleanData);
+                    renderDataTable(cleanData);
+
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: " 成功動態載入並解析跨國產品數據！",
+                            duration: 3000,
+                            style: { background: "linear-gradient(to right, #059669, #10b981)" }
+                        }).showToast();
+                    }
+                }
+            });
+        }
+
+        function updateSelect2Options(data) {
+            const $select = $('#productSelect').empty().append('<option value="">請選擇產品...</option>');
+            data.forEach(item => {
+                $select.append(new Option(`[${item.region.toUpperCase()}] ${item.title}`, item.title));
+            });
+        }
+
+        // 4. 使用 DataTable 3.0.1 渲染 (結合 flag-icons 國旗)
+        function renderDataTable(data) {
+            if ($.fn.DataTable.isDataTable('#productTable')) {
+                $('#productTable').DataTable().destroy();
+            }
+
+            const $tbody = $('#productTable tbody').empty();
+            data.forEach(item => {
+                const tr = `
+                    <tr>
+                        <td>
+                            <span class="fi fi-${item.region}"></span>
+                            <span class="ms-1 fw-bold text-uppercase">${item.region}</span>
+                        </td>
+                        <td><i class="fas fa-box text-emerald"></i> ${item.title}</td>
+                        <td><span class="badge bg-success">${item.sv} SV</span></td>
+                        <td>${item.currency} ${Number(item.price).toLocaleString()}</td>
+                    </tr>
+                `;
+                $tbody.append(tr);
+            });
+
+            $('#productTable').DataTable({
+                responsive: true,
+                pageLength: 5,
+                layout: {
+                    topStart: 'pageLength',
+                    topEnd: 'search',
+                    bottomStart: 'info',
+                    bottomEnd: 'paging'
+                },
+                language: {
+                    search: "<i class=\"fas fa-magnifying-glass\"></i> 搜尋：",
+                    paginate: { previous: "上一頁", next: "下一頁" },
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆"
+                }
+            });
+        }
+    </script>
+</body>
 </html>

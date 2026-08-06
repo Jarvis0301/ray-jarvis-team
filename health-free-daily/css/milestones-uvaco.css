@@ -1,0 +1,207 @@
+/* 全域品牌綠色系環境適應 */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    /*background-color: transparent;*/
+    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    /*color: #F1F5F9;*/
+}
+
+/* 載入中 Spinner */
+#loading-spinner {
+    text-align: center;
+    padding: 40px 0;
+    color: #10B981;
+}
+
+.timeline-container-wrapper {
+    position: relative;
+    padding: 20px 10px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 頂部控制列容器 */
+.control-toolbar {
+    background: #0B1E19;
+    border: 1px solid #133E32;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Nav Pills 綠色系膠囊標籤 */
+.nav-pills-custom .nav-link {
+    color: #A7F3D0;
+    background-color: transparent;
+    border: 1px solid #133E32;
+    border-radius: 8px;
+    padding: 6px 18px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.25s ease-in-out;
+}
+
+.nav-pills-custom .nav-link:hover {
+    color: #FFFFFF;
+    border-color: #10B981;
+    background-color: rgba(16, 185, 129, 0.15);
+}
+
+.nav-pills-custom .nav-link.active {
+    color: #FFFFFF;
+    background-color: #10B981;
+    border-color: #10B981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+/* 搜尋輸入框樣式 */
+.search-box-group .input-group-text {
+    background-color: #062820;
+    border-color: #133E32;
+    color: #34D399;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.search-box-group .form-control {
+    background-color: #062820;
+    border-color: #133E32;
+    color: #F1F5F9;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.search-box-group .form-control::placeholder {
+    color: #059669;
+}
+
+.search-box-group .form-control:focus {
+    background-color: #062820;
+    color: #FFFFFF;
+    border-color: #10B981;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+}
+
+.timeline-container {
+    position: relative;
+}
+
+/* 時間軸中央翡翠綠光軌 */
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    bottom: 20px;
+    left: 28px;
+    width: 3px;
+    background: linear-gradient(180deg, #10B981 0%, #047857 50%, rgba(4, 120, 87, 0.1) 100%);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    border-radius: 2px;
+}
+
+.timeline-year-block { position: relative; margin-bottom: 35px; }
+.timeline-year-header { position: relative; margin-bottom: 20px; z-index: 2; }
+
+/* 年份標籤：翡翠漸層與金黃文字 */
+.year-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #064E3B 0%, #022C22 100%);
+    border: 1px solid #10B981;
+    color: #FACC15;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1.35rem;
+    padding: 6px 20px;
+    border-radius: 30px;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.timeline-item { position: relative; padding-left: 60px; margin-bottom: 25px; }
+.timeline-node { position: absolute; left: 20px; top: 12px; transform: translateX(-50%); z-index: 3; }
+
+/* 綠色標準節點 */
+.node-dot.green-dot {
+    width: 17px;
+    height: 17px;
+    background-color: #10B981;
+    border: 3px solid #064E3B;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #10B981;
+    transition: all 0.3s ease;
+}
+
+/* 業績尊爵金色節點 */
+.node-dot.performance-dot {
+    width: 18px;
+    height: 18px;
+    background-color: #FACC15;
+    border: 3px solid #967903;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #FACC15, 0 0 20px #FACC15;
+}
+
+/* 卡片本體：深綠質感懸浮層 */
+.timeline-content-card {
+    background: #0B1E19;
+    border: 1px solid #133E32;
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+}
+
+.timeline-content-card.green-card:hover {
+    transform: translateY(-3px) translateX(3px);
+    background: #102B24;
+    border-color: #10B981;
+    box-shadow: 0 12px 24px -5px rgba(16, 185, 129, 0.3);
+}
+
+.timeline-content-card.performance-card {
+    border-color: rgba(250, 204, 21, 0.4);
+    background: linear-gradient(145deg, #0B1E19 0%, #182C22 100%);
+}
+
+.timeline-content-card.performance-card:hover {
+    border-color: #FACC15;
+    box-shadow: 0 12px 24px -5px rgba(250, 204, 21, 0.35);
+}
+
+/* 公開版品牌綠標籤 */
+.month-pill {
+    display: inline-block;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 3px 12px;
+    border-radius: 20px;
+}
+
+/* 業績尊爵金標籤 */
+.performance-pill {
+    display: inline-block;
+    background: rgba(250, 204, 21, 0.15);
+    color: #FACC15;
+    border: 1px solid rgba(250, 204, 21, 0.5);
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 3px 12px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.25);
+}
+
+.card-body-wrapper { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+@media (min-width: 768px) { .card-body-wrapper.has-image { flex-direction: row; align-items: flex-start; } }
+
+.event-photo-container { flex-shrink: 0; max-width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #133E32; }
+@media (min-width: 768px) { .event-photo-container { width: 220px; } }
+
+.event-photo { width: 100%; height: auto; display: block; object-fit: cover; }
+.event-text { color: #ECFDF5; font-size: 0.98rem; line-height: 1.7; }

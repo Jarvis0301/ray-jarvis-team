@@ -1,0 +1,116 @@
+:root {
+    /*--uvaco-bg-primary: #0a1913;*/
+    /*--uvaco-bg-secondary: #132e23;*/
+    /*--uvaco-bg-card: #1a3c2f;*/
+    /*--uvaco-primary: #10b981;*/
+    /*--uvaco-primary-hover: #059669;*/
+    /*--uvaco-text-primary: #ecfdf5;*/
+    /*--uvaco-text-secondary: #a7f3d0;*/
+    /*--uvaco-border-color: #2d5a47;*/
+}
+
+body {
+    /*background-color: var(--uvaco-bg-primary);*/
+    /*color: var(--uvaco-text-primary);*/
+    /*font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;*/
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+.navbar-custom {
+    background-color: var(--uvaco-bg-secondary);
+    border-bottom: 1px solid var(--uvaco-border-color);
+}
+
+.header-section {
+    background: linear-gradient(135deg, #0a1913 0%, #132e23 100%);
+    padding: 2.5rem 1rem;
+    border-bottom: 1px solid var(--uvaco-border-color);
+    margin-bottom: 2rem;
+}
+
+.card-custom {
+    background-color: var(--uvaco-bg-card);
+    color: var(--uvaco-text-primary);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.nav-pills .nav-link {
+    color: var(--uvaco-text-secondary);
+    background-color: var(--uvaco-bg-secondary);
+    border: 1px solid var(--uvaco-border-color);
+    margin: 0 0.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active, .nav-pills .nav-link:hover {
+    color: #ffffff;
+    background-color: var(--uvaco-primary);
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.iframe-container {
+    position: relative;
+    width: 100%;
+    height: 800px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.btn-green {
+    background-color: var(--uvaco-primary);
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-green:hover {
+    background-color: var(--uvaco-primary-hover);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.btn-outline-green {
+    background-color: transparent;
+    color: var(--uvaco-primary);
+    border: 1px solid var(--uvaco-primary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-green:hover {
+    background-color: var(--uvaco-primary);
+    color: #ffffff;
+}
+
+.badge-custom {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: var(--uvaco-primary);
+    border: 1px solid var(--uvaco-border-color);
+}
+
+@media (max-width: 768px) {
+    .iframe-container {
+        height: 650px;
+    }
+    .nav-pills .nav-link {
+        margin-bottom: 0.5rem;
+        width: 100%;
+        text-align: center;
+    }
+}

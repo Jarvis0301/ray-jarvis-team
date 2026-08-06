@@ -1,0 +1,99 @@
+:root {
+    /*--uvaco-bg-primary: #08120e;*/
+    /*--uvaco-bg-card: #12241c;*/
+    /*--uvaco-bg-card-hover: #193327;*/
+    /*--uvaco-primary: #10b981;*/
+    /*--uvaco-secondary: #34d399;*/
+    /*--uvaco-border-color: #1f3a2e;*/
+    /*--uvaco-text-primary: #f3f4f6;*/
+    /*--uvaco-text-muted: #9ca3af;*/
+    --fb-color: #1877f2;
+    --ig-color: #e4405f;
+    --dc-color: #5865f2;
+}
+
+body {
+    /*background-color: transparent;*/
+    /*color: var(--uvaco-text-primary);*/
+    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+/* 標題區塊樣式 */
+.hero-section {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(8, 18, 14, 0) 100%);
+    border-bottom: 1px solid var(--uvaco-border-color);
+    padding: 3.5rem 0 2.5rem 0;
+}
+
+.section-title {
+    color: var(--uvaco-secondary);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* 社群卡片樣式 */
+.social-card {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.social-card:hover {
+    transform: translateY(-5px);
+    background-color: var(--uvaco-bg-card-hover);
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.2);
+}
+
+.social-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.card-fb::before { background-color: var(--fb-color); }
+.card-ig::before { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.card-dc::before { background-color: var(--dc-color); }
+
+.icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.25rem;
+}
+
+.fb-icon { background: rgba(24, 119, 242, 0.15); color: var(--fb-color); }
+.ig-icon { background: rgba(228, 64, 95, 0.15); color: var(--ig-color); }
+.dc-icon { background: rgba(88, 101, 242, 0.15); color: var(--dc-color); }
+
+.btn-custom {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.btn-emerald {
+    background-color: var(--uvaco-primary);
+    color: #042f2e;
+    border: none;
+}
+
+.btn-emerald:hover {
+    background-color: var(--uvaco-secondary);
+    color: #042f2e;
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+}

@@ -1,0 +1,194 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    /*background-color: transparent;*/
+    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    /*color: #F1F5F9;*/
+}
+
+/* 載入中 Spinner */
+#loading-spinner {
+    text-align: center;
+    padding: 40px 0;
+    color: #10B981;
+}
+
+.awards-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 15px 10px;
+}
+
+/* 綠色控制面板 */
+.controls-wrapper {
+    background: #0B1E19;
+    border: 1px solid #133E32;
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 第一層區域選擇 Nav Pills */
+.nav-pills-region .nav-link {
+    color: #A7F3D0;
+    background-color: transparent;
+    border: 1px solid #133E32;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.25s ease-in-out;
+}
+
+.nav-pills-region .nav-link:hover {
+    color: #FFFFFF;
+    border-color: #10B981;
+    background-color: rgba(16, 185, 129, 0.15);
+}
+
+.nav-pills-region .nav-link.active {
+    color: #FFFFFF;
+    background-color: #10B981;
+    border-color: #10B981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+/* 第二層分類標籤 (Sub Tabs) */
+.sub-tab-btn {
+    background: transparent;
+    border: 1px solid #133E32;
+    color: #A7F3D0;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    transition: all 0.3s ease;
+}
+
+.sub-tab-btn:hover {
+    color: #34D399;
+    border-color: #34D399;
+}
+
+.sub-tab-btn.active {
+    background: linear-gradient(135deg, #047857 0%, #10B981 100%);
+    border-color: #34D399;
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+/* 搜尋框 */
+.search-input-group .form-control {
+    background: #041410;
+    border: 1px solid #133E32;
+    color: #ECFDF5;
+    border-radius: 20px 0 0 20px;
+    font-size: 0.9rem;
+}
+
+.search-input-group .form-control:focus {
+    background: #041410;
+    color: #ECFDF5;
+    border-color: #34D399;
+    box-shadow: none;
+}
+
+.search-input-group .input-group-text {
+    background: #041410;
+    border: 1px solid #133E32;
+    border-left: none;
+    color: #34D399;
+    border-radius: 0 20px 20px 0;
+}
+
+/* 年份分隔線 */
+.year-divider { 
+    display: flex; 
+    align-items: center; 
+    margin: 10px 0; 
+}
+
+.year-divider::before, .year-divider::after { 
+    content: ''; 
+    flex: 1; 
+    border-bottom: 1px solid #133E32; 
+}
+
+.year-divider-text {
+    padding: 0 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    color: #34D399;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+/* 深綠質感卡片 (#0B1E19) */
+.award-card {
+    background: #0B1E19;
+    border: 1px solid #133E32;
+    border-radius: 10px;
+    padding: 16px;
+    height: 100%;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.award-card:hover {
+    transform: translateY(-3px);
+    background: #102B24;
+    border-color: #34D399;
+    box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.25);
+}
+
+.award-year-tag { 
+    font-family: 'Montserrat', sans-serif; 
+    font-weight: 700; 
+    font-size: 0.82rem; 
+    color: #A7F3D0; 
+}
+
+.award-title { 
+    color: #FACC15; 
+    font-weight: 700; 
+    font-size: 1.05rem; 
+    margin-bottom: 6px; 
+}
+
+.award-detail { 
+    color: #ECFDF5; 
+    font-size: 0.92rem; 
+    line-height: 1.6; 
+}
+
+/* 勳章顏色 */
+.award-badge { 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    padding: 2px 8px; 
+    border-radius: 12px; 
+}
+
+.gold-badge {
+    background: rgba(250, 204, 21, 0.15);
+    color: #FACC15;
+    border: 1px solid rgba(250, 204, 21, 0.4);
+}
+
+.silver-badge {
+    background: rgba(226, 232, 240, 0.15);
+    color: #E2E8F0;
+    border: 1px solid rgba(226, 232, 240, 0.4);
+}
+
+.bronze-badge {
+    background: rgba(217, 119, 6, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(217, 119, 6, 0.4);
+}
+
+.green-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}

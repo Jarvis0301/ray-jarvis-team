@@ -1,0 +1,40 @@
+// ==========================================================================
+// 1-abstracts/_theme-blue.scss
+// 內部版《榮祥團隊軍備庫》：戰略藍色系深色主題 (Dark Steel / Electric Blue)
+// ==========================================================================
+
+:root,
+[data-bs-theme="dark-blue"] {
+    // Ray's Team 專屬系統語意化色彩 Token
+    --uvaco-bg-primary: #0a1120;         // 主背景 (鋼鐵深藍底)
+    --uvaco-bg-secondary: #0f172a;      // 次要區塊背景
+    --uvaco-bg-card: #112240;         // 卡片容器底色
+    //--uvaco-bg-card-hover: #1a3f33;         // 卡片容器底色（Hover 狀態）
+
+    --uvaco-border-color: rgba(52, 211, 153, 0.2);  // 邊框線條
+
+    --uvaco-text-primary: #f0f9ff;       // 主文字 (電光冰藍白)
+    --uvaco-text-secondary: #7dd3fc;        // 次要輔助文字
+    --uvaco-text-muted: #94a3af;      // 灰色說明文字
+
+    --uvaco-primary: #38bdf8;         // 主要色彩 (電光藍)
+    --uvaco-primary-hover: #0284c7;   // 主要色彩（Hover 狀態）
+    //--uvaco-secondary: #34d399;       // 次要色彩 (薄荷綠 mint)
+    --uvaco-accent: #38bdf8;          // 亮點藍
+    //--uvaco-dark: #062E1E;            // 深色色彩 (深草本綠 dark green)
+
+
+    // Bootstrap 5 原生 CSS 變數雙向覆蓋 ( 無縫相容 BS5 原生元件 )
+    --bs-body-bg: var(--uvaco-bg-primary);
+    --bs-body-color: var(--uvaco-text-primary);
+    
+    --bs-card-bg: var(--uvaco-bg-card);
+    --bs-card-border-color: var(--uvaco-border-color);
+
+    --bs-border-color: var(--uvaco-border-color);
+
+    --bs-tertiary-bg: var(--uvaco-bg-secondary);
+
+    --bs-primary: var(--uvaco-primary);
+    --bs-primary-rgb: 56, 189, 248;
+}
