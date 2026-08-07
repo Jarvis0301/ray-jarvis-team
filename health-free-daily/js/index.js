@@ -108,9 +108,34 @@ function processAndRenderMenu(rawRows) {
     $('.parent-toggle').off('click').on('click', function(e) {
         e.preventDefault();
         const targetId = $(this).data('target');
-        $(`#${targetId}`).slideToggle(200).toggleClass('show');
-        $(this).find('.submenu-arrow').first().toggleClass('fa-rotate-180');
+        const $target = $(`#${targetId}`);
+        const isAlreadyOpen = $target.hasClass('show');
+
+        // 1. 關閉「其他」非當前（且非當前選單的上層父選單）的所有已展開選單
+        $('.submenu-container.show')
+            .not($target)
+            .not($target.parents('.submenu-container'))
+            .slideUp(200)
+            .removeClass('show');
+
+        // 2. 將其他被收折選單的箭頭指回原位
+        $('.parent-toggle')
+            .not(this)
+            .not($(this).parents('.nav-item').children('.parent-toggle'))
+            .find('.submenu-arrow')
+            .removeClass('fa-rotate-180');
+
+        // 3. 切換當前點擊選單的開關狀態
+        if (isAlreadyOpen) {
+            $target.slideUp(200).removeClass('show');
+            $(this).find('.submenu-arrow').first().removeClass('fa-rotate-180');
+        } else {
+            $target.slideDown(200).addClass('show');
+            $(this).find('.submenu-arrow').first().addClass('fa-rotate-180');
+        }
     });
+
+    setActiveMenuItem('home.html');
 }
 
 // 4. 遞歸構建無限層級選單 HTML
@@ -163,11 +188,47 @@ function buildRecursiveMenuHtml(parentId, depth) {
     return html;
 }
 
+// 自動高亮當前選單項目，並展開其父級子選單
+function setActiveMenuItem(pageUrl) {
+    if (!pageUrl || pageUrl === '#') return;
+
+    // 1. 移除所有選單項目的 active 高亮
+    $('#dynamicMenuContainer .nav-item-link').removeClass('active');
+
+    // 2. 尋找與當前 pageUrl 匹配的選單連結
+    const $targetLink = $('#dynamicMenuContainer .nav-item-link').filter(function() {
+        const href = $(this).attr('href');
+        const onclickAttr = $(this).attr('onclick') || '';
+        return href === pageUrl || onclickAttr.includes(`'${pageUrl}'`);
+    });
+
+    if ($targetLink.length) {
+        // 3. 為點擊的項目加上 active 高亮
+        $targetLink.addClass('active');
+
+        // 4. 如果這個項目位於子選單內，自動展開所有上層父選單
+        const $parentSubmenus = $targetLink.parents('.submenu-container');
+        if ($parentSubmenus.length) {
+            $parentSubmenus.addClass('show').slideDown(200);
+
+            // 將對應父選單的箭頭指向上方 (旋轉 180 度)
+            $parentSubmenus.each(function() {
+                const submenuId = $(this).attr('id');
+                $(`.parent-toggle[data-target="${submenuId}"]`)
+                    .find('.submenu-arrow')
+                    .addClass('fa-rotate-180');
+            });
+        }
+    }
+}
+
 // 5. 【關鍵核心】iFrame 無縫切換與 100% JS 變數隔離引擎
 function loadPage(pageUrl) {
     if (!pageUrl || pageUrl === '#') return;
 
     $('#portalSidebar').removeClass('mobile-open');
+
+    setActiveMenuItem(pageUrl);
 
     // 使用 iFrame 載入頁面，徹底達成 JS 作用域完全隔離！
     const $container = $('#page-content-container');

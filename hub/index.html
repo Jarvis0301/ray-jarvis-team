@@ -31,19 +31,22 @@
                 <span class="badge bg-purple bg-opacity-25 text-purple-bright border border-purple border-opacity-50 px-3 py-2">
                     <i class="fa-solid fa-diagram-project"></i> 核心版
                 </span>
-                <button class="btn btn-outline-danger btn-sm" onclick="window.uvacoLogout()">
-                    <i class="fa-solid fa-right-from-bracket"></i> 登出
-                </button>
             </div>
         </header>
 
         <div class="portal-wrapper" id="portalWrapper">
             
             <aside class="portal-sidebar" id="portalSidebar">
-                <div id="dynamicMenuContainer">
+                <div class="sidebar-content overflow-y-auto" id="dynamicMenuContainer">
                     <div class="text-center py-4" id="menuLoadingSpinner">
                         <i class="fa-solid fa-spinner fa-spin"></i> 正在載入選單...
                     </div>
+                </div>
+                <div class="sidebar-footer mt-auto w-100 border-top">
+                    <button class="btn btn-outline-danger w-100 py-2 rounded-0 d-flex align-items-center justify-content-center gap-2 border-0" onclick="window.uvacoLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="menu-text">登出</span>
+                    </button>
                 </div>
             </aside>
 

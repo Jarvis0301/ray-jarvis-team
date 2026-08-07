@@ -1,0 +1,234 @@
+:root {
+    --bg-dark-body: #061410;
+    --bg-dark-card: #0d221a;
+    --bg-dark-hover: #132e23;
+    --emerald-primary: #10b981;
+    --emerald-hover: #059669;
+    --emerald-soft: rgba(16, 185, 129, 0.15);
+    --emerald-border: rgba(16, 185, 129, 0.25);
+    --text-light: #f3f4f6;
+    --text-muted: #9ca3af;
+}
+
+body {
+    background-color: var(--bg-dark-body);
+    color: var(--text-light);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-custom {
+    background-color: var(--bg-dark-card);
+    border-bottom: 1px solid var(--emerald-border);
+}
+
+.brand-title {
+    color: var(--emerald-primary);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.card-concept {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--emerald-border);
+    border-radius: 12px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-concept:hover {
+    transform: translateY(-5px);
+    border-color: var(--emerald-primary);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+}
+
+/* 榮祥 (Ray) 訴求：海報圖片預留空間 (16:9 比例) */
+.poster-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background-color: #040e0b;
+    overflow: hidden;
+}
+
+.poster-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card-concept:hover .poster-img {
+    transform: scale(1.06);
+}
+
+/* 無圖片時的預留佔位圖 (Placeholder) */
+.poster-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #091d16 0%, #133327 100%);
+    color: var(--emerald-primary);
+}
+
+.poster-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: rgba(6, 20, 16, 0.85);
+    color: var(--emerald-primary);
+    border: 1px solid var(--emerald-border);
+    backdrop-filter: blur(4px);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.card-body-custom {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.concept-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.concept-summary {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.btn-emerald {
+    background-color: var(--emerald-primary);
+    color: #000000;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+}
+
+.btn-emerald:hover {
+    background-color: var(--emerald-hover);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-outline-emerald {
+    background-color: transparent;
+    color: var(--emerald-primary);
+    border: 1px solid var(--emerald-primary);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-emerald:hover, .btn-outline-emerald.active {
+    background-color: var(--emerald-primary);
+    color: #000000;
+}
+
+/* Modal 深色主題客製 */
+.modal-content-dark {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--emerald-border);
+    color: var(--text-light);
+    border-radius: 14px;
+}
+
+.modal-header-dark {
+    border-bottom: 1px solid var(--emerald-border);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer-dark {
+    border-top: 1px solid var(--emerald-border);
+}
+
+.modal-poster-hero {
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--emerald-border);
+}
+
+/* DataTable 暗黑風格微調 */
+.dataTables_wrapper {
+    color: var(--text-light) !important;
+}
+
+table.dataTable {
+    background-color: var(--bg-dark-card) !important;
+    color: var(--text-light) !important;
+    border-color: var(--emerald-border) !important;
+}
+
+table.dataTable thead th {
+    background-color: #112d22 !important;
+    color: var(--emerald-primary) !important;
+    border-bottom: 2px solid var(--emerald-primary) !important;
+}
+
+table.dataTable tbody td {
+    border-color: var(--emerald-border) !important;
+    vertical-align: middle;
+}
+
+.dataTables_info, .dataTables_paginate {
+    margin-top: 1rem;
+    color: var(--text-muted) !important;
+}
+
+.page-item.active .page-link {
+    background-color: var(--emerald-primary) !important;
+    border-color: var(--emerald-primary) !important;
+    color: #000000 !important;
+    font-weight: bold;
+}
+
+.page-link {
+    background-color: var(--bg-dark-card) !important;
+    border-color: var(--emerald-border) !important;
+    color: var(--text-light) !important;
+}
+
+footer {
+    background-color: var(--bg-dark-card);
+    border-top: 1px solid var(--emerald-border);
+    margin-top: auto;
+}

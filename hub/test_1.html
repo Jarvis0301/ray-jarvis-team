@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核心樞 | 創始人戰情總覽儀表板</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <style>
+        :root {
+            --hub-bg-body: #0a0518;
+            --hub-bg-card: #150a2a;
+            --hub-bg-card-hover: #1e0f3d;
+            --hub-border: rgba(139, 92, 246, 0.25);
+            --hub-accent-purple: #8b5cf6;
+            --hub-accent-pink: #ec4899;
+            --hub-accent-gold: #f59e0b;
+            --hub-accent-cyan: #06b6d4;
+            --hub-accent-green: #10b981;
+            --hub-text-primary: #f8fafc;
+            --hub-text-secondary: #94a3b8;
+        }
+
+        body {
+            background-color: var(--hub-bg-body);
+            color: var(--hub-text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--hub-bg-body);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--hub-accent-purple);
+        }
+
+        /* 滿版無二次卷軸容器 */
+        .hub-container {
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        /* 玻璃質感卡片 */
+        .hub-card {
+            background-color: var(--hub-bg-card);
+            border: 1px solid var(--hub-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .hub-card:hover {
+            background-color: var(--hub-bg-card-hover);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.2);
+        }
+
+        /* KPI 數字卡片 */
+        .kpi-title {
+            color: var(--hub-text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--hub-text-primary);
+            margin-top: 0.25rem;
+        }
+        .kpi-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* DataTables 深色化重寫 */
+        .dataTables_wrapper {
+            color: var(--hub-text-primary) !important;
+        }
+        table.dataTable {
+            color: var(--hub-text-primary) !important;
+            border-color: var(--hub-border) !important;
+        }
+        table.dataTable id, table.dataTable th, table.dataTable td {
+            background-color: transparent !important;
+            border-color: var(--hub-border) !important;
+            color: var(--hub-text-primary) !important;
+            vertical-align: middle;
+        }
+        .dataTables_length label, .dataTables_filter label, .dataTables_info {
+            color: var(--hub-text-secondary) !important;
+        }
+        .dataTables_filter input, .dataTables_length select {
+            background-color: #0d0722 !important;
+            border: 1px solid var(--hub-border) !important;
+            color: var(--hub-text-primary) !important;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .page-item .page-link {
+            background-color: #0d0722 !important;
+            border-color: var(--hub-border) !important;
+            color: var(--hub-text-secondary) !important;
+        }
+        .page-item.active .page-link {
+            background-color: var(--hub-accent-purple) !important;
+            border-color: var(--hub-accent-purple) !important;
+            color: #ffffff !important;
+        }
+
+        /* 徽章 Badge */
+        .badge-purple {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--hub-accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+        .badge-pink {
+            background-color: rgba(236, 72, 153, 0.2);
+            color: var(--hub-accent-pink);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+        }
+        .badge-gold {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--hub-accent-gold);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        .badge-cyan {
+            background-color: rgba(6, 182, 212, 0.2);
+            color: var(--hub-accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+        }
+
+        /* 頁面標題列 */
+        .hub-header {
+            border-bottom: 1px solid var(--hub-border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hub-container">
+        <div class="hub-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h4 class="mb-1 text-white fw-bold">
+                    <i class="fa-solid fa-chart-line text-purple me-2"></i> 核心樞戰情總覽儀表板
+                </h4>
+                <p class="text-secondary mb-0 small">
+                    <i class="fa-solid fa-shield-halved text-success me-1"></i> 最高等級機密控制台 | 存取對象：Jarvis & Ray 創始人專屬
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge badge-purple px-3 py-2 rounded-pill">
+                    <i class="fa-solid fa-circle-dot text-success me-1"></i> 系統連線：正常
+                </span>
+                <button class="btn btn-sm btn-outline-light" id="btnRefreshData">
+                    <i class="fa-solid fa-rotate me-1"></i> 即時同步
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hub-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">當月全組累積 SV</div>
+                            <div class="kpi-value text-white">1,280,000 <span class="fs-6 fw-normal text-secondary">SV</span></div>
+                            <div class="small text-success mt-2">
+                                <i class="fa-solid fa-arrow-trend-up me-1"></i> 較上月同期成長 +15.2%
+                            </div>
+                        </div>
+                        <div class="kpi-icon-box" style="background-color: rgba(139, 92, 246, 0.2); color: var(--hub-accent-purple);">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hub-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">倉儲庫存資產現值</div>
+                            <div class="kpi-value text-white">NT$ 3,850,000</div>
+                            <div class="small text-warning mt-2">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> 1 項產品觸及安全庫存
+                            </div>
+                        </div>
+                        <div class="kpi-icon-box" style="background-color: rgba(245, 158, 11, 0.2); color: var(--hub-accent-gold);">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hub-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">雙創始人對帳預估分潤</div>
+                            <div class="kpi-value text-white">NT$ 420,000</div>
+                            <div class="small text-info mt-2">
+                                <i class="fa-solid fa-scale-balanced me-1"></i> Jarvis (50%) / Ray (50%)
+                            </div>
+                        </div>
+                        <div class="kpi-icon-box" style="background-color: rgba(236, 72, 153, 0.2); color: var(--hub-accent-pink);">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hub-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="kpi-title">團隊白名單授權數</div>
+                            <div class="kpi-value text-white">48 <span class="fs-6 fw-normal text-secondary">位夥伴</span></div>
+                            <div class="small text-success mt-2">
+                                <i class="fa-solid fa-user-check me-1"></i> 今日無未授權入侵記錄
+                            </div>
+                        </div>
+                        <div class="kpi-icon-box" style="background-color: rgba(6, 182, 212, 0.2); color: var(--hub-accent-cyan);">
+                            <i class="fa-solid fa-users-gear"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-lg-8">
+                <div class="hub-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white fw-bold">
+                            <i class="fa-solid fa-chart-area text-purple me-2"></i> 12 個月全組 SV 業績趨勢與年度目標對比
+                        </h6>
+                        <span class="badge badge-purple">年度目標：15,000,000 SV</span>
+                    </div>
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="svTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="hub-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white fw-bold">
+                            <i class="fa-solid fa-chart-pie text-pink me-2"></i> 核心樞 8 大模組數據分佈
+                        </h6>
+                    </div>
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="moduleDoughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-8">
+                <div class="hub-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white fw-bold">
+                            <i class="fa-solid fa-list-check text-cyan me-2"></i> 即時系統 AccessLogs 存取稽核紀錄
+                        </h6>
+                        <span class="badge badge-cyan">自 Google 試算表動態解耦載入</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="accessLogsTable" class="table table-dark table-hover w-100 align-middle">
+                            <thead>
+                                <tr>
+                                    <th>時間</th>
+                                    <th>造訪者 Email</th>
+                                    <th>存取模組</th>
+                                    <th>來源 IP</th>
+                                    <th>驗證狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="hub-card h-100">
+                    <h6 class="mb-3 text-white fw-bold">
+                        <i class="fa-solid fa-bell text-warning me-2"></i> 系統動態與警示速報
+                    </h6>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div class="p-3 rounded" style="background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--hub-accent-gold);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-warning">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> 低庫存預警
+                                </span>
+                                <small class="text-secondary">10 分鐘前</small>
+                            </div>
+                            <p class="small text-white-50 mb-0 mt-1">
+                                「康爾喜益生菌 (Probiotics-A)」庫存剩餘 15 盒，已低於安全水位 (20 盒)，建議由營運中心下單補貨。
+                            </p>
+                        </div>
+
+                        <div class="p-3 rounded" style="background-color: rgba(236, 72, 153, 0.1); border-left: 4px solid var(--hub-accent-pink);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-pink">
+                                    <i class="fa-solid fa-file-invoice-dollar me-1"></i> 月度財務對帳
+                                </span>
+                                <small class="text-secondary">2 小時前</small>
+                            </div>
+                            <p class="small text-white-50 mb-0 mt-1">
+                                2026 年 7 月份雙創始人代墊營運工具成本與利潤對帳單已試算完成，待 Jarvis 與 Ray 進行線上雙重簽核。
+                            </p>
+                        </div>
+
+                        <div class="p-3 rounded" style="background-color: rgba(139, 92, 246, 0.1); border-left: 4px solid var(--hub-accent-purple);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-purple" style="color: var(--hub-accent-purple);">
+                                    <i class="fa-solid fa-landmark me-1"></i> 政府合規提示
+                                </span>
+                                <small class="text-secondary">昨日</small>
+                            </div>
+                            <p class="small text-white-50 mb-0 mt-1">
+                                夥伴 50 格式執行業務所得扣繳憑單與二代健保補充保費（2.11%）清冊已準備完畢，可進入合規報表模組匯出。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1. Google 試算表欄位解耦適配器 (Adapter Pattern)
+            const SheetAdapter = {
+                // 定義允許的欄位別名
+                fieldMap: {
+                    timestamp: ['時間', 'Timestamp', 'Date', '日期', '紀錄時間'],
+                    user: ['造訪者', 'Email', 'User', '使用者', '帳號'],
+                    module: ['存取模組', 'Module', '頁面', 'Page', '系統模組'],
+                    ip: ['IP', 'IP位址', 'IP Address', '來源IP'],
+                    status: ['狀態', 'Status', '驗證狀態', '結果']
+                },
+
+                // 轉置 Raw Data 成解耦物件
+                normalizeData: function(rawData) {
+                    if (!rawData || rawData.length === 0) return [];
+                    
+                    // 尋找表頭欄位名稱
+                    const sampleRow = rawData[0];
+                    const keys = Object.keys(sampleRow);
+                    
+                    const resolvedKeys = {};
+                    for (let standardKey in this.fieldMap) {
+                        const aliases = this.fieldMap[standardKey];
+                        const matchedKey = keys.find(k => aliases.some(a => a.toLowerCase() === k.trim().toLowerCase()));
+                        resolvedKeys[standardKey] = matchedKey || null;
+                    }
+
+                    // 開始映射轉換
+                    return rawData.map(row => {
+                        return {
+                            timestamp: resolvedKeys.timestamp ? row[resolvedKeys.timestamp] : 'N/A',
+                            user: resolvedKeys.user ? row[resolvedKeys.user] : 'Unknown',
+                            module: resolvedKeys.module ? row[resolvedKeys.module] : 'General',
+                            ip: resolvedKeys.ip ? row[resolvedKeys.ip] : '127.0.0.1',
+                            status: resolvedKeys.status ? row[resolvedKeys.status] : 'SUCCESS'
+                        };
+                    });
+                }
+            };
+
+            // 2. 模擬 AccessLogs 資料（代表從 PapaParse / GViz 抓取後的結果）
+            const mockRawSheetData = [
+                { "紀錄時間": "2026-08-07 21:45:12", "使用者": "jarvis@rayteam.com", "系統模組": "進銷存管理", "來源IP": "220.135.x.x", "驗證狀態": "成功" },
+                { "紀錄時間": "2026-08-07 21:30:05", "使用者": "ray@rayteam.com", "系統模組": "財務分析", "來源IP": "114.32.x.x", "驗證狀態": "成功" },
+                { "紀錄時間": "2026-08-07 20:15:44", "使用者": "jarvis@rayteam.com", "系統模組": "夥伴白名單", "來源IP": "220.135.x.x", "驗證狀態": "成功" },
+                { "紀錄時間": "2026-08-07 19:02:18", "使用者": "partner01@gmail.com", "系統模組": "團隊 SOP (/team)", "來源IP": "1.160.x.x", "驗證狀態": "成功" },
+                { "紀錄時間": "2026-08-07 18:22:00", "使用者": "unknown_bot@qq.com", "系統模組": "嘗試存取 /hub", "來源IP": "45.12.x.x", "驗證狀態": "阻擋(403)" }
+            ];
+
+            // 執行數據解耦轉換
+            const normalizedLogs = SheetAdapter.normalizeData(mockRawSheetData);
+
+            // 3. 初始化 DataTable.js
+            const table = $('#accessLogsTable').DataTable({
+                data: normalizedLogs,
+                columns: [
+                    { data: 'timestamp' },
+                    { 
+                        data: 'user',
+                        render: function(data) {
+                            return `<span class="fw-bold text-white">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'module',
+                        render: function(data) {
+                            return `<span class="badge badge-purple">${data}</span>`;
+                        }
+                    },
+                    { data: 'ip' },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            if (data.includes('成功') || data === 'SUCCESS') {
+                                return `<span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i> ${data}</span>`;
+                            } else {
+                                return `<span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa-solid fa-shield-cat me-1"></i> ${data}</span>`;
+                            }
+                        }
+                    }
+                ],
+                pageLength: 5,
+                lengthMenu: [5, 10, 20],
+                language: {
+                    search: "搜尋日誌：",
+                    lengthMenu: "顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        first: "首頁",
+                        last: "末頁",
+                        next: "下一頁",
+                        previous: "上一頁"
+                    },
+                    emptyTable: "無存取紀錄"
+                },
+                order: [[0, 'desc']]
+            });
+
+            // 4. Chart.js 折線圖 (12 個月 SV 成長趨勢)
+            const ctxTrend = document.getElementById('svTrendChart').getContext('2d');
+            
+            // 建立漸層色彩
+            const purpleGradient = ctxTrend.createLinearGradient(0, 0, 0, 280);
+            purpleGradient.addColorStop(0, 'rgba(139, 92, 246, 0.5)');
+            purpleGradient.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+
+            new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: ['2025/09', '10月', '11月', '12月', '2026/01', '02月', '03月', '04月', '05月', '06月', '07月', '08月(累計)'],
+                    datasets: [
+                        {
+                            label: '全組實際 SV 總量',
+                            data: [750000, 820000, 880000, 950000, 1020000, 980000, 1100000, 1150000, 1200000, 1220000, 1250000, 1280000],
+                            borderColor: '#8b5cf6',
+                            borderWidth: 3,
+                            backgroundColor: purpleGradient,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#8b5cf6',
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: '年度目標基線',
+                            data: [800000, 850000, 900000, 950000, 1000000, 1050000, 1100000, 1150000, 1200000, 1250000, 1300000, 1350000],
+                            borderColor: '#ec4899',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8', font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(139, 92, 246, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(139, 92, 246, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // 5. Chart.js 甜甜圈圖 (8 大模組數據佔比)
+            const ctxDoughnut = document.getElementById('moduleDoughnutChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['進銷存', '夥伴網路', 'CRM客戶', '財務對帳', '各式報表', '公司情報', '政府合規', '系統資安'],
+                    datasets: [{
+                        data: [25, 20, 18, 12, 10, 5, 5, 5],
+                        backgroundColor: [
+                            '#8b5cf6',
+                            '#ec4899',
+                            '#06b6d4',
+                            '#f59e0b',
+                            '#10b981',
+                            '#3b82f6',
+                            '#6366f1',
+                            '#64748b'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#94a3b8', boxWidth: 12, font: { size: 11 } }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // 即時同步按鈕事件
+            $('#btnRefreshData').on('click', function() {
+                const $btn = $(this);
+                $btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 同步中...');
+                setTimeout(function() {
+                    $btn.html('<i class="fa-solid fa-rotate me-1"></i> 即時同步');
+                    alert('已完成 Google 試算表最新數據同步！');
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>
