@@ -1,6 +1,6 @@
 // 設定 Google 試算表 CSV 發布連結
 const SPREADSHEET_ID = '1nY-6mo9trXLMwkRGOqdvBU_va75DmsxIONIraMtTv2k';
-const SHEETNAME = '核心版';
+const SHEET_NAME = '核心版';
 
 // 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
 const fallbackMenuData = [
@@ -47,7 +47,7 @@ function initSidebarToggle() {
 
 // 2. 抓取 Google 試算表資料（索引解耦模式）
 function fetchGoogleSheetMenu() {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEETNAME)}`;
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
     
     Papa.parse(url, {
         download: true,

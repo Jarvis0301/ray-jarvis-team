@@ -3,6 +3,7 @@
     // 1. 立即隱藏 HTML 畫面，防範畫面閃爍與未授權內容外洩
     document.documentElement.style.display = 'none';
 
+    const PROJECT_NAME = 'health-free-daily';   // GitHub專案名稱
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycby-z80VYrsboxpdjxrIb-vFodL6Pznsjwrq8ApQwZFx8LopmuUi0k2Z3ZN5b4QxZLiu8A/exec"; // 請替換為您的 GAS 部署網址
     const SESSION_KEY = 'ray_team_auth_session';
     const REVALIDATE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 小時 (每隔一天背景驗證一次)
@@ -23,14 +24,12 @@
         loginPageUrl = '/health-free-daily/login.html';
     } else {
         // do nothing
-        window.location.href = 'https://jarvis0301.github.io/ray-jarvis-team/health-free-daily/index.html';
+        window.location.href = `https://jarvis0301.github.io/ray-jarvis-team/${PROJECT_NAME}/index.html`;
     }
 
     // 判斷是否為 VS Code 本地測試環境 (127.0.0.1 或 localhost)
     const hostname = window.location.hostname;
-    // 暫時全部放行讓榮祥測試
-    //const isLocalDev = (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '' || window.location.protocol === 'file:');
-    const isLocalDev = true;
+    const isLocalDev = (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '' || window.location.protocol === 'file:');
     const AUTO_DEV_BYPASS = true; // 開發模式：本地開發現場自動注入測試 Session
 
     // 3. 公開版網站 (public) 完全免驗證，直接放行
@@ -54,6 +53,8 @@
             };
             localStorage.setItem(SESSION_KEY, JSON.stringify(devSession));
         }
+    } else {
+        loginPageUrl = `/${PROJECT_NAME}${loginPageUrl}`
     }
 
     // 檢查目前是否就在該站點的登入頁 (login.html)
