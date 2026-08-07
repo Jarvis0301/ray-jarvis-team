@@ -3,271 +3,700 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>跨國市場產品戰情室 - 榮祥團隊</title>
-
-    <script src="../assets/js/vendor-loader.js"></script>
-
+    <title>健康生活與自由日常 | 葡眾榮祥團隊專業保健與事業事業門戶</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
     <style>
         :root {
             --bg-dark: #061410;
-            --card-dark: #0d221a;
-            --border-green: #1b4233;
-            --accent-emerald: #10b981;
-            --text-light: #f1f5f9;
+            --bg-card: #0d221a;
+            --bg-surface: #112e23;
+            --border-color: #1e3a2f;
+            --primary-green: #10b981;
+            --primary-hover: #34d399;
+            --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --accent-glow: rgba(16, 185, 129, 0.25);
         }
 
         body {
             background-color: var(--bg-dark);
-            color: var(--text-light);
-            font-family: 'Noto Sans TC', sans-serif;
-            padding: 1.5rem 0;
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow-x: hidden;
         }
 
-        .bg-card-custom {
-            background-color: var(--card-dark);
-            border: 1px solid var(--border-green);
-            border-radius: 12px;
+        /* 導覽列樣式 */
+        .navbar-custom {
+            background-color: rgba(6, 20, 16, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .text-emerald {
-            color: var(--accent-emerald);
+        .navbar-brand {
+            color: var(--primary-green) !important;
+            font-weight: 700;
+            font-size: 1.35rem;
         }
 
-        /* 國旗膠囊標籤樣式 */
-        .flag-badge {
-            display: inline-flex;
+        .nav-link {
+            color: var(--text-main) !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-green) !important;
+        }
+
+        .dropdown-menu-dark {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .dropdown-item {
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-surface);
+            color: var(--primary-green);
+        }
+
+        /* 英雄區 Carousel 視覺 */
+        .hero-carousel .carousel-item {
+            height: 520px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(6, 20, 16, 0.4) 0%, rgba(6, 20, 16, 0.95) 100%);
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 20px;
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-green);
-            font-size: 0.875rem;
         }
 
-        /* Select2 暗黑主題覆蓋 */
-        .select2-container--default .select2-selection--single {
-            background-color: var(--bg-dark) !important;
-            border-color: var(--border-green) !important;
-            height: 38px !important;
-            border-radius: 6px !important;
+        /* 圖片佔位符視覺優化 */
+        .img-placeholder {
+            background-color: var(--bg-surface);
+            border: 2px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
         }
 
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: var(--text-light) !important;
-            line-height: 36px !important;
+        .img-placeholder:hover {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
-        .select2-dropdown {
-            background-color: var(--card-dark) !important;
-            border-color: var(--border-green) !important;
-            color: var(--text-light) !important;
+        .img-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: var(--accent-emerald) !important;
+        /* 卡片系統 */
+        .card-custom {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* DataTable 3.0.1 暗黑模式適用 */
-        .dt-container .dt-search input {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-green);
-            color: var(--text-light);
-            border-radius: 6px;
-            padding: 0.3rem 0.6rem;
+        .card-custom:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .card-img-top-wrapper {
+            height: 180px;
+            overflow: hidden;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+            position: relative;
+        }
+
+        .card-img-top-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card-custom:hover .card-img-top-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .btn-emerald {
+            background-color: var(--primary-green);
+            color: #000000;
+            font-weight: 600;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-emerald:hover {
+            background-color: var(--primary-hover);
+            color: #000000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-outline-emerald {
+            border: 1px solid var(--primary-green);
+            color: var(--primary-green);
+            background: transparent;
+            font-weight: 600;
+            padding: 0.6rem 1.4rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-emerald:hover {
+            background-color: var(--primary-green);
+            color: #000000;
+        }
+
+        /* 標題與裝飾 */
+        .section-title {
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-green);
+            border-radius: 2px;
+        }
+
+        /* 表格黑夜風覆寫 */
+        .table-dark-custom {
+            --bs-table-bg: var(--bg-card);
+            --bs-table-border-color: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: var(--text-main) !important;
+        }
+
+        /* 全站頁尾 */
+        .footer-custom {
+            background-color: #030a08;
+            border-top: 1px solid var(--border-color);
+            padding-top: 3rem;
+            padding-bottom: 2rem;
+        }
+
+        .footer-sitemap a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-sitemap a:hover {
+            color: var(--primary-green);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="p-4 bg-card-custom shadow-lg mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <h1 class="h4 mb-1 text-white">
-                    <i class="fas fa-globe text-emerald"></i> UVACO 葡眾全球產品戰情室
-                </h1>
-                <p class="text-muted mb-0">已成功套用 flag-icons (v7.2.3) 與 14 大前端最新套件</p>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <span class="flag-badge">
-                    <span class="fi fi-tw"></span> 台灣總部
-                </span>
-                <span class="flag-badge">
-                    <span class="fi fi-my"></span> 馬來西亞營運中心
-                </span>
-            </div>
+    <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
         </div>
-
-        <div class="row g-4 mb-4">
-            <div class="col-12 col-md-6">
-                <div class="p-4 bg-card-custom shadow-lg h-100">
-                    <label class="form-label text-white fw-bold mb-2">
-                        <i class="fas fa-magnifying-glass text-emerald"></i> 快速搜尋市場產品 (Select2)：
-                    </label>
-                    <select id="productSelect" class="form-select w-100">
-                        <option value="">請選擇或輸入產品...</option>
-                    </select>
+        <div class="carousel-inner">
+            <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=1600&auto=format&fit=crop');">
+                <div class="hero-overlay">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <span class="badge bg-emerald mb-3 px-3 py-2 text-dark font-weight-bold" style="background-color: var(--primary-green);">
+                                    <i class="fa-solid fa-flask"></i> 頂尖生物科技研發
+                                </span>
+                                <h1 class="display-4 fw-bold text-white mb-3">嚴選專利菌株，守護全家人的日常健康</h1>
+                                <p class="lead text-light mb-4">結合國家級研發團隊與多項國際發明金獎專利，為您打造最安心的保健防護網。</p>
+                                <div class="d-flex gap-3">
+                                    <a href="products.html" class="btn btn-emerald">
+                                        <i class="fa-solid fa-arrow-right"></i> 探索明星產品
+                                    </a>
+                                    <a href="product-patents.html" class="btn btn-outline-emerald">
+                                        <i class="fa-solid fa-award"></i> 檢視專利認證
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="col-12 col-md-6">
-                <div class="p-4 bg-card-custom shadow-lg h-100">
-                    <h2 class="h6 text-white mb-3">
-                        <i class="fas fa-chart-pie text-emerald"></i> 跨國市場 SV 銷售比率
-                    </h2>
-                    <div style="position: relative; height: 180px;">
-                        <canvas id="marketChart"></canvas>
+            <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop');">
+                <div class="hero-overlay">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <span class="badge bg-emerald mb-3 px-3 py-2 text-dark font-weight-bold" style="background-color: var(--primary-green);">
+                                    <i class="fa-solid fa-users"></i> 榮祥團隊 Ray's Team
+                                </span>
+                                <h1 class="display-4 fw-bold text-white mb-3">掌握自主人生，翻轉未來的事業藍圖</h1>
+                                <p class="lead text-light mb-4">透明永續的獎金制度與完善的全網輔導體系，協助每一位夥伴踏實實現財務自由。</p>
+                                <div class="d-flex gap-3">
+                                    <a href="system-advantages.html" class="btn btn-emerald">
+                                        <i class="fa-solid fa-chess-knight"></i> 了解制度優勢
+                                    </a>
+                                    <a href="consultation.html" class="btn btn-outline-emerald">
+                                        <i class="fa-solid fa-comments"></i> 預約線上諮詢
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop');">
+                <div class="hero-overlay">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <span class="badge bg-emerald mb-3 px-3 py-2 text-dark font-weight-bold" style="background-color: var(--primary-green);">
+                                    <i class="fa-solid fa-earth-asia"></i> 跨國市場佈局
+                                </span>
+                                <h1 class="display-4 fw-bold text-white mb-3">立足台灣，放眼馬來西亞與東南亞</h1>
+                                <p class="lead text-light mb-4">上市公司母體實力做後盾，打造全球化的健康事業與國際供應鏈體系。</p>
+                                <div class="d-flex gap-3">
+                                    <a href="about-uvaco.html" class="btn btn-emerald">
+                                        <i class="fa-solid fa-building"></i> 關於企業母體
+                                    </a>
+                                    <a href="events.html" class="btn btn-outline-emerald">
+                                        <i class="fa-solid fa-calendar-days"></i> 查看全球活動
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="p-4 bg-card-custom shadow-lg">
-            <h2 class="h6 text-white mb-3">
-                <i class="fas fa-list-check text-emerald"></i> 全球產品規格清單
-            </h2>
-            <div class="table-responsive">
-                <table id="productTable" class="table table-dark table-hover w-100">
-                    <thead>
-                        <tr>
-                            <th>適用地區</th>
-                            <th>產品名稱</th>
-                            <th>全球 SV</th>
-                            <th>當地建議售價</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-            </div>
-        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
     </div>
 
+    <section class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <h2 class="section-title d-inline-block">
+                        <i class="fa-solid fa-shield-heart text-emerald"></i> 為什麼選擇我們的產品與團隊？
+                    </h2>
+                    <p class="text-muted">結合強大生技研發實力與透明公正的事業平台，為您打造雙重防護體系</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-img-top-wrapper">
+                            <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop" alt="專利發酵技術">
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-emerald fw-bold mb-3">
+                                <i class="fa-solid fa-vial-circle-check"></i> 獨家專利發酵技術
+                            </h5>
+                            <p class="card-text text-muted small">採用多層包埋技術與液態發酵工藝，確保益生菌與營養成分極致活性。</p>
+                            <a href="product-advantages.html" class="btn btn-sm btn-outline-emerald mt-2">
+                                <i class="fa-solid fa-angle-right"></i> 查看技術細節
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-img-top-wrapper">
+                            <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop" alt="國家品質認證">
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-emerald fw-bold mb-3">
+                                <i class="fa-solid fa-certificate"></i> 國家級品質安檢
+                            </h5>
+                            <p class="card-text text-muted small">通過 ISO22000、HACCP 及多項無農藥殘留與重金屬檢驗，百分百安心。</p>
+                            <a href="product-patents.html" class="btn btn-sm btn-outline-emerald mt-2">
+                                <i class="fa-solid fa-angle-right"></i> 檢視獎項標章
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-img-top-wrapper">
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop" alt="零風險創業">
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-emerald fw-bold mb-3">
+                                <i class="fa-solid fa-hand-holding-dollar"></i> 不歸零人性化制度
+                            </h5>
+                            <p class="card-text text-muted small">積分累計不歸零、職級只升不降，無需囤貨負擔，打造零風險事業基石。</p>
+                            <a href="system-advantages.html" class="btn btn-sm btn-outline-emerald mt-2">
+                                <i class="fa-solid fa-angle-right"></i> 解密獎金制度
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-img-top-wrapper">
+                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop" alt="全網團隊培訓">
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-emerald fw-bold mb-3">
+                                <i class="fa-solid fa-laptop-code"></i> 榮祥團隊雲端資源
+                            </h5>
+                            <p class="card-text text-muted small">獨家提供全套數位引流工具、線上課程與一對一陪伴式輔導系統。</p>
+                            <a href="about-team.html" class="btn btn-sm btn-outline-emerald mt-2">
+                                <i class="fa-solid fa-angle-right"></i> 認識榮祥團隊
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background-color: var(--bg-surface);">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="section-title mb-1">
+                        <i class="fa-solid fa-star text-emerald"></i> 明星保健產品推薦
+                    </h2>
+                    <p class="text-muted mb-0">全方位滿足不同年齡層與族群的日常保健需求</p>
+                </div>
+                <a href="products.html" class="btn btn-outline-emerald d-none d-md-inline-block">
+                    <i class="fa-solid fa-grid-2"></i> 查看全部產品
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100 p-3">
+                        <div class="img-placeholder mb-3" style="height: 220px;">
+                            <img src="https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=600&auto=format&fit=crop" alt="康爾喜益生菌">
+                        </div>
+                        <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                            <i class="fa-solid fa-arrows-rotate"></i> 順暢保衛系列
+                        </span>
+                        <h5 class="fw-bold mb-2">康爾喜益生菌</h5>
+                        <p class="text-muted small mb-3">包含 13 種複合共生益生菌，專利包埋技術，維持消化道機能。</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="text-emerald fw-bold">經典熱銷 NO.1</span>
+                            <a href="product-detail.html?id=0101" class="btn btn-sm btn-emerald">
+                                <i class="fa-solid fa-eye"></i> 產品詳情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100 p-3">
+                        <div class="img-placeholder mb-3" style="height: 220px;">
+                            <img src="https://images.unsplash.com/photo-1550572017-edd951aa8f72?q=80&w=600&auto=format&fit=crop" alt="995超級營養液">
+                        </div>
+                        <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                            <i class="fa-solid fa-shield-halved"></i> 全能防護系列
+                        </span>
+                        <h5 class="fw-bold mb-2">995 超級營養液</h5>
+                        <p class="text-muted small mb-3">獨家大豆液態發酵技術，富含小分子多胜肽與大豆異黃酮，滋補強身。</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="text-emerald fw-bold">高純度濃縮</span>
+                            <a href="product-detail.html?id=0102" class="btn btn-sm btn-emerald">
+                                <i class="fa-solid fa-eye"></i> 產品詳情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100 p-3">
+                        <div class="img-placeholder mb-3" style="height: 220px;">
+                            <img src="https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?q=80&w=600&auto=format&fit=crop" alt="樟芝益">
+                        </div>
+                        <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                            <i class="fa-solid fa-bolt"></i> 活力丰采系列
+                        </span>
+                        <h5 class="fw-bold mb-2">樟芝益菌絲體</h5>
+                        <p class="text-muted small mb-3">集合珍貴牛樟芝、靈芝、姬松茸菌絲體精華，調節體質精神旺盛。</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="text-emerald fw-bold">精神旺盛首選</span>
+                            <a href="product-detail.html?id=0103" class="btn btn-sm btn-emerald">
+                                <i class="fa-solid fa-eye"></i> 產品詳情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-custom h-100 p-3">
+                        <div class="img-placeholder mb-3" style="height: 220px;">
+                            <img src="https://images.unsplash.com/photo-1577401239170-897942555fb3?q=80&w=600&auto=format&fit=crop" alt="迪斯尼晶亮">
+                        </div>
+                        <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                            <i class="fa-solid fa-eye"></i> 晶亮守護系列
+                        </span>
+                        <h5 class="fw-bold mb-2">迪斯尼複方膠囊</h5>
+                        <p class="text-muted small mb-3">專為現代 3C 重度使用者設計，游離型葉黃素搭配金盞花萃取精華。</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="text-emerald fw-bold">3C 族必備</span>
+                            <a href="product-detail.html?id=0104" class="btn btn-sm btn-emerald">
+                                <i class="fa-solid fa-eye"></i> 產品詳情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-chart-pie text-emerald"></i> 全方位五大健康防護矩陣
+                    </h2>
+                    <p class="text-muted">根據現代人日常飲食與生活型態需求，研發團隊精準調配出覆蓋各體質領域的專利防護網。</p>
+                    <ul class="list-unstyled text-light my-4">
+                        <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 消化道菌叢平衡調節（康爾喜）</li>
+                        <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 小分子營養極速吸收（995）</li>
+                        <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 固態與液態結合多醣體（樟芝益）</li>
+                        <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 游離型葉黃素晶亮防護（迪斯尼）</li>
+                    </ul>
+                    <a href="health-concepts.html" class="btn btn-emerald">
+                        <i class="fa-solid fa-book-open"></i> 閱讀保健觀念指南
+                    </a>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card card-custom p-4">
+                        <h5 class="text-emerald fw-bold mb-3 text-center">
+                            <i class="fa-solid fa-radar"></i> 產品核心活性與體質防護覆蓋率分析
+                        </h5>
+                        <div style="position: relative; height: 320px;">
+                            <canvas id="healthRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background-color: var(--bg-surface);">
+        <div class="container">
+            <div class="row align-items-center g-5 mb-5">
+                <div class="col-lg-6">
+                    <div class="img-placeholder" style="height: 340px;">
+                        <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop" alt="生技研發中心">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <span class="badge bg-emerald text-dark mb-2 fw-bold" style="background-color: var(--primary-green);">
+                        <i class="fa-solid fa-award"></i> 上市母體背景
+                    </span>
+                    <h2 class="fw-bold mb-3">承襲葡萄王生技半世紀研發能量</h2>
+                    <p class="text-muted">葡眾作為台灣生技直銷領導品牌，背後擁有強大的葡萄王生技生物科技研究所。擁有上百位專業碩博士研發團隊、國家級菌種庫與 PIC/S GMP 等級製造標準。</p>
+                    <p class="text-muted">我們堅持自產自銷，從原料萃取、發酵發酵到包裝出貨，全程嚴格把關，帶給消費者最值得信賴的在地品質。</p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="milestones-uvaco.html" class="btn btn-outline-emerald">
+                            <i class="fa-solid fa-timeline"></i> 查看公司大事記
+                        </a>
+                        <a href="awards-uvaco.html" class="btn btn-outline-emerald">
+                            <i class="fa-solid fa-trophy"></i> 榮譽獎項與標章
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-bullhorn text-emerald"></i> 最新活動與團隊公告
+                    </h2>
+                    <p class="text-muted">即時掌握線上研討會、產品說明會與線下表揚大會最新資訊</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-custom p-4">
+                        <div class="table-responsive">
+                            <table id="eventsTable" class="table table-dark-custom align-middle w-100">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fa-solid fa-calendar"></i> 日期</th>
+                                        <th><i class="fa-solid fa-tag"></i> 分類</th>
+                                        <th><i class="fa-solid fa-heading"></i> 活動標題</th>
+                                        <th><i class="fa-solid fa-location-dot"></i> 地點 / 形式</th>
+                                        <th><i class="fa-solid fa-circle-info"></i> 狀態</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2026-03-25</td>
+                                        <td><span class="badge bg-success text-dark">線上研討會</span></td>
+                                        <td>春季保健防護網與腸道健康講座</td>
+                                        <td>Zoom 線上直播</td>
+                                        <td><a href="events.html" class="btn btn-sm btn-emerald"><i class="fa-solid fa-pen-to-square"></i> 報名中</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-04-10</td>
+                                        <td><span class="badge bg-info text-dark">事業說明會</span></td>
+                                        <td>榮祥團隊創業思維與數位工具運用</td>
+                                        <td>台北營運中心 4F</td>
+                                        <td><a href="events.html" class="btn btn-sm btn-emerald"><i class="fa-solid fa-pen-to-square"></i> 報名中</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-04-18</td>
+                                        <td><span class="badge bg-warning text-dark">表揚大會</span></td>
+                                        <td>2026 榮祥團隊年度榮耀表揚盛會</td>
+                                        <td>台中國際會議中心</td>
+                                        <td><span class="badge bg-secondary">即將開放</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 text-center position-relative overflow-hidden" style="background: linear-gradient(rgba(6, 20, 16, 0.85), rgba(6, 20, 16, 0.95)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1600&auto=format&fit=crop') center/cover;">
+        <div class="container py-5">
+            <h2 class="display-5 fw-bold text-white mb-3">準備好開啟您的健康與事業新篇章嗎？</h2>
+            <p class="lead text-light mb-4 max-w-2xl mx-auto">無論是尋求優質保健方案，或是希望了解零風險創業機會，榮祥團隊隨時為您提供最專業的諮詢服務。</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="consultation.html" class="btn btn-lg btn-emerald">
+                    <i class="fa-solid fa-comments"></i> 立即免費線上諮詢
+                </a>
+                <a href="social-media.html" class="btn btn-lg btn-outline-emerald">
+                    <i class="fa-solid fa-share-nodes"></i> 加入社群關注我們
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
     <script>
-        // 監聽 'vendor-ready'，確保 14 大套件完整載入後才初始化
-        window.addEventListener('vendor-ready', function() {
-            console.log('14 大套件 (含 flag-icons) 載入完畢！開始渲染 UI...');
-
-            initSelect2();
-            initChart();
-            fetchSheetData();
-        });
-
-        // 1. 初始化 Select2
-        function initSelect2() {
-            $('#productSelect').select2({
-                placeholder: '請選擇產品...'
+        $(document).ready(function() {
+            // 1. 初始化 DataTable.js 最新動態表格
+            $('#eventsTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json"
+                },
+                "pageLength": 5,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": false
             });
-        }
 
-        // 2. 初始化 Chart.js
-        let chartInstance;
-        function initChart() {
-            const ctx = document.getElementById('marketChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
+            // 2. 初始化 Chart.js 健康防護矩陣雷達圖
+            const ctx = document.getElementById('healthRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
                 data: {
-                    labels: ['台灣市場', '馬來西亞市場'],
+                    labels: ['消化道保健', '全能免疫防護', '精力與體質調節', '晶亮守護', '循環順暢', '骨骼與關鍵'],
                     datasets: [{
-                        data: [82, 18],
-                        backgroundColor: ['#10b981', '#0284c7'],
-                        borderWidth: 0
+                        label: '產品配方覆蓋率 (%)',
+                        data: [98, 95, 90, 88, 85, 92],
+                        backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#34d399',
+                        pointBorderColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: {
+                                color: '#f8fafc',
+                                font: { size: 12 }
+                            },
+                            ticks: {
+                                display: false,
+                                max: 100
+                            }
+                        }
+                    },
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: { color: '#f1f5f9' }
+                            labels: { color: '#f8fafc' }
                         }
                     }
                 }
             });
-        }
 
-        // 3. PapaParse 數據抓取與欄位解耦合
-        function fetchSheetData() {
-            const rawCsv = `REGION_CODE,PROD_TITLE,POINTS_SV,LOCAL_PRICE,CURRENCY
-tw,995生技營養品,164,5980,NT$
-tw,康爾喜(N),52,1960,NT$
-my,995 Bio-Tech Drink,164,880,MYR
-my,Probiotics Cleansing Soap,24,120,MYR`;
-
-            Papa.parse(rawCsv, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    // 解耦合：將原始試算表轉換為標準 key 物件
-                    const cleanData = results.data.map(row => ({
-                        region: row['REGION_CODE'] || 'tw',
-                        title: row['PROD_TITLE'] || '未命名',
-                        sv: row['POINTS_SV'] || 0,
-                        price: row['LOCAL_PRICE'] || 0,
-                        currency: row['CURRENCY'] || '$'
-                    }));
-
-                    updateSelect2Options(cleanData);
-                    renderDataTable(cleanData);
-
-                    if (typeof Toastify !== 'undefined') {
-                        Toastify({
-                            text: " 成功動態載入並解析跨國產品數據！",
-                            duration: 3000,
-                            style: { background: "linear-gradient(to right, #059669, #10b981)" }
-                        }).showToast();
+            // 3. PapaParse / Google 試算表資料解耦介面預留 (以 gviz/CSV 格式異步抓取動態)
+            function fetchGoogleSheetNews(sheetId) {
+                const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=LatestNews`;
+                Papa.parse(sheetUrl, {
+                    download: true,
+                    header: true,
+                    complete: function(results) {
+                        const data = results.data;
+                        // 欄位解耦合映射範例：不直接依賴中文標題，透過 key 防禦
+                        console.log("已成功動態同步最新試算表資料，總筆數：", data.length);
+                    },
+                    error: function(err) {
+                        console.warn("未設定動態試算表 ID，採用預設靜態資料庫展示。");
                     }
-                }
-            });
-        }
-
-        function updateSelect2Options(data) {
-            const $select = $('#productSelect').empty().append('<option value="">請選擇產品...</option>');
-            data.forEach(item => {
-                $select.append(new Option(`[${item.region.toUpperCase()}] ${item.title}`, item.title));
-            });
-        }
-
-        // 4. 使用 DataTable 3.0.1 渲染 (結合 flag-icons 國旗)
-        function renderDataTable(data) {
-            if ($.fn.DataTable.isDataTable('#productTable')) {
-                $('#productTable').DataTable().destroy();
+                });
             }
 
-            const $tbody = $('#productTable tbody').empty();
-            data.forEach(item => {
-                const tr = `
-                    <tr>
-                        <td>
-                            <span class="fi fi-${item.region}"></span>
-                            <span class="ms-1 fw-bold text-uppercase">${item.region}</span>
-                        </td>
-                        <td><i class="fas fa-box text-emerald"></i> ${item.title}</td>
-                        <td><span class="badge bg-success">${item.sv} SV</span></td>
-                        <td>${item.currency} ${Number(item.price).toLocaleString()}</td>
-                    </tr>
-                `;
-                $tbody.append(tr);
-            });
-
-            $('#productTable').DataTable({
-                responsive: true,
-                pageLength: 5,
-                layout: {
-                    topStart: 'pageLength',
-                    topEnd: 'search',
-                    bottomStart: 'info',
-                    bottomEnd: 'paging'
-                },
-                language: {
-                    search: "<i class=\"fas fa-magnifying-glass\"></i> 搜尋：",
-                    paginate: { previous: "上一頁", next: "下一頁" },
-                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆"
-                }
-            });
-        }
+            // 呼叫試算表更新介面 (發布時帶入正式工作表 ID)
+            fetchGoogleSheetNews('SAMPLE_SHEET_ID_FOR_PUBLIC_PORTAL');
+        });
     </script>
 </body>
 </html>

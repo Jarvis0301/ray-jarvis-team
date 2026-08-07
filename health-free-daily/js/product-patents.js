@@ -111,7 +111,7 @@ window.addEventListener('vendorReady', async () => {
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetsData();
     } else {
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-database"></i> 使用備援資料庫';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-database"></i> 使用備援資料庫';
     }
 
     renderPatents();
@@ -120,7 +120,7 @@ window.addEventListener('vendorReady', async () => {
 // 5. 使用 PapaParse 解析 Google Sheets 數據 (GViz CSV API, 不綁定英文表頭)
 async function fetchGoogleSheetsData() {
     try {
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-spinner fa-spin"></i> 專利資料同步中...';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 專利資料同步中...';
 
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
@@ -151,10 +151,10 @@ async function fetchGoogleSheetsData() {
             appState.patents = mapPatentRows(patentsData);
         }
 
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-circle-check"></i> 雲端資料同步完成';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-circle-check"></i> 雲端資料同步完成';
     } catch (err) {
         console.warn("無法動態讀取 Google 試算表，使用預設資料:", err);
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-triangle-exclamation"></i> 同步失敗，切換至備援庫';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 同步失敗，切換至備援庫';
     }
 }
 
@@ -230,7 +230,7 @@ function renderPatents() {
     if (filtered.length === 0) {
         $('#patentGrid').html(`
             <div class="col-12 text-center py-5">
-                <i class="fas fa-folder-open fa-3x text-main mb-3"></i>
+                <i class="fa-solid fa-folder-open fa-3x text-main mb-3"></i>
                 <p class="text-main">尚無該類別之專利展示資料</p>
             </div>
         `);
@@ -254,7 +254,7 @@ function renderPatents() {
                 <div class="patent-img-wrapper" data-bs-toggle="modal" data-bs-target="#${modalId}">
                     <img src="${item.imgUrl}" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'">
                     <div class="patent-img-overlay">
-                        <span class="img-zoom-hint"><i class="fas fa-magnifying-glass-plus"></i> 點擊查看證書</span>
+                        <span class="img-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊查看證書</span>
                     </div>
                 </div>
                 <div class="patent-header">
@@ -262,19 +262,19 @@ function renderPatents() {
                         <i class="${typeObj.icon}"></i> ${typeObj.name}
                     </span>
                     <h3 class="patent-title">${item.title}</h3>
-                    <div class="patent-no"><i class="fas fa-award"></i> ${item.patentNo || '國際專利認證'}</div>
+                    <div class="patent-no"><i class="fa-solid fa-award"></i> ${item.patentNo || '國際專利認證'}</div>
                 </div>
                 <div class="patent-body">
                     <p class="patent-desc">${item.desc}</p>
                     <ul class="feature-list">
-                        ${item.feature1 ? `<li><i class="fas fa-circle-check"></i> ${item.feature1}</li>` : ''}
-                        ${item.feature2 ? `<li><i class="fas fa-circle-check"></i> ${item.feature2}</li>` : ''}
-                        ${item.feature3 ? `<li><i class="fas fa-circle-check"></i> ${item.feature3}</li>` : ''}
+                        ${item.feature1 ? `<li><i class="fa-solid fa-circle-check"></i> ${item.feature1}</li>` : ''}
+                        ${item.feature2 ? `<li><i class="fa-solid fa-circle-check"></i> ${item.feature2}</li>` : ''}
+                        ${item.feature3 ? `<li><i class="fa-solid fa-circle-check"></i> ${item.feature3}</li>` : ''}
                     </ul>
                 </div>
                 <div class="patent-footer">
-                    <span class="award-badge"><i class="fas fa-trophy"></i> ${item.awardBadge || '權威背書'}</span>
-                    <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#${modalId}"><i class="fas fa-file-contract"></i> 查看證書</button>
+                    <span class="award-badge"><i class="fa-solid fa-trophy"></i> ${item.awardBadge || '權威背書'}</span>
+                    <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#${modalId}"><i class="fa-solid fa-file-contract"></i> 查看證書</button>
                 </div>
             </div>
         </div>`;
@@ -285,16 +285,16 @@ function renderPatents() {
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title text-mint"><i class="fas fa-certificate"></i> ${item.title}</h5>
+                        <h5 class="modal-title text-mint"><i class="fa-solid fa-certificate"></i> ${item.title}</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <img src="${item.imgUrl}" alt="${item.title}" class="modal-patent-img" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1200&q=80'">
-                        <div class="badge bg-success mb-2"><i class="fas fa-shield"></i> ${item.patentNo || '專利號碼與認證'}</div>
+                        <div class="badge bg-success mb-2"><i class="fa-solid fa-shield"></i> ${item.patentNo || '專利號碼與認證'}</div>
                         <h4 class="h5 text-white mb-3">${item.title}</h4>
                         <p class="text-main">${item.detailDesc || item.desc}</p>
                         <hr class="border-secondary">
-                        <h6 class="text-warning"><i class="fas fa-trophy"></i> 權威認證與亮點：</h6>
+                        <h6 class="text-warning"><i class="fa-solid fa-trophy"></i> 權威認證與亮點：</h6>
                         <ul class="text-light opacity-75 small mb-0">
                             ${item.feature1 ? `<li>${item.feature1}</li>` : ''}
                             ${item.feature2 ? `<li>${item.feature2}</li>` : ''}
@@ -302,7 +302,7 @@ function renderPatents() {
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-xmark"></i> 關閉</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> 關閉</button>
                     </div>
                 </div>
             </div>

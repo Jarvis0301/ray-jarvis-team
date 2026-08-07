@@ -1,38 +1,38 @@
 :root {
-    /* 公開版系統：翡翠綠與草本綠深色主題色系 */
-    /*--bg-main: #081612;*/
-    --bg-sidebar: #0d1f18;
-    /*--uvaco-bg-card: #12251e;*/
-    --bg-header: #0a1b14;
-    /*--uvaco-primary: #10b981;*/
-    /*--uvaco-secondary: #34d399;*/
-    --accent-hover: rgba(52, 211, 153, 0.15);
-    /*--uvaco-border-color: rgba(52, 211, 153, 0.2);*/
-    /*--text-main: #f1f5f9;*/
-    /*--text-muted: #94a3b8;*/
-    /*--accent-gold: #f59e0b;*/
+    /* 核心版系統：魅影紫與電光紫深色主題色系 */
+    --bg-main: #0f0a1c;
+    --bg-sidebar: #171030;
+    --bg-card: #1e1740;
+    --bg-header: #130d28;
+    --accent-purple: #a855f7;
+    --accent-purple-bright: #c084fc;
+    --accent-hover: rgba(168, 85, 247, 0.18);
+    --border-color: rgba(168, 85, 247, 0.25);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-pink: #f43f5e;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
     --header-height: 70px;
 }
 
 body {
-    background-color: var(--uvaco-bg-primary);
-    /*color: var(--uvaco-text-primary);*/
-    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /*overflow-x: hidden;*/
+    overflow-x: hidden;
 }
 
 /* 頂部標題欄 */
 .portal-header {
     height: var(--header-height);
     background-color: var(--bg-header);
-    border-bottom: 1px solid var(--uvaco-border-color);
+    border-bottom: 1px solid var(--border-color);
     position: fixed;
     top: 0;
     left: 0;
@@ -46,7 +46,7 @@ body {
 }
 
 .brand-logo {
-    color: var(--uvaco-secondary);
+    color: var(--accent-purple-bright);
     font-size: 1.25rem;
     font-weight: 700;
     text-decoration: none;
@@ -57,8 +57,8 @@ body {
 
 .toggle-btn {
     background: transparent;
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--uvaco-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--accent-purple-bright);
     padding: 0.4rem 0.8rem;
     border-radius: 8px;
     cursor: pointer;
@@ -68,45 +68,45 @@ body {
 .toggle-btn:hover {
     background-color: var(--accent-hover);
     color: #ffffff;
-    border-color: var(--uvaco-primary);
+    border-color: var(--accent-purple);
 }
 
-/* 通用綠按鈕與 Badge */
-.bg-green {
-    background-color: var(--uvaco-bg-card) !important;
+/* 通用紫按鈕與 Badge */
+.bg-purple {
+    background-color: var(--bg-card) !important;
 }
 
-.btn-outline-green {
-    color: var(--uvaco-secondary);
-    border-color: var(--uvaco-primary);
+.btn-outline-purple {
+    color: var(--accent-purple-bright);
+    border-color: var(--accent-purple);
 }
 
-.btn-outline-green:hover {
-    background-color: var(--uvaco-secondary);
+.btn-outline-purple:hover {
+    background-color: var(--accent-purple);
     color: #ffffff;
 }
 
-.border-green {
-    border-color: var(--uvaco-border-color) !important;
+.border-purple {
+    border-color: var(--border-color) !important;
 }
 
-.text-green {
-    color: var(--uvaco-primary) !important;
+.text-purple {
+    color: var(--accent-purple) !important;
 }
 
-.text-green-bright {
-    color: var(--uvaco-secondary) !important;
+.text-purple-bright {
+    color: var(--accent-purple-bright) !important;
 }
 
-.spinner-border.text-green {
-    color: var(--uvaco-primary) !important;
+.spinner-border.text-purple {
+    color: var(--accent-purple) !important;
 }
 
 /* 主區域佈局容器 */
 .portal-wrapper {
     display: flex;
-    flex: 1;
     margin-top: var(--header-height);
+    flex: 1;
     position: relative;
 }
 
@@ -114,7 +114,7 @@ body {
 .portal-sidebar {
     width: var(--sidebar-width);
     background-color: var(--bg-sidebar);
-    border-right: 1px solid var(--uvaco-border-color);
+    border-right: 1px solid var(--border-color);
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: fixed;
     top: var(--header-height);
@@ -167,7 +167,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    color: var(--uvaco-text-primary);
+    color: var(--text-main);
     text-decoration: none;
     border-radius: 8px;
     margin-bottom: 0.3rem;
@@ -177,20 +177,20 @@ body {
 
 .nav-item-link:hover, .nav-item-link.active {
     background-color: var(--accent-hover);
-    color: var(--uvaco-secondary);
-    border-left: 3px solid var(--uvaco-primary);
+    color: var(--accent-purple-bright);
+    border-left: 3px solid var(--accent-purple);
 }
 
 .menu-icon-box {
     width: 24px;
     text-align: center;
     font-size: 1.1rem;
-    color: var(--uvaco-primary);
+    color: var(--accent-purple);
 }
 
 /* 中央動態內容區塊 */
 .portal-content {
-    background-color: var(--uvaco-bg-primary);
+    background-color: var(--bg-main);
     flex: 1;
     margin-left: var(--sidebar-width);
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -243,14 +243,14 @@ body {
 /* 頁尾樣式 */
 .portal-footer {
     background-color: var(--bg-header);
-    border-top: 1px solid var(--uvaco-border-color);
+    border-top: 1px solid var(--border-color);
     padding: 2rem 2rem 2rem 2rem;
     margin-top: auto;
 }
 
 /* 電腦端滾動到最下面才出現的網站地圖 */
 .desktop-sitemap {
-    border-bottom: 1px solid var(--uvaco-border-color);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 2rem;
     margin-bottom: 2rem;
     opacity: 0;
@@ -264,7 +264,7 @@ body {
 }
 
 .sitemap-title {
-    color: var(--uvaco-secondary);
+    color: var(--accent-purple-bright);
     font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 1rem;
@@ -281,14 +281,14 @@ body {
 }
 
 .sitemap-list a {
-    color: var(--uvaco-text-muted);
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.88rem;
     transition: color 0.2s ease;
 }
 
 .sitemap-list a:hover {
-    color: var(--uvaco-secondary);
+    color: var(--accent-purple-bright);
 }
 
 /* 社群圖示與聲明區 */
@@ -303,9 +303,9 @@ body {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--uvaco-secondary);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--accent-purple-bright);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -315,21 +315,21 @@ body {
 }
 
 .social-btn:hover {
-    background-color: var(--uvaco-primary);
+    background-color: var(--accent-purple);
     color: #ffffff;
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
 }
 
 .copyright-text {
-    color: var(--uvaco-text-muted);
+    color: var(--text-muted);
     font-size: 0.85rem;
     text-align: center;
     line-height: 1.6;
 }
 
 .copyright-text a {
-    color: var(--uvaco-secondary);
+    color: var(--accent-purple-bright);
     text-decoration: none;
 }
 
@@ -346,7 +346,7 @@ body {
 
     .portal-sidebar.mobile-open {
         transform: translateX(0);
-        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.75);
     }
 
     .portal-content {

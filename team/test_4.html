@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>榮祥葡眾團隊 - 組織獎金動態試算小工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b132b;
+            --bg-card: #1c2541;
+            --bg-card-hover: #232f54;
+            --accent-blue: #38bdf8;
+            --accent-cyan: #7dd3fc;
+            --accent-gold: #facc15;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --border-color: rgba(56, 189, 248, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding-bottom: 50px;
+        }
+
+        /* 標題與 Header */
+        .page-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 25px 0;
+            background: linear-gradient(180deg, rgba(28, 37, 65, 0.8) 0%, rgba(11, 19, 43, 0.8) 100%);
+        }
+
+        .page-title {
+            color: var(--accent-blue);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* 卡片通用設定 */
+        .card-custom {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card-custom:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .card-header-custom {
+            background-color: rgba(56, 189, 248, 0.05);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 20px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+
+        /* 表單控制元件 */
+        .form-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-control, .form-select {
+            background-color: #0d1730;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #111e3d;
+            border-color: var(--accent-blue);
+            color: var(--text-main);
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+        }
+
+        /* 數據卡片 (Stat Cards) */
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(13, 23, 48, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .stat-value-gold {
+            color: var(--accent-gold);
+            font-size: 2.2rem;
+        }
+
+        /* 按鈕樣式 */
+        .btn-accent {
+            background-color: var(--accent-blue);
+            color: #0b132b;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-accent:hover {
+            background-color: var(--accent-cyan);
+            color: #0b132b;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-outline-danger-custom {
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            background: transparent;
+            border-radius: 6px;
+        }
+
+        .btn-outline-danger-custom:hover {
+            background-color: var(--accent-red);
+            color: #ffffff;
+        }
+
+        /* DataTable 暗色系覆蓋 */
+        table.dataTable {
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--text-muted) !important;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: #0d1730;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #0b132b;
+        }
+
+        .page-link {
+            background-color: #0d1730;
+            border-color: var(--border-color);
+            color: var(--accent-cyan);
+        }
+
+        .page-link:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-main);
+        }
+
+        /* 免責宣告區塊 */
+        .disclaimer-box {
+            background-color: rgba(250, 204, 21, 0.05);
+            border-left: 4px solid var(--accent-gold);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 30px;
+            font-size: 0.88rem;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="page-header mb-4">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h2 class="page-title m-0"><i class="fas fa-calculator me-2"></i> 組織獎金動態試算小工具</h2>
+                    <p class="text-muted small m-0 mt-1">榮祥葡眾團隊私域戰情網 · 即時業績模擬與獎金分潤計算引擎</p>
+                </div>
+                <div>
+                    <span class="badge bg-primary px-3 py-2 fs-6"><i class="fas fa-shield-halved me-1"></i> 團隊內部專用版</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="card card-custom h-100">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user-gear me-2"></i> 個人參數與當月業績設定</span>
+                        <button id="btnFetchCloudData" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="selectCurrentRank" class="form-label"><i class="fas fa-award me-1"></i> 當前職級階梯</label>
+                                <select id="selectCurrentRank" class="form-select">
+                                    <option value="5" data-rank="會員">會員 (5% 回饋 / 積分 1,000 ~ 9,999 SV)</option>
+                                    <option value="10" data-rank="主任">主任 (10% 回饋 / 累積滿 10,000 SV)</option>
+                                    <option value="15" data-rank="副理">副理 (15% 回饋 / 累積滿 150,000 SV)</option>
+                                    <option value="20" data-rank="經理" selected>經理以上 (20% 回饋 / 累積滿 450,000 SV)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="inputPersonalSV" class="form-label"><i class="fas fa-box-archive me-1"></i> 個人當月消費 SV (Personal SV)</label>
+                                <input type="number" id="inputPersonalSV" class="form-control" value="1500" min="0" step="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="inputPVPointValue" class="form-label"><i class="fas fa-coins me-1"></i> 點值換算比率 (PV Value)</label>
+                                <input type="number" id="inputPVPointValue" class="form-control" value="1.0" step="0.01" min="0.1">
+                                <div class="form-text text-muted">預設 1.0，可依公司當月最新點值係數微調。</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="inputLeadershipBonusRate" class="form-label"><i class="fas fa-sitemap me-1"></i> 領導獎金提撥率 (%)</label>
+                                <input type="number" id="inputLeadershipBonusRate" class="form-control" value="6.0" step="0.5" readonly>
+                                <div class="form-text text-muted">合格經理且有體系分支時預設符合 6% 黃金代數獎金。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-custom h-100 border-primary">
+                    <div class="card-header card-header-custom text-center">
+                        <i class="fas fa-sack-dollar me-2"></i> 預估當月總收益 (NT$)
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <div class="stat-label fs-6 mb-2">預估現金獎金與購物金總合</div>
+                        <div class="stat-value-gold fw-bold mb-3" id="displayTotalBonus">NT$ 0</div>
+                        <div class="w-100 border-top border-secondary pt-3 mt-2">
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span><i class="fas fa-cubes me-1"></i> 當月組織總 SV：</span>
+                                <span id="displayTotalSV" class="text-info fw-bold">0 SV</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span><i class="fas fa-diagram-project me-1"></i> 下線合格分支數：</span>
+                                <span id="displayBranchCount" class="text-info fw-bold">0 線</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card card-custom">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-users-rays me-2"></i> 直屬下線分支（Line 1 ~ Line N）業績錄入</span>
+                        <button id="btnAddBranch" class="btn btn-accent btn-sm">
+                            <i class="fas fa-user-plus me-1"></i> 新增下線分支
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="tableBranches" class="table table-dark table-hover w-100 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>分支名稱 / 夥伴</th>
+                                        <th>最高職級階梯</th>
+                                        <th>最高回饋%</th>
+                                        <th>分支整組 SV</th>
+                                        <th>職級差額 %</th>
+                                        <th>預估差額獎金 (NT$)</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-header card-header-custom">
+                        <i class="fas fa-chart-pie me-2"></i> 獎金收益結構分析 (Bonus Composition)
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 280px;">
+                        <canvas id="chartBonusPie"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-header card-header-custom">
+                        <i class="fas fa-chart-bar me-2"></i> 獎金項目詳細對比 (Bonus Breakdown)
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 280px;">
+                        <canvas id="chartBonusBar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card card-custom">
+                    <div class="card-header card-header-custom">
+                        <i class="fas fa-list-check me-2"></i> 試算明細總覽 (Calculation Breakdown Summary)
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-label"><i class="fas fa-user-check me-1"></i> 個人專屬回饋獎金</div>
+                                    <div class="stat-value text-info" id="displayPersonalRebate">NT$ 0</div>
+                                    <div class="small text-muted mt-1" id="displayPersonalRebateSub">個人 0 SV × 0%</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-label"><i class="fas fa-arrows-split-up-and-left me-1"></i> 組織職級差額獎金</div>
+                                    <div class="stat-value text-cyan" id="displayGroupDifferential">NT$ 0</div>
+                                    <div class="small text-muted mt-1">來自直屬分支之階梯差額</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-label"><i class="fas fa-crown me-1"></i> 預估黃金代數領導獎金</div>
+                                    <div class="stat-value text-warning" id="displayLeadershipBonus">NT$ 0</div>
+                                    <div class="small text-muted mt-1">合格經理 6% 組織推廣提撥</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer-box mb-4">
+            <div class="fw-bold mb-1"><i class="fas fa-triangle-exclamation me-1"></i> 榮祥團隊系統合規與試算免責聲明：</div>
+            <ol class="m-0 ps-3">
+                <li>本工具僅供《榮祥葡眾團隊》內部夥伴作事業戰略規劃、目標設定與組織試算參考，非葡眾官方正式發放憑證。</li>
+                <li>實際獎金發放金額受當月個人合格門檻、組織自動補救、世代壓縮機制及公司最新公佈之 PV 點值發放率等因素影響，請以每月公司官方發放之「獎金明細表」為準。</li>
+                <li>請勿向外部顧客或潛在夥伴進行「絕對收益承諾」，經營組織應以優質產品體驗與永續事業服務為核心。</li>
+            </ol>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        // 頁面初始化與狀態變數
+        let dataTableInstance = null;
+        let chartPieInstance = null;
+        let chartBarInstance = null;
+        let branchIdCounter = 1;
+
+        // 預設直屬分支資料範例
+        let branchDataList = [
+            { id: 1, name: "分支 A (體系經理)", rankRate: 20, rankName: "經理", sv: 80000 },
+            { id: 2, name: "分支 B (副理夥伴)", rankRate: 15, rankName: "副理", sv: 30000 },
+            { id: 3, name: "分支 C (主任夥伴)", rankRate: 10, rankName: "主任", sv: 12000 }
+        ];
+
+        $(document).ready(function () {
+            initDataTable();
+            initCharts();
+            bindEvents();
+            calculateBonus();
+        });
+
+        // 1. 初始化 DataTable.js
+        function initDataTable() {
+            dataTableInstance = $('#tableBranches').DataTable({
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/zh-HANT.json"
+                },
+                paging: false,
+                searching: false,
+                info: false,
+                ordering: false,
+                autoWidth: false,
+                columnDefs: [
+                    { className: "align-middle", targets: "_all" }
+                ]
+            });
+            renderTableRows();
+        }
+
+        // 渲染表格資料
+        function renderTableRows() {
+            dataTableInstance.clear();
+            const myRate = parseFloat($('#selectCurrentRank').val()) || 5;
+
+            branchDataList.forEach((branch, index) => {
+                const diffRate = Math.max(0, myRate - branch.rankRate);
+                const pvPoint = parseFloat($('#inputPVPointValue').val()) || 1.0;
+                const diffBonus = Math.round(branch.sv * (diffRate / 100) * pvPoint);
+
+                const selectRankHtml = `
+                    <select class="form-select form-select-sm branch-rank-select" data-id="${branch.id}">
+                        <option value="5" ${branch.rankRate === 5 ? 'selected' : ''}>會員 (5%)</option>
+                        <option value="10" ${branch.rankRate === 10 ? 'selected' : ''}>主任 (10%)</option>
+                        <option value="15" ${branch.rankRate === 15 ? 'selected' : ''}>副理 (15%)</option>
+                        <option value="20" ${branch.rankRate === 20 ? 'selected' : ''}>經理 (20%)</option>
+                    </select>
+                `;
+
+                const inputNameHtml = `
+                    <input type="text" class="form-control form-control-sm branch-name-input" data-id="${branch.id}" value="${branch.name}">
+                `;
+
+                const inputSvHtml = `
+                    <input type="number" class="form-control form-control-sm branch-sv-input" data-id="${branch.id}" value="${branch.sv}" step="1000" min="0">
+                `;
+
+                const actionBtnHtml = `
+                    <button class="btn btn-sm btn-outline-danger-custom btn-delete-branch" data-id="${branch.id}">
+                        <i class="fas fa-trash-can"></i> 刪除
+                    </button>
+                `;
+
+                dataTableInstance.row.add([
+                    inputNameHtml,
+                    selectRankHtml,
+                    `<span class="badge bg-secondary">${branch.rankRate}%</span>`,
+                    inputSvHtml,
+                    `<span class="text-cyan fw-bold">${diffRate}%</span>`,
+                    `<span class="text-gold fw-bold">NT$ ${diffBonus.toLocaleString()}</span>`,
+                    actionBtnHtml
+                ]);
+            });
+
+            dataTableInstance.draw();
+        }
+
+        // 2. 初始化 Chart.js
+        function initCharts() {
+            // 甜甜圈圖 (Pie Chart)
+            const ctxPie = document.getElementById('chartBonusPie').getContext('2d');
+            chartPieInstance = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['個人專屬回饋', '組織職級差額', '黃金領導獎金'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#38bdf8', '#7dd3fc', '#facc15'],
+                        borderWidth: 2,
+                        borderColor: '#1c2541'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f8fafc', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+
+            // 長條圖 (Bar Chart)
+            const ctxBar = document.getElementById('chartBonusBar').getContext('2d');
+            chartBarInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['個人回饋', '組織差額', '領導獎金'],
+                    datasets: [{
+                        label: '估算金額 (NT$)',
+                        data: [0, 0, 0],
+                        backgroundColor: ['rgba(56, 189, 248, 0.8)', 'rgba(125, 211, 252, 0.8)', 'rgba(250, 204, 21, 0.8)'],
+                        borderColor: ['#38bdf8', '#7dd3fc', '#facc15'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(56, 189, 248, 0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // 3. 事件監聽設定
+        function bindEvents() {
+            // 參數變更即時計算
+            $('#selectCurrentRank, #inputPersonalSV, #inputPVPointValue').on('change input', function () {
+                renderTableRows();
+                calculateBonus();
+            });
+
+            // 表格內 DOM 事件動態綁定
+            $('#tableBranches').on('change input', '.branch-name-input', function () {
+                const id = $(this).data('id');
+                const val = $(this).val();
+                const item = branchDataList.find(b => b.id === id);
+                if (item) item.name = val;
+            });
+
+            $('#tableBranches').on('change', '.branch-rank-select', function () {
+                const id = $(this).data('id');
+                const val = parseFloat($(this).val());
+                const item = branchDataList.find(b => b.id === id);
+                if (item) {
+                    item.rankRate = val;
+                    item.rankName = $(this).find('option:selected').text().split(' ')[0];
+                }
+                renderTableRows();
+                calculateBonus();
+            });
+
+            $('#tableBranches').on('change input', '.branch-sv-input', function () {
+                const id = $(this).data('id');
+                const val = parseFloat($(this).val()) || 0;
+                const item = branchDataList.find(b => b.id === id);
+                if (item) item.sv = val;
+                renderTableRows();
+                calculateBonus();
+            });
+
+            $('#tableBranches').on('click', '.btn-delete-branch', function () {
+                const id = $(this).data('id');
+                branchDataList = branchDataList.filter(b => b.id !== id);
+                renderTableRows();
+                calculateBonus();
+            });
+
+            // 新增分支按鈕
+            $('#btnAddBranch').on('click', function () {
+                branchIdCounter++;
+                branchDataList.push({
+                    id: Date.now(),
+                    name: `新下線分支 ${branchDataList.length + 1}`,
+                    rankRate: 5,
+                    rankName: "會員",
+                    sv: 5000
+                });
+                renderTableRows();
+                calculateBonus();
+            });
+
+            // PapaParse 抓取 Google 試算表範例
+            $('#btnFetchCloudData').on('click', function () {
+                fetchGoogleSheetBonusData();
+            });
+        }
+
+        // 4. 核心獎金計算邏輯
+        function calculateBonus() {
+            const currentRankRate = parseFloat($('#selectCurrentRank').val()) || 5;
+            const personalSV = parseFloat($('#inputPersonalSV').val()) || 0;
+            const pvPoint = parseFloat($('#inputPVPointValue').val()) || 1.0;
+            const leadershipRate = parseFloat($('#inputLeadershipBonusRate').val()) / 100 || 0.06;
+
+            // A. 個人專屬回饋獎金
+            const personalRebate = Math.round(personalSV * (currentRankRate / 100) * pvPoint);
+
+            // B. 組織職級差額獎金與下線總業績
+            let groupDifferentialBonus = 0;
+            let groupTotalSV = 0;
+            let qualifiedBranchCount = 0;
+
+            branchDataList.forEach(branch => {
+                groupTotalSV += branch.sv;
+                const diffRate = Math.max(0, currentRankRate - branch.rankRate);
+                groupDifferentialBonus += Math.round(branch.sv * (diffRate / 100) * pvPoint);
+
+                if (branch.sv >= 10000) {
+                    qualifiedBranchCount++;
+                }
+            });
+
+            // C. 預估黃金領導獎金 (合格經理 20% 且具備經理分支/團隊整組SV時計算)
+            let leadershipBonus = 0;
+            if (currentRankRate === 20 && groupTotalSV > 0) {
+                leadershipBonus = Math.round(groupTotalSV * leadershipRate * pvPoint);
+            }
+
+            // D. 總計金額
+            const totalSV = personalSV + groupTotalSV;
+            const totalBonus = personalRebate + groupDifferentialBonus + leadershipBonus;
+
+            // UI 數值更新
+            $('#displayPersonalRebate').text(`NT$ ${personalRebate.toLocaleString()}`);
+            $('#displayPersonalRebateSub').text(`個人 ${personalSV.toLocaleString()} SV × ${currentRankRate}%`);
+
+            $('#displayGroupDifferential').text(`NT$ ${groupDifferentialBonus.toLocaleString()}`);
+            $('#displayLeadershipBonus').text(`NT$ ${leadershipBonus.toLocaleString()}`);
+
+            $('#displayTotalBonus').text(`NT$ ${totalBonus.toLocaleString()}`);
+            $('#displayTotalSV').text(`${totalSV.toLocaleString()} SV`);
+            $('#displayBranchCount').text(`${qualifiedBranchCount} 線合格`);
+
+            // 更新圖表
+            updateCharts(personalRebate, groupDifferentialBonus, leadershipBonus);
+        }
+
+        // 5. 動態更新圖表
+        function updateCharts(personal, group, leadership) {
+            if (chartPieInstance) {
+                chartPieInstance.data.datasets[0].data = [personal, group, leadership];
+                chartPieInstance.update();
+            }
+
+            if (chartBarInstance) {
+                chartBarInstance.data.datasets[0].data = [personal, group, leadership];
+                chartBarInstance.update();
+            }
+        }
+
+        // 6. Google 試算表抓取與欄位解耦合 (PapaParse + gviz)
+        function fetchGoogleSheetBonusData() {
+            // 示範 Google 試算表 ID 與 gviz/tq URL
+            const SPREADSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // 替換為實際試算表 ID
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("獎金制度對照表")}`;
+
+            $('#btnFetchCloudData').html('<i class="fas fa-spinner fa-spin me-1"></i> 抓取中...').prop('disabled', true);
+
+            Papa.parse(url, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function (results) {
+                    $('#btnFetchCloudData').html('<i class="fas fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數').prop('disabled', false);
+
+                    if (results.data && results.data.length > 0) {
+                        // 欄位解耦處理 (Dynamic Column Decoupling)
+                        const mappedData = parseDecoupledSheetData(results.data);
+                        console.log("雲端同步成功解析數據:", mappedData);
+                        alert("成功從雲端試算表同步最新點值與職級參數！");
+                        calculateBonus();
+                    } else {
+                        alert("雲端試算表無資料或無法讀取。");
+                    }
+                },
+                error: function (err) {
+                    $('#btnFetchCloudData').html('<i class="fas fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數').prop('disabled', false);
+                    console.warn("Google Sheet 抓取失敗，使用預設值:", err);
+                    alert("無法連線至雲端試算表，系統繼續使用在地化預設參數。");
+                }
+            });
+        }
+
+        // 欄位名稱解耦映射函數
+        function parseDecoupledSheetData(rawData) {
+            if (!rawData || rawData.length === 0) return [];
+
+            const sampleRow = rawData[0];
+            const fieldMap = {};
+
+            // 動態搜尋關鍵字以確保解耦
+            Object.keys(sampleRow).forEach(key => {
+                const lowerKey = key.trim().toLowerCase();
+                if (lowerKey.includes("職級") || lowerKey.includes("rank") || lowerKey.includes("階級")) {
+                    fieldMap.rank = key;
+                } else if (lowerKey.includes("百分比") || lowerKey.includes("rate") || lowerKey.includes("回饋")) {
+                    fieldMap.rate = key;
+                } else if (lowerKey.includes("門檻") || lowerKey.includes("sv") || lowerKey.includes("積分")) {
+                    fieldMap.svThreshold = key;
+                }
+            });
+
+            return rawData.map(row => ({
+                rankName: row[fieldMap.rank || "職級"] || "未知",
+                rate: parseFloat(row[fieldMap.rate || "回饋比率"]) || 0,
+                svThreshold: parseInt(row[fieldMap.svThreshold || "SV門檻"], 10) || 0
+            }));
+        }
+    </script>
+</body>
+</html>

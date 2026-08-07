@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>榮祥葡眾團隊 - 身分驗證</title>
+        <title>核心營運戰術系統 - 身分驗證</title>
 
         <script src="../assets/js/auth-guard.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
@@ -14,9 +14,10 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxYk-8LshkBJ0MOeTB1mnkdJbBqv7h01sjLOquzXW3aZK2aCcjlWPvanDvHe8BIHJ1ADw/exec";
-            const SESSION_KEY = 'uvaco_auth_session';
-
+            const GAS_API_URL = "https://script.google.com/macros/s/AKfycby-z80VYrsboxpdjxrIb-vFodL6Pznsjwrq8ApQwZFx8LopmuUi0k2Z3ZN5b4QxZLiu8A/exec";
+            const SESSION_KEY = 'ray_team_auth_session';
+            
+            // Google 官方登入完成後的回調函式
             function handleCredentialResponse(response) {
                 let idToken = response.credential;
                 
@@ -27,36 +28,37 @@
                     url: GAS_API_URL,
                     type: "POST",
                     data: JSON.stringify({
+                        action: 'read',
                         idToken: idToken,
-                        targetSystem: "erp" // 指名驗證 erp 系統版權限
+                        targetSystem: "hub" // 指名驗證核心版系統權限
                     }),
                     contentType: "text/plain;charset=utf-8",
                     dataType: "json",
                     success: function(res) {
                         $('#authSpinner').addClass('d-none');
                         if (res.success) {
-                            // 寫入 7 天效期之 Session 快取
                             const expireDays = 7;
+                            const now = new Date().getTime();
                             const sessionData = {
                                 user: res.user,
                                 userName: res.userName,
                                 role: res.role,
                                 permissions: res.permissions,
-                                expireAt: new Date().getTime() + (expireDays * 24 * 60 * 60 * 1000)
+                                lastVerifiedAt: now,
+                                expireAt: now + (expireDays * 24 * 60 * 60 * 1000)
                             };
                             localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
 
-                            // 重定向至原本想存取的頁面，或進入首頁 index.html
                             const urlParams = new URLSearchParams(window.location.search);
                             const redirectUrl = urlParams.get('redirect');
                             window.location.href = (redirectUrl) ? decodeURIComponent(redirectUrl) : 'index.html';
                         } else {
-                            showAuthError(res.message || "驗證失敗：您的帳號無權存取進銷存系統！");
+                            showAuthError(res.message || "驗證失敗：核心版僅開放給獲授權之最高管理員！");
                         }
                     },
                     error: function() {
                         $('#authSpinner').addClass('d-none');
-                        showAuthError("無法連線至驗證伺服器，請檢查 GAS API 部署。");
+                        showAuthError("無法連線至身份驗證伺服器，請檢查 GAS API 部署狀態。");
                     }
                 });
             }
@@ -68,38 +70,38 @@
 
         <style>
             body {
-                background-color: #0b1329;
+                background-color: #0f0a1c;
                 color: #e2e8f0;
                 font-family: system-ui, -apple-system, sans-serif;
             }
             .card-custom {
-                background-color: #1e293b;
-                border: 1px solid #3b82f633;
+                background-color: #1a122d;
+                border: 1px solid #a855f733;
                 border-radius: 12px;
             }
-            .text-blue-custom {
-                color: #38bdf8;
+            .text-purple-custom {
+                color: #c084fc;
             }
         </style>
     </head>
     <body>
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+        <nav class="navbar navbar-expand-lg navbar-dark style-nav" style="background-color: #130d28; border-bottom: 1px solid #a855f733;">
             <div class="container-fluid">
-                <a class="navbar-brand text-blue-custom fw-bold" href="#">
-                    <i class="fa-solid fa-shield-halved"></i> 榮祥葡眾團隊戰情室
+                <a class="navbar-brand text-purple-custom fw-bold" href="#">
+                    <i class="fa-solid fa-boxes-stacked"></i> 核心營運戰術系統
                 </a>
             </div>
         </nav>
 
         <div class="container my-5">
             <div class="row justify-content-center">
-                <div class="col-md-6">
+                <div class="col-md-6 col-lg-5">
                     <div class="card card-custom p-4 text-center shadow-lg">
-                        <h3 class="text-blue-custom mb-3">
-                            <i class="fa-solid fa-lock"></i> 團隊內部白名單驗證
+                        <h3 class="text-purple-custom mb-3">
+                            <i class="fa-solid fa-user-shield"></i> 核心系統權限驗證
                         </h3>
-                        <p class="text-secondary mb-4">請點擊下方按鈕登入獲授權之 Google 帳號。首次驗證成功後，系統將提供 7 天免登入極速存取。</p>
+                        <p class="text-secondary mb-4">本系統僅限最高管理員存取。系統將同步將驗證請求記錄至稽核日誌。</p>
                         
                         <div class="d-flex justify-content-center mb-3">
                             <div id="g_id_onload"
@@ -111,12 +113,13 @@
                                 data-type="standard"
                                 data-size="large"
                                 data-theme="filled_dark"
-                                data-text="sign_in_with">
+                                data-text="sign_in_with"
+                                data-shape="rectangular">
                             </div>
                         </div>
                         
-                        <div id="authSpinner" class="text-blue-custom d-none my-2">
-                            <i class="fa-solid fa-spinner fa-spin"></i> 核對試算表權限中...
+                        <div id="authSpinner" class="text-purple-custom d-none my-2">
+                            <i class="fa-solid fa-spinner fa-spin"></i> 核對最高管理員權限與寫入稽核日誌...
                         </div>
                         <div id="authAlert" class="alert alert-danger mt-3 d-none" role="alert"></div>
                     </div>

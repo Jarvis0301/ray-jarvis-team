@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司規定與合規指南 - 榮祥葡眾團隊</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-blue-hover: #0284c7;
+            --accent-gold: #facc15;
+            --accent-red: #f87171;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding-bottom: 3rem;
+        }
+
+        /* 標題頭頁卡片 */
+        .header-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 分類卡片 */
+        .rule-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .rule-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(56, 189, 248, 0.15);
+            border-color: var(--accent-blue);
+        }
+
+        .rule-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .rule-card .icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rule-card .card-title {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .rule-card .card-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .rule-card .card-footer {
+            background-color: transparent;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+
+        /* 雲端資料夾按鈕 */
+        .btn-drive {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            width: 100%;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-drive:hover {
+            background-color: var(--accent-blue-hover);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        /* 警告聲明盒 */
+        .warning-box {
+            background-color: rgba(248, 113, 113, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            color: #fca5a5;
+        }
+
+        /* DataTables 深色主題客製化 */
+        .table-custom-wrapper {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        table.dataTable {
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        table.dataTable thead th {
+            background-color: #0f172a !important;
+            color: var(--accent-blue) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        table.dataTable tbody td {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+            vertical-align: middle;
+        }
+
+        .dataTables_wrapper .dataTables_length, 
+        .dataTables_wrapper .dataTables_filter, 
+        .dataTables_wrapper .dataTables_info, 
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--text-muted) !important;
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: var(--bg-main) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: 6px;
+            padding: 0.375rem 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-blue) !important;
+            border-color: var(--accent-blue) !important;
+            color: #0f172a !important;
+            font-weight: bold;
+        }
+
+        .page-link {
+            background-color: var(--bg-main) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .badge-rule {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container my-4">
+        
+        <div class="header-card">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h2 class="fw-bold mb-2 text-white">
+                        <i class="fa-solid fa-scale-balanced text-info"></i> 公司規定與合規指南
+                    </h2>
+                    <p class="text-muted mb-0">
+                        榮祥事業體合規治理中心：提供葡眾官方最新營業守則、合規宣導文件與 Google 雲端文件資料庫下載。
+                    </p>
+                </div>
+                <div>
+                    <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn btn-outline-info rounded-pill px-3">
+                        <i class="fa-solid fa-folder-tree"></i> 瀏覽雲端總資料夾
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <div class="d-flex align-items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation fa-2x text-danger mt-1"></i>
+                <div>
+                    <h5 class="fw-bold mb-1 text-white">重點合規紅線提醒 (Compliance Alert)</h5>
+                    <p class="mb-0 small">
+                        依據食品安全衛生管理法與葡眾直銷商營業守則，嚴禁於公開網路（FB、IG、蝦皮、個人網站）宣稱產品具有「療效」、「疾病治療」或「快速致富」等誇大文案。名片印製與社群宣傳請務必遵循官方規範。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="fw-bold text-white mb-3">
+            <i class="fa-solid fa-folder-open text-info"></i> 官方規定雲端分類庫
+        </h4>
+        
+        <div class="row g-4 mb-5">
+            
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="rule-card">
+                    <div class="card-body">
+                        <div class="icon-wrapper">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                        <h5 class="card-title">直銷商營業守則</h5>
+                        <p class="card-text">
+                            包含傳銷權益、推薦人職責、組織繼承、黃金六代與業績自動補救等核心法律規範文檔。
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-drive">
+                            <i class="fa-solid fa-folder-open"></i> 開啟營業守則資料夾
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="rule-card">
+                    <div class="card-body">
+                        <div class="icon-wrapper">
+                            <i class="fa-solid fa-address-card"></i>
+                        </div>
+                        <h5 class="card-title">名片與宣傳申請</h5>
+                        <p class="card-text">
+                            官方授權名片樣板、社群媒體使用規範、QR Code 引導與個人介紹資訊等申請與下載。
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-drive">
+                            <i class="fa-solid fa-folder-open"></i> 開啟名片規範資料夾
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="rule-card">
+                    <div class="card-body">
+                        <div class="icon-wrapper">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h5 class="card-title">產品宣傳與廣告用語</h5>
+                        <p class="card-text">
+                            食安法合規詞庫、保健食品宣稱紅線、官方核定產品優勢與演講輔銷品使用指南。
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-drive">
+                            <i class="fa-solid fa-folder-open"></i> 開啟廣告合規資料夾
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="rule-card">
+                    <div class="card-body">
+                        <div class="icon-wrapper">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <h5 class="card-title">訂訂退換貨與稅務</h5>
+                        <p class="card-text">
+                            直銷商訂貨流程、退換貨作業辦法、扣繳憑單與所得稅申報等財務合規文件。
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-drive">
+                            <i class="fa-solid fa-folder-open"></i> 開啟稅務財務資料夾
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="fw-bold text-white mb-0">
+                <i class="fa-solid fa-list-check text-info"></i> 常見規定與條文索引
+            </h4>
+            <span class="text-muted small">點擊關鍵字可快速搜尋條文內容</span>
+        </div>
+
+        <div class="table-custom-wrapper">
+            <div class="table-responsive">
+                <table id="rulesDataTable" class="table table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">規章類別</th>
+                            <th style="width: 25%;">條文主題</th>
+                            <th style="width: 45%;">摘要說明與核心規範</th>
+                            <th style="width: 15%;">檔案下載</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-rule">營業守則</span></td>
+                            <td class="fw-semibold">會員續約與資格保留</td>
+                            <td>每年只需累積滿 160 SV 即可保留直銷商續約資格，無強制每月消費壓力。</td>
+                            <td>
+                                <a href="https://drive.google.com" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF 查看
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-rule">營業守則</span></td>
+                            <td class="fw-semibold">業績自動補救機制</td>
+                            <td>珍珠級經理以上且培養五條合格經理線者，享有特定經理線業績補救合併小組權益。</td>
+                            <td>
+                                <a href="https://drive.google.com" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF 查看
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-rule">宣傳規範</span></td>
+                            <td class="fw-semibold">直銷商名片印製</td>
+                            <td>須使用官方指定標準標誌，可加註職級與社群聯絡方式，禁止結合其他公司標誌。</td>
+                            <td>
+                                <a href="https://drive.google.com" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-file-word"></i> DOCX 查看
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-rule">廣告合規</span></td>
+                            <td class="fw-semibold">網路推廣紅線禁令</td>
+                            <td>嚴禁於 FB/IG/拍賣平台宣稱療效、疾病治癒，或宣稱「無須努力快速致富」。</td>
+                            <td>
+                                <a href="https://drive.google.com" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF 查看
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-rule">財務稅務</span></td>
+                            <td class="fw-semibold">直銷商退換貨辦法</td>
+                            <td>解除契約或終止契約時之退貨流程、扣除手續費標準與發票作廢處理規範。</td>
+                            <td>
+                                <a href="https://drive.google.com" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF 查看
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 初始化 DataTable.js，設定深色主題繁體中文語系
+            $('#rulesDataTable').DataTable({
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 25],
+                "language": {
+                    "processing": "處理中...",
+                    "loadingRecords": "載入中...",
+                    "paginate": {
+                        "first": "第一頁",
+                        "previous": "上一頁",
+                        "next": "下一頁",
+                        "last": "最後一頁"
+                    },
+                    "emptyTable": "目前沒有可供檢索的條文資料",
+                    "zeroRecords": "找不到符合的規定條文",
+                    "info": "顯示第 _START_ 至 _END_ 項結果，共 _TOTAL_ 項",
+                    "infoEmpty": "顯示第 0 至 0 項結果，共 0 項",
+                    "infoFiltered": "(從 _MAX_ 項結果中篩選)",
+                    "search": "<i class='fa-solid fa-magnifying-glass me-1'></i> 搜尋條文關鍵字：",
+                    "lengthMenu": "顯示 _MENU_ 項條文"
+                }
+            });
+        });
+    </script>
+</body>
+</html>

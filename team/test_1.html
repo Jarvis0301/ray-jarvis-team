@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>團隊資源庫 | 榮祥葡眾團隊內部戰情網</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b1329;
+            --bg-card: #132238;
+            --bg-card-hover: #1c2d4a;
+            --accent-blue: #38bdf8;
+            --accent-blue-hover: #0284c7;
+            --accent-gold: #facc15;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 3rem;
+        }
+
+        /* 頂部標題區塊 */
+        .page-header {
+            background: linear-gradient(135deg, #132238 0%, #0b1329 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            color: var(--accent-blue);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* 卡片容器樣式 */
+        .resource-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .resource-card:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--accent-blue);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+        }
+
+        .card-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 按鈕風格 */
+        .btn-drive-primary {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            font-weight: 600;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-drive-primary:hover {
+            background-color: var(--accent-blue-hover);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-drive-secondary {
+            background-color: transparent;
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-drive-secondary:hover {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+        }
+
+        /* 統計與圖表區塊 */
+        .dashboard-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* DataTable 深色主題修正 */
+        .dataTables_wrapper {
+            color: var(--text-main);
+        }
+
+        table.dataTable {
+            color: var(--text-main) !important;
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        table.dataTable thead th {
+            background-color: #1a2c47 !important;
+            color: var(--accent-blue) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        table.dataTable tbody td {
+            border-color: var(--border-color) !important;
+            vertical-align: middle;
+        }
+
+        .dataTables_length label, 
+        .dataTables_filter label, 
+        .dataTables_info {
+            color: var(--text-muted) !important;
+        }
+
+        .dataTables_filter input, 
+        .dataTables_length select {
+            background-color: var(--bg-dark) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+            border-radius: 6px;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-blue) !important;
+            border-color: var(--accent-blue) !important;
+            color: #0f172a !important;
+            font-weight: 700;
+        }
+
+        .page-link {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        /* 頁尾樣式 */
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="page-title d-flex align-items-center">
+                        <i class="fa-solid fa-box-archive me-3"></i> 團隊資源軍備庫
+                    </h1>
+                    <p class="text-muted mb-0 mt-2">
+                        <i class="fa-solid fa-shield-halved"></i> 榮祥葡眾團隊私域專屬數位資產中心｜即時同步 Google Drive 雲端檔案
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+                        <i class="fa-solid fa-arrows-rotate"></i> 雲端數據已同步
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="mb-5">
+            <div class="d-flex align-items-center mb-4">
+                <h3 class="fs-4 fw-bold mb-0 text-white">
+                    <i class="fa-solid fa-folder-tree text-info"></i> 核心雲端資源專區
+                </h3>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="resource-card p-4">
+                        <div>
+                            <div class="card-icon-wrapper">
+                                <i class="fa-solid fa-bottle-droplet"></i>
+                            </div>
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-notes-medical"></i> 產品資源
+                            </h2>
+                            <p class="card-desc">
+                                收錄葡眾全系列保健食品、個人保養品高解析產品圖、產品型錄、規格對照表與行銷海報，適用於社群推廣與客戶分享。
+                            </p>
+                        </div>
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="https://drive.google.com/drive/folders/your-products-folder-id" target="_blank" class="btn-drive-primary">
+                                <i class="fa-brands fa-google-drive"></i> 產品圖片與資料庫
+                            </a>
+                            <a href="https://drive.google.com/drive/folders/your-posters-folder-id" target="_blank" class="btn-drive-secondary">
+                                <i class="fa-solid fa-file-image"></i> 產品高解析海報庫
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="resource-card p-4">
+                        <div>
+                            <div class="card-icon-wrapper">
+                                <i class="fa-solid fa-file-powerpoint"></i>
+                            </div>
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-presentation-screen"></i> 簡報資源
+                            </h2>
+                            <p class="card-desc">
+                                包含最新版創業招商簡報（OPP）、公司簡介 PPT、制度優勢分析簡報與線上研討會標準投影片，助您快速開展事業說明。
+                            </p>
+                        </div>
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="https://drive.google.com/drive/folders/your-presentations-folder-id" target="_blank" class="btn-drive-primary">
+                                <i class="fa-brands fa-google-drive"></i> 事業招商簡報專區
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="resource-card p-4">
+                        <div>
+                            <div class="card-icon-wrapper">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-book-bookmark"></i> 培訓教材
+                            </h2>
+                            <p class="card-desc">
+                                新人起步 SOP 手冊、名單開發實戰話術、獎金制度精算教學、領袖輔導講義與合規營業守則，打造複製化戰鬥力。
+                            </p>
+                        </div>
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="https://drive.google.com/drive/folders/your-training-folder-id" target="_blank" class="btn-drive-primary">
+                                <i class="fa-brands fa-google-drive"></i> 系統培訓教材總庫
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="row g-4 mb-5">
+            <div class="col-lg-4">
+                <div class="dashboard-card h-100">
+                    <h4 class="fs-5 fw-bold mb-3 text-info">
+                        <i class="fa-solid fa-chart-pie"></i> 軍備資產分佈統計
+                    </h4>
+                    <div style="position: relative; height: 220px;">
+                        <canvas id="resourceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="dashboard-card h-100 d-flex flex-column justify-content-center">
+                    <h4 class="fs-5 fw-bold mb-3 text-info">
+                        <i class="fa-solid fa-lightbulb"></i> 雲端資源使用指南
+                    </h4>
+                    <ul class="list-unstyled mb-0 lh-lg text-muted">
+                        <li class="mb-2">
+                            <i class="fa-solid fa-check text-warning me-2"></i> <strong>即時下載：</strong> 點擊上方按鈕可直接跳轉至 Google Drive 雲端資料夾進行線上預覽或高解析下載。
+                        </li>
+                        <li class="mb-2">
+                            <i class="fa-solid fa-check text-warning me-2"></i> <strong>合規使用：</strong> 所有產品海報與招商簡報均符合公司規範，禁止任意修改宣稱療效。
+                        </li>
+                        <li class="mb-0">
+                            <i class="fa-solid fa-check text-warning me-2"></i> <strong>快速檢索：</strong> 可善用下方動態搜尋表格，直接輸入關鍵字（如「995」、「OPP」）尋找特定文件。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h3 class="fs-4 fw-bold mb-0 text-white">
+                    <i class="fa-solid fa-list-check text-info"></i> 雲端檔案即時檢索目錄
+                </h3>
+                <span class="text-muted fs-6" id="syncStatus">
+                    <i class="fa-solid fa-spinner fa-spin"></i> 正在連線至 Google 試算表...
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table id="resourceTable" class="table table-dark table-hover w-100">
+                    <thead>
+                        <tr>
+                            <th>編號</th>
+                            <th>資源名稱</th>
+                            <th>分類</th>
+                            <th>檔案類型</th>
+                            <th>更新日期</th>
+                            <th>雲端操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            // 1. Chart.js 初始化：軍備資產分佈圖
+            const ctx = document.getElementById('resourceChart').getContext('2d');
+            const resourceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['產品資源', '簡報資源', '培訓教材'],
+                    datasets: [{
+                        data: [45, 25, 30],
+                        backgroundColor: [
+                            '#38bdf8', // 電光藍
+                            '#facc15', // 戰略金
+                            '#34d399'  // 翡翠綠
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: {
+                                    family: 'Noto Sans TC',
+                                    size: 12
+                                },
+                                padding: 15
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // 2. 備用靜態數據 (當 Google 試算表尚未設定或連線異常時自動降級備援)
+            const fallbackData = [
+                { id: "RES-001", title: "2026 最新葡眾產品型錄 HD", category: "產品資源", type: "PDF", date: "2026-01-15", url: "https://drive.google.com" },
+                { id: "RES-002", title: "康爾喜 / 康爾喜-N 比較海報", category: "產品資源", type: "PNG", date: "2026-02-01", url: "https://drive.google.com" },
+                { id: "RES-003", title: "15分鐘事業招商簡報 (OPP)", category: "簡報資源", type: "PPTX", date: "2026-02-10", url: "https://drive.google.com" },
+                { id: "RES-004", title: "新人起步 100 天實戰 SOP 手冊", category: "培訓教材", type: "PDF", date: "2026-01-20", url: "https://drive.google.com" },
+                { id: "RES-005", title: "葡眾四大獎金制度算式解構", category: "培訓教材", type: "PDF", date: "2026-02-05", url: "https://drive.google.com" }
+            ];
+
+            // 3. 欄位名稱解耦映射表 (Header Mapping Strategy)
+            const HEADER_MAP = {
+                id: ['編號', '序號', 'ID', 'id'],
+                title: ['資源名稱', '檔案標題', '標題', 'Title', 'Name'],
+                category: ['分類', '資源類別', '類別', 'Category'],
+                type: ['檔案類型', '類型', '格式', 'Type'],
+                date: ['更新日期', '日期', 'Date'],
+                url: ['雲端連結', '連結', '網址', 'URL', 'Link']
+            };
+
+            // 解耦解析函式：尋找符合的 key
+            function getFieldValue(row, possibleKeys, defaultValue = '') {
+                for (let key of possibleKeys) {
+                    if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                        return row[key];
+                    }
+                }
+                return defaultValue;
+            }
+
+            // 4. 初始化 DataTable
+            let dataTable = $('#resourceTable').DataTable({
+                language: {
+                    search: '<i class="fa-solid fa-magnifying-glass"></i> 關鍵字搜尋：',
+                    lengthMenu: '顯示 _MENU_ 筆記錄',
+                    info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆資源',
+                    infoEmpty: '無資料可顯示',
+                    zeroRecords: '未找到符合條件的資源檔案',
+                    paginate: {
+                        first: '首頁',
+                        previous: '上一頁',
+                        next: '下一頁',
+                        last: '末頁'
+                    }
+                },
+                columns: [
+                    { data: 'id' },
+                    { data: 'title' },
+                    { 
+                        data: 'category',
+                        render: function(data) {
+                            let badgeClass = 'bg-secondary';
+                            if (data === '產品資源') badgeClass = 'bg-info text-dark';
+                            if (data === '簡報資源') badgeClass = 'bg-warning text-dark';
+                            if (data === '培訓教材') badgeClass = 'bg-success';
+                            return `<span class="badge ${badgeClass}">${data}</span>`;
+                        }
+                    },
+                    { data: 'type' },
+                    { data: 'date' },
+                    { 
+                        data: 'url',
+                        render: function(data) {
+                            return `<a href="${data}" target="_blank" class="btn btn-sm btn-outline-info">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> 前往下載
+                            </a>`;
+                        }
+                    }
+                ],
+                pageLength: 5,
+                responsive: true
+            });
+
+            // 5. 抓取 Google 試算表 (gviz/PapaParse)
+            const sheetId = 'YOUR_GOOGLE_SHEET_ID'; // 請替換為團隊實際試算表 ID
+            const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+
+            Papa.parse(gvizUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        // 欄位解耦轉換
+                        const parsedData = results.data.map((row, index) => {
+                            return {
+                                id: getFieldValue(row, HEADER_MAP.id, `RES-${(index + 1).toString().padStart(3, '0')}`),
+                                title: getFieldValue(row, HEADER_MAP.title, '未命名檔案'),
+                                category: getFieldValue(row, HEADER_MAP.category, '一般資源'),
+                                type: getFieldValue(row, HEADER_MAP.type, 'FILE'),
+                                date: getFieldValue(row, HEADER_MAP.date, '2026-01-01'),
+                                url: getFieldValue(row, HEADER_MAP.url, 'https://drive.google.com')
+                            };
+                        });
+
+                        dataTable.clear().rows.add(parsedData).draw();
+                        $('#syncStatus').html('<i class="fa-solid fa-circle-check text-success"></i> 已同步最新雲端資料');
+                    } else {
+                        renderFallback();
+                    }
+                },
+                error: function() {
+                    renderFallback();
+                }
+            });
+
+            // 連線失敗或無 Sheet ID 時載入備份數據
+            function renderFallback() {
+                dataTable.clear().rows.add(fallbackData).draw();
+                $('#syncStatus').html('<i class="fa-solid fa-triangle-exclamation text-warning"></i> 使用預設離線清單');
+            }
+
+        });
+    </script>
+</body>
+</html>

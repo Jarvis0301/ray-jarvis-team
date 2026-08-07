@@ -137,7 +137,7 @@ window.addEventListener('vendorReady', async () => {
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetsData();
     } else {
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-database"></i> 使用備援資料庫';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-database"></i> 使用備援資料庫';
     }
 
     renderProducts();
@@ -146,7 +146,7 @@ window.addEventListener('vendorReady', async () => {
 // 使用 PapaParse 解析 Google Sheets 數據 (GViz CSV API)
 async function fetchGoogleSheetsData() {
     try {
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-spinner fa-spin"></i> 產品資訊同步中...';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 產品資訊同步中...';
 
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
@@ -182,10 +182,10 @@ async function fetchGoogleSheetsData() {
             renderTypeFilterButtons();
         }
 
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-circle-check"></i> 雲端資料同步完成';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-circle-check"></i> 雲端資料同步完成';
     } catch (err) {
         console.warn("無法動態讀取 Google 試算表，使用預設資料:", err);
-        document.getElementById('syncStatus').innerHTML = '<i class="fas fa-triangle-exclamation"></i> 雲端同步失敗，切換至備援庫';
+        document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 雲端同步失敗，切換至備援庫';
     }
 }
 
@@ -403,13 +403,13 @@ function renderProducts() {
     });
 
     // 更新總數 (維護 1 個半形空白)
-    document.getElementById('resultsCount').innerHTML = `<i class="fas fa-list-check"></i> 找到 ${filtered.length} 項符合條件的產品`;
+    document.getElementById('resultsCount').innerHTML = `<i class="fa-solid fa-list-check"></i> 找到 ${filtered.length} 項符合條件的產品`;
 
     if (filtered.length === 0) {
         grid.innerHTML = `
             <div class="col-12">
                 <div class="no-data rounded">
-                    <i class="fas fa-box-open"></i>
+                    <i class="fa-solid fa-box-open"></i>
                     <p class="mb-0">未找到符合條件的產品，請調整篩選條件或搜尋關鍵字。</p>
                 </div>
             </div>
@@ -473,10 +473,10 @@ function renderProducts() {
                     <p class="product-desc small mb-3">${item.desc || '暫無產品特色描述'}</p>
                     <div class="price-sv-block mt-auto mb-3 p-2 rounded d-flex justify-content-between align-items-center">
                         <div class="price-tag fw-bold">${item.price}</div>
-                        <div class="sv-tag"><i class="fas fa-star"></i> ${item.sv} SV</div>
+                        <div class="sv-tag"><i class="fa-solid fa-star"></i> ${item.sv} SV</div>
                     </div>
                     <a href="${item.url}" target="_blank" class="btn btn-detail w-100 text-center fw-bold">
-                        <i class="fas fa-arrow-up-right-from-square"></i> 查看產品詳情
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> 查看產品詳情
                     </a>
                 </div>
             </div>

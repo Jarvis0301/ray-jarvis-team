@@ -1,21 +1,15 @@
 // 設定 Google 試算表 CSV 發布連結
 const SPREADSHEET_ID = '1nY-6mo9trXLMwkRGOqdvBU_va75DmsxIONIraMtTv2k';
-const SHEETNAME = '公開版';
+const SHEETNAME = '核心版';
 
 // 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
 const fallbackMenuData = [
-    { ID: 'm1', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'index.html', FontAwesomeIcon: 'fas fa-house', 是否有效: 'Y' },
-    { ID: 'm2', 中文: '關於我們', 英文: 'About Us', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-building', 是否有效: 'Y' },
-    { ID: 'm2_1', 中文: '公司簡介', 英文: 'Company Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-uvaco.html', FontAwesomeIcon: 'fas fa-award', 是否有效: 'Y' },
-    { ID: 'm2_2', 中文: '團隊簡介', 英文: 'Team Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-team.html', FontAwesomeIcon: 'fas fa-users-gear', 是否有效: 'Y' },
-    { ID: 'm3', 中文: '產品護城河', 英文: 'Products', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-box-open', 是否有效: 'Y' },
-    { ID: 'm3_1', 中文: '產品目錄總覽', 英文: 'Product Catalog', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'products.html', FontAwesomeIcon: 'fas fa-list-check', 是否有效: 'Y' },
-    { ID: 'm3_2', 中文: '產品特點與優勢', 英文: 'Product Advantages', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-advantages.html', FontAwesomeIcon: 'fas fa-shield-halved', 是否有效: 'Y' },
-    { ID: 'm3_3', 中文: '研發專利成果', 英文: 'Patents & Research', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-patents.html', FontAwesomeIcon: 'fas fa-microscope', 是否有效: 'Y' },
-    { ID: 'm4', 中文: '事業經營', 英文: 'Business', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-chart-line', 是否有效: 'Y' },
-    { ID: 'm4_1', 中文: '制度特點優勢', 英文: 'System Advantages', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'system-advantages.html', FontAwesomeIcon: 'fas fa-trophy', 是否有效: 'Y' },
-    { ID: 'm4_2', 中文: '職級晉升藍圖', 英文: 'Rank Advancement', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'rank-advancement.html', FontAwesomeIcon: 'fas fa-ranking-star', 是否有效: 'Y' },
-    { ID: 'm5', 中文: '官方企業網站', 英文: 'Official Site', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'https://www.pro-partner.com.tw', FontAwesomeIcon: 'fas fa-globe', 是否有效: 'Y' }
+    { ID: '100', 中文: '核心版儀表板', 英文: 'Dashboard', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'home.html', FontAwesomeIcon: 'fas fa-chart-pie', 是否有效: 'Y' },
+    { ID: '200', 中文: '產品庫存盤點', 英文: 'Inventory', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'inventory.html', FontAwesomeIcon: 'fas fa-boxes-stacked', 是否有效: 'Y' },
+    { ID: '300', 中文: '進出貨作業', 英文: 'Logistics', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-file-invoice-dollar', 是否有效: 'Y' },
+    { ID: '301', 中文: '進貨入庫單', 英文: 'Inbound Orders', 所屬階層: '1', 父頁面選單ID: '300', 連結: 'inbound.html', FontAwesomeIcon: 'fas fa-truck-ramp-box', 是否有效: 'Y' },
+    { ID: '302', 中文: '銷貨出庫單', 英文: 'Outbound Orders', 所屬階層: '1', 父頁面選單ID: '300', 連結: 'outbound.html', FontAwesomeIcon: 'fas fa-boxes-packing', 是否有效: 'Y' },
+    { ID: '400', 中文: '財務與利潤分析', 英文: 'Financial Reports', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'reports.html', FontAwesomeIcon: 'fas fa-receipt', 是否有效: 'Y' }
 ];
 
 let menuTreeMap = new Map();
@@ -190,11 +184,11 @@ function loadPage(pageUrl) {
         error: function() {
             // 若單獨 HTML 尚未上傳，顯示提示卡片
             $('#page-content-container').html(`
-                <div class="card card-modal bg-green border-green text-light p-4 shadow-lg">
+                <div class="card card-modal bg-purple border-purple text-light p-4 shadow-lg">
                     <div class="card-body text-center">
-                        <i class="fas fa-hammer text-green display-4 mb-3"></i>
+                        <i class="fas fa-hammer text-purple display-4 mb-3"></i>
                         <h3>本頁面建置中，敬請期待！</h3>
-                        <button class="btn btn-outline-green mt-2" onclick="loadPage('home.html')">
+                        <button class="btn btn-outline-purple mt-2" onclick="loadPage('home.html')">
                             <i class="fas fa-house"></i> 返回首頁
                         </button>
                     </div>
@@ -264,7 +258,7 @@ function renderSitemapFooter() {
 
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">
-                <div class="fw-bold text-green mb-2">
+                <div class="fw-bold text-purple mb-2">
                     <i class="${iconClass}"></i> ${root.titleCn}
                 </div>`;
 
