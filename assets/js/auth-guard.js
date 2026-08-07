@@ -3,7 +3,7 @@
     // 1. 立即隱藏 HTML 畫面，防範畫面閃爍與未授權內容外洩
     document.documentElement.style.display = 'none';
 
-    const PROJECT_NAME = 'health-free-daily';   // GitHub專案名稱
+    const PROJECT_NAME = 'ray-jarvis-team';   // GitHub專案名稱
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycby-z80VYrsboxpdjxrIb-vFodL6Pznsjwrq8ApQwZFx8LopmuUi0k2Z3ZN5b4QxZLiu8A/exec"; // 請替換為您的 GAS 部署網址
     const SESSION_KEY = 'ray_team_auth_session';
     const REVALIDATE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 小時 (每隔一天背景驗證一次)
@@ -24,7 +24,7 @@
         loginPageUrl = '/health-free-daily/login.html';
     } else {
         // do nothing
-        window.location.href = `https://jarvis0301.github.io/ray-jarvis-team/${PROJECT_NAME}/index.html`;
+        window.location.href = `https://jarvis0301.github.io/${PROJECT_NAME}/health-free-daily/index.html`;
     }
 
     // 判斷是否為 VS Code 本地測試環境 (127.0.0.1 或 localhost)
