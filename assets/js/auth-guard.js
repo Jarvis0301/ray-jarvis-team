@@ -28,7 +28,9 @@
 
     // 判斷是否為 VS Code 本地測試環境 (127.0.0.1 或 localhost)
     const hostname = window.location.hostname;
-    const isLocalDev = (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '' || window.location.protocol === 'file:');
+    // 暫時全部放行讓榮祥測試
+    //const isLocalDev = (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '' || window.location.protocol === 'file:');
+    const isLocalDev = true;
     const AUTO_DEV_BYPASS = true; // 開發模式：本地開發現場自動注入測試 Session
 
     // 3. 公開版網站 (public) 完全免驗證，直接放行
@@ -52,8 +54,6 @@
             };
             localStorage.setItem(SESSION_KEY, JSON.stringify(devSession));
         }
-    } else {
-        loginPageUrl = '/ray-jarvis-team' + loginPageUrl;
     }
 
     // 檢查目前是否就在該站點的登入頁 (login.html)
