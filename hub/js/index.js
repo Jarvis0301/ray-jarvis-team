@@ -20,6 +20,8 @@ window.addEventListener('vendorReady', function() {
     fetchGoogleSheetMenu();
     initDesktopSitemapObserver();
     initIframeResizeListener();
+    initBackToTop();
+    initLogoutModal();
     
     // 預設載入首頁內容
     loadPage('home.html');
@@ -27,6 +29,7 @@ window.addEventListener('vendorReady', function() {
 
 // 1. 左側選單收折邏輯
 function initSidebarToggle() {
+    // 點擊切換側邊欄
     $('#sidebarToggle').on('click', function() {
         if ($(window).width() >= 992) {
             $('#portalSidebar').toggleClass('collapsed');
@@ -36,11 +39,32 @@ function initSidebarToggle() {
         }
     });
 
+    // 點擊空白處關閉手機版側邊欄
     $(document).on('click', function(e) {
         if ($(window).width() < 992) {
             if (!$(e.target).closest('#portalSidebar, #sidebarToggle').length) {
                 $('#portalSidebar').removeClass('mobile-open');
             }
+        }
+    });
+
+    // 側邊欄收折狀態時，滑鼠離開自動關閉已開啟的子選單
+    $('#portalSidebar').on('mouseleave', function() {
+        if ($(this).hasClass('collapsed')) {
+            $(this).find('.submenu-container.show').slideUp(150).removeClass('show');
+            $(this).find('.submenu-arrow').removeClass('fa-rotate-180');
+        }
+    });
+
+    // 【關鍵修復】監聽視窗縮放，自動清理跨裝置樣式 Class
+    $(window).on('resize', function() {
+        if ($(window).width() >= 992) {
+            // 切換回桌機版時，清理手機專用的 mobile-open
+            $('#portalSidebar').removeClass('mobile-open');
+        } else {
+            // 切換到手機版時，自動清除桌機版collapsed，避免文字被 CSS 隱藏
+            $('#portalSidebar').removeClass('collapsed');
+            $('#portalWrapper').removeClass('sidebar-collapsed');
         }
     });
 }
@@ -364,4 +388,36 @@ function initDesktopSitemapObserver() {
     if (footerTarget) {
         observer.observe(footerTarget);
     }
+}
+
+function initBackToTop() {
+    const $backToTopBtn = $('#backToTopBtn');
+
+    // 監聽滾動距離，超過 300px 才顯示按鈕
+    $(window).on('scroll', function() {
+        if ($(this).scrollTop() > 300) {
+            $backToTopBtn.addClass('show');
+        } else {
+            $backToTopBtn.removeClass('show');
+        }
+    });
+
+    // 點擊滑動回頂端
+    $backToTopBtn.on('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+function initLogoutModal() {
+    $('#confirmLogoutBtn').on('click', function() {
+        // 點擊確定後關閉 Modal 並執行登出邏輯
+        $('#logoutConfirmModal').modal('hide');
+        
+        if (typeof window.uvacoLogout === 'function') {
+            window.uvacoLogout();
+        } else {
+            console.warn('未找到 window.uvacoLogout 登出處理函式');
+        }
+    });
 }

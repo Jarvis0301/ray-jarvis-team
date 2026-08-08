@@ -494,7 +494,7 @@ body {
 
     .portal-sidebar.mobile-open {
         transform: translateX(0);
-        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.7);
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
     }
 
     .portal-content {
@@ -504,4 +504,42 @@ body {
     .desktop-sitemap {
         display: none !important;
     }
+}
+
+/* ==================================================
+   11. 回到頂端 (Back to Top) 懸浮按鈕
+================================================== */
+.back-to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background-color: var(--accent-blue); /* 使用主題藍色 */
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.back-to-top-btn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top-btn:hover {
+    background-color: var(--accent-blue-bright);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
