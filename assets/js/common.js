@@ -12,6 +12,7 @@
         selectedTheme = paramTheme;
     } 
     // 【優先權 2】依據子網域 (Subdomain) 判斷
+    /*
     else if (hostname.includes('team') || hostname.includes('ray')) {
         selectedTheme = 'dark-blue';    // 團隊版：鋼鐵藍
     } else if (hostname.includes('core') || hostname.includes('hub')) {
@@ -19,6 +20,7 @@
     } else if (hostname.includes('public') || hostname.includes('www')) {
         selectedTheme = 'dark-green';   // 公開版：翡翠綠
     } 
+        */
     // 【優先權 3】若非多網域，改依據網址路徑 (Pathname) 判斷
     else if (pathname.startsWith('/team')) {
         selectedTheme = 'dark-blue';
