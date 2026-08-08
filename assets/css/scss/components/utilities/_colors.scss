@@ -1,0 +1,301 @@
+@use "sass:color";
+@use "sass:map";
+
+// ==========================================================================
+// UVACO Theme Extended Component SCSS Generator (v5.3 Fully Aligned)
+// 色彩順序：primary -> secondary -> accent -> muted -> success -> info -> warning -> danger -> light -> dark
+// ==========================================================================
+
+// 1. 定義語意 Key 清單對接原生 CSS 變數
+$uvaco-theme-colors: (
+    "primary":   var(--uvaco-primary),
+    "secondary": var(--uvaco-secondary),
+    "accent":    var(--uvaco-accent),
+    "muted":     var(--uvaco-muted),
+    "success":   var(--uvaco-success),
+    "info":      var(--uvaco-info),
+    "warning":   var(--uvaco-warning),
+    "danger":    var(--uvaco-danger),
+    "light":     var(--uvaco-light),
+    "dark":      var(--uvaco-dark)
+) !default;
+
+// 1.1 為不同語意 Key 提供精準的預設對比文字色 fallback (解決 WCAG 可讀性問題)
+$uvaco-contrast-fallbacks: (
+    "primary":   var(--uvaco-text-light),
+    "secondary": var(--uvaco-text-dark),
+    "accent":    var(--uvaco-text-dark),
+    "muted":     var(--uvaco-text-light),
+    "success":   var(--uvaco-text-light),
+    "info":      var(--uvaco-text-dark),
+    "warning":   var(--uvaco-text-dark),
+    "danger":    var(--uvaco-text-light),
+    "light":     var(--uvaco-text-dark),
+    "dark":      var(--uvaco-text-light)
+) !default;
+
+// ==========================================================================
+// 2. 迴圈自動生成工具類與組件（對接 Bootstrap v5.3 原生 Custom Properties）
+// ==========================================================================
+
+@each $key, $value in $uvaco-theme-colors {
+    $prefixes: ("uvaco-#{$key}", $key);
+    $default-contrast: map.get($uvaco-contrast-fallbacks, $key);
+
+    @each $name in $prefixes {
+        // --- Backgrounds (.bg-*, .bg-*-subtle, .text-bg-*) ---
+        .bg-#{$name} {
+            background-color: var(--uvaco-#{$key}) !important;
+        }
+        .bg-#{$name}-subtle {
+            background-color: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key})) !important;
+        }
+        .text-bg-#{$name} {
+            color: var(--uvaco-#{$key}-contrast, #{$default-contrast}) !important;
+            background-color: var(--uvaco-#{$key}) !important;
+        }
+
+        // --- Text & Links (.text-*, .text-*-emphasis, .link-*) ---
+        .text-#{$name} {
+            color: var(--uvaco-#{$key}) !important;
+        }
+        .text-#{$name}-emphasis {
+            color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key})) !important;
+        }
+        .link-#{$name} {
+            color: var(--uvaco-#{$key});
+            &:hover, &:focus {
+                color: var(--uvaco-#{$key}-hover);
+            }
+        }
+
+        // --- Borders (.border-*, .border-*-subtle) ---
+        .border-#{$name} {
+            border-color: var(--uvaco-#{$key}) !important;
+        }
+        .border-#{$name}-subtle {
+            border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color)) !important;
+        }
+
+        // --- Focus Rings (.focus-ring-*) ---
+        .focus-ring-#{$name} {
+            --bs-focus-ring-color: rgba(var(--bs-#{$key}-rgb), 0.25);
+        }
+
+        // --- Buttons (.btn-*, .btn-outline-*) ---
+        .btn-#{$name} {
+            --bs-btn-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-bg: var(--uvaco-#{$key});
+            --bs-btn-border-color: var(--uvaco-#{$key});
+            --bs-btn-hover-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-hover-bg: var(--uvaco-#{$key}-hover);
+            --bs-btn-hover-border-color: var(--uvaco-#{$key}-hover);
+            --bs-btn-focus-shadow-rgb: var(--bs-#{$key}-rgb);
+            --bs-btn-active-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-active-bg: var(--uvaco-#{$key}-hover);
+            --bs-btn-active-border-color: var(--uvaco-#{$key}-hover);
+            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-bg: var(--uvaco-#{$key});
+            --bs-btn-disabled-border-color: var(--uvaco-#{$key});
+        }
+
+        .btn-outline-#{$name} {
+            --bs-btn-color: var(--uvaco-#{$key});
+            --bs-btn-border-color: var(--uvaco-#{$key});
+            --bs-btn-hover-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-hover-bg: var(--uvaco-#{$key});
+            --bs-btn-hover-border-color: var(--uvaco-#{$key});
+            --bs-btn-focus-shadow-rgb: var(--bs-#{$key}-rgb);
+            --bs-btn-active-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-active-bg: var(--uvaco-#{$key});
+            --bs-btn-active-border-color: var(--uvaco-#{$key});
+            --bs-btn-disabled-color: var(--uvaco-#{$key});
+            --bs-btn-disabled-bg: transparent;
+            --bs-btn-disabled-border-color: var(--uvaco-#{$key});
+        }
+
+        // --- Alerts (.alert-*) ---
+        .alert-#{$name} {
+            --bs-alert-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            --bs-alert-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-alert-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+            --bs-alert-link-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+        }
+
+        // --- List Group (.list-group-item-*) ---
+        .list-group-item-#{$name} {
+            color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            background-color: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+
+            &.list-group-item-action {
+                &:hover, &:focus {
+                    color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+                    background-color: var(--uvaco-bg-card-#{$key}-hover);
+                }
+                &.active {
+                    color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+                    background-color: var(--uvaco-#{$key});
+                    border-color: var(--uvaco-#{$key});
+                }
+            }
+        }
+
+        // --- Tables (.table-*) ---
+        .table-#{$name} {
+            --bs-table-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            --bs-table-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-table-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+            --bs-table-striped-bg: var(--uvaco-bg-card-#{$key}-hover);
+            --bs-table-hover-bg: var(--uvaco-bg-card-#{$key}-hover);
+            --bs-table-active-bg: var(--uvaco-bg-card-#{$key}-hover);
+        }
+    }
+}
+
+// ==========================================================================
+// 3. Bootstrap 5 Extended Palette SCSS Generator
+// Colors: blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, white, gray, gray-dark, black
+// ==========================================================================
+
+$expanded-theme-colors: (
+    "blue":      #0d6efd,
+    "indigo":    #6610f2,
+    "purple":    #6f42c1,
+    "pink":      #d63384,
+    "red":       #dc3545,
+    "orange":    #fd7e14,
+    "yellow":    #ffc107,
+    "green":     #198754,
+    "teal":      #20c997,
+    "cyan":      #0dcaf0,
+    "white":     #ffffff,
+    "gray":      #6c757d,
+    "gray-dark": #212529,
+    "black":     #000000
+) !default;
+
+// 3.1 使用語意化 lightness 判斷明暗，徹底排除 Dart Sass 警告
+@function get-contrast-color($color) {
+    $lightness: color.lightness($color);
+    @if ($lightness > 62%) {
+        @return #000000;
+    } @else {
+        @return #ffffff;
+    }
+}
+
+@each $name, $color in $expanded-theme-colors {
+    $contrast-text: get-contrast-color($color);
+    $subtle-bg: if($color == #ffffff, #f8f9fa, color.mix(#ffffff, $color, 85%));
+    $subtle-border: if($color == #ffffff, #dee2e6, color.mix(#ffffff, $color, 60%));
+    $emphasis-text: if($color == #ffffff, #495057, if(get-contrast-color($color) == #ffffff, color.mix(#000000, $color, 30%), color.mix(#000000, $color, 50%)));
+
+    // --- Backgrounds (.bg-*, .bg-*-subtle, .text-bg-*) ---
+    .bg-#{$name} {
+        background-color: $color !important;
+    }
+    .bg-#{$name}-subtle {
+        background-color: $subtle-bg !important;
+    }
+    .text-bg-#{$name} {
+        color: $contrast-text !important;
+        background-color: $color !important;
+    }
+
+    // --- Text & Links (.text-*, .text-*-emphasis, .link-*) ---
+    .text-#{$name} {
+        color: $color !important;
+    }
+    .text-#{$name}-emphasis {
+        color: $emphasis-text !important;
+    }
+    .link-#{$name} {
+        color: $color;
+        &:hover, &:focus {
+            color: color.mix(#000000, $color, 20%);
+        }
+    }
+
+    // --- Borders (.border-*, .border-*-subtle) ---
+    .border-#{$name} {
+        border-color: $color !important;
+    }
+    .border-#{$name}-subtle {
+        border-color: $subtle-border !important;
+    }
+
+    // --- Focus Rings (.focus-ring-*) ---
+    .focus-ring-#{$name} {
+        --bs-focus-ring-color: #{color.change($color, $alpha: 0.25)};
+    }
+
+    // --- Buttons (.btn-*, .btn-outline-*) ---
+    .btn-#{$name} {
+        --bs-btn-color: #{$contrast-text};
+        --bs-btn-bg: #{$color};
+        --bs-btn-border-color: #{$color};
+        --bs-btn-hover-color: #{$contrast-text};
+        --bs-btn-hover-bg: #{color.mix(#000000, $color, 15%)};
+        --bs-btn-hover-border-color: #{color.mix(#000000, $color, 20%)};
+        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-active-color: #{$contrast-text};
+        --bs-btn-active-bg: #{color.mix(#000000, $color, 25%)};
+        --bs-btn-active-border-color: #{color.mix(#000000, $color, 30%)};
+        --bs-btn-disabled-color: #{$contrast-text};
+        --bs-btn-disabled-bg: #{$color};
+        --bs-btn-disabled-border-color: #{$color};
+    }
+
+    .btn-outline-#{$name} {
+        --bs-btn-color: #{$color};
+        --bs-btn-border-color: #{$color};
+        --bs-btn-hover-color: #{$contrast-text};
+        --bs-btn-hover-bg: #{$color};
+        --bs-btn-hover-border-color: #{$color};
+        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-active-color: #{$contrast-text};
+        --bs-btn-active-bg: #{$color};
+        --bs-btn-active-border-color: #{$color};
+        --bs-btn-disabled-color: #{$color};
+        --bs-btn-disabled-bg: transparent;
+        --bs-btn-disabled-border-color: #{$color};
+    }
+
+    // --- Alerts (.alert-*) ---
+    .alert-#{$name} {
+        --bs-alert-color: #{$emphasis-text};
+        --bs-alert-bg: #{$subtle-bg};
+        --bs-alert-border-color: #{$subtle-border};
+        --bs-alert-link-color: #{color.mix(#000000, $emphasis-text, 20%)};
+    }
+
+    // --- List Group (.list-group-item-*) ---
+    .list-group-item-#{$name} {
+        color: $emphasis-text;
+        background-color: $subtle-bg;
+        border-color: $subtle-border;
+
+        &.list-group-item-action {
+            &:hover, &:focus {
+                color: $emphasis-text;
+                background-color: color.mix(#000000, $subtle-bg, 5%);
+            }
+            &.active {
+                color: $contrast-text;
+                background-color: $color;
+                border-color: $color;
+            }
+        }
+    }
+
+    // --- Tables (.table-*) ---
+    .table-#{$name} {
+        --bs-table-color: #{$emphasis-text};
+        --bs-table-bg: #{$subtle-bg};
+        --bs-table-border-color: #{$subtle-border};
+        --bs-table-striped-bg: #{color.mix(#000000, $subtle-bg, 5%)};
+        --bs-table-hover-bg: #{color.mix(#000000, $subtle-bg, 7.5%)};
+        --bs-table-active-bg: #{color.mix(#000000, $subtle-bg, 10%)};
+    }
+}

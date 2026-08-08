@@ -1,40 +1,299 @@
 // ==========================================================================
 // 1-abstracts/_theme-purple.scss
-// 核心版系統 ( Ray & Jarvis 專用 )：尊榮紫色系深色主題 (Dark Imperial Purple)
+// 核心版《核心樞》：魅影紫色系深色主題 (Dark Phantom Purple)
+// 重構重點：muted 改為相對於 primary(#8b5cf6) 的魅影薰衣灰(#9e8eb3)
 // ==========================================================================
 
-:root,
 [data-bs-theme="dark-purple"] {
-    // Ray & Jarvis 專屬系統語意化色彩 Token
-    --uvaco-bg-primary: #12091f;         // 主背景 (深邃帝王紫底)
-    --uvaco-bg-secondary: #190c2b;      // 次要區塊背景
-    --uvaco-bg-card: #1e1035;         // 卡片容器底色
-    //--uvaco-bg-card-hover: #1a3f33;         // 卡片容器底色（Hover 狀態）
+    // --------------------------------------------------------------------------
+    // 0. UVACO 品牌核心與 UI Token (--uvaco-*)
+    // --------------------------------------------------------------------------
+    --uvaco-primary: #8b5cf6;               // 主視覺 (魅影深紫)
+    --uvaco-primary-hover: #7c3aed;
 
-    --uvaco-border-color: rgba(52, 211, 153, 0.2);  // 邊框線條
+    --uvaco-secondary: #c084fc;             // 較明亮的主視覺 (霓虹紫羅蘭)
+    --uvaco-secondary-hover: #a855f7;
 
-    --uvaco-text-primary: #faf5ff;       // 主文字 (極致淡紫白)
-    --uvaco-text-secondary: #c084fc;        // 次要輔助文字
-    --uvaco-text-muted: #a78bfa;      // 灰色說明文字
+    --uvaco-accent: #ec4899;                // 重點顏色 (電光霓虹粉)
+    --uvaco-accent-hover: #db2777;
 
-    --uvaco-primary: #a855f7;         // 主要色彩 (皇家紫)
-    --uvaco-primary-hover: #9333ea;   // 主要色彩（Hover 狀態）
-    //--uvaco-secondary: #34d399;       // 次要色彩 (薄荷綠 mint)
-    --uvaco-accent: #fbbf24;          // 尊榮耀眼金 ( 專用於財務數字與庫存警示 )
-    //--uvaco-dark: #062E1E;            // 深色色彩 (深草本綠 dark green)
+    --uvaco-muted: #9e8eb3;                 // 輔助說明顏色 (相對 Primary 的魅影薰衣灰)
+    --uvaco-muted-hover: #b3a3c8;
 
+    --uvaco-success: #10b981;
+    --uvaco-success-hover: #059669;
 
-    // Bootstrap 5 原生 CSS 變數雙向覆蓋 ( 無縫相容 BS5 原生元件 )
-    --bs-body-bg: var(--uvaco-bg-primary);
-    --bs-body-color: var(--uvaco-text-primary);
-    
-    --bs-card-bg: var(--uvaco-bg-card);
-    --bs-card-border-color: var(--uvaco-border-color);
+    --uvaco-info: #38bdf8;
+    --uvaco-info-hover: #0284c7;
 
-    --bs-border-color: var(--uvaco-border-color);
-    
-    --bs-tertiary-bg: var(--uvaco-bg-secondary);
+    --uvaco-warning: #f59e0b;
+    --uvaco-warning-hover: #d97706;
 
-    --bs-primary: var(--uvaco-primary);
-    --bs-primary-rgb: 168, 85, 247;
+    --uvaco-danger: #f43f5e;
+    --uvaco-danger-hover: #e11d48;
+
+    --uvaco-light: #faf5ff;
+    --uvaco-light-hover: #f3e8ff;
+
+    --uvaco-dark: #1e0f37;
+    --uvaco-dark-hover: #140926;
+
+    // UVACO 區塊與卡片背景
+    --uvaco-bg-primary: #0a0518;
+    --uvaco-bg-secondary: #120824;
+    --uvaco-bg-accent: rgba(236, 72, 153, 0.15);
+    --uvaco-bg-muted: rgba(158, 142, 179, 0.12);
+    --uvaco-bg-success: rgba(16, 185, 129, 0.15);
+    --uvaco-bg-info: rgba(56, 189, 248, 0.15);
+    --uvaco-bg-warning: rgba(245, 158, 11, 0.15);
+    --uvaco-bg-danger: rgba(244, 63, 94, 0.15);
+    --uvaco-bg-light: rgba(250, 245, 255, 0.08);
+    --uvaco-bg-dark: #1e0f37;
+
+    --uvaco-bg-card: #150a2a;
+    --uvaco-bg-card-hover: #1e0f3d;
+    --uvaco-bg-card-primary: #150a2a;
+    --uvaco-bg-card-primary-hover: #1e0f3d;
+    --uvaco-bg-card-secondary: #120824;
+    --uvaco-bg-card-secondary-hover: #1b0c36;
+    --uvaco-bg-card-accent: #2b1022;
+    --uvaco-bg-card-accent-hover: #3d1730;
+    --uvaco-bg-card-muted: #1a0d30;
+    --uvaco-bg-card-muted-hover: #261347;
+    --uvaco-bg-card-success: #0d2821;
+    --uvaco-bg-card-success-hover: #143a30;
+    --uvaco-bg-card-info: #0c2336;
+    --uvaco-bg-card-info-hover: #13334e;
+    --uvaco-bg-card-warning: #2c1f10;
+    --uvaco-bg-card-warning-hover: #3d2b16;
+    --uvaco-bg-card-danger: #2c0f18;
+    --uvaco-bg-card-danger-hover: #3f1523;
+    --uvaco-bg-card-light: #1f113b;
+    --uvaco-bg-card-light-hover: #2b1852;
+    --uvaco-bg-card-dark: #080313;
+    --uvaco-bg-card-dark-hover: #110622;
+    --uvaco-bg-card-inner: #0d061f;
+    --uvaco-bg-input: #170b2e;
+
+    // UVACO 全局文字
+    --uvaco-text-primary: #faf5ff;
+    --uvaco-text-secondary: #c084fc;
+    --uvaco-text-accent: #f472b6;
+    --uvaco-text-muted: #9e8eb3;          // 輔助說明文字 (薰衣灰)
+    --uvaco-text-success: #34d399;
+    --uvaco-text-info: #38bdf8;
+    --uvaco-text-warning: #fbbf24;
+    --uvaco-text-danger: #fb7185;
+    --uvaco-text-light: #ffffff;
+    --uvaco-text-dark: #0a0518;
+
+    // UVACO 邊框與光澤
+    --uvaco-border-color: rgba(139, 92, 246, 0.2);
+    --uvaco-border-glow: rgba(139, 92, 246, 0.18);
+    --uvaco-border-highlight: rgba(139, 92, 246, 0.4);
+
+    // UVACO Layout Tokens
+    --bg-sidebar: #0f0721;
+    --bg-header: #0b0519;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --header-height: 70px;
+    --accent-glow: rgba(139, 92, 246, 0.25);
+    --sidebar-active-bg: #231047;
+    --accent-hover: rgba(139, 92, 246, 0.15);
+    --radius: 12px;
+    --shadow: 0 8px 24px rgba(5, 2, 12, 0.5);
+    --fb-color: #1877f2;
+    --ig-color: #e4405f;
+    --dc-color: #5865f2;
+
+    // --------------------------------------------------------------------------
+    // 1. 基礎顏色系統 (Color System)
+    // --------------------------------------------------------------------------
+    --bs-blue: #38bdf8;
+    --bs-indigo: #6366f1;
+    --bs-purple: #a855f7;
+    --bs-pink: #ec4899;
+    --bs-red: #ef4444;
+    --bs-orange: #f97316;
+    --bs-yellow: #f59e0b;
+    --bs-green: #10b981;
+    --bs-teal: #14b8a6;
+    --bs-cyan: #06b6d4;
+    --bs-black: #000;
+    --bs-white: #fff;
+    --bs-gray: #9e8eb3;
+    --bs-gray-dark: #18181b;
+    --bs-gray-100: #0a0518;
+    --bs-gray-200: #120824;
+    --bs-gray-300: #150a2a;
+    --bs-gray-400: #28134a;
+    --bs-gray-500: #9e8eb3;
+    --bs-gray-600: #b3a3c8;
+    --bs-gray-700: #d1c4e9;
+    --bs-gray-800: #f3e8ff;
+    --bs-gray-900: #faf5ff;
+
+    // --------------------------------------------------------------------------
+    // 2. 主題核心顏色 (Theme Colors)
+    // --------------------------------------------------------------------------
+    --bs-primary: #8b5cf6;
+    --bs-secondary: #c084fc;
+    --bs-accent: #ec4899;
+    --bs-muted: #9e8eb3;
+    --bs-success: #10b981;
+    --bs-info: #38bdf8;
+    --bs-warning: #f59e0b;
+    --bs-danger: #f43f5e;
+    --bs-light: #faf5ff;
+    --bs-dark: #1e0f37;
+
+    // --------------------------------------------------------------------------
+    // 3. RGB 色值
+    // --------------------------------------------------------------------------
+    --bs-primary-rgb: 139, 92, 246;
+    --bs-secondary-rgb: 192, 132, 252;
+    --bs-accent-rgb: 236, 72, 153;
+    --bs-muted-rgb: 158, 142, 179;        // 【更新】薰衣灰 RGB
+    --bs-success-rgb: 16, 185, 129;
+    --bs-info-rgb: 56, 189, 248;
+    --bs-warning-rgb: 245, 158, 11;
+    --bs-danger-rgb: 244, 63, 94;
+    --bs-light-rgb: 250, 245, 255;
+    --bs-dark-rgb: 30, 15, 55;
+    --bs-white-rgb: 255, 255, 255;
+    --bs-black-rgb: 0, 0, 0;
+
+    // --------------------------------------------------------------------------
+    // 4. 文字強調色 (Text Emphasis Colors)
+    // --------------------------------------------------------------------------
+    --bs-primary-text-emphasis: #c4b5fd;
+    --bs-secondary-text-emphasis: #e9d5ff;
+    --bs-accent-text-emphasis: #fbcfe8;
+    --bs-muted-text-emphasis: #d1c4e9;    // 高可讀性輔助文字
+    --bs-success-text-emphasis: #34d399;
+    --bs-info-text-emphasis: #7dd3fc;
+    --bs-warning-text-emphasis: #fde047;
+    --bs-danger-text-emphasis: #fca5a5;
+    --bs-light-text-emphasis: #faf5ff;
+    --bs-dark-text-emphasis: #e9d5ff;
+
+    // --------------------------------------------------------------------------
+    // 5. 柔和背景色 (Bg Subtle Colors)
+    // --------------------------------------------------------------------------
+    --bs-primary-bg-subtle: #4c1d95;
+    --bs-secondary-bg-subtle: #581c87;
+    --bs-accent-bg-subtle: #831843;
+    --bs-muted-bg-subtle: #1a0d30;
+    --bs-success-bg-subtle: #022c22;
+    --bs-info-bg-subtle: #0c4a6e;
+    --bs-warning-bg-subtle: #451a03;
+    --bs-danger-bg-subtle: #4c0519;
+    --bs-light-bg-subtle: #2b1852;
+    --bs-dark-bg-subtle: #0c051f;
+
+    // --------------------------------------------------------------------------
+    // 6. 柔和邊框色 (Border Subtle Colors)
+    // --------------------------------------------------------------------------
+    --bs-primary-border-subtle: #6d28d9;
+    --bs-secondary-border-subtle: #7e22ce;
+    --bs-accent-border-subtle: #be185d;
+    --bs-muted-border-subtle: #3a2254;
+    --bs-success-border-subtle: #065f46;
+    --bs-info-border-subtle: #0369a1;
+    --bs-warning-border-subtle: #78350f;
+    --bs-danger-border-subtle: #9f1239;
+    --bs-light-border-subtle: #3b1d6e;
+    --bs-dark-border-subtle: #120729;
+
+    // --------------------------------------------------------------------------
+    // 7. 字型設定 (Typography)
+    // --------------------------------------------------------------------------
+    --bs-font-sans-serif: 'Noto Sans TC', 'Roboto', system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --bs-gradient: linear-gradient(180deg, rgba(139, 92, 246, 0.15), rgba(10, 5, 24, 0));
+
+    // --------------------------------------------------------------------------
+    // 8. Body 全局預設 (Body Defaults)
+    // --------------------------------------------------------------------------
+    --bs-body-font-family: var(--bs-font-sans-serif);
+    --bs-body-font-size: 1rem;
+    --bs-body-font-weight: 400;
+    --bs-body-line-height: 1.6;
+    --bs-body-color: #faf5ff;
+    --bs-body-color-rgb: 250, 245, 255;
+    --bs-body-bg: #0a0518;
+    --bs-body-bg-rgb: 10, 5, 24;
+
+    // --------------------------------------------------------------------------
+    // 9. 語意化顏色層級 (Semantic Color Levels)
+    // --------------------------------------------------------------------------
+    --bs-emphasis-color: #ffffff;
+    --bs-emphasis-color-rgb: 255, 255, 255;
+
+    --bs-secondary-color: #c084fc;
+    --bs-secondary-color-rgb: 192, 132, 252;
+    --bs-secondary-bg: #120824;
+    --bs-secondary-bg-rgb: 18, 8, 36;
+
+    --bs-tertiary-color: #9e8eb3;         // 【更新】
+    --bs-tertiary-color-rgb: 158, 142, 179;
+    --bs-tertiary-bg: #150a2a;
+    --bs-tertiary-bg-rgb: 21, 10, 42;
+
+    // --------------------------------------------------------------------------
+    // 10. 標題與超連結 (Headings & Links)
+    // --------------------------------------------------------------------------
+    --bs-heading-color: #faf5ff;
+    --bs-link-color: #c084fc;
+    --bs-link-color-rgb: 192, 132, 252;
+    --bs-link-decoration: underline;
+    --bs-link-hover-color: #e9d5ff;
+    --bs-link-hover-color-rgb: 233, 213, 255;
+
+    // --------------------------------------------------------------------------
+    // 11. 程式碼與高亮 (Code & Highlights)
+    // --------------------------------------------------------------------------
+    --bs-code-color: #f472b6;
+    --bs-highlight-color: #faf5ff;
+    --bs-highlight-bg: #2b1022;
+
+    // --------------------------------------------------------------------------
+    // 12. 邊框與圓角 (Borders & Border Radii)
+    // --------------------------------------------------------------------------
+    --bs-border-width: 1px;
+    --bs-border-style: solid;
+    --bs-border-color: rgba(139, 92, 246, 0.2);
+    --bs-border-color-translucent: rgba(139, 92, 246, 0.2);
+
+    --bs-border-radius: 0.375rem;
+    --bs-border-radius-sm: 0.25rem;
+    --bs-border-radius-lg: 0.5rem;
+    --bs-border-radius-xl: 1rem;
+    --bs-border-radius-xxl: 2rem;
+    --bs-border-radius-2xl: var(--bs-border-radius-xxl);
+    --bs-border-radius-pill: 50rem;
+
+    // --------------------------------------------------------------------------
+    // 13. 陰影 (Box Shadows)
+    // --------------------------------------------------------------------------
+    --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.35);
+    --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.6);
+    --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+
+    // --------------------------------------------------------------------------
+    // 14. 焦點外框 (Focus Ring)
+    // --------------------------------------------------------------------------
+    --bs-focus-ring-width: 0.25rem;
+    --bs-focus-ring-opacity: 0.25;
+    --bs-focus-ring-color: rgba(139, 92, 246, 0.25);
+
+    // --------------------------------------------------------------------------
+    // 15. 表單驗證顏色 (Form Validation)
+    // --------------------------------------------------------------------------
+    --bs-form-valid-color: #34d399;
+    --bs-form-valid-border-color: #34d399;
+    --bs-form-invalid-color: #fb7185;
+    --bs-form-invalid-border-color: #fb7185;
 }

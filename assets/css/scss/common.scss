@@ -1,12 +1,35 @@
-// 1. 載入基礎抽象與重置
+/* ==========================================================================
+   common.scss
+   全專案唯一打包進入點 (Single Style Entry Point)
+   ========================================================================== */
+
+// 1. 全局非色彩變數與字型
 @import "abstracts/variables-global";
+
+// 2. 導入三大深色主題 Token (根據 data-bs-theme 切換)
+@import "abstracts/theme-green";
+@import "abstracts/theme-blue";
+@import "abstracts/theme-purple";
+@import "abstracts/theme-light";
+@import "abstracts/theme-dark";
+
+// 3. 基礎重置與排版打底
 @import "base/reset";
 @import "base/typography";
 
-// 2. 匯集所有獨立 UI 組件 (DRY 一次修改全站生效)
+// 4. 通用 UI 組件庫
 @import "components/card";
 @import "components/flag";
 @import "components/buttons";
+@import "components/utilities";
+@import "components/spinners";
 @import "components/navbar";
 @import "components/tables";
 @import "components/charts";
+
+// 5. 各子系統特定頁面樣式
+/*
+@import "systems/public-landing";
+@import "systems/team-sop";
+@import "systems/hub-inventory";
+*/
