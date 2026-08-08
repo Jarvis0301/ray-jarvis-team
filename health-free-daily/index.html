@@ -42,8 +42,10 @@
                         <i class="fa-solid fa-spinner fa-spin"></i> 正在載入選單...
                     </div>
                 </div>
-                <div class="sidebar-footer mt-auto w-100 border-top">
-                    <button class="btn btn-outline-danger w-100 py-2 rounded-0 d-flex align-items-center justify-content-center gap-2 border-0" onclick="window.uvacoLogout()">
+                <div class="sidebar-footer mt-auto w-100">
+                    <button class="btn btn-outline-danger w-100 py-2 rounded-0 d-flex align-items-center justify-content-center gap-2 border-0" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#logoutConfirmModal">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span class="menu-text">登出</span>
                     </button>
@@ -81,6 +83,42 @@
                     </div>
                 </footer>
             </main>
+        </div>
+
+        <!-- 回到頂端 Button -->
+        <button id="backToTopBtn" class="back-to-top-btn" title="回到頂端" aria-label="Back to Top">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+
+        <!-- 美化版登出確認 Modal -->
+        <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-sidebar, #0d1f18); border: 1px solid var(--uvaco-border-color) !important;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-light d-flex align-items-center gap-2" id="logoutConfirmModalLabel">
+                            <i class="fa-solid fa-shield-halved text-warning"></i> 登出確認
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <!-- 警告圖示氣氛圈 -->
+                        <div class="logout-icon-circle mb-3 mx-auto d-flex align-items-center justify-content-center" 
+                            style="width: 68px; height: 68px; border-radius: 50%; background: rgba(244, 63, 94, 0.15); color: #f43f5e; font-size: 1.8rem; box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </div>
+                        <h5 class="text-light fw-bold mb-2">確定要登出系統嗎？</h5>
+                        <p class="text-muted small mb-0">登出後需要重新驗證帳號，才能再次存取團隊系統內容。</p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary flex-fill py-2 rounded-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark me-1"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-danger flex-fill py-2 rounded-3" id="confirmLogoutBtn">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> 確定登出
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </body>
