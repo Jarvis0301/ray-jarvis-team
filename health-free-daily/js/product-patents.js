@@ -100,8 +100,8 @@ const defaultPatents = [
 ];
 
 // 4. 頁面初始化生命週期
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', async () => {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', async () => {
     appState.typeList = defaultTypeList;
     appState.patents = defaultPatents;
 
@@ -160,7 +160,7 @@ async function fetchGoogleSheetsData() {
 
 // 6. 轉換【專利類型】工作表列資料 (不綁定表頭, 依據索引存取)
 function parseTypeRows(rows) {
-    const types = [{ code: 'all', name: '全部專利', icon: 'fas fa-border-all', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' }];
+    const types = [{ code: 'all', name: '全部', icon: 'fas fa-border-all', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' }];
 
     rows.forEach(r => {
         const code = (r[0] || '').trim();
@@ -210,11 +210,23 @@ function parseGoogleDriveUrl(url) {
 // 9. 動態渲染分類篩選按鈕
 function renderTypeFilterButtons() {
     let html = '';
-    appState.typeList.forEach(t => {
-        const activeClass = appState.currentFilter === t.code ? 'active' : '';
-        html += `<button class="btn btn-filter ${activeClass}" data-filter="${t.code}"><i class="${t.icon}"></i> ${t.name}</button>`;
+
+    appState.typeList.forEach((t, index) => {
+        // 判斷是否為目前選中的分類
+        const isChecked = appState.currentFilter === t.code ? 'checked' : '';
+        const inputId = `filter-type-${t.code}`; // 為每個 Input 建立唯一的 id
+
+        html += `
+            <input type="radio" class="btn-check" name="type-filter" id="${inputId}" value="${t.code}" autocomplete="off" ${isChecked}>
+            <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">
+                <i class="${t.icon} me-1"></i> ${t.name}
+            </label>
+        `;
     });
+
     $('#typeFilterContainer').html(html);
+
+    Utils.equalizeWidths('#typeFilterContainer label');
 }
 
 // 10. 動態渲染專利卡片與對應 Modal
@@ -274,7 +286,7 @@ function renderPatents() {
                 </div>
                 <div class="patent-footer">
                     <span class="award-badge"><i class="fa-solid fa-trophy"></i> ${item.awardBadge || '權威背書'}</span>
-                    <button class="btn btn-patent-detail" data-bs-toggle="modal" data-bs-target="#${modalId}"><i class="fa-solid fa-file-contract"></i> 查看證書</button>
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#${modalId}"><i class="fa-solid fa-file-contract"></i> 查看證書</button>
                 </div>
             </div>
         </div>`;
@@ -316,19 +328,16 @@ function renderPatents() {
 // 11. 事件綁定 (分類篩選與即時關鍵字搜尋)
 function bindEvents() {
     // 分類按鈕點擊事件
-    $('#typeFilterContainer').on('click', '.btn-filter', function() {
-        $('.btn-filter').removeClass('active');
-        $(this).addClass('active');
-
-        appState.currentFilter = $(this).attr('data-filter');
+    $('#typeFilterContainer').on('change', 'input[name="type-filter"]', function () {
+        appState.currentFilter = $(this).val(); // 直接取得被勾選 radio 的 value
         renderPatents();
     });
 
     // 關鍵字即時搜尋
-    $('#patentSearchInput').on('keyup', function() {
+    $('#patentSearchInput').on('keyup', function () {
         const value = $(this).val().toLowerCase().trim();
 
-        $('.patent-item').filter(function() {
+        $('.patent-item').filter(function () {
             const text = $(this).text().toLowerCase();
             $(this).toggle(text.indexOf(value) > -1);
         });

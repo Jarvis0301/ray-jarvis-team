@@ -5,7 +5,7 @@ let SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I"; // 填入�
 
 // 預設產品型態庫 (包含 Icon、外框/文字顏色、背景色彩)
 const defaultTypeIcons = [
-    { code: "0000", name: "全部型態", nameEn: "All", icon: "fas fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" },
+    { code: "0000", name: "全部", nameEn: "All", icon: "fas fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" },
     { code: "0101", name: "益生菌", nameEn: "Bacteria", icon: "fas fa-bacteria", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
     { code: "0201", name: "膠囊", nameEn: "Capsules", icon: "fas fa-capsules", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
     { code: "0202", name: "錠劑", nameEn: "Tablets", icon: "fas fa-tablets", color: "#a7f3d0", bg: "rgba(10, 25, 19, 0.88)" },
@@ -128,8 +128,8 @@ let appState = {
 };
 
 // 3. 頁面初始化
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', async () => {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', async () => {
     updateSeriesDropdowns();
     renderTypeFilterButtons();
     bindEvents();
@@ -175,7 +175,7 @@ async function fetchGoogleSheetsData() {
         if (seriesData && seriesData.length > 0) appState.seriesList = parseSeriesRows(seriesData);
 
         if (typeData && typeData.length > 0) {
-            appState.typeList = [{ name: "全部型態", icon: "fas fa-border-all" }];
+            appState.typeList = [{ name: "全部", icon: "fas fa-border-all" }];
             typeData.forEach(row => {
                 if (row[0]) appState.typeList.push({ code: row[0], name: row[1], nameEn: row[2], icon: row[3] || "fas fa-tag", color: row[4] || "#94a3b8", bg: row[5] || "rgba(10, 25, 19, 0.88)" });
             });
@@ -311,23 +311,24 @@ function updateSubSeriesDropdown(mainCode) {
 
 // 生成型態按鈕列 (符合圖標與文字間 1 個半形空白規範)
 function renderTypeFilterButtons() {
-    const container = document.getElementById('typeFilterContainer');
-    container.innerHTML = '';
+    let html = '';
 
-    appState.typeList.forEach(item => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `type-btn ${appState.productType === (item.name === '全部型態' ? 'ALL' : item.name) ? 'active' : ''}`;
-        // 嚴格保留 1 個半形空白
-        btn.innerHTML = `<i class="${item.icon}"></i> ${item.name}`;
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            appState.productType = (item.name === '全部型態' ? 'ALL' : item.name);
-            renderProducts();
-        });
-        container.appendChild(btn);
+    appState.typeList.forEach((item, index) => {
+        const val = (item.name === '全部' ? 'ALL' : item.name);
+        const isChecked = appState.productType === val ? 'checked' : '';
+        const inputId = `type-btn-${index}`;
+
+        html += `
+            <input type="radio" class="btn-check" name="product-type" id="${inputId}" value="${val}" autocomplete="off" ${isChecked}>
+            <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">
+                <i class="${item.icon}"></i> ${item.name}
+            </label>
+        `;
     });
+
+    $('#typeFilterContainer').html(html);
+
+    Utils.equalizeWidths('#typeFilterContainer label');
 }
 
 // 綁定 UI 事件
@@ -354,6 +355,13 @@ function bindEvents() {
     document.getElementById('searchInput').addEventListener('input', (e) => {
         appState.searchKeyword = e.target.value.trim().toLowerCase();
         renderProducts();
+    });
+
+    document.getElementById('typeFilterContainer').addEventListener('change', (e) => {
+        if (e.target.name === 'product-type') {
+            appState.productType = e.target.value;
+            renderProducts();
+        }
     });
 }
 
@@ -475,7 +483,7 @@ function renderProducts() {
                         <div class="price-tag fw-bold">${item.price}</div>
                         <div class="sv-tag"><i class="fa-solid fa-star"></i> ${item.sv} SV</div>
                     </div>
-                    <a href="${item.url}" target="_blank" class="btn btn-detail w-100 text-center fw-bold">
+                    <a href="${item.url}" target="_blank" class="btn btn-secondary w-100 text-center fw-bold">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i> 查看產品詳情
                     </a>
                 </div>

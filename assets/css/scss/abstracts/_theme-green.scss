@@ -7,36 +7,60 @@
 [data-bs-theme="dark-green"] {
     // --------------------------------------------------------------------------
     // 0. UVACO 品牌核心與 UI Token (--uvaco-*)
+    // -*：主色
+    // -*-hover：懸浮顏色
+    // -*-glow：光暈顏色
+    // -*-contrast：文字顏色
     // --------------------------------------------------------------------------
     --uvaco-primary: #10b981;               // 主視覺 (翡翠草綠)
     --uvaco-primary-hover: #059669;
+    --uvaco-primary-glow: #10b98180;
+    --uvaco-primary-contrast: #062e1e;
 
     --uvaco-secondary: #34d399;             // 較明亮的主視覺 (高亮薄荷綠)
     --uvaco-secondary-hover: #10b981;
+    --uvaco-secondary-glow: #34d39980;
+    --uvaco-secondary-contrast: #062e1e;
 
     --uvaco-accent: #f59e0b;                // 重點顏色 (太陽琥珀金)
     --uvaco-accent-hover: #d97706;
+    --uvaco-accent-glow: #f59e0b80;
+    --uvaco-accent-contrast: #062e1e;
 
     --uvaco-muted: #819b8f;                 // 輔助說明顏色 (相對 Primary 的草本青苔灰)
     --uvaco-muted-hover: #98b4a5;
+    --uvaco-muted-glow: #819b8f80;
+    --uvaco-muted-contrast: #062e1e;
 
     --uvaco-success: #059669;
     --uvaco-success-hover: #047857;
+    --uvaco-success-glow: #05966980;
+    --uvaco-success-contrast: #ffffff;      // 稍微偏深綠，文字搭配亮白/淺色最清晰
 
     --uvaco-info: #06b6d4;
     --uvaco-info-hover: #0891b2;
+    --uvaco-info-glow: #06b6d480;
+    --uvaco-info-contrast: #062e1e;
 
     --uvaco-warning: #f59e0b;
     --uvaco-warning-hover: #d97706;
+    --uvaco-warning-glow: #f59e0b80;
+    --uvaco-warning-contrast: #062e1e;
 
     --uvaco-danger: #ef4444;
     --uvaco-danger-hover: #dc2626;
+    --uvaco-danger-glow: #ef444480;
+    --uvaco-danger-contrast: #ffffff;       // 稍微偏深紅，文字搭配亮白/淺色最清晰
 
     --uvaco-light: #ecfdf5;
     --uvaco-light-hover: #d1fae5;
+    --uvaco-light-glow: #ecfdf580;
+    --uvaco-light-contrast: #062e1e;
 
     --uvaco-dark: #062e1e;
     --uvaco-dark-hover: #041e14;
+    --uvaco-dark-glow: #062e1e80;
+    --uvaco-dark-contrast: #ffffff;
 
     // UVACO 區塊與卡片背景
     --uvaco-bg-primary: #051811;
@@ -98,9 +122,7 @@
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
     --header-height: 70px;
-    --accent-glow: rgba(16, 185, 129, 0.25);
     --sidebar-active-bg: #1a3a2c;
-    --accent-hover: rgba(52, 211, 153, 0.15);
     --radius: 12px;
     --shadow: 0 8px 24px rgba(7, 4, 4, 0.4);
     --fb-color: #1877f2;
@@ -169,7 +191,7 @@
     // --------------------------------------------------------------------------
     --bs-primary-text-emphasis: #6ee7b7;
     --bs-secondary-text-emphasis: #a7f3d0;
-    --bs-accent-text-emphasis: #fde68a;
+    --bs-accent-text-emphasis: #fef08a;
     --bs-muted-text-emphasis: #b2cebf;    // 高可讀性輔助文字
     --bs-success-text-emphasis: #34d399;
     --bs-info-text-emphasis: #67e8f9;
@@ -183,11 +205,11 @@
     // --------------------------------------------------------------------------
     --bs-primary-bg-subtle: #064e3b;
     --bs-secondary-bg-subtle: #065f46;
-    --bs-accent-bg-subtle: #451a03;
+    --bs-accent-bg-subtle: #2e2802;
     --bs-muted-bg-subtle: #14241d;
     --bs-success-bg-subtle: #022c22;
     --bs-info-bg-subtle: #083344;
-    --bs-warning-bg-subtle: #451a03;
+    --bs-warning-bg-subtle: #2e2802;
     --bs-danger-bg-subtle: #450a0a;
     --bs-light-bg-subtle: #132a22;
     --bs-dark-bg-subtle: #03140e;
@@ -201,7 +223,7 @@
     --bs-muted-border-subtle: #2d453c;
     --bs-success-border-subtle: #065f46;
     --bs-info-border-subtle: #155e75;
-    --bs-warning-border-subtle: #78350f;
+    --bs-warning-border-subtle: #756700;
     --bs-danger-border-subtle: #991b1b;
     --bs-light-border-subtle: #1f4236;
     --bs-dark-border-subtle: #0a2118;

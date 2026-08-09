@@ -16,8 +16,8 @@ let selectedType = 'ALL';
 let selectedRegion = 'ALL';
 let searchTerm = '';
 
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function () {
     fetchEventData();
     bindFilterEvents();
 });
@@ -27,14 +27,14 @@ function fetchEventData() {
     $.ajax({
         url: GVIZ_URL,
         dataType: 'text',
-        success: function(response) {
+        success: function (response) {
             const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
             const data = JSON.parse(jsonString);
             parseRawData(data.table.rows);
         },
-        error: function(err) {
+        error: function (err) {
             console.error('資料讀取失敗:', err);
-            $('#loading-spinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+            $('#loadingSpinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
         }
     });
 }
@@ -110,7 +110,7 @@ function parseRawData(rows) {
             regUrl, imgUrl: parseDriveImageUrl(rawImgUrl), performer, isExpired
         });
     });
-    
+
     // 進行智慧權重排序
     const sortedTypes = sortSetItems(typeSet, PREFERRED_TYPE_ORDER);
     const sortedRegions = sortSetItems(regionSet, PREFERRED_REGION_ORDER);
@@ -118,43 +118,63 @@ function parseRawData(rows) {
     // 動態生成選單膠囊按鈕
     renderFilterPills(sortedTypes, sortedRegions);
 
-    $('#loading-spinner').addClass('d-none');
+    $('#loadingSpinner').addClass('d-none');
     filterAndRender();
 }
 
 // 5. 動態生成篩選膠囊 DOM
 function renderFilterPills(typeSet, regionSet) {
-    const typeContainer = $('#type-pills');
-    typeSet.forEach(t => {
-        typeContainer.append(`<span class="filter-pill" data-filter-type="${t}">${t}</span>`);
+    // 1. 活動類型膠囊
+    let typeHtml = `
+        <input type="radio" class="btn-check" name="filter-type" id="type-all" value="ALL" autocomplete="off" ${selectedType === 'ALL' ? 'checked' : ''}>
+        <label class="btn btn-outline-primary btn-sm rounded-pill" for="type-all">全部</label>
+    `;
+    typeSet.forEach((t, index) => {
+        const inputId = `type-${index}`;
+        const isChecked = selectedType === t ? 'checked' : '';
+        typeHtml += `
+            <input type="radio" class="btn-check" name="filter-type" id="${inputId}" value="${t}" autocomplete="off" ${isChecked}>
+            <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">${t}</label>
+        `;
     });
+    $('#type-pills').html(typeHtml);
 
-    const regionContainer = $('#region-pills');
-    regionSet.forEach(r => {
-        regionContainer.append(`<span class="filter-pill" data-filter-region="${r}">${r}</span>`);
+    Utils.equalizeWidths('#type-pills label');
+
+    // 2. 活動地區膠囊
+    let regionHtml = `
+        <input type="radio" class="btn-check" name="filter-region" id="region-all" value="ALL" autocomplete="off" ${selectedRegion === 'ALL' ? 'checked' : ''}>
+        <label class="btn btn-outline-primary btn-sm rounded-pill" for="region-all">全部</label>
+    `;
+    regionSet.forEach((r, index) => {
+        const inputId = `region-${index}`;
+        const isChecked = selectedRegion === r ? 'checked' : '';
+        regionHtml += `
+            <input type="radio" class="btn-check" name="filter-region" id="${inputId}" value="${r}" autocomplete="off" ${isChecked}>
+            <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">${r}</label>
+        `;
     });
+    $('#region-pills').html(regionHtml);
+
+    Utils.equalizeWidths('#region-pills label');
 }
 
 // 6. 事件監聽綁定
 function bindFilterEvents() {
-    // 類型按鈕點擊
-    $(document).on('click', '[data-filter-type]', function() {
-        $('[data-filter-type]').removeClass('active');
-        $(this).addClass('active');
-        selectedType = $(this).data('filter-type');
+    // 類型按鈕點擊切換
+    $(document).on('change', 'input[name="filter-type"]', function () {
+        selectedType = $(this).val();
         filterAndRender();
     });
 
-    // 地區按鈕點擊
-    $(document).on('click', '[data-filter-region]', function() {
-        $('[data-filter-region]').removeClass('active');
-        $(this).addClass('active');
-        selectedRegion = $(this).data('filter-region');
+    // 地區按鈕點擊切換
+    $(document).on('change', 'input[name="filter-region"]', function () {
+        selectedRegion = $(this).val();
         filterAndRender();
     });
 
     // 搜尋輸入框事件
-    $('#search-input').on('input keyup', function() {
+    $('#search-input').on('input keyup', function () {
         searchTerm = $(this).val().toLowerCase().trim();
         filterAndRender();
     });
@@ -220,15 +240,16 @@ function filterAndRender() {
 function createEventCardHtml(item) {
     // 狀態標籤
     const statusBadge = item.isExpired
-        ? `<span class="status-badge expired-badge"><span class="status-dot expired-dot"></span> 活動已結束</span>`
-        : `<span class="status-badge"><span class="status-dot"></span> 開放報名中</span>`;
+        ? `<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-dot"></i> 活動已結束</span>`
+        : `<span class="badge badge-muted-subtle"><i class="fa-solid fa-circle-dot"></i> 開放報名中</span>`;
+        
 
     // 類型標籤
-    const typeBadge = `<span class="type-badge"><i class="fa-solid fa-tag"></i> ${item.type}</span>`;
-    
+    const typeBadge = `<span class="badge badge-primary-subtle"><i class="fa-solid fa-tag"></i> ${item.type}</span>`;
+
     // 表演藝人標籤 (若無藝人資料則不渲染)
-    const performerBadge = item.performer 
-        ? `<span class="performer-badge"><i class="fa-solid fa-microphone-lines"></i> 藝人：${item.performer}</span>` 
+    const performerBadge = item.performer
+        ? `<span class="badge bg-accent"><i class="fa-solid fa-microphone-lines"></i> 藝人：${item.performer}</span>`
         : '';
 
     // 按鈕邏輯
@@ -236,7 +257,7 @@ function createEventCardHtml(item) {
     if (item.isExpired) {
         actionBtnHtml = `<div class="btn-uvaco-disabled"><i class="fa-solid fa-lock"></i> 活動已結束</div>`;
     } else if (item.regUrl && item.regUrl.trim() !== '') {
-        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-uvaco-primary"><i class="fa-solid fa-paper-plane"></i> 立即線上報名</a>`;
+        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> 立即線上報名</a>`;
     } else {
         actionBtnHtml = `<div class="btn-uvaco-secondary"><i class="fa-solid fa-circle-info"></i> 現場自由入場 / 聯繫我們</div>`;
     }
@@ -244,28 +265,28 @@ function createEventCardHtml(item) {
     const expiredClass = item.isExpired ? 'expired' : '';
 
     // 格式化時間
-    const timeDisplay = item.startTime === item.endTime || !item.endTime 
-        ? item.startTime 
+    const timeDisplay = item.startTime === item.endTime || !item.endTime
+        ? item.startTime
         : `${item.startTime} ~ ${item.endTime.split(' ')[1] || item.endTime}`;
 
     // 活動時間獨立模組化
     const timeHtml = timeDisplay
-        ? `<div class="info-item"><i class="fa-regular fa-clock"></i><div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>` 
+        ? `<div class="info-item"><i class="fa-regular fa-clock"></i><div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>`
         : '';
-    
+
     // 活動地區獨立模組化
-    const locationHtml = item.location 
-        ? `<div class="info-item"><i class="fa-solid fa-earth-asia"></i><div>活動地區：<span class="highlight">${item.location}</span></div></div>` 
+    const locationHtml = item.location
+        ? `<div class="info-item"><i class="fa-solid fa-earth-asia"></i><div>活動地區：<span class="highlight">${item.location}</span></div></div>`
         : '';
-    
+
     // 活動場地獨立模組化
-    const venueHtml = item.venue 
-        ? `<div class="info-item"><i class="fa-solid fa-building"></i><div>活動場地：<span class="highlight">${item.venue}</span></div></div>` 
+    const venueHtml = item.venue
+        ? `<div class="info-item"><i class="fa-solid fa-building"></i><div>活動場地：<span class="highlight">${item.venue}</span></div></div>`
         : '';
 
     // 活動地址獨立模組化
-    const addressHtml = item.address 
-        ? `<div class="info-item"><i class="fa-solid fa-map-pin"></i><div>活動地址：<span class="highlight">${item.address}</span></div></div>` 
+    const addressHtml = item.address
+        ? `<div class="info-item"><i class="fa-solid fa-map-pin"></i><div>活動地址：<span class="highlight">${item.address}</span></div></div>`
         : '';
 
     let html = `
@@ -302,7 +323,7 @@ function createEventCardHtml(item) {
             </div>
         </div>
     `;
-    
+
     return html;
 }
 

@@ -28,33 +28,14 @@ const fallbackDataMap = {
     ]
 };
 
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
+    Utils.equalizeWidths('#region-tabs label');
+
     // 頁面初始化：載入預設區域（台灣）資料
     loadRegionTimeline(currentRegion);
 
-    // 區域標籤切換事件處理
-    $('#region-tabs .nav-link').on('click', function() {
-        const selectedRegion = $(this).data('region');
-        if (selectedRegion === currentRegion) return;
-
-        // 更新標籤 active 樣式
-        $('#region-tabs .nav-link').removeClass('active');
-        $(this).addClass('active');
-
-        // 切換當前區域並重置搜尋列
-        currentRegion = selectedRegion;
-        $('#timeline-search').val('');
-
-        // 載入該區域資料
-        loadRegionTimeline(currentRegion);
-    });
-
-    // 即時動態搜尋監聽 (Live Search)
-    $('#timeline-search').on('input', function() {
-        const keyword = $(this).val().trim().toLowerCase();
-        renderFilteredTimeline(keyword);
-    });
+    bindFilterEvents();
 });
 
 // 讀取指定區域的時間軸資料（快取優先）
@@ -182,7 +163,7 @@ function renderFilteredTimeline(keyword) {
 
             const nodeStyleClass = isPerformance ? 'performance-dot' : 'green-dot';
             const pillIconClass  = isPerformance ? 'fa-solid fa-trophy' : 'fa-regular fa-calendar-check';
-            const pillStyleClass  = isPerformance ? 'performance-pill' : 'month-pill';
+            const pillStyleClass  = isPerformance ? 'badge-warning-subtle' : 'badge-primary-subtle';
             const cardStyleClass  = isPerformance ? 'performance-card' : 'green-card';
 
             yearBlockHtml += `
@@ -192,8 +173,8 @@ function renderFilteredTimeline(keyword) {
                     </div>
 
                     <div class="timeline-content-card ${cardStyleClass}">
-                        <div class="${pillStyleClass} mb-2">
-                            <i class="${pillIconClass} me-1"></i> ${monthText}
+                        <div class="badge ${pillStyleClass} rounded-pill px-3 py-2 mb-2">
+                            <i class="${pillIconClass}"></i> ${monthText}
                         </div>
                         <div class="card-body-wrapper ${hasPhoto ? 'has-image' : ''}">
                             ${hasPhoto ? `
@@ -215,10 +196,31 @@ function renderFilteredTimeline(keyword) {
     });
 }
 
+// 事件監聽綁定
+function bindFilterEvents() {
+    // 區域分頁切換事件（監聽 Radio 的 change 事件）
+    $(document).on('change', 'input[name="region-type"]', function () {
+        const selectedRegion = $(this).val();
+        if (selectedRegion === currentRegion) return;
+
+        currentRegion = selectedRegion;
+        searchText = '';
+        $('#timeline-search').val('');
+
+        loadRegionTimeline(currentRegion);
+    });
+
+    // 即時搜尋輸入事件
+    $('#timeline-search').on('input', function() {
+        const keyword = $(this).val().trim().toLowerCase();
+        renderFilteredTimeline(keyword);
+    });
+}
+
 // 顯示載入動畫
 function showLoadingSpinner(regionName) {
     $('#timeline-wrapper').html(`
-        <div id="loading-spinner" class="text-center col-12">
+        <div class="loading-spinner text-center col-12">
             <div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>

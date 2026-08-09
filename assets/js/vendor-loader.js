@@ -1,6 +1,6 @@
 /**
- * 榮祥團隊全域套件本地載入器 (Local Vendor Loader)
- * 自動注入 assets/vendors/ 內之離線第三方套件
+ * assets/js/vendor-loader.js
+ * 專責非同步加載所有第三方 CDN JavaScript 套件
  */
 (function() {
     // 1. 動態計算 assets/vendors/ 之絕對/相對根路徑
@@ -72,8 +72,8 @@
             for (const src of jsResources) {
                 await loadScript(src);
             }
-            // 4. 全部套件下載完畢後，廣播全域自訂事件 'vendorReady'
-            window.dispatchEvent(new CustomEvent('vendorReady'));
+            // 4. 全部套件下載完畢後，廣播全域自訂事件 'VendorReady'
+            window.dispatchEvent(new CustomEvent('VendorReady'));
         } catch (error) {
             console.error('[Vendor Loader Error]', error);
         }

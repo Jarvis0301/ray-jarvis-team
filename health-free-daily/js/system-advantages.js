@@ -1,22 +1,18 @@
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
-    // 模式切換器互動 logic
-    $('#btn-pj').click(function() {
-        $(this).addClass('active');
-        $('#btn-trad').removeClass('active');
-        $('#pj-content').fadeIn(300);
-        $('#trad-content').hide();
-    });
-
-    $('#btn-trad').click(function() {
-        $(this).addClass('active');
-        $('#btn-pj').removeClass('active');
-        $('#trad-content').fadeIn(300);
-        $('#pj-content').hide();
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function () {
+    // 監聽 Radio 切換事件
+    $('input[name="business-type"]').on('change', function () {
+        if ($('#btn-pj').is(':checked')) {
+            $('#trad-content').hide();
+            $('#pj-content').stop(true, true).fadeIn(300);
+        } else {
+            $('#pj-content').hide();
+            $('#trad-content').stop(true, true).fadeIn(300);
+        }
     });
 
     // 試算器互動 logic (包含圖片切換)
-    $('.calc-step').click(function() {
+    $('.calc-step').click(function () {
         $('.calc-step').removeClass('active');
         $(this).addClass('active');
 

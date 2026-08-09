@@ -1,58 +1,63 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>榮譽獎項及標章</title>
-		
-        <script src="../assets/js/auth-guard.js"></script>
-        
-        <script src="../assets/js/vendor-loader.js"></script>
+<html lang="zh-TW" data-bs-theme="dark-green">
 
-        <script src="../assets/js/common.js"></script>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>榮譽獎項及標章</title>
 
-        <link rel="stylesheet" href="../assets/css/common.css">
+	<script src="../assets/js/auth-guard.js"></script>
 
-        <script src="./js/awards-uvaco.js" defer></script>
+	<script src="../assets/js/vendor-loader.js"></script>
 
-        <link rel="stylesheet" href="./css/awards-uvaco.css">
-	</head>
+	<script src="../assets/js/common.js"></script>
 
-	<body>
-		<div class="awards-container">
-			<div class="controls-wrapper mb-4">
-				<div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-3 pb-3 border-bottom border-success border-opacity-25">
-					<ul class="nav nav-pills nav-pills-region gap-2 w-100 w-md-auto" id="region-tabs" role="tablist">
-						<li class="nav-item" role="presentation">
-							<button class="nav-link active" id="tab-taiwan" data-region="台灣" type="button" role="tab">
-								<i class="fa-solid fa-location-dot me-1"></i> 台灣榮譽
-							</button>
-						</li>
-						<li class="nav-item" role="presentation">
-							<button class="nav-link" id="tab-malaysia" data-region="馬來西亞" type="button" role="tab">
-								<i class="fa-solid fa-earth-americas me-1"></i> 馬來西亞榮譽
-							</button>
-						</li>
-					</ul>
+	<link rel="stylesheet" href="../assets/css/common.css">
 
-					<div class="search-input-group input-group w-100 w-md-auto" style="max-width: 300px;">
-						<input type="text" id="award-search" class="form-control" placeholder="搜尋年份、品牌或獎項內容..." aria-label="搜尋榮譽">
-						<span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-					</div>
+	<script src="./js/awards-uvaco.js" defer></script>
+
+	<link rel="stylesheet" href="./css/awards-uvaco.css">
+</head>
+
+<body>
+	<div class="awards-container">
+		<div class="controls-wrapper mb-4">
+			<div
+				class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-3 pb-3 border-bottom border-success border-opacity-25">
+				<!-- 區域分頁 -->
+				<div class="d-flex flex-wrap gap-2 w-100 w-md-auto" id="region-tabs">
+					<input type="radio" class="btn-check" name="region-type" id="tab-taiwan" value="台灣" autocomplete="off" checked>
+					<label class="btn btn-outline-primary btn-sm rounded-pill" for="tab-taiwan">
+						<i class="fa-solid fa-location-dot me-1"></i> 台灣
+					</label>
+
+					<input type="radio" class="btn-check" name="region-type" id="tab-malaysia" value="馬來西亞" autocomplete="off">
+					<label class="btn btn-outline-primary btn-sm rounded-pill" for="tab-malaysia">
+						<i class="fa-solid fa-earth-americas me-1"></i> 馬來西亞
+					</label>
 				</div>
 
-				<div class="d-flex gap-2 flex-wrap" id="sub-category-wrapper">
-					</div>
+				<!-- 搜尋框 -->
+				<div class="search-input-group input-group w-100 w-md-auto" style="max-width: 300px;">
+					<input type="text" id="award-search" class="form-control" placeholder="搜尋年份、品牌或獎項內容..."
+						aria-label="搜尋榮譽">
+					<span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+				</div>
 			</div>
 
-			<div class="row g-2" id="awards-grid">
-				<div id="loading-spinner" class="text-center col-12">
-					<div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
-						<span class="visually-hidden">Loading...</span>
-					</div>
-					<div>榮譽資料同步中...</div>
+			<!-- 子分類 -->
+			<div class="d-flex flex-wrap gap-2" id="sub-category-wrapper"></div>
+		</div>
+
+		<div class="row g-2" id="awards-grid">
+			<div class="loading-spinner text-center col-12">
+				<div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+					<span class="visually-hidden">Loading...</span>
 				</div>
+				<div>榮譽資料同步中...</div>
 			</div>
 		</div>
-	</body>
+	</div>
+</body>
+
 </html>

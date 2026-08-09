@@ -42,8 +42,8 @@ const demoMockData = [
     }
 ];
 
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
     initEvents();
     loadSheetData();
 });
@@ -72,8 +72,8 @@ function initEvents() {
 
     // 分類按鈕切換
     $(document).on('click', '.category-btn', function() {
-        $('.category-btn').removeClass('active btn-emerald').addClass('btn-outline-emerald');
-        $(this).removeClass('btn-outline-emerald').addClass('active btn-emerald');
+        $('.category-btn').removeClass('active btn-primary').addClass('btn-outline-primary');
+        $(this).removeClass('btn-outline-primary').addClass('active btn-primary');
         filterData();
     });
 
@@ -166,7 +166,7 @@ function renderCategoryFilter(data) {
 
     categories.forEach(cat => {
         const label = cat === 'ALL' ? '全部主題' : cat;
-        const activeClass = cat === 'ALL' ? 'active btn-emerald' : 'btn-outline-emerald';
+        const activeClass = cat === 'ALL' ? 'active btn-primary' : 'btn-outline-primary';
         const icon = cat === 'ALL' ? '<i class="fa-solid fa-layer-group"></i> ' : '<i class="fa-solid fa-hashtag"></i> ';
         
         container.append(`
@@ -217,7 +217,7 @@ function renderGridCards(data) {
                             <span class="text-muted small">
                                 <i class="fa-solid fa-calendar-day"></i> ${item.date}
                             </span>
-                            <button class="btn btn-sm btn-emerald btn-open-detail" data-id="${item.id}">
+                            <button class="btn btn-sm btn-primary btn-open-detail" data-id="${item.id}">
                                 <i class="fa-solid fa-arrow-right"></i> 閱讀全文
                             </button>
                         </div>
@@ -259,7 +259,7 @@ function renderDataTable(data) {
                 <td class="text-muted small">${item.summary}</td>
                 <td class="text-nowrap small text-muted">${item.date}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-emerald btn-open-detail" data-id="${item.id}">
+                    <button class="btn btn-sm btn-outline-primary btn-open-detail" data-id="${item.id}">
                         <i class="fa-solid fa-eye"></i> 查看
                     </button>
                 </td>

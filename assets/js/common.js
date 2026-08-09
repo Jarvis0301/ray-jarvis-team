@@ -1,35 +1,62 @@
+/**
+ * assets/js/common.js
+ * 監聽 VendorReady 事件，載入團隊內部核心 JS 模組並發射 AppReady
+ */
 (function() {
-    const hostname = window.location.hostname;
-    const pathname = window.location.pathname;
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramTheme = urlParams.get('theme');
+    'use strict';
 
-    // 預設主題
-    let selectedTheme = 'dark-green'; 
+    // 團隊內部寫的 JS 模組清單
+    const internalModules = [
+        '/assets/js/utils.js'
+    ];
 
-    // 【優先權 1】若 URL 帶有 ?theme=xxx 參數（方便開發測試）
-    if (paramTheme) {
-        selectedTheme = paramTheme;
-    } 
-    // 【優先權 2】依據子網域 (Subdomain) 判斷
-    /*
-    else if (hostname.includes('team') || hostname.includes('ray')) {
-        selectedTheme = 'dark-blue';    // 團隊版：鋼鐵藍
-    } else if (hostname.includes('core') || hostname.includes('hub')) {
-        selectedTheme = 'dark-purple';  // 核心版：魅影紫
-    } else if (hostname.includes('public') || hostname.includes('www')) {
-        selectedTheme = 'dark-green';   // 公開版：翡翠綠
-    } 
-        */
-    // 【優先權 3】若非多網域，改依據網址路徑 (Pathname) 判斷
-    else if (pathname.startsWith('/team')) {
-        selectedTheme = 'dark-blue';
-    } else if (pathname.startsWith('/hub')) {
-        selectedTheme = 'dark-purple';
-    } else if (pathname.startsWith('/health')) {
-        selectedTheme = 'dark-green';
+    /**
+     * 動態載入內部 JS 模組
+     */
+    function loadInternalModule(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.type = 'text/javascript';
+
+            script.onload = () => resolve(src);
+            script.onerror = () => reject(new Error(`[ModuleLoadError] 內部模組讀取失敗: ${src}`));
+
+            document.head.appendChild(script);
+        });
     }
 
-    // 立即寫入 <html> 的 data-bs-theme 屬性
-    document.documentElement.setAttribute('data-bs-theme', selectedTheme);
+    /**
+     * 啟動內部模組加載鏈
+     */
+    function initInternalApp() {
+
+        Promise.all(internalModules.map(src => loadInternalModule(src)))
+            .then(() => {
+                
+                // 全域 UI 工具與事件綁定
+                if (window.jQuery) {
+                    $(document).ready(function() {
+                        // 初始化
+                        init();
+                    });
+                }
+
+                // 發射最終全域 READY 事件
+                window.dispatchEvent(new CustomEvent('AppReady'));
+            })
+            .catch(err => {
+                console.error("❌ [Common.js] 內部模組初始化失敗:", err);
+            });
+    }
+
+    // 監聽來自 vendor-loader.js 的 VendorReady 事件
+    window.addEventListener('VendorReady', function() {
+        initInternalApp();
+    });
 })();
+
+// 初始化
+function init() {
+    Utils.initTheme();
+}

@@ -1,6 +1,6 @@
 /**
- * 榮祥團隊全域套件異步加載器 (Vendor Loader) - 2026 事件驅動修復版
- * 徹底解決 ReferenceError: $ is not defined 與 Chart is not defined 競態問題
+ * assets/js/vendor-loader.js
+ * 專責非同步加載所有第三方 CDN JavaScript 套件
  */
 (function() {
     const cssResources = [
@@ -59,8 +59,8 @@
             for (const src of jsResources) {
                 await loadScript(src);
             }
-            // 4. 全部套件下載完畢後，廣播全域自訂事件 'vendorReady'
-            window.dispatchEvent(new CustomEvent('vendorReady'));
+            // 4. 全部套件下載完畢後，廣播全域自訂事件 'VendorReady'
+            window.dispatchEvent(new CustomEvent('VendorReady'));
         } catch (error) {
             console.error('[Vendor Loader Error]', error);
         }

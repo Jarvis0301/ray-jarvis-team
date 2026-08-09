@@ -29,6 +29,58 @@
                 border-color: var(--bs-border-color);
                 box-shadow: var(--bs-box-shadow-sm);
             }
+
+            /* UVACO 邊框與光澤懸停測試 */
+            .test-glow-card {
+                border: 1px solid var(--uvaco-border-color);
+                background-color: var(--uvaco-bg-card);
+                border-radius: var(--radius, 12px);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                cursor: pointer;
+            }
+            .test-glow-card:hover {
+                border-color: var(--uvaco-border-highlight);
+                box-shadow: 0 0 25px var(--uvaco-border-glow), var(--shadow, 0 8px 24px rgba(0, 0, 0, 0.4));
+                transform: translateY(-4px);
+            }
+
+            /* UVACO Layout Tokens 模擬組件 */
+            .demo-layout-box {
+                border: 1px solid var(--uvaco-border-color);
+                border-radius: var(--radius, 12px);
+                overflow: hidden;
+            }
+            .demo-layout-header {
+                background-color: var(--bg-header);
+                height: var(--header-height, 70px);
+                border-bottom: 1px solid var(--uvaco-border-color);
+            }
+            .demo-layout-sidebar {
+                background-color: var(--bg-sidebar);
+                min-height: 220px;
+                border-right: 1px solid var(--uvaco-border-color);
+            }
+            .demo-sidebar-nav-item {
+                padding: 0.6rem 1rem;
+                border-radius: 8px;
+                color: var(--uvaco-text-muted);
+                transition: all 0.25s ease;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+            }
+            .demo-sidebar-nav-item:hover {
+                background-color: var(--accent-hover);
+                color: var(--uvaco-text-primary);
+                box-shadow: 0 0 15px var(--accent-glow);
+                transform: translateX(4px);
+            }
+            .demo-sidebar-nav-item.active {
+                background-color: var(--sidebar-active-bg);
+                color: var(--uvaco-text-primary);
+                font-weight: 600;
+                box-shadow: 0 0 15px var(--accent-glow);
+            }
         </style>
     </head>
     <body class="bg-body-tertiary">
@@ -79,52 +131,52 @@
                     <h6 class="fw-bold mb-3"><i class="fa-solid fa-fill-drip"></i> 實心主色階 (Solid Tokens)</h6>
                     <div class="row g-3 mb-4">
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-primary text-white">
+                            <div class="color-swatch bg-primary text-center">
                                 <span><i class="fa-solid fa-star"></i> Primary</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-secondary text-dark">
+                            <div class="color-swatch bg-secondary text-center">
                                 <span><i class="fa-solid fa-bolt"></i> Secondary</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-accent text-dark">
+                            <div class="color-swatch bg-accent text-center">
                                 <span><i class="fa-solid fa-bullseye"></i> Accent</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-muted text-white">
+                            <div class="color-swatch bg-muted text-center">
                                 <span><i class="fa-solid fa-circle-info"></i> Muted</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-success text-white">
+                            <div class="color-swatch bg-success text-center">
                                 <span><i class="fa-solid fa-check"></i> Success</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-info text-dark">
+                            <div class="color-swatch bg-info text-center">
                                 <span><i class="fa-solid fa-info"></i> Info</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-warning text-dark">
+                            <div class="color-swatch bg-warning text-center">
                                 <span><i class="fa-solid fa-triangle-exclamation"></i> Warning</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-danger text-white">
+                            <div class="color-swatch bg-danger text-center">
                                 <span><i class="fa-solid fa-ban"></i> Danger</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-light text-dark border">
+                            <div class="color-swatch bg-light border text-center">
                                 <span><i class="fa-solid fa-sun"></i> Light</span>
                             </div>
                         </div>
                         <div class="col-md-2 col-6">
-                            <div class="color-swatch bg-dark text-white">
+                            <div class="color-swatch bg-dark text-center">
                                 <span><i class="fa-solid fa-moon"></i> Dark</span>
                             </div>
                         </div>
@@ -223,7 +275,7 @@
 
             <section class="card test-section-card mb-4">
                 <div class="card-header bg-body-tertiary fw-bold">
-                    <i class="fa-solid fa-tags text-primary"></i> 3. 標籤與徽章 (Badges) 10 大全色階變体
+                    <i class="fa-solid fa-tags text-primary"></i> 3. 標籤與徽章 (Badges) 10 大全色階變體
                 </div>
                 <div class="card-body">
                     <h6 class="fw-bold mb-2"><i class="fa-solid fa-tag"></i> 標準標籤 (Standard Badges)</h6>
@@ -234,9 +286,9 @@
                         <span class="badge bg-muted"><i class="fa-solid fa-circle-info"></i> Muted</span>
                         <span class="badge bg-success"><i class="fa-solid fa-check"></i> Success</span>
                         <span class="badge bg-info"><i class="fa-solid fa-info"></i> Info</span>
-                        <span class="badge bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation"></i> Warning</span>
+                        <span class="badge bg-warning"><i class="fa-solid fa-triangle-exclamation"></i> Warning</span>
                         <span class="badge bg-danger"><i class="fa-solid fa-ban"></i> Danger</span>
-                        <span class="badge bg-light text-dark border"><i class="fa-solid fa-sun"></i> Light</span>
+                        <span class="badge bg-light border"><i class="fa-solid fa-sun"></i> Light</span>
                         <span class="badge bg-dark"><i class="fa-solid fa-moon"></i> Dark</span>
                     </div>
 
@@ -248,9 +300,9 @@
                         <span class="badge rounded-pill bg-muted"><i class="fa-solid fa-circle-info"></i> Muted</span>
                         <span class="badge rounded-pill bg-success"><i class="fa-solid fa-check"></i> Success</span>
                         <span class="badge rounded-pill bg-info"><i class="fa-solid fa-info"></i> Info</span>
-                        <span class="badge rounded-pill bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation"></i> Warning</span>
+                        <span class="badge rounded-pill bg-warning"><i class="fa-solid fa-triangle-exclamation"></i> Warning</span>
                         <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-ban"></i> Danger</span>
-                        <span class="badge rounded-pill bg-light text-dark border"><i class="fa-solid fa-sun"></i> Light</span>
+                        <span class="badge rounded-pill bg-light border"><i class="fa-solid fa-sun"></i> Light</span>
                         <span class="badge rounded-pill bg-dark"><i class="fa-solid fa-moon"></i> Dark</span>
                     </div>
 
@@ -654,6 +706,260 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card test-section-card mb-4 border-uvaco-primary">
+                <div class="card-header bg-uvaco-primary-subtle fw-bold text-uvaco-primary-emphasis d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-vial-circle-check text-uvaco-primary"></i> 12. UVACO 專屬語意命名組件測試矩陣 (.uvaco-* Series)</span>
+                    <span class="badge bg-uvaco-primary text-uvaco-primary-contrast"><i class="fa-solid fa-gem"></i> UV-Design Token</span>
+                </div>
+                <div class="card-body">
+
+                    <h6 class="fw-bold mb-2 text-uvaco-primary-emphasis"><i class="fa-solid fa-square text-uvaco-primary"></i> 12.1 .btn-uvaco-* 實心專屬按鈕 (Primary ~ Dark)</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <button type="button" class="btn btn-uvaco-primary"><i class="fa-solid fa-star"></i> Primary</button>
+                        <button type="button" class="btn btn-uvaco-secondary"><i class="fa-solid fa-bolt"></i> Secondary</button>
+                        <button type="button" class="btn btn-uvaco-accent"><i class="fa-solid fa-bullseye"></i> Accent</button>
+                        <button type="button" class="btn btn-uvaco-muted"><i class="fa-solid fa-circle-info"></i> Muted</button>
+                        <button type="button" class="btn btn-uvaco-success"><i class="fa-solid fa-check"></i> Success</button>
+                        <button type="button" class="btn btn-uvaco-info"><i class="fa-solid fa-info"></i> Info</button>
+                        <button type="button" class="btn btn-uvaco-warning"><i class="fa-solid fa-triangle-exclamation"></i> Warning</button>
+                        <button type="button" class="btn btn-uvaco-danger"><i class="fa-solid fa-ban"></i> Danger</button>
+                        <button type="button" class="btn btn-uvaco-light"><i class="fa-solid fa-sun"></i> Light</button>
+                        <button type="button" class="btn btn-uvaco-dark"><i class="fa-solid fa-moon"></i> Dark</button>
+                    </div>
+
+                    <h6 class="fw-bold mb-2 text-uvaco-primary-emphasis"><i class="fa-regular fa-square text-uvaco-secondary"></i> 12.2 .btn-outline-uvaco-* 外框專屬按鈕 (Primary ~ Dark)</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <button type="button" class="btn btn-outline-uvaco-primary"><i class="fa-solid fa-star"></i> Primary</button>
+                        <button type="button" class="btn btn-outline-uvaco-secondary"><i class="fa-solid fa-bolt"></i> Secondary</button>
+                        <button type="button" class="btn btn-outline-uvaco-accent"><i class="fa-solid fa-bullseye"></i> Accent</button>
+                        <button type="button" class="btn btn-outline-uvaco-muted"><i class="fa-solid fa-circle-info"></i> Muted</button>
+                        <button type="button" class="btn btn-outline-uvaco-success"><i class="fa-solid fa-check"></i> Success</button>
+                        <button type="button" class="btn btn-outline-uvaco-info"><i class="fa-solid fa-info"></i> Info</button>
+                        <button type="button" class="btn btn-outline-uvaco-warning"><i class="fa-solid fa-triangle-exclamation"></i> Warning</button>
+                        <button type="button" class="btn btn-outline-uvaco-danger"><i class="fa-solid fa-ban"></i> Danger</button>
+                        <button type="button" class="btn btn-outline-uvaco-light"><i class="fa-solid fa-sun"></i> Light</button>
+                        <button type="button" class="btn btn-outline-uvaco-dark"><i class="fa-solid fa-moon"></i> Dark</button>
+                    </div>
+
+                    <h6 class="fw-bold mb-2 text-uvaco-primary-emphasis"><i class="fa-solid fa-bell text-uvaco-accent"></i> 12.3 .alert-uvaco-* 專屬告示框 (Primary ~ Dark)</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-primary mb-0" role="alert">
+                                <i class="fa-solid fa-star"></i> .alert-uvaco-primary 核心告示
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-secondary mb-0" role="alert">
+                                <i class="fa-solid fa-bolt"></i> .alert-uvaco-secondary 次要提示
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-accent mb-0" role="alert">
+                                <i class="fa-solid fa-bullseye"></i> .alert-uvaco-accent 重點提醒
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-muted mb-0" role="alert">
+                                <i class="fa-solid fa-circle-info"></i> .alert-uvaco-muted 輔助說明
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-success mb-0" role="alert">
+                                <i class="fa-solid fa-check"></i> .alert-uvaco-success 成功狀態
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-info mb-0" role="alert">
+                                <i class="fa-solid fa-info"></i> .alert-uvaco-info 資訊廣播
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-warning mb-0" role="alert">
+                                <i class="fa-solid fa-triangle-exclamation"></i> .alert-uvaco-warning 警示通知
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-danger mb-0" role="alert">
+                                <i class="fa-solid fa-ban"></i> .alert-uvaco-danger 錯誤拒絕
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-light mb-0" role="alert">
+                                <i class="fa-solid fa-sun"></i> .alert-uvaco-light 淺色告示
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-uvaco-dark mb-0" role="alert">
+                                <i class="fa-solid fa-moon"></i> .alert-uvaco-dark 深色告示
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-2 text-uvaco-primary-emphasis"><i class="fa-solid fa-layer-group text-uvaco-primary"></i> 12.4 .bg-uvaco-* &amp; .text-uvaco-* 背景與文字階梯 (Primary ~ Dark)</h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-primary text-uvaco-primary-contrast rounded text-center small fw-bold">
+                                Primary Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-secondary text-uvaco-secondary-contrast rounded text-center small fw-bold">
+                                Secondary Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-accent text-uvaco-accent-contrast rounded text-center small fw-bold">
+                                Accent Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-muted text-uvaco-muted-contrast rounded text-center small fw-bold">
+                                Muted Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-success text-uvaco-success-contrast rounded text-center small fw-bold">
+                                Success Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-info text-uvaco-info-contrast rounded text-center small fw-bold">
+                                Info Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-warning text-uvaco-warning-contrast rounded text-center small fw-bold">
+                                Warning Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-danger text-uvaco-danger-contrast rounded text-center small fw-bold">
+                                Danger Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-light text-uvaco-light-contrast border rounded text-center small fw-bold">
+                                Light Solid
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="p-2 bg-uvaco-dark text-uvaco-dark-contrast rounded text-center small fw-bold">
+                                Dark Solid
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-2 text-uvaco-primary-emphasis"><i class="fa-solid fa-list-check text-uvaco-primary"></i> 12.5 清單與焦點框驗證 (.list-group-item-uvaco-*)</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-uvaco-primary"><i class="fa-solid fa-star"></i> .list-group-item-uvaco-primary</li>
+                                <li class="list-group-item list-group-item-uvaco-secondary"><i class="fa-solid fa-bolt"></i> .list-group-item-uvaco-secondary</li>
+                                <li class="list-group-item list-group-item-uvaco-accent"><i class="fa-solid fa-bullseye"></i> .list-group-item-uvaco-accent</li>
+                                <li class="list-group-item list-group-item-uvaco-muted"><i class="fa-solid fa-circle-info"></i> .list-group-item-uvaco-muted</li>
+                                <li class="list-group-item list-group-item-uvaco-success"><i class="fa-solid fa-check"></i> .list-group-item-uvaco-success</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-uvaco-info"><i class="fa-solid fa-info"></i> .list-group-item-uvaco-info</li>
+                                <li class="list-group-item list-group-item-uvaco-warning"><i class="fa-solid fa-triangle-exclamation"></i> .list-group-item-uvaco-warning</li>
+                                <li class="list-group-item list-group-item-uvaco-danger"><i class="fa-solid fa-ban"></i> .list-group-item-uvaco-danger</li>
+                                <li class="list-group-item list-group-item-uvaco-light"><i class="fa-solid fa-sun"></i> .list-group-item-uvaco-light</li>
+                                <li class="list-group-item list-group-item-uvaco-dark"><i class="fa-solid fa-moon"></i> .list-group-item-uvaco-dark</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="card test-section-card mb-4 border-uvaco-primary">
+                <div class="card-header bg-uvaco-primary-subtle fw-bold text-uvaco-primary-emphasis d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-wand-magic-sparkles text-uvaco-primary"></i> 13. UVACO 邊框與光澤懸停測試 (.test-glow-card)</span>
+                    <span class="badge bg-uvaco-primary text-uvaco-primary-contrast"><i class="fa-solid fa-lightbulb"></i> Hover Effect</span>
+                </div>
+                <div class="card-body">
+                    <p class="small text-secondary mb-3">
+                        測試 <code>--uvaco-border-color</code>（靜態結構線）、<code>--uvaco-border-glow</code>（霓虹光暈）與 <code>--uvaco-border-highlight</code>（焦點邊框）。滑鼠移入卡片即可觸發霓虹微光與浮動效果：
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card test-glow-card p-3 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-shield-cat text-primary fs-4"></i> 
+                                    <h6 class="fw-bold mb-0 text-primary">標準光澤感應卡片</h6>
+                                </div>
+                                <p class="small text-muted mb-0">當滑鼠移入時，邊框線提升為 Highlight 焦點色，並向外噴發 25px 主題專屬霓虹柔彩與向上微幅浮動。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card test-glow-card p-3 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-chart-pie text-accent fs-4"></i> 
+                                    <h6 class="fw-bold mb-0 text-accent">戰情數據分析模組</h6>
+                                </div>
+                                <p class="small text-muted mb-0">光暈色彩隨頂部主題動態響應，在翡翠綠、鋼鐵藍、魅影紫切換時自動無縫更換發光色彩。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card test-glow-card p-3 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-key text-secondary fs-4"></i> 
+                                    <h6 class="fw-bold mb-0 text-secondary">權限控管狀態模組</h6>
+                                </div>
+                                <p class="small text-muted mb-0">採用 0.3 秒平滑 cubic-bezier 曲線過渡，呈現高質感 SaaS 戰情主控台互動體感。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card test-section-card mb-4 border-uvaco-primary">
+                <div class="card-header bg-uvaco-primary-subtle fw-bold text-uvaco-primary-emphasis d-flex justify-content-between align-items-center">
+                    <span><i class="fa-solid fa-sitemap text-uvaco-primary"></i> 14. UVACO Layout Tokens 門戶戰情模擬盒 (.demo-layout-*)</span>
+                    <span class="badge bg-uvaco-primary text-uvaco-primary-contrast"><i class="fa-solid fa-sliders"></i> Layout System</span>
+                </div>
+                <div class="card-body">
+                    <p class="small text-secondary mb-3">
+                        實體化測試 <code>--bg-sidebar</code>（側邊欄底色）、<code>--bg-header</code>（頂欄底色）、<code>--sidebar-active-bg</code>（當前選單底色）與 <code>--accent-hover</code>（選單懸停微光）：
+                    </p>
+                    <div class="demo-layout-box">
+                        <div class="demo-layout-header d-flex align-items-center justify-content-between px-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-bars text-secondary"></i> 
+                                <span class="fw-bold small text-primary"><i class="fa-solid fa-layer-group"></i> Portal Header Area (--bg-header)</span>
+                            </div>
+                            <span class="badge bg-primary-subtle text-primary-emphasis"><i class="fa-solid fa-user-gear"></i> Ray's Team Portal</span>
+                        </div>
+                        <div class="row g-0">
+                            <div class="col-md-3 col-12 demo-layout-sidebar p-2">
+                                <div class="small fw-bold text-muted px-2 py-1 mb-1"><i class="fa-solid fa-compass"></i> 選單模組 (--bg-sidebar)</div>
+                                <div class="demo-sidebar-nav-item active mb-1">
+                                    <i class="fa-solid fa-house me-2"></i> 主控台總覽 (Active)
+                                </div>
+                                <div class="demo-sidebar-nav-item mb-1">
+                                    <i class="fa-solid fa-boxes-stacked me-2"></i> 產品目錄庫 (Hover 試試)
+                                </div>
+                                <div class="demo-sidebar-nav-item mb-1">
+                                    <i class="fa-solid fa-calculator me-2"></i> 獎金即時速算箱
+                                </div>
+                                <div class="demo-sidebar-nav-item">
+                                    <i class="fa-solid fa-shield-halved me-2"></i> 團隊 SOP 下載區
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-12 p-3 bg-body-tertiary">
+                                <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center p-4 border border-dashed rounded">
+                                    <i class="fa-solid fa-laptop-code text-primary fs-1 mb-2"></i> 
+                                    <h6 class="fw-bold text-primary mb-1">內頁渲染區域 (Content Area)</h6>
+                                    <p class="small text-muted mb-0">預設套用全域 <code>--bs-body-bg</code> 與卡片圓角 <code>--radius</code> (12px)。</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

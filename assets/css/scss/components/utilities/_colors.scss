@@ -22,14 +22,14 @@ $uvaco-theme-colors: (
 
 // 1.1 為不同語意 Key 提供精準的預設對比文字色 fallback (解決 WCAG 可讀性問題)
 $uvaco-contrast-fallbacks: (
-    "primary":   var(--uvaco-text-light),
+    "primary":   var(--uvaco-text-dark),
     "secondary": var(--uvaco-text-dark),
     "accent":    var(--uvaco-text-dark),
-    "muted":     var(--uvaco-text-light),
-    "success":   var(--uvaco-text-light),
+    "muted":     var(--uvaco-text-dark),
+    "success":   var(--uvaco-text-dark),
     "info":      var(--uvaco-text-dark),
     "warning":   var(--uvaco-text-dark),
-    "danger":    var(--uvaco-text-light),
+    "danger":    var(--uvaco-text-dark),
     "light":     var(--uvaco-text-dark),
     "dark":      var(--uvaco-text-light)
 ) !default;
@@ -45,6 +45,7 @@ $uvaco-contrast-fallbacks: (
     @each $name in $prefixes {
         // --- Backgrounds (.bg-*, .bg-*-subtle, .text-bg-*) ---
         .bg-#{$name} {
+            color: var(--uvaco-#{$key}-contrast, #{$default-contrast}) !important;
             background-color: var(--uvaco-#{$key}) !important;
         }
         .bg-#{$name}-subtle {
@@ -112,6 +113,13 @@ $uvaco-contrast-fallbacks: (
             --bs-btn-disabled-color: var(--uvaco-#{$key});
             --bs-btn-disabled-bg: transparent;
             --bs-btn-disabled-border-color: var(--uvaco-#{$key});
+        }
+
+        // --- Badges (.badges-*) ---
+        .badge-#{$name}-subtle {
+            background-color: var(--bs-#{$key}-bg-subtle);
+            color: var(--bs-#{$key}-text-emphasis);
+            border: 1px solid var(--bs-#{$key}-border-subtle);
         }
 
         // --- Alerts (.alert-*) ---

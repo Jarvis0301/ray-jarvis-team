@@ -8,14 +8,14 @@ const FALLBACK_DATA = {
             "產品編號": "P001",
             "產品名稱": "衛傑 (Wei-Jie)",
             "產品簡稱": "衛傑",
-            "產品型態": "膠囊產品",
+            "產品型態": "膠囊",
             "包裝規格": "100 粒/瓶",
             "售價": "NT$ 1,680",
             "全球 SV": "1,400",
             "上市日期": "2018-05-10",
             "更新日期": "2026-01-01",
-            "認證產品": "SNQ國家品質標章",
-            "特色與主要功能主要成分": "含有山藥粉、猴頭菇菌絲體粉末、食用蕈菇菌絲體粉末及複合乳酸菌。<br>專為現代高壓外食族群設計，幫助維持身體舒適與日常順暢。",
+            "認證": "SNQ國家品質標章",
+            "產品特色與主要功能": "含有山藥粉、猴頭菇菌絲體粉末、食用蕈菇菌絲體粉末及複合乳酸菌。<br>專為現代高壓外食族群設計，幫助維持身體舒適與日常順暢。",
             "產品獨立網頁": "#",
             "圖片網址": "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0103003_衛傑_20251016_1.png",
             "官方網站": "https://www.uvaco.com.tw/Products/51/62/TW0103003",
@@ -28,14 +28,14 @@ const FALLBACK_DATA = {
             "產品編號": "P001",
             "產品名稱": "Wei-Jie Capsule",
             "產品簡稱": "Wei-Jie",
-            "產品型態": "膠囊產品",
+            "產品型態": "膠囊",
             "包裝規格": "100 Capsules/Bottle",
             "售價": "RM 250",
             "全球 SV": "1,400",
             "上市日期": "2020-08-15",
             "更新日期": "2026-01-01",
-            "認證產品": "HALAL 清真認證",
-            "特色與主要功能主要成分": "Contains Yam Powder, Hericium Erinaceus Mycelium, and Probiotics for daily digestive care.",
+            "認證": "HALAL 清真認證",
+            "產品特色與主要功能": "Contains Yam Powder, Hericium Erinaceus Mycelium, and Probiotics for daily digestive care.",
             "產品獨立網頁": "#",
             "圖片網址": "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0103003_衛傑_20251016_1.png",
             "官方網站": "https://www.uvaco.com.my",
@@ -45,7 +45,7 @@ const FALLBACK_DATA = {
     ],
     "TYPES": [
         {
-            "中文": "膠囊產品",
+            "中文": "膠囊",
             "英文": "Capsule",
             "Font Awesome Icon": "fa-capsules",
             "文字與外框顏色": "#34d399",
@@ -68,8 +68,8 @@ let currentRegion = 'TW';
 let currentProductId = 'TW0101001';
 let sheetDatabase = {};
 
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
     currentProductId = getUrlParameter('id') || 'TW0101001';
     currentRegion = getUrlParameter('region') || 'TW';
 
@@ -161,12 +161,12 @@ function renderProductView() {
         $('#adCopyContent').html(product["廣告文案"] || "專為現代上班族打造的隨身養護方案，讓每日營養補充更有感。");
         
         // 渲染官方成分
-        $('#officialIngredients').html(product["特色與主要功能主要成分"]);
+        $('#officialIngredients').html(product["產品特色與主要功能"]);
 
         $('#productID').text(product["產品編號"]);
         $('#launchDate').text(product["上市日期"]);
         $('#updateDate').text(product["更新日期"]);
-        $('#certInfo').text(product["認證產品"] || "總公司檢驗合格");
+        $('#certInfo').text(product["認證"] || "總公司檢驗合格");
 
         // 按鈕連結綁定
         $('#officialBtn').attr('href', product["官方網站"]);
@@ -174,17 +174,17 @@ function renderProductView() {
 
         // 動態型態 Badge
         let typeBadgeHtml = `
-            <span class="custom-badge" style="background-color: ${typeStyle.BgColor}; color: ${typeStyle.Color}; border: 1px solid rgba(52, 211, 153, 0.25);">
+            <span class="badge px-3 py-2 m-1" style="background-color: ${typeStyle.BgColor}; color: ${typeStyle.Color}; border: 1px solid rgba(52, 211, 153, 0.25);">
                 <i class="fa-solid ${typeStyle.Icon}"></i> ${product["產品型態"]}
             </span>
         `;
         $('#productTypeBadge').html(typeBadgeHtml);
 
         // 認證 Badge
-        if (product["認證產品"]) {
+        if (product["認證"]) {
             let certBadgeHtml = `
-                <span class="custom-badge bg-warning text-dark">
-                    <i class="fa-solid fa-award"></i> ${product["認證產品"]}
+                <span class="badge bg-warning px-3 py-2 m-1">
+                    <i class="fa-solid fa-award"></i> ${product["認證"]}
                 </span>
             `;
             $('#certBadge').html(certBadgeHtml);

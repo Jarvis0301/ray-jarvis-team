@@ -30,69 +30,44 @@ const fallbackDataMap = {
     ]
 };
 
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
+    Utils.equalizeWidths('#region-tabs label');
+
     // 初始化渲染子分類按鈕與數據載入
     updateSubCategoryTabs();
     loadRegionAwards(currentRegion);
 
-    // 1. 區域分頁切換事件
-    $('#region-tabs .nav-link').on('click', function() {
-        const selectedRegion = $(this).data('region');
-        if (selectedRegion === currentRegion) return;
-
-        $('#region-tabs .nav-link').removeClass('active');
-        $(this).addClass('active');
-
-        currentRegion = selectedRegion;
-        // 重置子類別與搜尋字串
-        currentSubCategory = (currentRegion === '台灣') ? '企業' : 'Corporate';
-        searchText = '';
-        $('#award-search').val('');
-
-        updateSubCategoryTabs();
-        loadRegionAwards(currentRegion);
-    });
-
-    // 2. 即時搜尋輸入事件
-    $('#award-search').on('input', function() {
-        searchText = $(this).val().toLowerCase().trim();
-        renderAwards();
-    });
+    bindFilterEvents();
 });
 
 // 動態生成區域對應的子分類按鈕 (企業/產品 vs Corporate/Products)
 function updateSubCategoryTabs() {
-    const $wrapper = $('#sub-category-wrapper');
-    $wrapper.empty();
+    const isTaiwan = currentRegion === '台灣';
+    const options = isTaiwan ? [
+        { val: '企業', label: '企業榮譽', icon: 'fa-building' },
+        { val: '產品', label: '產品榮譽', icon: 'fa-leaf' }
+    ] : [
+        { val: 'Corporate', label: 'Corporate', icon: 'fa-building' },
+        { val: 'Products', label: 'Products', icon: 'fa-leaf' }
+    ];
 
-    if (currentRegion === '台灣') {
-        $wrapper.html(`
-            <button class="sub-tab-btn ${currentSubCategory === '企業' ? 'active' : ''}" data-type="企業">
-                <i class="fa-solid fa-building me-1"></i> 企業榮譽
-            </button>
-            <button class="sub-tab-btn ${currentSubCategory === '產品' ? 'active' : ''}" data-type="產品">
-                <i class="fa-solid fa-leaf me-1"></i> 產品榮譽
-            </button>
-        `);
-    } else {
-        $wrapper.html(`
-            <button class="sub-tab-btn ${currentSubCategory === 'Corporate' ? 'active' : ''}" data-type="Corporate">
-                <i class="fa-solid fa-building me-1"></i> Corporate
-            </button>
-            <button class="sub-tab-btn ${currentSubCategory === 'Products' ? 'active' : ''}" data-type="Products">
-                <i class="fa-solid fa-leaf me-1"></i> Products
-            </button>
-        `);
-    }
+    let html = '';
+    options.forEach((opt, idx) => {
+        const isChecked = currentSubCategory === opt.val ? 'checked' : '';
+        const inputId = `sub-tab-${idx}`;
 
-    // 重新綁定子分類按鈕點擊事件
-    $('.sub-tab-btn').off('click').on('click', function() {
-        $('.sub-tab-btn').removeClass('active');
-        $(this).addClass('active');
-        currentSubCategory = $(this).data('type');
-        renderAwards();
+        html += `
+            <input type="radio" class="btn-check" name="sub-category" id="${inputId}" value="${opt.val}" autocomplete="off" ${isChecked}>
+            <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">
+                <i class="fa-solid ${opt.icon} me-1"></i> ${opt.label}
+            </label>
+        `;
     });
+
+    $('#sub-category-wrapper').html(html);
+
+    Utils.equalizeWidths('#sub-category-wrapper label');
 }
 
 // 載入區域榮譽資料 (快取優先)
@@ -266,10 +241,42 @@ function renderAwards() {
     });
 }
 
+// 事件監聽綁定
+function bindFilterEvents() {
+    // 區域分頁切換事件（監聽 Radio 的 change 事件）
+    $(document).on('change', 'input[name="region-type"]', function () {
+        const selectedRegion = $(this).val();
+        if (selectedRegion === currentRegion) return;
+
+        currentRegion = selectedRegion;
+        
+        // 重置子類別與搜尋字串
+        currentSubCategory = (currentRegion === '台灣') ? '企業' : 'Corporate';
+        searchText = '';
+        $('#award-search').val('');
+
+        updateSubCategoryTabs();
+        loadRegionAwards(currentRegion);
+    });
+
+    // 子分類按鈕點擊切換事件（統一在全域設定一次事件委派，不需在 updateSubCategoryTabs 內部重複綁定）
+    $(document).on('change', 'input[name="sub-category"]', function () {
+        currentSubCategory = $(this).val();
+        renderAwards();
+    });
+
+    // 即時搜尋輸入事件
+    $('#award-search').on('input', function() {
+        searchText = $(this).val().toLowerCase().trim();
+        renderAwards();
+    });
+}
+
+
 // 顯示 Loading Spinner
 function showLoadingSpinner(regionName) {
     $('#awards-grid').html(`
-        <div id="loading-spinner" class="text-center col-12">
+        <div class="loading-spinner text-center col-12">
             <div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>

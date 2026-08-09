@@ -1,4 +1,8 @@
-// assets/js/auth-guard.js - 三階全站共用門禁衛兵 (支援即時撤銷與自動路由)
+/**
+ * assets/js/auth-guard.js
+ * 全站門禁衛兵：最高優先級執行，負責權限核驗與無授權重導向
+ * 三階全站共用門禁衛兵 (支援即時撤銷與自動路由)
+ */
 (function() {
     // 1. 立即隱藏 HTML 畫面，防範畫面閃爍與未授權內容外洩
     document.documentElement.style.display = 'none';

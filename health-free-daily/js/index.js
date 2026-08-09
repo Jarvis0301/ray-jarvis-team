@@ -20,8 +20,8 @@ const fallbackMenuData = [
 
 let menuTreeMap = new Map();
 
-// 核心修改：監聽 vendorReady 事件，確保 jQuery 與 Chart.js 已全部載入記憶體
-window.addEventListener('vendorReady', function() {
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
     initSidebarToggle();
     fetchGoogleSheetMenu();
     initDesktopSitemapObserver();
@@ -279,7 +279,7 @@ function loadPage(pageUrl) {
                     <div class="card-body text-center">
                         <i class="fas fa-hammer text-green display-4 mb-3"></i>
                         <h3>本頁面建置中，敬請期待！</h3>
-                        <button class="btn btn-outline-green mt-2" onclick="loadPage('home.html')">
+                        <button class="btn btn-outline-primary mt-2" onclick="loadPage('home.html')">
                             <i class="fas fa-house"></i> 返回首頁
                         </button>
                     </div>

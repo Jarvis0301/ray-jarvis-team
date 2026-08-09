@@ -1,13 +1,58 @@
-// 強制讓 Bootstrap 的 btn-primary 綁定你的 --uvaco-primary
-.btn-primary {
-    --bs-btn-color: #000000;
-    --bs-btn-bg: var(--uvaco-primary);
-    --bs-btn-border-color: var(--uvaco-primary);
-    --bs-btn-hover-color: #000000;
-    --bs-btn-hover-bg: var(--uvaco-primary-hover);
-    --bs-btn-hover-border-color: var(--uvaco-primary-hover);
-    --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-    --bs-btn-active-color: #000000;
-    --bs-btn-active-bg: var(--uvaco-primary-hover);
-    --bs-btn-active-border-color: var(--uvaco-primary-hover);
+$uvaco-theme-colors: (
+    "primary":   var(--uvaco-primary),
+    "secondary": var(--uvaco-secondary),
+    "accent":    var(--uvaco-accent),
+    "muted":     var(--uvaco-muted),
+    "success":   var(--uvaco-success),
+    "info":      var(--uvaco-info),
+    "warning":   var(--uvaco-warning),
+    "danger":    var(--uvaco-danger),
+    "light":     var(--uvaco-light),
+    "dark":      var(--uvaco-dark)
+) !default;
+
+@each $key, $value in $uvaco-theme-colors {
+    $prefixes: ("uvaco-#{$key}", $key);
+
+    @each $name in $prefixes {
+        // --- Buttons (.btn-*, .btn-outline-*) ---
+        .btn-#{$name} {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+
+            /*
+            &:hover {
+                transform: translateY(-2px);
+            }
+            */
+        }
+
+        .btn-outline-#{$name} {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+        }
+
+        // --------------------------------------------------------------------------
+        // 按鈕群組
+        // --------------------------------------------------------------------------
+
+        /* 未選中按鈕 hover 時 */
+        .btn-check:not(:checked) + .btn-outline-#{$name}:hover {
+            background-color: var(--uvaco-#{$key});
+            color: #FFFFFF;
+            border-color: var(--uvaco-#{$key}-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--uvaco-#{$key}-glow);
+        }
+
+        /* 已選中按鈕 hover 時 */
+        .btn-check:checked + .btn-#{$name}:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--uvaco-#{$key}-glow);
+        }
+    }
 }
