@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>榮祥團隊 Ray's Team - M3 + BS5 融合架構範本</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    
+    <style>
+        /* ==========================================================================
+           Google Material 3 Expressive + Bootstrap 5 融合主題系統 (Dark Theme)
+           ========================================================================== */
+        :root {
+            /* M3 Color System (內部團隊版 - 藍色系範例) */
+            --m3-sys-color-background: #090d16;
+            --m3-sys-color-surface: #131b2e;
+            --m3-sys-color-surface-hover: #1a253e;
+            --m3-sys-color-surface-variant: #1e293b;
+            --m3-sys-color-primary: #3b82f6;
+            --m3-sys-color-primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --m3-sys-color-secondary: #60a5fa;
+            --m3-sys-color-on-surface: #f1f5f9;
+            --m3-sys-color-on-surface-variant: #94a3b8;
+            --m3-sys-color-outline: rgba(255, 255, 255, 0.08);
+
+            /* M3 Expressive Shape Scale (大曲率圓角) */
+            --m3-shape-corner-small: 8px;
+            --m3-shape-corner-medium: 16px;
+            --m3-shape-corner-large: 24px;
+            --m3-shape-corner-full: 9999px;
+        }
+
+        body {
+            background-color: var(--m3-sys-color-background);
+            color: var(--m3-sys-color-on-surface);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 覆蓋 Bootstrap 5 卡片為 M3 Expressive 質感 */
+        .card-m3 {
+            background: var(--m3-sys-color-surface);
+            border: 1px solid var(--m3-sys-color-outline);
+            border-radius: var(--m3-shape-corner-large);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-m3:hover {
+            background: var(--m3-sys-color-surface-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(59, 130, 246, 0.15);
+        }
+
+        /* M3 膠囊按鈕 + BS5 漸層效果 */
+        .btn-m3-primary {
+            background: var(--m3-sys-color-primary-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--m3-shape-corner-full);
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-m3-primary:hover {
+            color: #ffffff;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        /* 漸層文字標題 */
+        .gradient-text {
+            background: var(--m3-sys-color-primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        /* DataTable 深色客製化 */
+        .dataTables_wrapper {
+            color: var(--m3-sys-color-on-surface) !important;
+        }
+        table.dataTable {
+            border-color: var(--m3-sys-color-outline) !important;
+        }
+        table.dataTable tbody tr {
+            background-color: var(--m3-sys-color-surface) !important;
+            color: var(--m3-sys-color-on-surface) !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: var(--m3-sys-color-surface-hover) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: rgba(9, 13, 22, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--m3-sys-color-outline);">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-shield-halved text-primary me-2"></i> 榮祥團隊 Ray's Team
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-chart-line"></i> 業績儀表板</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-box-archive"></i> 產品庫存表</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-users-gear"></i> 組織管理</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-8">
+                <span class="badge rounded-pill bg-primary bg-opacity-20 text-primary mb-2 px-3 py-2">
+                    <i class="fas fa-sparkles"></i> M3 Expressive + Bootstrap 5 雙軌架構
+                </span>
+                <h1 class="display-5 gradient-text mb-3">數據指揮總樞紐</h1>
+                <p class="text-secondary lead">融合動態漸層色彩學與高曲率卡片層級，為榮祥團隊提供秒級響應的組織營運數據分析系統。</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <button class="btn btn-m3-primary me-2">
+                    <i class="fas fa-download"></i> 匯出數據報表
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card-m3 p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary"><i class="fas fa-sack-dollar"></i> 本月估算 PV</span>
+                        <span class="badge bg-success bg-opacity-20 text-success rounded-pill"><i class="fas fa-arrow-up"></i> +12.5%</span>
+                    </div>
+                    <h2 class="fw-bold mb-1">1,285,400 <small class="fs-6 text-secondary">PV</small></h2>
+                    <p class="text-secondary small mb-0">距離下個晉升階梯差 14,600 PV</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-m3 p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary"><i class="fas fa-users"></i> 活躍夥伴數</span>
+                        <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill"><i class="fas fa-user-plus"></i> 本月 +8</span>
+                    </div>
+                    <h2 class="fw-bold mb-1">142 <small class="fs-6 text-secondary">人</small></h2>
+                    <p class="text-secondary small mb-0">合格經理以上職級佔 38%</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-m3 p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary"><i class="fas fa-boxes-stacked"></i> 庫存安全指數</span>
+                        <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill"><i class="fas fa-shield-check"></i> 良好</span>
+                    </div>
+                    <h2 class="fw-bold mb-1">98.4 <small class="fs-6 text-secondary">%</small></h2>
+                    <p class="text-secondary small mb-0">康爾婷/995 無缺貨預警</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card-m3 p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-chart-area text-primary"></i> 組織 PV 成長漸層趨勢圖</h5>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="pvGrowthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card-m3 p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-list-check text-primary"></i> 熱銷產品數據表</h5>
+                    <div class="table-responsive">
+                        <table id="productTable" class="table table-hover align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>產品名稱</th>
+                                    <th>單位 PV</th>
+                                    <th>狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 mt-5" style="border-top: 1px solid var(--m3-sys-color-outline); background: var(--m3-sys-color-surface);">
+        <div class="container text-center text-secondary small">
+            <p class="mb-1"><i class="far fa-copyright"></i> 2026 榮祥團隊 Ray's Team | 本網站由榮祥團隊獨立運營，非葡眾官方網站</p>
+            <p class="mb-0">以科技賦能組織 · 邁向健康與自由人生</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1. 初始化 DataTable.js (與試算表欄位解耦架構預備)
+            const mockProductData = [
+                { name: "995 生技營養品", pv: "5,040", status: "熱銷中" },
+                { name: "樟芝益菌絲體粉", pv: "3,880", status: "熱銷中" },
+                { name: "康爾喜乳酸菌", pv: "1,470", status: "充足" },
+                { name: "迪斯尼微量元素", pv: "1,200", status: "補充中" },
+                { name: "衛傑生技營養品", pv: "2,600", status: "充足" }
+            ];
+
+            $('#productTable').DataTable({
+                data: mockProductData,
+                columns: [
+                    { data: 'name' },
+                    { data: 'pv' },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            return `<span class="badge bg-primary bg-opacity-20 text-primary rounded-pill"><i class="fas fa-check-circle"></i> ${data}</span>`;
+                        }
+                    }
+                ],
+                pageLength: 4,
+                lengthChange: false,
+                searching: false,
+                info: false,
+                language: {
+                    paginate: {
+                        previous: '<i class="fas fa-chevron-left"></i>',
+                        next: '<i class="fas fa-chevron-right"></i>'
+                    }
+                }
+            });
+
+            // 2. 初始化 Chart.js 漸層圖表 (Gradient Fill Example)
+            const ctx = document.getElementById('pvGrowthChart').getContext('2d');
+            
+            // 建立藍色系漸層
+            const gradientFill = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientFill.addColorStop(0, 'rgba(59, 130, 246, 0.45)');  /* 頂部半透明藍 */
+            gradientFill.addColorStop(1, 'rgba(59, 130, 246, 0.00)');  /* 底部全透明 */
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '月度總 PV',
+                        data: [620000, 780000, 850000, 920000, 1100000, 1285400],
+                        borderColor: '#3b82f6',
+                        borderWidth: 3,
+                        backgroundColor: gradientFill,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#60a5fa',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

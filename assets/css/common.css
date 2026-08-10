@@ -1183,14 +1183,42 @@
   --bs-form-invalid-border-color: #ea868f;
 }
 
-body {
-  background-color: transparent;
+/* body {
+    background-color: transparent;
+    color: var(--uvaco-text-primary);
+    font-family: var(--uvaco-font-family-base);
+    line-height: var(--uvaco-line-height-base);
+    overflow-x: hidden;
+} */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--uvaco-bg-primary);
   color: var(--uvaco-text-primary);
-  font-family: var(--uvaco-font-family-base);
-  line-height: var(--uvaco-line-height-base);
-  overflow-x: hidden;
+  font-family: var(--bs-body-font-family);
+  -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, .brand-font {
+  font-family: "Montserrat", var(--bs-font-sans-serif);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
 /* ==========================================================================
    Card 卡片元件 (遵循 Bootstrap 5 變數擴充)
    ========================================================================== */
@@ -5584,6 +5612,117 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 300px;
+}
+
+@keyframes ctaPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px var(--uvaco-border-glow);
+    border-color: var(--uvaco-border-highlight);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--uvaco-border-glow);
+    border-color: var(--uvaco-text-light);
+  }
+}
+.btn-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2.25rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--uvaco-text-light) !important;
+  background: linear-gradient(135deg, var(--uvaco-primary) 0%, var(--uvaco-secondary) 100%);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: 50rem;
+  box-shadow: 0 0 20px var(--uvaco-border-glow);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  z-index: 1;
+}
+.btn-cta:hover {
+  color: var(--uvaco-text-light) !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 30px var(--uvaco-border-glow);
+  border-color: var(--uvaco-text-light);
+}
+.btn-cta:hover i {
+  transform: translateX(-5px);
+}
+.btn-cta:active {
+  transform: translateY(-1px) scale(0.99);
+}
+.btn-cta i {
+  transition: transform 0.3s ease;
+}
+.btn-cta.btn-cta-pulse {
+  animation: ctaPulseGlow 2.5s infinite ease-in-out;
+}
+
+.badge-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--uvaco-text-light);
+  background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.25) 0%, rgba(var(--bs-secondary-rgb), 0.15) 100%);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: 50rem;
+  box-shadow: 0 0 12px var(--uvaco-border-glow);
+  backdrop-filter: blur(8px);
+}
+.badge-cta.badge-cta-pulse {
+  animation: ctaPulseGlow 2s infinite ease-in-out;
+}
+
+.card-cta {
+  position: relative;
+  background: linear-gradient(145deg, var(--uvaco-bg-card) 0%, var(--uvaco-bg-primary) 100%);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: var(--radius, 16px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 25px var(--uvaco-border-glow);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.card-cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--uvaco-primary), var(--uvaco-secondary), var(--uvaco-accent));
+}
+.card-cta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 35px var(--uvaco-border-glow);
+}
+
+.callout-cta {
+  padding: 2.25rem 2.5rem;
+  background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.12) 0%, var(--uvaco-bg-primary) 100%);
+  border-left: 4px solid var(--uvaco-primary);
+  border-radius: var(--radius, 12px);
+  box-shadow: inset 0 0 20px rgba(var(--bs-primary-rgb), 0.08), 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.cta-floating-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1080;
+  padding: 0.75rem 1rem;
+  background: rgba(var(--bs-body-bg-rgb, 5, 24, 17), 0.92);
+  border-top: 1px solid var(--uvaco-border-highlight);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
 }
 
 /*

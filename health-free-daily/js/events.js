@@ -255,11 +255,11 @@ function createEventCardHtml(item) {
     // 按鈕邏輯
     let actionBtnHtml = '';
     if (item.isExpired) {
-        actionBtnHtml = `<div class="btn-uvaco-disabled"><i class="fa-solid fa-lock"></i> 活動已結束</div>`;
+        actionBtnHtml = `<div class="btn btn-muted w-100"><i class="fa-solid fa-lock"></i> 活動已結束</div>`;
     } else if (item.regUrl && item.regUrl.trim() !== '') {
-        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> 立即線上報名</a>`;
+        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary w-100"><i class="fa-solid fa-paper-plane"></i> 立即線上報名</a>`;
     } else {
-        actionBtnHtml = `<div class="btn-uvaco-secondary"><i class="fa-solid fa-circle-info"></i> 現場自由入場 / 聯繫我們</div>`;
+        actionBtnHtml = `<div class="btn btn-secondary w-100"><i class="fa-solid fa-circle-info"></i> 現場自由入場 / 聯繫我們</div>`;
     }
 
     const expiredClass = item.isExpired ? 'expired' : '';

@@ -1,0 +1,762 @@
+// ==========================================================================
+// 全域樣式與動畫基底 (Global Base & Animations)
+// ==========================================================================
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--uvaco-bg-primary);
+    color: var(--uvaco-text-primary);
+    font-family: var(--bs-body-font-family);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .brand-font {
+    font-family: 'Montserrat', var(--bs-font-sans-serif);
+}
+
+/* @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+} */
+
+/* #loading-spinner {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--uvaco-primary);
+} */
+
+// ==========================================================================
+// 工具類與排版 (Utilities & Typography)
+// ==========================================================================
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--uvaco-secondary), var(--uvaco-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-emerald,
+.text-green-bright {
+    color: var(--uvaco-secondary) !important;
+}
+
+.text-green {
+    color: var(--uvaco-primary) !important;
+}
+
+.bg-green {
+    background-color: var(--uvaco-bg-card) !important;
+}
+
+.border-green {
+    border-color: var(--uvaco-border-color) !important;
+}
+
+.brand-title {
+    color: var(--uvaco-primary);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.section-title {
+    position: relative;
+    color: var(--uvaco-text-primary);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &.decorated {
+        padding-left: 12px;
+        border-left: 4px solid var(--uvaco-primary);
+    }
+
+    &.underlined {
+        padding-bottom: 0.75rem;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--uvaco-primary);
+            border-radius: 2px;
+        }
+    }
+}
+
+ul.custom-list {
+    list-style: none;
+    padding-left: 0;
+
+    li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.75rem;
+
+        &::before {
+            content: "•";
+            color: var(--uvaco-primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+            position: absolute;
+            left: 0.25rem;
+            top: -0.1rem;
+        }
+    }
+}
+
+// ==========================================================================
+// 按鈕組件系統 (Button System)
+// ==========================================================================
+
+// 1. 主要綠色實心按鈕 (翡翠綠漸層)
+/* .btn-emerald,
+.btn-green,
+.btn-uvaco-primary {
+    background: linear-gradient(135deg, var(--uvaco-primary) 0%, var(--uvaco-primary-hover) 100%);
+    color: #000000 !important;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+    &:hover {
+        background: linear-gradient(135deg, var(--uvaco-secondary) 0%, var(--uvaco-primary) 100%);
+        color: #000000 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5);
+    }
+} */
+
+// 2. 綠色外框按鈕
+/* .btn-outline-emerald,
+.btn-outline-green {
+    background-color: transparent;
+    color: var(--uvaco-secondary);
+    border: 1px solid var(--uvaco-primary);
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover,
+    &.active {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #ffffff;
+        border-color: var(--uvaco-secondary);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+} */
+
+// 3. 琥珀金亮點按鈕
+/* .btn-uvaco-gold {
+    background: linear-gradient(135deg, var(--uvaco-accent) 0%, #d97706 100%);
+    color: #000000 !important;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(245, 158, 11, 0.5);
+    }
+} */
+
+// 4. 次要暗色按鈕與禁用狀態
+/* .btn-uvaco-secondary {
+    background-color: rgba(6, 46, 30, 0.8);
+    color: var(--uvaco-text-primary);
+    border: 1px solid var(--uvaco-border-color);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: var(--uvaco-bg-card-hover);
+        color: #ffffff;
+    }
+} */
+
+/* .btn-uvaco-disabled {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--uvaco-text-muted);
+    border: 1px solid transparent;
+    cursor: not-allowed;
+    pointer-events: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center;
+} */
+
+// ==========================================================================
+// 卡片與容器組件 (Cards & Containers)
+// ==========================================================================
+
+// 通用懸浮卡片基底 (整合 Source 1~8 之卡片)
+.custom-card,
+.card-custom,
+.section-block,
+.award-card,
+.statement-card,
+.event-card,
+.card-concept,
+.timeline-content-card {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 14px;
+    padding: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+    height: 100%;
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: var(--uvaco-primary);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.18);
+        background-color: var(--uvaco-bg-card-hover);
+    }
+}
+
+.toc-card {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    position: sticky;
+    top: 2rem;
+    padding: 1.25rem;
+
+    .nav-link {
+        color: var(--uvaco-text-primary);
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.25rem;
+        transition: all 0.3s ease;
+
+        &:hover,
+        &.active {
+            color: var(--uvaco-secondary);
+            background-color: var(--sidebar-active-bg);
+            border-left: 3px solid var(--uvaco-primary);
+        }
+    }
+}
+
+.icon-box {
+    width: 55px;
+    height: 55px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--uvaco-secondary);
+    margin-bottom: 20px;
+}
+
+.note-box,
+.alert-emerald {
+    background: rgba(16, 185, 129, 0.08);
+    border-left: 4px solid var(--uvaco-primary);
+    color: var(--uvaco-text-primary);
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+// ==========================================================================
+// 徽章與膠囊標籤組件 (Badges & Pills)
+// ==========================================================================
+
+/* .badge-pill-custom,
+.filter-pill,
+.month-pill,
+.type-badge,
+.badge-custom,
+.badge-emerald,
+.hero-badge {
+    background: rgba(6, 46, 30, 0.7);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-secondary);
+    font-size: 0.82rem;
+    padding: 5px 14px;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    user-select: none;
+
+    &:hover {
+        color: var(--uvaco-text-primary);
+        border-color: var(--uvaco-primary);
+        background: rgba(16, 185, 129, 0.15);
+    }
+
+    &.active {
+        background-color: var(--uvaco-primary);
+        border-color: var(--uvaco-primary);
+        color: #000000;
+        font-weight: 700;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+} */
+
+// 特殊階級/狀態徽章
+.gold-badge,
+.performance-pill,
+.performer-badge,
+.leader-tag {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--uvaco-accent);
+    border: 1px solid var(--uvaco-accent);
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.silver-badge {
+    background: rgba(226, 232, 240, 0.15);
+    color: #e2e8f0;
+    border: 1px solid rgba(226, 232, 240, 0.4);
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+}
+
+.bronze-badge {
+    background: rgba(217, 119, 6, 0.15);
+    color: var(--uvaco-accent);
+    border: 1px solid rgba(217, 119, 6, 0.4);
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+}
+
+.status-badge {
+    background: rgba(5, 24, 17, 0.8);
+    border: 1px solid var(--uvaco-primary);
+    color: var(--uvaco-primary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    &.expired-badge {
+        border-color: var(--uvaco-text-muted);
+        color: var(--uvaco-text-muted);
+    }
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    background-color: var(--uvaco-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--uvaco-primary);
+    animation: pulse 1.8s infinite;
+
+    &.expired-dot {
+        background-color: var(--uvaco-text-muted);
+        box-shadow: none;
+        animation: none;
+    }
+}
+
+// ==========================================================================
+// 媒體與圖片佔位容器 (Media & Image Holders)
+// ==========================================================================
+
+.img-container,
+.hero-img-box,
+.leader-img-box,
+.gallery-card,
+.armory-img-holder,
+.event-img-wrapper,
+.poster-wrapper,
+.img-placeholder {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--uvaco-dark);
+    border: 1px solid var(--uvaco-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease, opacity 0.3s ease;
+    }
+
+    &:hover img {
+        transform: scale(1.05);
+    }
+}
+
+.poster-wrapper {
+    padding-top: 56.25%; // 16:9 比例
+    height: 0;
+
+    .poster-img,
+    .poster-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.img-placeholder-icon {
+    font-size: 3rem;
+    color: #1b4d36;
+}
+
+.image-placeholder-tag,
+.poster-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(6, 18, 14, 0.75);
+    border: 1px dashed var(--uvaco-secondary);
+    color: var(--uvaco-secondary);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    backdrop-filter: blur(4px);
+}
+
+// ==========================================================================
+// 控制面板與搜尋區塊 (Controls & Search Forms)
+// ==========================================================================
+
+.filter-panel,
+.controls-wrapper,
+.control-toolbar {
+    background: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.search-box,
+.search-input-group,
+.search-box-group {
+    position: relative;
+
+    .form-control,
+    input {
+        background-color: var(--uvaco-dark);
+        border: 1px solid var(--uvaco-border-color);
+        color: var(--uvaco-text-primary);
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+        transition: all 0.25s ease;
+
+        &:focus {
+            outline: none;
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+        }
+    }
+
+    .input-group-text {
+        background-color: var(--uvaco-dark);
+        border-color: var(--uvaco-border-color);
+        color: var(--uvaco-secondary);
+    }
+}
+
+// ==========================================================================
+// 導覽列與門戶選單系統 (Navigation & Portal Sidebar)
+// ==========================================================================
+
+.navbar-custom {
+    background-color: rgba(6, 18, 14, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--uvaco-border-color);
+}
+
+.nav-pills,
+.nav-pills-region,
+.nav-pills-custom {
+    .nav-link {
+        color: var(--uvaco-text-secondary);
+        background-color: transparent;
+        border: 1px solid var(--uvaco-border-color);
+        border-radius: 8px;
+        padding: 6px 18px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+
+        &:hover {
+            color: #ffffff;
+            border-color: var(--uvaco-primary);
+            background-color: rgba(16, 185, 129, 0.15);
+        }
+
+        &.active {
+            color: #ffffff;
+            background-color: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+    }
+}
+
+// 門戶框架 (Portal Wrapper & Sidebar)
+.portal-header {
+    height: var(--header-height);
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--uvaco-border-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+}
+
+.portal-wrapper {
+    display: flex;
+    flex: 1;
+    margin-top: var(--header-height);
+    position: relative;
+}
+
+.portal-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--uvaco-border-color);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    .sidebar-menu,
+    .submenu-container {
+        list-style: none;
+        padding: 0.5rem;
+        margin: 0;
+    }
+
+    .nav-item-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        color: var(--uvaco-text-primary);
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 0.3rem;
+        transition: all 0.25s ease;
+
+        &:hover {
+            background-color: rgba(52, 211, 153, 0.15);
+            color: var(--uvaco-secondary);
+        }
+
+        &.active {
+            background: linear-gradient(90deg, rgba(52, 211, 153, 0.25) 0%, rgba(52, 211, 153, 0.05) 100%) !important;
+            border-left: 4px solid var(--uvaco-secondary) !important;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+    }
+
+    .submenu-container {
+        padding-left: 1rem !important;
+        margin-left: 1.2rem;
+        border-left: 2px solid rgba(52, 211, 153, 0.25);
+        display: none;
+
+        &.show {
+            display: block;
+        }
+
+        .nav-item-link.active {
+            background: rgba(245, 158, 11, 0.18) !important;
+            border-left: 3px solid var(--uvaco-accent) !important;
+            color: var(--uvaco-accent) !important;
+        }
+    }
+
+    &.collapsed {
+        width: var(--sidebar-collapsed-width);
+
+        .menu-text,
+        .submenu-arrow {
+            display: none !important;
+        }
+    }
+}
+
+.portal-content {
+    background-color: var(--uvaco-bg-primary);
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: calc(100vh - var(--header-height));
+}
+
+.portal-wrapper.sidebar-collapsed .portal-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+// ==========================================================================
+// 時間軸與數據統計 (Timeline & KPI System)
+// ==========================================================================
+
+.timeline-container {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 40px;
+        bottom: 20px;
+        left: 28px;
+        width: 3px;
+        background: linear-gradient(180deg, var(--uvaco-primary) 0%, #047857 50%, rgba(4, 120, 87, 0.1) 100%);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        border-radius: 2px;
+    }
+}
+
+.roadmap-step,
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 25px;
+}
+
+.roadmap-dot,
+.node-dot {
+    position: absolute;
+    left: 20px;
+    top: 12px;
+    transform: translateX(-50%);
+    width: 17px;
+    height: 17px;
+    background-color: var(--uvaco-primary);
+    border: 3px solid #064e3b;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--uvaco-primary);
+}
+
+.kpi-box,
+.stat-card {
+    background: rgba(6, 46, 30, 0.6);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    height: 100%;
+
+    .kpi-number,
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--uvaco-secondary);
+        line-height: 1.2;
+
+        &.gold {
+            color: var(--uvaco-accent);
+        }
+    }
+
+    .stat-label {
+        font-size: 0.88rem;
+        color: var(--uvaco-text-primary);
+    }
+}
+
+// ==========================================================================
+// 手機端與響應式調整 (RWD Rules)
+// ==========================================================================
+
+@media (max-width: 991.98px) {
+    .portal-sidebar {
+        transform: translateX(-100%);
+        width: 260px !important;
+
+        &.mobile-open {
+            transform: translateX(0);
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+        }
+    }
+
+    .portal-content {
+        margin-left: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-block,
+    .statement-card {
+        padding: 20px 16px;
+    }
+
+    .iframe-container {
+        height: 650px;
+    }
+
+    .toc-card {
+        position: static;
+        margin-bottom: 1.5rem;
+    }
+}
