@@ -22,6 +22,7 @@ window.addEventListener('AppReady', function() {
     initIframeResizeListener();
     initBackToTop();
     initLogoutModal();
+    versionSwitch();
     
     // 預設載入首頁內容
     loadPage('home.html');
@@ -419,5 +420,65 @@ function initLogoutModal() {
         } else {
             console.warn('未找到 window.uvacoLogout 登出處理函式');
         }
+    });
+}
+
+function versionSwitch() {
+    const currentPath = window.location.pathname;
+    const mainBtn = document.getElementById('versionDropdownBtn');
+    const versionBtns = document.querySelectorAll('.open-version-btn');
+
+    let matchedBtn = null;
+
+    // 1. 比對當前網址路徑，尋找對應的版本按鈕
+    versionBtns.forEach(btn => {
+        const rawUrl = btn.getAttribute('data-url');
+        // 提取關鍵路徑名稱（例如：../team/ -> team）
+        const pathKey = rawUrl.replace(/\.\.\//g, '').replace(/\//g, '');
+
+        if (pathKey && currentPath.includes(pathKey)) {
+            matchedBtn = btn;
+        }
+    });
+
+    // 若網址比對不到（例如在地端根目錄測試時），預設為第一個（公開版）
+    if (!matchedBtn && versionBtns.length > 0) {
+        matchedBtn = versionBtns[0];
+    }
+
+    // 2. 自動更新 UI 狀態
+    if (matchedBtn) {
+        // 設定當前按鈕的 active 狀態與「當前」徽章
+        matchedBtn.classList.add('active');
+        
+        const badgeSpan = document.createElement('span');
+        badgeSpan.className = 'badge bg-white text-dark shadow-sm ms-2';
+        badgeSpan.textContent = '當前';
+        //matchedBtn.appendChild(badgeSpan);
+
+        // 更新主按鈕的內容與配色類別 (如 btn-green-subtle / btn-blue-subtle / btn-purple-subtle)
+        if (mainBtn) {
+            const colorBtnClass = Array.from(matchedBtn.classList).find(c => c.startsWith('btn-') && c.endsWith('-subtle'));
+            const colorTextClass = "text-" + colorBtnClass.split("-")[1].toString();
+            if (colorBtnClass) {
+                mainBtn.className = mainBtn.className.replace(/btn-[a-z]+-subtle/g, colorBtnClass);
+                badgeSpan.className = badgeSpan.className.replace(/text-[a-z]+/g, colorTextClass);
+            }
+
+            const labelSpan = matchedBtn.querySelector('span:first-child');
+            if (labelSpan) {
+                mainBtn.innerHTML = labelSpan.innerHTML;
+            }
+        }
+    }
+
+    // 3. 點擊按鈕開啟新視窗
+    versionBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+        });
     });
 }

@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "sass:map";
+
 $uvaco-theme-colors: (
     "primary":   var(--uvaco-primary),
     "secondary": var(--uvaco-secondary),
@@ -43,7 +46,7 @@ $uvaco-theme-colors: (
         /* 未選中按鈕 hover 時 */
         .btn-check:not(:checked) + .btn-outline-#{$name}:hover {
             background-color: var(--uvaco-#{$key});
-            color: #FFFFFF;
+            color: var(--uvaco-#{$key}-contrast);
             border-color: var(--uvaco-#{$key}-hover);
             transform: translateY(-2px);
             box-shadow: 0 0 15px var(--uvaco-#{$key}-glow);
@@ -54,5 +57,66 @@ $uvaco-theme-colors: (
             transform: translateY(-2px);
             box-shadow: 0 0 15px var(--uvaco-#{$key}-glow);
         }
+    }
+}
+
+$expanded-theme-colors: (
+    "blue":      #0d6efd,
+    "indigo":    #6610f2,
+    "purple":    #6f42c1,
+    "pink":      #d63384,
+    "red":       #dc3545,
+    "orange":    #fd7e14,
+    "yellow":    #ffc107,
+    "green":     #198754,
+    "teal":      #20c997,
+    "cyan":      #0dcaf0,
+    "white":     #ffffff,
+    "gray":      #6c757d,
+    "gray-dark": #212529,
+    "black":     #000000
+) !default;
+
+// 3.1 使用語意化 lightness 判斷明暗，徹底排除 Dart Sass 警告
+@function get-contrast-color($color) {
+    $lightness: color.lightness($color);
+    @if ($lightness > 62%) {
+        @return #000000;
+    } @else {
+        @return #ffffff;
+    }
+}
+
+@each $name, $color in $expanded-theme-colors {
+    $contrast-text: get-contrast-color($color);
+    $subtle-bg: if($color == #ffffff, #f8f9fa, color.mix(#ffffff, $color, 85%));
+    $subtle-border: if($color == #ffffff, #dee2e6, color.mix(#ffffff, $color, 60%));
+    $emphasis-text: if($color == #ffffff, #495057, if(get-contrast-color($color) == #ffffff, color.mix(#000000, $color, 30%), color.mix(#000000, $color, 50%)));
+
+    // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+    }
+
+    // --------------------------------------------------------------------------
+    // 按鈕群組
+    // --------------------------------------------------------------------------
+
+    /* 未選中按鈕 hover 時 */
+    .btn-check:not(:checked) + .btn-outline-#{$name}:hover {
+        background-color: $color;
+        color: $contrast-text;
+        border-color: $subtle-border;
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px $subtle-bg;
+    }
+
+    /* 已選中按鈕 hover 時 */
+    .btn-check:checked + .btn-#{$name}:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px $subtle-bg;
     }
 }

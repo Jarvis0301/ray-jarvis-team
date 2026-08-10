@@ -29,10 +29,33 @@
                     <i class="fa-solid fa-diagram-project"></i> 核心營運系統
                 </a>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-purple bg-opacity-25 text-purple-bright border border-purple border-opacity-50 px-3 py-2">
-                    <i class="fa-solid fa-diagram-project"></i> 核心版
-                </span>
+            <div class="dropdown">
+                <!-- 主按鈕：顏色與文字會由 JS 根據當前網址自動設定 -->
+                <button id="versionDropdownBtn" type="button" class="btn btn-purple-subtle btn-sm dropdown-toggle px-3 py-2 rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-diagram-project me-1"></i> 核心版
+                </button>
+
+                <!-- 下拉選單：內部按鈕排列 -->
+                <div class="dropdown-menu dropdown-menu-end p-2 border-0 shadow" style="min-width: 150px;">
+                    <div class="d-flex flex-column gap-2">
+                        
+                        <!-- 公開版 -->
+                        <button type="button" class="btn btn-green-subtle open-version-btn px-3 py-2 rounded-pill" data-url="../health-free-daily/">
+                            <i class="fa-solid fa-leaf me-1"></i> 公開版
+                        </button>
+
+                        <!-- 團隊版 -->
+                        <button type="button" class="btn btn-blue-subtle open-version-btn px-3 py-2 rounded-pill" data-url="../team/">
+                            <i class="fa-solid fa-users-gear me-1"></i> 團隊版
+                        </button>
+
+                        <!-- 核心版 -->
+                        <button type="button" class="btn btn-purple-subtle open-version-btn px-3 py-2 rounded-pill" data-url="../hub/">
+                            <i class="fa-solid fa-diagram-project me-1"></i> 核心版
+                        </button>
+
+                    </div>
+                </div>
             </div>
         </header>
 

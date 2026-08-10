@@ -1,8 +1,7 @@
 /* ==================================================
    1. 核心變數與基礎設定 (CSS Variables & Base)
 ================================================== */
-:root {
-    /* 公開版系統：翡翠綠與草本綠深色主題色系 */
+/* :root {
     --uvaco-bg-primary: #081612;
     --bg-sidebar: #0d1f18;
     --uvaco-bg-card: #12251e;
@@ -13,10 +12,10 @@
     --uvaco-border-color: rgba(52, 211, 153, 0.2);
     --uvaco-text-primary: #f1f5f9;
     --uvaco-text-muted: #94a3b8;
-    --accent-gold: #f59e0b;
+    --uvaco-accent: #f59e0b;
+    --header-height: 70px;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
-    --header-height: 70px;
 }
 
 body {
@@ -29,7 +28,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-}
+} */
 
 /* ==================================================
    2. 頂部標題欄 (Header) 與通用元件
@@ -60,7 +59,7 @@ body {
     gap: 0.5rem;
 }
 
-.toggle-btn {
+/* .toggle-btn {
     background: transparent;
     border: 1px solid var(--uvaco-border-color);
     color: var(--uvaco-secondary);
@@ -74,16 +73,16 @@ body {
     background-color: var(--accent-hover);
     color: #ffffff;
     border-color: var(--uvaco-primary);
-}
+} */
 
 /* 通用綠色主題工具類 */
-.bg-green { background-color: var(--uvaco-bg-card) !important; }
-/* .btn-outline-green { color: var(--uvaco-secondary); border-color: var(--uvaco-primary); }
-.btn-outline-green:hover { background-color: var(--uvaco-secondary); color: #ffffff; } */
+/* .bg-green { background-color: var(--uvaco-bg-card) !important; }
+.btn-outline-green { color: var(--uvaco-secondary); border-color: var(--uvaco-primary); }
+.btn-outline-green:hover { background-color: var(--uvaco-secondary); color: #ffffff; }
 .border-green { border-color: var(--uvaco-border-color) !important; }
 .text-green { color: var(--uvaco-primary) !important; }
 .text-green-bright { color: var(--uvaco-secondary) !important; }
-.spinner-border.text-green { color: var(--uvaco-primary) !important; }
+.spinner-border.text-green { color: var(--uvaco-primary) !important; } */
 
 /* ==================================================
    3. 版面佈局結構 (Portal Layout Wrapper)
@@ -235,14 +234,14 @@ body {
 /* --- 子選單 (Submenu) 當前頁面高亮 --- */
 .submenu-container .nav-item-link.active {
     background: rgba(245, 158, 11, 0.18) !important;
-    border-left: 3px solid var(--accent-gold) !important; /* Amber琥珀金指示邊條，做出對比 */
-    color: var(--accent-gold) !important;                /* 字體呈琥珀金高亮 */
+    border-left: 3px solid var(--uvaco-accent) !important; /* Amber琥珀金指示邊條，做出對比 */
+    color: var(--uvaco-accent) !important;                /* 字體呈琥珀金高亮 */
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .submenu-container .nav-item-link.active .menu-icon-box {
-    color: var(--accent-gold) !important;
+    color: var(--uvaco-accent) !important;
     opacity: 1 !important;
 }
 

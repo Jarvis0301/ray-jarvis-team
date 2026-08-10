@@ -1,36 +1,36 @@
-:root {
-    /*--uvaco-bg-primary: #192821;*/
-    /*--uvaco-bg-card: #10231d;*/
-    --card-inner-bg: #0b1a15;
-    /*--uvaco-secondary: #34d399;*/
-    /*--uvaco-primary: #10b981;*/
-    /*--uvaco-primary-hover: #059669;*/
-    /*--uvaco-text-primary: #f0fdf4;*/
-    /*--uvaco-text-secondary: #a7f3d0;*/
-    /*--uvaco-text-muted: #9ca3af;*/
-    --border-glow: rgba(52, 211, 153, 0.18);
+/* :root {
+    --uvaco-bg-primary: #192821;
+    --uvaco-bg-card: #10231d;
+    --uvaco-bg-card-primary: #0b1a15;
+    --uvaco-secondary: #34d399;
+    --uvaco-primary: #10b981;
+    --uvaco-primary-hover: #059669;
+    --uvaco-text-primary: #f0fdf4;
+    --uvaco-text-secondary: #a7f3d0;
+    --uvaco-text-muted: #9ca3af;
+    --uvaco-border-glow: rgba(52, 211, 153, 0.18);
 }
 
 body {
     background-color: var(--uvaco-bg-primary);
-    /*color: var(--uvaco-text-primary);*/
-    /*font-family: 'Noto Sans TC', 'Roboto', sans-serif;*/
+    color: var(--uvaco-text-primary);
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
     padding-top: 2rem;
     padding-bottom: 3.5rem;
-}
+} */
 
 /* 主卡片通用樣式 (深色發光邊框) */
 .content-card {
     background-color: var(--uvaco-bg-card);
     border-radius: 20px;
-    border: 1px solid var(--border-glow);
+    border: 1px solid var(--uvaco-border-glow);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     overflow: hidden;
 }
 
 /* 官方產品照片區 */
 .product-image-box {
-    background-color: var(--card-inner-bg);
+    background-color: var(--uvaco-bg-card-primary);
     border-radius: 16px;
     border: 1px solid rgba(52, 211, 153, 0.1);
     display: flex;
@@ -83,13 +83,13 @@ body {
 .ad-showcase-card {
     background-color: var(--uvaco-bg-card);
     border-radius: 20px;
-    border: 1px solid var(--border-glow);
+    border: 1px solid var(--uvaco-border-glow);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     overflow: hidden;
 }
 
 .vertical-poster-wrapper {
-    background-color: var(--card-inner-bg);
+    background-color: var(--uvaco-bg-card-primary);
     border-radius: 16px;
     border: 1px solid rgba(52, 211, 153, 0.1);
     padding: 1.25rem;
@@ -130,12 +130,12 @@ body {
     border: 1px solid rgba(52, 211, 153, 0.2);
     border-radius: 12px !important;
     margin-bottom: 0.75rem;
-    background-color: var(--card-inner-bg);
+    background-color: var(--uvaco-bg-card-primary);
     overflow: hidden;
 }
 
 .accordion-custom .accordion-button {
-    background-color: var(--card-inner-bg);
+    background-color: var(--uvaco-bg-card-primary);
     color: var(---uvaco-secondary);
     font-weight: 600;
 }
@@ -151,7 +151,7 @@ body {
 }
 
 .accordion-custom .accordion-body {
-    background-color: var(--card-inner-bg);
+    background-color: var(--uvaco-bg-card-primary);
     color: var(--uvaco-text-secondary);
 }
 

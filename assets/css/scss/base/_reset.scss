@@ -1,8 +1,11 @@
 // 覆蓋 Bootstrap 5 全局預設字型機制
-body {
-    background-color: transparent;
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--uvaco-bg-primary);
     color: var(--uvaco-text-primary);
-    font-family: var(--uvaco-font-family-base);
-    line-height: var(--uvaco-line-height-base);
-    overflow-x: hidden;
+    font-family: var(--bs-body-font-family);
+    -webkit-font-smoothing: antialiased;
 }

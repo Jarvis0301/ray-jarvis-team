@@ -1,58 +1,58 @@
-:root {
-    --bg-dark: #061410;
-    --bg-card: #0d221a;
-    --bg-surface: #112e23;
-    --border-color: #1e3a2f;
-    --primary-green: #10b981;
-    --primary-hover: #34d399;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --accent-glow: rgba(16, 185, 129, 0.25);
+/* :root {
+    --uvaco-bg-primary: #061410;
+    --uvaco-bg-card-primary: #0d221a;
+    --uvaco-bg-card-primary-hover: #112e23;
+    --uvaco-border-color: rgba(52, 211, 153, 1);
+    --uvaco-primary: #10b981;
+    --uvaco-primary-hover: #34d399;
+    --uvaco-text-primary: #f8fafc;
+    --uvaco-text-muted: #94a3b8;
+    --uvaco-primary-glow: rgba(16, 185, 129, 0.25);
 }
 
 body {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
+    background-color: var(--uvaco-bg-primary);
+    color: var(--uvaco-text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
-}
+} */
 
 /* 導覽列樣式 */
 .navbar-custom {
     background-color: rgba(6, 20, 16, 0.95);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--uvaco-border-color);
 }
 
 .navbar-brand {
-    color: var(--primary-green) !important;
+    color: var(--uvaco-primary) !important;
     font-weight: 700;
     font-size: 1.35rem;
 }
 
 .nav-link {
-    color: var(--text-main) !important;
+    color: var(--uvaco-text-primary) !important;
     transition: color 0.3s ease;
 }
 
 .nav-link:hover, .nav-link.active {
-    color: var(--primary-green) !important;
+    color: var(--uvaco-primary) !important;
 }
 
 .dropdown-menu-dark {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-card-primary);
+    border: 1px solid var(--uvaco-border-color);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .dropdown-item {
-    color: var(--text-main);
+    color: var(--uvaco-text-primary);
     padding: 0.6rem 1.2rem;
 }
 
 .dropdown-item:hover {
-    background-color: var(--bg-surface);
-    color: var(--primary-green);
+    background-color: var(--uvaco-bg-card-primary-hover);
+    color: var(--uvaco-primary);
 }
 
 /* 英雄區 Carousel 視覺 */
@@ -76,13 +76,13 @@ body {
 
 /* 圖片佔位符視覺優化 */
 .img-placeholder {
-    background-color: var(--bg-surface);
-    border: 2px dashed var(--border-color);
+    background-color: var(--uvaco-bg-card-primary-hover);
+    border: 2px dashed var(--uvaco-border-color);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: var(--uvaco-text-muted);
     border-radius: 0.75rem;
     transition: all 0.3s ease;
     overflow: hidden;
@@ -90,8 +90,8 @@ body {
 }
 
 .img-placeholder:hover {
-    border-color: var(--primary-green);
-    box-shadow: 0 0 15px var(--accent-glow);
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 0 15px var(--uvaco-primary-glow);
 }
 
 .img-placeholder img {
@@ -102,16 +102,16 @@ body {
 
 /* 卡片系統 */
 .card-custom {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-card-primary);
+    border: 1px solid var(--uvaco-border-color);
     border-radius: 0.75rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-custom:hover {
     transform: translateY(-5px);
-    border-color: var(--primary-green);
-    box-shadow: 0 8px 25px var(--accent-glow);
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 8px 25px var(--uvaco-primary-glow);
 }
 
 .card-img-top-wrapper {
@@ -134,7 +134,7 @@ body {
 }
 
 /* .btn-emerald {
-    background-color: var(--primary-green);
+    background-color: var(--uvaco-primary);
     color: #000000;
     font-weight: 600;
     border: none;
@@ -144,14 +144,14 @@ body {
 }
 
 .btn-emerald:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--uvaco-primary-hover);
     color: #000000;
-    box-shadow: 0 0 15px var(--accent-glow);
+    box-shadow: 0 0 15px var(--uvaco-primary-glow);
 }
 
 .btn-outline-emerald {
-    border: 1px solid var(--primary-green);
-    color: var(--primary-green);
+    border: 1px solid var(--uvaco-primary);
+    color: var(--uvaco-primary);
     background: transparent;
     font-weight: 600;
     padding: 0.6rem 1.4rem;
@@ -160,7 +160,7 @@ body {
 }
 
 .btn-outline-emerald:hover {
-    background-color: var(--primary-green);
+    background-color: var(--uvaco-primary);
     color: #000000;
 } */
 
@@ -179,35 +179,35 @@ body {
     bottom: 0;
     width: 60px;
     height: 3px;
-    background-color: var(--primary-green);
+    background-color: var(--uvaco-primary);
     border-radius: 2px;
 }
 
 /* 表格黑夜風覆寫 */
 .table-dark-custom {
-    --bs-table-bg: var(--bg-card);
-    --bs-table-border-color: var(--border-color);
-    color: var(--text-main);
+    --bs-table-bg: var(--uvaco-bg-card-primary);
+    --bs-table-border-color: var(--uvaco-border-color);
+    color: var(--uvaco-text-primary);
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    color: var(--text-main) !important;
+    color: var(--uvaco-text-primary) !important;
 }
 
 /* 全站頁尾 */
 .footer-custom {
     background-color: #030a08;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--uvaco-border-color);
     padding-top: 3rem;
     padding-bottom: 2rem;
 }
 
 .footer-sitemap a {
-    color: var(--text-muted);
+    color: var(--uvaco-text-muted);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .footer-sitemap a:hover {
-    color: var(--primary-green);
+    color: var(--uvaco-primary);
 }
