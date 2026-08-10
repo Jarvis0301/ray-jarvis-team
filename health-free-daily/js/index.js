@@ -439,8 +439,9 @@ function versionSwitch() {
     // 1. 比對當前網址路徑，尋找對應的版本按鈕
     versionBtns.forEach(btn => {
         const rawUrl = btn.getAttribute('data-url');
-        // 提取關鍵路徑名稱（例如：../team/ -> team）
-        const pathKey = rawUrl.replace(/\.\.\//g, '').replace(/\//g, '');
+
+        // 提取關鍵路徑名稱（例如：../team/ -> /team/）
+        const pathKey = rawUrl.replace(/\.\./g, '');
 
         if (pathKey && currentPath.includes(pathKey)) {
             matchedBtn = btn;
