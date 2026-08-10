@@ -83,6 +83,26 @@
                 const mainBtn = document.getElementById('versionDropdownBtn');
                 const versionBtns = document.querySelectorAll('.open-version-btn');
 
+                const rawSession = localStorage.getItem('ray_team_auth_session');
+                let sessionData = null;
+                if (rawSession) {
+                    try {
+                        sessionData = JSON.parse(rawSession);
+                        const now = new Date().getTime();
+                        const hubPerm = (sessionData.permissions) ? sessionData.permissions['hub'] : null;
+
+                        // 有核心版權限才顯示
+                        if (sessionData.expireAt && sessionData.expireAt > now && (hubPerm === '編輯' || hubPerm === '檢視') && sessionData.signature) {
+                            $('#hubButton').show();
+                        } else {
+                            $('#hubButton').hide();
+                        }
+                    } catch (e) {
+                        $('#hubButton').hide();
+                        console.log(e);
+                    }
+                }
+
                 let matchedBtn = null;
 
                 // 1. 比對當前網址路徑，尋找對應的版本按鈕
@@ -156,21 +176,21 @@
                         </button>
 
                         <!-- 下拉選單：內部按鈕排列 -->
-                        <div class="dropdown-menu dropdown-menu-end p-2 border-0 shadow" style="min-width: 150px;">
+                        <div class="dropdown-menu dropdown-menu-end bg-transparent p-2 border-0" style="min-width: 150px;">
                             <div class="d-flex flex-column gap-2">
                                 
                                 <!-- 公開版 -->
-                                <button type="button" class="btn btn-green-subtle open-version-btn px-3 py-2 rounded-pill" data-url="../health-free-daily/">
+                                <button type="button" id="publicButton" class="btn btn-green-subtle open-version-btn p-2 rounded-pill" data-url="../health-free-daily/">
                                     <i class="fa-solid fa-leaf me-1"></i> 公開版
                                 </button>
 
                                 <!-- 團隊版 -->
-                                <button type="button" class="btn btn-blue-subtle open-version-btn px-3 py-2 rounded-pill" data-url="../team/">
+                                <button type="button" id="teamButton" class="btn btn-blue-subtle open-version-btn p-2 rounded-pill" data-url="../team/">
                                     <i class="fa-solid fa-users-gear me-1"></i> 團隊版
                                 </button>
 
                                 <!-- 核心版 -->
-                                <button type="button" class="btn btn-purple-subtle open-version-btn px-3 py-2 rounded-pill" data-url="../hub/">
+                                <button type="button" id="hubButton" class="btn btn-purple-subtle open-version-btn p-2 rounded-pill" data-url="../hub/">
                                     <i class="fa-solid fa-diagram-project me-1"></i> 核心版
                                 </button>
 

@@ -85,36 +85,49 @@
     </head>
     <body class="bg-body-tertiary">
 
-        <header class="navbar navbar-expand-lg border-bottom sticky-top bg-body">
-            <div class="container-fluid px-4">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-vial-circle-check text-primary fs-3"></i> 
-                        <div>
-                            <h1 class="h5 mb-0 fw-bold">Design System 全主題與全元件測試戰情室</h1>
-                            <small class="text-secondary">榮祥團隊 Ray's Team 前端規範全元件驗證系統</small>
-                        </div>
-                    </div>
-
+        <header class="navbar navbar-expand-xl border-bottom sticky-top bg-body py-2">
+            <div class="container-fluid px-3 px-lg-4">
+                <a class="navbar-brand d-flex align-items-center gap-2 font-monospace fw-bold" href="#">
+                    <i class="fa-solid fa-vial-circle-check text-secondary fs-5"></i> 
+                    <span class="text-secondary fs-5">榮祥團隊前端規範驗證系統A</span>
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                    <i class="fa-solid fa-bars fs-5"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle p-2 me-2 my-2">
+                        <i class="fa-solid fa-palette"></i> 當前主題：<span id="current-theme-name" class="fw-bold">dark-green</span>
+                    </span>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle px-3 py-2 me-2">
-                            <i class="fa-solid fa-circle-dot"></i> 當前主題：<span id="current-theme-name" class="fw-bold">dark-green</span>
-                        </span>
-
-                        <button class="btn btn-sm btn-outline-green active" onclick="switchTheme('dark-green', this)">
-                            <i class="fa-solid fa-leaf"></i> 公開版 (翡翠綠)
+                        <button type="button" class="btn btn-sm btn-outline-green active" onclick="switchTheme('dark-green', this)">
+                            <i class="fa-solid fa-leaf"></i> 翡翠草本綠
                         </button>
-                        <button class="btn btn-sm btn-outline-blue" onclick="switchTheme('dark-blue', this)">
-                            <i class="fa-solid fa-shield-halved"></i> 團隊版 (鋼鐵藍)
+                        <button type="button" class="btn btn-sm btn-outline-blue" onclick="switchTheme('dark-blue', this)">
+                            <i class="fa-solid fa-users-gear"></i> 鋼鐵科技藍
                         </button>
-                        <button class="btn btn-sm btn-outline-purple" onclick="switchTheme('dark-purple', this)">
-                            <i class="fa-solid fa-crown"></i> 核心版 (魅影紫)
+                        <button type="button" class="btn btn-sm btn-outline-purple" onclick="switchTheme('dark-purple', this)">
+                            <i class="fa-solid fa-diagram-project"></i> 暗夜魅影紫
                         </button>
-                        <button class="btn btn-sm btn-outline-white text-body" onclick="switchTheme('light', this)">
-                            <i class="fa-solid fa-sun"></i> 原生 Light
+                        <button type="button" class="btn btn-sm btn-outline-red active" onclick="switchTheme('dark-red', this)">
+                            <i class="fa-solid fa-fire"></i> 電光玫瑰紅
                         </button>
-                        <button class="btn btn-sm btn-outline-gray" onclick="switchTheme('dark', this)">
-                            <i class="fa-solid fa-moon"></i> 原生 Dark
+                        <button type="button" class="btn btn-sm btn-outline-orange" onclick="switchTheme('dark-orange', this)">
+                            <i class="fa-solid fa-cloud-sun"></i> 盛夏太陽橘
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-yellow" onclick="switchTheme('dark-gold', this)">
+                            <i class="fa-solid fa-crown"></i> 璀璨皇冠金
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-cyan" onclick="switchTheme('dark-cyan', this)">
+                            <i class="fa-solid fa-atom"></i> 賽博極光青
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-gray" onclick="switchTheme('dark-titanium', this)">
+                            <i class="fa-solid fa-user-tie"></i> 鈦金靜謐銀
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-white" onclick="switchTheme('light', this)">
+                            <i class="fa-solid fa-sun"></i> 日光極潔白
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-black" onclick="switchTheme('dark', this)">
+                            <i class="fa-solid fa-moon"></i> 深夜極暗灰
                         </button>
                     </div>
                 </div>
@@ -1005,7 +1018,7 @@
                             <div class="callout-cta d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
                                 <div>
                                     <h4 class="text-white fw-bold mb-1">
-                                        <i class="fas fa-shield-halved text-success"></i> 準備好加速你的事業成長了嗎？
+                                        <i class="fas fa-shield-halved text-secondary"></i> 準備好加速你的事業成長了嗎？
                                     </h4>
                                     <p class="text-secondary mb-0">無須負擔囤貨壓力，結合科技工具與專業導師支援。</p>
                                 </div>

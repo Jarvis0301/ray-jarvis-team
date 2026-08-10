@@ -434,6 +434,26 @@ function versionSwitch() {
     const mainBtn = document.getElementById('versionDropdownBtn');
     const versionBtns = document.querySelectorAll('.open-version-btn');
 
+    const rawSession = localStorage.getItem('ray_team_auth_session');
+    let sessionData = null;
+    if (rawSession) {
+        try {
+            sessionData = JSON.parse(rawSession);
+            const now = new Date().getTime();
+            const hubPerm = (sessionData.permissions) ? sessionData.permissions['hub'] : null;
+
+            // 有核心版權限才顯示
+            if (sessionData.expireAt && sessionData.expireAt > now && (hubPerm === '編輯' || hubPerm === '檢視') && sessionData.signature) {
+                $('#hubButton').show();
+            } else {
+                $('#hubButton').hide();
+            }
+        } catch (e) {
+            $('#hubButton').hide();
+            console.log(e);
+        }
+    }
+
     let matchedBtn = null;
 
     // 1. 比對當前網址路徑，尋找對應的版本按鈕

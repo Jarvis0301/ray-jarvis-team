@@ -230,7 +230,7 @@ $expanded-theme-colors: (
     $luminance: (0.2126 * $red) + (0.7152 * $green) + (0.0722 * $blue);
 
     @if ($luminance > 0.45) {
-        @return #051811; // 亮色背景對接深色字體 (UVACO 深色文字)
+        @return --uvaco-bg-primary; // 亮色背景對接深色字體 (UVACO 深色文字)
     } @else {
         @return #ffffff; // 暗色背景對接高高亮純白字
     }
