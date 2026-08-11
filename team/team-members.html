@@ -1,677 +1,152 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="dark-blue">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>團隊成員 | 榮祥葡眾團隊</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>團隊成員 | 榮祥葡眾團隊</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+        <script src="../assets/js/common.js"></script>
 
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-    <style>
-        :root {
-            --bg-dark-body: #0b1329;
-            --bg-dark-card: #111d38;
-            --bg-dark-hover: #1e293b;
-            --primary-blue: #38bdf8;
-            --primary-blue-hover: #0284c7;
-            --accent-gold: #facc15;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #1e293b;
-            --card-border: rgba(56, 189, 248, 0.15);
-        }
+        <script src="./js/team-members.js" defer></script>
 
-        body {
-            background-color: var(--bg-dark-body);
-            color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            padding-bottom: 3rem;
-        }
+        <link rel="stylesheet" href="./css/team-members.css">
+    </head>
 
-        /* 標題區塊 */
-        .page-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            border-bottom: 1px solid var(--border-color);
-            padding: 2.5rem 0;
-            margin-bottom: 2rem;
-        }
+    <body>
 
-        .page-title {
-            color: var(--primary-blue);
-            font-weight: 700;
-        }
+        <header class="page-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="page-title h2 mb-2">
+                            <i class="fa-solid fa-users-gear"></i> 團隊成員夥伴目錄
+                        </h1>
+                        <p class="text-muted mb-0">
+                            <i class="fa-solid fa-sitemap"></i> 榮祥葡眾團隊核心領導人、專長軍備庫與組織夥伴名冊
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <button id="btnRefresh" class="btn btn-outline-info text-light">
+                            <i class="fa-solid fa-rotate"></i> 重新整理資料
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-        /* 數據卡片 */
-        .stat-card {
-            background-color: var(--bg-dark-card);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 1.25rem;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary-blue);
-        }
-
-        .stat-icon {
-            font-size: 2.2rem;
-            color: var(--primary-blue);
-        }
-
-        /* 核心領導人卡片 */
-        .member-card {
-            background-color: var(--bg-dark-card);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-
-        .member-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-blue);
-            box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.25);
-        }
-
-        .member-avatar-wrapper {
-            position: relative;
-            width: 110px;
-            height: 110px;
-            margin: 1.5rem auto 0.5rem;
-        }
-
-        .member-avatar {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid var(--primary-blue);
-            background-color: #1e293b;
-        }
-
-        .rank-badge {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background-color: var(--accent-gold);
-            color: #0f172a;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 12px;
-            border: 2px solid var(--bg-dark-card);
-        }
-
-        .tag-badge {
-            background-color: rgba(56, 189, 248, 0.1);
-            color: var(--primary-blue);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 6px;
-            margin: 2px;
-            display: inline-block;
-        }
-
-        /* Chart.js 容器 */
-        .chart-container {
-            background-color: var(--bg-dark-card);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 1.25rem;
-            height: 320px;
-            position: relative;
-        }
-
-        /* DataTable 暗黑主題客製化 */
-        .table-custom-wrapper {
-            background-color: var(--bg-dark-card);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        table.dataTable {
-            color: var(--text-main) !important;
-            background-color: transparent !important;
-        }
-
-        table.dataTable thead th {
-            background-color: #1e293b !important;
-            color: var(--primary-blue) !important;
-            border-bottom: 2px solid var(--border-color) !important;
-        }
-
-        table.dataTable tbody td {
-            border-bottom: 1px solid var(--border-color) !important;
-            background-color: transparent !important;
-            color: var(--text-main) !important;
-            vertical-align: middle;
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--primary-blue) !important;
-            border-color: var(--primary-blue) !important;
-            color: #0f172a !important;
-            font-weight: bold;
-        }
-
-        .page-link {
-            background-color: #1e293b !important;
-            border-color: var(--border-color) !important;
-            color: var(--text-main) !important;
-        }
-
-        .dataTables_filter input, .dataTables_length select {
-            background-color: #1e293b !important;
-            border: 1px solid var(--border-color) !important;
-            color: var(--text-main) !important;
-            border-radius: 6px;
-            padding: 4px 8px;
-        }
-
-        /* 載入中動畫 */
-        .loading-spinner {
-            color: var(--primary-blue);
-        }
-    </style>
-</head>
-<body>
-
-    <header class="page-header">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="page-title h2 mb-2">
-                        <i class="fa-solid fa-users-gear"></i> 團隊成員夥伴目錄
-                    </h1>
-                    <p class="text-muted mb-0">
-                        <i class="fa-solid fa-sitemap"></i> 榮祥葡眾團隊核心領導人、專長軍備庫與組織夥伴名冊
-                    </p>
-                </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <button id="btnRefresh" class="btn btn-outline-info text-light">
-                        <i class="fa-solid fa-rotate"></i> 重新整理資料
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="stat-icon me-3">
-                        <i class="fa-solid fa-user-group"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small"><i class="fa-solid fa-circle-info"></i> 總夥伴數</div>
-                        <div class="h3 fw-bold mb-0 text-light" id="statTotalMembers">--</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="stat-icon me-3 text-warning">
-                        <i class="fa-solid fa-gem"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small"><i class="fa-solid fa-crown"></i> 高階領導人</div>
-                        <div class="h3 fw-bold mb-0 text-light" id="statLeaders">--</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="stat-icon me-3 text-success">
-                        <i class="fa-solid fa-map-location-dot"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small"><i class="fa-solid fa-location-dot"></i> 涵蓋縣市</div>
-                        <div class="h3 fw-bold mb-0 text-light" id="statLocations">--</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="stat-icon me-3 text-info">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small"><i class="fa-solid fa-shield-halved"></i> 運營狀態</div>
-                        <div class="h3 fw-bold mb-0 text-info">雲端連線中</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h5 text-info mb-0">
-                <i class="fa-solid fa-star"></i> 核心領導人與創始團隊
-            </h3>
-            <span class="badge bg-secondary"><i class="fa-solid fa-layer-group"></i> Leadership Team</span>
-        </div>
-        <div class="row g-4 mb-5" id="leadershipGrid">
-            <div class="col-12 text-center py-4 loading-spinner">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">載入中...</span>
-                </div>
-                <div class="mt-2 text-muted"><i class="fa-solid fa-cloud-arrow-down"></i> 正在抓取 Google 試算表成員資料...</div>
-            </div>
-        </div>
-
-        <div class="row g-4 mb-5">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="h6 text-info mb-3">
-                        <i class="fa-solid fa-chart-pie"></i> 組織職級結構分佈
-                    </h5>
-                    <canvas id="chartRank"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="h6 text-info mb-3">
-                        <i class="fa-solid fa-chart-column"></i> 夥伴駐點區域分佈
-                    </h5>
-                    <canvas id="chartLocation"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="h5 text-info mb-0">
-                <i class="fa-solid fa-table-list"></i> 全體團隊夥伴名冊明細
-            </h3>
-            <span class="text-muted small"><i class="fa-solid fa-filter"></i> 支援即時關鍵字搜尋與欄位排序</span>
-        </div>
-        <div class="table-custom-wrapper">
-            <div class="table-responsive">
-                <table id="membersTable" class="table table-hover w-100">
-                    <thead>
-                        <tr>
-                            <th><i class="fa-solid fa-user"></i> 姓名</th>
-                            <th><i class="fa-solid fa-award"></i> 職級</th>
-                            <th><i class="fa-solid fa-user-tag"></i> 團隊角色</th>
-                            <th><i class="fa-solid fa-location-dot"></i> 駐點區域</th>
-                            <th><i class="fa-solid fa-lightbulb"></i> 核心專長</th>
-                            <th><i class="fa-solid fa-link"></i> 聯絡 / 社群</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-    <script>
-        // 設定 Google 試算表 CSV 公開發布網址 (gviz/tq?tqx=out:csv)
-        // 請務必將此處替換為您的實體 Google 試算表發布連結
-        const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vX_EXAMPLE_ID/pub?gid=0&single=true&output=csv';
-
-        // 預設備用模擬數據（若 Google 試算表尚未設定或抓取失敗時自動啟動）
-        const fallbackMembersData = [
-            {
-                name: "Ray 榮祥",
-                rank: "藍鑽",
-                role: "團隊創始人",
-                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop",
-                location: "台北市",
-                expertise: "組織戰略, 市場開發, 制度解析",
-                social_link: "https://line.me",
-                intro: "領航榮祥團隊，建構數位引流與實體轉化雙軌系統。"
-            },
-            {
-                name: "Jarvis 承志",
-                rank: "珍珠",
-                role: "系統總架構師",
-                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop",
-                location: "新北市",
-                expertise: "全棧工程, 自動化工具, 數據分析",
-                social_link: "https://github.com",
-                intro: "以 INTP 邏輯思維打造團隊雲端軍備庫與自動化小工具。"
-            },
-            {
-                name: "Sarah 雅婷",
-                rank: "珍珠",
-                role: "教育訓練總監",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop",
-                location: "台中市",
-                expertise: "產品研討, 新手入門SOP, 心理諮詢",
-                social_link: "#",
-                intro: "專注於夥伴個人成長與 15 分鐘事業簡報培訓。"
-            },
-            {
-                name: "Alex 志豪",
-                rank: "金鶴",
-                role: "中區戰略組長",
-                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop",
-                location: "台中市",
-                expertise: "線下社群會所, 體驗行銷",
-                social_link: "#",
-                intro: "深耕中部健康養生市場，快速輔導夥伴升聘。"
-            },
-            {
-                name: "Emily 淑芬",
-                rank: "經理",
-                role: "南區業務幹部",
-                avatar: "",
-                location: "高雄市",
-                expertise: "產品體驗, 顧客關懷",
-                social_link: "#",
-                intro: "熱忱服務，建構高黏著度顧客群。"
-            },
-            {
-                name: "David 建國",
-                rank: "經理",
-                role: "核心夥伴",
-                avatar: "",
-                location: "桃園市",
-                expertise: "線上引流, 陌生開發",
-                social_link: "#",
-                intro: "運用社群媒體進行精準名單開發。"
-            }
-        ];
-
-        let dataTableInstance = null;
-        let chartRankInstance = null;
-        let chartLocationInstance = null;
-
-        $(document).ready(function () {
-            // 初始化數據載入
-            loadMembersData();
-
-            // 重新整理按鈕事件 Binding
-            $('#btnRefresh').on('click', function () {
-                $(this).find('i').addClass('fa-spin');
-                loadMembersData();
-            });
-        });
-
-        /**
-         * 載入團隊成員數據（透過 PapaParse 抓取並解耦）
-         */
-        function loadMembersData() {
-            Papa.parse(SPREADSHEET_CSV_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function (results) {
-                    $('#btnRefresh i').removeClass('fa-spin');
-                    if (results.data && results.data.length > 0) {
-                        const sanitizedData = mapAndDecoupleData(results.data);
-                        renderUI(sanitizedData);
-                    } else {
-                        console.warn('Google 試算表回傳空資料，啟動預設備用資料庫。');
-                        renderUI(fallbackMembersData);
-                    }
-                },
-                error: function (err) {
-                    console.error('PapaParse 抓取失敗:', err);
-                    $('#btnRefresh i').removeClass('fa-spin');
-                    renderUI(fallbackMembersData);
-                }
-            });
-        }
-
-        /**
-         * 欄位解耦適配器 (Data Decoupling Adapter)
-         * 彈性搜尋欄位名稱，避免 Google 試算表欄位被改名而導致崩潰
-         */
-        function mapAndDecoupleData(rawData) {
-            return rawData.map(row => {
-                const findValue = (keywords) => {
-                    const keys = Object.keys(row);
-                    for (let k of keys) {
-                        for (let kw of keywords) {
-                            if (k.toLowerCase().includes(kw.toLowerCase())) {
-                                return row[k];
-                            }
-                        }
-                    }
-                    return '';
-                };
-
-                return {
-                    name: findValue(['姓名', 'Name', '成員', '夥伴']) || '未命名夥伴',
-                    rank: findValue(['職級', 'Rank', '階級']) || '會員',
-                    role: findValue(['角色', 'Role', '職務', '身份']) || '團隊夥伴',
-                    avatar: findValue(['頭像', 'Avatar', '照片', 'Image', 'Url']) || '',
-                    location: findValue(['區域', 'Location', '縣市', '駐點']) || '未設定',
-                    expertise: findValue(['專長', 'Expertise', '技能', '標籤']) || '健康諮詢',
-                    social_link: findValue(['社群', 'Social', '聯絡', 'Line', 'Link']) || '#',
-                    intro: findValue(['簡介', 'Intro', '格言', '備註']) || '致力於推廣健康生活與自由日常。'
-                };
-            });
-        }
-
-        /**
-         * 渲染全站 UI 模組
-         */
-        function renderUI(members) {
-            updateKpiStats(members);
-            renderLeadershipCards(members);
-            renderDataTable(members);
-            renderCharts(members);
-        }
-
-        /**
-         * 1. 更新頂部 KPI 指標
-         */
-        function updateKpiStats(members) {
-            $('#statTotalMembers').text(members.length);
-
-            const leaders = members.filter(m => ['藍鑽', '珍珠', '金鶴'].includes(m.rank.trim()));
-            $('#statLeaders').text(leaders.length);
-
-            const locations = new Set(members.map(m => m.location.trim()).filter(l => l && l !== '未設定'));
-            $('#statLocations').text(locations.size);
-        }
-
-        /**
-         * 2. 渲染核心領導人卡片 (Ray, Jarvis 及高階)
-         */
-        function renderLeadershipCards(members) {
-            const $grid = $('#leadershipGrid');
-            $grid.empty();
-
-            // 優先挑選創始人與藍鑽/珍珠階級
-            const leaders = members.filter(m => 
-                m.role.includes('創始') || m.role.includes('架構') || ['藍鑽', '珍珠'].includes(m.rank.trim())
-            );
-
-            const displayList = leaders.length > 0 ? leaders : members.slice(0, 4);
-
-            displayList.forEach(m => {
-                const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=1e293b&color=38bdf8&size=128`;
-                const avatarUrl = m.avatar && m.avatar.startsWith('http') ? m.avatar : defaultAvatar;
-
-                const tagsHtml = m.expertise.split(',').map(tag => 
-                    `<span class="tag-badge"><i class="fa-solid fa-tag"></i> ${tag.trim()}</span>`
-                ).join(' ');
-
-                const cardHtml = `
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="member-card text-center p-3">
-                            <div class="member-avatar-wrapper">
-                                <img src="${avatarUrl}" alt="${m.name}" class="member-avatar" onerror="this.src='${defaultAvatar}'">
-                                <span class="rank-badge"><i class="fa-solid fa-crown"></i> ${m.rank}</span>
-                            </div>
-                            <h4 class="h5 fw-bold text-light mb-1 mt-2">${m.name}</h4>
-                            <p class="text-info small mb-2"><i class="fa-solid fa-user-shield"></i> ${m.role}</p>
-                            <p class="text-muted small mb-3 text-truncate" title="${m.intro}">"${m.intro}"</p>
-                            <div class="mb-3">
-                                ${tagsHtml}
-                            </div>
-                            <div class="pt-2 border-top border-secondary">
-                                <a href="${m.social_link}" target="_blank" class="btn btn-sm btn-outline-info w-100">
-                                    <i class="fa-solid fa-comments"></i> 聯繫夥伴
-                                </a>
-                            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card d-flex align-items-center">
+                        <div class="stat-icon me-3">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small"><i class="fa-solid fa-circle-info"></i> 總夥伴數</div>
+                            <div class="h3 fw-bold mb-0 text-light" id="statTotalMembers">--</div>
                         </div>
                     </div>
-                `;
-                $grid.append(cardHtml);
-            });
-        }
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card d-flex align-items-center">
+                        <div class="stat-icon me-3 text-warning">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small"><i class="fa-solid fa-crown"></i> 高階領導人</div>
+                            <div class="h3 fw-bold mb-0 text-light" id="statLeaders">--</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card d-flex align-items-center">
+                        <div class="stat-icon me-3 text-success">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small"><i class="fa-solid fa-location-dot"></i> 涵蓋縣市</div>
+                            <div class="h3 fw-bold mb-0 text-light" id="statLocations">--</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card d-flex align-items-center">
+                        <div class="stat-icon me-3 text-info">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small"><i class="fa-solid fa-shield-halved"></i> 運營狀態</div>
+                            <div class="h3 fw-bold mb-0 text-info">雲端連線中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        /**
-         * 3. 渲染全體成員 DataTable.js
-         */
-        function renderDataTable(members) {
-            if (dataTableInstance) {
-                dataTableInstance.destroy();
-            }
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 text-info mb-0">
+                    <i class="fa-solid fa-star"></i> 核心領導人與創始團隊
+                </h3>
+                <span class="badge bg-secondary"><i class="fa-solid fa-layer-group"></i> Leadership Team</span>
+            </div>
+            <div class="row g-4 mb-5" id="leadershipGrid">
+                <div class="col-12 text-center py-4 loading-spinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <div class="mt-2 text-muted"><i class="fa-solid fa-cloud-arrow-down"></i> 正在抓取 Google 試算表成員資料...</div>
+                </div>
+            </div>
 
-            const $tbody = $('#membersTable tbody');
-            $tbody.empty();
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="h6 text-info mb-3">
+                            <i class="fa-solid fa-chart-pie"></i> 組織職級結構分佈
+                        </h5>
+                        <canvas id="chartRank"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="h6 text-info mb-3">
+                            <i class="fa-solid fa-chart-column"></i> 夥伴駐點區域分佈
+                        </h5>
+                        <canvas id="chartLocation"></canvas>
+                    </div>
+                </div>
+            </div>
 
-            members.forEach(m => {
-                const tags = m.expertise.split(',').map(t => 
-                    `<span class="badge bg-dark text-info border border-info me-1">${t.trim()}</span>`
-                ).join('');
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 text-info mb-0">
+                    <i class="fa-solid fa-table-list"></i> 全體團隊夥伴名冊明細
+                </h3>
+                <span class="text-muted small"><i class="fa-solid fa-filter"></i> 支援即時關鍵字搜尋與欄位排序</span>
+            </div>
+            <div class="table-custom-wrapper">
+                <div class="table-responsive">
+                    <table id="membersTable" class="table table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th><i class="fa-solid fa-user"></i> 姓名</th>
+                                <th><i class="fa-solid fa-award"></i> 職級</th>
+                                <th><i class="fa-solid fa-user-tag"></i> 團隊角色</th>
+                                <th><i class="fa-solid fa-location-dot"></i> 駐點區域</th>
+                                <th><i class="fa-solid fa-lightbulb"></i> 核心專長</th>
+                                <th><i class="fa-solid fa-link"></i> 聯絡 / 社群</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-                const rowHtml = `
-                    <tr>
-                        <td class="fw-bold text-light">
-                            <i class="fa-solid fa-user-circle text-info"></i> ${m.name}
-                        </td>
-                        <td>
-                            <span class="badge ${getRankBadgeStyle(m.rank)}">
-                                <i class="fa-solid fa-award"></i> ${m.rank}
-                            </span>
-                        </td>
-                        <td class="text-muted"><i class="fa-solid fa-briefcase"></i> ${m.role}</td>
-                        <td><i class="fa-solid fa-location-dot text-danger"></i> ${m.location}</td>
-                        <td>${tags}</td>
-                        <td>
-                            <a href="${m.social_link}" target="_blank" class="btn btn-xs btn-outline-primary btn-sm">
-                                <i class="fa-solid fa-paper-plane"></i> 聯絡
-                            </a>
-                        </td>
-                    </tr>
-                `;
-                $tbody.append(rowHtml);
-            });
-
-            // 初始化 DataTable
-            dataTableInstance = $('#membersTable').DataTable({
-                responsive: true,
-                pageLength: 5,
-                lengthMenu: [5, 10, 25, 50],
-                language: {
-                    search: '<i class="fa-solid fa-magnifying-glass"></i> 搜尋夥伴：',
-                    lengthMenu: '顯示 _MENU_ 筆記錄',
-                    info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆夥伴',
-                    infoEmpty: '無匹配成員資料',
-                    paginate: {
-                        first: '首頁',
-                        last: '末頁',
-                        next: '<i class="fa-solid fa-chevron-right"></i>',
-                        previous: '<i class="fa-solid fa-chevron-left"></i>'
-                    }
-                }
-            });
-        }
-
-        function getRankBadgeStyle(rank) {
-            switch (rank.trim()) {
-                case '藍鑽': return 'bg-warning text-dark fw-bold';
-                case '珍珠': return 'bg-info text-dark fw-bold';
-                case '金鶴': return 'bg-primary';
-                case '經理': return 'bg-success';
-                default: return 'bg-secondary';
-            }
-        }
-
-        /**
-         * 4. 繪製 Chart.js 視覺化圖表
-         */
-        function renderCharts(members) {
-            // A. 職級統計
-            const rankCounts = {};
-            members.forEach(m => {
-                const r = m.rank.trim() || '其他';
-                rankCounts[r] = (rankCounts[r] || 0) + 1;
-            });
-
-            const rankCtx = document.getElementById('chartRank').getContext('2d');
-            if (chartRankInstance) chartRankInstance.destroy();
-
-            chartRankInstance = new Chart(rankCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(rankCounts),
-                    datasets: [{
-                        data: Object.values(rankCounts),
-                        backgroundColor: ['#facc15', '#38bdf8', '#0284c7', '#10b981', '#64748b'],
-                        borderWidth: 2,
-                        borderColor: '#111d38'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { color: '#f8fafc', font: { size: 12 } }
-                        }
-                    }
-                }
-            });
-
-            // B. 區域統計
-            const locCounts = {};
-            members.forEach(m => {
-                const l = m.location.trim() || '未指定';
-                locCounts[l] = (locCounts[l] || 0) + 1;
-            });
-
-            const locCtx = document.getElementById('chartLocation').getContext('2d');
-            if (chartLocationInstance) chartLocationInstance.destroy();
-
-            chartLocationInstance = new Chart(locCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(locCounts),
-                    datasets: [{
-                        label: '駐點人數',
-                        data: Object.values(locCounts),
-                        backgroundColor: '#38bdf8',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-    </script>
-</body>
+    </body>
 </html>

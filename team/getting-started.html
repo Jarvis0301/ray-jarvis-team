@@ -1,573 +1,316 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="dark-blue">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>基礎入門 | 榮祥葡眾團隊軍備庫</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark-primary: #0f172a;
-            --bg-dark-card: #1e293b;
-            --bg-dark-border: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-blue: #38bdf8;
-            --accent-blue-hover: #0284c7;
-            --accent-glow: rgba(56, 189, 248, 0.15);
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>基礎入門 | 榮祥葡眾團隊軍備庫</title>
 
-        body {
-            background-color: var(--bg-dark-primary);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            padding-bottom: 50px;
-        }
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
 
-        /* 頂部 Header 與 麵包屑 */
-        .page-header {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-bottom: 1px solid var(--bg-dark-border);
-            padding: 2.5rem 0;
-            margin-bottom: 2rem;
-        }
+        <script src="../assets/js/common.js"></script>
 
-        .breadcrumb-item a {
-            color: var(--accent-blue);
-            text-decoration: none;
-        }
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-        .breadcrumb-item.active {
-            color: var(--text-muted);
-        }
+        <script src="./js/getting-started.js" defer></script>
 
-        /* 深色卡片樣式 */
-        .card-dark {
-            background-color: var(--bg-dark-card);
-            border: 1px solid var(--bg-dark-border);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
+        <link rel="stylesheet" href="./css/getting-started.css">
+    </head>
 
-        .card-dark:hover {
-            border-color: var(--accent-blue);
-        }
+    <body>
 
-        /* 學習里程碑 Step Card */
-        .step-number {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background-color: var(--accent-glow);
-            color: var(--accent-blue);
-            border: 2px solid var(--accent-blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .learning-badge {
-            background-color: rgba(56, 189, 248, 0.1);
-            color: var(--accent-blue);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.85rem;
-        }
-
-        /* DataTables 深色化美化 */
-        .table-dark-custom {
-            color: var(--text-main);
-            --bs-table-bg: var(--bg-dark-card);
-            --bs-table-border-color: var(--bg-dark-border);
-        }
-
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate {
-            color: var(--text-muted) !important;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .dataTables_wrapper .dataTables_filter input,
-        .dataTables_wrapper .dataTables_length select {
-            background-color: var(--bg-dark-primary);
-            border: 1px solid var(--bg-dark-border);
-            color: var(--text-main);
-            border-radius: 6px;
-            padding: 4px 8px;
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--accent-blue-hover);
-            border-color: var(--accent-blue-hover);
-            color: #ffffff;
-        }
-
-        .page-link {
-            background-color: var(--bg-dark-primary);
-            border-color: var(--bg-dark-border);
-            color: var(--text-muted);
-        }
-
-        /* 按鈕樣式 */
-        .btn-blue {
-            background-color: var(--accent-blue-hover);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .btn-blue:hover {
-            background-color: #0369a1;
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-        }
-
-        .btn-outline-blue {
-            background-color: transparent;
-            color: var(--accent-blue);
-            border: 1px solid var(--accent-blue);
-            border-radius: 8px;
-            padding: 8px 16px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-outline-blue:hover {
-            background-color: var(--accent-glow);
-            color: var(--accent-blue);
-        }
-
-        /* 手風琴 Accordion 深色客製化 */
-        .accordion-item {
-            background-color: var(--bg-dark-card);
-            border: 1px solid var(--bg-dark-border);
-            color: var(--text-main);
-        }
-
-        .accordion-button {
-            background-color: var(--bg-dark-card);
-            color: var(--text-main);
-            box-shadow: none !important;
-        }
-
-        .accordion-button:not(.collapsed) {
-            background-color: rgba(56, 189, 248, 0.1);
-            color: var(--accent-blue);
-        }
-
-        .accordion-button::after {
-            filter: invert(1);
-        }
-    </style>
-</head>
-<body>
-
-    <header class="page-header">
-        <div class="container">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div>
-                    <h1 class="h2 fw-bold text-white mb-2">
-                        <i class="fa-solid fa-compass me-2"></i>新夥伴 30 天基礎入門地圖
-                    </h1>
-                    <p class="text-muted mb-0">歡迎加入榮祥葡眾團隊！本頁面為您整理了從零開始建立事業所需的核心知識與數位軍備。</p>
-                </div>
-                <div>
-                    <span class="learning-badge"><i class="fa-solid fa-shield-halved me-2"></i>內部團隊專屬 SOP</span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="container">
-        <section class="row g-4 mb-5">
-            <div class="col-lg-8">
-                <div class="card-dark p-4 h-100">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold text-white mb-0">
-                            <i class="fa-solid fa-chart-line me-2"></i>新人通關學習進度指標
-                        </h5>
-                        <small class="text-muted">即時自我檢測</small>
-                    </div>
-                    <div class="row align-items-center">
-                        <div class="col-md-5 text-center">
-                            <div style="max-width: 200px; margin: 0 auto;">
-                                <canvas id="learningProgressChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-md-7 mt-3 mt-md-0">
-                            <h6 class="text-info fw-bold mb-2"><i class="fa-solid fa-circle-check me-2"></i>已完成 3 / 4 核心模組</h6>
-                            <p class="text-muted fs-7 mb-3">建議每天投入 30 分鐘研讀，並配合線上導師（Sponsor）進行每週觀念對齊。</p>
-                            <div class="d-grid gap-2">
-                                <a href="#roadmap" class="btn btn-blue text-center">
-                                    <i class="fa-solid fa-play me-2"></i>繼續學習：第三階段線上工具
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card-dark p-4 h-100 d-flex flex-column justify-content-between">
+        <header class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div>
-                        <h5 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-headset me-2"></i>專屬導師陪跑服務
-                        </h5>
-                        <p class="text-muted fs-7 mb-3">如果在學習過程中遇到任何制度換算、產品搭配或名單開發疑問，請隨時聯繫您的輔導上線。</p>
-                        <div class="p-3 rounded mb-3" style="background-color: rgba(15, 23, 42, 0.6); border: 1px solid var(--bg-dark-border);">
-                            <div class="d-flex align-items-center">
-                                <i class="fa-solid fa-user-tie fa-2x text-info me-3"></i>
-                                <div>
-                                    <div class="fw-bold text-white">榮祥團隊 諮詢專線</div>
-                                    <div class="text-muted fs-7">LINE 官方諮詢群組 / 1 對 1 輔導</div>
+                        <h1 class="h2 fw-bold text-white mb-2">
+                            <i class="fa-solid fa-compass me-2"></i>新夥伴 30 天基礎入門地圖
+                        </h1>
+                        <p class="text-muted mb-0">歡迎加入榮祥葡眾團隊！本頁面為您整理了從零開始建立事業所需的核心知識與數位軍備。</p>
+                    </div>
+                    <div>
+                        <span class="learning-badge"><i class="fa-solid fa-shield-halved me-2"></i>內部團隊專屬 SOP</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container-fluid p-3 p-md-4">
+            <section class="row g-4 mb-5">
+                <div class="col-lg-8">
+                    <div class="card-dark p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-white mb-0">
+                                <i class="fa-solid fa-chart-line me-2"></i>新人通關學習進度指標
+                            </h5>
+                            <small class="text-muted">即時自我檢測</small>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-md-5 text-center">
+                                <div style="max-width: 200px; margin: 0 auto;">
+                                    <canvas id="learningProgressChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-7 mt-3 mt-md-0">
+                                <h6 class="text-info fw-bold mb-2"><i class="fa-solid fa-circle-check me-2"></i>已完成 3 / 4 核心模組</h6>
+                                <p class="text-muted fs-7 mb-3">建議每天投入 30 分鐘研讀，並配合線上導師（Sponsor）進行每週觀念對齊。</p>
+                                <div class="d-grid gap-2">
+                                    <a href="#roadmap" class="btn btn-blue text-center">
+                                        <i class="fa-solid fa-play me-2"></i>繼續學習：第三階段線上工具
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <a href="https://line.me" target="_blank" class="btn btn-outline-blue w-100">
-                        <i class="fa-solid fa-comments me-2"></i>聯繫專屬導師
-                    </a>
                 </div>
-            </div>
-        </section>
 
-        <section id="roadmap" class="mb-5">
-            <h3 class="fw-bold text-white mb-4">
-                <i class="fa-solid fa-map-location-dot me-2"></i>四階段通關學習藍圖
-            </h3>
-
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="card-dark p-4 h-100 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-number me-3">1</div>
-                            <div>
-                                <span class="badge bg-secondary fs-8">Day 1 - 3</span>
-                                <h6 class="fw-bold text-white mb-0 mt-1">正確認知與心態</h6>
+                <div class="col-lg-4">
+                    <div class="card-dark p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="fw-bold text-white mb-3">
+                                <i class="fa-solid fa-headset me-2"></i>專屬導師陪跑服務
+                            </h5>
+                            <p class="text-muted fs-7 mb-3">如果在學習過程中遇到任何制度換算、產品搭配或名單開發疑問，請隨時聯繫您的輔導上線。</p>
+                            <div class="p-3 rounded mb-3" style="background-color: rgba(15, 23, 42, 0.6); border: 1px solid var(--bg-dark-border);">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-user-tie fa-2x text-info me-3"></i>
+                                    <div>
+                                        <div class="fw-bold text-white">榮祥團隊 諮詢專線</div>
+                                        <div class="text-muted fs-7">LINE 官方諮詢群組 / 1 對 1 輔導</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
-                            <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>了解榮祥團隊文化與願景</li>
-                            <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>創業家心態與時間管理</li>
-                            <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>閱讀直銷營業守則與合規規範</li>
-                        </ul>
-                        <a href="#modalStep1" data-bs-toggle="modal" class="btn btn-outline-blue btn-sm w-100">
-                            <i class="fa-solid fa-book-open me-2"></i>開始研讀
+                        <a href="https://line.me" target="_blank" class="btn btn-outline-blue w-100">
+                            <i class="fa-solid fa-comments me-2"></i>聯繫專屬導師
                         </a>
                     </div>
                 </div>
+            </section>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card-dark p-4 h-100 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-number me-3">2</div>
-                            <div>
-                                <span class="badge bg-secondary fs-8">Day 4 - 10</span>
-                                <h6 class="fw-bold text-white mb-0 mt-1">產品體驗與制度</h6>
+            <section id="roadmap" class="mb-5">
+                <h3 class="fw-bold text-white mb-4">
+                    <i class="fa-solid fa-map-location-dot me-2"></i>四階段通關學習藍圖
+                </h3>
+
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card-dark p-4 h-100 d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-number me-3">1</div>
+                                <div>
+                                    <span class="badge bg-secondary fs-8">Day 1 - 3</span>
+                                    <h6 class="fw-bold text-white mb-0 mt-1">正確認知與心態</h6>
+                                </div>
+                            </div>
+                            <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
+                                <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>了解榮祥團隊文化與願景</li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>創業家心態與時間管理</li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>閱讀直銷營業守則與合規規範</li>
+                            </ul>
+                            <a href="#modalStep1" data-bs-toggle="modal" class="btn btn-outline-blue btn-sm w-100">
+                                <i class="fa-solid fa-book-open me-2"></i>開始研讀
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card-dark p-4 h-100 d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-number me-3">2</div>
+                                <div>
+                                    <span class="badge bg-secondary fs-8">Day 4 - 10</span>
+                                    <h6 class="fw-bold text-white mb-0 mt-1">產品體驗與制度</h6>
+                                </div>
+                            </div>
+                            <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
+                                <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>體驗 995、康爾喜明星產品</li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>15分鐘公司/產品/制度簡報</li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>搞懂 50 大職級不歸零邏輯</li>
+                            </ul>
+                            <a href="#modalStep2" data-bs-toggle="modal" class="btn btn-outline-blue btn-sm w-100">
+                                <i class="fa-solid fa-book-open me-2"></i>開始研讀
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card-dark p-4 h-100 d-flex flex-column" style="border-color: var(--accent-blue);">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-number me-3" style="background-color: var(--accent-blue); color: #fff;">3</div>
+                                <div>
+                                    <span class="badge bg-info text-dark fs-8">進行中</span>
+                                    <h6 class="fw-bold text-white mb-0 mt-1">線上系統與小工具</h6>
+                                </div>
+                            </div>
+                            <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
+                                <li class="mb-2"><i class="fa-solid fa-circle-dot text-info me-2"></i>熟悉訂購/獎金/職級速算器</li>
+                                <li class="mb-2"><i class="fa-solid fa-circle-dot text-info me-2"></i>訂閱團隊 Google 行事曆</li>
+                                <li class="mb-2"><i class="fa-solid fa-circle-dot text-info me-2"></i>雲端素材軍備庫下載與應用</li>
+                            </ul>
+                            <a href="../tools/order-calculator.html" class="btn btn-blue btn-sm w-100">
+                                <i class="fa-solid fa-screwdriver-wrench me-2"></i>開啟試算工具
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card-dark p-4 h-100 d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-number me-3">4</div>
+                                <div>
+                                    <span class="badge bg-secondary fs-8">Day 21 - 30</span>
+                                    <h6 class="fw-bold text-white mb-0 mt-1">實戰行動與開展</h6>
+                                </div>
+                            </div>
+                            <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
+                                <li class="mb-2"><i class="fa-solid fa-lock text-muted me-2"></i>列出 30 人溫暖名單技巧</li>
+                                <li class="mb-2"><i class="fa-solid fa-lock text-muted me-2"></i>ABC 角色扮演與導師借力</li>
+                                <li class="mb-2"><i class="fa-solid fa-lock text-muted me-2"></i>參加第一次線上 ABC 實戰</li>
+                            </ul>
+                            <button class="btn btn-outline-blue btn-sm w-100" disabled>
+                                <i class="fa-solid fa-lock me-2"></i>未解鎖
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-5">
+                <div class="card-dark p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                        <div>
+                            <h4 class="fw-bold text-white mb-1">
+                                <i class="fa-solid fa-file-arrow-down me-2"></i>新手必備教材與簡報下載區
+                            </h4>
+                            <p class="text-muted fs-7 mb-0">包含 15 分鐘完整講稿、PPT 簡報與制度 PDF 文件。</p>
+                        </div>
+                        <button id="btnReloadSheet" class="btn btn-outline-blue btn-sm">
+                            <i class="fa-solid fa-rotate me-2"></i>同步最新雲端資料
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="materialsTable" class="table table-dark-custom align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>教材名稱</th>
+                                    <th>分類</th>
+                                    <th>檔案格式</th>
+                                    <th>適合階段</th>
+                                    <th>建議用途</th>
+                                    <th>操作選項</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold text-white"><i class="fa-regular fa-file-powerpoint text-warning me-2"></i>葡眾公司優勢_15分鐘版</td>
+                                    <td><span class="badge bg-primary">公司簡介</span></td>
+                                    <td>PPTX</td>
+                                    <td>階段二</td>
+                                    <td>1 對 1 招商與線上研討會</td>
+                                    <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-white"><i class="fa-regular fa-file-powerpoint text-warning me-2"></i>葡眾產品優勢_15分鐘版</td>
+                                    <td><span class="badge bg-info text-dark">產品解析</span></td>
+                                    <td>PPTX</td>
+                                    <td>階段二</td>
+                                    <td>健康講座與產品解說</td>
+                                    <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-white"><i class="fa-regular fa-file-word text-info me-2"></i>葡眾制度優勢_15分鐘講稿</td>
+                                    <td><span class="badge bg-success">制度拆解</span></td>
+                                    <td>DOCX</td>
+                                    <td>階段二</td>
+                                    <td>口播演練與話術學習</td>
+                                    <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-white"><i class="fa-regular fa-file-pdf text-danger me-2"></i>實踐夢想機會與權益2026版</td>
+                                    <td><span class="badge bg-danger">公司規定</span></td>
+                                    <td>PDF</td>
+                                    <td>階段一</td>
+                                    <td>營業守則與會員權益查閱</td>
+                                    <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-5">
+                <h4 class="fw-bold text-white mb-4">
+                    <i class="fa-solid fa-circle-question me-2"></i>新手破冰與常見疑問 (FAQ)
+                </h4>
+
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item mb-3 rounded overflow-hidden">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                <i class="fa-solid fa-q me-2 text-info"></i>剛加入葡眾，我需要自己囤貨或租設辦公室嗎？
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted fs-7">
+                                完全不需要！榮祥團隊極力倡導「零囤貨、零風險」的輕資產創業模式。葡眾制度具備「整組業績累計」與「職級晉升不下聘」的特性，您只需依據自己與家人實際的保健需求訂購即可，無須為了維持資格而盲目囤貨。
                             </div>
                         </div>
-                        <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
-                            <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>體驗 995、康爾喜明星產品</li>
-                            <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>15分鐘公司/產品/制度簡報</li>
-                            <li class="mb-2"><i class="fa-solid fa-check text-info me-2"></i>搞懂 50 大職級不歸零邏輯</li>
-                        </ul>
-                        <a href="#modalStep2" data-bs-toggle="modal" class="btn btn-outline-blue btn-sm w-100">
-                            <i class="fa-solid fa-book-open me-2"></i>開始研讀
-                        </a>
                     </div>
-                </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card-dark p-4 h-100 d-flex flex-column" style="border-color: var(--accent-blue);">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-number me-3" style="background-color: var(--accent-blue); color: #fff;">3</div>
-                            <div>
-                                <span class="badge bg-info text-dark fs-8">進行中</span>
-                                <h6 class="fw-bold text-white mb-0 mt-1">線上系統與小工具</h6>
+                    <div class="accordion-item mb-3 rounded overflow-hidden">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                <i class="fa-solid fa-q me-2 text-info"></i>如果身邊的朋友對保健食品有疑慮，該怎麼回應？
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted fs-7">
+                                建議遵循「不誇大療效、回歸生技專業」的原則。您可以善用團隊提供的高解析產品簡報與葡萄王生技的研發專利（例如：MAOC-LAB 微膠囊技術）進行解說，並帶領朋友參考官方標籤與衛福部認證標章，切勿宣稱疾病療效。
                             </div>
                         </div>
-                        <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
-                            <li class="mb-2"><i class="fa-solid fa-circle-dot text-info me-2"></i>熟悉訂購/獎金/職級速算器</li>
-                            <li class="mb-2"><i class="fa-solid fa-circle-dot text-info me-2"></i>訂閱團隊 Google 行事曆</li>
-                            <li class="mb-2"><i class="fa-solid fa-circle-dot text-info me-2"></i>雲端素材軍備庫下載與應用</li>
-                        </ul>
-                        <a href="../tools/order-calculator.html" class="btn btn-blue btn-sm w-100">
-                            <i class="fa-solid fa-screwdriver-wrench me-2"></i>開啟試算工具
-                        </a>
                     </div>
-                </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card-dark p-4 h-100 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-number me-3">4</div>
-                            <div>
-                                <span class="badge bg-secondary fs-8">Day 21 - 30</span>
-                                <h6 class="fw-bold text-white mb-0 mt-1">實戰行動與開展</h6>
+                    <div class="accordion-item mb-3 rounded overflow-hidden">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                <i class="fa-solid fa-q me-2 text-info"></i>我該如何使用榮祥團隊的線上速算工具？
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted fs-7">
+                                您可以點擊導覽選單中的「小工具」分頁，選擇「訂購試算」或「獎金試算」。系統會自動將您選擇的產品組合換算為全數 SV 與現金回饋金額，協助您在與夥伴溝通時提供精準且可信的數據。
                             </div>
                         </div>
-                        <ul class="text-muted fs-7 list-unstyled flex-grow-1 mb-3">
-                            <li class="mb-2"><i class="fa-solid fa-lock text-muted me-2"></i>列出 30 人溫暖名單技巧</li>
-                            <li class="mb-2"><i class="fa-solid fa-lock text-muted me-2"></i>ABC 角色扮演與導師借力</li>
-                            <li class="mb-2"><i class="fa-solid fa-lock text-muted me-2"></i>參加第一次線上 ABC 實戰</li>
-                        </ul>
-                        <button class="btn btn-outline-blue btn-sm w-100" disabled>
-                            <i class="fa-solid fa-lock me-2"></i>未解鎖
-                        </button>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
 
-        <section class="mb-5">
-            <div class="card-dark p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                    <div>
-                        <h4 class="fw-bold text-white mb-1">
-                            <i class="fa-solid fa-file-arrow-down me-2"></i>新手必備教材與簡報下載區
-                        </h4>
-                        <p class="text-muted fs-7 mb-0">包含 15 分鐘完整講稿、PPT 簡報與制度 PDF 文件。</p>
+        <div class="modal fade" id="modalStep1" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content card-dark text-white">
+                    <div class="modal-header border-bottom border-secondary">
+                        <h5 class="modal-title fw-bold">
+                            <i class="fa-solid fa-heart-pulse me-2 text-info"></i>第一階段：正確認知與創業家心態
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <button id="btnReloadSheet" class="btn btn-outline-blue btn-sm">
-                        <i class="fa-solid fa-rotate me-2"></i>同步最新雲端資料
-                    </button>
-                </div>
-
-                <div class="table-responsive">
-                    <table id="materialsTable" class="table table-dark-custom align-middle w-100">
-                        <thead>
-                            <tr>
-                                <th>教材名稱</th>
-                                <th>分類</th>
-                                <th>檔案格式</th>
-                                <th>適合階段</th>
-                                <th>建議用途</th>
-                                <th>操作選項</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="fw-bold text-white"><i class="fa-regular fa-file-powerpoint text-warning me-2"></i>葡眾公司優勢_15分鐘版</td>
-                                <td><span class="badge bg-primary">公司簡介</span></td>
-                                <td>PPTX</td>
-                                <td>階段二</td>
-                                <td>1 對 1 招商與線上研討會</td>
-                                <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-white"><i class="fa-regular fa-file-powerpoint text-warning me-2"></i>葡眾產品優勢_15分鐘版</td>
-                                <td><span class="badge bg-info text-dark">產品解析</span></td>
-                                <td>PPTX</td>
-                                <td>階段二</td>
-                                <td>健康講座與產品解說</td>
-                                <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-white"><i class="fa-regular fa-file-word text-info me-2"></i>葡眾制度優勢_15分鐘講稿</td>
-                                <td><span class="badge bg-success">制度拆解</span></td>
-                                <td>DOCX</td>
-                                <td>階段二</td>
-                                <td>口播演練與話術學習</td>
-                                <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-white"><i class="fa-regular fa-file-pdf text-danger me-2"></i>實踐夢想機會與權益2026版</td>
-                                <td><span class="badge bg-danger">公司規定</span></td>
-                                <td>PDF</td>
-                                <td>階段一</td>
-                                <td>營業守則與會員權益查閱</td>
-                                <td><a href="#" class="btn btn-blue btn-sm"><i class="fa-solid fa-download me-1"></i>下載</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5">
-            <h4 class="fw-bold text-white mb-4">
-                <i class="fa-solid fa-circle-question me-2"></i>新手破冰與常見疑問 (FAQ)
-            </h4>
-
-            <div class="accordion" id="faqAccordion">
-                <div class="accordion-item mb-3 rounded overflow-hidden">
-                    <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                            <i class="fa-solid fa-q me-2 text-info"></i>剛加入葡眾，我需要自己囤貨或租設辦公室嗎？
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted fs-7">
-                            完全不需要！榮祥團隊極力倡導「零囤貨、零風險」的輕資產創業模式。葡眾制度具備「整組業績累計」與「職級晉升不下聘」的特性，您只需依據自己與家人實際的保健需求訂購即可，無須為了維持資格而盲目囤貨。
-                        </div>
+                    <div class="modal-body text-muted fs-7">
+                        <h6 class="text-white fw-bold mb-2">1. 團隊核心願景</h6>
+                        <p>榮祥團隊致力於結合傳統直銷的溫暖陪伴與現代數位引流工具，讓每位夥伴都能在不打擾親友的前提下，建立屬於自己的永續被動收入系統。</p>
+                        <h6 class="text-white fw-bold mb-2">2. 合規紅線警語</h6>
+                        <p class="text-warning"><i class="fa-solid fa-triangle-exclamation me-2"></i>嚴禁於公開社群網路（FB/IG/Shopee）進行公開破盤削價販售，違者將依公司規章終止直銷權利。</p>
                     </div>
-                </div>
-
-                <div class="accordion-item mb-3 rounded overflow-hidden">
-                    <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                            <i class="fa-solid fa-q me-2 text-info"></i>如果身邊的朋友對保健食品有疑慮，該怎麼回應？
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted fs-7">
-                            建議遵循「不誇大療效、回歸生技專業」的原則。您可以善用團隊提供的高解析產品簡報與葡萄王生技的研發專利（例如：MAOC-LAB 微膠囊技術）進行解說，並帶領朋友參考官方標籤與衛福部認證標章，切勿宣稱疾病療效。
-                        </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-blue" data-bs-dismiss="modal">完成研讀並標記</button>
                     </div>
-                </div>
-
-                <div class="accordion-item mb-3 rounded overflow-hidden">
-                    <h2 class="accordion-header" id="headingThree">
-                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                            <i class="fa-solid fa-q me-2 text-info"></i>我該如何使用榮祥團隊的線上速算工具？
-                        </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted fs-7">
-                            您可以點擊導覽選單中的「小工具」分頁，選擇「訂購試算」或「獎金試算」。系統會自動將您選擇的產品組合換算為全數 SV 與現金回饋金額，協助您在與夥伴溝通時提供精準且可信的數據。
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <div class="modal fade" id="modalStep1" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content card-dark text-white">
-                <div class="modal-header border-bottom border-secondary">
-                    <h5 class="modal-title fw-bold">
-                        <i class="fa-solid fa-heart-pulse me-2 text-info"></i>第一階段：正確認知與創業家心態
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-muted fs-7">
-                    <h6 class="text-white fw-bold mb-2">1. 團隊核心願景</h6>
-                    <p>榮祥團隊致力於結合傳統直銷的溫暖陪伴與現代數位引流工具，讓每位夥伴都能在不打擾親友的前提下，建立屬於自己的永續被動收入系統。</p>
-                    <h6 class="text-white fw-bold mb-2">2. 合規紅線警語</h6>
-                    <p class="text-warning"><i class="fa-solid fa-triangle-exclamation me-2"></i>嚴禁於公開社群網路（FB/IG/Shopee）進行公開破盤削價販售，違者將依公司規章終止直銷權利。</p>
-                </div>
-                <div class="modal-footer border-top border-secondary">
-                    <button type="button" class="btn btn-blue" data-bs-dismiss="modal">完成研讀並標記</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            // 1. 初始化 DataTable.js (暗黑主題配對)
-            const materialsTable = $('#materialsTable').DataTable({
-                "language": {
-                    "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json"
-                },
-                "pageLength": 5,
-                "lengthMenu": [5, 10, 20],
-                "ordering": true,
-                "responsive": true
-            });
-
-            // 2. 初始化 Chart.js (學習進度圓弧圖)
-            const ctx = document.getElementById('learningProgressChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['已通關階段', '未解鎖階段'],
-                    datasets: [{
-                        data: [75, 25],
-                        backgroundColor: [
-                            '#38bdf8',
-                            '#334155'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return ' ' + context.label + ': ' + context.raw + '%';
-                                }
-                            }
-                        }
-                    },
-                    cutout: '75%'
-                }
-            });
-
-            // 3. PapaParse / gviz 動態數據抓取與欄位解耦架構實作
-            function loadGoogleSheetData() {
-                // 示範 GViz CSV 讀取 URL 結構
-                const sheetId = 'YOUR_GOOGLE_SHEET_ID';
-                const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Materials`;
-
-                Papa.parse(gvizUrl, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        if (results.data && results.data.length > 0) {
-                            // 清空 DataTable
-                            materialsTable.clear();
-
-                            // 欄位解耦對映映射 Adapter (不依賴固定的欄位標題文字)
-                            results.data.forEach(function(row) {
-                                const keys = Object.keys(row);
-                                const title = row[keys[0]] || '未命名教材';
-                                const category = row[keys[1]] || '通用';
-                                const format = row[keys[2]] || 'PDF';
-                                const stage = row[keys[3]] || '全階段';
-                                const usage = row[keys[4]] || '自學研讀';
-                                const downloadUrl = row[keys[5]] || '#';
-
-                                materialsTable.row.add([
-                                    `<span class="fw-bold text-white"><i class="fa-regular fa-file text-info me-2"></i>${title}</span>`,
-                                    `<span class="badge bg-primary">${category}</span>`,
-                                    format,
-                                    stage,
-                                    usage,
-                                    `<a href="${downloadUrl}" class="btn btn-blue btn-sm" target="_blank"><i class="fa-solid fa-download me-1"></i>下載</a>`
-                                ]);
-                            });
-
-                            materialsTable.draw();
-                        }
-                    },
-                    error: function(err) {
-                        console.log('Google 試算表動態同步訊息：使用預設備援資料庫。');
-                    }
-                });
-            }
-
-            // 按鈕觸發同步
-            $('#btnReloadSheet').on('click', function() {
-                loadGoogleSheetData();
-            });
-        });
-    </script>
-</body>
+    </body>
 </html>

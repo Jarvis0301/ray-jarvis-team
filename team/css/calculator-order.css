@@ -263,6 +263,18 @@ html, body {
     font-size: 0.9rem;
 }
 
+/* 針對 Chrome, Safari, Edge, Opera */
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 針對 Firefox */
+.qty-input {
+    -moz-appearance: textfield;
+}
+
 /* 右側結帳試算 Sticky Card (網頁1為主 - 保持原樣不異動) */
 .cart-summary-card {
     position: sticky;
@@ -529,10 +541,20 @@ html, body {
     background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
 }
 
+/* 電腦版 (>= 992px) 訂購明細卡片跟隨滾動 */
+@media (min-width: 992px) {
+    .cart-summary-card {
+        position: sticky;
+        top: 20px; /* 距離視窗頂部 20px */
+        z-index: 99;
+        transition: top 0.15s ease-out; /* 讓跟隨移動更加平滑 */
+    }
+}
+
 @media (max-width: 576px) {
     .floating-island-bar {
-        left: 40%;
-        width: 75%;
+        left: 45%;
+        width: 70%;
         padding: 0.6rem 0.85rem;
     }
     .floating-kpi-group {

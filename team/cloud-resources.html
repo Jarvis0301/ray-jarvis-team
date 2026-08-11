@@ -3,201 +3,157 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>團隊資源</title>
+        <title>團隊資源庫 | 榮祥葡眾團隊內部戰情網</title>
+            <script src="../assets/js/auth-guard.js"></script>
+            
+            <script src="../assets/js/vendor-loader.js"></script>
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-        
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="../assets/js/common.js"></script>
 
-        <script>
-            $(document).ready(function () {
-                // 動態搜尋與過濾功能
-                $('#resourceSearch').on('keyup', function () {
-                    const value = $(this).val().toLowerCase().trim();
-                    let visibleCount = 0;
+            <link rel="stylesheet" href="../assets/css/common.css">
 
-                    $('.resource-card-item').each(function () {
-                        const keywords = $(this).attr('data-keywords').toLowerCase();
-                        const textContent = $(this).text().toLowerCase();
+            <script src="./js/cloud-resources.js" defer></script>
 
-                        if (keywords.indexOf(value) > -1 || textContent.indexOf(value) > -1) {
-                            $(this).fadeIn(200);
-                            visibleCount++;
-                        } else {
-                            $(this).fadeOut(200);
-                        }
-                    });
-
-                    if (visibleCount === 0) {
-                        $('#noResults').removeClass('d-none');
-                    } else {
-                        $('#noResults').addClass('d-none');
-                    }
-                });
-            });
-        </script>
-        
+            <link rel="stylesheet" href="./css/cloud-resources.css">
         <style>
-            :root {
-                --bg-dark: #0b1329;
-                --bg-card: #132238;
-                --bg-card-hover: #1e3250;
-                --border-color: rgba(56, 189, 248, 0.2);
-                --border-hover: rgba(56, 189, 248, 0.6);
-                --accent-blue: #38bdf8;
-                --accent-cyan: #7dd3fc;
-                --accent-gold: #facc15;
-                --text-main: #f8fafc;
-                --text-muted: #94a3b8;
-                --btn-glow: rgba(56, 189, 248, 0.25);
-            }
-
-            body {
-                background-color: transparent; /* 讓協作平台背景自然透出 */
-                color: var(--text-main);
-                font-family: 'Noto Sans TC', 'Roboto', sans-serif;
-                min-height: 100vh;
-                padding-bottom: 3rem;
-            }
-
-            /* 警示/說明卡片 */
-            .notice-card {
-                background-color: rgba(19, 34, 56, 0.6);
-                border: 1px dashed var(--accent-gold);
-                border-radius: 12px;
-                padding: 1rem 1.25rem;
-                margin-bottom: 2rem;
-            }
-
-            /* 資源大分類模組卡片 */
-            .resource-group-card {
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-color);
-                border-radius: 16px;
-                padding: 1.75rem;
-                height: 100%;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .resource-group-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 4px;
-                background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
-                opacity: 0.8;
-            }
-
-            .resource-group-card:hover {
-                transform: translateY(-5px);
-                border-color: var(--border-hover);
-                box-shadow: 0 8px 30px rgba(56, 189, 248, 0.15);
-            }
-
-            .group-icon-wrapper {
-                width: 60px;
-                height: 60px;
-                background-color: rgba(56, 189, 248, 0.1);
-                border: 1px solid var(--border-color);
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.75rem;
-                color: var(--accent-blue);
-                margin-bottom: 1.25rem;
-            }
-
-            .group-title {
-                font-size: 1.35rem;
-                font-weight: 700;
-                color: var(--text-main);
-                margin-bottom: 0.5rem;
-            }
-
-            .group-desc {
-                color: var(--text-muted);
-                font-size: 0.875rem;
-                margin-bottom: 1.5rem;
-                line-height: 1.6;
-            }
-
-            /* 按鈕樣式設計 */
-            .btn-drive-action {
-                background: linear-gradient(135deg, #1e3a5f 0%, #0c2340 100%);
-                border: 1px solid var(--border-color);
-                color: var(--text-main);
-                font-weight: 600;
-                padding: 0.8rem 1.25rem;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                text-decoration: none;
-                transition: all 0.25s ease;
-                margin-bottom: 0.85rem;
-            }
-
-            .btn-drive-action:last-child {
-                margin-bottom: 0;
-            }
-
-            .btn-drive-action:hover {
-                background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-                border-color: var(--accent-blue);
-                color: #ffffff;
-                box-shadow: 0 0 15px var(--btn-glow);
-                transform: translateX(3px);
-            }
-
-            .btn-drive-action .btn-text {
-                display: flex;
-                align-items: center;
-            }
-
-            .btn-drive-action .badge-drive {
-                background-color: rgba(250, 204, 21, 0.15);
-                color: var(--accent-gold);
-                font-size: 0.75rem;
-                padding: 0.3rem 0.6rem;
-                border-radius: 6px;
-                border: 1px solid rgba(250, 204, 21, 0.3);
-            }
-
-            /* 快速搜尋過濾列 */
-            .search-box-container {
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-color);
-                border-radius: 12px;
-                padding: 0.5rem 1rem;
-                margin-bottom: 2rem;
-            }
-
-            .search-input {
-                background: transparent;
-                border: none;
-                color: var(--text-main);
-                box-shadow: none !important;
-            }
-
-            .search-input::placeholder {
-                color: var(--text-muted);
-            }
+            
         </style>
     </head>
 
+
     <body>
-        <main class="container my-3">
-            
-            <div class="notice-card d-flex align-items-start gap-3">
+
+        <main class="container-fluid p-3 p-md-4">
+
+            <section class="mb-5">
+                <div class="d-flex align-items-center mb-4">
+                    <h3 class="fs-4 fw-bold mb-0 text-white">
+                        <i class="fa-solid fa-folder-tree text-info"></i> 核心雲端資源專區
+                    </h3>
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="resource-card p-4">
+                            <div>
+                                <div class="card-icon-wrapper">
+                                    <i class="fa-solid fa-boxes-stacked"></i> 產品資源
+                                </div>
+                                <p class="card-desc">
+                                    收錄葡眾全系列保健食品、個人保養品高解析產品圖、產品型錄、規格對照表與行銷海報，適用於社群推廣與客戶分享。
+                                </p>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://drive.google.com/drive/folders/1v4WE0s9z2NQZlxA4EDeZwlgOHngjMFgC?usp=sharing" target="_blank" class="btn-drive-primary">
+                                    <i class="fa-brands fa-google-drive"></i> 產品圖片與資料庫
+                                </a>
+                                <a href="https://drive.google.com/drive/folders/1DraQAdpZi9VooUve5bAuAQRPIRIld2iZ?usp=sharing" target="_blank" class="btn-drive-secondary">
+                                    <i class="fa-solid fa-file-image"></i> 產品高解析海報庫
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="resource-card p-4">
+                            <div>
+                                <div class="card-icon-wrapper">
+                                    <i class="fa-solid fa-file-powerpoint"></i> 簡報資源
+                                </div>
+                                <p class="card-desc">
+                                    包含最新版創業招商簡報（OPP）、公司簡介 PPT、制度優勢分析簡報與線上研討會標準投影片，助您快速開展事業說明。
+                                </p>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://drive.google.com/drive/folders/15tqtypR1-kcxgdyt-RVrXKr7FKI84-qC?usp=sharing" target="_blank" class="btn-drive-primary">
+                                    <i class="fa-brands fa-google-drive"></i> 事業招商簡報專區
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-12">
+                        <div class="resource-card p-4">
+                            <div>
+                                <div class="card-icon-wrapper">
+                                    <i class="fa-solid fa-book-bookmark"></i> 培訓教材
+                                </div>
+                                <p class="card-desc">
+                                    新人起步 SOP 手冊、名單開發實戰話術、獎金制度精算教學、領袖輔導講義與合規營業守則，打造複製化戰鬥力。
+                                </p>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://drive.google.com/drive/folders/your-training-folder-id" target="_blank" class="btn-drive-primary">
+                                    <i class="fa-brands fa-google-drive"></i> 系統培訓教材總庫
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="row g-4 mb-5">
+                <div class="col-lg-4">
+                    <div class="dashboard-card h-100">
+                        <h4 class="fs-5 fw-bold mb-3 text-info">
+                            <i class="fa-solid fa-chart-pie"></i> 軍備資產分佈統計
+                        </h4>
+                        <div style="position: relative; height: 220px;">
+                            <canvas id="resourceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="dashboard-card h-100 d-flex flex-column justify-content-center">
+                        <h4 class="fs-5 fw-bold mb-3 text-info">
+                            <i class="fa-solid fa-lightbulb"></i> 雲端資源使用指南
+                        </h4>
+                        <ul class="list-unstyled mb-0 lh-lg text-muted">
+                            <li class="mb-2">
+                                <i class="fa-solid fa-check text-warning me-2"></i> <strong>即時下載：</strong> 點擊上方按鈕可直接跳轉至 Google Drive 雲端資料夾進行線上預覽或高解析下載。
+                            </li>
+                            <li class="mb-2">
+                                <i class="fa-solid fa-check text-warning me-2"></i> <strong>合規使用：</strong> 所有產品海報與招商簡報均符合公司規範，禁止任意修改宣稱療效。
+                            </li>
+                            <li class="mb-0">
+                                <i class="fa-solid fa-check text-warning me-2"></i> <strong>快速檢索：</strong> 可善用下方動態搜尋表格，直接輸入關鍵字（如「995」、「OPP」）尋找特定文件。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <h3 class="fs-4 fw-bold mb-0 text-white">
+                        <i class="fa-solid fa-list-check text-info"></i> 雲端檔案即時檢索目錄
+                    </h3>
+                    <span class="text-muted fs-6" id="syncStatus">
+                        <i class="fa-solid fa-spinner fa-spin"></i> 正在連線至 Google 試算表...
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="resourceTable" class="table table-dark table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>編號</th>
+                                <th>資源名稱</th>
+                                <th>分類</th>
+                                <th>檔案類型</th>
+                                <th>更新日期</th>
+                                <th>雲端操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="notice-card d-flex align-items-start gap-3">
                 <div class="text-warning fs-4">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
@@ -206,114 +162,15 @@
                         <i class="fa-solid fa-lock"></i> 團隊內部資源使用規範說明
                     </h6>
                     <p class="mb-0 text-light small" style="line-height: 1.6;">
-                        本頁面所有連結均指向《榮祥葡眾團隊》專屬 Google 雲端硬碟。請確保您已使用授權之 Gmail 帳號登入。所有產品圖卡、海報及簡報教材均受智慧財產權與團隊合規營業守則保護，嚴禁將未經授權之素材私自用於拍賣平台（如蝦皮、露天）或誇大療效之宣傳。
+                        本頁面所有連結均指向《榮祥葡眾團隊》專屬 Google 雲端硬碟，請確保您已使用授權之 Gmail 帳號登入。
+                    </p>
+                    <p class="mb-0 text-light small" style="line-height: 1.6;">
+                        所有產品圖卡、海報及簡報教材均受智慧財產權與團隊合規營業守則保護，嚴禁將未經授權之素材私自用於拍賣平台（如蝦皮、露天）或誇大療效之宣傳。
                     </p>
                 </div>
-            </div>
-
-            <div class="search-box-container d-flex align-items-center">
-                <i class="fa-solid fa-magnifying-glass text-info me-2"></i>
-                <input type="text" id="resourceSearch" class="form-control search-input" placeholder="輸入關鍵字搜尋資源（例如：海報、簡報、產品、教材...）">
-            </div>
-
-            <div class="row row-cols-1 row-cols-md-3 g-4" id="resourceCardsContainer">
-
-                <div class="col resource-card-item" data-keywords="產品 產品海報 素材 圖卡 照片 官方">
-                    <div class="resource-group-card">
-                        <div class="group-icon-wrapper">
-                            <i class="fa-solid fa-box-archive"></i>
-                        </div>
-                        <h2 class="group-title">
-                            <i class="fa-solid fa-cubes"></i> 產品資源
-                        </h2>
-                        <p class="group-desc">
-                            包含葡眾全系列產品官方高清去背照片、規格成分圖卡，以及經 Krita AI 升頻修復之 300 DPI 印刷級高解析宣傳海報。
-                        </p>
-                        
-                        <div class="d-grid gap-2">
-                            <a href="https://drive.google.com/drive/folders/1v4WE0s9z2NQZlxA4EDeZwlgOHngjMFgC?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-drive-action">
-                                <span class="btn-text">
-                                    <i class="fa-solid fa-image me-2 text-info"></i> 產品
-                                </span>
-                                <span class="badge-drive">
-                                    <i class="fab fa-google-drive"></i> 開啟雲端
-                                </span>
-                            </a>
-
-                            <a href="https://drive.google.com/drive/folders/1DraQAdpZi9VooUve5bAuAQRPIRIld2iZ?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-drive-action">
-                                <span class="btn-text">
-                                    <i class="fa-solid fa-file-image me-2 text-info"></i> 產品海報
-                                </span>
-                                <span class="badge-drive">
-                                    <i class="fab fa-google-drive"></i> 開啟雲端
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col resource-card-item" data-keywords="簡報 PPT 公司介紹 制度 招商 講稿">
-                    <div class="resource-group-card">
-                        <div class="group-icon-wrapper">
-                            <i class="fa-solid fa-file-powerpoint"></i>
-                        </div>
-                        <h2 class="group-title">
-                            <i class="fa-solid fa-sliders"></i> 簡報資源
-                        </h2>
-                        <p class="group-desc">
-                            收錄團隊標準化招商簡報（OPB）、15 分鐘公司/產品/制度極速說明 PPT、講稿註解檔及跨國（馬來西亞）市場專屬簡報。
-                        </p>
-
-                        <div class="d-grid gap-2">
-                            <a href="https://drive.google.com/drive/folders/15tqtypR1-kcxgdyt-RVrXKr7FKI84-qC?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-drive-action">
-                                <span class="btn-text">
-                                    <i class="fa-solid fa-display me-2 text-info"></i> 簡報
-                                </span>
-                                <span class="badge-drive">
-                                    <i class="fab fa-google-drive"></i> 開啟雲端
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col resource-card-item" data-keywords="培訓教材 教材 新人SOP 話術 制度計算 合規">
-                    <div class="resource-group-card">
-                        <div class="group-icon-wrapper">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
-                        <h2 class="group-title">
-                            <i class="fa-solid fa-book-bookmark"></i> 培訓教材
-                        </h2>
-                        <p class="group-desc">
-                            提供新人加入第一天必看 SOP、獎金制度精算解析圖卡、線上/線下名單開發對答話術庫及公平交易法合規經營指南。
-                        </p>
-
-                        <div class="d-grid gap-2">
-                            <a href="https://drive.google.com/drive/folders/YOUR_TRAINING_FOLDER_ID" target="_blank" rel="noopener noreferrer" class="btn-drive-action">
-                                <span class="btn-text">
-                                    <i class="fa-solid fa-file-lines me-2 text-info"></i> 教材
-                                </span>
-                                <span class="badge-drive">
-                                    <i class="fab fa-google-drive"></i> 開啟雲端
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div id="noResults" class="text-center py-5 d-none">
-                <i class="fa-solid fa-folder-open text-muted fs-1 mb-3"></i>
-                <h5 class="text-muted">
-                    <i class="fa-solid fa-circle-exclamation"></i> 未找到符合條件的資源模組
-                </h5>
-                <p class="text-secondary small">
-                    請嘗試輸入其他關鍵字，或清除搜尋條件。
-                </p>
-            </div>
+            </section>
 
         </main>
+        
     </body>
 </html>

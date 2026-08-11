@@ -3,7 +3,7 @@ window.addEventListener('AppReady', function() {
     // 1. 初始化 DataTable.js 最新動態表格
     $('#eventsTable').DataTable({
         "language": {
-            "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json"
+            "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-TW.json"
         },
         "pageLength": 5,
         "lengthChange": false,

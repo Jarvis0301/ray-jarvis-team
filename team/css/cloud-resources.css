@@ -1,0 +1,198 @@
+:root {
+    --bg-dark: #0b1329;
+    --bg-card: #132238;
+    --bg-card-hover: #1c2d4a;
+    --accent-blue: #38bdf8;
+    --accent-blue-hover: #0284c7;
+    --accent-gold: #facc15;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: rgba(56, 189, 248, 0.2);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+/* 頂部標題區塊 */
+.page-header {
+    background: linear-gradient(135deg, #132238 0%, #0b1329 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2.5rem 0;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    color: var(--accent-blue);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* 卡片容器樣式 */
+.resource-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.resource-card:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+}
+
+.card-icon-wrapper {
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(56, 189, 248, 0.1);
+    color: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.card-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+}
+
+.card-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* 按鈕風格 */
+.btn-drive-primary {
+    background-color: var(--accent-blue);
+    color: #0f172a;
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-drive-primary:hover {
+    background-color: var(--accent-blue-hover);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.btn-drive-secondary {
+    background-color: transparent;
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-drive-secondary:hover {
+    background-color: rgba(56, 189, 248, 0.15);
+    color: #ffffff;
+    border-color: var(--accent-blue);
+}
+
+/* 統計與圖表區塊 */
+.dashboard-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* DataTable 深色主題修正 */
+.dataTables_wrapper {
+    color: var(--text-main);
+}
+
+table.dataTable {
+    color: var(--text-main) !important;
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+}
+
+table.dataTable thead th {
+    background-color: #1a2c47 !important;
+    color: var(--accent-blue) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+}
+
+table.dataTable tbody td {
+    border-color: var(--border-color) !important;
+    vertical-align: middle;
+}
+
+.dataTables_length label, 
+.dataTables_filter label, 
+.dataTables_info {
+    color: var(--text-muted) !important;
+}
+
+.dataTables_filter input, 
+.dataTables_length select {
+    background-color: var(--bg-dark) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: #0f172a !important;
+    font-weight: 700;
+}
+
+.page-link {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* 警示/說明卡片 */
+.notice-card {
+    background-color: rgba(19, 34, 56, 0.6);
+    border: 1px dashed var(--accent-gold);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+}
+
+/* 頁尾樣式 */
+.footer-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    margin-top: 3rem;
+}

@@ -7,7 +7,8 @@
 
     // 團隊內部寫的 JS 模組清單
     const internalModules = [
-        '../assets/js/utils.js'
+        '../assets/js/utils.js',
+        '../assets/js/dialog.js'
     ];
 
     /**

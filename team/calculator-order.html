@@ -15,36 +15,14 @@
 
         <script src="./js/calculator-order.js" defer></script>
 
+        <script src="./js/order-printer.js" defer></script>
+
         <link rel="stylesheet" href="./css/calculator-order.css">
-    </head>
+	</head>	
+	
+	<body>
 
-    <body>
-
-        <!-- 頂部 Header -->
-        <header class="page-header">
-            <div class="container-fluid px-md-4">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                    <div>
-                        <h1 class="page-title mb-1">
-                            <i class="fa-solid fa-calculator text-info"></i> 榮祥葡眾團隊 ｜ 訂購試算與戰情分析儀表板
-                        </h1>
-                        <p class="text-muted small mb-0">
-                            <i class="fa-solid fa-shield-halved text-success"></i> 整合多維度商品檢視 ｜ 即時 SV 積分與 5 大視覺化圖表算計 ｜ 一鍵匯出 Excel & PDF
-                        </p>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-dark border border-info text-info p-2">
-                            <i class="fa-solid fa-database"></i> <span id="data-status-text">全庫商品已就緒</span>
-                        </span>
-                        <button class="btn btn-sm btn-outline-info" id="btn-reload-data">
-                            <i class="fa-solid fa-rotate"></i> 重載資料
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="container-fluid px-md-4">
+        <main class="container-fluid p-3 p-md-4">
             <div class="row g-3">
                 
                 <!-- 左側：多維度搜尋篩選 + 產品選擇 (可切換卡片式/表格式) -->
@@ -130,10 +108,10 @@
                         </div>
                     </section>
 
-                    <!-- 產品展示區：卡片模式 (預設) -->
+                    <!-- 產品展示區：卡片模式 -->
                     <div class="row g-3" id="productGrid"></div>
 
-                    <!-- 產品展示區：表格式 (網頁2風格) -->
+                    <!-- 產品展示區：表格模式 -->
                     <div class="war-card d-none" id="productTableCard">
                         <div class="table-responsive">
                             <table id="productTable" class="table table-dark-custom w-100">
@@ -141,10 +119,10 @@
                                     <tr>
                                         <th>編號</th>
                                         <th>產品名稱</th>
-                                        <th>主系列</th>
-                                        <th>次系列 / 型態</th>
-                                        <th class="text-end">售價 (NT$)</th>
-                                        <th class="text-end">積分 (SV)</th>
+                                        <th>次系列</th>
+                                        <th>產品型態</th>
+                                        <th class="text-end">售價</th>
+                                        <th class="text-end">積分</th>
                                         <th class="text-center" style="width: 120px;">訂購數量</th>
                                     </tr>
                                 </thead>
@@ -166,10 +144,43 @@
                             <span class="badge bg-info text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
                         </div>
 
+                        <!-- 幣別切換與匯率/地區設定區塊 -->
+                        <div class="p-2 mb-3 rounded bg-dark-subtle border border-secondary border-opacity-50">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-6">
+                                    <label for="displayCurrencySelect" class="form-label small text-muted mb-1">
+                                        <i class="fa-solid fa-coins text-warning"></i> 結算幣別
+                                    </label>
+                                    <select id="displayCurrencySelect" class="form-select form-select-sm form-select-custom">
+                                        <option value="TWD" selected>新台幣 (TWD)</option>
+                                        <option value="MYR">馬幣 (MYR)</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="exchangeRateInput" class="form-label small text-muted mb-1">
+                                        <i class="fa-solid fa-arrow-right-arrow-left text-info"></i> 匯率 (1 MYR=)
+                                    </label>
+                                    <input type="number" id="exchangeRateInput" class="form-control form-control-sm form-control-custom" value="8.0" step="0.1" min="0.1">
+                                </div>
+                                <!-- 馬來西亞運費地區 (選取馬來西亞或馬幣時顯示) -->
+                                <div class="col-12 mt-2 d-none" id="myRegionBlock">
+                                    <label class="form-label small text-muted mb-1 d-block">
+                                        <i class="fa-solid fa-map-location-dot text-success"></i> 馬來西亞配送區域
+                                    </label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="myRegion" id="myRegionWest" value="WEST" checked>
+                                        <label class="btn btn-outline-info btn-sm" for="myRegionWest">西馬 (RM 15)</label>
+                                        <input type="radio" class="btn-check" name="myRegion" id="myRegionEast" value="EAST">
+                                        <label class="btn btn-outline-info btn-sm" for="myRegionEast">東馬 (RM 35)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- 已選商品項目清單 Container -->
                         <div id="cart-items-container" style="max-height: 250px; overflow-y: auto;" class="mb-3 pr-1">
-                            <div class="text-center text-muted py-4" id="empty-cart-msg">
-                                <i class="fa-solid fa-basket-shopping fa-2x mb-2 d-block opacity-50"></i>
+                            <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
+                                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50"></i>
                                 尚未選擇任何商品，請點擊數量增減選擇。
                             </div>
                         </div>
@@ -213,7 +224,7 @@
                             </div>
                         </div>
 
-                        <!-- 需求 3：下載訂購清單 Excel & PDF -->
+                        <!-- 下載與清空操作按鈕群 -->
                         <div class="d-flex flex-column gap-2">
                             <div class="row g-2">
                                 <div class="col-6">
@@ -241,7 +252,7 @@
             <!-- ========================================== -->
             <!-- 獨立數據統計圖表戰情中心 (全獨立區塊 - 包含 5 個高實用性統計圖表) -->
             <!-- ========================================== -->
-            <div class="analytics-section-title">
+            <div class="analytics-section-title" id="analyticsSection">
                 <span><i class="fa-solid fa-chart-line text-info me-2"></i>訂購戰情與數據統計分析中心</span>
                 <span class="badge bg-outline-info border border-info text-info fs-7 fw-normal">
                     <i class="fa-solid fa-bolt me-1"></i>動態即時運算
@@ -354,5 +365,6 @@
         <button class="floating-wake-btn" id="btnShowFloatingBar">
             <i class="fa-solid fa-chart-pie me-1"></i> 總計
         </button>
+        
     </body>
 </html>

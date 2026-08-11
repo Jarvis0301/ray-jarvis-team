@@ -269,7 +269,7 @@ function renderDataTable(data) {
 
     $('#conceptDataTable').DataTable({
         language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json'
+            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-TW.json'
         },
         pageLength: 6,
         lengthMenu: [6, 12, 24],
