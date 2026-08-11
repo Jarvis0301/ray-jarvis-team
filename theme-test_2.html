@@ -1,286 +1,362 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UVACO 全主題色彩系統測試介面</title>
+<html lang="zh-TW" data-bs-theme="dark-green">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>榮祥團隊前端規範驗證系統B</title>
 
-        <!-- 1. 匯入 Bootstrap 5.3 CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
-        <!-- 2. 匯入 FontAwesome 圖示庫 -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/common.css">
 
-        <!-- 3. Google Font -->
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           1. 全域 5 大主題 CSS Custom Properties 變數池範例
+           ========================================================================== */
+        :root, [data-bs-theme="dark-green"] {
+            --uvaco-primary: #10b981;
+            --uvaco-primary-hover: #059669;
+            --uvaco-primary-contrast: #051811;
+            --uvaco-primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --uvaco-secondary: #34d399;
+            --uvaco-secondary-contrast: #051811;
+            --uvaco-accent: #f59e0b;
+            --uvaco-accent-contrast: #051811;
+            --uvaco-text-primary: #ecfdf5;
+            --uvaco-text-secondary: #6ee7b7;
+            --uvaco-text-accent: #f59e0b;
+            --uvaco-text-muted: #9ca3af;
+            --uvaco-text-light: #ffffff;
+            --uvaco-bg-primary: #051811;
+            --uvaco-bg-secondary: #0d231b;
+            --uvaco-bg-card: #10241b;
+            --uvaco-bg-card-hover: #1a3f33;
+            --uvaco-bg-card-inner: #0b1a15;
+            --uvaco-bg-input: #10261d;
+            --uvaco-bg-accent: rgba(245, 158, 11, 0.15);
+            --uvaco-border-color: rgba(52, 211, 153, 0.2);
+            --uvaco-border-glow: rgba(52, 211, 153, 0.25);
+            --uvaco-border-highlight: rgba(52, 211, 153, 0.45);
+            --uvaco-shadow-glow: 0 8px 24px rgba(16, 185, 129, 0.3);
+            --bs-body-bg: var(--uvaco-bg-primary);
+            --bs-body-color: var(--uvaco-text-primary);
+        }
 
-        <!-- 4. 匯入 Bootstrap 5.3 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        [data-bs-theme="dark-blue"] {
+            --uvaco-primary: #3b82f6;
+            --uvaco-primary-hover: #1d4ed8;
+            --uvaco-primary-contrast: #ffffff;
+            --uvaco-primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --uvaco-secondary: #60a5fa;
+            --uvaco-secondary-contrast: #090d16;
+            --uvaco-accent: #38bdf8;
+            --uvaco-accent-contrast: #090d16;
+            --uvaco-text-primary: #f1f5f9;
+            --uvaco-text-secondary: #93c5fd;
+            --uvaco-text-accent: #38bdf8;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-text-light: #ffffff;
+            --uvaco-bg-primary: #090d16;
+            --uvaco-bg-secondary: #0f172a;
+            --uvaco-bg-card: #131b2e;
+            --uvaco-bg-card-hover: #1a253e;
+            --uvaco-bg-card-inner: #0d1322;
+            --uvaco-bg-input: #111827;
+            --uvaco-bg-accent: rgba(56, 189, 248, 0.15);
+            --uvaco-border-color: rgba(59, 130, 246, 0.2);
+            --uvaco-border-glow: rgba(59, 130, 246, 0.3);
+            --uvaco-border-highlight: rgba(96, 165, 250, 0.5);
+            --uvaco-shadow-glow: 0 8px 24px rgba(59, 130, 246, 0.35);
+            --bs-body-bg: var(--uvaco-bg-primary);
+            --bs-body-color: var(--uvaco-text-primary);
+        }
 
-        <!-- 5. 匯入由 Live Sass 編譯生成的 CSS 檔案 (請依實際產出路徑調整) -->
-        <link rel="stylesheet" href="./assets/css/common.css">
-        
-        <style>
-            /* 測試介面輔助專用外框 */
-            .color-demo-box {
-                padding: 1rem;
-                border-radius: var(--bs-border-radius, 8px);
-                font-size: 0.85rem;
-                font-weight: 600;
-                text-align: center;
-                border: 1px solid var(--bs-border-color, rgba(255,255,255,0.1));
-            }
-        </style>
-    </head>
-    <body class="bg-body text-body min-vh-100 pb-5">
+        [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #a855f7;
+            --uvaco-primary-hover: #7e22ce;
+            --uvaco-primary-contrast: #ffffff;
+            --uvaco-primary-gradient: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-contrast: #0a0518;
+            --uvaco-accent: #f43f5e;
+            --uvaco-accent-contrast: #ffffff;
+            --uvaco-text-primary: #faf5ff;
+            --uvaco-text-secondary: #e9d5ff;
+            --uvaco-text-accent: #f43f5e;
+            --uvaco-text-muted: #a1a1aa;
+            --uvaco-text-light: #ffffff;
+            --uvaco-bg-primary: #0a0518;
+            --uvaco-bg-secondary: #120a2a;
+            --uvaco-bg-card: #180e38;
+            --uvaco-bg-card-hover: #221448;
+            --uvaco-bg-card-inner: #100826;
+            --uvaco-bg-input: #150b30;
+            --uvaco-bg-accent: rgba(244, 63, 94, 0.15);
+            --uvaco-border-color: rgba(168, 85, 247, 0.25);
+            --uvaco-border-glow: rgba(168, 85, 247, 0.35);
+            --uvaco-border-highlight: rgba(192, 132, 252, 0.5);
+            --uvaco-shadow-glow: 0 8px 24px rgba(168, 85, 247, 0.4);
+            --bs-body-bg: var(--uvaco-bg-primary);
+            --bs-body-color: var(--uvaco-text-primary);
+        }
 
-        <!-- 頂部導覽列與主題切換控制器 -->
-        <header class="navbar navbar-expand-lg border-bottom sticky-top bg-body">
-            <div class="container-fluid px-4">
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2 text-primary" href="#">
-                    <i class="fa-solid fa-palette"></i>
-                    <span>UVACO 色彩系統測試儀</span>
-                </a>
+        /* 漸層高亮文字 */
+        .gradient-text {
+            background: var(--uvaco-primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
 
-                <!-- 主題切換按鈕群組 -->
-                <div class="d-flex align-items-center gap-2 ms-auto">
-                    <label for="themeSelect" class="form-label mb-0 me-2 d-none d-sm-inline fw-semibold text-body-secondary">
-                        <i class="fa-solid fa-sliders me-1"></i>當前主題：
-                    </label>
-                    <select id="themeSelect" class="form-select form-select-sm w-auto fw-bold border-primary" onchange="changeTheme(this.value)">
-                        <option value="dark-green" selected>翡翠綠 (Dark Emerald Green)</option>
-                        <option value="dark-purple">魅影紫 (Dark Phantom Purple)</option>
-                        <option value="dark-blue">鋼鐵藍 (Steel Navy Blue)</option>
-                        <option value="light">Bootstrap 5 原生亮色 (Light)</option>
-                        <option value="dark">Bootstrap 5 原生暗色 (Dark)</option>
-                    </select>
-                </div>
+        body {
+            background-color: var(--uvaco-bg-primary);
+            color: var(--uvaco-text-primary);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="py-3 mb-4" style="background: var(--uvaco-bg-secondary); border-bottom: 1px solid var(--uvaco-border-color);">
+        <div class="container d-flex flex-wrap align-items-center justify-content-between">
+            <a href="#" class="d-flex align-items-center text-decoration-none fs-4 fw-bold text-light">
+                <i class="fa-solid fa-layer-group text-primary me-2"></i> 榮祥團隊前端規範驗證系統B
+            </a>
+
+            <div class="d-flex gap-2 align-items-center mt-2 mt-md-0">
+                <span class="small text-secondary me-2"><i class="fa-solid fa-palette me-1"></i> 切換主題：</span>
+                <button class="btn btn-sm btn-outline-success rounded-pill active" onclick="switchTheme('dark-green')">
+                    <i class="fa-solid fa-leaf me-1"></i> 公開綠
+                </button>
+                <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="switchTheme('dark-blue')">
+                    <i class="fa-solid fa-shield-halved me-1"></i> 團隊藍
+                </button>
+                <button class="btn btn-sm btn-outline-purple rounded-pill" style="color: #c084fc; border-color: #a855f7;" onclick="switchTheme('dark-purple')">
+                    <i class="fa-solid fa-gem me-1"></i> 核心紫
+                </button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main class="container py-4">
+    <main class="container mb-5">
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-8">
+                <span class="chip-m3 active mb-3">
+                    <i class="fa-solid fa-sparkles me-1"></i> 100% Theme Tokens 引用解耦架構
+                </span>
+                <h1 class="display-5 gradient-text mb-3">Material 3 Expressive 元件巨集測試</h1>
+                <p class="text-secondary lead">此頁面所有組件色彩 100% 引用 --uvaco-* 色彩變數，無任何寫死色碼，支援三大主題零延遲動態切換。</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <button class="btn-m3 btn-m3-cta">
+                    <i class="fa-solid fa-rocket me-2"></i> 立即執行商業 CTA
+                </button>
+            </div>
+        </div>
 
-            <!-- 區塊 1：當前主題狀態提示 -->
-            <section class="mb-5">
-                <div class="card border-primary shadow-sm">
-                    <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                        <div>
-                            <h4 class="card-title fw-bold text-primary mb-1" id="activeThemeTitle">翡翠綠深色主題 (Dark Emerald Green)</h4>
-                            <p class="card-text text-body-secondary mb-0">
-                                正在測試 <code>data-bs-theme="<span id="activeThemeCode">dark-green</span>"</code> 設定下全站 Token 的色彩表現。
-                            </p>
+        <section class="row g-4 mb-5">
+            <div class="col-12">
+                <div class="card-m3 card-m3-elevated p-4">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i> M3 分段選擇器 (Segmented Button) & Chips 標籤</h5>
+                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                        <div class="segmented-btn-m3">
+                            <button class="segmented-item active"><i class="fa-solid fa-chart-pie me-1"></i> 總覽</button>
+                            <button class="segmented-item"><i class="fa-solid fa-list-check me-1"></i> 明細</button>
+                            <button class="segmented-item"><i class="fa-solid fa-clock-rotate-left me-1"></i> 歷史</button>
                         </div>
                         <div class="d-flex gap-2">
-                            <span class="badge bg-primary text-black">Primary</span>
-                            <span class="badge bg-secondary text-black">Secondary</span>
-                            <span class="badge bg-accent text-black">Accent</span>
+                            <span class="chip-m3 active"><i class="fa-solid fa-filter me-1"></i> 全部分類</span>
+                            <span class="chip-m3"><i class="fa-solid fa-boxes-stacked me-1"></i> 生技保健</span>
+                            <span class="chip-m3"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> 美容護膚</span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- 區塊 2：實心與外框按鈕組 (Primary -> Dark 順序) -->
-            <section class="mb-5">
-                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-hand-pointer me-2"></i>1. 按鈕組件與 Hover 測試 (.btn-* & .btn-outline-*)</h5>
-                <div class="card p-4">
-                    <div class="mb-3">
-                        <h6 class="text-body-secondary mb-2">實心按鈕 (.btn-*)</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-primary">Primary</button>
-                            <button class="btn btn-secondary">Secondary</button>
-                            <button class="btn btn-accent">Accent</button>
-                            <button class="btn btn-muted">Muted</button>
-                            <button class="btn btn-success">Success</button>
-                            <button class="btn btn-info">Info</button>
-                            <button class="btn btn-warning">Warning</button>
-                            <button class="btn btn-danger">Danger</button>
-                            <button class="btn btn-light">Light</button>
-                            <button class="btn btn-dark">Dark</button>
-                        </div>
+        <section class="row g-4 mb-5">
+            <div class="col-12 col-md-4">
+                <div class="card-m3 card-m3-elevated p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary"><i class="fa-solid fa-wallet me-1"></i> 本月組織估算 PV</span>
+                        <button class="fab-m3"><i class="fa-solid fa-arrow-trend-up"></i></button>
                     </div>
+                    <h2 class="fw-bold mb-2">1,850,400 <small class="fs-6 text-secondary">PV</small></h2>
+                    <p class="text-secondary small mb-3">距離晉升階梯僅差 49,600 PV</p>
+                    <button class="btn-m3 btn-m3-primary w-100"><i class="fa-solid fa-magnifying-glass-chart me-1"></i> 查看業績分析</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card-m3 card-m3-elevated p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary"><i class="fa-solid fa-users me-1"></i> 團隊夥伴總數</span>
+                        <button class="fab-m3"><i class="fa-solid fa-user-plus"></i></button>
+                    </div>
+                    <h2 class="fw-bold mb-2">214 <small class="fs-6 text-secondary">人</small></h2>
+                    <p class="text-secondary small mb-3">本月新進合格夥伴 +18 人</p>
+                    <button class="btn-m3 btn-m3-primary w-100"><i class="fa-solid fa-sitemap me-1"></i> 管理組織圖譜</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card-m3 card-m3-elevated p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary"><i class="fa-solid fa-warehouse me-1"></i> 安全庫存率</span>
+                        <button class="fab-m3"><i class="fa-solid fa-box-archive"></i></button>
+                    </div>
+                    <h2 class="fw-bold mb-2">99.2 <small class="fs-6 text-secondary">%</small></h2>
+                    <p class="text-secondary small mb-3">熱銷 995/樟芝益供貨無預警</p>
+                    <button class="btn-m3 btn-m3-primary w-100"><i class="fa-solid fa-truck-ramp-box me-1"></i> 進入進銷存</button>
+                </div>
+            </div>
+        </section>
 
-                    <hr class="my-3 border-secondary-subtle">
-
-                    <div>
-                        <h6 class="text-body-secondary mb-2">外框按鈕 (.btn-outline-*)</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-outline-primary">Primary</button>
-                            <button class="btn btn-outline-secondary">Secondary</button>
-                            <button class="btn btn-outline-accent">Accent</button>
-                            <button class="btn btn-outline-muted">Muted</button>
-                            <button class="btn btn-outline-success">Success</button>
-                            <button class="btn btn-outline-info">Info</button>
-                            <button class="btn btn-outline-warning">Warning</button>
-                            <button class="btn btn-outline-danger">Danger</button>
-                            <button class="btn btn-outline-light">Light</button>
-                            <button class="btn btn-outline-dark">Dark</button>
-                        </div>
+        <section class="row g-4 mb-5">
+            <div class="col-12 col-lg-7">
+                <div class="card-m3 card-m3-elevated p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i> M3 Canvas 動態漸層圖表</h5>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="m3Chart"></canvas>
                     </div>
                 </div>
-            </section>
+            </div>
+            <div class="col-12 col-lg-5">
+                <div class="card-m3 card-m3-elevated p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-table text-primary me-2"></i> DataTable.js M3 暗黑表格</h5>
+                    <div class="table-responsive">
+                        <table id="m3Table" class="table table-hover align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>品名</th>
+                                    <th>PV</th>
+                                    <th>狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- 區塊 3：文字與強調色 (.text-*) -->
-            <section class="mb-5">
-                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-font me-2"></i>2. 全局文字色彩 (.text-*)</h5>
-                <div class="card p-4">
+        <section class="row g-4">
+            <div class="col-12">
+                <div class="card-m3 card-m3-elevated p-4">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-primary me-2"></i> M3 文字輸入與搜尋組件</h5>
                     <div class="row g-3">
-                        <div class="col-md-3 col-6"><span class="text-primary fw-bold">.text-primary</span></div>
-                        <div class="col-md-3 col-6"><span class="text-secondary fw-bold">.text-secondary</span></div>
-                        <div class="col-md-3 col-6"><span class="text-accent fw-bold">.text-accent</span></div>
-                        <div class="col-md-3 col-6"><span class="text-muted fw-bold">.text-muted</span></div>
-                        <div class="col-md-3 col-6"><span class="text-success fw-bold">.text-success</span></div>
-                        <div class="col-md-3 col-6"><span class="text-info fw-bold">.text-info</span></div>
-                        <div class="col-md-3 col-6"><span class="text-warning fw-bold">.text-warning</span></div>
-                        <div class="col-md-3 col-6"><span class="text-danger fw-bold">.text-danger</span></div>
-                        <div class="col-md-3 col-6"><span class="text-light fw-bold bg-dark px-2 py-1 rounded">.text-light</span></div>
-                        <div class="col-md-3 col-6"><span class="text-dark fw-bold bg-light px-2 py-1 rounded">.text-dark</span></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 區塊 4：區塊與卡片背景色 (.bg-* & .bg-subtle) -->
-            <section class="mb-5">
-                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-layer-group me-2"></i>3. 背景與柔和底色 (.bg-* & .bg-*-subtle)</h5>
-                <div class="row g-3">
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-primary text-bg-primary">bg-primary</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-secondary text-bg-secondary">bg-secondary</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-accent text-bg-accent">bg-accent</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-muted text-bg-muted">bg-muted</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-success text-bg-success">bg-success</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-info text-bg-info">bg-info</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-warning text-bg-warning">bg-warning</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-danger text-bg-danger">bg-danger</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-light text-bg-light">bg-light</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-dark text-bg-dark">bg-dark</div></div>
-                </div>
-
-                <div class="row g-3 mt-1">
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-primary-subtle text-primary">primary-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-secondary-subtle text-secondary">secondary-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-accent-subtle text-accent">accent-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-muted-subtle text-muted">muted-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-success-subtle text-success">success-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-info-subtle text-info">info-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-warning-subtle text-warning">warning-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-danger-subtle text-danger">danger-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-light-subtle text-light">light-subtle</div></div>
-                    <div class="col-md-2 col-4"><div class="color-demo-box bg-dark-subtle text-dark">dark-subtle</div></div>
-                </div>
-            </section>
-
-            <!-- 區塊 5：警示框組件 (.alert-*) -->
-            <section class="mb-5">
-                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-triangle-exclamation me-2"></i>4. 狀態警示框 (.alert-*)</h5>
-                <div class="row g-3">
-                    <div class="col-md-6"><div class="alert alert-primary mb-0"><strong>Primary:</strong> 主主題顏色訊息提示方塊。</div></div>
-                    <div class="col-md-6"><div class="alert alert-secondary mb-0"><strong>Secondary:</strong> 次要狀態訊息提示方塊。</div></div>
-                    <div class="col-md-6"><div class="alert alert-success mb-0"><strong>Success:</strong> 操作成功通報內容。</div></div>
-                    <div class="col-md-6"><div class="alert alert-warning mb-0"><strong>Warning:</strong> 注意事項與警告通知。</div></div>
-                </div>
-            </section>
-
-            <!-- 區塊 6：深色模式表單與輸入框測試 -->
-            <section class="mb-5">
-                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-pen-to-square me-2"></i>5. 深色表單輸入框測試</h5>
-                <div class="card p-4">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">標準文字輸入框</label>
-                            <input type="text" class="form-control" placeholder="請輸入資料...">
+                        <div class="col-12 col-md-6">
+                            <input type="text" class="form-control-m3 w-100" placeholder="搜尋夥伴姓名或經銷商編號...">
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">下拉選擇選單 (Custom Arrow)</label>
-                            <select class="form-select">
-                                <option selected>請選擇項目...</option>
-                                <option value="1">選項 1 - 系統預設</option>
-                                <option value="2">選項 2 - 高亮標籤</option>
-                            </select>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="switchCheck" checked>
-                                <label class="form-check-label fw-semibold" for="switchCheck">開關切換器選項</label>
-                            </div>
+                        <div class="col-12 col-md-6 d-flex gap-2">
+                            <button class="btn-m3 btn-m3-primary"><i class="fa-solid fa-magnifying-glass me-1"></i> 開始搜尋</button>
+                            <button class="btn-m3 btn-m3-cta"><i class="fa-solid fa-plus me-1"></i> 新增資料</button>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
+    </main>
 
-            <!-- 區塊 7：表格組件測試 (.table-*) -->
-            <section class="mb-5">
-                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-table me-2"></i>6. 資料表格表現 (.table)</h5>
-                <div class="table-responsive card border-secondary-subtle">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr class="table-primary">
-                                <th scope="col">#</th>
-                                <th scope="col">主題名稱</th>
-                                <th scope="col">語意 Token</th>
-                                <th scope="col">狀態</th>
-                                <th scope="col" class="text-end">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td><span class="fw-bold text-primary">Emerald Green</span></td>
-                                <td><code>--uvaco-primary</code></td>
-                                <td><span class="badge bg-success-subtle text-success">Active</span></td>
-                                <td class="text-end"><button class="btn btn-sm btn-outline-primary">編輯</button></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td><span class="fw-bold text-secondary">Phantom Purple</span></td>
-                                <td><code>--uvaco-secondary</code></td>
-                                <td><span class="badge bg-info-subtle text-info">Standby</span></td>
-                                <td class="text-end"><button class="btn btn-sm btn-outline-secondary">編輯</button></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td><span class="fw-bold text-accent">Steel Navy Blue</span></td>
-                                <td><code>--uvaco-accent</code></td>
-                                <td><span class="badge bg-warning-subtle text-warning">Pending</span></td>
-                                <td class="text-end"><button class="btn btn-sm btn-outline-accent">編輯</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+    <footer class="py-4 mt-5" style="background: var(--uvaco-bg-secondary); border-top: 1px solid var(--uvaco-border-color);">
+        <div class="container text-center text-secondary small">
+            <p class="mb-1"><i class="fa-regular fa-copyright me-1"></i> 2026 榮祥團隊 Ray's Team | 本網站由榮祥團隊獨立運營，非葡眾官方網站</p>
+            <p class="mb-0">以科技賦能組織 · 邁向健康與自由人生</p>
+        </div>
+    </footer>
 
-        </main>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
 
-        <!-- 主題切換邏輯 JS -->
-        <script>
-            // 主題對應標題描述
-            const themeInfo = {
-                'dark-green': { title: '翡翠綠深色主題 (Dark Emerald Green)', code: 'dark-green' },
-                'dark-purple': { title: '魅影紫深色主題 (Dark Phantom Purple)', code: 'dark-purple' },
-                'dark-blue': { title: '鋼鐵藍深色主題 (Steel Navy Blue)', code: 'dark-blue' },
-                'light': { title: 'Bootstrap 5 原生亮色主題 (Light Theme)', code: 'light' },
-                'dark': { title: 'Bootstrap 5 原生暗色主題 (Dark Theme)', code: 'dark' }
-            };
+    <script>
+        let myChart = null;
 
-            // 切換主題函式
-            function changeTheme(themeName) {
-                // 1. 設定 <html> 標籤的 data-bs-theme 屬性
-                document.documentElement.setAttribute('data-bs-theme', themeName);
+        function switchTheme(themeName) {
+            document.documentElement.setAttribute('data-bs-theme', themeName);
+            setTimeout(updateChart, 100);
+        }
 
-                // 2. 更新提示文字
-                if (themeInfo[themeName]) {
-                    document.getElementById('activeThemeTitle').innerText = themeInfo[themeName].title;
-                    document.getElementById('activeThemeCode').innerText = themeInfo[themeName].code;
-                }
+        function updateChart() {
+            const ctx = document.getElementById('m3Chart').getContext('2d');
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--uvaco-primary').trim() || '#10b981';
 
-                // 3. 儲存選擇至 localStorage
-                //localStorage.setItem('uvaco-test-theme', themeName);
+            const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+            gradient.addColorStop(0, primaryColor + '66');
+            gradient.addColorStop(1, primaryColor + '00');
+
+            if (myChart) {
+                myChart.destroy();
             }
 
-            // 頁面載入時讀取上次選擇的主題
-            document.addEventListener('DOMContentLoaded', () => {
-                const savedTheme = localStorage.getItem('uvaco-test-theme') || 'dark-green';
-                document.getElementById('themeSelect').value = savedTheme;
-                changeTheme(savedTheme);
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '月度 PV 趨勢',
+                        data: [720000, 890000, 1100000, 1350000, 1600000, 1850400],
+                        borderColor: primaryColor,
+                        borderWidth: 3,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: primaryColor,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } }
+                    }
+                }
             });
-        </script>
-    </body>
+        }
+
+        $(document).ready(function() {
+            // DataTable 初始化 (與 Google 試算表解耦機制相容)
+            const products = [
+                { name: "995 生技營養品", pv: "5,040", status: "穩定熱銷" },
+                { name: "樟芝益菌絲體粉", pv: "3,880", status: "穩定熱銷" },
+                { name: "康爾喜乳酸菌", pv: "1,470", status: "庫存充足" },
+                { name: "衛傑生技營養品", pv: "2,600", status: "庫存充足" },
+                { name: "迪斯尼微量元素", pv: "1,200", status: "補貨預警" }
+            ];
+
+            $('#m3Table').DataTable({
+                data: products,
+                columns: [
+                    { data: 'name' },
+                    { data: 'pv' },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            return `<span class="chip-m3 active"><i class="fa-solid fa-check me-1"></i> ${data}</span>`;
+                        }
+                    }
+                ],
+                pageLength: 4,
+                lengthChange: false,
+                searching: false,
+                info: false,
+                language: {
+                    paginate: {
+                        previous: '<i class="fa-solid fa-chevron-left"></i>',
+                        next: '<i class="fa-solid fa-chevron-right"></i>'
+                    }
+                }
+            });
+
+            updateChart();
+        });
+    </script>
+</body>
 </html>
