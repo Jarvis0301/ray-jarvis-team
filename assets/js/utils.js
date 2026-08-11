@@ -31,33 +31,24 @@ class Utils {
             }
         }
 
-        console.log(isInIframe);
-        console.log(selectedTheme);
-        console.log(!isInIframe || !selectedTheme);
-        
         // 2. 如果不是 iframe，或是 iframe 沒抓到父頁面主題，則執行網址判斷邏輯
         if (!isInIframe || !selectedTheme) {
             const pathname = window.location.pathname;
             const urlParams = new URLSearchParams(window.location.search);
             const paramTheme = urlParams.get("theme");
 
-            console.log(pathname);
-            console.log(urlParams);
-            console.log(paramTheme);
-
             // 【優先權 1】網址帶有 ?theme=xxx 參數
             if (paramTheme) {
                 selectedTheme = paramTheme;
             }
             // 【優先權 2】依據網址路徑 (Pathname) 判斷
-            else if (pathname.startsWith("/team")) {
+            else if (pathname.includes("/team/")) {
                 selectedTheme = "dark-blue";
-            } else if (pathname.startsWith("/hub")) {
+            } else if (pathname.includes("/hub/")) {
                 selectedTheme = "dark-purple";
-            } else if (pathname.startsWith("/health")) {
+            } else if (pathname.includes("/health/")) {
                 selectedTheme = "dark-green";
             }
-            console.log(selectedTheme);
         }
 
         // 3. 立即套用主題至當前 HTML 標籤
