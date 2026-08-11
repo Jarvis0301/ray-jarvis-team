@@ -3,86 +3,64 @@
 // ==========================================
 let SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I"; // 填入公開的 Google Sheet ID
 
-// 核心解耦轉接器：欄位名稱模糊匹配適配器 (Field Decoupling Adapter)
-function getVal(row, keys, defaultVal = '') {
-    if (!row) return defaultVal;
-    
-    // 情境 A：若 PapaParse 為物件陣列 (header: true)
-    if (typeof row === 'object' && !Array.isArray(row)) {
-        for (let k of keys) {
-            if (typeof k === 'string') {
-                const foundKey = Object.keys(row).find(rowKey => {
-                    const cleanRowKey = rowKey.replace(/_\d+$/, '').trim().toLowerCase();
-                    const cleanTargetKey = k.trim().toLowerCase();
-                    return cleanRowKey === cleanTargetKey || rowKey.trim().toLowerCase() === cleanTargetKey;
-                });
-                if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null && row[foundKey] !== '') {
-                    return row[foundKey].toString().trim();
-                }
-            }
-        }
+// 核心轉接器：依據資料表欄位順序索引 (Column Index) 抓取資料
+function getVal(row, colIndex, defaultVal = '') {
+    if (!row || !Array.isArray(row)) return defaultVal;
+    if (row[colIndex] !== undefined && row[colIndex] !== null && row[colIndex] !== '') {
+        return row[colIndex].toString().trim();
     }
-    
-    // 情境 B：若 PapaParse 為二維陣列 (header: false)
-    if (Array.isArray(row)) {
-        const numKey = keys.find(k => typeof k === 'number');
-        if (numKey !== undefined && row[numKey] !== undefined && row[numKey] !== null) {
-            return row[numKey].toString().trim();
-        }
-    }
-    
     return defaultVal;
 }
 
-// 預設產品型態庫 (對齊 product_types 表結構)
+// 預設產品型態庫 (備援資料，對齊 product_types 表結構)
 const defaultTypeIcons = [
-    { code: "ALL", name: "全部", nameEn: "All", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE001", name: "益生菌", nameEn: "Probiotics", icon: "fa-solid fa-bacteria", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE002", name: "膠囊", nameEn: "Capsules", icon: "fa-solid fa-capsules", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE003", name: "錠劑", nameEn: "Tablets", icon: "fa-solid fa-tablets", color: "#a7f3d0", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE004", name: "沖泡飲", nameEn: "Powder Drinks", icon: "fa-solid fa-mug-saucer", color: "#fbbf24", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE005", name: "液態飲", nameEn: "Liquid Drinks", icon: "fa-solid fa-droplet", color: "#60a5fa", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE006", name: "外用保養", nameEn: "Skincare", icon: "fa-solid fa-leaf", color: "#f472b6", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE007", name: "清潔", nameEn: "Cleansers", icon: "fa-solid fa-pump-soap", color: "#22d3ee", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE008", name: "口腔照護", nameEn: "Oral Care", icon: "fa-solid fa-tooth", color: "#818cf8", bg: "rgba(10, 25, 19, 0.88)" },
-    { code: "TYPE009", name: "特殊", nameEn: "Specialty", icon: "fa-solid fa-boxes-packing", color: "#f87171", bg: "rgba(10, 25, 19, 0.88)" }
+    { id: "0", code: "ALL", name: "全部", nameEn: "All", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "1", code: "TYPE001", name: "益生菌", nameEn: "Probiotics", icon: "fa-solid fa-bacteria", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "2", code: "TYPE002", name: "膠囊", nameEn: "Capsules", icon: "fa-solid fa-capsules", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "3", code: "TYPE003", name: "錠劑", nameEn: "Tablets", icon: "fa-solid fa-tablets", color: "#a7f3d0", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "4", code: "TYPE004", name: "沖泡飲", nameEn: "Powder Drinks", icon: "fa-solid fa-mug-saucer", color: "#fbbf24", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "5", code: "TYPE005", name: "液態飲", nameEn: "Liquid Drinks", icon: "fa-solid fa-droplet", color: "#60a5fa", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "6", code: "TYPE006", name: "外用保養", nameEn: "Skincare", icon: "fa-solid fa-leaf", color: "#f472b6", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "7", code: "TYPE007", name: "清潔", nameEn: "Cleansers", icon: "fa-solid fa-pump-soap", color: "#22d3ee", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "8", code: "TYPE008", name: "口腔照護", nameEn: "Oral Care", icon: "fa-solid fa-tooth", color: "#818cf8", bg: "rgba(10, 25, 19, 0.88)" },
+    { id: "9", code: "TYPE009", name: "特殊", nameEn: "Specialty", icon: "fa-solid fa-boxes-packing", color: "#f87171", bg: "rgba(10, 25, 19, 0.88)" }
 ];
 
-// 預設產品系列庫 (對齊 product_categories / product_subcategories 表結構)
+// 預設產品系列庫 (備援資料，對齊 product_categories / product_subcategories 表結構)
 const defaultSeriesData = [
     {
-        code: "01", name: "保健食品", nameEn: "Health Supplements", subs: [
-            { code: "0101", name: "全能防護", nameEn: "Overall Defense", icon: "fa-solid fa-shield-halved", color: "#f59e0b", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0102", name: "關鍵調理", nameEn: "Core Care", icon: "fa-solid fa-dna", color: "#f43f5e", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0103", name: "順暢保衛", nameEn: "Gut Balance", icon: "fa-solid fa-arrows-rotate", color: "#10b981", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0104", name: "強健靈活", nameEn: "Joint & Bone", icon: "fa-solid fa-bone", color: "#06b6d4", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0105", name: "活力丰采", nameEn: "Vitality Boost", icon: "fa-solid fa-sun", color: "#eab308", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0106", name: "晶亮守護", nameEn: "Vision Care", icon: "fa-solid fa-eye", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0107", name: "快樂賦活", nameEn: "Mind & Relax", icon: "fa-solid fa-face-smile-beam", color: "#a855f7", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0108", name: "循環保健", nameEn: "Circulation", icon: "fa-solid fa-heart-pulse", color: "#ef4444", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0109", name: "機能食品", nameEn: "Functional Foods", icon: "fa-solid fa-wheat-awn", color: "#84cc16", bg: "rgba(10, 25, 19, 0.88)" }
+        id: "1", code: "01", name: "保健食品", nameEn: "Health Supplements", subs: [
+            { id: "101", code: "0101", name: "全能防護", nameEn: "Overall Defense", icon: "fa-solid fa-shield-halved", color: "#f59e0b", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "102", code: "0102", name: "關鍵調理", nameEn: "Core Care", icon: "fa-solid fa-dna", color: "#f43f5e", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "103", code: "0103", name: "順暢保衛", nameEn: "Gut Balance", icon: "fa-solid fa-arrows-rotate", color: "#10b981", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "104", code: "0104", name: "強健靈活", nameEn: "Joint & Bone", icon: "fa-solid fa-bone", color: "#06b6d4", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "105", code: "0105", name: "活力丰采", nameEn: "Vitality Boost", icon: "fa-solid fa-sun", color: "#eab308", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "106", code: "0106", name: "晶亮守護", nameEn: "Vision Care", icon: "fa-solid fa-eye", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "107", code: "0107", name: "快樂賦活", nameEn: "Mind & Relax", icon: "fa-solid fa-face-smile-beam", color: "#a855f7", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "108", code: "0108", name: "循環保健", nameEn: "Circulation", icon: "fa-solid fa-heart-pulse", color: "#ef4444", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "109", code: "0109", name: "機能食品", nameEn: "Functional Foods", icon: "fa-solid fa-wheat-awn", color: "#84cc16", bg: "rgba(10, 25, 19, 0.88)" }
         ]
     },
     {
-        code: "02", name: "寵愛毛孩", nameEn: "Pet Care", subs: [
-            { code: "0201", name: "寵物保健", nameEn: "Pet Health", icon: "fa-solid fa-paw", color: "#fb923c", bg: "rgba(10, 25, 19, 0.88)" }
+        id: "2", code: "02", name: "寵愛毛孩", nameEn: "Pet Care", subs: [
+            { id: "201", code: "0201", name: "寵物保健", nameEn: "Pet Health", icon: "fa-solid fa-paw", color: "#fb923c", bg: "rgba(10, 25, 19, 0.88)" }
         ]
     },
     {
-        code: "03", name: "健康生活", nameEn: "Wellness Lifestyle", subs: [
-            { code: "0301", name: "臉部護理", nameEn: "Facial Care", icon: "fa-solid fa-spray-can-sparkles", color: "#ec4899", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0302", name: "身體護理", nameEn: "Body Care", icon: "fa-solid fa-hand-holding-heart", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
-            { code: "0303", name: "口腔護理", nameEn: "Oral Care", icon: "fa-solid fa-tooth", color: "#60a5fa", bg: "rgba(10, 25, 19, 0.88)" }
+        id: "3", code: "03", name: "健康生活", nameEn: "Wellness Lifestyle", subs: [
+            { id: "301", code: "0301", name: "臉部護理", nameEn: "Facial Care", icon: "fa-solid fa-spray-can-sparkles", color: "#ec4899", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "302", code: "0302", name: "身體護理", nameEn: "Body Care", icon: "fa-solid fa-hand-holding-heart", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
+            { id: "303", code: "0303", name: "口腔護理", nameEn: "Oral Care", icon: "fa-solid fa-tooth", color: "#60a5fa", bg: "rgba(10, 25, 19, 0.88)" }
         ]
     },
     {
-        code: "04", name: "個人保養", nameEn: "Personal Care", subs: [
-            { code: "0401", name: "臉部保養", nameEn: "Skincare", icon: "fa-solid fa-spa", color: "#c084fc", bg: "rgba(10, 25, 19, 0.88)" }
+        id: "4", code: "04", name: "個人保養", nameEn: "Personal Care", subs: [
+            { id: "401", code: "0401", name: "臉部保養", nameEn: "Skincare", icon: "fa-solid fa-spa", color: "#c084fc", bg: "rgba(10, 25, 19, 0.88)" }
         ]
     }
 ];
 
-// 預設靜態資料庫 (備援資料)
+// 預設靜態資料庫 (備援資料，含試算表內原有之實體 ID)
 const defaultProducts = {
     TW: [
         {
@@ -254,7 +232,7 @@ async function initApp() {
     renderProducts();
 }
 
-// 4. 解析 Google Sheets 數據 (對齊最新 4 大正規化資料表名稱)
+// 4. 解析 Google Sheets 數據 (改為二維陣列，依據欄位順序索引讀取)
 async function fetchGoogleSheetsData() {
     try {
         const syncElem = document.getElementById('syncStatus');
@@ -265,28 +243,17 @@ async function fetchGoogleSheetsData() {
             const res = await fetch(url);
             const text = await res.text();
             
-            // 標頭防護與清洗
-            const headerCounts = {};
+            // 解析為二維陣列 (header: false)
             const parsed = Papa.parse(text, {
-                header: true,
-                skipEmptyLines: true,
-                transformHeader: function(header, index) {
-                    const trimmed = header ? header.trim() : '';
-                    if (!trimmed) return `_empty_col_${index}`;
-                    if (headerCounts[trimmed]) {
-                        headerCounts[trimmed]++;
-                        return `${trimmed}_${headerCounts[trimmed]}`;
-                    } else {
-                        headerCounts[trimmed] = 1;
-                        return trimmed;
-                    }
-                }
+                header: false,
+                skipEmptyLines: true
             });
 
-            return parsed.data;
+            // 跳過第一列（標頭檔欄位名稱列）
+            return parsed.data.slice(1);
         };
 
-        // 並行抓取對齊後端 Schema 的 4 大資料表工作表
+        // 並行抓取 4 大資料表工作表
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
             fetchSheet('產品主表'),
             fetchSheet('產品主系列表'),
@@ -294,32 +261,33 @@ async function fetchGoogleSheetsData() {
             fetchSheet('產品型態表')
         ]);
 
-        // A. 處理「產品主表」：根據 region_code 自動分流至 TW 與 MY 陣列
+        // A. 處理「產品主表」：依欄位順序讀取並依 region_code 分流
         if (productsData && productsData.length > 0) {
             const parsedAll = parseProductsTable(productsData);
             appState.products.TW = parsedAll.filter(p => p.region_code === 'TW');
             appState.products.MY = parsedAll.filter(p => p.region_code === 'MY');
         }
 
-        // B. 處理「產品主系列表」與「產品次系列表」：動態組裝雙層樹狀選單
+        // B. 處理「產品主系列表」與「產品次系列表」：動態組裝雙層選單
         if (mainCategoriesData && mainCategoriesData.length > 0) {
             appState.seriesList = buildSeriesTree(mainCategoriesData, subcategoriesData || []);
             updateSeriesDropdowns();
         }
 
-        // C. 處理「產品型態表」
+        // C. 處理「產品型態表」：依欄位順序 (Col 0 ~ 6) 讀取
         if (productTypesData && productTypesData.length > 0) {
-            appState.typeList = [{ code: "ALL", name: "全部", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" }];
+            appState.typeList = [{ id: "0", code: "ALL", name: "全部", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" }];
             productTypesData.forEach((row, idx) => {
-                const code = getVal(row, ['type_code', '型態代碼', '代碼', 0], `TYPE${idx + 1}`);
-                const name = getVal(row, ['name_zh', '中文名稱', '中文', '型態名稱', 1]);
-                const nameEn = getVal(row, ['name_en', '英文名稱', '英文', 2]);
-                const icon = getVal(row, ['icon_class', 'Font Awesome Icon', '圖示', 3], 'fa-solid fa-tag');
-                const color = getVal(row, ['text_color', '文字與外框顏色', '顏色', 4], '#94a3b8');
-                const bg = getVal(row, ['bg_color', '標籤背景顏色', '背景色', 5], 'rgba(10, 25, 19, 0.88)');
+                const id = getVal(row, 0, String(idx + 1));
+                const code = getVal(row, 1, `TYPE${idx + 1}`);
+                const name = getVal(row, 2);
+                const nameEn = getVal(row, 3);
+                const icon = getVal(row, 4, 'fa-solid fa-tag');
+                const color = getVal(row, 5, '#94a3b8');
+                const bg = getVal(row, 6, 'rgba(10, 25, 19, 0.88)');
                 
                 if (name) {
-                    appState.typeList.push({ code, name, nameEn, icon, color, bg });
+                    appState.typeList.push({ id, code, name, nameEn, icon, color, bg });
                 }
             });
             renderTypeFilterButtons();
@@ -333,76 +301,76 @@ async function fetchGoogleSheetsData() {
     }
 }
 
-// 解析「產品主表」數據列 (自動識別地區代碼與解耦轉接)
+// 解析「產品主表」數據列 (Col 0 ~ 13 依欄位順序讀取)
 function parseProductsTable(rows) {
     return rows.map((r, idx) => {
-        const productCode = getVal(r, ['product_code', '產品編號', '編號', 0]);
-        let regionCode = getVal(r, ['region_code', '地區代碼', '地區', 1], 'TW').toUpperCase();
+        const rawId = getVal(r, 0, String(idx + 1));
+        const productCode = getVal(r, 3);
+        let regionCode = getVal(r, 1, 'TW').toUpperCase();
         
         // 若地區代碼未填，自動由產品編號前綴判斷
         if (!regionCode || (regionCode !== 'TW' && regionCode !== 'MY')) {
             regionCode = productCode.startsWith('MY') ? 'MY' : 'TW';
         }
 
-        const baseCode = getVal(r, ['base_code', '基本編號', '跨國基本編號', 2], productCode.replace(/^(TW|MY)/, ''));
+        const baseCode = getVal(r, 2, productCode.replace(/^(TW|MY)/, ''));
 
         return {
-            id: getVal(r, ['id', 'ID', '系統ID'], `${regionCode}_${idx + 1}`),
+            id: rawId,
             region_code: regionCode,
             base_code: baseCode,
             product_code: productCode,
-            name: getVal(r, ['name', '產品名稱', '名稱', 3]),
-            short_name: getVal(r, ['short_name', '產品簡稱', '簡稱', 4]),
-            short_summary: getVal(r, ['short_summary', '產品簡介', '簡介', 5]),
-            type_name: getVal(r, ['type_name', 'type_code', '產品型態', '型態', 6]),
-            subcategory_code: getVal(r, ['subcategory_code', 'subcategory_id', '產品次系列', '次系列編號', '次系列', 7]),
-            package_spec: getVal(r, ['package_spec', 'spec', '包裝規格', '規格', 8]),
-            price: getVal(r, ['price', '售價', '價格', 9], '0'),
-            currency: getVal(r, ['currency', '幣別', 10], regionCode === 'MY' ? 'MYR' : 'TWD'),
-            sv_point: getVal(r, ['sv_point', 'sv', '全球 SV', 'SV', 11], '0'),
-            primary_image_url: getVal(r, ['primary_image_url', 'img', '圖片網址', '縮圖網址', '低解析圖片網址', 12])
+            name: getVal(r, 4),
+            short_name: getVal(r, 5),
+            short_summary: getVal(r, 6),
+            type_name: getVal(r, 7),
+            subcategory_code: getVal(r, 8),
+            package_spec: getVal(r, 9),
+            price: getVal(r, 10, '0'),
+            currency: getVal(r, 11, regionCode === 'MY' ? 'MYR' : 'TWD'),
+            sv_point: getVal(r, 12, '0'),
+            primary_image_url: getVal(r, 13)
         };
     }).filter(item => item.product_code !== '' || item.name !== '');
 }
 
-// 組合「產品主系列表」與「產品次系列表」為雙層選單結構
+// 組合「產品主系列表」與「產品次系列表」為雙層樹狀結構 (依欄位順序讀取)
 function buildSeriesTree(mainRows, subRows) {
-    const seriesList = [];
+    const seriesList = [];    
 
-    console.log(mainRows);
-    console.log(subRows);
-
-    // 1. 建立主系列
-    mainRows.forEach(r => {
-        const code = getVal(r, ['category_code', '主系列代碼', '編號', 1]);
-        const name = getVal(r, ['name_zh', '中文名稱', '中文', 2]);
-        const nameEn = getVal(r, ['name_en', '英文名稱', '英文', 3]);
-        const icon = getVal(r, ['icon_class', 'Font Awesome Icon', '圖示', 4], 'fa-solid fa-tag');
-        const color = getVal(r, ['text_color', '文字與外框顏色', '顏色', 5], '#52b788');
-        const bg = getVal(r, ['bg_color', '標籤背景顏色', '背景色', 6], 'rgba(10, 25, 19, 0.88)');
+    // 1. 建立主系列 (Col 0 ~ 6)
+    mainRows.forEach((r, idx) => {
+        const id = getVal(r, 0, String(idx + 1));
+        const code = getVal(r, 1);
+        const name = getVal(r, 2);
+        const nameEn = getVal(r, 3);
+        const icon = getVal(r, 4, 'fa-solid fa-tag');
+        const color = getVal(r, 5, '#52b788');
+        const bg = getVal(r, 6, 'rgba(10, 25, 19, 0.88)');
 
         if (code) {
-            seriesList.push({ code, name, nameEn, icon, color, bg, subs: [] });
+            seriesList.push({ id, code, name, nameEn, icon, color, bg, subs: [] });
         }
     });
 
-    // 2. 歸屬次系列至主系列下方
-    subRows.forEach(r => {
-        const subCode = getVal(r, ['subcategory_code', '次系列代碼', '編號', 1]);
-        const parentCode = getVal(r, ['category_code', 'category_id', '主系列代碼', 2], subCode.slice(0, 2));
-        const name = getVal(r, ['name_zh', '中文名稱', '中文', 3]);
-        const nameEn = getVal(r, ['name_en', '英文名稱', '英文', 4]);
-        const icon = getVal(r, ['icon_class', 'Font Awesome Icon', '圖示', 5], 'fa-solid fa-tag');
-        const color = getVal(r, ['text_color', '文字與外框顏色', '顏色', 6], '#52b788');
-        const bg = getVal(r, ['bg_color', '標籤背景顏色', '背景色', 7], 'rgba(10, 25, 19, 0.88)');
+    // 2. 歸屬次系列至主系列下方 (Col 0 ~ 7)
+    subRows.forEach((r, idx) => {
+        const id = getVal(r, 0, String(idx + 101));
+        const parentCode = getVal(r, 1);
+        const subCode = getVal(r, 2);
+        const name = getVal(r, 3);
+        const nameEn = getVal(r, 4);
+        const icon = getVal(r, 5, 'fa-solid fa-tag');
+        const color = getVal(r, 6, '#52b788');
+        const bg = getVal(r, 7, 'rgba(10, 25, 19, 0.88)');
 
         if (subCode) {
             let parentSeries = seriesList.find(s => s.code === parentCode);
             if (!parentSeries) {
-                parentSeries = { code: parentCode, name: name || '系列', nameEn: nameEn || '', subs: [] };
+                parentSeries = { id: `M_${parentCode}`, code: parentCode, name: name || '系列', nameEn: nameEn || '', subs: [] };
                 seriesList.push(parentSeries);
             }
-            parentSeries.subs.push({ code: subCode, name, nameEn, icon, color, bg });
+            parentSeries.subs.push({ id, code: subCode, name, nameEn, icon, color, bg });
         }
     });
 
@@ -412,7 +380,8 @@ function buildSeriesTree(mainRows, subRows) {
 // 取得多語系顯示名稱之輔助函式
 function getLanguageName(item, isMY) {
     if (!item) return '';
-    return isMY ? (item.nameEn || item.name) : item.name;
+    //return isMY ? (item.nameEn || item.name) : item.name;
+    return isMY ? (item.nameEn || '') : item.name;
 }
 
 // 更新產品系列下拉選單
@@ -546,7 +515,7 @@ function bindEvents() {
     }
 }
 
-// 渲染產品網格 (低解析縮圖載入 + 路由參數化)
+// 渲染產品網格 (帶入試算表內的實體 id，網址形如 ./product-detail.html?id=${id}&region=${region_id})
 function renderProducts() {
     const grid = document.getElementById('productGrid');
     if (!grid) return;
@@ -556,7 +525,7 @@ function renderProducts() {
     const currentDataset = appState.products[appState.country] || [];
 
     const filtered = currentDataset.filter(item => {
-        // 1. 系列過濾 (依次系列代碼/基本編號對應)
+        // 1. 系列過濾
         if (appState.mainSeries !== 'ALL') {
             let itemSubCode = item.subcategory_code || '';
             
@@ -609,7 +578,7 @@ function renderProducts() {
         return;
     }
 
-    // 渲染產品卡片 (載入 primary_image_url 低解析圖)
+    // 渲染產品卡片 (帶入試算表中原有的實體 id 進行轉址)
     filtered.forEach(item => {
         let subCode = item.subcategory_code || '';
         if (item.product_code === '80050' || item.product_code === '80070') {
@@ -617,9 +586,6 @@ function renderProducts() {
         } else if (!subCode && item.product_code.length >= 6) {
             subCode = item.product_code.replace(/^(TW|MY)/, '').slice(0, 4);
         }
-
-        console.log(appState.seriesList);
-        console.log(subCode);
 
         let seriesName = '未知系列';
         let seriesIcon = 'fa-solid fa-tag';
@@ -633,8 +599,6 @@ function renderProducts() {
         // 1. 動態匹配次系列 Icon 與色彩
         appState.seriesList.forEach(series => {
             const subSeries = series.subs ? series.subs.find(s => s.code === subCode) : null;
-            console.log(series.subs);
-            console.log(subSeries);
             if (subSeries) {
                 seriesName = getLanguageName(subSeries, isMY);
                 seriesIcon = subSeries.icon || 'fa-solid fa-tag';
@@ -652,8 +616,8 @@ function renderProducts() {
             }
         });
 
-        // 構建帶有 id 與 region 參數的詳細頁網址
-        const detailUrl = `./product-detail.html?id=${encodeURIComponent(item.product_code || item.id)}&region=${encodeURIComponent(item.region_code)}`;
+        // 精準生成指定格式之轉址：./product-detail.html?id=${id}&region=${region_id}
+        const detailUrl = `./product-detail.html?id=${encodeURIComponent(item.id)}&region=${encodeURIComponent(item.region_code)}`;
         const formattedPrice = item.currency === 'MYR' ? `RM ${item.price}` : `NT$ ${item.price}`;
 
         const col = document.createElement('div');
@@ -676,9 +640,9 @@ function renderProducts() {
                     <p class="product-desc small text-muted mb-3 text-truncate-2">${item.short_summary || '暫無產品簡介'}</p>
                     <div class="price-sv-block mt-auto mb-3 p-2 rounded d-flex justify-content-between align-items-center bg-dark-subtle">
                         <div class="price-tag fw-bold text-warning">${formattedPrice}</div>
-                        <div class="sv-tag small text-info"><i class="fa-solid fa-star"></i> ${item.sv_point} SV</div>
+                        <div class="sv-tag small text-warning"><i class="fa-solid fa-star"></i> ${item.sv_point} SV</div>
                     </div>
-                    <a href="${detailUrl}" class="btn btn-outline-primary w-100 text-center fw-bold">
+                    <a href="${detailUrl}" target="_blank" class="btn btn-outline-primary w-100 text-center fw-bold">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i> 查看產品詳情
                     </a>
                 </div>

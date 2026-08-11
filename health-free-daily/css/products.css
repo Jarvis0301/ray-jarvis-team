@@ -42,10 +42,7 @@
 }
 
 /* 表單元件 - 深色模式全域消除白底 */
-select.form-control,
-input.form-control,
-.form-select,
-.form-control {
+select.form-control {
     width: 100%;
     padding: 11px 38px 11px 14px;
     background-color: var(--uvaco-bg-primary) !important;
@@ -63,6 +60,22 @@ input.form-control,
     background-repeat: no-repeat !important;
     background-position: right 12px center !important;
     background-size: 18px !important;
+}
+
+input.form-control {
+    width: 100%;
+    padding: 11px 38px 11px 14px;
+    background-color: var(--uvaco-bg-primary) !important;
+    color: var(--uvaco-text-primary) !important;
+    border: 1px solid var(--uvaco-border-color) !important;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    color-scheme: dark !important;
 }
 
 select.form-control option,
