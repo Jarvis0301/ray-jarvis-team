@@ -27,10 +27,9 @@ window.addEventListener('AppReady', function() {
     versionSwitch();
     
     // ✨【關鍵修改】優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
-    const currentHashPage = window.location.hash.replace('#', '').trim() + '.html';
-    const savedLastPage = sessionStorage.getItem('ray_team_last_page') + '.html';
-    
-    const initialPage = currentHashPage || savedLastPage || 'home.html';
+    const currentHashPage = window.location.hash.replace('#', '').trim();
+    const savedLastPage = sessionStorage.getItem('ray_team_last_page');
+    const initialPage = (currentHashPage || savedLastPage || 'home') + '.html';
     loadPage(initialPage);
 });
 
