@@ -1,0 +1,547 @@
+:root {
+    --bg-dark: #0b132b;
+    --bg-card: #1c2541;
+    --bg-card-hover: #232f52;
+    --bg-input: #0e1738;
+    --border-color: rgba(56, 189, 248, 0.2);
+    --border-highlight: rgba(56, 189, 248, 0.6);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-cyan: #00d2ff;
+    --accent-gold: #facc15;
+    --accent-green: #34d399;
+    --accent-red: #f87171;
+    --accent-purple: #c084fc;
+}
+
+html, body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    padding-bottom: 100px; /* 留出充足底端緩衝空間，防止與外層頁尾重疊裁切 */
+}
+
+/* 頂部標題 Header */
+.page-header {
+    background: linear-gradient(135deg, #0c2340 0%, #1c2541 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 0;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.page-title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+/* 通用戰情卡片 */
+.war-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.25s ease;
+}
+
+.war-card:hover {
+    border-color: var(--border-highlight);
+}
+
+/* 搜尋與過濾區塊 (網頁3風格) */
+.filter-section {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-control-custom, .form-select-custom {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+}
+
+.form-control-custom:focus, .form-select-custom:focus {
+    background-color: var(--bg-input);
+    border-color: var(--accent-blue);
+    color: var(--text-main);
+    box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+}
+
+.type-filter-title {
+    font-size: 0.875rem;
+    color: var(--accent-cyan);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.type-btn {
+    background-color: rgba(28, 37, 65, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 20px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.type-btn:hover, .type-btn.active {
+    background-color: var(--accent-blue);
+    color: #0b132b;
+    font-weight: 600;
+    border-color: var(--accent-blue);
+}
+
+/* 檢視模式切換按鈕 */
+.view-switch-btn {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+
+.view-switch-btn.active {
+    background-color: var(--accent-blue);
+    color: #0b132b;
+    font-weight: 600;
+    border-color: var(--accent-blue);
+}
+
+/* 網格卡片模式 (網頁1風格) */
+.product-item-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.product-item-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-blue);
+    background-color: var(--bg-card-hover);
+}
+
+.product-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background-color: rgba(56, 189, 248, 0.15);
+    color: var(--accent-blue);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.product-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+.price-num {
+    color: var(--accent-gold);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.sv-num {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+/* 表格模式 (網頁2風格) */
+.table-dark-custom {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    margin-bottom: 0;
+}
+
+.table-dark-custom th {
+    color: var(--accent-cyan);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.table-dark-custom td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+/* DataTables 暗黑主題覆蓋 */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--text-muted) !important;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+.page-link {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* 數量控制器 */
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+}
+
+.btn-qty {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--accent-blue);
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-qty:hover {
+    background-color: var(--accent-blue);
+    color: #0b132b;
+}
+
+.qty-input {
+    width: 46px;
+    height: 30px;
+    text-align: center;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* 右側結帳試算 Sticky Card (網頁1為主 - 保持原樣不異動) */
+.cart-summary-card {
+    position: sticky;
+    top: 20px;
+    background: linear-gradient(180deg, #16233b 0%, #1c2541 100%);
+    border: 1px solid var(--accent-blue);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    font-size: 0.88rem;
+}
+
+.cart-item-title {
+    color: var(--text-main);
+    font-weight: 500;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.progress-shipping {
+    height: 8px;
+    background-color: var(--bg-input);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.4rem;
+}
+
+.progress-bar-custom {
+    background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.stat-highlight-box {
+    background-color: rgba(14, 23, 56, 0.6);
+    border-radius: 8px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.75rem;
+}
+
+.shipping-alert-box {
+    font-size: 0.82rem;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.shipping-alert-warning {
+    background-color: rgba(250, 204, 21, 0.1);
+    color: var(--accent-gold);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+.shipping-alert-success {
+    background-color: rgba(52, 211, 153, 0.1);
+    color: var(--accent-green);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+/* 操作按鈕群 */
+.btn-action-excel {
+    background: linear-gradient(135deg, #107c41 0%, #0b582e 100%);
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(16, 124, 65, 0.3);
+}
+
+.btn-action-excel:hover {
+    background: linear-gradient(135deg, #13984f 0%, #084323 100%);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.btn-action-pdf {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-action-pdf:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.btn-action-clear {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 100%;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.btn-action-clear:hover {
+    background-color: rgba(248, 113, 113, 0.15);
+    color: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+/* 統計圖表專用獨立卡片區塊 */
+.analytics-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-standalone-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.25s ease;
+}
+
+.chart-standalone-card:hover {
+    border-color: var(--border-highlight);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.15);
+}
+
+.chart-header-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ========================================== */
+/* ✨ 懸浮島 (Floating Island) - 寬度精縮置中，預留兩側與底邊空間 */
+/* ========================================== */
+.floating-island-bar {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999999;
+    width: min(86%, 920px); /* 寬度控制在 86% 以內，確保右側徹底避開外層 BackToTop 按鈕 */
+    background: rgba(22, 35, 59, 0.93);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    border-radius: 16px;
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 隱藏狀態 */
+.floating-island-bar.is-hidden {
+    display: none !important;
+}
+
+.floating-bar-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.floating-kpi-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.floating-kpi-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.floating-kpi-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.floating-kpi-val {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.btn-toggle-floating {
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid var(--border-color);
+    color: var(--accent-blue);
+    border-radius: 20px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.btn-toggle-floating:hover {
+    background-color: var(--accent-blue);
+    color: #0b132b;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+/* ✨ 浮動喚醒按鈕：移至「左下角」(`left: 25px`)，徹底與右下角外層 BackToTop 按鈕錯開！ */
+.floating-wake-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 25px; /* 改為左側放置！ */
+    z-index: 999998;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+    border: 1px solid var(--accent-blue);
+    border-radius: 30px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.35);
+    cursor: pointer;
+    display: none;
+    transition: all 0.25s ease;
+}
+
+.floating-wake-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+}
+
+@media (max-width: 576px) {
+    .floating-island-bar {
+        left: 40%;
+        width: 75%;
+        padding: 0.6rem 0.85rem;
+    }
+    .floating-kpi-group {
+        gap: 0.75rem;
+    }
+    .floating-kpi-val {
+        font-size: 0.95rem;
+    }
+    .floating-kpi-label {
+        font-size: 0.75rem;
+    }
+}

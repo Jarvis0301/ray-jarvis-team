@@ -1,24 +1,24 @@
 /* ==================================================
    1. 核心變數與基礎設定 (CSS Variables & Base)
 ================================================== */
-/* :root {
-    --uvaco-bg-primary: #081612;
-    --bg-sidebar: #0d1f18;
+:root {
+/*     --uvaco-bg-primary: #081612;    
     --uvaco-bg-card: #12251e;
-    --bg-header: #0a1b14;
     --uvaco-primary: #10b981;
     --uvaco-secondary: #34d399;
     --accent-hover: rgba(52, 211, 153, 0.15);
     --uvaco-border-color: rgba(52, 211, 153, 0.2);
     --uvaco-text-primary: #f1f5f9;
     --uvaco-text-muted: #94a3b8;
-    --uvaco-accent: #f59e0b;
+    --uvaco-accent: #f59e0b; */
+    --bg-header: #0a1b14;
+    --bg-sidebar: #0d1f18;
     --header-height: 70px;
-    --sidebar-width: 280px;
+    --sidebar-width: 200px;
     --sidebar-collapsed-width: 80px;
 }
 
-body {
+/* body {
     background-color: var(--uvaco-bg-primary);
     color: var(--uvaco-text-primary);
     font-family: 'Noto Sans TC', 'Roboto', sans-serif;
@@ -45,7 +45,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
+    padding: 0 0.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
@@ -105,7 +105,8 @@ body {
     bottom: 0;
     left: 0;
     z-index: 1020;
-    overflow: hidden; /* 關鍵：禁止外層滾動，確保登出按鈕永遠釘在最下方 */
+    overflow: hidden;
+    /* 關鍵：禁止外層滾動，確保登出按鈕永遠釘在最下方 */
     display: flex;
     flex-direction: column;
 }
@@ -114,13 +115,23 @@ body {
 #dynamicMenuContainer {
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden !important; /* 防護：消除側邊欄展開動畫時的水平流動與卷軸閃爍 */
+    overflow-x: hidden !important;
+    /* 防護：消除側邊欄展開動畫時的水平流動與卷軸閃爍 */
 }
 
 /* 獨立美化選單區域草本綠滾動條 */
-#dynamicMenuContainer::-webkit-scrollbar { width: 5px; }
-#dynamicMenuContainer::-webkit-scrollbar-thumb { background-color: rgba(52, 211, 153, 0.35); border-radius: 4px; }
-#dynamicMenuContainer::-webkit-scrollbar-track { background-color: transparent; }
+#dynamicMenuContainer::-webkit-scrollbar {
+    width: 5px;
+}
+
+#dynamicMenuContainer::-webkit-scrollbar-thumb {
+    background-color: rgba(52, 211, 153, 0.35);
+    border-radius: 4px;
+}
+
+#dynamicMenuContainer::-webkit-scrollbar-track {
+    background-color: transparent;
+}
 
 /* 底部固定登出按鈕區塊 */
 .sidebar-footer {
@@ -145,7 +156,8 @@ body {
     white-space: nowrap !important;
 }
 
-.sidebar-menu, .submenu-container {
+.sidebar-menu,
+.submenu-container {
     list-style: none;
     padding: 0.5rem 0.5rem;
     margin: 0;
@@ -181,7 +193,8 @@ body {
     margin-left: 1.2rem;
     margin-top: 0.25rem;
     margin-bottom: 0.5rem;
-    border-left: 2px solid rgba(52, 211, 153, 0.25); /* 翡翠綠樹狀引導線 */
+    border-left: 2px solid rgba(52, 211, 153, 0.25);
+    /* 翡翠綠樹狀引導線 */
     display: none;
 }
 
@@ -197,7 +210,8 @@ body {
 .submenu-container .nav-item-link:hover {
     color: #ffffff !important;
     background-color: var(--accent-hover, rgba(52, 211, 153, 0.2)) !important;
-    transform: translateX(5px); /* 微幅向右位移，增加靈動感 */
+    transform: translateX(5px);
+    /* 微幅向右位移，增加靈動感 */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
@@ -211,7 +225,7 @@ body {
 ================================================== */
 
 /* --- 第一層主選單當前頁面高亮 --- */
-.sidebar-menu > .nav-item > .nav-item-link.active {
+.sidebar-menu>.nav-item>.nav-item-link.active {
     background: linear-gradient(90deg, rgba(52, 211, 153, 0.25) 0%, rgba(52, 211, 153, 0.05) 100%) !important;
     border-left: 4px solid var(--uvaco-secondary) !important;
     color: #ffffff !important;
@@ -221,7 +235,7 @@ body {
 }
 
 /* 主選單右側呼吸綠色小圓點 */
-.sidebar-menu > .nav-item > .nav-item-link.active::after {
+.sidebar-menu>.nav-item>.nav-item-link.active::after {
     content: '';
     width: 7px;
     height: 7px;
@@ -234,8 +248,10 @@ body {
 /* --- 子選單 (Submenu) 當前頁面高亮 --- */
 .submenu-container .nav-item-link.active {
     background: rgba(245, 158, 11, 0.18) !important;
-    border-left: 3px solid var(--uvaco-accent) !important; /* Amber琥珀金指示邊條，做出對比 */
-    color: var(--uvaco-accent) !important;                /* 字體呈琥珀金高亮 */
+    border-left: 3px solid var(--uvaco-accent) !important;
+    /* Amber琥珀金指示邊條，做出對比 */
+    color: var(--uvaco-accent) !important;
+    /* 字體呈琥珀金高亮 */
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -336,7 +352,8 @@ body {
     .portal-sidebar.collapsed:hover .submenu-container .nav-item-link:hover {
         color: #ffffff !important;
         background-color: var(--accent-hover, rgba(52, 211, 153, 0.2)) !important;
-        transform: translateX(5px); /* 微幅向右位移，增加靈動感 */
+        transform: translateX(5px);
+        /* 微幅向右位移，增加靈動感 */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
     }
 
@@ -351,7 +368,7 @@ body {
         padding-right: 1rem !important;
     }
 
-    .portal-sidebar.collapsed:hover .sidebar-menu > .nav-item > .nav-item-link.active::after {
+    .portal-sidebar.collapsed:hover .sidebar-menu>.nav-item>.nav-item-link.active::after {
         display: block !important;
     }
 }
@@ -414,7 +431,7 @@ body {
 .portal-footer {
     background-color: var(--bg-header);
     border-top: 1px solid var(--uvaco-border-color);
-    padding: 2rem;
+    padding: 1rem;
     margin-top: auto;
 }
 
@@ -445,14 +462,20 @@ body {
     margin: 0;
 }
 
-.sitemap-list li { margin-bottom: 0.5rem; }
+.sitemap-list li {
+    margin-bottom: 0.5rem;
+}
+
 .sitemap-list a {
     color: var(--uvaco-text-muted);
     text-decoration: none;
     font-size: 0.88rem;
     transition: color 0.2s ease;
 }
-.sitemap-list a:hover { color: var(--uvaco-secondary); }
+
+.sitemap-list a:hover {
+    color: var(--uvaco-secondary);
+}
 
 .footer-social-btns {
     display: flex;
@@ -490,8 +513,14 @@ body {
     line-height: 1.6;
 }
 
-.copyright-text a { color: var(--uvaco-secondary); text-decoration: none; }
-.copyright-text a:hover { text-decoration: underline; }
+.copyright-text a {
+    color: var(--uvaco-secondary);
+    text-decoration: none;
+}
+
+.copyright-text a:hover {
+    text-decoration: underline;
+}
 
 /* ==================================================
    10. 行動裝置響應式調整 (Mobile RWD < 992px)
@@ -499,7 +528,7 @@ body {
 @media (max-width: 991.98px) {
     .portal-sidebar {
         transform: translateX(-100%);
-        width: 260px !important;
+        width: 200px !important;
     }
 
     .portal-sidebar.mobile-open {
@@ -526,7 +555,8 @@ body {
     width: 46px;
     height: 46px;
     border-radius: 50%;
-    background-color: var(--uvaco-primary); /* 使用主題綠色 */
+    background-color: var(--uvaco-primary);
+    /* 使用主題綠色 */
     color: #ffffff;
     border: none;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);

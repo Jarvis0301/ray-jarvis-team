@@ -1,0 +1,179 @@
+:root {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --bg-card-hover: #334155;
+    --border-color: #334155;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-blue-hover: #0284c7;
+    --accent-gold: #facc15;
+    --accent-red: #f87171;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding-bottom: 3rem;
+}
+
+/* 標題頭頁卡片 */
+.header-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--accent-blue);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* 分類卡片 */
+.rule-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.rule-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -5px rgba(56, 189, 248, 0.15);
+    border-color: var(--accent-blue);
+}
+
+.rule-card .card-body {
+    padding: 1.5rem;
+}
+
+.rule-card .icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: rgba(56, 189, 248, 0.1);
+    color: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.rule-card .card-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.rule-card .card-text {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.rule-card .card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+/* 雲端資料夾按鈕 */
+.btn-drive {
+    background-color: var(--accent-blue);
+    color: #0f172a;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    width: 100%;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-drive:hover {
+    background-color: var(--accent-blue-hover);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+/* 警告聲明盒 */
+.warning-box {
+    background-color: rgba(248, 113, 113, 0.1);
+    border: 1px solid var(--accent-red);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    color: #fca5a5;
+}
+
+/* DataTables 深色主題客製化 */
+.table-custom-wrapper {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+table.dataTable {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+table.dataTable thead th {
+    background-color: #0f172a !important;
+    color: var(--accent-blue) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+}
+
+table.dataTable tbody td {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    vertical-align: middle;
+}
+
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_filter, 
+.dataTables_wrapper .dataTables_info, 
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--text-muted) !important;
+    margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    background-color: var(--bg-main) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    margin-left: 0.5rem;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: #0f172a !important;
+    font-weight: bold;
+}
+
+.page-link {
+    background-color: var(--bg-main) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.badge-rule {
+    background-color: rgba(56, 189, 248, 0.15);
+    color: var(--accent-blue);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    font-weight: 500;
+}

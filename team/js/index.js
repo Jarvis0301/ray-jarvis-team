@@ -14,6 +14,8 @@ const fallbackMenuData = [
 
 let menuTreeMap = new Map();
 
+let currentPageUrl = 'home.html'; // ✨ 新增全域變數記錄當前頁面名稱
+
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
     initSidebarToggle();
@@ -23,9 +25,25 @@ window.addEventListener('AppReady', function() {
     initBackToTop();
     initLogoutModal();
     versionSwitch();
+
+    // ✨【關鍵修改】優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
+    const currentHashPage = window.location.hash.replace('#', '').trim() + '.html';
+    const savedLastPage = sessionStorage.getItem('ray_team_last_page') + '.html';
     
-    // 預設載入首頁內容
-    loadPage('home.html');
+    const initialPage = currentHashPage || savedLastPage || 'home.html';
+    loadPage(initialPage);
+});
+
+// ✨【新增】監聽瀏覽器上一頁/下一頁（popstate/hashchange）按鈕
+window.addEventListener('hashchange', function() {
+    const hashPage = window.location.hash.replace('#', '').trim() + '.html';
+    if (hashPage) {
+        // 避免重複重新載入相同頁面
+        const currentIframeSrc = $('#portal-subpage-frame').attr('src');
+        if (currentIframeSrc !== hashPage) {
+            loadPage(hashPage);
+        }
+    }
 });
 
 // 1. 左側選單收折邏輯
@@ -154,7 +172,7 @@ function processAndRenderMenu(rawRows) {
         }
     });
     
-    setActiveMenuItem('home.html');
+    setActiveMenuItem(currentPageUrl);
 }
 
 // 4. 遞歸構建無限層級選單 HTML
@@ -228,7 +246,7 @@ function setActiveMenuItem(pageUrl) {
         // 4. 如果這個項目位於子選單內，自動展開所有上層父選單
         const $parentSubmenus = $targetLink.parents('.submenu-container');
         if ($parentSubmenus.length) {
-            $parentSubmenus.addClass('show').slideDown(200);
+            $parentSubmenus.addClass('show').css('display', 'block');
 
             // 將對應父選單的箭頭指向上方 (旋轉 180 度)
             $parentSubmenus.each(function() {
@@ -245,9 +263,19 @@ function setActiveMenuItem(pageUrl) {
 function loadPage(pageUrl) {
     if (!pageUrl || pageUrl === '#') return;
 
+    currentPageUrl = pageUrl; // ✨ 紀錄當前載入的頁面名稱
+
     $('#portalSidebar').removeClass('mobile-open');
 
     setActiveMenuItem(pageUrl);
+
+    let page = pageUrl.split('.')[0];
+    if (page) {
+        // ✨【新增】更新網址列 Hash，讓重新整理或複製網址時能記錄當前頁面
+        window.location.hash = page;
+        // ✨【新增】同步備份至 sessionStorage 雙重防護
+        sessionStorage.setItem('ray_team_last_page', page);
+    }
 
     // 使用 iFrame 載入頁面，徹底達成 JS 作用域完全隔離！
     const $container = $('#page-content-container');

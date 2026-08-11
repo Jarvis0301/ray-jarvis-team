@@ -1,1746 +1,358 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="dark-blue">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>訂購試算與全方位數據戰情儀表板 - 榮祥葡眾團隊</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <!-- DataTables Bootstrap 5 CSS -->
-    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-dark: #0b132b;
-            --bg-card: #1c2541;
-            --bg-card-hover: #232f52;
-            --bg-input: #0e1738;
-            --border-color: rgba(56, 189, 248, 0.2);
-            --border-highlight: rgba(56, 189, 248, 0.6);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-blue: #38bdf8;
-            --accent-cyan: #00d2ff;
-            --accent-gold: #facc15;
-            --accent-green: #34d399;
-            --accent-red: #f87171;
-            --accent-purple: #c084fc;
-        }
-
-        html, body {
-            min-height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-            padding-bottom: 110px; /* 留出底部懸浮 Bar 空間 */
-        }
-
-        /* 頂部標題 Header */
-        .page-header {
-            background: linear-gradient(135deg, #0c2340 0%, #1c2541 100%);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.25rem 0;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .page-title {
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
-        }
-
-        /* 通用戰情卡片 */
-        .war-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.25s ease;
-        }
-
-        .war-card:hover {
-            border-color: var(--border-highlight);
-        }
-
-        /* 搜尋與過濾區塊 (網頁3風格) */
-        .filter-section {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .form-control-custom, .form-select-custom {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 8px;
-            padding: 0.5rem 0.85rem;
-        }
-
-        .form-control-custom:focus, .form-select-custom:focus {
-            background-color: var(--bg-input);
-            border-color: var(--accent-blue);
-            color: var(--text-main);
-            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
-        }
-
-        .type-filter-title {
-            font-size: 0.875rem;
-            color: var(--accent-cyan);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .type-btn {
-            background-color: rgba(28, 37, 65, 0.8);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            border-radius: 20px;
-            padding: 0.35rem 0.9rem;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .type-btn:hover, .type-btn.active {
-            background-color: var(--accent-blue);
-            color: #0b132b;
-            font-weight: 600;
-            border-color: var(--accent-blue);
-        }
-
-        /* 檢視模式切換按鈕 */
-        .view-switch-btn {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 0.4rem 0.8rem;
-            font-size: 0.88rem;
-            transition: all 0.2s ease;
-        }
-
-        .view-switch-btn.active {
-            background-color: var(--accent-blue);
-            color: #0b132b;
-            font-weight: 600;
-            border-color: var(--accent-blue);
-        }
-
-        /* 網格卡片模式 (網頁1風格) */
-        .product-item-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1rem;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .product-item-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-blue);
-            background-color: var(--bg-card-hover);
-        }
-
-        .product-badge {
-            font-size: 0.75rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            background-color: rgba(56, 189, 248, 0.15);
-            color: var(--accent-blue);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-        }
-
-        .product-title {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-top: 0.4rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .price-num {
-            color: var(--accent-gold);
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .sv-num {
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        /* 表格模式 (網頁2風格) */
-        .table-dark-custom {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--text-main);
-            margin-bottom: 0;
-        }
-
-        .table-dark-custom th {
-            color: var(--accent-cyan);
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-
-        .table-dark-custom td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            vertical-align: middle;
-            font-size: 0.9rem;
-        }
-
-        /* DataTables 暗黑主題覆蓋 */
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate {
-            color: var(--text-muted) !important;
-            margin-bottom: 0.75rem;
-            font-size: 0.85rem;
-        }
-
-        .dataTables_wrapper .dataTables_filter input {
-            background-color: var(--bg-input) !important;
-            border: 1px solid var(--border-color) !important;
-            color: var(--text-main) !important;
-            border-radius: 6px;
-            padding: 0.375rem 0.75rem;
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--accent-blue) !important;
-            border-color: var(--accent-blue) !important;
-            color: #000 !important;
-            font-weight: 600;
-        }
-
-        .page-link {
-            background-color: var(--bg-card) !important;
-            border-color: var(--border-color) !important;
-            color: var(--text-main) !important;
-        }
-
-        /* 數量控制器 */
-        .qty-control {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            margin-top: 0.5rem;
-        }
-
-        .btn-qty {
-            width: 30px;
-            height: 30px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--accent-blue);
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-qty:hover {
-            background-color: var(--accent-blue);
-            color: #0b132b;
-        }
-
-        .qty-input {
-            width: 46px;
-            height: 30px;
-            text-align: center;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        /* 右側結帳試算 Sticky Card (網頁1為主) */
-        .cart-summary-card {
-            position: sticky;
-            top: 20px;
-            background: linear-gradient(180deg, #16233b 0%, #1c2541 100%);
-            border: 1px solid var(--accent-blue);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .cart-item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
-            font-size: 0.88rem;
-        }
-
-        .cart-item-title {
-            color: var(--text-main);
-            font-weight: 500;
-            max-width: 140px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .progress-shipping {
-            height: 8px;
-            background-color: var(--bg-input);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 0.4rem;
-        }
-
-        .progress-bar-custom {
-            background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
-            height: 100%;
-            transition: width 0.4s ease;
-        }
-
-        .stat-highlight-box {
-            background-color: rgba(14, 23, 56, 0.6);
-            border-radius: 8px;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            margin-bottom: 0.75rem;
-        }
-
-        .shipping-alert-box {
-            font-size: 0.82rem;
-            border-radius: 6px;
-            padding: 0.4rem 0.6rem;
-            margin-top: 0.5rem;
-        }
-
-        .shipping-alert-warning {
-            background-color: rgba(250, 204, 21, 0.1);
-            color: var(--accent-gold);
-            border: 1px solid rgba(250, 204, 21, 0.3);
-        }
-
-        .shipping-alert-success {
-            background-color: rgba(52, 211, 153, 0.1);
-            color: var(--accent-green);
-            border: 1px solid rgba(52, 211, 153, 0.3);
-        }
-
-        /* 操作按鈕群 */
-        .btn-action-excel {
-            background: linear-gradient(135deg, #107c41 0%, #0b582e 100%);
-            color: #ffffff;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            padding: 0.6rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(16, 124, 65, 0.3);
-        }
-
-        .btn-action-excel:hover {
-            background: linear-gradient(135deg, #13984f 0%, #084323 100%);
-            color: #ffffff;
-            transform: translateY(-1px);
-        }
-
-        .btn-action-pdf {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            color: #ffffff;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            padding: 0.6rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-        }
-
-        .btn-action-pdf:hover {
-            background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%);
-            color: #ffffff;
-            transform: translateY(-1px);
-        }
-
-        .btn-action-clear {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            border-radius: 8px;
-            padding: 0.5rem;
-            width: 100%;
-            transition: all 0.2s ease;
-            font-size: 0.85rem;
-        }
-
-        .btn-action-clear:hover {
-            background-color: rgba(248, 113, 113, 0.15);
-            color: var(--accent-red);
-            border-color: var(--accent-red);
-        }
-
-        /* 統計圖表專用獨立卡片區塊 */
-        .analytics-section-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .chart-standalone-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem;
-            height: 100%;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.25s ease;
-        }
-
-        .chart-standalone-card:hover {
-            border-color: var(--border-highlight);
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.15);
-        }
-
-        .chart-header-title {
-            font-size: 0.98rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* ========================================== */
-        /* ✨ 懸浮戰情島 (Floating Island) - 專為 iframe 滾動高度精準定位 */
-        /* ========================================== */
-        .floating-island-bar {
-            position: fixed;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999999;
-            width: min(92%, 1100px);
-            background: rgba(22, 35, 59, 0.92);
-            border: 1px solid rgba(56, 189, 248, 0.5);
-            border-radius: 16px;
-            padding: 0.75rem 1.25rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.25);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        /* 隱藏狀態 */
-        .floating-island-bar.is-hidden {
-            display: none !important;
-        }
-
-        .floating-bar-flex {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .floating-kpi-group {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .floating-kpi-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .floating-kpi-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .floating-kpi-val {
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-
-        .btn-toggle-floating {
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid var(--border-color);
-            color: var(--accent-blue);
-            border-radius: 20px;
-            padding: 0.35rem 0.85rem;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            white-space: nowrap;
-        }
-
-        .btn-toggle-floating:hover {
-            background-color: var(--accent-blue);
-            color: #0b132b;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-        }
-
-        /* 當懸浮列隱藏時，右下角浮動發光喚醒按鈕 */
-        .floating-wake-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 999998;
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            color: #ffffff;
-            border: 1px solid var(--accent-blue);
-            border-radius: 30px;
-            padding: 0.6rem 1.1rem;
-            font-size: 0.88rem;
-            font-weight: 600;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(56, 189, 248, 0.3);
-            cursor: pointer;
-            display: none;
-            transition: all 0.25s ease;
-        }
-
-        .floating-wake-btn:hover {
-            transform: translateY(-2px) scale(1.03);
-            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
-        }
-
-        @media (max-width: 576px) {
-            .floating-island-bar {
-                width: 95%;
-                padding: 0.6rem 0.85rem;
-            }
-            .floating-kpi-group {
-                gap: 0.75rem;
-            }
-            .floating-kpi-val {
-                font-size: 0.95rem;
-            }
-            .floating-kpi-label {
-                font-size: 0.75rem;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- 頂部 Header -->
-    <header class="page-header">
-        <div class="container-fluid px-md-4">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                <div>
-                    <h1 class="page-title mb-1">
-                        <i class="fa-solid fa-calculator text-info"></i> 榮祥葡眾團隊 ｜ 訂購試算與戰情分析儀表板
-                    </h1>
-                    <p class="text-muted small mb-0">
-                        <i class="fa-solid fa-shield-halved text-success"></i> 整合多維度商品檢視 ｜ 即時 SV 積分與 5 大視覺化圖表算計 ｜ 一鍵匯出 Excel & PDF
-                    </p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-dark border border-info text-info p-2">
-                        <i class="fa-solid fa-database"></i> <span id="data-status-text">全庫商品已就緒</span>
-                    </span>
-                    <button class="btn btn-sm btn-outline-info" id="btn-reload-data">
-                        <i class="fa-solid fa-rotate"></i> 重載資料
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="container-fluid px-md-4">
-        <div class="row g-3">
-            
-            <!-- 左側：多維度搜尋篩選 + 產品選擇 (可切換卡片式/表格式) -->
-            <div class="col-lg-8">
-                
-                <!-- 第3網頁風格：搜尋與多層次過濾區塊 -->
-                <section class="filter-section">
-                    <div class="row g-3 mb-3">
-                        <!-- 選擇地區 -->
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <label for="countrySelect" class="form-label small text-muted"><i class="fa-solid fa-globe"></i> 選擇地區</label>
-                            <select id="countrySelect" class="form-select form-select-custom">
-                                <option value="ALL">全部地區</option>
-                                <option value="TW" selected>台灣 (TW)</option>
-                                <option value="MY">馬來西亞 (MY)</option>
-                            </select>
-                        </div>
-
-                        <!-- 產品主系列 -->
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <label for="mainSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-layer-group"></i> 產品主系列</label>
-                            <select id="mainSeriesSelect" class="form-select form-select-custom">
-                                <option value="ALL">全部主系列</option>
-                                <option value="保健食品">保健食品</option>
-                                <option value="個人保養">個人保養</option>
-                                <option value="清潔用品">清潔用品</option>
-                                <option value="營養調理">營養調理</option>
-                            </select>
-                        </div>
-
-                        <!-- 產品次系列 -->
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <label for="subSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-sitemap"></i> 產品次系列</label>
-                            <select id="subSeriesSelect" class="form-select form-select-custom" disabled>
-                                <option value="ALL">請先選擇主系列</option>
-                            </select>
-                        </div>
-
-                        <!-- 關鍵字搜尋 -->
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <label for="searchInput" class="form-label small text-muted"><i class="fa-solid fa-search"></i> 關鍵字搜尋</label>
-                            <input type="text" id="searchInput" class="form-control form-control-custom" placeholder="搜尋名稱、成分或編號...">
-                        </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>訂購試算與全方位數據戰情儀表板 - 榮祥葡眾團隊</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/calculator-order.js" defer></script>
+
+        <link rel="stylesheet" href="./css/calculator-order.css">
+    </head>
+
+    <body>
+
+        <!-- 頂部 Header -->
+        <header class="page-header">
+            <div class="container-fluid px-md-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <div>
+                        <h1 class="page-title mb-1">
+                            <i class="fa-solid fa-calculator text-info"></i> 榮祥葡眾團隊 ｜ 訂購試算與戰情分析儀表板
+                        </h1>
+                        <p class="text-muted small mb-0">
+                            <i class="fa-solid fa-shield-halved text-success"></i> 整合多維度商品檢視 ｜ 即時 SV 積分與 5 大視覺化圖表算計 ｜ 一鍵匯出 Excel & PDF
+                        </p>
                     </div>
-
-                    <!-- 產品型態按鈕過濾 (第3網頁風格) -->
-                    <div class="type-filter-title"><i class="fa-solid fa-filter"></i> 產品型態快速篩選</div>
-                    <div class="d-flex flex-wrap gap-2 mb-3" id="typeFilterContainer">
-                        <button class="type-btn active" data-type="ALL"><i class="fa-solid fa-border-all"></i> 全部型態</button>
-                        <button class="type-btn" data-type="粉劑/益生菌"><i class="fa-solid fa-bacteria"></i> 粉劑/益生菌</button>
-                        <button class="type-btn" data-type="膠囊"><i class="fa-solid fa-capsules"></i> 膠囊</button>
-                        <button class="type-btn" data-type="飲品/液體"><i class="fa-solid fa-wine-bottle"></i> 飲品/液體</button>
-                        <button class="type-btn" data-type="膏/霜/保養"><i class="fa-solid fa-sparkles"></i> 膏/霜/保養</button>
-                        <button class="type-btn" data-type="清潔用品"><i class="fa-solid fa-pump-soap"></i> 清潔用品</button>
-                    </div>
-
-                    <!-- 預估職級與檢視模式切換控制 -->
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pt-2 border-top border-secondary border-opacity-25 gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <label for="rank-select" class="text-nowrap small text-muted mb-0">
-                                <i class="fa-solid fa-user-graduate text-info"></i> 預估回饋職級：
-                            </label>
-                            <select id="rank-select" class="form-select form-select-custom form-select-sm" style="width: auto;">
-                                <option value="0.05">會員 (5% 回饋)</option>
-                                <option value="0.10">主任 (10% 回饋)</option>
-                                <option value="0.15">副理 (15% 回饋)</option>
-                                <option value="0.20" selected>經理以上 (20% 回饋)</option>
-                            </select>
-                        </div>
-
-                        <!-- 需求 4：切換第1網頁卡片式 或 第2網頁表格式 -->
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="small text-muted"><i class="fa-solid fa-eye"></i> 顯示模式：</span>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn view-switch-btn active" id="btn-view-card">
-                                    <i class="fa-solid fa-grip-vertical"></i> 卡片式
-                                </button>
-                                <button type="button" class="btn view-switch-btn" id="btn-view-table">
-                                    <i class="fa-solid fa-table-list"></i> 表格式
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 產品展示區：卡片模式 (預設) -->
-                <div class="row g-3" id="productGrid"></div>
-
-                <!-- 產品展示區：表格式 (網頁2風格) -->
-                <div class="war-card d-none" id="productTableCard">
-                    <div class="table-responsive">
-                        <table id="productTable" class="table table-dark-custom w-100">
-                            <thead>
-                                <tr>
-                                    <th>編號</th>
-                                    <th>產品名稱</th>
-                                    <th>主系列</th>
-                                    <th>次系列 / 型態</th>
-                                    <th class="text-end">售價 (NT$)</th>
-                                    <th class="text-end">積分 (SV)</th>
-                                    <th class="text-center" style="width: 120px;">訂購數量</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- 右側：訂購明細試算卡片 (網頁1為主 - 保持原樣不異動) -->
-            <div class="col-lg-4">
-                <div class="cart-summary-card">
-                    <!-- 訂購明細標題 -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 text-white font-weight-bold">
-                            <i class="fa-solid fa-receipt text-info"></i> 訂購明細摘要
-                        </h5>
-                        <span class="badge bg-info text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
-                    </div>
-
-                    <!-- 已選商品項目清單 Container -->
-                    <div id="cart-items-container" style="max-height: 250px; overflow-y: auto;" class="mb-3 pr-1">
-                        <div class="text-center text-muted py-4" id="empty-cart-msg">
-                            <i class="fa-solid fa-basket-shopping fa-2x mb-2 d-block opacity-50"></i>
-                            尚未選擇任何商品，請點擊數量增減選擇。
-                        </div>
-                    </div>
-
-                    <!-- 免運費進度條 -->
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between small">
-                            <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> NT$ 5,000 免運費門檻</span>
-                            <span id="shipping-progress-text" class="text-info font-weight-bold">0 / 5,000</span>
-                        </div>
-                        <div class="progress-shipping">
-                            <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
-                        </div>
-                        <div id="shipping-alert" class="shipping-alert-box shipping-alert-warning">
-                            <i class="fa-solid fa-circle-info"></i> 還差 NT$ 5,000 可享有免運費（運費 NT$ 100）
-                        </div>
-                    </div>
-
-                    <!-- 金額與 SV 計算 Highlight 區塊 -->
-                    <div class="stat-highlight-box">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted small"><i class="fa-solid fa-coins"></i> 產品金額總計：</span>
-                            <span class="h5 mb-0 price-num">NT$ <span id="summary-subtotal">0</span></span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted small"><i class="fa-solid fa-truck"></i> 物流運費：</span>
-                            <span class="text-white font-weight-bold" id="summary-shipping">NT$ 0</span>
-                        </div>
-                        <hr class="my-2 border-secondary border-opacity-50">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-white font-weight-bold"><i class="fa-solid fa-wallet"></i> 應付總金額：</span>
-                            <span class="h4 mb-0 text-warning font-weight-bold">NT$ <span id="summary-grand-total">0</span></span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted small"><i class="fa-solid fa-chart-line"></i> 累積總積分 (SV)：</span>
-                            <span class="h5 mb-0 sv-num"><span id="summary-total-sv">0</span> SV</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-hand-holding-dollar"></i> 預估回饋金 (現金)：</span>
-                            <span class="text-success font-weight-bold">NT$ <span id="summary-rebate-cash">0</span></span>
-                        </div>
-                    </div>
-
-                    <!-- 需求 3：下載訂購清單 Excel & PDF -->
-                    <div class="d-flex flex-column gap-2">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button class="btn-action-excel w-100" id="btn-export-excel">
-                                    <i class="fa-solid fa-file-excel me-1"></i> 下載 Excel
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn-action-pdf w-100" id="btn-export-pdf">
-                                    <i class="fa-solid fa-file-pdf me-1"></i> 下載 PDF
-                                </button>
-                            </div>
-                        </div>
-
-                        <button class="btn-action-clear" id="btn-clear-all">
-                            <i class="fa-solid fa-trash-can me-1"></i> 清空重選
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-dark border border-info text-info p-2">
+                            <i class="fa-solid fa-database"></i> <span id="data-status-text">全庫商品已就緒</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-info" id="btn-reload-data">
+                            <i class="fa-solid fa-rotate"></i> 重載資料
                         </button>
                     </div>
-
                 </div>
             </div>
+        </header>
 
-        </div>
-
-        <!-- ========================================== -->
-        <!-- 獨立數據統計圖表戰情中心 (全獨立區塊 - 包含 5 個高實用性統計圖表) -->
-        <!-- ========================================== -->
-        <div class="analytics-section-title">
-            <span><i class="fa-solid fa-chart-line text-info me-2"></i>訂購戰情與數據統計分析中心</span>
-            <span class="badge bg-outline-info border border-info text-info fs-7 fw-normal">
-                <i class="fa-solid fa-bolt me-1"></i>動態即時運算
-            </span>
-        </div>
-
-        <div class="row g-3 mb-4">
-            <!-- 圖表 1：訂購產品分類 SV 占比圖 (環狀圓餅圖) -->
-            <div class="col-12 col-md-6 col-xl-4">
-                <div class="chart-standalone-card">
-                    <div class="chart-header-title">
-                        <span><i class="fa-solid fa-chart-pie me-2 text-info"></i>1. 訂購產品分類 SV 占比</span>
-                        <span class="badge bg-secondary opacity-75 fs-8">Doughnut</span>
-                    </div>
-                    <div style="height: 220px; position: relative;">
-                        <canvas id="chartCategorySv"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 圖表 2：各產品類別購買金額 (NT$) 分布 (圓餅圖) -->
-            <div class="col-12 col-md-6 col-xl-4">
-                <div class="chart-standalone-card">
-                    <div class="chart-header-title">
-                        <span><i class="fa-solid fa-chart-pie me-2 text-warning"></i>2. 各類別消費金額 (NT$) 占比</span>
-                        <span class="badge bg-secondary opacity-75 fs-8">Pie</span>
-                    </div>
-                    <div style="height: 220px; position: relative;">
-                        <canvas id="chartCategoryAmount"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 圖表 3：各型態產品訂購數量分布 (柱狀圖) -->
-            <div class="col-12 col-md-6 col-xl-4">
-                <div class="chart-standalone-card">
-                    <div class="chart-header-title">
-                        <span><i class="fa-solid fa-chart-simple me-2 text-success"></i>3. 產品型態訂購數量統計</span>
-                        <span class="badge bg-secondary opacity-75 fs-8">Bar</span>
-                    </div>
-                    <div style="height: 220px; position: relative;">
-                        <canvas id="chartTypeQty"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 圖表 4：各次系列 (Sub-Series) SV 積分分佈分析 (橫向長條圖) -->
-            <div class="col-12 col-md-6 col-xl-6">
-                <div class="chart-standalone-card">
-                    <div class="chart-header-title">
-                        <span><i class="fa-solid fa-sitemap me-2" style="color: #38bdf8;"></i>4. 各次系列 SV 積分分佈分析</span>
-                        <span class="badge bg-secondary opacity-75 fs-8">Horizontal Bar</span>
-                    </div>
-                    <div style="height: 220px; position: relative;">
-                        <canvas id="chartSubSeriesSv"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 圖表 5：各主系列金額 (NT$) 與 積分 (SV) 雙軸對比 (群組柱狀圖) -->
-            <div class="col-12 col-md-12 col-xl-6">
-                <div class="chart-standalone-card">
-                    <div class="chart-header-title">
-                        <span><i class="fa-solid fa-scale-balanced me-2" style="color: #c084fc;"></i>5. 各主系列：消費金額 (NT$) vs 累積積分 (SV)</span>
-                        <span class="badge bg-secondary opacity-75 fs-8">Grouped Bar</span>
-                    </div>
-                    <div style="height: 220px; position: relative;">
-                        <canvas id="chartMainCategoryComparison"></canvas>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-    </main>
-
-    <!-- ========================================== -->
-    <!-- ✨ 懸浮戰情島 (Floating Suspended Island) - 支援 iframe 視窗精準動態追蹤 -->
-    <!-- ========================================== -->
-    <div class="floating-island-bar" id="floatingIslandBar">
-        <div class="floating-bar-flex">
-            <!-- 核心 KPI 數據群 -->
-            <div class="floating-kpi-group">
-                <div class="floating-kpi-item">
-                    <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-warning me-1"></i>應付總金額：</span>
-                    <span class="floating-kpi-val text-warning">NT$ <span id="sticky-grand-total">0</span></span>
-                </div>
-                <div class="floating-kpi-item">
-                    <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-info me-1"></i>累積總積分：</span>
-                    <span class="floating-kpi-val text-info"><span id="sticky-total-sv">0</span> SV</span>
-                </div>
-                <div class="floating-kpi-item">
-                    <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-success me-1"></i>預估回饋金：</span>
-                    <span class="floating-kpi-val text-success">NT$ <span id="sticky-rebate-cash">0</span></span>
-                </div>
-            </div>
-
-            <!-- 隱藏/收合控制按鈕 -->
-            <button class="btn-toggle-floating" id="btnHideFloatingBar" title="收合懸浮戰情島">
-                <span>隱藏</span>
-                <i class="fa-solid fa-chevron-down"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- 浮動喚醒按鈕：當懸浮列被隱藏時，呈現於右下角 -->
-    <button class="floating-wake-btn" id="btnShowFloatingBar">
-        <i class="fa-solid fa-chart-pie me-1"></i> 戰情摘要
-    </button>
-
-    <!-- JS CDN 庫 -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS Excel 匯出 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- html2pdf.js PDF 匯出 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <script>
-        // ==========================================
-        // 1. 完整產品資料庫
-        // ==========================================
-        const initialProducts = [
-            { id: "1301", name: "康爾喜複合乳酸菌", country: "TW", mainSeries: "保健食品", subSeries: "腸道保健", type: "粉劑/益生菌", price: 1760, sv: 1510, desc: "雙層包埋技術 專利菌株" },
-            { id: "1302", name: "康爾喜-N複合乳酸菌", country: "TW", mainSeries: "保健食品", subSeries: "腸道保健", type: "粉劑/益生菌", price: 1760, sv: 1510, desc: "升級版 13 株專利益生菌" },
-            { id: "1101", name: "995超級營養液 (24包)", country: "TW", mainSeries: "保健食品", subSeries: "免疫防護", type: "飲品/液體", price: 5540, sv: 4800, desc: "大豆發酵液 迅速補充體力" },
-            { id: "1102", name: "樟芝益菌絲體液 (24包)", country: "TW", mainSeries: "保健食品", subSeries: "免疫防護", type: "飲品/液體", price: 5540, sv: 4800, desc: "樟芝專利發酵 滋補強身" },
-            { id: "1201", name: "百克斯膠囊", country: "TW", mainSeries: "保健食品", subSeries: "體質調理", type: "膠囊", price: 1470, sv: 1260, desc: "黑松露、黑蒜精華 活力充沛" },
-            { id: "1202", name: "衛傑膠囊", country: "TW", mainSeries: "保健食品", subSeries: "腸道保健", type: "膠囊", price: 1470, sv: 1260, desc: "猴頭菇與山藥精華 消化順暢" },
-            { id: "1203", name: "愛益膠囊", country: "TW", mainSeries: "保健食品", subSeries: "體質調理", type: "膠囊", price: 1470, sv: 1260, desc: "花粉與花蜜濃縮 調節體質" },
-            { id: "1401", name: "葡眾餐包 (原味/30包)", country: "TW", mainSeries: "營養調理", subSeries: "日常營養", type: "粉劑/益生菌", price: 1470, sv: 1260, desc: "燕麥與高鈣配方 全家營養" },
-            { id: "1204", name: "迪斯尼膠囊", country: "TW", mainSeries: "保健食品", subSeries: "晶亮護眼", type: "膠囊", price: 1470, sv: 1260, desc: "晶亮守護 枸杞與決明子萃取" },
-            { id: "0301", name: "雅姿蘭護手霜", country: "TW", mainSeries: "個人保養", subSeries: "皮膚護理", type: "膏/霜/保養", price: 880, sv: 700, desc: "草本保濕 潤澤修護" },
-            { id: "1205", name: "活英華膠囊", country: "TW", mainSeries: "保健食品", subSeries: "體質調理", type: "膠囊", price: 2940, sv: 2520, desc: "關鍵靈活 葡萄糖胺升級" },
-            { id: "1206", name: "和悅膠囊", country: "TW", mainSeries: "保健食品", subSeries: "心血管保健", type: "膠囊", price: 1470, sv: 1260, desc: "循環順暢 專利納豆激酶" },
-            { id: "0302", name: "雅霓潤膚乳液", country: "TW", mainSeries: "個人保養", subSeries: "皮膚護理", type: "膏/霜/保養", price: 840, sv: 720, desc: "植物萃取 滋潤不油膩" },
-            { id: "0401", name: "葡眾溫和洗髮精", country: "TW", mainSeries: "清潔用品", subSeries: "居家清潔", type: "清潔用品", price: 504, sv: 430, desc: "深層清潔 溫和不刺激" },
-            { id: "M101", name: "馬來西亞專屬 康爾喜益生菌", country: "MY", mainSeries: "保健食品", subSeries: "腸道保健", type: "粉劑/益生菌", price: 260, sv: 1510, desc: "馬來西亞國際版包裝" }
-        ];
-
-        // 主次系列對應關聯
-        const subSeriesMap = {
-            "保健食品": ["腸道保健", "免疫防護", "體質調理", "晶亮護眼", "心血管保健"],
-            "個人保養": ["皮膚護理", "臉部精華"],
-            "清潔用品": ["居家清潔", "個人洗沐"],
-            "營養調理": ["日常營養", "高纖高鈣"]
-        };
-
-        // 全域狀態管理
-        let productsData = [...initialProducts];
-        let cartState = {}; // { productId: qty }
-        let currentView = "card";
-        let dataTableInstance = null;
-
-        // 5 個 Chart.js 實例全域宣告
-        let chartCategorySvInstance = null;
-        let chartCategoryAmountInstance = null;
-        let chartTypeQtyInstance = null;
-        let chartSubSeriesSvInstance = null;
-        let chartMainCategoryComparisonInstance = null;
-
-        // 當前篩選條件 (網頁3邏輯)
-        let filterState = {
-            country: "TW",
-            mainSeries: "ALL",
-            subSeries: "ALL",
-            type: "ALL",
-            searchQuery: ""
-        };
-
-        $(document).ready(function () {
-            // 初始化 5 大統計圖表
-            initAllCharts();
-
-            // 初始化選單與渲染產品
-            renderProducts();
-
-            // 監聽網頁3過濾事件
-            $("#countrySelect").on("change", function () {
-                filterState.country = $(this).val();
-                renderProducts();
-            });
-
-            $("#mainSeriesSelect").on("change", function () {
-                const selectedMain = $(this).val();
-                filterState.mainSeries = selectedMain;
-                filterState.subSeries = "ALL";
-
-                const $subSelect = $("#subSeriesSelect");
-                $subSelect.empty();
-
-                if (selectedMain === "ALL" || !subSeriesMap[selectedMain]) {
-                    $subSelect.append('<option value="ALL">請先選擇主系列</option>').prop("disabled", true);
-                } else {
-                    $subSelect.append('<option value="ALL">全部次系列</option>');
-                    subSeriesMap[selectedMain].forEach(sub => {
-                        $subSelect.append(`<option value="${sub}">${sub}</option>`);
-                    });
-                    $subSelect.prop("disabled", false);
-                }
-                renderProducts();
-            });
-
-            $("#subSeriesSelect").on("change", function () {
-                filterState.subSeries = $(this).val();
-                renderProducts();
-            });
-
-            $("#searchInput").on("input", function () {
-                filterState.searchQuery = $(this).val().trim().toLowerCase();
-                renderProducts();
-            });
-
-            $("#typeFilterContainer").on("click", ".type-btn", function () {
-                $("#typeFilterContainer .type-btn").removeClass("active");
-                $(this).addClass("active");
-                filterState.type = $(this).data("type");
-                renderProducts();
-            });
-
-            // 監聽職級%數切換
-            $("#rank-select").on("change", function () {
-                updateCartSummary();
-            });
-
-            // 檢視模式切換 (卡片式 / 表格式)
-            $("#btn-view-card").on("click", function () {
-                if (currentView !== "card") {
-                    currentView = "card";
-                    $(".view-switch-btn").removeClass("active");
-                    $(this).addClass("active");
-                    $("#productGrid").removeClass("d-none");
-                    $("#productTableCard").addClass("d-none");
-                    renderProducts();
-                }
-            });
-
-            $("#btn-view-table").on("click", function () {
-                if (currentView !== "table") {
-                    currentView = "table";
-                    $(".view-switch-btn").removeClass("active");
-                    $(this).addClass("active");
-                    $("#productGrid").addClass("d-none");
-                    $("#productTableCard").removeClass("d-none");
-                    renderProducts();
-                }
-            });
-
-            // 懸浮島 Bar 顯示/隱藏切換控制
-            $("#btnHideFloatingBar").on("click", function () {
-                $("#floatingIslandBar").addClass("is-hidden");
-                $("#btnShowFloatingBar").fadeIn(250);
-            });
-
-            $("#btnShowFloatingBar").on("click", function () {
-                $("#floatingIslandBar").removeClass("is-hidden");
-                $(this).fadeOut(200);
-            });
-
-            // 初始化與綁定 iframe 父視窗滾動動態定位引擎
-            setupIframeFloatingPositionEngine();
-
-            // 重載與清空
-            $("#btn-reload-data").on("click", function () {
-                productsData = [...initialProducts];
-                renderProducts();
-                updateCartSummary();
-            });
-
-            $("#btn-clear-all").on("click", function () {
-                if (Object.keys(cartState).length === 0) return;
-                if (confirm("確定要清空目前已選擇的所有商品嗎？")) {
-                    cartState = {};
-                    renderProducts();
-                    updateCartSummary();
-                }
-            });
-
-            // 匯出按鈕事件
-            $("#btn-export-excel").on("click", function () {
-                exportOrderToExcel();
-            });
-
-            $("#btn-export-pdf").on("click", function () {
-                exportOrderToPDF();
-            });
-        });
-
-        // ==========================================
-        // ✨ iframe 視窗滾動動態追蹤與精準貼底計算
-        // ==========================================
-        function setupIframeFloatingPositionEngine() {
-            function updatePosition() {
-                try {
-                    const isInsideIframe = (window.self !== window.top);
-                    if (!isInsideIframe) return; // 若單獨開啟直接依賴標準 fixed
-
-                    const parentWin = window.parent;
-                    const frameEl = window.frameElement;
-                    if (!parentWin || !frameEl) return;
-
-                    const parentScrollY = parentWin.scrollY || parentWin.pageYOffset || 0;
-                    const parentInnerHeight = parentWin.innerHeight || document.documentElement.clientHeight;
-                    
-                    const frameRect = frameEl.getBoundingClientRect();
-                    const iframeTopInParent = frameRect.top + parentScrollY;
-                    const iframeHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-
-                    // 1. 計算懸浮島位置
-                    const $bar = $('#floatingIslandBar');
-                    if ($bar.length) {
-                        const barHeight = $bar.outerHeight() || 65;
-                        const viewportBottomInIframe = (parentScrollY + parentInnerHeight) - iframeTopInParent;
-                        let targetTop = viewportBottomInIframe - barHeight - 16;
-
-                        // 邊界限制：避免超越 iframe 上邊界或下方溢出到 outer footer 區塊
-                        targetTop = Math.max(16, Math.min(targetTop, iframeHeight - barHeight - 16));
-
-                        $bar.css({
-                            'position': 'absolute',
-                            'top': targetTop + 'px',
-                            'bottom': 'auto',
-                            'left': '50%',
-                            'transform': 'translateX(-50%)'
-                        });
-                    }
-
-                    // 2. 計算右下角喚醒按鈕位置
-                    const $wakeBtn = $('#btnShowFloatingBar');
-                    if ($wakeBtn.length) {
-                        const btnHeight = $wakeBtn.outerHeight() || 40;
-                        const viewportBottomInIframe = (parentScrollY + parentInnerHeight) - iframeTopInParent;
-                        let btnTargetTop = viewportBottomInIframe - btnHeight - 20;
-
-                        btnTargetTop = Math.max(20, Math.min(btnTargetTop, iframeHeight - btnHeight - 20));
-
-                        $wakeBtn.css({
-                            'position': 'absolute',
-                            'top': btnTargetTop + 'px',
-                            'bottom': 'auto',
-                            'right': '20px'
-                        });
-                    }
-                } catch (e) {
-                    console.warn("Cross-origin iframe position tracking limited:", e);
-                }
-            }
-
-            // 綁定父視窗滾動與調整事件
-            try {
-                if (window.self !== window.top && window.parent) {
-                    window.parent.addEventListener('scroll', updatePosition, { passive: true });
-                    window.parent.addEventListener('resize', updatePosition, { passive: true });
-                }
-            } catch (e) {
-                console.warn(e);
-            }
-
-            // 當前子頁面滾動與 Resize 監聽
-            window.addEventListener('scroll', updatePosition, { passive: true });
-            window.addEventListener('resize', updatePosition, { passive: true });
-
-            // 立即執行一次計算
-            updatePosition();
-            setTimeout(updatePosition, 300);
-        }
-
-        // 依據篩選條件過濾商品
-        function getFilteredProducts() {
-            return productsData.filter(item => {
-                const matchCountry = (filterState.country === "ALL") || (item.country === filterState.country);
-                const matchMain = (filterState.mainSeries === "ALL") || (item.mainSeries === filterState.mainSeries);
-                const matchSub = (filterState.subSeries === "ALL") || (item.subSeries === filterState.subSeries);
-                const matchType = (filterState.type === "ALL") || (item.type === filterState.type);
+        <main class="container-fluid px-md-4">
+            <div class="row g-3">
                 
-                const q = filterState.searchQuery;
-                const matchSearch = !q || 
-                    item.name.toLowerCase().includes(q) || 
-                    item.id.toLowerCase().includes(q) || 
-                    (item.desc && item.desc.toLowerCase().includes(q));
+                <!-- 左側：多維度搜尋篩選 + 產品選擇 (可切換卡片式/表格式) -->
+                <div class="col-lg-8">
+                    
+                    <!-- 第3網頁風格：搜尋與多層次過濾區塊 -->
+                    <section class="filter-section">
+                        <div class="row g-3 mb-3">
+                            <!-- 選擇地區 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="countrySelect" class="form-label small text-muted"><i class="fa-solid fa-globe"></i> 選擇地區</label>
+                                <select id="countrySelect" class="form-select form-select-custom">
+                                    <option value="ALL">全部地區</option>
+                                    <option value="TW" selected>台灣 (TW)</option>
+                                    <option value="MY">馬來西亞 (MY)</option>
+                                </select>
+                            </div>
 
-                return matchCountry && matchMain && matchSub && matchType && matchSearch;
-            });
-        }
+                            <!-- 產品主系列 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="mainSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-layer-group"></i> 產品主系列</label>
+                                <select id="mainSeriesSelect" class="form-select form-select-custom">
+                                    <option value="ALL">全部主系列</option>
+                                    <option value="保健食品">保健食品</option>
+                                    <option value="個人保養">個人保養</option>
+                                    <option value="清潔用品">清潔用品</option>
+                                    <option value="營養調理">營養調理</option>
+                                </select>
+                            </div>
 
-        // 核心：渲染產品列表 (卡片模式或表格模式)
-        function renderProducts() {
-            const filtered = getFilteredProducts();
+                            <!-- 產品次系列 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="subSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-sitemap"></i> 產品次系列</label>
+                                <select id="subSeriesSelect" class="form-select form-select-custom" disabled>
+                                    <option value="ALL">請先選擇主系列</option>
+                                </select>
+                            </div>
 
-            if (currentView === "card") {
-                const $grid = $("#productGrid");
-                $grid.empty();
-
-                if (filtered.length === 0) {
-                    $grid.append(`
-                        <div class="col-12 text-center text-muted py-5 war-card">
-                            <i class="fa-solid fa-magnifying-glass-minus fa-3x mb-3 opacity-50"></i>
-                            <p class="mb-0">未找到符合條件的產品，請嘗試調整篩選關鍵字</p>
+                            <!-- 關鍵字搜尋 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="searchInput" class="form-label small text-muted"><i class="fa-solid fa-search"></i> 關鍵字搜尋</label>
+                                <input type="text" id="searchInput" class="form-control form-control-custom" placeholder="搜尋名稱、成分或編號...">
+                            </div>
                         </div>
-                    `);
-                    return;
-                }
 
-                filtered.forEach(item => {
-                    const qty = cartState[item.id] || 0;
-                    const cardHtml = `
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="product-item-card">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="product-badge"><i class="fa-solid fa-hashtag"></i> ${item.id}</span>
-                                        <span class="badge bg-secondary opacity-75">${item.mainSeries}</span>
-                                    </div>
-                                    <h6 class="product-title">${item.name}</h6>
-                                    <p class="small text-muted mb-2">${item.desc || ""}</p>
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                        <span>售價: <span class="price-num">NT$ ${item.price.toLocaleString()}</span></span>
-                                        <span>積分: <span class="sv-num">${item.sv.toLocaleString()} SV</span></span>
-                                    </div>
-                                    <div class="qty-control">
-                                        <button class="btn-qty btn-minus" data-id="${item.id}">
-                                            <i class="fa-solid fa-minus"></i>
-                                        </button>
-                                        <input type="number" class="qty-input" value="${qty}" min="0" data-id="${item.id}">
-                                        <button class="btn-qty btn-plus" data-id="${item.id}">
-                                            <i class="fa-solid fa-plus"></i>
-                                        </button>
-                                    </div>
+                        <!-- 產品型態按鈕過濾 (第3網頁風格) -->
+                        <div class="type-filter-title"><i class="fa-solid fa-filter"></i> 產品型態快速篩選</div>
+                        <div class="d-flex flex-wrap gap-2 mb-3" id="typeFilterContainer">
+                            <button class="type-btn active" data-type="ALL"><i class="fa-solid fa-border-all"></i> 全部型態</button>
+                            <button class="type-btn" data-type="粉劑/益生菌"><i class="fa-solid fa-bacteria"></i> 粉劑/益生菌</button>
+                            <button class="type-btn" data-type="膠囊"><i class="fa-solid fa-capsules"></i> 膠囊</button>
+                            <button class="type-btn" data-type="飲品/液體"><i class="fa-solid fa-wine-bottle"></i> 飲品/液體</button>
+                            <button class="type-btn" data-type="膏/霜/保養"><i class="fa-solid fa-sparkles"></i> 膏/霜/保養</button>
+                            <button class="type-btn" data-type="清潔用品"><i class="fa-solid fa-pump-soap"></i> 清潔用品</button>
+                        </div>
+
+                        <!-- 預估職級與檢視模式切換控制 -->
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pt-2 border-top border-secondary border-opacity-25 gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="rank-select" class="text-nowrap small text-muted mb-0">
+                                    <i class="fa-solid fa-user-graduate text-info"></i> 預估回饋職級：
+                                </label>
+                                <select id="rank-select" class="form-select form-select-custom form-select-sm" style="width: auto;">
+                                    <option value="0.05">會員 (5% 回饋)</option>
+                                    <option value="0.10">主任 (10% 回饋)</option>
+                                    <option value="0.15">副理 (15% 回饋)</option>
+                                    <option value="0.20" selected>經理以上 (20% 回饋)</option>
+                                </select>
+                            </div>
+
+                            <!-- 需求 4：切換第1網頁卡片式 或 第2網頁表格式 -->
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small text-muted"><i class="fa-solid fa-eye"></i> 顯示模式：</span>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn view-switch-btn active" id="btn-view-card">
+                                        <i class="fa-solid fa-grip-vertical"></i> 卡片式
+                                    </button>
+                                    <button type="button" class="btn view-switch-btn" id="btn-view-table">
+                                        <i class="fa-solid fa-table-list"></i> 表格式
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    `;
-                    $grid.append(cardHtml);
-                });
-            } else {
-                // 表格模式 (網頁2風格 + DataTables)
-                const $tbody = $("#productTable tbody");
-                $tbody.empty();
+                    </section>
 
-                filtered.forEach(item => {
-                    const qty = cartState[item.id] || 0;
-                    const rowHtml = `
-                        <tr>
-                            <td><span class="product-badge">${item.id}</span></td>
-                            <td class="fw-bold text-white">${item.name}</td>
-                            <td><span class="badge bg-secondary">${item.mainSeries}</span></td>
-                            <td class="small text-muted">${item.subSeries} / ${item.type}</td>
-                            <td class="text-end price-num">NT$ ${item.price.toLocaleString()}</td>
-                            <td class="text-end sv-num">${item.sv.toLocaleString()} SV</td>
-                            <td class="text-center">
-                                <div class="qty-control justify-content-center">
-                                    <button class="btn-qty btn-minus" data-id="${item.id}">
-                                        <i class="fa-solid fa-minus"></i>
-                                    </button>
-                                    <input type="number" class="qty-input" value="${qty}" min="0" data-id="${item.id}">
-                                    <button class="btn-qty btn-plus" data-id="${item.id}">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    $tbody.append(rowHtml);
-                });
+                    <!-- 產品展示區：卡片模式 (預設) -->
+                    <div class="row g-3" id="productGrid"></div>
 
-                if (dataTableInstance) {
-                    dataTableInstance.destroy();
-                }
-
-                dataTableInstance = $('#productTable').DataTable({
-                    language: {
-                        search: "_INPUT_",
-                        searchPlaceholder: "在表格中快速精準過濾...",
-                        lengthMenu: "顯示 _MENU_ 筆",
-                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
-                        paginate: { next: '›', previous: '‹' }
-                    },
-                    pageLength: 6,
-                    lengthChange: false,
-                    ordering: true
-                });
-            }
-
-            // 重新綁定數量控制按鈕事件
-            bindQtyEvents();
-        }
-
-        // 綁定數量增減按鈕
-        function bindQtyEvents() {
-            $(".btn-plus").off("click").on("click", function () {
-                const id = String($(this).data("id"));
-                cartState[id] = (cartState[id] || 0) + 1;
-                updateQtyInputsUI(id);
-                updateCartSummary();
-            });
-
-            $(".btn-minus").off("click").on("click", function () {
-                const id = String($(this).data("id"));
-                if (cartState[id] && cartState[id] > 0) {
-                    cartState[id] -= 1;
-                    if (cartState[id] === 0) delete cartState[id];
-                    updateQtyInputsUI(id);
-                    updateCartSummary();
-                }
-            });
-
-            $(".qty-input").off("change input").on("change input", function () {
-                const id = String($(this).data("id"));
-                let val = parseInt($(this).val()) || 0;
-                if (val < 0) val = 0;
-                if (val === 0) {
-                    delete cartState[id];
-                } else {
-                    cartState[id] = val;
-                }
-                updateQtyInputsUI(id);
-                updateCartSummary();
-            });
-        }
-
-        function updateQtyInputsUI(id) {
-            const qty = cartState[id] || 0;
-            $(`.qty-input[data-id="${id}"]`).val(qty);
-        }
-
-        // 核心：更新購物車試算摘要 & 動態重新計算 5 大統計圖表
-        function updateCartSummary() {
-            const $container = $("#cart-items-container");
-            $container.empty();
-
-            let totalItemsCount = 0;
-            let subtotalPrice = 0;
-            let totalSV = 0;
-
-            // 統計圖表需要的資料結構
-            let catSvMap = {};
-            let catAmountMap = {};
-            let typeQtyMap = {};
-            let subSeriesSvMap = {};
-
-            const selectedKeys = Object.keys(cartState);
-
-            if (selectedKeys.length === 0) {
-                $container.html(`
-                    <div class="text-center text-muted py-4" id="empty-cart-msg">
-                        <i class="fa-solid fa-basket-shopping fa-2x mb-2 d-block opacity-50"></i>
-                        尚未選擇任何商品，請點擊數量增減選擇。
+                    <!-- 產品展示區：表格式 (網頁2風格) -->
+                    <div class="war-card d-none" id="productTableCard">
+                        <div class="table-responsive">
+                            <table id="productTable" class="table table-dark-custom w-100">
+                                <thead>
+                                    <tr>
+                                        <th>編號</th>
+                                        <th>產品名稱</th>
+                                        <th>主系列</th>
+                                        <th>次系列 / 型態</th>
+                                        <th class="text-end">售價 (NT$)</th>
+                                        <th class="text-end">積分 (SV)</th>
+                                        <th class="text-center" style="width: 120px;">訂購數量</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
-                `);
-            } else {
-                selectedKeys.forEach(id => {
-                    const qty = cartState[id];
-                    const product = productsData.find(p => p.id === id);
-                    if (product && qty > 0) {
-                        const itemTotalPrice = product.price * qty;
-                        const itemTotalSV = product.sv * qty;
 
-                        subtotalPrice += itemTotalPrice;
-                        totalSV += itemTotalSV;
-                        totalItemsCount += qty;
+                </div>
 
-                        // 數據累積至圖表結構
-                        catSvMap[product.mainSeries] = (catSvMap[product.mainSeries] || 0) + itemTotalSV;
-                        catAmountMap[product.mainSeries] = (catAmountMap[product.mainSeries] || 0) + itemTotalPrice;
-                        typeQtyMap[product.type] = (typeQtyMap[product.type] || 0) + qty;
-                        subSeriesSvMap[product.subSeries] = (subSeriesSvMap[product.subSeries] || 0) + itemTotalSV;
+                <!-- 右側：訂購明細試算卡片 (網頁1為主 - 保持原樣不異動) -->
+                <div class="col-lg-4">
+                    <div class="cart-summary-card">
+                        <!-- 訂購明細標題 -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0 text-white font-weight-bold">
+                                <i class="fa-solid fa-receipt text-info"></i> 訂購明細摘要
+                            </h5>
+                            <span class="badge bg-info text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
+                        </div>
 
-                        $container.append(`
-                            <div class="cart-item-row">
-                                <div class="cart-item-title" title="${product.name}">
-                                    <i class="fa-solid fa-box text-info"></i> ${product.name}
+                        <!-- 已選商品項目清單 Container -->
+                        <div id="cart-items-container" style="max-height: 250px; overflow-y: auto;" class="mb-3 pr-1">
+                            <div class="text-center text-muted py-4" id="empty-cart-msg">
+                                <i class="fa-solid fa-basket-shopping fa-2x mb-2 d-block opacity-50"></i>
+                                尚未選擇任何商品，請點擊數量增減選擇。
+                            </div>
+                        </div>
+
+                        <!-- 免運費進度條 -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small">
+                                <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> NT$ 5,000 免運費門檻</span>
+                                <span id="shipping-progress-text" class="text-info font-weight-bold">0 / 5,000</span>
+                            </div>
+                            <div class="progress-shipping">
+                                <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <div id="shipping-alert" class="shipping-alert-box shipping-alert-warning">
+                                <i class="fa-solid fa-circle-info"></i> 還差 NT$ 5,000 可享有免運費（運費 NT$ 100）
+                            </div>
+                        </div>
+
+                        <!-- 金額與 SV 計算 Highlight 區塊 -->
+                        <div class="stat-highlight-box">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small"><i class="fa-solid fa-coins"></i> 產品金額總計：</span>
+                                <span class="h5 mb-0 price-num">NT$ <span id="summary-subtotal">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small"><i class="fa-solid fa-truck"></i> 物流運費：</span>
+                                <span class="text-white font-weight-bold" id="summary-shipping">NT$ 0</span>
+                            </div>
+                            <hr class="my-2 border-secondary border-opacity-50">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white font-weight-bold"><i class="fa-solid fa-wallet"></i> 應付總金額：</span>
+                                <span class="h4 mb-0 text-warning font-weight-bold">NT$ <span id="summary-grand-total">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small"><i class="fa-solid fa-chart-line"></i> 累積總積分 (SV)：</span>
+                                <span class="h5 mb-0 sv-num"><span id="summary-total-sv">0</span> SV</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fa-solid fa-hand-holding-dollar"></i> 預估回饋金 (現金)：</span>
+                                <span class="text-success font-weight-bold">NT$ <span id="summary-rebate-cash">0</span></span>
+                            </div>
+                        </div>
+
+                        <!-- 需求 3：下載訂購清單 Excel & PDF -->
+                        <div class="d-flex flex-column gap-2">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button class="btn-action-excel w-100" id="btn-export-excel">
+                                        <i class="fa-solid fa-file-excel me-1"></i> 下載 Excel
+                                    </button>
                                 </div>
-                                <div class="text-muted small">
-                                    x ${qty}
-                                </div>
-                                <div class="text-end">
-                                    <div class="text-warning font-weight-bold">NT$ ${itemTotalPrice.toLocaleString()}</div>
-                                    <div class="text-info style="font-size: 0.75rem;">${itemTotalSV.toLocaleString()} SV</div>
+                                <div class="col-6">
+                                    <button class="btn-action-pdf w-100" id="btn-export-pdf">
+                                        <i class="fa-solid fa-file-pdf me-1"></i> 下載 PDF
+                                    </button>
                                 </div>
                             </div>
-                        `);
-                    }
-                });
-            }
 
-            // 免運算計 (NT$ 5,000 免運，否則 NT$ 100 運費)
-            const FREE_SHIPPING_THRESHOLD = 5000;
-            const SHIPPING_FEE = 100;
-            let shippingFee = 0;
+                            <button class="btn-action-clear" id="btn-clear-all">
+                                <i class="fa-solid fa-trash-can me-1"></i> 清空重選
+                            </button>
+                        </div>
 
-            if (subtotalPrice > 0 && subtotalPrice < FREE_SHIPPING_THRESHOLD) {
-                shippingFee = SHIPPING_FEE;
-                const gap = FREE_SHIPPING_THRESHOLD - subtotalPrice;
-                $("#shipping-alert")
-                    .removeClass("shipping-alert-success")
-                    .addClass("shipping-alert-warning")
-                    .html(`<i class="fa-solid fa-circle-info"></i> 還差 NT$ ${gap.toLocaleString()} 可享有免運費（運費 NT$ ${SHIPPING_FEE}）`);
-            } else if (subtotalPrice >= FREE_SHIPPING_THRESHOLD) {
-                shippingFee = 0;
-                $("#shipping-alert")
-                    .removeClass("shipping-alert-warning")
-                    .addClass("shipping-alert-success")
-                    .html(`<i class="fa-solid fa-circle-check"></i> 已達 NT$ 5,000 免運費門檻！`);
-            } else {
-                shippingFee = 0;
-                $("#shipping-alert")
-                    .removeClass("shipping-alert-success")
-                    .addClass("shipping-alert-warning")
-                    .html(`<i class="fa-solid fa-circle-info"></i> 還差 NT$ 5,000 可享有免運費（運費 NT$ ${SHIPPING_FEE}）`);
-            }
-
-            const shippingPercent = Math.min(100, (subtotalPrice / FREE_SHIPPING_THRESHOLD) * 100);
-            $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
-            $("#shipping-progress-text").text(`${subtotalPrice.toLocaleString()} / ${FREE_SHIPPING_THRESHOLD.toLocaleString()}`);
-
-            const grandTotal = subtotalPrice + shippingFee;
-
-            // 預估現金回饋 (SV * 比率)
-            const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-            const estimatedRebate = Math.round(totalSV * rankRatio);
-
-            // 更新桌面版數字 UI (右側卡片區塊 - 完全未移動)
-            $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
-            $("#summary-subtotal").text(subtotalPrice.toLocaleString());
-            $("#summary-shipping").text(shippingFee > 0 ? `NT$ ${shippingFee}` : "免運費");
-            $("#summary-grand-total").text(grandTotal.toLocaleString());
-            $("#summary-total-sv").text(totalSV.toLocaleString());
-            $("#summary-rebate-cash").text(estimatedRebate.toLocaleString());
-
-            // 同步更新懸浮戰情島 Bar 數字 UI
-            $("#sticky-grand-total").text(grandTotal.toLocaleString());
-            $("#sticky-total-sv").text(totalSV.toLocaleString());
-            $("#sticky-rebate-cash").text(estimatedRebate.toLocaleString());
-
-            // 核心：動態更新 5 大統計圖表數據
-            updateAllChartsData({
-                catSvMap,
-                catAmountMap,
-                typeQtyMap,
-                subSeriesSvMap,
-                totalSV
-            });
-        }
-
-        // ==========================================
-        // 5 大統計圖表初始化與數據同步模組
-        // ==========================================
-        function initAllCharts() {
-            // 圖表 1：訂購產品分類 SV 占比 (Doughnut)
-            const ctx1 = document.getElementById('chartCategorySv').getContext('2d');
-            chartCategorySvInstance = new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: ['保健食品', '個人保養', '清潔用品', '營養調理'],
-                    datasets: [{
-                        data: [0, 0, 0, 0],
-                        backgroundColor: ['#38bdf8', '#7dd3fc', '#facc15', '#34d399'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } }
-                }
-            });
-
-            // 圖表 2：各產品類別購買金額 (NT$) 占比 (Pie)
-            const ctx2 = document.getElementById('chartCategoryAmount').getContext('2d');
-            chartCategoryAmountInstance = new Chart(ctx2, {
-                type: 'pie',
-                data: {
-                    labels: ['保健食品', '個人保養', '清潔用品', '營養調理'],
-                    datasets: [{
-                        data: [0, 0, 0, 0],
-                        backgroundColor: ['#facc15', '#fb923c', '#a855f7', '#38bdf8'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } }
-                }
-            });
-
-            // 圖表 3：各型態產品訂購數量分布 (Bar)
-            const ctx3 = document.getElementById('chartTypeQty').getContext('2d');
-            chartTypeQtyInstance = new Chart(ctx3, {
-                type: 'bar',
-                data: {
-                    labels: ['粉劑/益生菌', '膠囊', '飲品/液體', '膏/霜/保養', '清潔用品'],
-                    datasets: [{
-                        label: '訂購數量 (件)',
-                        data: [0, 0, 0, 0, 0],
-                        backgroundColor: 'rgba(52, 211, 153, 0.75)',
-                        borderColor: '#34d399',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            // 新圖表 4：各次系列 (Sub-Series) SV 積分分佈分析 (Horizontal Bar)
-            const ctx4 = document.getElementById('chartSubSeriesSv').getContext('2d');
-            chartSubSeriesSvInstance = new Chart(ctx4, {
-                type: 'bar',
-                data: {
-                    labels: ['腸道保健', '免疫防護', '體質調理', '晶亮護眼', '心血管保健', '皮膚護理', '居家清潔', '日常營養'],
-                    datasets: [{
-                        label: '累積 SV 積分',
-                        data: [0, 0, 0, 0, 0, 0, 0, 0],
-                        backgroundColor: 'rgba(56, 189, 248, 0.75)',
-                        borderColor: '#38bdf8',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { ticks: { color: '#f8fafc', font: { size: 10 } }, grid: { display: false } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            // 新圖表 5：各主系列金額 (NT$) 與 積分 (SV) 雙軸群組比較 (Grouped Bar)
-            const ctx5 = document.getElementById('chartMainCategoryComparison').getContext('2d');
-            chartMainCategoryComparisonInstance = new Chart(ctx5, {
-                type: 'bar',
-                data: {
-                    labels: ['保健食品', '個人保養', '清潔用品', '營養調理'],
-                    datasets: [
-                        {
-                            label: '消費金額 (NT$)',
-                            data: [0, 0, 0, 0],
-                            backgroundColor: 'rgba(250, 204, 21, 0.8)',
-                            borderColor: '#facc15',
-                            borderWidth: 1,
-                            borderRadius: 4
-                        },
-                        {
-                            label: '累積積分 (SV)',
-                            data: [0, 0, 0, 0],
-                            backgroundColor: 'rgba(56, 189, 248, 0.8)',
-                            borderColor: '#38bdf8',
-                            borderWidth: 1,
-                            borderRadius: 4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { ticks: { color: '#f8fafc', font: { size: 11 } }, grid: { display: false } }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: { color: '#94a3b8', font: { size: 11 } }
-                        }
-                    }
-                }
-            });
-        }
-
-        // 動態刷新所有圖表數據
-        function updateAllChartsData(data) {
-            const categories = ['保健食品', '個人保養', '清潔用品', '營養調理'];
-            const types = ['粉劑/益生菌', '膠囊', '飲品/液體', '膏/霜/保養', '清潔用品'];
-            const subSeriesList = ['腸道保健', '免疫防護', '體質調理', '晶亮護眼', '心血管保健', '皮膚護理', '居家清潔', '日常營養'];
-
-            // 1. 主系列 SV
-            chartCategorySvInstance.data.datasets[0].data = categories.map(c => data.catSvMap[c] || 0);
-            chartCategorySvInstance.update();
-
-            // 2. 主系列金額
-            chartCategoryAmountInstance.data.datasets[0].data = categories.map(c => data.catAmountMap[c] || 0);
-            chartCategoryAmountInstance.update();
-
-            // 3. 型態數量
-            chartTypeQtyInstance.data.datasets[0].data = types.map(t => data.typeQtyMap[t] || 0);
-            chartTypeQtyInstance.update();
-
-            // 4. 各次系列 SV 分佈
-            chartSubSeriesSvInstance.data.datasets[0].data = subSeriesList.map(s => data.subSeriesSvMap[s] || 0);
-            chartSubSeriesSvInstance.update();
-
-            // 5. 各主系列 金額 vs SV 群組柱狀比較
-            chartMainCategoryComparisonInstance.data.datasets[0].data = categories.map(c => data.catAmountMap[c] || 0);
-            chartMainCategoryComparisonInstance.data.datasets[1].data = categories.map(c => data.catSvMap[c] || 0);
-            chartMainCategoryComparisonInstance.update();
-        }
-
-        // 需求 3：下載 Excel 訂購清單 (SheetJS)
-        function exportOrderToExcel() {
-            const selectedKeys = Object.keys(cartState);
-            if (selectedKeys.length === 0) {
-                alert("請先選擇至少一項商品後再下載 Excel！");
-                return;
-            }
-
-            let excelData = [];
-            excelData.push(["產品編號", "產品名稱", "主系列", "單價(NT$)", "單項SV", "數量", "小計金額(NT$)", "小計SV"]);
-
-            let subtotal = 0;
-            let totalSV = 0;
-
-            selectedKeys.forEach(id => {
-                const qty = cartState[id];
-                const p = productsData.find(item => item.id === id);
-                if (p && qty > 0) {
-                    const itemTotalNT = p.price * qty;
-                    const itemTotalSV = p.sv * qty;
-                    subtotal += itemTotalNT;
-                    totalSV += itemTotalSV;
-                    excelData.push([p.id, p.name, p.mainSeries, p.price, p.sv, qty, itemTotalNT, itemTotalSV]);
-                }
-            });
-
-            const shipping = (subtotal > 0 && subtotal < 5000) ? 100 : 0;
-            const grandTotal = subtotal + shipping;
-            const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-            const rebate = Math.round(totalSV * rankRatio);
-
-            excelData.push([]);
-            excelData.push(["", "", "", "", "", "產品金額小計：", subtotal, totalSV]);
-            excelData.push(["", "", "", "", "", "物流運費：", shipping, ""]);
-            excelData.push(["", "", "", "", "", "應付總金額：", grandTotal, ""]);
-            excelData.push(["", "", "", "", "", "預估現金回饋：", rebate, ""]);
-
-            const ws = XLSX.utils.aoa_to_sheet(excelData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "訂購試算明細");
-
-            const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-            XLSX.writeFile(wb, `榮祥葡眾訂購試算單_${dateStr}.xlsx`);
-        }
-
-        // 需求 3：下載 PDF 訂購清單 (html2pdf.js)
-        function exportOrderToPDF() {
-            const selectedKeys = Object.keys(cartState);
-            if (selectedKeys.length === 0) {
-                alert("請先選擇至少一項商品後再下載 PDF！");
-                return;
-            }
-
-            let subtotal = 0;
-            let totalSV = 0;
-            let rowsHtml = "";
-
-            selectedKeys.forEach(id => {
-                const qty = cartState[id];
-                const p = productsData.find(item => item.id === id);
-                if (p && qty > 0) {
-                    const price = p.price * qty;
-                    const sv = p.sv * qty;
-                    subtotal += price;
-                    totalSV += sv;
-                    rowsHtml += `
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${p.id}</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${p.name}</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${qty}</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">NT$ ${price.toLocaleString()}</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${sv.toLocaleString()} SV</td>
-                        </tr>
-                    `;
-                }
-            });
-
-            const shipping = (subtotal > 0 && subtotal < 5000) ? 100 : 0;
-            const grandTotal = subtotal + shipping;
-            const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-            const rebate = Math.round(totalSV * rankRatio);
-
-            const pdfContainer = document.createElement("div");
-            pdfContainer.style.padding = "20px";
-            pdfContainer.style.fontFamily = "sans-serif";
-            pdfContainer.style.color = "#111827";
-
-            pdfContainer.innerHTML = `
-                <div style="text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px;">
-                    <h2 style="color: #0284c7; margin: 0 0 5px 0;">榮祥葡眾團隊 - 線上訂購試算單</h2>
-                    <p style="color: #6b7280; margin: 0; font-size: 13px;">列印/匯出時間：${new Date().toLocaleString('zh-TW')}</p>
-                </div>
-
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
-                    <thead>
-                        <tr style="background-color: #f3f4f6; color: #1f2937;">
-                            <th style="padding: 8px; text-align: left;">編號</th>
-                            <th style="padding: 8px; text-align: left;">商品名稱</th>
-                            <th style="padding: 8px; text-align: center;">數量</th>
-                            <th style="padding: 8px; text-align: right;">小計金額</th>
-                            <th style="padding: 8px; text-align: right;">小計 SV</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHtml}
-                    </tbody>
-                </table>
-
-                <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; width: 280px; margin-left: auto;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                        <span>產品金額合計：</span>
-                        <strong>NT$ ${subtotal.toLocaleString()}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                        <span>物流運費：</span>
-                        <strong>${shipping > 0 ? "NT$ 100" : "免運費"}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 16px; color: #d97706; border-top: 1px solid #e5e7eb; padding-top: 6px;">
-                        <span>應付總金額：</span>
-                        <strong>NT$ ${grandTotal.toLocaleString()}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; color: #0284c7;">
-                        <span>累積總積分：</span>
-                        <strong>${totalSV.toLocaleString()} SV</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; color: #16a34a;">
-                        <span>預估現金回饋：</span>
-                        <strong>NT$ ${rebate.toLocaleString()}</strong>
                     </div>
                 </div>
-            `;
 
-            const opt = {
-                margin: 10,
-                filename: `榮祥葡眾訂購試算單_${new Date().toISOString().slice(0, 10)}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            </div>
 
-            html2pdf().set(opt).from(pdfContainer).save();
-        }
-    </script>
-</body>
+            <!-- ========================================== -->
+            <!-- 獨立數據統計圖表戰情中心 (全獨立區塊 - 包含 5 個高實用性統計圖表) -->
+            <!-- ========================================== -->
+            <div class="analytics-section-title">
+                <span><i class="fa-solid fa-chart-line text-info me-2"></i>訂購戰情與數據統計分析中心</span>
+                <span class="badge bg-outline-info border border-info text-info fs-7 fw-normal">
+                    <i class="fa-solid fa-bolt me-1"></i>動態即時運算
+                </span>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <!-- 圖表 1：訂購產品分類 SV 占比圖 (環狀圓餅圖) -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-chart-pie me-2 text-info"></i>1. 訂購產品分類 SV 占比</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Doughnut</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartCategorySv"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 2：各產品類別購買金額 (NT$) 分布 (圓餅圖) -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-chart-pie me-2 text-warning"></i>2. 各類別消費金額 (NT$) 占比</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Pie</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartCategoryAmount"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 3：各型態產品訂購數量分布 (柱狀圖) -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-chart-simple me-2 text-success"></i>3. 產品型態訂購數量統計</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Bar</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartTypeQty"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 4：各次系列 (Sub-Series) SV 積分分佈分析 (橫向長條圖) -->
+                <div class="col-12 col-md-6 col-xl-6">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-sitemap me-2" style="color: #38bdf8;"></i>4. 各次系列 SV 積分分佈分析</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Horizontal Bar</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartSubSeriesSv"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 5：各主系列金額 (NT$) 與 積分 (SV) 雙軸對比 (群組柱狀圖) -->
+                <div class="col-12 col-md-12 col-xl-6">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-scale-balanced me-2" style="color: #c084fc;"></i>5. 各主系列：消費金額 (NT$) vs 累積積分 (SV)</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Grouped Bar</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartMainCategoryComparison"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- ========================================== -->
+        <!-- ✨ 懸浮島 (Floating Suspended Island) - 支援 iframe 視窗精準動態追蹤 -->
+        <!-- ========================================== -->
+        <div class="floating-island-bar" id="floatingIslandBar">
+            <div class="row align-items-center">
+                <div class="col-2 col-md-1">
+                    <button class="btn-toggle-floating" id="btnHideFloatingBar" title="收合懸浮島">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="col-10 col-md-11">
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-warning me-1"></i>應付總金額：</span>
+                            <span class="floating-kpi-val text-warning">NT$ <span id="sticky-grand-total">0</span></span>
+                        </div>
+                        <div class="w-100 d-block d-md-none"></div>
+                        <div class="col-12 col-md-4">
+                            <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-info me-1"></i>累積總積分：</span>
+                            <span class="floating-kpi-val text-info"><span id="sticky-total-sv">0</span> SV</span>
+                        </div>
+                        <div class="w-100 d-block d-md-none"></div>
+                        <div class="col-12 col-md-4">
+                            <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-success me-1"></i>預估回饋金：</span>
+                            <span class="floating-kpi-val text-success">NT$ <span id="sticky-rebate-cash">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ✨ 浮動喚醒按鈕：呈現在「左下角」(`left: 25px`)，徹底避免蓋到外層右下角 BackToTop 按鈕 -->
+        <button class="floating-wake-btn" id="btnShowFloatingBar">
+            <i class="fa-solid fa-chart-pie me-1"></i> 總計
+        </button>
+    </body>
 </html>

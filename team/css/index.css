@@ -4,9 +4,7 @@
 :root {
     /* 內部團隊版：深藍與電光天藍主題色系 */
     --bg-main: #0b1329;
-    --bg-sidebar: #111c38;
     --bg-card: #162447;
-    --bg-header: #0d1730;
     --accent-blue: #38bdf8;
     --accent-blue-bright: #60a5fa;
     --accent-hover: rgba(56, 189, 248, 0.15);
@@ -14,7 +12,9 @@
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --accent-gold: #facc15;
-    --sidebar-width: 280px;
+    --bg-header: #0d1730;
+    --bg-sidebar: #111c38;
+    --sidebar-width: 200px;
     --sidebar-collapsed-width: 80px;
     --header-height: 70px;
 }
@@ -46,7 +46,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
+    padding: 0 0.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
@@ -415,7 +415,7 @@ body {
 .portal-footer {
     background-color: var(--bg-header);
     border-top: 1px solid var(--border-color);
-    padding: 2rem;
+    padding: 1rem;
     margin-top: auto;
 }
 
@@ -500,7 +500,7 @@ body {
 @media (max-width: 991.98px) {
     .portal-sidebar {
         transform: translateX(-100%);
-        width: 260px !important;
+        width: 200px !important;
     }
 
     .portal-sidebar.mobile-open {
