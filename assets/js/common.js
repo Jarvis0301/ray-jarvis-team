@@ -37,8 +37,7 @@
                 // 全域 UI 工具與事件綁定
                 if (window.jQuery) {
                     $(document).ready(function() {
-                        // 初始化
-                        init();
+                        
                     });
                 }
 
@@ -55,6 +54,12 @@
         initInternalApp();
     });
 })();
+
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
+    // 初始化
+    init();
+});
 
 // 初始化
 function init() {

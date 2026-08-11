@@ -33,15 +33,14 @@ window.addEventListener('AppReady', function() {
     versionSwitch();
     
     // ✨【關鍵修改】優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
-    const currentHashPage = window.location.hash.replace('#', '').trim();
     const savedLastPage = sessionStorage.getItem('ray_team_last_page');
-    const initialPage = (currentHashPage || savedLastPage || 'home') + '.html';
+    const initialPage = (savedLastPage || 'home') + '.html';
     loadPage(initialPage);
 });
 
 // ✨【新增】監聽瀏覽器上一頁/下一頁（popstate/hashchange）按鈕
 window.addEventListener('hashchange', function() {
-    const hashPage = window.location.hash.replace('#', '').trim() + '.html';
+    const hashPage = sessionStorage.getItem('ray_team_last_page') + '.html';
     if (hashPage) {
         // 避免重複重新載入相同頁面
         const currentIframeSrc = $('#portal-subpage-frame').attr('src');
@@ -274,8 +273,6 @@ function loadPage(pageUrl) {
     
     let page = pageUrl.split('.')[0];
     if (page) {
-        // ✨【新增】更新網址列 Hash，讓重新整理或複製網址時能記錄當前頁面
-        window.location.hash = page;
         // ✨【新增】同步備份至 sessionStorage 雙重防護
         sessionStorage.setItem('ray_team_last_page', page);
     }

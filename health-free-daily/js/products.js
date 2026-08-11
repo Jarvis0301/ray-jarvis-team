@@ -615,6 +615,8 @@ function renderProducts() {
             subCode = item.product_code.replace(/^(TW|MY)/, '').slice(0, 4);
         }
 
+        console.log(item);
+
         let seriesName = '未知系列';
         let seriesIcon = 'fa-solid fa-tag';
         let seriesColor = '#52b788';
