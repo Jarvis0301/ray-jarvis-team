@@ -369,14 +369,17 @@ function parseProductsTable(rows) {
 function buildSeriesTree(mainRows, subRows) {
     const seriesList = [];
 
+    console.log(mainRows);
+    console.log(subRows);
+
     // 1. 建立主系列
     mainRows.forEach(r => {
-        const code = getVal(r, ['category_code', '主系列代碼', '編號', 0]);
-        const name = getVal(r, ['name_zh', '中文名稱', '中文', 1]);
-        const nameEn = getVal(r, ['name_en', '英文名稱', '英文', 2]);
-        const icon = getVal(r, ['icon_class', 'Font Awesome Icon', '圖示', 3], 'fa-solid fa-tag');
-        const color = getVal(r, ['text_color', '文字與外框顏色', '顏色', 4], '#52b788');
-        const bg = getVal(r, ['bg_color', '標籤背景顏色', '背景色', 5], 'rgba(10, 25, 19, 0.88)');
+        const code = getVal(r, ['category_code', '主系列代碼', '編號', 1]);
+        const name = getVal(r, ['name_zh', '中文名稱', '中文', 2]);
+        const nameEn = getVal(r, ['name_en', '英文名稱', '英文', 3]);
+        const icon = getVal(r, ['icon_class', 'Font Awesome Icon', '圖示', 4], 'fa-solid fa-tag');
+        const color = getVal(r, ['text_color', '文字與外框顏色', '顏色', 5], '#52b788');
+        const bg = getVal(r, ['bg_color', '標籤背景顏色', '背景色', 6], 'rgba(10, 25, 19, 0.88)');
 
         if (code) {
             seriesList.push({ code, name, nameEn, icon, color, bg, subs: [] });
@@ -385,13 +388,13 @@ function buildSeriesTree(mainRows, subRows) {
 
     // 2. 歸屬次系列至主系列下方
     subRows.forEach(r => {
-        const subCode = getVal(r, ['subcategory_code', '次系列代碼', '編號', 0]);
-        const parentCode = getVal(r, ['category_code', 'category_id', '主系列代碼', 1], subCode.slice(0, 2));
-        const name = getVal(r, ['name_zh', '中文名稱', '中文', 2]);
-        const nameEn = getVal(r, ['name_en', '英文名稱', '英文', 3]);
-        const icon = getVal(r, ['icon_class', 'Font Awesome Icon', '圖示', 4], 'fa-solid fa-tag');
-        const color = getVal(r, ['text_color', '文字與外框顏色', '顏色', 5], '#52b788');
-        const bg = getVal(r, ['bg_color', '標籤背景顏色', '背景色', 6], 'rgba(10, 25, 19, 0.88)');
+        const subCode = getVal(r, ['subcategory_code', '次系列代碼', '編號', 1]);
+        const parentCode = getVal(r, ['category_code', 'category_id', '主系列代碼', 2], subCode.slice(0, 2));
+        const name = getVal(r, ['name_zh', '中文名稱', '中文', 3]);
+        const nameEn = getVal(r, ['name_en', '英文名稱', '英文', 4]);
+        const icon = getVal(r, ['icon_class', 'Font Awesome Icon', '圖示', 5], 'fa-solid fa-tag');
+        const color = getVal(r, ['text_color', '文字與外框顏色', '顏色', 6], '#52b788');
+        const bg = getVal(r, ['bg_color', '標籤背景顏色', '背景色', 7], 'rgba(10, 25, 19, 0.88)');
 
         if (subCode) {
             let parentSeries = seriesList.find(s => s.code === parentCode);
@@ -615,7 +618,8 @@ function renderProducts() {
             subCode = item.product_code.replace(/^(TW|MY)/, '').slice(0, 4);
         }
 
-        console.log(item);
+        console.log(appState.seriesList);
+        console.log(subCode);
 
         let seriesName = '未知系列';
         let seriesIcon = 'fa-solid fa-tag';
@@ -629,6 +633,8 @@ function renderProducts() {
         // 1. 動態匹配次系列 Icon 與色彩
         appState.seriesList.forEach(series => {
             const subSeries = series.subs ? series.subs.find(s => s.code === subCode) : null;
+            console.log(series.subs);
+            console.log(subSeries);
             if (subSeries) {
                 seriesName = getLanguageName(subSeries, isMY);
                 seriesIcon = subSeries.icon || 'fa-solid fa-tag';

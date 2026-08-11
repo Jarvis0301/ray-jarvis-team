@@ -30,10 +30,7 @@ class Utils {
                 console.warn("[Utils] 無法直接讀取父頁面 DOM，改用 URL 邏輯判斷。");
             }
         }
-
-        console.log(isInIframe);
-        console.log(selectedTheme);
-
+        
         // 2. 如果不是 iframe，或是 iframe 沒抓到父頁面主題，則執行網址判斷邏輯
         if (!isInIframe || !selectedTheme) {
             const pathname = window.location.pathname;

@@ -2,6 +2,8 @@
 const SPREADSHEET_ID = '1nY-6mo9trXLMwkRGOqdvBU_va75DmsxIONIraMtTv2k';
 const SHEET_NAME = '公開版';
 
+const SESSION_NAME = 'ray_team_last_page_public';
+
 // 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
 const fallbackMenuData = [
     { ID: 'm1', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'index.html', FontAwesomeIcon: 'fas fa-house', 是否有效: 'Y' },
@@ -33,14 +35,14 @@ window.addEventListener('AppReady', function() {
     versionSwitch();
     
     // ✨【關鍵修改】優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
-    const savedLastPage = sessionStorage.getItem('ray_team_last_page');
+    const savedLastPage = sessionStorage.getItem(SESSION_NAME);
     const initialPage = (savedLastPage || 'home') + '.html';
     loadPage(initialPage);
 });
 
 // ✨【新增】監聽瀏覽器上一頁/下一頁（popstate/hashchange）按鈕
 window.addEventListener('hashchange', function() {
-    const hashPage = sessionStorage.getItem('ray_team_last_page') + '.html';
+    const hashPage = sessionStorage.getItem(SESSION_NAME) + '.html';
     if (hashPage) {
         // 避免重複重新載入相同頁面
         const currentIframeSrc = $('#portal-subpage-frame').attr('src');
@@ -274,7 +276,7 @@ function loadPage(pageUrl) {
     let page = pageUrl.split('.')[0];
     if (page) {
         // ✨【新增】同步備份至 sessionStorage 雙重防護
-        sessionStorage.setItem('ray_team_last_page', page);
+        sessionStorage.setItem(SESSION_NAME, page);
     }
 
     // 使用 iFrame 載入頁面，徹底達成 JS 作用域完全隔離！
