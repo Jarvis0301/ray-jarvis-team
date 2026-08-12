@@ -1,3 +1,17 @@
+/* TO DO：改成在JS中不要有預設資料，如果連不到試算表就跳出提示（AppDialog.alert）
+
+AppDialog.alert範例：
+「
+    AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
+        title: "未選擇商品",
+        icon: "fa-solid fa-circle-exclamation text-warning"
+    });
+」 */
+
+// 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
+const SPREADSHEET_ID = '1YOUR_GOOGLE_SHEET_ID_HERE'; 
+const SHEET_NAME = 'HealthConcepts';
+
 // 全域變數定義
 let globalConceptsData = [];
 let categoryChartInstance = null;
@@ -96,10 +110,7 @@ function initEvents() {
 
 // 載入 Google 試算表資料 (使用 PapaParse + gviz API)
 function loadSheetData() {
-    // 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
-    const sheetId = '1YOUR_GOOGLE_SHEET_ID_HERE'; 
-    const sheetName = 'HealthConcepts';
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
     Papa.parse(gvizUrl, {
         download: true,

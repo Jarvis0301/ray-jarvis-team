@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>個別產品詳情</title>
+        <title>產品詳細資訊</title>
 
         <script src="../assets/js/auth-guard.js"></script>
         
@@ -17,193 +17,195 @@
 
         <link rel="stylesheet" href="./css/product-detail.css">
     </head>
-    
+
     <body>
 
-        <div class="container">
+        <div class="container py-4">
 
-            <div id="loadingSpinner" class="loading-spinner">
-                <div class="spinner-border text-emerald" role="status" style="width: 3rem; height: 3rem; color: var(---uvaco-secondary);">
+            <div id="loadingSpinner" class="loading-spinner d-flex justify-content-center align-items-center py-5">
+                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
                     <span class="visually-hidden">資料載入中...</span>
                 </div>
             </div>
 
             <div id="productContainer" class="d-none">
-                
-                <div class="content-card p-4 mb-4">
-                    <div class="row g-4 align-items-center">
-                        <div class="col-lg-5">
-                            <div class="product-image-box">
-                                <img id="productImage" src="" alt="官方產品照片" class="img-fluid">
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-7">
-                            <div class="mb-2">
-                                <span id="productTypeBadge"></span>
-                                <span id="certBadge"></span>
-                            </div>
-                            <h1 id="productName" class="fw-bold mb-2" style="color: var(---uvaco-secondary);"></h1>
-                            <h5 id="productSubName" class="text-secondary mb-3"></h5>
-                            
-                            <p id="productBrief" class="lead fs-6 mb-4 text-light-50"></p>
-                            
-                            <div class="p-3 rounded-3 mb-4 border" style="background-color: var(--card-inner-bg); border-color: rgba(52, 211, 153, 0.15) !important;">
-                                <div class="d-flex align-items-baseline gap-3">
-                                    <span class="price-tag" id="productPrice"></span>
-                                    <span class="sv-tag">
-                                        <i class="fa-solid fa-star"></i> 全球 SV：<span id="productSV"></span>
-                                    </span>
-                                </div>
-                                <div class="small mt-2">
-                                    <i class="fa-solid fa-box"></i> 包裝規格：<span id="productSpec" class="text-light"></span>
-                                </div>
-                            </div>
 
-                            <div class="d-flex flex-wrap gap-3">
-                                <a id="consultBtn" href="#" target="_blank" class="btn btn-primary">
-                                    <i class="fa-solid fa-comments"></i> 預約專屬諮詢
-                                </a>
-                                <a id="officialBtn" href="#" target="_blank" class="btn btn-outline-primary">
-                                    <i class="fa-solid fa-up-right-from-square"></i> 官方網站介紹
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ad-showcase-card p-4 mb-4">
-                    <div class="row g-4 align-items-center">
-                        <div class="col-lg-5">
-                            <div class="vertical-poster-wrapper">
-                                <img id="adPosterImage" src="" alt="直式廣告海報" class="vertical-poster-img">
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-7">
-                            <div class="ps-lg-3">
-                                <h4 class="fw-bold mb-3" style="color: var(---uvaco-secondary);">
-                                    <i class="fa-solid fa-bullhorn"></i> 生活情境與養護觀念
-                                </h4>
-                                <div class="mb-3">
-                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 三餐外食族</span>
-                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 工作快節奏</span>
-                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 作息不規律</span>
-                                    <span class="target-group-badge"><i class="fa-solid fa-check"></i> 日常基礎養護</span>
-                                </div>
-                                <div id="adCopyContent" class="lh-lg fs-6 text-light pe-lg-2">
-                                    </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-lg-7">
-                        <div class="content-card p-4 h-100">
-                            <h4 class="fw-bold mb-3" style="color: var(---uvaco-secondary);">
-                                <i class="fa-solid fa-vial"></i> 官方成分與特色說明
-                            </h4>
-                            <hr style="border-color: rgba(52, 211, 153, 0.25);" class="mb-4">
-                            <div id="officialIngredients" class="lh-lg text-light">
-                                </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-5">
-                        <div class="content-card p-4 h-100">
-                            <h4 class="fw-bold mb-3" style="color: var(---uvaco-secondary);">
-                                <i class="fa-solid fa-shield-halved"></i> 產品規格與認證
-                            </h4>
-                            <hr style="border-color: rgba(52, 211, 153, 0.25);" class="mb-4">
-                            
-                            <div class="accordion accordion-custom" id="specAccordion">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                            <i class="fa-solid fa-list-check"></i> 基本規格數據
-                                        </button>
-                                    </h2>
-                                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#specAccordion">
-                                        <div class="accordion-body small">
-                                            <ul class="list-unstyled mb-0">
-                                                <li class="mb-2"><strong>產品編號：</strong><span id="productID" class="text-light"></span></li>
-                                                <li class="mb-2"><strong>上市日期：</strong><span id="launchDate" class="text-light"></span></li>
-                                                <li class="mb-2"><strong>更新日期：</strong><span id="updateDate" class="text-light"></span></li>
-                                                <li><strong>認證標章：</strong><span id="certInfo" class="text-light"></span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                            <i class="fa-solid fa-circle-info"></i> 食用與保存說明
-                                        </button>
-                                    </h2>
-                                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#specAccordion">
-                                        <div class="accordion-body small">
-                                            請置於陰涼乾燥處，避免陽光直射。開封後請儘速食用完畢。如有特殊體質者，請諮詢專業醫師或營養師建議。
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+                <div class="mb-3 d-flex justify-content-start align-items-center d-none">
+                    <button onclick="closeOrReturn()" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold">
+                        <i class="fa-solid fa-arrow-left"></i> 返回產品列表
+                    </button>
                 </div>
 
                 <div class="content-card p-4 mb-4">
-                    <h4 class="fw-bold mb-3" style="color: var(---uvaco-secondary);">
-                        <i class="fa-solid fa-comments"></i> 使用者體驗與口碑分享
-                    </h4>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="p-3 rounded-3 border" style="background-color: var(--card-inner-bg); border-color: rgba(52, 211, 153, 0.15) !important;">
-                                <div class="text-warning mb-2">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                </div>
-                                <p class="mb-1 text-light small">
-                                    「平時工作節奏緊湊經常外食，養成每日隨身補充的習慣後，整體生活步調維持得非常順暢舒適！」
-                                </p>
-                                <small>── 外食上班族 K 小姐體驗分享</small>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-lg-5 text-center">
+                            <div class="product-img-box position-relative bg-dark rounded-3">
+                                <img id="productImg" src="" class="img-fluid rounded shadow product-detail-img" alt="" loading="lazy" onerror="window.imgError ? imgError(this, 'fa-solid fa-box-open', '350px') : (this.style.opacity='0')">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="p-3 rounded-3 border" style="background-color: var(--card-inner-bg); border-color: rgba(52, 211, 153, 0.15) !important;">
-                                <div class="text-warning mb-2">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
+
+                        <div class="col-lg-7">
+                            <div class="product-header-info">
+                                <div id="productTypeBadge" class="mb-2 d-flex flex-wrap gap-1 align-items-center"></div>
+
+                                <h1 class="h3 fw-bold text-light mb-2">
+                                    <span id="productTitle"></span>
+                                    <small id="productShortName" class="text-muted fs-6 ms-2"></small>
+                                </h1>
+
+                                <div id="phraseTagsContainer" class="mb-3 d-flex flex-wrap gap-1 align-items-center d-none"></div>
+
+                                <div class="specs-list mb-4">
+                                    <p class="mb-2 text-muted">
+                                        <i class="fa-solid fa-tags text-warning"></i> 建議售價：<span id="productPrice" class="text-warning fw-bold fs-5"></span>
+                                    </p>
+                                    <p class="mb-2 text-muted">
+                                        <i class="fa-solid fa-star text-info"></i> 全球積分：<span id="productSV" class="text-info fw-bold"></span>
+                                    </p>
+                                    <p class="mb-2 text-muted">
+                                        <i class="fa-solid fa-box text-success"></i> 包裝規格：<span id="productSpec" class="text-light"></span>
+                                    </p>
+                                    <p class="mb-2 text-muted">
+                                        <i class="fa-solid fa-barcode text-secondary"></i> 產品編號：<span id="productID" class="text-light"></span>
+                                    </p>
+                                    <p class="mb-2 text-muted">
+                                        <i class="fa-solid fa-calendar-day text-primary"></i> 上市日期：<span id="launchDate" class="text-light"></span>
+                                    </p>
+                                    <p class="mb-0 text-muted">
+                                        <i class="fa-solid fa-certificate text-danger"></i> 品質認證：<span id="certInfo" class="text-light"></span>
+                                    </p>
                                 </div>
-                                <p class="mb-1 text-light small">
-                                    「成分標示非常透明讓人放心，口感溫和，已經成為辦公桌上的日常保養好幫手。」
-                                </p>
-                                <small>── 科技業工程師 L 先生體驗分享</small>
+
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a id="officialBtn" href="#" target="_blank" class="btn btn-outline-primary fw-bold px-4 rounded-pill">
+                                        <i class="fa-solid fa-globe"></i> 前往官方網站
+                                    </a>
+                                    <a id="consultBtn" href="https://line.me" target="_blank" class="btn btn-primary fw-bold px-4 rounded-pill">
+                                        <i class="fa-solid fa-comments"></i> 專人諮詢
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="text-center p-4 content-card">
-                    <h5 class="fw-bold mb-2" style="color: var(---uvaco-secondary);">
-                        <i class="fa-solid fa-seedling"></i> 想了解更多產品搭配與專屬建議？
+                <div class="col-12 mb-4">
+
+                    <div class="content-card p-0 mb-3 overflow-hidden">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-align-left text-primary"></i> 產品介紹
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseDescription" class="collapse show">
+                            <div class="p-4 text-light-subtle lh-lg" id="detailedDescription"></div>
+                        </div>
+                    </div>
+
+                    <div class="content-card p-0 mb-3 overflow-hidden">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapseFeatures" aria-expanded="true" aria-controls="collapseFeatures">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-list-check text-success"></i> 特色與主要功能
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseFeatures" class="collapse show">
+                            <div class="p-4 text-light-subtle lh-lg" id="featuresFunctions"></div>
+                        </div>
+                    </div>
+
+                    <div class="content-card p-0 mb-3 overflow-hidden">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="true" aria-controls="collapseIngredients">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-flask text-warning"></i> 主要成分
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseIngredients" class="collapse show">
+                            <div class="p-4 text-light-subtle lh-lg" id="ingredients"></div>
+                        </div>
+                    </div>
+
+                    <div class="content-card p-0 mb-3 overflow-hidden">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapseUsage" aria-expanded="true" aria-controls="collapseUsage">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-heart text-danger"></i> 使用情境
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseUsage" class="collapse show">
+                            <div class="p-4 text-light-subtle lh-lg" id="usageScenarios"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-12 mb-4">
+
+                    <div id="copywritingContainer" class="content-card p-0 mb-3 overflow-hidden d-none">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#collapseCopywriting" aria-expanded="false" aria-controls="collapseCopywriting">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-bullhorn text-warning"></i> 社群推廣與行銷文案
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseCopywriting" class="collapse">
+                            <div class="p-4">
+                                <ul class="nav nav-pills mb-3" id="copywritingTabs" role="tablist"></ul>
+                                <div class="tab-content" id="copywritingTabContent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="testimonialContainer" class="content-card p-0 mb-3 overflow-hidden d-none">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#collapseTestimonial" aria-expanded="false" aria-controls="collapseTestimonial">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-comments text-info"></i> 使用者真實體驗與見證
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseTestimonial" class="collapse">
+                            <div class="p-4">
+                                <div id="testimonialList" class="row g-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="faqContainer" class="content-card p-0 mb-3 overflow-hidden d-none">
+                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#collapseFAQ" aria-expanded="false" aria-controls="collapseFAQ">
+                            <h5 class="fw-bold text-light mb-0">
+                                <i class="fa-solid fa-circle-question text-info"></i> 常見問題 (FAQ)
+                            </h5>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                        <div id="collapseFAQ" class="collapse">
+                            <div class="p-4">
+                                <div class="accordion accordion-custom" id="faqAccordion"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="content-card p-4 text-center rounded-3">
+                    <h5 class="fw-bold mb-2 text-success">
+                        <i class="fa-solid fa-seedling me-1"></i> 想了解更多產品搭配與專屬建議？
                     </h5>
-                    <p class="small mb-3">歡迎聯繫我們的專業顧問團隊，為您提供一對一健康營養諮詢。</p>
-                    <a id="consultBtnBottom" href="#" target="_blank" class="btn btn-primary">
-                        <i class="fa-solid fa-comments"></i> 立即預約一對一諮詢
-                    </a>
+                    <p class="small text-muted mb-3">歡迎聯繫我們的專業顧問團隊，為您提供一對一健康營養諮詢。</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button onclick="closeOrReturn()" class="btn btn-outline-secondary fw-bold px-4 rounded-pill">
+                            <i class="fa-solid fa-arrow-left"></i> 返回產品列表
+                        </button>
+                        <a id="consultBtnBottom" href="https://line.me" target="_blank" class="btn btn-primary fw-bold px-4 rounded-pill">
+                            <i class="fa-solid fa-comments"></i> 立即預約一對一諮詢
+                        </a>
+                    </div>
                 </div>
 
             </div>
+
         </div>
-        
+
     </body>
 </html>

@@ -11,133 +11,21 @@ function getVal(row, colIndex, defaultVal = '') {
     return defaultVal;
 }
 
-// 預設產品型態庫 (備援資料)
-const defaultTypeIcons = [
-    { id: "0", code: "ALL", name: "全部", nameEn: "All", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "1", code: "TYPE001", name: "益生菌", nameEn: "Probiotics", icon: "fa-solid fa-bacteria", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "2", code: "TYPE002", name: "膠囊", nameEn: "Capsules", icon: "fa-solid fa-capsules", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "3", code: "TYPE003", name: "錠劑", nameEn: "Tablets", icon: "fa-solid fa-tablets", color: "#a7f3d0", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "4", code: "TYPE004", name: "沖泡飲", nameEn: "Powder Drinks", icon: "fa-solid fa-mug-saucer", color: "#fbbf24", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "5", code: "TYPE005", name: "液態飲", nameEn: "Liquid Drinks", icon: "fa-solid fa-droplet", color: "#60a5fa", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "6", code: "TYPE006", name: "外用保養", nameEn: "Skincare", icon: "fa-solid fa-leaf", color: "#f472b6", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "7", code: "TYPE007", name: "清潔", nameEn: "Cleansers", icon: "fa-solid fa-pump-soap", color: "#22d3ee", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "8", code: "TYPE008", name: "口腔照護", nameEn: "Oral Care", icon: "fa-solid fa-tooth", color: "#818cf8", bg: "rgba(10, 25, 19, 0.88)" },
-    { id: "9", code: "TYPE009", name: "特殊", nameEn: "Specialty", icon: "fa-solid fa-boxes-packing", color: "#f87171", bg: "rgba(10, 25, 19, 0.88)" }
-];
-
-// 預設產品系列庫 (備援資料)
-const defaultSeriesData = [
-    {
-        id: "1", code: "01", name: "保健食品", nameEn: "Health Supplements", subs: [
-            { id: "101", code: "0101", name: "全能防護", nameEn: "Overall Defense", icon: "fa-solid fa-shield-halved", color: "#f59e0b", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "102", code: "0102", name: "關鍵調理", nameEn: "Core Care", icon: "fa-solid fa-dna", color: "#f43f5e", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "103", code: "0103", name: "順暢保衛", nameEn: "Gut Balance", icon: "fa-solid fa-arrows-rotate", color: "#10b981", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "104", code: "0104", name: "強健靈活", nameEn: "Joint & Bone", icon: "fa-solid fa-bone", color: "#06b6d4", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "105", code: "0105", name: "活力丰采", nameEn: "Vitality Boost", icon: "fa-solid fa-sun", color: "#eab308", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "106", code: "0106", name: "晶亮守護", nameEn: "Vision Care", icon: "fa-solid fa-eye", color: "#38bdf8", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "107", code: "0107", name: "快樂賦活", nameEn: "Mind & Relax", icon: "fa-solid fa-face-smile-beam", color: "#a855f7", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "108", code: "0108", name: "循環保健", nameEn: "Circulation", icon: "fa-solid fa-heart-pulse", color: "#ef4444", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "109", code: "0109", name: "機能食品", nameEn: "Functional Foods", icon: "fa-solid fa-wheat-awn", color: "#84cc16", bg: "rgba(10, 25, 19, 0.88)" }
-        ]
-    },
-    {
-        id: "2", code: "02", name: "寵愛毛孩", nameEn: "Pet Care", subs: [
-            { id: "201", code: "0201", name: "寵物保健", nameEn: "Pet Health", icon: "fa-solid fa-paw", color: "#fb923c", bg: "rgba(10, 25, 19, 0.88)" }
-        ]
-    },
-    {
-        id: "3", code: "03", name: "健康生活", nameEn: "Wellness Lifestyle", subs: [
-            { id: "301", code: "0301", name: "臉部護理", nameEn: "Facial Care", icon: "fa-solid fa-spray-can-sparkles", color: "#ec4899", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "302", code: "0302", name: "身體護理", nameEn: "Body Care", icon: "fa-solid fa-hand-holding-heart", color: "#34d399", bg: "rgba(10, 25, 19, 0.88)" },
-            { id: "303", code: "0303", name: "口腔護理", nameEn: "Oral Care", icon: "fa-solid fa-tooth", color: "#60a5fa", bg: "rgba(10, 25, 19, 0.88)" }
-        ]
-    },
-    {
-        id: "4", code: "04", name: "個人保養", nameEn: "Personal Care", subs: [
-            { id: "401", code: "0401", name: "臉部保養", nameEn: "Skincare", icon: "fa-solid fa-spa", color: "#c084fc", bg: "rgba(10, 25, 19, 0.88)" }
-        ]
-    }
-];
-
-// 預設靜態資料庫 (備援資料)
-const defaultProducts = {
-    TW: [
-        {
-            id: "1", region_code: "TW", base_code: "80050", product_code: "80050",
-            name: "葡眾蟬花護手霜", short_name: "護手霜", short_summary: "改善手部肌膚乾燥、修護細紋、增加肌膚彈性。",
-            type_name: "外用保養", subcategory_code: "0302", package_spec: "30g x 3 支／盒",
-            price: "840", currency: "TWD", sv_point: "24",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/80050_護手霜_20250825_1.png"
-        },
-        {
-            id: "2", region_code: "TW", base_code: "80070", product_code: "80070",
-            name: "葡眾淨膚皂", short_name: "淨膚皂", short_summary: "深層清潔並滋養肌膚、適合敏感及乾性肌膚使用。",
-            type_name: "清潔", subcategory_code: "0302", package_spec: "95g x 3 盒／組",
-            price: "870", currency: "TWD", sv_point: "24",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/80070_淨膚皂_20250825_1.png"
-        },
-        {
-            id: "3", region_code: "TW", base_code: "0101001", product_code: "TW0101001",
-            name: "995生技營養品", short_name: "995", short_summary: "調節免疫力、活化細胞、增強體力、有助於營養補給及健康維持。",
-            type_name: "液態飲", subcategory_code: "0101", package_spec: "180ml x 24 瓶／箱",
-            price: "5980", currency: "TWD", sv_point: "164",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0101001_995_20260205_1.png"
-        },
-        {
-            id: "4", region_code: "TW", base_code: "0101002", product_code: "TW0101002",
-            name: "永生福朗膠囊", short_name: "永生福朗", short_summary: "調節免疫力、有助於抗氧化、改善骨質疏鬆、安定神經。",
-            type_name: "膠囊", subcategory_code: "0101", package_spec: "120 粒／瓶",
-            price: "1770", currency: "TWD", sv_point: "48",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0101002_永生福朗_20251016_1.png"
-        },
-        {
-            id: "5", region_code: "TW", base_code: "0101003", product_code: "TW0101003",
-            name: "康爾喜乳酸菌顆粒", short_name: "康爾喜", short_summary: "調節生理機能、改善體質、減輕過敏現象、健胃整腸。",
-            type_name: "益生菌", subcategory_code: "0101", package_spec: "90 條／盒",
-            price: "1890", currency: "TWD", sv_point: "52",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0101003_康爾喜_20251016_1.png"
-        },
-        {
-            id: "6", region_code: "TW", base_code: "0101004", product_code: "TW0101004",
-            name: "葡眾360計劃", short_name: "360計劃", short_summary: "提供全方位保健計劃、強化免疫力、具備清除與修補功能。",
-            type_name: "特殊", subcategory_code: "0101", package_spec: "30 包／盒",
-            price: "11088", currency: "TWD", sv_point: "320",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/TW0101004_360計劃_20260504_1.png"
-        }
-    ],
-    MY: [
-        {
-            id: "101", region_code: "MY", base_code: "0102001", product_code: "MY0102001",
-            name: "Liprofac", short_name: "Liprofac", short_summary: "Antrodia cinnamomea mycelium powder, Phellinus linteus mycelium powder.",
-            type_name: "膠囊", subcategory_code: "0102", package_spec: "120 caps / btl",
-            price: "416.00", currency: "MYR", sv_point: "83",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/MY0102001_Liprofac_20260521_1.png"
-        },
-        {
-            id: "102", region_code: "MY", base_code: "0105001", product_code: "MY0105001",
-            name: "FemiRely", short_name: "FemiRely", short_summary: "Support women's physiological health, including dehulled adlay, black sugar.",
-            type_name: "沖泡飲", subcategory_code: "0105", package_spec: "30 sachets/box",
-            price: "400.00", currency: "MYR", sv_point: "82",
-            primary_image_url: "https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/images/product/imagery/MY0105001_FemiRely_20260505_1.png"
-        }
-    ]
-};
-
 // ==========================================
-// 2. 系統狀態管理
+// 2. 系統狀態管理 (不使用預設靜態資料庫)
 // ==========================================
 let appState = {
     country: 'TW',
     myRegion: 'WEST', // 'WEST' | 'EAST'
     displayCurrency: 'TWD', // 'TWD' | 'MYR'
-    exchangeRate: 8.0, // 預設新台幣:馬幣 = 8:1 (1 MYR = 8 TWD)
+    exchangeRate: 8.0, // 預設新台幣:馬幣 = 8:1
     mainSeries: 'ALL',
     subSeries: 'ALL',
     productType: 'ALL',
     searchKeyword: '',
-    products: defaultProducts,
-    seriesList: defaultSeriesData,
-    typeList: defaultTypeIcons
+    products: { TW: [], MY: [] },
+    seriesList: [],
+    typeList: []
 };
 
 let cartState = {}; // { productId: qty }
@@ -146,21 +34,19 @@ let dataTableInstance = null;
 let clearModalInstance = null;
 
 // ==========================================
-// 圖表全域變數與切換狀態 (支援圖表 1、2、4、5 多幣別切換)
+// 圖表全域變數與切換狀態
 // ==========================================
-let chart1Metric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
-let chartBarMetric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
-let chart4Metric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
-let chart5Metric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
+let chart1Metric = 'TWD';
+let chartBarMetric = 'TWD';
+let chart4Metric = 'TWD';
+let chart5Metric = 'TWD';
 
-// 5 大主圖表實例
 let chartMainCategoryPieInstance = null;
 let chartSeriesCombinedBarInstance = null;
 let chartTypeQtyInstance = null;
 let chartTopItemsInstance = null;
 let chartTypeSvRadarInstance = null;
 
-// Modal 內子系列環形圖實例字典 (key: mainCode)
 let chartSubInstances = {};
 
 // ==========================================
@@ -177,15 +63,22 @@ async function initApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    updateSeriesDropdowns();
-    renderTypeFilterButtons();
     bindEvents();
 
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetsData();
     } else {
         const syncElem = document.getElementById('syncStatus');
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-database"></i> 使用備援資料庫';
+        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 未設定試算表 ID';
+        
+        if (typeof AppDialog !== 'undefined') {
+            AppDialog.alert("未設定 Google 試算表 ID，無法讀取產品資料！", {
+                title: "資料讀取失敗",
+                icon: "fa-solid fa-triangle-exclamation text-danger"
+            });
+        } else {
+            alert("未設定 Google 試算表 ID，無法讀取產品資料！");
+        }
     }
 
     renderProducts();
@@ -193,7 +86,7 @@ async function initApp() {
 }
 
 // ==========================================
-// 4. 解析 Google Sheets 數據
+// 4. 解析 Google Sheets 數據 (無連線備援資料，連線失敗時觸發 AppDialog.alert)
 // ==========================================
 async function fetchGoogleSheetsData() {
     try {
@@ -203,6 +96,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
             const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP 錯誤狀態: ${res.status}`);
             const text = await res.text();
             
             const parsed = Papa.parse(text, {
@@ -220,10 +114,13 @@ async function fetchGoogleSheetsData() {
             fetchSheet('產品型態表')
         ]);
 
+        let hasData = false;
+
         if (productsData && productsData.length > 0) {
             const parsedAll = parseProductsTable(productsData);
             appState.products.TW = parsedAll.filter(p => p.region_code === 'TW');
             appState.products.MY = parsedAll.filter(p => p.region_code === 'MY');
+            if (parsedAll.length > 0) hasData = true;
         }
 
         if (mainCategoriesData && mainCategoriesData.length > 0) {
@@ -249,11 +146,24 @@ async function fetchGoogleSheetsData() {
             renderTypeFilterButtons();
         }
 
+        if (!hasData) {
+            throw new Error("Google 試算表中未找到任何有效的產品資料。");
+        }
+
         if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-circle-check"></i> 雲端資料同步完成';
     } catch (err) {
-        console.warn("無法動態讀取 Google 試算表，切換至備援資料:", err);
+        console.error("無法連線至 Google 試算表或讀取失敗:", err);
         const syncElem = document.getElementById('syncStatus');
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 雲端同步失敗，切換至備援庫';
+        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 雲端同步失敗';
+
+        if (typeof AppDialog !== 'undefined') {
+            AppDialog.alert("無法連線至雲端試算表或讀取資料，請檢查網路連線或 Google 試算表設定！", {
+                title: "資料同步失敗",
+                icon: "fa-solid fa-circle-exclamation text-danger"
+            });
+        } else {
+            alert("無法連線至雲端試算表或讀取資料，請檢查網路連線或 Google 試算表設定！");
+        }
     }
 }
 
@@ -325,7 +235,7 @@ function buildSeriesTree(mainRows, subRows) {
         }
     });
 
-    return seriesList.length > 0 ? seriesList : defaultSeriesData;
+    return seriesList;
 }
 
 function getLanguageName(item, isMY) {
@@ -441,7 +351,7 @@ function updateSubSeriesDropdown(mainCode) {
 function renderTypeFilterButtons() {
     let html = '';
 
-    appState.typeList.forEach((item, index) => {
+    appState.typeList.forEach((item) => {
         const val = (item.name === '全部' ? 'ALL' : item.name);
         const isActive = appState.productType === val ? 'active' : '';
 
@@ -462,13 +372,11 @@ function renderTypeFilterButtons() {
 // 6. UI 事件綁定
 // ==========================================
 function bindEvents() {
-    // 切換地區
     $("#countrySelect").on("change", function () {
         appState.country = $(this).val();
         appState.mainSeries = 'ALL';
         appState.subSeries = 'ALL';
 
-        // 自動對應地區預設結算幣別與選單
         if (appState.country === 'MY') {
             appState.displayCurrency = 'MYR';
             $("#displayCurrencySelect").val('MYR');
@@ -484,7 +392,6 @@ function bindEvents() {
         updateCartSummary();
     });
 
-    // 結算幣別切換
     $("#displayCurrencySelect").on("change", function () {
         appState.displayCurrency = $(this).val();
         if (appState.displayCurrency === 'MYR' || appState.country === 'MY') {
@@ -495,7 +402,6 @@ function bindEvents() {
         updateCartSummary();
     });
 
-    // 匯率設定輸入
     $("#exchangeRateInput").on("input change", function () {
         let rate = parseFloat($(this).val());
         if (isNaN(rate) || rate <= 0) rate = 8.0;
@@ -503,7 +409,6 @@ function bindEvents() {
         updateCartSummary();
     });
 
-    // 馬來西亞地區切換
     $('input[name="myRegion"]').on("change", function () {
         appState.myRegion = $(this).val();
         updateCartSummary();
@@ -585,11 +490,9 @@ function bindEvents() {
     $("#btn-clear-all").on("click", function () {
         if (Object.keys(cartState).length === 0) return;
 
-        // 直接傳入訊息與點擊「確認」要執行的動作（不必寫 async / await）
         AppDialog.confirm(
             "您確定要清空目前已選擇的所有商品與訂購數量嗎？",
             function () {
-                // 使用者按了確定才會執行這裡
                 cartState = {};
                 renderProducts();
                 updateCartSummary();
@@ -603,13 +506,11 @@ function bindEvents() {
 // 綁定圖表控制與數值顯示開關事件
 // ==========================================
 function bindChartControls() {
-    // 列印數據顯示 / 隱藏按鈕組切換
     $('#btnGroupShowData button').off('click').on('click', function () {
         $('#btnGroupShowData button').removeClass('active');
         $(this).addClass('active');
     });
 
-    // 圖表 1 幣別切換
     $('.chart1-metric-btn').off('click').on('click', function () {
         $('.chart1-metric-btn').removeClass('active');
         $(this).addClass('active');
@@ -617,7 +518,6 @@ function bindChartControls() {
         updateCartSummary();
     });
 
-    // 圖表 2 幣別切換
     $('.chartBar-metric-btn').off('click').on('click', function () {
         $('.chartBar-metric-btn').removeClass('active');
         $(this).addClass('active');
@@ -625,7 +525,6 @@ function bindChartControls() {
         updateCartSummary();
     });
 
-    // 圖表 4 幣別切換
     $('.chart4-metric-btn').off('click').on('click', function () {
         $('.chart4-metric-btn').removeClass('active');
         $(this).addClass('active');
@@ -633,7 +532,6 @@ function bindChartControls() {
         updateCartSummary();
     });
 
-    // 圖表 5 幣別切換
     $('.chart5-metric-btn').off('click').on('click', function () {
         $('.chart5-metric-btn').removeClass('active');
         $(this).addClass('active');
@@ -641,12 +539,10 @@ function bindChartControls() {
         updateCartSummary();
     });
 
-    // 列印戰情圖表觸發
     $('#btnPrintAnalytics').off('click').on('click', function () {
         exportAnalyticsReport();
     });
 
-    // 開啟子系列 Modal
     $('#btnOpenSubSeriesModal').off('click').on('click', function () {
         const modalElem = document.getElementById('subSeriesChartsModal');
         if (modalElem) {
@@ -900,7 +796,7 @@ function updateCartSummary() {
     let subtotalDisplay = 0;
 
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
-    const targetCurr = appState.displayCurrency; // 'TWD' | 'MYR'
+    const targetCurr = appState.displayCurrency;
     const isTargetMYR = targetCurr === 'MYR';
     const currSymbol = isTargetMYR ? 'RM ' : 'NT$ ';
 
@@ -911,7 +807,6 @@ function updateCartSummary() {
 
     const selectedKeys = Object.keys(cartState);
 
-    // 當購物車為空時處理
     if (selectedKeys.length === 0) {
         $container.html(`
             <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
@@ -920,7 +815,6 @@ function updateCartSummary() {
             </div>
         `);
 
-        // 設定免運門檻進度條文字
         if (appState.country === 'MY') {
             $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> RM 800 免運費門檻`);
             $("#shipping-progress-text").text(`0 / 800 RM`);
@@ -931,7 +825,6 @@ function updateCartSummary() {
 
         $("#shipping-progress-bar").css("width", `0%`);
 
-        // 面板與懸浮島 UI 歸零，運費顯示「-」
         $("#total-qty-badge").text(`0 件商品`);
         $("#summary-subtotal").text(`${currSymbol}0`);
         $("#summary-shipping").text("-");
@@ -947,7 +840,6 @@ function updateCartSummary() {
         return;
     }
 
-    // 當購物車有選商品時進行計算
     selectedKeys.forEach(id => {
         const qty = cartState[id];
         const product = findProductById(id);
@@ -1007,7 +899,6 @@ function updateCartSummary() {
         }
     });
 
-    // 運費計算邏輯
     let shippingFeeInDisplay = 0;
     let shippingPercent = 0;
 
@@ -1045,11 +936,9 @@ function updateCartSummary() {
 
     const grandTotal = subtotalDisplay + shippingFeeInDisplay;
 
-    // 預估現金回饋
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
     const estimatedRebateDisplay = isTargetMYR ? (totalSV * rankRatio) / rate : Math.round(totalSV * rankRatio);
 
-    // 更新面板 UI
     $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
     $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
     $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : "免運費");
@@ -1057,12 +946,10 @@ function updateCartSummary() {
     $("#summary-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#summary-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
 
-    // 更新懸浮島 UI
     $("#sticky-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
     $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
 
-    // 刷新圖表
     updateAllChartsData({
         catSvMap,
         catAmountMap,
@@ -1081,7 +968,6 @@ function initAllCharts() {
     const mainCats = getMainCategories();
     const allTypes = getAllTypes();
 
-    // 1. 主系列整體占比圓餅圖
     const ctx1 = document.getElementById('chartMainCategoryPie')?.getContext('2d');
     if (ctx1) {
         chartMainCategoryPieInstance = new Chart(ctx1, {
@@ -1097,7 +983,7 @@ function initAllCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: false, // ✨ 關閉過場動畫，確保點擊時畫布立刻呈現
+                animation: false,
                 plugins: {
                     legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } },
                     tooltip: {
@@ -1117,7 +1003,6 @@ function initAllCharts() {
         });
     }
 
-    // 2. 各系列採購數據條形圖
     const ctx2 = document.getElementById('chartSeriesCombinedBar')?.getContext('2d');
     if (ctx2) {
         chartSeriesCombinedBarInstance = new Chart(ctx2, {
@@ -1135,7 +1020,7 @@ function initAllCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: false, // ✨ 關閉過場動畫
+                animation: false,
                 scales: {
                     y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
                     x: { ticks: { color: '#f8fafc', font: { size: 11 } }, grid: { display: false } }
@@ -1145,7 +1030,6 @@ function initAllCharts() {
         });
     }
 
-    // 3. 全型態訂購數量柱狀圖
     const ctx3 = document.getElementById('chartTypeQty')?.getContext('2d');
     if (ctx3) {
         chartTypeQtyInstance = new Chart(ctx3, {
@@ -1164,7 +1048,7 @@ function initAllCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: false, // ✨ 關閉過場動畫
+                animation: false,
                 scales: {
                     y: { beginAtZero: true, ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
                     x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
@@ -1174,7 +1058,6 @@ function initAllCharts() {
         });
     }
 
-    // 4. 單品採購 Top 5
     const ctx4 = document.getElementById('chartTopItems')?.getContext('2d');
     if (ctx4) {
         chartTopItemsInstance = new Chart(ctx4, {
@@ -1194,7 +1077,7 @@ function initAllCharts() {
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: false, // ✨ 關閉過場動畫
+                animation: false,
                 scales: {
                     x: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
                     y: { ticks: { color: '#f8fafc', font: { size: 10 } }, grid: { display: false } }
@@ -1204,7 +1087,6 @@ function initAllCharts() {
         });
     }
 
-    // 5. 型態數據貢獻雷達圖
     const ctx5 = document.getElementById('chartTypeSvRadar')?.getContext('2d');
     if (ctx5) {
         chartTypeSvRadarInstance = new Chart(ctx5, {
@@ -1223,7 +1105,7 @@ function initAllCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: false, // ✨ 關閉過場動畫
+                animation: false,
                 scales: {
                     r: {
                         angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
@@ -1240,15 +1122,11 @@ function initAllCharts() {
     renderSubSeriesChartCards();
 }
 
-// ==========================================
-// 圖表數據即時動態運算引擎
-// ==========================================
 function updateAllChartsData(data) {
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
     const mainCats = getMainCategories();
     const allTypes = getAllTypes();
 
-    // 1. 動態初始化主系列統計結構
     let mainCatData = {};
     mainCats.forEach(c => {
         mainCatData[c.code] = { TWD: 0, MYR: 0, SV: 0 };
@@ -1274,7 +1152,6 @@ function updateAllChartsData(data) {
             let itemMYR = priceMYR * qty;
             let itemSV = sv * qty;
 
-            // 次系列與主系列代碼匹配
             let subCode = p.subcategory_code || '';
             if (p.product_code === '80050' || p.product_code === '80070') subCode = '0302';
             else if (!subCode && p.product_code && p.product_code.length >= 6) {
@@ -1284,14 +1161,12 @@ function updateAllChartsData(data) {
             let mainCode = subCode ? subCode.slice(0, 2) : (mainCats[0] ? mainCats[0].code : '01');
             if (!mainCatData[mainCode]) mainCode = mainCats[0] ? mainCats[0].code : '01';
 
-            // 累加主系列
             if (mainCatData[mainCode]) {
                 mainCatData[mainCode].TWD += itemTWD;
                 mainCatData[mainCode].MYR += itemMYR;
                 mainCatData[mainCode].SV += itemSV;
             }
 
-            // 累加子系列 (僅記選購項目)
             if (subCode) {
                 const subInfo = getSubSeriesInfo(subCode, appState.country === 'MY');
                 if (!subCatDataMap[subCode]) {
@@ -1307,7 +1182,6 @@ function updateAllChartsData(data) {
                 subCatDataMap[subCode].SV += itemSV;
             }
 
-            // 累加型態數量與圖表 5 數值
             const typeName = p.type_name || '特殊';
             if (typeQtyMap[typeName] !== undefined) {
                 typeQtyMap[typeName] += qty;
@@ -1316,14 +1190,12 @@ function updateAllChartsData(data) {
         }
     });
 
-    // --- 圖表 1：主系列圓餅圖 ---
     if (chartMainCategoryPieInstance) {
         chartMainCategoryPieInstance.data.labels = mainCats.map(c => `${c.code} ${c.name}`);
         chartMainCategoryPieInstance.data.datasets[0].data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chart1Metric] : 0);
         chartMainCategoryPieInstance.update();
     }
 
-    // --- 圖表 2：主系列條形圖 ---
     if (chartSeriesCombinedBarInstance) {
         chartSeriesCombinedBarInstance.data.labels = mainCats.map(c => `${c.code} ${c.name}`);
         chartSeriesCombinedBarInstance.data.datasets[0].label = `採購數值 (${chartBarMetric})`;
@@ -1331,14 +1203,12 @@ function updateAllChartsData(data) {
         chartSeriesCombinedBarInstance.update();
     }
 
-    // --- 圖表 3：全型態數量柱狀圖 ---
     if (chartTypeQtyInstance) {
         chartTypeQtyInstance.data.labels = allTypes;
         chartTypeQtyInstance.data.datasets[0].data = allTypes.map(t => typeQtyMap[t] || 0);
         chartTypeQtyInstance.update();
     }
 
-    // --- ✨ 圖表 4：Top 5 單品排行榜 (支援 TWD / MYR / SV 切換) ---
     if (chartTopItemsInstance) {
         let topList = [];
         Object.keys(cartState).forEach(id => {
@@ -1371,7 +1241,6 @@ function updateAllChartsData(data) {
         chartTopItemsInstance.update();
     }
 
-    // --- ✨ 圖表 5：型態數據貢獻雷達圖 (支援 TWD / MYR / SV 切換) ---
     if (chartTypeSvRadarInstance) {
         chartTypeSvRadarInstance.data.labels = allTypes;
         chartTypeSvRadarInstance.data.datasets[0].label = `貢獻度 (${chart5Metric})`;
@@ -1379,7 +1248,6 @@ function updateAllChartsData(data) {
         chartTypeSvRadarInstance.update();
     }
 
-    // --- Modal 內子系列環形圖 (僅顯示選購項目) ---
     mainCats.forEach(cat => {
         const instance = chartSubInstances[cat.code];
         if (instance) {
@@ -1403,7 +1271,6 @@ function updateAllChartsData(data) {
     });
 }
 
-// 核心轉接器：動態由試算表資料取得主系列與型態清單
 function getMainCategories() {
     const isMY = appState.country === 'MY';
     return (appState.seriesList || []).map(s => ({
@@ -1420,7 +1287,6 @@ function getAllTypes() {
         .map(t => t.name);
 }
 
-// 動態構建 Modal 內的子系列圖表 DOM 卡片
 function renderSubSeriesChartCards() {
     const $container = $('#subSeriesChartsContainer');
     if (!$container.length) return;
@@ -1487,7 +1353,6 @@ function exportOrderToExcel() {
         }
     });
 
-    // 運費與總額
     let shipping = 0;
     if (appState.country === 'MY') {
         let subtotalMYR = isTargetMYR ? subtotal : subtotal / rate;
@@ -1584,7 +1449,6 @@ function exportOrderToPDF() {
     const rebate = isTargetMYR ? (totalSV * rankRatio) / rate : Math.round(totalSV * rankRatio);
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
-    // 呼叫原生列印模組 (order-printer.js)
     if (typeof printOrderReceipt === 'function') {
         printOrderReceipt({
             items: itemsList,
@@ -1610,7 +1474,6 @@ function exportAnalyticsReport() {
 
     $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 報表產生中...');
 
-    // 透過 setTimeout 讓 UI 先更新按鈕為 Loading 狀態
     setTimeout(() => {
         try {
             const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
@@ -1619,7 +1482,6 @@ function exportAnalyticsReport() {
 
             const showDataLabels = $('#btnGroupShowData button.active').data('value') === true;
 
-            // 1. 收集主系列數據
             let mainCatData = {};
             mainCats.forEach(c => { mainCatData[c.code] = { TWD: 0, MYR: 0, SV: 0 }; });
 
@@ -1675,7 +1537,6 @@ function exportAnalyticsReport() {
                 return { name: `${c.code} ${c.name}`, val: Math.round(val), pct: pct };
             });
 
-            // 2. 收集 Top 5 單品數據
             let topList = [];
             Object.keys(cartState).forEach(id => {
                 const qty = cartState[id];
@@ -1696,27 +1557,22 @@ function exportAnalyticsReport() {
             topList.sort((a, b) => b.val - a.val);
             const top5List = topList.slice(0, 5);
 
-            // ✨ 核心修復：直接複製畫面上已渲染好的 sourceChart Canvas，塗上白底並標註數據
             const generatePrintChartImg = (sourceChart, chartType, metricUnit = '', showData = true) => {
                 if (!sourceChart || !sourceChart.canvas) return '';
 
                 const srcCanvas = sourceChart.canvas;
                 if (srcCanvas.width === 0 || srcCanvas.height === 0) return '';
 
-                // 1. 建立離線 Canvas (按 1:1 複製比例)
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = srcCanvas.width;
                 tempCanvas.height = srcCanvas.height;
                 const ctx = tempCanvas.getContext('2d');
 
-                // 2. 滿填白底
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-                // 3. 同步複製畫面上的圖表像素
                 ctx.drawImage(srcCanvas, 0, 0);
 
-                // 4. 若勾選「顯示數值」，直接利用 sourceChart 的渲染座標繪製文字
                 if (showData) {
                     ctx.save();
                     ctx.font = 'bold 12px sans-serif';

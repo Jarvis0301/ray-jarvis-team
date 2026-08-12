@@ -1,3 +1,17 @@
+/* TO DO：改成在JS中不要有預設資料，如果連不到試算表就跳出提示（AppDialog.alert）
+
+AppDialog.alert範例：
+「
+    AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
+        title: "未選擇商品",
+        icon: "fa-solid fa-circle-exclamation text-warning"
+    });
+」 */
+
+// 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
+const SPREADSHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Materials`;
+
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
     // 1. 初始化 DataTable.js (暗黑主題配對)
@@ -47,11 +61,7 @@ window.addEventListener('AppReady', function() {
 
     // 3. PapaParse / gviz 動態數據抓取與欄位解耦架構實作
     function loadGoogleSheetData() {
-        // 示範 GViz CSV 讀取 URL 結構
-        const sheetId = 'YOUR_GOOGLE_SHEET_ID';
-        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Materials`;
-
-        Papa.parse(gvizUrl, {
+        Papa.parse(GVIZ_URL, {
             download: true,
             header: true,
             skipEmptyLines: true,

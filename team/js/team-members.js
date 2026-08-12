@@ -1,6 +1,16 @@
+/* TO DO：改成在JS中不要有預設資料，如果連不到試算表就跳出提示（AppDialog.alert）
+
+AppDialog.alert範例：
+「
+    AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
+        title: "未選擇商品",
+        icon: "fa-solid fa-circle-exclamation text-warning"
+    });
+」 */
+
 // 設定 Google 試算表 CSV 公開發布網址 (gviz/tq?tqx=out:csv)
-// 請務必將此處替換為您的實體 Google 試算表發布連結
-const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vX_EXAMPLE_ID/pub?gid=0&single=true&output=csv';
+const SPREADSHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Materials`;
 
 // 預設備用模擬數據（若 Google 試算表尚未設定或抓取失敗時自動啟動）
 const fallbackMembersData = [

@@ -1,5 +1,5 @@
 // Google 試算表 ID
-const SHEET_ID = '1RCto8TOW2efggT_eUAvb9N-DJT2Z0OlqiEsraVC8QcI';
+const SPREADSHEET_ID = '1RCto8TOW2efggT_eUAvb9N-DJT2Z0OlqiEsraVC8QcI';
 
 // 當前選取區域狀態與快取記憶體
 let currentRegion = '台灣';
@@ -11,28 +11,28 @@ const announcementCache = {
 // 分類色彩配置對照表
 const categoryMap = {
     '重要': { itemClass: 'announcement-important', badgeClass: 'bg-danger' },
-    '活動': { itemClass: 'announcement-activity',    badgeClass: 'bg-primary' },
-    '權益': { itemClass: 'announcement-benefit',   badgeClass: 'bg-info text-dark' },
-    '產品': { itemClass: 'announcement-product',   badgeClass: 'bg-success' },
-    '法務': { itemClass: 'announcement-legal',     badgeClass: 'bg-warning text-dark' },
-    '其他': { itemClass: 'announcement-other',     badgeClass: 'bg-secondary' },
+    '活動': { itemClass: 'announcement-activity', badgeClass: 'bg-primary' },
+    '權益': { itemClass: 'announcement-benefit', badgeClass: 'bg-info text-dark' },
+    '產品': { itemClass: 'announcement-product', badgeClass: 'bg-success' },
+    '法務': { itemClass: 'announcement-legal', badgeClass: 'bg-warning text-dark' },
+    '其他': { itemClass: 'announcement-other', badgeClass: 'bg-secondary' },
     'Important': { itemClass: 'announcement-important', badgeClass: 'bg-danger' },
-    'Activity':  { itemClass: 'announcement-activity',    badgeClass: 'bg-primary' },
-    'Benefit':   { itemClass: 'announcement-benefit',   badgeClass: 'bg-info text-dark' },
-    'Product':   { itemClass: 'announcement-product',   badgeClass: 'bg-success' },
-    'Legal':     { itemClass: 'announcement-legal',     badgeClass: 'bg-warning text-dark' },
-    'Other':     { itemClass: 'announcement-other',     badgeClass: 'bg-secondary' }
+    'Activity': { itemClass: 'announcement-activity', badgeClass: 'bg-primary' },
+    'Benefit': { itemClass: 'announcement-benefit', badgeClass: 'bg-info text-dark' },
+    'Product': { itemClass: 'announcement-product', badgeClass: 'bg-success' },
+    'Legal': { itemClass: 'announcement-legal', badgeClass: 'bg-warning text-dark' },
+    'Other': { itemClass: 'announcement-other', badgeClass: 'bg-secondary' }
 };
 
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
-window.addEventListener('AppReady', function() {
+window.addEventListener('AppReady', function () {
     // 頁面初始化：自動載入預設區域（台灣）資料
     loadRegionData(currentRegion);
 
     // 標籤切換事件監聽
-    $('#region-tabs .nav-link').on('click', function() {
+    $('#region-tabs .nav-link').on('click', function () {
         const selectedRegion = $(this).data('region');
-        
+
         if (selectedRegion === currentRegion) return;
 
         // 更新標籤高亮樣式
@@ -48,7 +48,7 @@ window.addEventListener('AppReady', function() {
     });
 
     // 搜尋框即時輸入監聽 (Live Search)
-    $('#announcement-search').on('input', function() {
+    $('#announcement-search').on('input', function () {
         const keyword = $(this).val().trim().toLowerCase();
         renderFilteredAnnouncements(keyword);
     });
@@ -66,27 +66,31 @@ function loadRegionData(regionName) {
     showLoadingSpinner();
 
     // Google Visualization API Endpoint
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(regionName)}`;
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(regionName)}`;
 
     $.ajax({
         url: gvizUrl,
         dataType: 'text',
-        success: function(response) {
+        success: function (response) {
             try {
                 // 解析 Google gviz 回傳 JSON 格式
-                const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
-                const data = JSON.parse(jsonString);
-                const rows = data.table.rows;
+                const jsonMatch = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (!jsonMatch || !jsonMatch[1]) {
+                    throw new Error('無效的資料格式');
+                }
+
+                const data = JSON.parse(jsonMatch[1]);
+                const rows = data.table ? data.table.rows : [];
 
                 const parsedItems = [];
 
                 if (rows && rows.length > 0) {
-                    rows.forEach(function(row) {
+                    rows.forEach(function (row) {
                         if (!row.c) return;
 
                         const category = row.c[0] && row.c[0].v ? $.trim(row.c[0].v) : '其他';
-                        const title    = row.c[1] && row.c[1].v ? row.c[1].v : '無標題';
-                        const linkUrl  = row.c[2] && row.c[2].v ? row.c[2].v : '#';
+                        const title = row.c[1] && row.c[1].v ? row.c[1].v : '無標題';
+                        const linkUrl = row.c[2] && row.c[2].v ? row.c[2].v : '#';
 
                         let dateStr = '';
                         if (row.c[3] && row.c[3].f) {
@@ -113,23 +117,32 @@ function loadRegionData(regionName) {
                 renderFilteredAnnouncements($('#announcement-search').val().trim().toLowerCase());
 
             } catch (e) {
-                console.error('資料解析失敗:', e);
-                $('#announcement-container').html(`
-                    <div class="text-center text-danger py-4">
-                        <i class="fa-solid fa-triangle-exclamation me-2"></i> 【${regionName}】公告資料解析失敗，請檢查試算表格式。
-                    </div>
-                `);
+                handleFetchError(regionName, e);
             }
         },
-        error: function(xhr, status, error) {
-            console.error('請求失敗:', error);
-            $('#announcement-container').html(`
-                <div class="text-center text-danger py-4">
-                    <i class="fa-solid fa-wifi me-2"></i> 無法載入【${regionName}】公告，請確認試算表共用權限已設定為「知道連結者皆可檢視」。
-                </div>
-            `);
+        error: function (xhr, status, error) {
+            handleFetchError(regionName, error);
         }
     });
+}
+
+// 錯誤處理與提示視窗
+function handleFetchError(regionName, err) {
+    console.error(`無法連線【${regionName}】公告試算表:`, err);
+
+    announcementCache[regionName] = [];
+    $('#announcement-container').html(`
+        <div class="text-center text-danger py-4">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入【${regionName}】公告，請檢查網路連線或試算表權限。
+        </div>
+    `);
+
+    if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+        AppDialog.alert(`無法載入【${regionName}】最新公告，請確認網路連線或試算表讀取權限！`, {
+            title: "連線失敗",
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    }
 }
 
 // 依據關鍵字過濾並繪製公告清單 HTML
@@ -142,21 +155,21 @@ function renderFilteredAnnouncements(keyword) {
     $container.empty();
 
     if (rawData.length === 0) {
-        $container.html('<div class="text-center text-muted py-4"><i class="fa-regular fa-folder-open me-2"></i> 目前尚無最新公告資料</div>');
+        $container.html('<div class="text-center text-muted py-4"><i class="fa-regular fa-folder-open me-1"></i> 目前尚無最新公告資料</div>');
         return;
     }
 
     // 比對標題與分類
     const filteredData = rawData.filter(item => {
         if (!keyword) return true;
-        return item.title.toLowerCase().includes(keyword) || 
-                item.category.toLowerCase().includes(keyword);
+        return item.title.toLowerCase().includes(keyword) ||
+            item.category.toLowerCase().includes(keyword);
     });
 
     if (filteredData.length === 0) {
         $container.html(`
             <div class="text-center py-4">
-                <i class="fa-solid fa-magnifying-glass me-2"></i> 查無符合條件的公告內容
+                <i class="fa-solid fa-magnifying-glass me-1"></i> 查無符合條件的公告內容
             </div>
         `);
         return;

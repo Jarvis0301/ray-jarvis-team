@@ -5,11 +5,11 @@ const PREFERRED_TYPE_ORDER = ['線上講座', '創業說明會', '表揚大會',
 const PREFERRED_REGION_ORDER = ['線上', '台北', '台中', '高雄', '吉隆坡', '其他'];
 
 // Google 試算表 ID
-const SHEET_ID = '16jsmQdMRYXTJpl6ZVOsE6WnP7eqz-Y8MpgN7t37z9tE';
+const SPREADSHEET_ID = '16jsmQdMRYXTJpl6ZVOsE6WnP7eqz-Y8MpgN7t37z9tE';
 // 試算表工作表名稱
 const SHEET_NAME = '活動';
 // Google Visualization API Endpoint
-const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
 let rawEventsData = [];
 let selectedType = 'ALL';
@@ -28,15 +28,43 @@ function fetchEventData() {
         url: GVIZ_URL,
         dataType: 'text',
         success: function (response) {
-            const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
-            const data = JSON.parse(jsonString);
-            parseRawData(data.table.rows);
+            try {
+                const jsonMatch = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (!jsonMatch || !jsonMatch[1]) {
+                    throw new Error('無效的資料格式');
+                }
+                const data = JSON.parse(jsonMatch[1]);
+                if (data && data.table && data.table.rows) {
+                    parseRawData(data.table.rows);
+                } else {
+                    throw new Error('試算表無資料列');
+                }
+            } catch (err) {
+                handleFetchError(err);
+            }
         },
         error: function (err) {
-            console.error('資料讀取失敗:', err);
-            $('#loadingSpinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+            handleFetchError(err);
         }
     });
+}
+
+// 錯誤處理與提示視窗
+function handleFetchError(err) {
+    console.error('資料讀取失敗:', err);
+    
+    // 清空資料並重設狀態
+    rawEventsData = [];
+    $('#loadingSpinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+    filterAndRender();
+
+    // 呼叫 AppDialog.alert 提示使用者
+    if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+        AppDialog.alert("無法載入活動資料，請確認網路連線或試算表讀取權限！", {
+            title: "載入失敗",
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    }
 }
 
 // 2. Google Drive 圖片轉化引擎
@@ -242,7 +270,6 @@ function createEventCardHtml(item) {
     const statusBadge = item.isExpired
         ? `<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-dot"></i> 活動已結束</span>`
         : `<span class="badge badge-muted-subtle"><i class="fa-solid fa-circle-dot"></i> 開放報名中</span>`;
-        
 
     // 類型標籤
     const typeBadge = `<span class="badge badge-primary-subtle"><i class="fa-solid fa-tag"></i> ${item.type}</span>`;
@@ -271,22 +298,22 @@ function createEventCardHtml(item) {
 
     // 活動時間獨立模組化
     const timeHtml = timeDisplay
-        ? `<div class="info-item"><i class="fa-regular fa-clock"></i><div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-regular fa-clock"></i> <div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>`
         : '';
 
     // 活動地區獨立模組化
     const locationHtml = item.location
-        ? `<div class="info-item"><i class="fa-solid fa-earth-asia"></i><div>活動地區：<span class="highlight">${item.location}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-solid fa-earth-asia"></i> <div>活動地區：<span class="highlight">${item.location}</span></div></div>`
         : '';
 
     // 活動場地獨立模組化
     const venueHtml = item.venue
-        ? `<div class="info-item"><i class="fa-solid fa-building"></i><div>活動場地：<span class="highlight">${item.venue}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-solid fa-building"></i> <div>活動場地：<span class="highlight">${item.venue}</span></div></div>`
         : '';
 
     // 活動地址獨立模組化
     const addressHtml = item.address
-        ? `<div class="info-item"><i class="fa-solid fa-map-pin"></i><div>活動地址：<span class="highlight">${item.address}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-solid fa-map-pin"></i> <div>活動地址：<span class="highlight">${item.address}</span></div></div>`
         : '';
 
     let html = `

@@ -1,3 +1,13 @@
+/* TO DO：改成在JS中不要有預設資料，如果連不到試算表就跳出提示（AppDialog.alert）
+
+AppDialog.alert範例：
+「
+    AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
+        title: "未選擇商品",
+        icon: "fa-solid fa-circle-exclamation text-warning"
+    });
+」 */
+
 // 1. Google 試算表 ID（請在此替換為實體 ID；若留空自動切換備援庫）
 let SPREADSHEET_ID = '1ee1emaa3wyn704eoU10lEJT0F4Ui3DbIYEEjG80RGSo';
 
@@ -10,11 +20,11 @@ const appState = {
 
 // 2. 預設備援專利類型列表
 const defaultTypeList = [
-    { code: 'probiotics', name: '益生菌專利', icon: 'fas fa-bacteria', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-    { code: 'cicadae', name: '蟬花與草本', icon: 'fas fa-eye', color: '#fb923c', bg: 'rgba(251, 146, 60, 0.15)' },
-    { code: 'encapsulation', name: '多層包埋技術', icon: 'fas fa-capsules', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.15)' },
-    { code: 'fermentation', name: '液態發酵技術', icon: 'fas fa-flask-vial', color: '#34d399', bg: 'rgba(52, 211, 153, 0.15)' },
-    { code: 'fungi', name: '珍稀菇菌專利', icon: 'fas fa-plant-wilt', color: '#facc15', bg: 'rgba(234, 179, 8, 0.15)' }
+    { code: 'probiotics', name: '益生菌專利', icon: 'fa-solid fa-bacteria', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+    { code: 'cicadae', name: '蟬花與草本', icon: 'fa-solid fa-eye', color: '#fb923c', bg: 'rgba(251, 146, 60, 0.15)' },
+    { code: 'encapsulation', name: '多層包埋技術', icon: 'fa-solid fa-capsules', color: '#c084fc', bg: 'rgba(168, 85, 247, 0.15)' },
+    { code: 'fermentation', name: '液態發酵技術', icon: 'fa-solid fa-flask-vial', color: '#34d399', bg: 'rgba(52, 211, 153, 0.15)' },
+    { code: 'fungi', name: '珍稀菇菌專利', icon: 'fa-solid fa-plant-wilt', color: '#facc15', bg: 'rgba(234, 179, 8, 0.15)' }
 ];
 
 // 3. 預設備援專利內容列表
@@ -160,13 +170,13 @@ async function fetchGoogleSheetsData() {
 
 // 6. 轉換【專利類型】工作表列資料 (不綁定表頭, 依據索引存取)
 function parseTypeRows(rows) {
-    const types = [{ code: 'all', name: '全部', icon: 'fas fa-border-all', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' }];
+    const types = [{ code: 'all', name: '全部', icon: 'fa-solid fa-border-all', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' }];
 
     rows.forEach(r => {
         const code = (r[0] || '').trim();
         const name = (r[1] || '').trim();
         const nameEn = (r[2] || '').trim();
-        const icon = (r[3] || 'fas fa-certificate').trim();
+        const icon = (r[3] || 'fa-solid fa-certificate').trim();
         const color = (r[4] || '#34d399').trim();
         const bg = (r[5] || 'rgba(16, 185, 129, 0.15)').trim();
 
@@ -252,7 +262,7 @@ function renderPatents() {
     filtered.forEach(item => {
         const typeObj = appState.typeList.find(t => t.code === item.category) || {
             name: '專利認證',
-            icon: 'fas fa-certificate',
+            icon: 'fa-solid fa-certificate',
             color: '#34d399',
             bg: 'rgba(52, 211, 153, 0.15)'
         };

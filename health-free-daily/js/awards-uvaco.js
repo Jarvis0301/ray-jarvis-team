@@ -1,5 +1,5 @@
 // Google 試算表 ID
-const SHEET_ID = '1bs8fVTroG3vTN6vjlPw6rtgelNYlJ6XIK9tYI9o4yOE';
+const SPREADSHEET_ID = '1bs8fVTroG3vTN6vjlPw6rtgelNYlJ6XIK9tYI9o4yOE';
 
 // 當前狀態維護
 let currentRegion = '台灣';
@@ -12,24 +12,6 @@ const awardsCache = {
     '馬來西亞': null
 };
 
-// 預設備用示範資料 (備援機制)
-const fallbackDataMap = {
-    '台灣': [
-        { type: "企業", year: "2025", title: "商業周刊", detail: "直銷本土第一品牌「UVACO 葡眾」煥新亮相 宣告進軍馬來西亞跨出國際化第一步" },
-        { type: "企業", year: "2024", title: "臺灣服務稽核協會", detail: "第三屆臺灣客服中心評鑑-直銷業金牌獎" },
-        { type: "產品", year: "2025", title: "康爾動", detail: "台灣生物產業發展協會-年度產業創新獎" },
-        { type: "產品", year: "2024", title: "Hi Kiss+ 洗面乳", detail: "韓國首爾發明展 - 銅獎" },
-        { type: "產品", year: "2024", title: "995 生技營養品", detail: "PAVONE AWARD 日本鳳凰獎" }
-    ],
-    '馬來西亞': [
-        { type: "Corporate", year: "2025", title: "Direct Selling Century", detail: "“Unveiling the Mystery of UVACO’s Direct Selling Success”" },
-        { type: "Corporate", year: "2025", title: "Business Weekly", detail: "“Taiwan’s Top Direct Selling Brand “UVACO” Unveils New Identity, Announcing Foray into Malaysia as First Step Towards International Expansion”" },
-        { type: "Products", year: "2025", title: "ProbioticsD", detail: "Grape King Bio GKM3® was awarded the 21st National Innovation Award (2025)" },
-        { type: "Products", year: "2025", title: "Liprofac", detail: "Grape King Bio Antrodia Cinnamomea Mycelia Fermentation Product was awarded Gold Medal at the 2025 International Innovation and Invention Competition" },
-        { type: "Products", year: "2025", title: "Liprofac", detail: "Grape King Bio Antrodia Cinnamomea Mycelia Fermentation Product was awarded Gold Medal at the International Invention Fair in the Middle East 2025" }
-    ]
-};
-
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
     Utils.equalizeWidths('#region-tabs label');
@@ -40,6 +22,18 @@ window.addEventListener('AppReady', function() {
 
     bindFilterEvents();
 });
+
+// 通用錯誤提示對話框 (優先使用 AppDialog)
+function showErrorAlert(message, title = "資料連線失敗") {
+    if (typeof AppDialog !== 'undefined') {
+        AppDialog.alert(message, {
+            title: title,
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    } else {
+        alert(message);
+    }
+}
 
 // 動態生成區域對應的子分類按鈕 (企業/產品 vs Corporate/Products)
 function updateSubCategoryTabs() {
@@ -70,7 +64,7 @@ function updateSubCategoryTabs() {
     Utils.equalizeWidths('#sub-category-wrapper label');
 }
 
-// 載入區域榮譽資料 (快取優先)
+// 載入區域榮譽資料 (快取優先，失敗時顯示 AppDialog 提示)
 function loadRegionAwards(regionName) {
     if (awardsCache[regionName] !== null) {
         renderAwards();
@@ -79,26 +73,30 @@ function loadRegionAwards(regionName) {
 
     showLoadingSpinner(regionName);
 
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(regionName)}`;
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(regionName)}`;
 
     $.ajax({
         url: gvizUrl,
         dataType: 'text',
         success: function(response) {
             try {
-                const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
-                const data = JSON.parse(jsonString);
-                const rows = data.table.rows;
+                const jsonMatch = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (!jsonMatch) {
+                    throw new Error("回應格式不符合 GViz JSON 格式");
+                }
+
+                const data = JSON.parse(jsonMatch[1]);
+                const rows = data.table ? data.table.rows : [];
 
                 const parsedList = [];
                 if (rows && rows.length > 0) {
                     rows.forEach(row => {
                         if (!row.c) return;
                         const defaultType = (regionName === '台灣') ? '企業' : 'Corporate';
-                        const type   = row.c[0] && row.c[0].v ? String(row.c[0].v).trim() : defaultType;
-                        const year   = row.c[1] && row.c[1].v ? String(row.c[1].v).trim() : '';
-                        const title  = row.c[2] && row.c[2].v ? String(row.c[2].v).trim() : '';
-                        const detail = row.c[3] && row.c[3].v ? String(row.c[3].v).trim() : '';
+                        const type   = row.c[0] && row.c[0].v !== null ? String(row.c[0].v).trim() : defaultType;
+                        const year   = row.c[1] && row.c[1].v !== null ? String(row.c[1].v).trim() : '';
+                        const title  = row.c[2] && row.c[2].v !== null ? String(row.c[2].v).trim() : '';
+                        const detail = row.c[3] && row.c[3].v !== null ? String(row.c[3].v).trim() : '';
 
                         if (title || detail) {
                             parsedList.push({ type, year, title, detail });
@@ -106,19 +104,25 @@ function loadRegionAwards(regionName) {
                     });
                 }
 
-                awardsCache[regionName] = (parsedList.length > 0) ? parsedList : (fallbackDataMap[regionName] || []);
+                awardsCache[regionName] = parsedList;
                 renderAwards();
 
+                if (parsedList.length === 0) {
+                    showErrorAlert(`試算表頁籤【${regionName}】無任何榮譽紀錄或資料欄位空白。`, "查無資料");
+                }
+
             } catch (e) {
-                console.warn(`解析【${regionName}】試算表失敗，載入備用榮譽資料:`, e);
-                awardsCache[regionName] = fallbackDataMap[regionName] || [];
+                console.error(`解析【${regionName}】試算表失敗:`, e);
+                awardsCache[regionName] = [];
                 renderAwards();
+                showErrorAlert(`解析【${regionName}】榮譽資料失敗，請檢查試算表欄位結構！`);
             }
         },
         error: function(xhr, status, error) {
-            console.warn(`無法連線【${regionName}】試算表，載入備用榮譽資料:`, error);
-            awardsCache[regionName] = fallbackDataMap[regionName] || [];
+            console.error(`無法連線【${regionName}】試算表:`, error);
+            awardsCache[regionName] = [];
             renderAwards();
+            showErrorAlert(`無法連線至雲端試算表【${regionName}】，請確認網路連線或試算表共用權限！`);
         }
     });
 }
@@ -243,7 +247,7 @@ function renderAwards() {
 
 // 事件監聽綁定
 function bindFilterEvents() {
-    // 區域分頁切換事件（監聽 Radio 的 change 事件）
+    // 區域分頁切換事件
     $(document).on('change', 'input[name="region-type"]', function () {
         const selectedRegion = $(this).val();
         if (selectedRegion === currentRegion) return;
@@ -259,7 +263,7 @@ function bindFilterEvents() {
         loadRegionAwards(currentRegion);
     });
 
-    // 子分類按鈕點擊切換事件（統一在全域設定一次事件委派，不需在 updateSubCategoryTabs 內部重複綁定）
+    // 子分類按鈕點擊切換事件
     $(document).on('change', 'input[name="sub-category"]', function () {
         currentSubCategory = $(this).val();
         renderAwards();
@@ -271,7 +275,6 @@ function bindFilterEvents() {
         renderAwards();
     });
 }
-
 
 // 顯示 Loading Spinner
 function showLoadingSpinner(regionName) {

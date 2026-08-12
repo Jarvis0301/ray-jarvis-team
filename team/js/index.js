@@ -6,12 +6,12 @@ const SESSION_NAME = 'ray_team_last_page_team';
 
 // 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
 const fallbackMenuData = [
-    { ID: '100', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'home.html', FontAwesomeIcon: 'fas fa-chart-line', 是否有效: 'Y' },
-    { ID: '200', 中文: '新人培訓 SOP', 英文: 'Onboarding', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'onboarding.html', FontAwesomeIcon: 'fas fa-graduation-cap', 是否有效: 'Y' },
-    { ID: '300', 中文: '事業工具箱', 英文: 'Tools', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-toolbox', 是否有效: 'Y' },
-    { ID: '301', 中文: '獎金試算表', 英文: 'Bonus Calculator', 所屬階層: '1', 父頁面選單ID: '300', 連結: 'calculator.html', FontAwesomeIcon: 'fas fa-calculator', 是否有效: 'Y' },
-    { ID: '302', 中文: '雲端素材庫', 英文: 'Media Library', 所屬階層: '1', 父頁面選單ID: '300', 連結: 'media.html', FontAwesomeIcon: 'fas fa-folder-open', 是否有效: 'Y' },
-    { ID: '400', 中文: '團隊公約', 英文: 'Rules', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'team-rules.html', FontAwesomeIcon: 'fas fa-gavel', 是否有效: 'Y' }
+    { ID: '100', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'home.html', FontAwesomeIcon: 'fa-solid fa-chart-line', 是否有效: 'Y' },
+    { ID: '200', 中文: '新人培訓 SOP', 英文: 'Onboarding', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'onboarding.html', FontAwesomeIcon: 'fa-solid fa-graduation-cap', 是否有效: 'Y' },
+    { ID: '300', 中文: '事業工具箱', 英文: 'Tools', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fa-solid fa-toolbox', 是否有效: 'Y' },
+    { ID: '301', 中文: '獎金試算表', 英文: 'Bonus Calculator', 所屬階層: '1', 父頁面選單ID: '300', 連結: 'calculator.html', FontAwesomeIcon: 'fa-solid fa-calculator', 是否有效: 'Y' },
+    { ID: '302', 中文: '雲端素材庫', 英文: 'Media Library', 所屬階層: '1', 父頁面選單ID: '300', 連結: 'media.html', FontAwesomeIcon: 'fa-solid fa-folder-open', 是否有效: 'Y' },
+    { ID: '400', 中文: '團隊公約', 英文: 'Rules', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'team-rules.html', FontAwesomeIcon: 'fa-solid fa-gavel', 是否有效: 'Y' }
 ];
 
 let menuTreeMap = new Map();
@@ -125,7 +125,7 @@ function processAndRenderMenu(rawRows) {
             level: parseInt(String(row[3] || '0').trim(), 10) || 0,
             parentId: String(row[4] || 'root').trim(),
             link: String(row[5] || '#').trim(),
-            icon: String(row[6] || 'fas fa-circle-dot').trim(),
+            icon: String(row[6] || 'fa-solid fa-circle-dot').trim(),
             isActive: isValid
         };
     }).filter(item => item.id !== '' && item.isActive);
@@ -298,10 +298,10 @@ function loadPage(pageUrl) {
             $('#page-content-container').html(`
                 <div class="card card-modal bg-blue border-blue text-light p-4 shadow-lg">
                     <div class="card-body text-center">
-                        <i class="fas fa-hammer text-blue display-4 mb-3"></i>
+                        <i class="fa-solid fa-hammer text-blue display-4 mb-3"></i>
                         <h3>本頁面建置中，敬請期待！</h3>
                         <button class="btn btn-outline-blue mt-2" onclick="loadPage('home.html')">
-                            <i class="fas fa-house"></i> 返回首頁
+                            <i class="fa-solid fa-house"></i> 返回首頁
                         </button>
                     </div>
                 </div>
@@ -366,7 +366,7 @@ function renderSitemapFooter() {
 
     rootNodes.forEach(root => {
         const children = menuTreeMap.get(root.id) || [];
-        const iconClass = root.icon || 'fas fa-circle-dot';
+        const iconClass = root.icon || 'fa-solid fa-circle-dot';
 
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">

@@ -1,5 +1,5 @@
 // Google 試算表 ID
-const SHEET_ID = '1bufPMYTaMInbvI9IuJyNYBn58cQIqywqJ8tW-56yvnY';
+const SPREADSHEET_ID = '1bufPMYTaMInbvI9IuJyNYBn58cQIqywqJ8tW-56yvnY';
 
 // 當前選取區域與記憶體快取
 let currentRegion = '台灣';
@@ -8,28 +8,8 @@ const historyCache = {
     '馬來西亞': null
 };
 
-// 預設備用示範資料（當連線失敗或試算表空值時調用）
-const fallbackDataMap = {
-    '台灣': [
-        {
-            year: "2025",
-            month: "08月",
-            photo: "https://cdn.uvaco.com.tw/History/2025/0.png",
-            content: "邁向國際市場，以嶄新形象「UVACO葡眾」面世，帶來「美滿生活 就此展開」的品牌信念，期許共創豐盈美好的生活面貌。"
-        }
-    ],
-    '馬來西亞': [
-        {
-            year: "2026",
-            month: "May",
-            photo: "https://cdn.uvaco.com.tw/History/2026/0.jpg",
-            content: "The Kuala Lumpur, Malaysia branch has officially commenced operations."
-        }
-    ]
-};
-
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
-window.addEventListener('AppReady', function() {
+window.addEventListener('AppReady', function () {
     Utils.equalizeWidths('#region-tabs label');
 
     // 頁面初始化：載入預設區域（台灣）資料
@@ -50,21 +30,23 @@ function loadRegionTimeline(regionName) {
     showLoadingSpinner(regionName);
 
     // Google Visualization API Endpoint
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(regionName)}`;
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(regionName)}`;
 
     $.ajax({
         url: gvizUrl,
         dataType: 'text',
-        success: function(response) {
+        success: function (response) {
             try {
-                const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
-                const data = JSON.parse(jsonString);
-                const rows = data.table.rows;
+                const jsonMatch = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (!jsonMatch || !jsonMatch[1]) {
+                    throw new Error('無效的資料格式');
+                }
+
+                const data = JSON.parse(jsonMatch[1]);
+                const rows = data.table ? data.table.rows : [];
 
                 if (!rows || rows.length === 0) {
-                    historyCache[regionName] = fallbackDataMap[regionName] || [];
-                    renderFilteredTimeline($('#timeline-search').val().trim().toLowerCase());
-                    return;
+                    throw new Error('試算表內無資料列');
                 }
 
                 let parsedData = [];
@@ -78,21 +60,32 @@ function loadRegionTimeline(regionName) {
                     });
                 });
 
-                historyCache[regionName] = parsedData.length > 0 ? parsedData : (fallbackDataMap[regionName] || []);
+                historyCache[regionName] = parsedData;
                 renderFilteredTimeline($('#timeline-search').val().trim().toLowerCase());
 
             } catch (e) {
-                console.warn(`解析【${regionName}】試算表失敗，切換至備用展示資料:`, e);
-                historyCache[regionName] = fallbackDataMap[regionName] || [];
-                renderFilteredTimeline($('#timeline-search').val().trim().toLowerCase());
+                handleFetchError(regionName, e);
             }
         },
-        error: function(xhr, status, error) {
-            console.warn(`無法連線【${regionName}】試算表，切換至備用展示資料:`, error);
-            historyCache[regionName] = fallbackDataMap[regionName] || [];
-            renderFilteredTimeline($('#timeline-search').val().trim().toLowerCase());
+        error: function (xhr, status, error) {
+            handleFetchError(regionName, error);
         }
     });
+}
+
+// 錯誤處理與提示視窗
+function handleFetchError(regionName, err) {
+    console.error(`無法連線【${regionName}】試算表:`, err);
+
+    historyCache[regionName] = [];
+    renderFilteredTimeline($('#timeline-search').val().trim().toLowerCase());
+
+    if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+        AppDialog.alert(`無法載入【${regionName}】大事記資料，請確認網路連線或試算表讀取權限！`, {
+            title: "連線失敗",
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    }
 }
 
 // 依據搜尋關鍵字過濾並繪製時間軸
@@ -112,8 +105,8 @@ function renderFilteredTimeline(keyword) {
     const filteredItems = rawItems.filter(item => {
         if (!keyword) return true;
         return (item.year && item.year.toLowerCase().includes(keyword)) ||
-                (item.month && item.month.toLowerCase().includes(keyword)) ||
-                (item.content && item.content.toLowerCase().includes(keyword));
+            (item.month && item.month.toLowerCase().includes(keyword)) ||
+            (item.content && item.content.toLowerCase().includes(keyword));
     });
 
     if (filteredItems.length === 0) {
@@ -156,15 +149,15 @@ function renderFilteredTimeline(keyword) {
             const monthText = item.month || '';
 
             // 動態判斷是否為「年度業績」關鍵字
-            const isPerformance = monthText.includes('業績') || 
-                                    monthText.includes('Performance') || 
-                                    monthText.includes('Sales') || 
-                                    monthText.includes('Revenue');
+            const isPerformance = monthText.includes('業績') ||
+                monthText.includes('Performance') ||
+                monthText.includes('Sales') ||
+                monthText.includes('Revenue');
 
             const nodeStyleClass = isPerformance ? 'performance-dot' : 'green-dot';
-            const pillIconClass  = isPerformance ? 'fa-solid fa-trophy' : 'fa-regular fa-calendar-check';
-            const pillStyleClass  = isPerformance ? 'badge-warning-subtle' : 'badge-primary-subtle';
-            const cardStyleClass  = isPerformance ? 'performance-card' : 'green-card';
+            const pillIconClass = isPerformance ? 'fa-solid fa-trophy' : 'fa-regular fa-calendar-check';
+            const pillStyleClass = isPerformance ? 'badge-warning-subtle' : 'badge-primary-subtle';
+            const cardStyleClass = isPerformance ? 'performance-card' : 'green-card';
 
             yearBlockHtml += `
                 <div class="timeline-item">
@@ -174,7 +167,7 @@ function renderFilteredTimeline(keyword) {
 
                     <div class="timeline-content-card ${cardStyleClass}">
                         <div class="badge ${pillStyleClass} rounded-pill px-3 py-2 mb-2">
-                            <i class="${pillIconClass}"></i> ${monthText}
+                            <i class="${pillIconClass} me-1"></i> ${monthText}
                         </div>
                         <div class="card-body-wrapper ${hasPhoto ? 'has-image' : ''}">
                             ${hasPhoto ? `
@@ -204,14 +197,13 @@ function bindFilterEvents() {
         if (selectedRegion === currentRegion) return;
 
         currentRegion = selectedRegion;
-        searchText = '';
         $('#timeline-search').val('');
 
         loadRegionTimeline(currentRegion);
     });
 
     // 即時搜尋輸入事件
-    $('#timeline-search').on('input', function() {
+    $('#timeline-search').on('input', function () {
         const keyword = $(this).val().trim().toLowerCase();
         renderFilteredTimeline(keyword);
     });

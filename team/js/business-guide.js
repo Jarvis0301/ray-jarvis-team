@@ -1,3 +1,17 @@
+/* TO DO：改成在JS中不要有預設資料，如果連不到試算表就跳出提示（AppDialog.alert）
+
+AppDialog.alert範例：
+「
+    AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
+        title: "未選擇商品",
+        icon: "fa-solid fa-circle-exclamation text-warning"
+    });
+」 */
+
+// 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
+const SPREADSHEET_ID = 'YOUR_GOOGLE_SPREADSHEET_ID_HERE';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=BusinessGuide`;
+
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
     // 1. 初始化 DataTable.js
@@ -74,17 +88,14 @@ window.addEventListener('AppReady', function() {
     });
 
     // 4. Google 試算表 PapaParse 動態抓取與解耦邏輯
-    const spreadsheetID = 'YOUR_GOOGLE_SPREADSHEET_ID_HERE';
-    const sheetURL = `https://docs.google.com/spreadsheets/d/${spreadsheetID}/gviz/tq?tqx=out:csv&sheet=BusinessGuide`;
-
     function fetchSheetData() {
         // 若沒有真實 ID 則提示並跳過實質抓取
-        if (spreadsheetID === 'YOUR_GOOGLE_SPREADSHEET_ID_HERE') {
+        if (SPREADSHEET_ID === 'YOUR_GOOGLE_SPREADSHEET_ID_HERE') {
             console.log('請設定有效的 Google 試算表 ID 以動態載入最新話術資料。');
             return;
         }
 
-        Papa.parse(sheetURL, {
+        Papa.parse(GVIZ_URL, {
             download: true,
             header: true,
             skipEmptyLines: true,

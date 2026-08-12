@@ -4,28 +4,12 @@ const SHEET_NAME = '公開版';
 
 const SESSION_NAME = 'ray_team_last_page_public';
 
-// 備用預設選單資料 (當 Google 試算表尚未連線時自動啟用，確保頁面不崩潰)
-const fallbackMenuData = [
-    { ID: 'm1', 中文: '戰情室首頁', 英文: 'Home', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'index.html', FontAwesomeIcon: 'fas fa-house', 是否有效: 'Y' },
-    { ID: 'm2', 中文: '關於我們', 英文: 'About Us', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-building', 是否有效: 'Y' },
-    { ID: 'm2_1', 中文: '公司簡介', 英文: 'Company Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-uvaco.html', FontAwesomeIcon: 'fas fa-award', 是否有效: 'Y' },
-    { ID: 'm2_2', 中文: '團隊簡介', 英文: 'Team Profile', 所屬階層: '1', 父頁面選單ID: 'm2', 連結: 'about-team.html', FontAwesomeIcon: 'fas fa-users-gear', 是否有效: 'Y' },
-    { ID: 'm3', 中文: '產品護城河', 英文: 'Products', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-box-open', 是否有效: 'Y' },
-    { ID: 'm3_1', 中文: '產品目錄總覽', 英文: 'Product Catalog', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'products.html', FontAwesomeIcon: 'fas fa-list-check', 是否有效: 'Y' },
-    { ID: 'm3_2', 中文: '產品特點與優勢', 英文: 'Product Advantages', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-advantages.html', FontAwesomeIcon: 'fas fa-shield-halved', 是否有效: 'Y' },
-    { ID: 'm3_3', 中文: '研發專利成果', 英文: 'Patents & Research', 所屬階層: '1', 父頁面選單ID: 'm3', 連結: 'product-patents.html', FontAwesomeIcon: 'fas fa-microscope', 是否有效: 'Y' },
-    { ID: 'm4', 中文: '事業經營', 英文: 'Business', 所屬階層: '0', 父頁面選單ID: 'root', 連結: '#', FontAwesomeIcon: 'fas fa-chart-line', 是否有效: 'Y' },
-    { ID: 'm4_1', 中文: '制度特點優勢', 英文: 'System Advantages', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'system-advantages.html', FontAwesomeIcon: 'fas fa-trophy', 是否有效: 'Y' },
-    { ID: 'm4_2', 中文: '職級晉升藍圖', 英文: 'Rank Advancement', 所屬階層: '1', 父頁面選單ID: 'm4', 連結: 'rank-advancement.html', FontAwesomeIcon: 'fas fa-ranking-star', 是否有效: 'Y' },
-    { ID: 'm5', 中文: '官方企業網站', 英文: 'Official Site', 所屬階層: '0', 父頁面選單ID: 'root', 連結: 'https://www.pro-partner.com.tw', FontAwesomeIcon: 'fas fa-globe', 是否有效: 'Y' }
-];
-
 let menuTreeMap = new Map();
 
-let currentPageUrl = 'home.html'; // ✨ 新增全域變數記錄當前頁面名稱
+let currentPageUrl = 'home.html'; // ✨ 記錄當前頁面名稱
 
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
-window.addEventListener('AppReady', function() {
+window.addEventListener('AppReady', function () {
     initSidebarToggle();
     fetchGoogleSheetMenu();
     initDesktopSitemapObserver();
@@ -33,15 +17,15 @@ window.addEventListener('AppReady', function() {
     initBackToTop();
     initLogoutModal();
     versionSwitch();
-    
-    // ✨【關鍵修改】優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
+
+    // ✨ 優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
     const savedLastPage = sessionStorage.getItem(SESSION_NAME);
     const initialPage = (savedLastPage || 'home') + '.html';
     loadPage(initialPage);
 });
 
-// ✨【新增】監聽瀏覽器上一頁/下一頁（popstate/hashchange）按鈕
-window.addEventListener('hashchange', function() {
+// ✨ 監聽瀏覽器上一頁/下一頁（popstate/hashchange）按鈕
+window.addEventListener('hashchange', function () {
     const hashPage = sessionStorage.getItem(SESSION_NAME) + '.html';
     if (hashPage) {
         // 避免重複重新載入相同頁面
@@ -55,7 +39,7 @@ window.addEventListener('hashchange', function() {
 // 1. 左側選單收折邏輯
 function initSidebarToggle() {
     // 點擊切換側邊欄
-    $('#sidebarToggle').on('click', function() {
+    $('#sidebarToggle').on('click', function () {
         if ($(window).width() >= 992) {
             $('#portalSidebar').toggleClass('collapsed');
             $('#portalWrapper').toggleClass('sidebar-collapsed');
@@ -65,7 +49,7 @@ function initSidebarToggle() {
     });
 
     // 點擊空白處關閉手機版側邊欄
-    $(document).on('click', function(e) {
+    $(document).on('click', function (e) {
         if ($(window).width() < 992) {
             if (!$(e.target).closest('#portalSidebar, #sidebarToggle').length) {
                 $('#portalSidebar').removeClass('mobile-open');
@@ -74,20 +58,20 @@ function initSidebarToggle() {
     });
 
     // 側邊欄收折狀態時，滑鼠離開自動關閉已開啟的子選單
-    $('#portalSidebar').on('mouseleave', function() {
+    $('#portalSidebar').on('mouseleave', function () {
         if ($(this).hasClass('collapsed')) {
             $(this).find('.submenu-container.show').slideUp(150).removeClass('show');
             $(this).find('.submenu-arrow').removeClass('fa-rotate-180');
         }
     });
 
-    // 【關鍵修復】監聽視窗縮放，自動清理跨裝置樣式 Class
-    $(window).on('resize', function() {
+    // 監聽視窗縮放，自動清理跨裝置樣式 Class
+    $(window).on('resize', function () {
         if ($(window).width() >= 992) {
             // 切換回桌機版時，清理手機專用的 mobile-open
             $('#portalSidebar').removeClass('mobile-open');
         } else {
-            // 切換到手機版時，自動清除桌機版collapsed，避免文字被 CSS 隱藏
+            // 切換到手機版時，自動清除桌機版 collapsed，避免文字被 CSS 隱藏
             $('#portalSidebar').removeClass('collapsed');
             $('#portalWrapper').removeClass('sidebar-collapsed');
         }
@@ -97,23 +81,36 @@ function initSidebarToggle() {
 // 2. 抓取 Google 試算表資料（索引解耦模式）
 function fetchGoogleSheetMenu() {
     const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-    
+
     Papa.parse(url, {
         download: true,
         header: false,
         skipEmptyLines: true,
-        complete: function(results) {
+        complete: function (results) {
             if (results.data && results.data.length > 1) {
                 processAndRenderMenu(results.data.slice(1));
             } else {
-                processAndRenderMenu(fallbackMenuRawRows);
+                handleFetchError('選單資料空白或無法解析');
             }
         },
-        error: function(err) {
-            console.warn('Google 試算表抓取失敗，啟用備用選單數據:', err);
-            processAndRenderMenu(fallbackMenuRawRows);
+        error: function (err) {
+            handleFetchError(err);
         }
     });
+}
+
+// 錯誤處理與提示視窗
+function handleFetchError(err) {
+    console.error('Google 試算表選單載入失敗:', err);
+
+    processAndRenderMenu([]);
+
+    if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+        AppDialog.alert("無法載入選單資料，請確認網路連線或試算表權限！", {
+            title: "連線失敗",
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    }
 }
 
 // 3. 處理數據並生成樹狀導覽
@@ -131,7 +128,7 @@ function processAndRenderMenu(rawRows) {
             level: parseInt(String(row[3] || '0').trim(), 10) || 0,
             parentId: String(row[4] || 'root').trim(),
             link: String(row[5] || '#').trim(),
-            icon: String(row[6] || 'fas fa-circle-dot').trim(),
+            icon: String(row[6] || 'fa-solid fa-circle-dot').trim(),
             isActive: isValid
         };
     }).filter(item => item.id !== '' && item.isActive);
@@ -148,7 +145,7 @@ function processAndRenderMenu(rawRows) {
     $menuContainer.empty().append(buildRecursiveMenuHtml('root', 0));
     renderSitemapFooter();
 
-    $('.parent-toggle').off('click').on('click', function(e) {
+    $('.parent-toggle').off('click').on('click', function (e) {
         e.preventDefault();
         const targetId = $(this).data('target');
         const $target = $(`#${targetId}`);
@@ -188,7 +185,7 @@ function buildRecursiveMenuHtml(parentId, depth) {
 
     const ulClass = (depth === 0) ? 'sidebar-menu' : 'submenu-container';
     const ulId = (depth > 0) ? `id="submenu-${parentId}"` : '';
-    
+
     let html = `<ul class="${ulClass}" ${ulId}>`;
 
     children.forEach(item => {
@@ -239,7 +236,7 @@ function setActiveMenuItem(pageUrl) {
     $('#dynamicMenuContainer .nav-item-link').removeClass('active');
 
     // 2. 尋找與當前 pageUrl 匹配的選單連結
-    const $targetLink = $('#dynamicMenuContainer .nav-item-link').filter(function() {
+    const $targetLink = $('#dynamicMenuContainer .nav-item-link').filter(function () {
         const href = $(this).attr('href');
         const onclickAttr = $(this).attr('onclick') || '';
         return href === pageUrl || onclickAttr.includes(`'${pageUrl}'`);
@@ -255,7 +252,7 @@ function setActiveMenuItem(pageUrl) {
             $parentSubmenus.addClass('show').css('display', 'block');
 
             // 將對應父選單的箭頭指向上方 (旋轉 180 度)
-            $parentSubmenus.each(function() {
+            $parentSubmenus.each(function () {
                 const submenuId = $(this).attr('id');
                 $(`.parent-toggle[data-target="${submenuId}"]`)
                     .find('.submenu-arrow')
@@ -272,10 +269,10 @@ function loadPage(pageUrl) {
     $('#portalSidebar').removeClass('mobile-open');
 
     setActiveMenuItem(pageUrl);
-    
+
     let page = pageUrl.split('.')[0];
     if (page) {
-        // ✨【新增】同步備份至 sessionStorage 雙重防護
+        // ✨ 同步備份至 sessionStorage 雙重防護
         sessionStorage.setItem(SESSION_NAME, page);
     }
 
@@ -294,18 +291,18 @@ function loadPage(pageUrl) {
         url: pageUrl,
         type: 'GET',
         dataType: 'html',
-        success: function(response) {
+        success: function (response) {
             // 頁面加載成功
         },
-        error: function() {
+        error: function () {
             // 若單獨 HTML 尚未上傳，顯示提示卡片
             $('#page-content-container').html(`
                 <div class="card card-modal bg-primary border-primary text-light p-4 shadow-lg">
                     <div class="card-body text-center">
-                        <i class="fas fa-hammer text-primary display-4 mb-3"></i>
+                        <i class="fa-solid fa-hammer text-primary display-4 mb-3"></i>
                         <h3>本頁面建置中，敬請期待！</h3>
                         <button class="btn btn-outline-primary mt-2" onclick="loadPage('home.html')">
-                            <i class="fas fa-house"></i> 返回首頁
+                            <i class="fa-solid fa-house me-1"></i> 返回首頁
                         </button>
                     </div>
                 </div>
@@ -316,7 +313,7 @@ function loadPage(pageUrl) {
 
     // 綁定 iFrame 載入事件與自動高度調整
     const frame = document.getElementById('portal-subpage-frame');
-    frame.onload = function() {
+    frame.onload = function () {
         autoResizeIframe(frame);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -353,7 +350,7 @@ function autoResizeIframe(frame) {
 
 // 7. 監聽視窗縮放，自動調整 iFrame
 function initIframeResizeListener() {
-    $(window).on('resize', function() {
+    $(window).on('resize', function () {
         const frame = document.getElementById('portal-subpage-frame');
         if (frame) {
             autoResizeIframe(frame);
@@ -370,12 +367,12 @@ function renderSitemapFooter() {
 
     rootNodes.forEach(root => {
         const children = menuTreeMap.get(root.id) || [];
-        const iconClass = root.icon || 'fas fa-circle-dot';
+        const iconClass = root.icon || 'fa-solid fa-circle-dot';
 
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">
                 <div class="fw-bold text-primary mb-2">
-                    <i class="${iconClass}"></i> ${root.titleCn}
+                    <i class="${iconClass} me-1"></i> ${root.titleCn}
                 </div>`;
 
         if (children.length > 0) {
@@ -425,7 +422,7 @@ function initBackToTop() {
     const $backToTopBtn = $('#backToTopBtn');
 
     // 監聽滾動距離，超過 300px 才顯示按鈕
-    $(window).on('scroll', function() {
+    $(window).on('scroll', function () {
         if ($(this).scrollTop() > 300) {
             $backToTopBtn.addClass('show');
         } else {
@@ -434,17 +431,17 @@ function initBackToTop() {
     });
 
     // 點擊滑動回頂端
-    $backToTopBtn.on('click', function(e) {
+    $backToTopBtn.on('click', function (e) {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
 
 function initLogoutModal() {
-    $('#confirmLogoutBtn').on('click', function() {
+    $('#confirmLogoutBtn').on('click', function () {
         // 點擊確定後關閉 Modal 並執行登出邏輯
         $('#logoutConfirmModal').modal('hide');
-        
+
         if (typeof window.uvacoLogout === 'function') {
             window.uvacoLogout();
         } else {
@@ -501,11 +498,10 @@ function versionSwitch() {
     if (matchedBtn) {
         // 設定當前按鈕的 active 狀態與「當前」徽章
         matchedBtn.classList.add('active');
-        
+
         const badgeSpan = document.createElement('span');
         badgeSpan.className = 'badge bg-white text-dark shadow-sm ms-2';
         badgeSpan.textContent = '當前';
-        //matchedBtn.appendChild(badgeSpan);
 
         // 更新主按鈕的內容與配色類別 (如 btn-green-subtle / btn-blue-subtle / btn-purple-subtle)
         if (mainBtn) {

@@ -1,6 +1,10 @@
+// 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
+const SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Events`;
+
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
-window.addEventListener('AppReady', function() {
-    
+window.addEventListener('AppReady', function () {
+
     // 1. 初始化 Google Calendar 濾鏡主題切換功能
     initCalendarThemeToggle();
 
@@ -19,7 +23,7 @@ function initCalendarThemeToggle() {
     $('#toggleThemeBtn').on('click', function () {
         const $wrapper = $('#calendarContainer');
         $wrapper.toggleClass('light-mode');
-        
+
         if ($wrapper.hasClass('light-mode')) {
             $(this).html('<i class="fa-solid fa-moon"></i> 切換深色模式');
         } else {
@@ -33,7 +37,7 @@ function initCalendarThemeToggle() {
  */
 function initEventDistributionChart() {
     const ctx = document.getElementById('eventDistributionChart').getContext('2d');
-    
+
     new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -81,11 +85,7 @@ function initEventDistributionChart() {
  * 3. Google 試算表動態數據抓取與欄位解耦 (PapaParse + gviz)
  */
 function fetchGoogleSheetEvents() {
-    // 示範用 Google Sheet ID (可替換為團隊真實試算表 ID)
-    const sheetId = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms';
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Events`;
-
-    Papa.parse(gvizUrl, {
+    Papa.parse(GVIZ_URL, {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -93,14 +93,30 @@ function fetchGoogleSheetEvents() {
             if (results.data && results.data.length > 0) {
                 renderEventsTable(results.data);
             } else {
-                renderFallbackEventsData();
+                handleFetchError('試算表內無活動行程資料');
             }
         },
         error: function (err) {
-            console.warn('Google 試算表擷取失敗，載入備用預設行程:', err);
-            renderFallbackEventsData();
+            handleFetchError(err);
         }
     });
+}
+
+/**
+ * 錯誤處理與提示視窗
+ */
+function handleFetchError(err) {
+    console.error('Google 試算表行程資料載入失敗:', err);
+
+    // 清空表格並重新初始化 DataTable 以呈現空狀態
+    renderEventsTable([]);
+
+    if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+        AppDialog.alert("無法載入行程活動資料，請確認網路連線或試算表讀取權限！", {
+            title: "連線失敗",
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    }
 }
 
 /**
@@ -141,13 +157,13 @@ function renderEventsTable(data) {
 
         const trHtml = `
             <tr>
-                <td><i class="fa-regular fa-clock text-info"></i> ${dateStr}</td>
+                <td class="text-nowrap"><i class="fa-regular fa-clock text-info"></i> ${dateStr}</td>
                 <td>${badgeHtml}</td>
                 <td class="fw-bold text-light">${title}</td>
                 <td><i class="fa-solid fa-user-circle text-secondary"></i> ${speaker}</td>
                 <td><small class="text-secondary">${location}</small></td>
                 <td>
-                    <button class="btn btn-sm btn-outline-custom" onclick="alert('已複製會議詳細資訊！')">
+                    <button class="btn btn-sm btn-outline-custom" onclick="copyEventDetail('${title}', '${dateStr}', '${location}')">
                         <i class="fa-solid fa-share-nodes"></i> 分享
                     </button>
                 </td>
@@ -157,72 +173,6 @@ function renderEventsTable(data) {
     });
 
     // 初始化 DataTable
-    initDataTable();
-}
-
-/**
- * 備用預設靜態數據 (當 Google 試算表尚未連線時顯示)
- */
-function renderFallbackEventsData() {
-    const fallbackData = [
-        {
-            date: '2026/08/10 20:00',
-            category: '線上研討',
-            title: '榮祥團隊新星啟航 SOP 線上說明會',
-            speaker: 'Ray 藍鑽',
-            location: 'Zoom 房號: 888-999-000'
-        },
-        {
-            date: '2026/08/15 14:00',
-            category: '實體聚會',
-            title: '全台月度表揚大會與事業榮譽論壇',
-            speaker: 'Jarvis 與 核心團隊',
-            location: '台北國際會議中心 301 室'
-        },
-        {
-            date: '2026/08/20 20:30',
-            category: '高階會議',
-            title: '珍珠/藍鑽級領導人全球戰略會報',
-            speaker: '創始領導人會議',
-            location: '加密線上會議室'
-        },
-        {
-            date: '2026/08/25 19:30',
-            category: '線上研討',
-            title: '葡眾產品全能防護系列深度拆解',
-            speaker: '產品戰略顧問',
-            location: 'Zoom 房號: 777-666-555'
-        }
-    ];
-
-    const $tbody = $('#eventsTableBody');
-    $tbody.empty();
-
-    fallbackData.forEach(item => {
-        let badgeHtml = '<span class="badge badge-online"><i class="fa-solid fa-video"></i> 線上</span>';
-        if (item.category.includes('實體')) {
-            badgeHtml = '<span class="badge badge-offline"><i class="fa-solid fa-users"></i> 實體</span>';
-        } else if (item.category.includes('高階')) {
-            badgeHtml = '<span class="badge badge-leadership"><i class="fa-solid fa-crown"></i> 領導</span>';
-        }
-
-        const trHtml = `
-            <tr>
-                <td class="text-nowrap"><i class="fa-regular fa-clock text-info"></i> ${item.date}</td>
-                <td>${badgeHtml}</td>
-                <td class="fw-bold text-light">${item.title}</td>
-                <td><i class="fa-solid fa-user-circle text-secondary"></i> ${item.speaker}</td>
-                <td><small class="text-secondary">${item.location}</small></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-custom" onclick="copyEventDetail('${item.title}', '${item.date}', '${item.location}')">
-                        <i class="fa-solid fa-copy"></i> 複製資訊
-                    </button>
-                </td>
-            </tr>
-        `;
-        $tbody.append(trHtml);
-    });
-
     initDataTable();
 }
 

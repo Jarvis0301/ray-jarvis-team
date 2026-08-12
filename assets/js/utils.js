@@ -126,9 +126,126 @@ class Utils {
             $targets.css('width', (maxWidth + extraPadding) + 'px');
         }
     }
+
+    /**
+     * 全域圖片載入失敗容錯處理與自訂 Placeholder 生成器
+     * @param {HTMLElement} imgElement - 觸發 onerror 事件的 <img> DOM 元素
+     * @param {Object|string} [config='fa-solid fa-boxes-stacked'] - 自訂 Icon Class 字串，或完整配置物件
+     * @param {string|number} [height='200px'] - Placeholder 高度 (例如 '200px', '350px', '100%')
+     * @param {string|number} [width='100%'] - Placeholder 寬度 (例如 '100%', '300px')
+     */
+    static handleImgError(imgElement, config = {}, height, width) {
+        if (!imgElement) return;
+
+        let currentSrc = imgElement.src || '';
+
+        // 1. 自動副檔名備援機制 (JPG 載入失敗後自動嘗試 PNG)
+        if (currentSrc.endsWith('.jpg') && !imgElement.dataset.triedPng) {
+            imgElement.dataset.triedPng = "true";
+            imgElement.src = currentSrc.replace(/\.jpg$/, '.png');
+            return;
+        }
+
+        // 2. 參數預設值與適配器 (相容位置傳參與物件傳參)
+        let iconClass = 'fa-solid fa-boxes-stacked';
+        let targetHeight = '200px';
+        let targetWidth = '100%';
+        let extraClass = 'rounded-top';
+        let fontSizeClass = 'fs-1';
+
+        if (typeof config === 'string') {
+            // 位置傳參模式: Utils.handleImgError(this, 'fa-solid fa-image', '350px', '100%')
+            if (config.trim()) iconClass = config.trim();
+            if (height) targetHeight = typeof height === 'number' ? `${height}px` : height;
+            if (width) targetWidth = typeof width === 'number' ? `${width}px` : width;
+        } else if (typeof config === 'object' && config !== null) {
+            // 物件傳參模式: Utils.handleImgError(this, { icon: '...', height: '300px' })
+            iconClass = config.icon || config.iconClass || iconClass;
+            targetHeight = config.height ? (typeof config.height === 'number' ? `${config.height}px` : config.height) : targetHeight;
+            targetWidth = config.width ? (typeof config.width === 'number' ? `${config.width}px` : config.width) : targetWidth;
+            if (config.extraClass) extraClass = config.extraClass;
+            if (config.fontSize) fontSizeClass = config.fontSize;
+        }
+
+        // 3. 組裝兼具 RWD 與深色主題的 Placeholder HTML (恪守 Font Awesome 與半形空白規範)
+        const styleAttr = `height: ${targetHeight}; width: ${targetWidth};`;
+        const placeholderHtml = `
+            <div class="img-placeholder d-flex align-items-center justify-content-center bg-secondary-subtle text-muted ${extraClass}" style="${styleAttr}">
+                <i class="${iconClass} ${fontSizeClass}"></i>
+            </div>
+        `;
+
+        // 4. 安全替換 DOM 節點 (相容原生 DOM 與 jQuery)
+        if (typeof $ !== 'undefined' && $.fn && $.fn.replaceWith) {
+            $(imgElement).replaceWith(placeholderHtml);
+        } else {
+            imgElement.outerHTML = placeholderHtml;
+        }
+    }
+
+    /**
+     * 全域圖片載入失敗容錯處理與自訂 Placeholder 生成器
+     * @param {HTMLElement} imgElement - 觸發 onerror 事件的 <img> DOM 元素
+     * @param {Object|string} [config='fa-solid fa-boxes-stacked'] - 自訂 Icon Class 字串，或完整配置物件
+     * @param {string|number} [height='200px'] - Placeholder 高度 (例如 '200px', '350px', '100%')
+     * @param {string|number} [width='100%'] - Placeholder 寬度 (例如 '100%', '300px')
+     */
+    static handleImgError(imgElement, config = {}, height, width) {
+        if (!imgElement) return;
+
+        let currentSrc = imgElement.src || '';
+
+        // JPG 載入失敗自動嘗試 PNG
+        if (currentSrc.endsWith('.jpg') && !imgElement.dataset.triedPng) {
+            imgElement.dataset.triedPng = "true";
+            imgElement.src = currentSrc.replace(/\.jpg$/, '.png');
+            return;
+        }
+
+        // 參數適配處理
+        let iconClass = 'fa-solid fa-boxes-stacked';
+        let targetHeight = '200px';
+        let targetWidth = '100%';
+        let extraClass = 'rounded-top';
+
+        if (typeof config === 'string') {
+            if (config.trim()) iconClass = config.trim();
+            if (height) targetHeight = typeof height === 'number' ? `${height}px` : height;
+            if (width) targetWidth = typeof width === 'number' ? `${width}px` : width;
+        } else if (typeof config === 'object' && config !== null) {
+            iconClass = config.icon || config.iconClass || iconClass;
+            targetHeight = config.height ? (typeof config.height === 'number' ? `${config.height}px` : config.height) : targetHeight;
+            targetWidth = config.width ? (typeof config.width === 'number' ? `${config.width}px` : config.width) : targetWidth;
+            if (config.extraClass) extraClass = config.extraClass;
+        }
+
+        const placeholderHtml = `
+            <div class="img-placeholder d-flex align-items-center justify-content-center bg-secondary-subtle text-muted ${extraClass}" style="height: ${targetHeight}; width: ${targetWidth};">
+                <i class="${iconClass} fs-1"></i>
+            </div>
+        `;
+
+        if (typeof $ !== 'undefined' && $.fn && $.fn.replaceWith) {
+            $(imgElement).replaceWith(placeholderHtml);
+        } else {
+            imgElement.outerHTML = placeholderHtml;
+        }
+    }
 }
 
 // 支援傳統 Script 標籤引入 (掛載至 window) 或是 ES Module 導出
 if (typeof window !== 'undefined') {
     window.Utils = Utils;
 }
+
+window.Utils = Utils;
+
+// 全域向下相容與時序安全橋接器 (防範 common.js 載入極速觸發時的死鎖)
+window.imgError = function(imgElement, config, height, width) {
+    if (window.Utils && typeof window.Utils.handleImgError === 'function') {
+        window.Utils.handleImgError(imgElement, config, height, width);
+    } else {
+        // 極限防護：若 Utils 尚未初始化完成，先隱藏避免破圖
+        imgElement.style.opacity = '0';
+    }
+};

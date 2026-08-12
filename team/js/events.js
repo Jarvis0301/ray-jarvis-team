@@ -5,11 +5,11 @@ const PREFERRED_TYPE_ORDER = ['線上講座', '創業說明會', '表揚大會',
 const PREFERRED_REGION_ORDER = ['線上', '台北', '台中', '高雄', '吉隆坡', '其他'];
 
 // Google 試算表 ID
-const SHEET_ID = '16jsmQdMRYXTJpl6ZVOsE6WnP7eqz-Y8MpgN7t37z9tE';
+const SPREADSHEET_ID = '16jsmQdMRYXTJpl6ZVOsE6WnP7eqz-Y8MpgN7t37z9tE';
 // 試算表工作表名稱
 const SHEET_NAME = '活動';
 // Google Visualization API Endpoint
-const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
 let rawEventsData = [];
 let selectedType = 'ALL';
@@ -17,7 +17,7 @@ let selectedRegion = 'ALL';
 let searchTerm = '';
 
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
-window.addEventListener('AppReady', function() {
+window.addEventListener('AppReady', function () {
     fetchEventData();
     bindFilterEvents();
 });
@@ -27,16 +27,42 @@ function fetchEventData() {
     $.ajax({
         url: GVIZ_URL,
         dataType: 'text',
-        success: function(response) {
-            const jsonString = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1];
-            const data = JSON.parse(jsonString);
-            parseRawData(data.table.rows);
+        success: function (response) {
+            try {
+                const jsonMatch = response.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (!jsonMatch || !jsonMatch[1]) {
+                    throw new Error('無效的資料格式');
+                }
+                const data = JSON.parse(jsonMatch[1]);
+                if (data && data.table && data.table.rows) {
+                    parseRawData(data.table.rows);
+                } else {
+                    throw new Error('試算表無資料列');
+                }
+            } catch (err) {
+                handleFetchError(err);
+            }
         },
-        error: function(err) {
-            console.error('資料讀取失敗:', err);
-            $('#loading-spinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+        error: function (err) {
+            handleFetchError(err);
         }
     });
+}
+
+// 錯誤處理與提示視窗
+function handleFetchError(err) {
+    console.error('資料讀取失敗:', err);
+
+    rawEventsData = [];
+    $('#loading-spinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+    filterAndRender();
+
+    if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+        AppDialog.alert("無法載入活動資料，請確認網路連線或試算表讀取權限！", {
+            title: "連線失敗",
+            icon: "fa-solid fa-circle-exclamation text-danger"
+        });
+    }
 }
 
 // 2. Google Drive 圖片轉化引擎
@@ -46,7 +72,7 @@ function parseDriveImageUrl(url) {
     }
     const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
     if (driveMatch && driveMatch[1]) {
-        return `https://lh3.googleusercontent.com/d/$${driveMatch[1]}`;
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
     }
     return url;
 }
@@ -110,7 +136,7 @@ function parseRawData(rows) {
             regUrl, imgUrl: parseDriveImageUrl(rawImgUrl), performer, isExpired
         });
     });
-    
+
     // 進行智慧權重排序
     const sortedTypes = sortSetItems(typeSet, PREFERRED_TYPE_ORDER);
     const sortedRegions = sortSetItems(regionSet, PREFERRED_REGION_ORDER);
@@ -138,7 +164,7 @@ function renderFilterPills(typeSet, regionSet) {
 // 6. 事件監聽綁定
 function bindFilterEvents() {
     // 類型按鈕點擊
-    $(document).on('click', '[data-filter-type]', function() {
+    $(document).on('click', '[data-filter-type]', function () {
         $('[data-filter-type]').removeClass('active');
         $(this).addClass('active');
         selectedType = $(this).data('filter-type');
@@ -146,7 +172,7 @@ function bindFilterEvents() {
     });
 
     // 地區按鈕點擊
-    $(document).on('click', '[data-filter-region]', function() {
+    $(document).on('click', '[data-filter-region]', function () {
         $('[data-filter-region]').removeClass('active');
         $(this).addClass('active');
         selectedRegion = $(this).data('filter-region');
@@ -154,7 +180,7 @@ function bindFilterEvents() {
     });
 
     // 搜尋輸入框事件
-    $('#search-input').on('input keyup', function() {
+    $('#search-input').on('input keyup', function () {
         searchTerm = $(this).val().toLowerCase().trim();
         filterAndRender();
     });
@@ -224,48 +250,48 @@ function createEventCardHtml(item) {
         : `<span class="status-badge"><span class="status-dot"></span> 開放報名中</span>`;
 
     // 類型標籤
-    const typeBadge = `<span class="type-badge"><i class="fa-solid fa-tag"></i> ${item.type}</span>`;
-    
+    const typeBadge = `<span class="type-badge"><i class="fa-solid fa-tag me-1"></i> ${item.type}</span>`;
+
     // 表演藝人標籤 (若無藝人資料則不渲染)
-    const performerBadge = item.performer 
-        ? `<span class="performer-badge"><i class="fa-solid fa-microphone-lines"></i> 藝人：${item.performer}</span>` 
+    const performerBadge = item.performer
+        ? `<span class="performer-badge"><i class="fa-solid fa-microphone-lines me-1"></i> 藝人：${item.performer}</span>`
         : '';
 
     // 按鈕邏輯
     let actionBtnHtml = '';
     if (item.isExpired) {
-        actionBtnHtml = `<div class="btn-uvaco-disabled"><i class="fa-solid fa-lock"></i> 活動已結束</div>`;
+        actionBtnHtml = `<div class="btn-uvaco-disabled"><i class="fa-solid fa-lock me-1"></i> 活動已結束</div>`;
     } else if (item.regUrl && item.regUrl.trim() !== '') {
-        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-uvaco-primary"><i class="fa-solid fa-paper-plane"></i> 立即線上報名</a>`;
+        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-uvaco-primary"><i class="fa-solid fa-paper-plane me-1"></i> 立即線上報名</a>`;
     } else {
-        actionBtnHtml = `<div class="btn-uvaco-secondary"><i class="fa-solid fa-circle-info"></i> 現場自由入場 / 聯繫我們</div>`;
+        actionBtnHtml = `<div class="btn-uvaco-secondary"><i class="fa-solid fa-circle-info me-1"></i> 現場自由入場 / 聯繫我們</div>`;
     }
 
     const expiredClass = item.isExpired ? 'expired' : '';
 
     // 格式化時間
-    const timeDisplay = item.startTime === item.endTime || !item.endTime 
-        ? item.startTime 
+    const timeDisplay = item.startTime === item.endTime || !item.endTime
+        ? item.startTime
         : `${item.startTime} ~ ${item.endTime.split(' ')[1] || item.endTime}`;
 
     // 活動時間獨立模組化
     const timeHtml = timeDisplay
-        ? `<div class="info-item"><i class="fa-regular fa-clock"></i><div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>` 
+        ? `<div class="info-item"><i class="fa-regular fa-clock me-1"></i><div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>`
         : '';
-    
+
     // 活動地區獨立模組化
-    const locationHtml = item.location 
-        ? `<div class="info-item"><i class="fa-solid fa-earth-asia"></i><div>活動地區：<span class="highlight">${item.location}</span></div></div>` 
+    const locationHtml = item.location
+        ? `<div class="info-item"><i class="fa-solid fa-earth-asia me-1"></i><div>活動地區：<span class="highlight">${item.location}</span></div></div>`
         : '';
-    
+
     // 活動場地獨立模組化
-    const venueHtml = item.venue 
-        ? `<div class="info-item"><i class="fa-solid fa-building"></i><div>活動場地：<span class="highlight">${item.venue}</span></div></div>` 
+    const venueHtml = item.venue
+        ? `<div class="info-item"><i class="fa-solid fa-building me-1"></i><div>活動場地：<span class="highlight">${item.venue}</span></div></div>`
         : '';
 
     // 活動地址獨立模組化
-    const addressHtml = item.address 
-        ? `<div class="info-item"><i class="fa-solid fa-map-pin"></i><div>活動地址：<span class="highlight">${item.address}</span></div></div>` 
+    const addressHtml = item.address
+        ? `<div class="info-item"><i class="fa-solid fa-map-pin me-1"></i><div>活動地址：<span class="highlight">${item.address}</span></div></div>`
         : '';
 
     const html = `
@@ -302,7 +328,7 @@ function createEventCardHtml(item) {
             </div>
         </div>
     `;
-    
+
     return html;
 }
 

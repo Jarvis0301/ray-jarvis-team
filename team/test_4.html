@@ -200,11 +200,11 @@
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div>
-                    <h2 class="page-title m-0"><i class="fas fa-calculator me-2"></i> 組織獎金動態試算小工具</h2>
+                    <h2 class="page-title m-0"><i class="fa-solid fa-calculator me-1"></i> 組織獎金動態試算小工具</h2>
                     <p class="text-muted small m-0 mt-1">榮祥葡眾團隊私域戰情網 · 即時業績模擬與獎金分潤計算引擎</p>
                 </div>
                 <div>
-                    <span class="badge bg-primary px-3 py-2 fs-6"><i class="fas fa-shield-halved me-1"></i> 團隊內部專用版</span>
+                    <span class="badge bg-primary px-3 py-2 fs-6"><i class="fa-solid fa-shield-halved me-1"></i> 團隊內部專用版</span>
                 </div>
             </div>
         </div>
@@ -216,15 +216,15 @@
             <div class="col-lg-8">
                 <div class="card card-custom h-100">
                     <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-user-gear me-2"></i> 個人參數與當月業績設定</span>
+                        <span><i class="fa-solid fa-user-gear me-1"></i> 個人參數與當月業績設定</span>
                         <button id="btnFetchCloudData" class="btn btn-sm btn-outline-info">
-                            <i class="fas fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數
+                            <i class="fa-solid fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數
                         </button>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="selectCurrentRank" class="form-label"><i class="fas fa-award me-1"></i> 當前職級階梯</label>
+                                <label for="selectCurrentRank" class="form-label"><i class="fa-solid fa-award me-1"></i> 當前職級階梯</label>
                                 <select id="selectCurrentRank" class="form-select">
                                     <option value="5" data-rank="會員">會員 (5% 回饋 / 積分 1,000 ~ 9,999 SV)</option>
                                     <option value="10" data-rank="主任">主任 (10% 回饋 / 累積滿 10,000 SV)</option>
@@ -233,16 +233,16 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="inputPersonalSV" class="form-label"><i class="fas fa-box-archive me-1"></i> 個人當月消費 SV (Personal SV)</label>
+                                <label for="inputPersonalSV" class="form-label"><i class="fa-solid fa-box-archive me-1"></i> 個人當月消費 SV (Personal SV)</label>
                                 <input type="number" id="inputPersonalSV" class="form-control" value="1500" min="0" step="100">
                             </div>
                             <div class="col-md-6">
-                                <label for="inputPVPointValue" class="form-label"><i class="fas fa-coins me-1"></i> 點值換算比率 (PV Value)</label>
+                                <label for="inputPVPointValue" class="form-label"><i class="fa-solid fa-coins me-1"></i> 點值換算比率 (PV Value)</label>
                                 <input type="number" id="inputPVPointValue" class="form-control" value="1.0" step="0.01" min="0.1">
                                 <div class="form-text text-muted">預設 1.0，可依公司當月最新點值係數微調。</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="inputLeadershipBonusRate" class="form-label"><i class="fas fa-sitemap me-1"></i> 領導獎金提撥率 (%)</label>
+                                <label for="inputLeadershipBonusRate" class="form-label"><i class="fa-solid fa-sitemap me-1"></i> 領導獎金提撥率 (%)</label>
                                 <input type="number" id="inputLeadershipBonusRate" class="form-control" value="6.0" step="0.5" readonly>
                                 <div class="form-text text-muted">合格經理且有體系分支時預設符合 6% 黃金代數獎金。</div>
                             </div>
@@ -254,18 +254,18 @@
             <div class="col-lg-4">
                 <div class="card card-custom h-100 border-primary">
                     <div class="card-header card-header-custom text-center">
-                        <i class="fas fa-sack-dollar me-2"></i> 預估當月總收益 (NT$)
+                        <i class="fa-solid fa-sack-dollar me-1"></i> 預估當月總收益 (NT$)
                     </div>
                     <div class="card-body d-flex flex-column justify-content-center align-items-center">
                         <div class="stat-label fs-6 mb-2">預估現金獎金與購物金總合</div>
                         <div class="stat-value-gold fw-bold mb-3" id="displayTotalBonus">NT$ 0</div>
                         <div class="w-100 border-top border-secondary pt-3 mt-2">
                             <div class="d-flex justify-content-between text-muted small mb-1">
-                                <span><i class="fas fa-cubes me-1"></i> 當月組織總 SV：</span>
+                                <span><i class="fa-solid fa-cubes me-1"></i> 當月組織總 SV：</span>
                                 <span id="displayTotalSV" class="text-info fw-bold">0 SV</span>
                             </div>
                             <div class="d-flex justify-content-between text-muted small">
-                                <span><i class="fas fa-diagram-project me-1"></i> 下線合格分支數：</span>
+                                <span><i class="fa-solid fa-diagram-project me-1"></i> 下線合格分支數：</span>
                                 <span id="displayBranchCount" class="text-info fw-bold">0 線</span>
                             </div>
                         </div>
@@ -278,9 +278,9 @@
             <div class="col-12">
                 <div class="card card-custom">
                     <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-users-rays me-2"></i> 直屬下線分支（Line 1 ~ Line N）業績錄入</span>
+                        <span><i class="fa-solid fa-users-rays me-1"></i> 直屬下線分支（Line 1 ~ Line N）業績錄入</span>
                         <button id="btnAddBranch" class="btn btn-accent btn-sm">
-                            <i class="fas fa-user-plus me-1"></i> 新增下線分支
+                            <i class="fa-solid fa-user-plus me-1"></i> 新增下線分支
                         </button>
                     </div>
                     <div class="card-body">
@@ -298,7 +298,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    </tbody>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -310,7 +310,7 @@
             <div class="col-md-6">
                 <div class="card card-custom h-100">
                     <div class="card-header card-header-custom">
-                        <i class="fas fa-chart-pie me-2"></i> 獎金收益結構分析 (Bonus Composition)
+                        <i class="fa-solid fa-chart-pie me-1"></i> 獎金收益結構分析 (Bonus Composition)
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 280px;">
                         <canvas id="chartBonusPie"></canvas>
@@ -320,7 +320,7 @@
             <div class="col-md-6">
                 <div class="card card-custom h-100">
                     <div class="card-header card-header-custom">
-                        <i class="fas fa-chart-bar me-2"></i> 獎金項目詳細對比 (Bonus Breakdown)
+                        <i class="fa-solid fa-chart-bar me-1"></i> 獎金項目詳細對比 (Bonus Breakdown)
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 280px;">
                         <canvas id="chartBonusBar"></canvas>
@@ -333,27 +333,27 @@
             <div class="col-12">
                 <div class="card card-custom">
                     <div class="card-header card-header-custom">
-                        <i class="fas fa-list-check me-2"></i> 試算明細總覽 (Calculation Breakdown Summary)
+                        <i class="fa-solid fa-list-check me-1"></i> 試算明細總覽 (Calculation Breakdown Summary)
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="stat-card">
-                                    <div class="stat-label"><i class="fas fa-user-check me-1"></i> 個人專屬回饋獎金</div>
+                                    <div class="stat-label"><i class="fa-solid fa-user-check me-1"></i> 個人專屬回饋獎金</div>
                                     <div class="stat-value text-info" id="displayPersonalRebate">NT$ 0</div>
                                     <div class="small text-muted mt-1" id="displayPersonalRebateSub">個人 0 SV × 0%</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="stat-card">
-                                    <div class="stat-label"><i class="fas fa-arrows-split-up-and-left me-1"></i> 組織職級差額獎金</div>
+                                    <div class="stat-label"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i> 組織職級差額獎金</div>
                                     <div class="stat-value text-cyan" id="displayGroupDifferential">NT$ 0</div>
                                     <div class="small text-muted mt-1">來自直屬分支之階梯差額</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="stat-card">
-                                    <div class="stat-label"><i class="fas fa-crown me-1"></i> 預估黃金代數領導獎金</div>
+                                    <div class="stat-label"><i class="fa-solid fa-crown me-1"></i> 預估黃金代數領導獎金</div>
                                     <div class="stat-value text-warning" id="displayLeadershipBonus">NT$ 0</div>
                                     <div class="small text-muted mt-1">合格經理 6% 組織推廣提撥</div>
                                 </div>
@@ -365,7 +365,7 @@
         </div>
 
         <div class="disclaimer-box mb-4">
-            <div class="fw-bold mb-1"><i class="fas fa-triangle-exclamation me-1"></i> 榮祥團隊系統合規與試算免責聲明：</div>
+            <div class="fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> 榮祥團隊系統合規與試算免責聲明：</div>
             <ol class="m-0 ps-3">
                 <li>本工具僅供《榮祥葡眾團隊》內部夥伴作事業戰略規劃、目標設定與組織試算參考，非葡眾官方正式發放憑證。</li>
                 <li>實際獎金發放金額受當月個人合格門檻、組織自動補救、世代壓縮機制及公司最新公佈之 PV 點值發放率等因素影響，請以每月公司官方發放之「獎金明細表」為準。</li>
@@ -383,24 +383,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
+        // 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
+        const SPREADSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("獎金制度對照表")}`;
+
         // 頁面初始化與狀態變數
         let dataTableInstance = null;
         let chartPieInstance = null;
         let chartBarInstance = null;
-        let branchIdCounter = 1;
+        let branchIdCounter = 0;
 
-        // 預設直屬分支資料範例
-        let branchDataList = [
-            { id: 1, name: "分支 A (體系經理)", rankRate: 20, rankName: "經理", sv: 80000 },
-            { id: 2, name: "分支 B (副理夥伴)", rankRate: 15, rankName: "副理", sv: 30000 },
-            { id: 3, name: "分支 C (主任夥伴)", rankRate: 10, rankName: "主任", sv: 12000 }
-        ];
+        // 直屬分支資料清單 (預設為空)
+        let branchDataList = [];
 
         $(document).ready(function () {
             initDataTable();
             initCharts();
             bindEvents();
-            calculateBonus();
+            fetchGoogleSheetBonusData();
         });
 
         // 1. 初始化 DataTable.js
@@ -450,7 +450,7 @@
 
                 const actionBtnHtml = `
                     <button class="btn btn-sm btn-outline-danger-custom btn-delete-branch" data-id="${branch.id}">
-                        <i class="fas fa-trash-can"></i> 刪除
+                        <i class="fa-solid fa-trash-can me-1"></i> 刪除
                     </button>
                 `;
 
@@ -588,7 +588,7 @@
                 calculateBonus();
             });
 
-            // PapaParse 抓取 Google 試算表範例
+            // PapaParse 抓取 Google 試算表
             $('#btnFetchCloudData').on('click', function () {
                 fetchGoogleSheetBonusData();
             });
@@ -659,35 +659,42 @@
 
         // 6. Google 試算表抓取與欄位解耦合 (PapaParse + gviz)
         function fetchGoogleSheetBonusData() {
-            // 示範 Google 試算表 ID 與 gviz/tq URL
-            const SPREADSHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // 替換為實際試算表 ID
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("獎金制度對照表")}`;
-
-            $('#btnFetchCloudData').html('<i class="fas fa-spinner fa-spin me-1"></i> 抓取中...').prop('disabled', true);
+            $('#btnFetchCloudData').html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 抓取中...').prop('disabled', true);
 
             Papa.parse(url, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function (results) {
-                    $('#btnFetchCloudData').html('<i class="fas fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數').prop('disabled', false);
+                    $('#btnFetchCloudData').html('<i class="fa-solid fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數').prop('disabled', false);
 
                     if (results.data && results.data.length > 0) {
-                        // 欄位解耦處理 (Dynamic Column Decoupling)
                         const mappedData = parseDecoupledSheetData(results.data);
                         console.log("雲端同步成功解析數據:", mappedData);
-                        alert("成功從雲端試算表同步最新點值與職級參數！");
                         calculateBonus();
                     } else {
-                        alert("雲端試算表無資料或無法讀取。");
+                        handleFetchError("試算表內無資料列");
                     }
                 },
                 error: function (err) {
-                    $('#btnFetchCloudData').html('<i class="fas fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數').prop('disabled', false);
-                    console.warn("Google Sheet 抓取失敗，使用預設值:", err);
-                    alert("無法連線至雲端試算表，系統繼續使用在地化預設參數。");
+                    handleFetchError(err);
                 }
             });
+        }
+
+        // 錯誤處理與提示視窗
+        function handleFetchError(err) {
+            console.error("雲端試算表抓取失敗:", err);
+            $('#btnFetchCloudData').html('<i class="fa-solid fa-cloud-arrow-down me-1"></i> 同步雲端試算表參數').prop('disabled', false);
+
+            calculateBonus();
+
+            if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+                AppDialog.alert("無法載入雲端試算表參數，請確認網路連線或試算表讀取權限！", {
+                    title: "連線失敗",
+                    icon: "fa-solid fa-circle-exclamation text-danger"
+                });
+            }
         }
 
         // 欄位名稱解耦映射函數
