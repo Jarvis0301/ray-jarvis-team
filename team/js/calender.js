@@ -184,18 +184,7 @@ function initDataTable() {
         $('#eventsDataTable').DataTable().destroy();
     }
 
-    $('#eventsDataTable').DataTable({
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/zh-TW.json'
-        },
-        responsive: true,
-        pageLength: 5,
-        lengthMenu: [5, 10, 20],
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: false, targets: [5] } // 操作列不提供排序
-        ]
-    });
+    $('#eventsDataTable').DataTable();
 }
 
 /**

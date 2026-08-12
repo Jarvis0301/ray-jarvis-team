@@ -278,15 +278,7 @@ function renderDataTable(data) {
         `);
     });
 
-    $('#conceptDataTable').DataTable({
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-TW.json'
-        },
-        pageLength: 6,
-        lengthMenu: [6, 12, 24],
-        responsive: true,
-        order: [[3, 'desc']]
-    });
+    $('#conceptDataTable').DataTable();
 }
 
 // 渲染 Chart.js 分析圖表

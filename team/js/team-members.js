@@ -9,8 +9,7 @@ AppDialog.alert範例：
 」 */
 
 // 設定 Google 試算表 CSV 公開發布網址 (gviz/tq?tqx=out:csv)
-const SPREADSHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
-const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Materials`;
+const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vX_EXAMPLE_ID/pub?gid=0&single=true&output=csv';
 
 // 預設備用模擬數據（若 Google 試算表尚未設定或抓取失敗時自動啟動）
 const fallbackMembersData = [
@@ -259,23 +258,7 @@ function renderDataTable(members) {
     });
 
     // 初始化 DataTable
-    dataTableInstance = $('#membersTable').DataTable({
-        responsive: true,
-        pageLength: 5,
-        lengthMenu: [5, 10, 25, 50],
-        language: {
-            search: '<i class="fa-solid fa-magnifying-glass"></i> 搜尋夥伴：',
-            lengthMenu: '顯示 _MENU_ 筆記錄',
-            info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆夥伴',
-            infoEmpty: '無匹配成員資料',
-            paginate: {
-                first: '首頁',
-                last: '末頁',
-                next: '<i class="fa-solid fa-chevron-right"></i>',
-                previous: '<i class="fa-solid fa-chevron-left"></i>'
-            }
-        }
-    });
+    dataTableInstance = $('#membersTable').DataTable();
 }
 
 function getRankBadgeStyle(rank) {

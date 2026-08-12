@@ -81,19 +81,6 @@ window.addEventListener('AppReady', function() {
 
     // 4. 初始化 DataTable
     let dataTable = $('#resourceTable').DataTable({
-        language: {
-            search: '<i class="fa-solid fa-magnifying-glass"></i> 關鍵字搜尋：',
-            lengthMenu: '顯示 _MENU_ 筆記錄',
-            info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆資源',
-            infoEmpty: '無資料可顯示',
-            zeroRecords: '未找到符合條件的資源檔案',
-            paginate: {
-                first: '首頁',
-                previous: '上一頁',
-                next: '下一頁',
-                last: '末頁'
-            }
-        },
         columns: [
             { data: 'id' },
             { data: 'title' },
@@ -117,9 +104,7 @@ window.addEventListener('AppReady', function() {
                     </a>`;
                 }
             }
-        ],
-        pageLength: 5,
-        responsive: true
+        ]
     });
 
     // 5. 抓取 Google 試算表 (gviz/PapaParse)

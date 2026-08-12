@@ -15,15 +15,7 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
     // 1. 初始化 DataTable.js (暗黑主題配對)
-    const materialsTable = $('#materialsTable').DataTable({
-        "language": {
-            "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-TW.json"
-        },
-        "pageLength": 5,
-        "lengthMenu": [5, 10, 20],
-        "ordering": true,
-        "responsive": true
-    });
+    const materialsTable = $('#materialsTable').DataTable();
 
     // 2. 初始化 Chart.js (學習進度圓弧圖)
     const ctx = document.getElementById('learningProgressChart').getContext('2d');

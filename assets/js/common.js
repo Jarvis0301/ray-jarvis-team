@@ -115,7 +115,8 @@ function setDataTable() {
 
             // --- 4. 效能優化 ---
             deferRender: true,             // 延遲渲染 (當資料量大時能顯著提升速度)
-            processing: true               // 讀取/排序時顯示「處理中」提示
+            processing: true,               // 讀取/排序時顯示「處理中」提示
+            responsive: true                // RWD
 
             /*
             searching (true / false)：是否開啟表格右上角的搜尋框。
