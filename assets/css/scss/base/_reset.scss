@@ -17,3 +17,42 @@ body {
     font-family: var(--bs-body-font-family);
     -webkit-font-smoothing: antialiased;
 }
+
+/* ==========================================================================
+   全域捲軸美化 (Global Custom Scrollbars)
+   檔名：assets/css/scss/2-base/_reset.scss
+   對接 Bootstrap 5.3+ 原生 RGB 變數與 UVACO Design Tokens
+   ========================================================================== */
+
+/* 1. 全域捲軸動態色彩 Token 宣告 */
+:root {
+    --uvaco-scrollbar-track: rgba(var(--bs-body-bg-rgb, 11, 19, 43), 0.6);
+    --uvaco-scrollbar-thumb: rgba(var(--bs-primary-rgb, 56, 189, 248), 0.35);
+    --uvaco-scrollbar-thumb-hover: rgba(var(--bs-primary-rgb, 56, 189, 248), 0.7);
+}
+
+/* 2. WebKit 核心瀏覽器 (Chrome, Edge, Safari, Opera) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--uvaco-scrollbar-track);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--uvaco-scrollbar-thumb);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--uvaco-scrollbar-thumb-hover);
+}
+
+/* 3. Firefox (Gecko 核心) 標準屬性支援 */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--uvaco-scrollbar-thumb) var(--uvaco-scrollbar-track);
+}

@@ -145,14 +145,23 @@ let currentView = "card";
 let dataTableInstance = null;
 let clearModalInstance = null;
 
-// Chart.js 實例管理
-let chartCategorySvInstance = null;
-let chartCategoryAmountInstance = null;
+// ==========================================
+// 圖表全域變數與切換狀態 (支援圖表 1、2、4、5 多幣別切換)
+// ==========================================
+let chart1Metric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
+let chartBarMetric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
+let chart4Metric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
+let chart5Metric = 'TWD'; // 'TWD' | 'MYR' | 'SV'
+
+// 5 大主圖表實例
+let chartMainCategoryPieInstance = null;
+let chartSeriesCombinedBarInstance = null;
 let chartTypeQtyInstance = null;
-let chartSubSeriesSvInstance = null;
-let chartMainCategoryComparisonInstance = null;
 let chartTopItemsInstance = null;
 let chartTypeSvRadarInstance = null;
+
+// Modal 內子系列環形圖實例字典 (key: mainCode)
+let chartSubInstances = {};
 
 // ==========================================
 // 3. 頁面初始化與事件監聽
@@ -591,6 +600,63 @@ function bindEvents() {
 }
 
 // ==========================================
+// 綁定圖表控制與數值顯示開關事件
+// ==========================================
+function bindChartControls() {
+    // 列印數據顯示 / 隱藏按鈕組切換
+    $('#btnGroupShowData button').off('click').on('click', function () {
+        $('#btnGroupShowData button').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    // 圖表 1 幣別切換
+    $('.chart1-metric-btn').off('click').on('click', function () {
+        $('.chart1-metric-btn').removeClass('active');
+        $(this).addClass('active');
+        chart1Metric = $(this).data('metric');
+        updateCartSummary();
+    });
+
+    // 圖表 2 幣別切換
+    $('.chartBar-metric-btn').off('click').on('click', function () {
+        $('.chartBar-metric-btn').removeClass('active');
+        $(this).addClass('active');
+        chartBarMetric = $(this).data('metric');
+        updateCartSummary();
+    });
+
+    // 圖表 4 幣別切換
+    $('.chart4-metric-btn').off('click').on('click', function () {
+        $('.chart4-metric-btn').removeClass('active');
+        $(this).addClass('active');
+        chart4Metric = $(this).data('metric');
+        updateCartSummary();
+    });
+
+    // 圖表 5 幣別切換
+    $('.chart5-metric-btn').off('click').on('click', function () {
+        $('.chart5-metric-btn').removeClass('active');
+        $(this).addClass('active');
+        chart5Metric = $(this).data('metric');
+        updateCartSummary();
+    });
+
+    // 列印戰情圖表觸發
+    $('#btnPrintAnalytics').off('click').on('click', function () {
+        exportAnalyticsReport();
+    });
+
+    // 開啟子系列 Modal
+    $('#btnOpenSubSeriesModal').off('click').on('click', function () {
+        const modalElem = document.getElementById('subSeriesChartsModal');
+        if (modalElem) {
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalElem);
+            bsModal.show();
+        }
+    });
+}
+
+// ==========================================
 // 7. 產品渲染引擎
 // ==========================================
 function getFilteredProducts() {
@@ -823,7 +889,7 @@ function findProductById(id) {
 }
 
 // ==========================================
-// 8. 訂購試算摘要與運費/匯率邏輯 (核心升級區)
+// 8. 訂購試算摘要與運費/匯率邏輯
 // ==========================================
 function updateCartSummary() {
     const $container = $("#cart-items-container");
@@ -845,7 +911,7 @@ function updateCartSummary() {
 
     const selectedKeys = Object.keys(cartState);
 
-    // ✨ 當購物車為空時處理
+    // 當購物車為空時處理
     if (selectedKeys.length === 0) {
         $container.html(`
             <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
@@ -854,21 +920,13 @@ function updateCartSummary() {
             </div>
         `);
 
-        // 設定免運提示文字
+        // 設定免運門檻進度條文字
         if (appState.country === 'MY') {
             $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> RM 800 免運費門檻`);
             $("#shipping-progress-text").text(`0 / 800 RM`);
-            $("#shipping-alert")
-                .removeClass("shipping-alert-success")
-                .addClass("shipping-alert-warning")
-                .html(`<i class="fa-solid fa-circle-info"></i> 滿 RM 800 免運費`);
         } else {
             $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> 480 SV 免運費門檻`);
             $("#shipping-progress-text").text(`0 / 480 SV`);
-            $("#shipping-alert")
-                .removeClass("shipping-alert-success")
-                .addClass("shipping-alert-warning")
-                .html(`<i class="fa-solid fa-circle-info"></i> 滿 480 SV 免運費`);
         }
 
         $("#shipping-progress-bar").css("width", `0%`);
@@ -876,7 +934,7 @@ function updateCartSummary() {
         // 面板與懸浮島 UI 歸零，運費顯示「-」
         $("#total-qty-badge").text(`0 件商品`);
         $("#summary-subtotal").text(`${currSymbol}0`);
-        $("#summary-shipping").text("-"); // ✨ 購物車為空時顯示 -
+        $("#summary-shipping").text("-");
         $("#summary-grand-total").text(`${currSymbol}0`);
         $("#summary-total-sv").text(`0 SV`);
         $("#summary-rebate-cash").text(`${currSymbol}0`);
@@ -935,10 +993,12 @@ function updateCartSummary() {
             $container.append(`
                 <div class="cart-item-row">
                     <div class="cart-item-title" title="${product.name}">
-                        <i class="fa-solid fa-box text-info"></i> ${product.name}
+                        <i class="fa-solid fa-box text-info me-1"></i>${product.name}
                     </div>
-                    <div class="text-muted small">x ${qty}</div>
-                    <div class="text-end">
+                    <div class="cart-item-qty">
+                        x ${qty}
+                    </div>
+                    <div class="cart-item-price-block">
                         <div class="text-warning font-weight-bold">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
                         <div class="text-info" style="font-size: 0.75rem;">${itemTotalSV.toLocaleString()} SV</div>
                     </div>
@@ -947,32 +1007,19 @@ function updateCartSummary() {
         }
     });
 
-    // ✨ 運費計算邏輯
+    // 運費計算邏輯
     let shippingFeeInDisplay = 0;
-    let isFreeShipping = false;
-    let gapText = "";
     let shippingPercent = 0;
 
     if (appState.country === 'MY') {
-        // 馬來西亞規則：RM 800 免運費，否則西馬 RM 15 / 東馬 RM 35
         let subtotalMYR = isTargetMYR ? subtotalDisplay : subtotalDisplay / rate;
         const thresholdMYR = 800;
         const baseShippingMYR = appState.myRegion === 'EAST' ? 35 : 15;
 
         if (subtotalMYR >= thresholdMYR) {
-            isFreeShipping = true;
             shippingFeeInDisplay = 0;
-            gapText = `<i class="fa-solid fa-circle-check"></i> 已達 RM 800 免運費門檻！`;
-        } else if (subtotalDisplay > 0) {
-            const gapMYR = thresholdMYR - subtotalMYR;
-            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : baseShippingMYR * rate;
-            const regionName = appState.myRegion === 'EAST' ? '東馬' : '西馬';
-            const gapShow = isTargetMYR ? `RM ${Math.ceil(gapMYR).toLocaleString()}` : `NT$ ${Math.ceil(gapMYR * rate).toLocaleString()}`;
-            const feeShow = isTargetMYR ? `RM ${baseShippingMYR}` : `NT$ ${Math.round(baseShippingMYR * rate)}`;
-            gapText = `<i class="fa-solid fa-circle-info"></i> 還差 ${gapShow} 可享有免運費（${regionName}運費 ${feeShow}）`;
         } else {
-            const feeShow = isTargetMYR ? `RM ${baseShippingMYR}` : `NT$ ${Math.round(baseShippingMYR * rate)}`;
-            gapText = `<i class="fa-solid fa-circle-info"></i> 滿 RM 800 免運費（未達門檻運費 ${feeShow}）`;
+            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : baseShippingMYR * rate;
         }
 
         shippingPercent = Math.min(100, (subtotalMYR / thresholdMYR) * 100);
@@ -980,22 +1027,13 @@ function updateCartSummary() {
         $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
 
     } else {
-        // 台灣規則：480 SV 免運費，否則 NT$ 150
         const thresholdSV = 480;
         const baseShippingTWD = 150;
 
         if (totalSV >= thresholdSV) {
-            isFreeShipping = true;
             shippingFeeInDisplay = 0;
-            gapText = `<i class="fa-solid fa-circle-check"></i> 已達 480 SV 免運費門檻！`;
-        } else if (totalSV > 0) {
-            const gapSV = thresholdSV - totalSV;
-            shippingFeeInDisplay = isTargetMYR ? baseShippingTWD / rate : baseShippingTWD;
-            const feeShow = isTargetMYR ? `RM ${Math.round(baseShippingTWD / rate)}` : `NT$ ${baseShippingTWD}`;
-            gapText = `<i class="fa-solid fa-circle-info"></i> 還差 ${gapSV} SV 可享有免運費（運費 ${feeShow}）`;
         } else {
-            const feeShow = isTargetMYR ? `RM ${Math.round(baseShippingTWD / rate)}` : `NT$ ${baseShippingTWD}`;
-            gapText = `<i class="fa-solid fa-circle-info"></i> 滿 480 SV 免運費（未達門檻運費 ${feeShow}）`;
+            shippingFeeInDisplay = isTargetMYR ? baseShippingTWD / rate : baseShippingTWD;
         }
 
         shippingPercent = Math.min(100, (totalSV / thresholdSV) * 100);
@@ -1004,10 +1042,6 @@ function updateCartSummary() {
     }
 
     $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
-    $("#shipping-alert")
-        .removeClass("shipping-alert-success shipping-alert-warning")
-        .addClass(isFreeShipping ? "shipping-alert-success" : "shipping-alert-warning")
-        .html(gapText);
 
     const grandTotal = subtotalDisplay + shippingFeeInDisplay;
 
@@ -1042,119 +1076,159 @@ function updateCartSummary() {
 // 9. Chart.js 初始化與動態更新
 // ==========================================
 function initAllCharts() {
-    // 1. 各類別 SV 占比
-    const ctx1 = document.getElementById('chartCategorySv')?.getContext('2d');
-    if (ctx1) {
-        chartCategorySvInstance = new Chart(ctx1, {
-            type: 'doughnut',
-            data: {
-                labels: ['保健食品', '個人保養', '健康生活', '寵愛毛孩'],
-                datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#38bdf8', '#7dd3fc', '#facc15', '#34d399'], borderWidth: 0 }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } } }
-        });
-    }
+    bindChartControls();
 
-    // 2. 各類別金額占比
-    const ctx2 = document.getElementById('chartCategoryAmount')?.getContext('2d');
-    if (ctx2) {
-        chartCategoryAmountInstance = new Chart(ctx2, {
+    const mainCats = getMainCategories();
+    const allTypes = getAllTypes();
+
+    // 1. 主系列整體占比圓餅圖
+    const ctx1 = document.getElementById('chartMainCategoryPie')?.getContext('2d');
+    if (ctx1) {
+        chartMainCategoryPieInstance = new Chart(ctx1, {
             type: 'pie',
             data: {
-                labels: ['保健食品', '個人保養', '健康生活', '寵愛毛孩'],
-                datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#facc15', '#fb923c', '#a855f7', '#38bdf8'], borderWidth: 0 }]
+                labels: mainCats.map(c => `${c.code} ${c.name}`),
+                datasets: [{
+                    data: new Array(mainCats.length).fill(0),
+                    backgroundColor: ['#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7', '#facc15', '#22d3ee'],
+                    borderWidth: 0
+                }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // ✨ 關閉過場動畫，確保點擊時畫布立刻呈現
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const val = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                const symbol = chart1Metric === 'SV' ? ' SV' : (chart1Metric === 'MYR' ? ' RM' : ' NT$');
+                                return ` ${label}: ${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
-    // 3. 產品型態數量
+    // 2. 各系列採購數據條形圖
+    const ctx2 = document.getElementById('chartSeriesCombinedBar')?.getContext('2d');
+    if (ctx2) {
+        chartSeriesCombinedBarInstance = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: mainCats.map(c => `${c.code} ${c.name}`),
+                datasets: [{
+                    label: '數據',
+                    data: new Array(mainCats.length).fill(0),
+                    backgroundColor: ['rgba(56, 189, 248, 0.8)', 'rgba(251, 146, 60, 0.8)', 'rgba(52, 211, 153, 0.8)', 'rgba(244, 63, 94, 0.8)', 'rgba(168, 85, 247, 0.8)'],
+                    borderWidth: 0,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // ✨ 關閉過場動畫
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: '#f8fafc', font: { size: 11 } }, grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // 3. 全型態訂購數量柱狀圖
     const ctx3 = document.getElementById('chartTypeQty')?.getContext('2d');
     if (ctx3) {
         chartTypeQtyInstance = new Chart(ctx3, {
             type: 'bar',
             data: {
-                labels: ['益生菌', '膠囊', '錠劑', '沖泡飲', '液態飲', '外用保養', '清潔'],
-                datasets: [{ label: '訂購數量', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: 'rgba(52, 211, 153, 0.75)', borderColor: '#34d399', borderWidth: 1, borderRadius: 4 }]
+                labels: allTypes,
+                datasets: [{
+                    label: '訂購數量',
+                    data: new Array(allTypes.length).fill(0),
+                    backgroundColor: 'rgba(52, 211, 153, 0.75)',
+                    borderColor: '#34d399',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } } },
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // ✨ 關閉過場動畫
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
+                },
                 plugins: { legend: { display: false } }
             }
         });
     }
 
-    // ✨ 4. 各次系列 SV 分佈 (動態 Y 軸)
-    const ctx4 = document.getElementById('chartSubSeriesSv')?.getContext('2d');
+    // 4. 單品採購 Top 5
+    const ctx4 = document.getElementById('chartTopItems')?.getContext('2d');
     if (ctx4) {
-        chartSubSeriesSvInstance = new Chart(ctx4, {
+        chartTopItemsInstance = new Chart(ctx4, {
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [{ label: '累積 SV 積分', data: [], backgroundColor: 'rgba(56, 189, 248, 0.75)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 4 }]
+                datasets: [{
+                    label: '數值',
+                    data: [],
+                    backgroundColor: 'rgba(251, 191, 36, 0.8)',
+                    borderColor: '#fbbf24',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
             },
             options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                scales: { x: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#f8fafc', font: { size: 11 } }, grid: { display: false } } },
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // ✨ 關閉過場動畫
+                scales: {
+                    x: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#f8fafc', font: { size: 10 } }, grid: { display: false } }
+                },
                 plugins: { legend: { display: false } }
             }
         });
     }
 
-    // 5. 各主系列 金額 vs SV
-    const ctx5 = document.getElementById('chartMainCategoryComparison')?.getContext('2d');
+    // 5. 型態數據貢獻雷達圖
+    const ctx5 = document.getElementById('chartTypeSvRadar')?.getContext('2d');
     if (ctx5) {
-        chartMainCategoryComparisonInstance = new Chart(ctx5, {
-            type: 'bar',
-            data: {
-                labels: ['保健食品', '個人保養', '健康生活', '寵愛毛孩'],
-                datasets: [
-                    { label: '消費金額', data: [0, 0, 0, 0], backgroundColor: 'rgba(250, 204, 21, 0.8)', borderColor: '#facc15', borderWidth: 1, borderRadius: 4 },
-                    { label: '累積積分 (SV)', data: [0, 0, 0, 0], backgroundColor: 'rgba(56, 189, 248, 0.8)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 4 }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: '#f8fafc', font: { size: 11 } }, grid: { display: false } } },
-                plugins: { legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { size: 11 } } } }
-            }
-        });
-    }
-
-    // ✨ 6. 單品採購金額 Top 5
-    const ctx6 = document.getElementById('chartTopItems')?.getContext('2d');
-    if (ctx6) {
-        chartTopItemsInstance = new Chart(ctx6, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{ label: '小計金額', data: [], backgroundColor: 'rgba(251, 191, 36, 0.8)', borderColor: '#fbbf24', borderWidth: 1, borderRadius: 4 }]
-            },
-            options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                scales: { x: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#f8fafc', font: { size: 10 } }, grid: { display: false } } },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // ✨ 7. 各型態 SV 貢獻雷達圖
-    const ctx7 = document.getElementById('chartTypeSvRadar')?.getContext('2d');
-    if (ctx7) {
-        chartTypeSvRadarInstance = new Chart(ctx7, {
+        chartTypeSvRadarInstance = new Chart(ctx5, {
             type: 'radar',
             data: {
-                labels: ['益生菌', '膠囊', '錠劑', '沖泡飲', '液態飲', '外用保養', '清潔'],
-                datasets: [{ label: 'SV 貢獻度', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: 'rgba(244, 63, 94, 0.25)', borderColor: '#f43f5e', borderWidth: 2, pointBackgroundColor: '#f43f5e' }]
+                labels: allTypes,
+                datasets: [{
+                    label: '貢獻度',
+                    data: new Array(allTypes.length).fill(0),
+                    backgroundColor: 'rgba(244, 63, 94, 0.25)',
+                    borderColor: '#f43f5e',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#f43f5e'
+                }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // ✨ 關閉過場動畫
                 scales: {
                     r: {
                         angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                         grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: { color: '#94a3b8', font: { size: 10 } },
+                        pointLabels: { color: '#94a3b8', font: { size: 9 } },
                         ticks: { display: false, beginAtZero: true }
                     }
                 },
@@ -1162,120 +1236,212 @@ function initAllCharts() {
             }
         });
     }
+
+    renderSubSeriesChartCards();
 }
 
 // ==========================================
-// 圖表動態數據刷新
+// 圖表數據即時動態運算引擎
 // ==========================================
 function updateAllChartsData(data) {
-    const categories = ['保健食品', '個人保養', '健康生活', '寵愛毛孩'];
-    const types = ['益生菌', '膠囊', '錠劑', '沖泡飲', '液態飲', '外用保養', '清潔'];
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
+    const mainCats = getMainCategories();
+    const allTypes = getAllTypes();
 
-    // 1. 各類別 SV 占比
-    if (chartCategorySvInstance) {
-        chartCategorySvInstance.data.datasets[0].data = categories.map(c => data.catSvMap[c] || 0);
-        chartCategorySvInstance.update();
-    }
+    // 1. 動態初始化主系列統計結構
+    let mainCatData = {};
+    mainCats.forEach(c => {
+        mainCatData[c.code] = { TWD: 0, MYR: 0, SV: 0 };
+    });
 
-    // 2. 各類別金額占比
-    if (chartCategoryAmountInstance) {
-        chartCategoryAmountInstance.data.datasets[0].data = categories.map(c => data.catAmountMap[c] || 0);
-        chartCategoryAmountInstance.update();
-    }
+    let subCatDataMap = {};
+    let typeQtyMap = {};
+    let typeMetricMap5 = {};
+    allTypes.forEach(t => { typeQtyMap[t] = 0; typeMetricMap5[t] = 0; });
 
-    // 3. 型態數量
-    if (chartTypeQtyInstance) {
-        chartTypeQtyInstance.data.datasets[0].data = types.map(t => data.typeQtyMap[t] || 0);
-        chartTypeQtyInstance.update();
-    }
+    Object.keys(cartState).forEach(id => {
+        const qty = cartState[id];
+        const p = findProductById(id);
+        if (p && qty > 0) {
+            const priceOrig = parseFloat(p.price) || 0;
+            const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
+            const sv = parseFloat(p.sv_point) || 0;
 
-    // ✨ 4. 圖表 4 動態次系列邏輯 (若有選購，僅呈現 SV > 0 的次系列)
-    if (chartSubSeriesSvInstance) {
-        const allSubs = getAllSubSeriesList();
-        let activeSubs = allSubs.filter(sub => (data.subSeriesSvMap[sub] || 0) > 0);
+            let priceTWD = itemCurr === 'MYR' ? priceOrig * rate : priceOrig;
+            let priceMYR = itemCurr === 'TWD' ? priceOrig / rate : priceOrig;
 
-        // 如果未選擇任何商品，則列出全部次系列；若有選購，僅展示有說選擇的次系列
-        let displayLabels = (activeSubs.length > 0) ? activeSubs : allSubs;
+            let itemTWD = priceTWD * qty;
+            let itemMYR = priceMYR * qty;
+            let itemSV = sv * qty;
 
-        chartSubSeriesSvInstance.data.labels = displayLabels;
-        chartSubSeriesSvInstance.data.datasets[0].data = displayLabels.map(s => data.subSeriesSvMap[s] || 0);
-        chartSubSeriesSvInstance.update();
-    }
-
-    // 5. 各主系列 金額 vs SV
-    if (chartMainCategoryComparisonInstance) {
-        chartMainCategoryComparisonInstance.data.datasets[0].data = categories.map(c => data.catAmountMap[c] || 0);
-        chartMainCategoryComparisonInstance.data.datasets[1].data = categories.map(c => data.catSvMap[c] || 0);
-        chartMainCategoryComparisonInstance.update();
-    }
-
-    // ✨ 6. 單品採購金額 Top 5 數據計算
-    if (chartTopItemsInstance) {
-        let itemsList = [];
-        const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
-        const targetCurr = appState.displayCurrency;
-
-        Object.keys(cartState).forEach(id => {
-            const qty = cartState[id];
-            const p = findProductById(id);
-            if (p && qty > 0) {
-                const itemPriceOrig = parseFloat(p.price) || 0;
-                const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
-                let priceInDisplay = itemPriceOrig;
-                if (itemCurr === 'TWD' && targetCurr === 'MYR') priceInDisplay = itemPriceOrig / rate;
-                else if (itemCurr === 'MYR' && targetCurr === 'TWD') priceInDisplay = itemPriceOrig * rate;
-
-                itemsList.push({
-                    name: p.name,
-                    totalAmount: Math.round(priceInDisplay * qty)
-                });
+            // 次系列與主系列代碼匹配
+            let subCode = p.subcategory_code || '';
+            if (p.product_code === '80050' || p.product_code === '80070') subCode = '0302';
+            else if (!subCode && p.product_code && p.product_code.length >= 6) {
+                subCode = p.product_code.replace(/^(TW|MY)/, '').slice(0, 4);
             }
-        });
 
-        // 依金額降冪排序並切出 Top 5
-        itemsList.sort((a, b) => b.totalAmount - a.totalAmount);
-        const top5 = itemsList.slice(0, 5);
+            let mainCode = subCode ? subCode.slice(0, 2) : (mainCats[0] ? mainCats[0].code : '01');
+            if (!mainCatData[mainCode]) mainCode = mainCats[0] ? mainCats[0].code : '01';
 
-        chartTopItemsInstance.data.labels = top5.map(i => i.name);
-        chartTopItemsInstance.data.datasets[0].data = top5.map(i => i.totalAmount);
-        chartTopItemsInstance.update();
-    }
-
-    // ✨ 7. 各型態 SV 雷達圖數據計算
-    if (chartTypeSvRadarInstance) {
-        let typeSvMap = {};
-        Object.keys(cartState).forEach(id => {
-            const qty = cartState[id];
-            const p = findProductById(id);
-            if (p && qty > 0) {
-                const sv = parseFloat(p.sv_point) || 0;
-                const typeName = p.type_name || '其他';
-                typeSvMap[typeName] = (typeSvMap[typeName] || 0) + (sv * qty);
+            // 累加主系列
+            if (mainCatData[mainCode]) {
+                mainCatData[mainCode].TWD += itemTWD;
+                mainCatData[mainCode].MYR += itemMYR;
+                mainCatData[mainCode].SV += itemSV;
             }
-        });
 
-        chartTypeSvRadarInstance.data.datasets[0].data = types.map(t => typeSvMap[t] || 0);
-        chartTypeSvRadarInstance.update();
-    }
-}
-
-// 取得當前所有動態次系列名稱清單
-function getAllSubSeriesList() {
-    let list = [];
-    const isMY = appState.country === 'MY';
-    
-    appState.seriesList.forEach(series => {
-        if (series.subs) {
-            series.subs.forEach(sub => {
-                const displayName = getLanguageName(sub, isMY) || sub.name;
-                if (displayName && !list.includes(displayName)) {
-                    list.push(displayName);
+            // 累加子系列 (僅記選購項目)
+            if (subCode) {
+                const subInfo = getSubSeriesInfo(subCode, appState.country === 'MY');
+                if (!subCatDataMap[subCode]) {
+                    subCatDataMap[subCode] = {
+                        code: subCode,
+                        mainCode: mainCode,
+                        name: subInfo.name,
+                        TWD: 0, MYR: 0, SV: 0
+                    };
                 }
-            });
+                subCatDataMap[subCode].TWD += itemTWD;
+                subCatDataMap[subCode].MYR += itemMYR;
+                subCatDataMap[subCode].SV += itemSV;
+            }
+
+            // 累加型態數量與圖表 5 數值
+            const typeName = p.type_name || '特殊';
+            if (typeQtyMap[typeName] !== undefined) {
+                typeQtyMap[typeName] += qty;
+                typeMetricMap5[typeName] += (chart5Metric === 'SV' ? itemSV : (chart5Metric === 'MYR' ? itemMYR : itemTWD));
+            }
         }
     });
 
-    return list.length > 0 ? list : ['全能防護', '關鍵調理', '順暢保衛', '晶亮守護', '身體護理', '寵物保健'];
+    // --- 圖表 1：主系列圓餅圖 ---
+    if (chartMainCategoryPieInstance) {
+        chartMainCategoryPieInstance.data.labels = mainCats.map(c => `${c.code} ${c.name}`);
+        chartMainCategoryPieInstance.data.datasets[0].data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chart1Metric] : 0);
+        chartMainCategoryPieInstance.update();
+    }
+
+    // --- 圖表 2：主系列條形圖 ---
+    if (chartSeriesCombinedBarInstance) {
+        chartSeriesCombinedBarInstance.data.labels = mainCats.map(c => `${c.code} ${c.name}`);
+        chartSeriesCombinedBarInstance.data.datasets[0].label = `採購數值 (${chartBarMetric})`;
+        chartSeriesCombinedBarInstance.data.datasets[0].data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chartBarMetric] : 0);
+        chartSeriesCombinedBarInstance.update();
+    }
+
+    // --- 圖表 3：全型態數量柱狀圖 ---
+    if (chartTypeQtyInstance) {
+        chartTypeQtyInstance.data.labels = allTypes;
+        chartTypeQtyInstance.data.datasets[0].data = allTypes.map(t => typeQtyMap[t] || 0);
+        chartTypeQtyInstance.update();
+    }
+
+    // --- ✨ 圖表 4：Top 5 單品排行榜 (支援 TWD / MYR / SV 切換) ---
+    if (chartTopItemsInstance) {
+        let topList = [];
+        Object.keys(cartState).forEach(id => {
+            const qty = cartState[id];
+            const p = findProductById(id);
+            if (p && qty > 0) {
+                const priceOrig = parseFloat(p.price) || 0;
+                const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
+                const sv = parseFloat(p.sv_point) || 0;
+
+                let val = 0;
+                if (chart4Metric === 'SV') {
+                    val = sv * qty;
+                } else if (chart4Metric === 'MYR') {
+                    val = (itemCurr === 'TWD' ? priceOrig / rate : priceOrig) * qty;
+                } else {
+                    val = (itemCurr === 'MYR' ? priceOrig * rate : priceOrig) * qty;
+                }
+
+                topList.push({ name: p.name, val: Math.round(val) });
+            }
+        });
+
+        topList.sort((a, b) => b.val - a.val);
+        const top5 = topList.slice(0, 5);
+
+        chartTopItemsInstance.data.labels = top5.map(i => i.name);
+        chartTopItemsInstance.data.datasets[0].label = `數值 (${chart4Metric})`;
+        chartTopItemsInstance.data.datasets[0].data = top5.map(i => i.val);
+        chartTopItemsInstance.update();
+    }
+
+    // --- ✨ 圖表 5：型態數據貢獻雷達圖 (支援 TWD / MYR / SV 切換) ---
+    if (chartTypeSvRadarInstance) {
+        chartTypeSvRadarInstance.data.labels = allTypes;
+        chartTypeSvRadarInstance.data.datasets[0].label = `貢獻度 (${chart5Metric})`;
+        chartTypeSvRadarInstance.data.datasets[0].data = allTypes.map(t => typeMetricMap5[t] || 0);
+        chartTypeSvRadarInstance.update();
+    }
+
+    // --- Modal 內子系列環形圖 (僅顯示選購項目) ---
+    mainCats.forEach(cat => {
+        const instance = chartSubInstances[cat.code];
+        if (instance) {
+            const subList = Object.values(subCatDataMap)
+                .filter(s => s.mainCode === cat.code && s[chart1Metric] > 0)
+                .sort((a, b) => a.code.localeCompare(b.code));
+
+            if (subList.length > 0) {
+                instance.data.labels = subList.map(s => `${s.code} ${s.name}`);
+                instance.data.datasets[0].data = subList.map(s => s[chart1Metric]);
+                instance.data.datasets[0].backgroundColor = [
+                    '#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7', '#facc15', '#22d3ee'
+                ];
+            } else {
+                instance.data.labels = ['無選購項目'];
+                instance.data.datasets[0].data = [1];
+                instance.data.datasets[0].backgroundColor = ['#334155'];
+            }
+            instance.update();
+        }
+    });
+}
+
+// 核心轉接器：動態由試算表資料取得主系列與型態清單
+function getMainCategories() {
+    const isMY = appState.country === 'MY';
+    return (appState.seriesList || []).map(s => ({
+        code: s.code,
+        name: getLanguageName(s, isMY) || s.name || s.code,
+        color: s.color || '#38bdf8',
+        icon: s.icon || 'fa-solid fa-tag'
+    }));
+}
+
+function getAllTypes() {
+    return (appState.typeList || [])
+        .filter(t => t.code !== 'ALL' && t.name !== '全部')
+        .map(t => t.name);
+}
+
+// 動態構建 Modal 內的子系列圖表 DOM 卡片
+function renderSubSeriesChartCards() {
+    const $container = $('#subSeriesChartsContainer');
+    if (!$container.length) return;
+    $container.empty();
+
+    const mainCats = getMainCategories();
+    mainCats.forEach(cat => {
+        const html = `
+            <div class="col-12 col-md-6">
+                <div class="p-3 rounded bg-dark-subtle border border-secondary border-opacity-50 h-100">
+                    <div class="fw-bold mb-2" style="color: ${cat.color};">
+                        <i class="${cat.icon}"></i> ${cat.code} ${cat.name}
+                    </div>
+                    <div style="height: 180px; position: relative;">
+                        <canvas id="chartSub_${cat.code}"></canvas>
+                    </div>
+                </div>
+            </div>
+        `;
+        $container.append(html);
+    });
 }
 
 // ==========================================
@@ -1436,13 +1602,229 @@ function exportOrderToPDF() {
 }
 
 // ==========================================
+// 收集戰情圖表數據與畫布影像並送出列印
+// ==========================================
+function exportAnalyticsReport() {
+    const $btn = $('#btnPrintAnalytics');
+    const originalHtml = $btn.html();
+
+    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 報表產生中...');
+
+    // 透過 setTimeout 讓 UI 先更新按鈕為 Loading 狀態
+    setTimeout(() => {
+        try {
+            const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
+            const mainCats = getMainCategories();
+            const allTypes = getAllTypes();
+
+            const showDataLabels = $('#btnGroupShowData button.active').data('value') === true;
+
+            // 1. 收集主系列數據
+            let mainCatData = {};
+            mainCats.forEach(c => { mainCatData[c.code] = { TWD: 0, MYR: 0, SV: 0 }; });
+
+            let typeQtyMap = {};
+            let typeMetricMap5 = {};
+            allTypes.forEach(t => { typeQtyMap[t] = 0; typeMetricMap5[t] = 0; });
+
+            let totalChart1Val = 0;
+
+            Object.keys(cartState).forEach(id => {
+                const qty = cartState[id];
+                const p = findProductById(id);
+                if (p && qty > 0) {
+                    const priceOrig = parseFloat(p.price) || 0;
+                    const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
+                    const sv = parseFloat(p.sv_point) || 0;
+
+                    let priceTWD = itemCurr === 'MYR' ? priceOrig * rate : priceOrig;
+                    let priceMYR = itemCurr === 'TWD' ? priceOrig / rate : priceOrig;
+
+                    let itemTWD = priceTWD * qty;
+                    let itemMYR = priceMYR * qty;
+                    let itemSV = sv * qty;
+
+                    let subCode = p.subcategory_code || '';
+                    if (p.product_code === '80050' || p.product_code === '80070') subCode = '0302';
+                    else if (!subCode && p.product_code && p.product_code.length >= 6) {
+                        subCode = p.product_code.replace(/^(TW|MY)/, '').slice(0, 4);
+                    }
+
+                    let mainCode = subCode ? subCode.slice(0, 2) : (mainCats[0] ? mainCats[0].code : '01');
+                    if (!mainCatData[mainCode]) mainCode = mainCats[0] ? mainCats[0].code : '01';
+
+                    mainCatData[mainCode].TWD += itemTWD;
+                    mainCatData[mainCode].MYR += itemMYR;
+                    mainCatData[mainCode].SV += itemSV;
+
+                    const typeName = p.type_name || '特殊';
+                    if (typeQtyMap[typeName] !== undefined) {
+                        typeQtyMap[typeName] += qty;
+                        typeMetricMap5[typeName] += (chart5Metric === 'SV' ? itemSV : (chart5Metric === 'MYR' ? itemMYR : itemTWD));
+                    }
+                }
+            });
+
+            mainCats.forEach(c => {
+                totalChart1Val += mainCatData[c.code][chart1Metric];
+            });
+
+            const chart1Rows = mainCats.map(c => {
+                const val = mainCatData[c.code][chart1Metric];
+                const pct = totalChart1Val > 0 ? ((val / totalChart1Val) * 100).toFixed(1) : '0.0';
+                return { name: `${c.code} ${c.name}`, val: Math.round(val), pct: pct };
+            });
+
+            // 2. 收集 Top 5 單品數據
+            let topList = [];
+            Object.keys(cartState).forEach(id => {
+                const qty = cartState[id];
+                const p = findProductById(id);
+                if (p && qty > 0) {
+                    const priceOrig = parseFloat(p.price) || 0;
+                    const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
+                    const sv = parseFloat(p.sv_point) || 0;
+
+                    let val = 0;
+                    if (chart4Metric === 'SV') val = sv * qty;
+                    else if (chart4Metric === 'MYR') val = (itemCurr === 'TWD' ? priceOrig / rate : priceOrig) * qty;
+                    else val = (itemCurr === 'MYR' ? priceOrig * rate : priceOrig) * qty;
+
+                    topList.push({ name: p.name, val: Math.round(val) });
+                }
+            });
+            topList.sort((a, b) => b.val - a.val);
+            const top5List = topList.slice(0, 5);
+
+            // ✨ 核心修復：直接複製畫面上已渲染好的 sourceChart Canvas，塗上白底並標註數據
+            const generatePrintChartImg = (sourceChart, chartType, metricUnit = '', showData = true) => {
+                if (!sourceChart || !sourceChart.canvas) return '';
+
+                const srcCanvas = sourceChart.canvas;
+                if (srcCanvas.width === 0 || srcCanvas.height === 0) return '';
+
+                // 1. 建立離線 Canvas (按 1:1 複製比例)
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = srcCanvas.width;
+                tempCanvas.height = srcCanvas.height;
+                const ctx = tempCanvas.getContext('2d');
+
+                // 2. 滿填白底
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // 3. 同步複製畫面上的圖表像素
+                ctx.drawImage(srcCanvas, 0, 0);
+
+                // 4. 若勾選「顯示數值」，直接利用 sourceChart 的渲染座標繪製文字
+                if (showData) {
+                    ctx.save();
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    sourceChart.data.datasets.forEach((dataset, datasetIndex) => {
+                        const meta = sourceChart.getDatasetMeta(datasetIndex);
+                        if (!meta || meta.hidden) return;
+
+                        const total = dataset.data.reduce((a, b) => a + (Number(b) || 0), 0);
+
+                        meta.data.forEach((element, index) => {
+                            const val = dataset.data[index];
+                            if (val === undefined || val === null || val === 0) return;
+
+                            const formattedVal = Math.round(val).toLocaleString();
+                            const pct = total > 0 ? ((val / total) * 100).toFixed(1) + '%' : '';
+
+                            if (chartType === 'pie' || chartType === 'doughnut') {
+                                const { x, y, startAngle, endAngle, innerRadius, outerRadius } = element;
+                                const midAngle = startAngle + (endAngle - startAngle) / 2;
+                                const radius = (innerRadius !== undefined && outerRadius !== undefined)
+                                    ? innerRadius + (outerRadius - innerRadius) * 0.55
+                                    : (element.outerRadius || 80) * 0.55;
+                                const labelX = x + Math.cos(midAngle) * radius;
+                                const labelY = y + Math.sin(midAngle) * radius;
+
+                                ctx.fillStyle = '#ffffff';
+                                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                                ctx.shadowBlur = 4;
+                                ctx.fillText(`${formattedVal}`, labelX, labelY - 7);
+                                ctx.fillText(`(${pct})`, labelX, labelY + 7);
+                            } else if (chartType === 'bar') {
+                                const { x, y } = element;
+                                ctx.fillStyle = '#0f172a';
+                                ctx.shadowBlur = 0;
+                                if (meta.indexAxis === 'y') {
+                                    ctx.textAlign = 'left';
+                                    ctx.fillText(` ${formattedVal} ${metricUnit}`, x + 5, y);
+                                } else {
+                                    ctx.textAlign = 'center';
+                                    ctx.fillText(`${formattedVal}`, x, y - 10);
+                                }
+                            } else if (chartType === 'radar') {
+                                const { x, y } = element;
+                                ctx.fillStyle = '#0f172a';
+                                ctx.shadowBlur = 0;
+                                ctx.fillText(`${formattedVal}`, x, y - 10);
+                            }
+                        });
+                    });
+                    ctx.restore();
+                }
+
+                return tempCanvas.toDataURL('image/png');
+            };
+
+            const reportData = {
+                dateStr: new Date().toLocaleDateString('zh-TW'),
+                chart1: {
+                    metric: chart1Metric,
+                    img: generatePrintChartImg(chartMainCategoryPieInstance, 'pie', chart1Metric, showDataLabels),
+                    rows: chart1Rows,
+                    total: Math.round(totalChart1Val)
+                },
+                chart2: {
+                    metric: chartBarMetric,
+                    img: generatePrintChartImg(chartSeriesCombinedBarInstance, 'bar', chartBarMetric, showDataLabels)
+                },
+                chart3: {
+                    img: generatePrintChartImg(chartTypeQtyInstance, 'bar', '件', showDataLabels),
+                    rows: allTypes.map(t => ({ name: t, qty: typeQtyMap[t] }))
+                },
+                chart4: {
+                    metric: chart4Metric,
+                    img: generatePrintChartImg(chartTopItemsInstance, 'bar', chart4Metric, showDataLabels),
+                    rows: top5List
+                },
+                chart5: {
+                    metric: chart5Metric,
+                    img: generatePrintChartImg(chartTypeSvRadarInstance, 'radar', chart5Metric, showDataLabels),
+                    rows: allTypes.map(t => ({ name: t, val: Math.round(typeMetricMap5[t]) }))
+                }
+            };
+
+            if (typeof printAnalyticsReport === 'function') {
+                printAnalyticsReport(reportData);
+            } else {
+                console.error("未找到 printAnalyticsReport 列印模組！");
+            }
+        } catch (err) {
+            console.error("產生戰報時發生錯誤:", err);
+        } finally {
+            $btn.prop('disabled', false).html(originalHtml);
+        }
+    }, 50);
+}
+
+// ==========================================
 // 11. iframe 視窗滾動動態追蹤定位引擎
 // ==========================================
 function setupIframeFloatingPositionEngine() {
     function updatePosition() {
         try {
             const isInsideIframe = (window.self !== window.top);
-            const isDesktop = window.innerWidth >= 1200
+            const isDesktop = window.innerWidth >= 1200;
+
             if (isInsideIframe) {
                 const parentWin = window.parent;
                 const frameEl = window.frameElement;
