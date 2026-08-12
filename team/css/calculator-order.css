@@ -265,13 +265,15 @@ html, body {
 
 /* 針對 Chrome, Safari, Edge, Opera */
 .qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button {
+.qty-input::-webkit-inner-spin-button,
+.form-control-custom::-webkit-outer-spin-button,
+.form-control-custom::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
 /* 針對 Firefox */
-.qty-input {
+.qty-input, .form-control-custom {
     -moz-appearance: textfield;
 }
 
@@ -541,8 +543,8 @@ html, body {
     background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
 }
 
-/* 電腦版 (>= 992px) 訂購明細卡片跟隨滾動 */
-@media (min-width: 992px) {
+/* 電腦版 (>= 1200px) 訂購明細卡片跟隨滾動 */
+@media (min-width: 1200px) {
     .cart-summary-card {
         position: sticky;
         top: 20px; /* 距離視窗頂部 20px */

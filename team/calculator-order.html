@@ -26,7 +26,7 @@
             <div class="row g-3">
                 
                 <!-- 左側：多維度搜尋篩選 + 產品選擇 (可切換卡片式/表格式) -->
-                <div class="col-lg-8">
+                <div class="col-xl-8">
                     
                     <!-- 第3網頁風格：搜尋與多層次過濾區塊 -->
                     <section class="filter-section">
@@ -134,7 +134,7 @@
                 </div>
 
                 <!-- 右側：訂購明細試算卡片 (網頁1為主 - 保持原樣不異動) -->
-                <div class="col-lg-4">
+                <div class="col-xl-4">
                     <div class="cart-summary-card">
                         <!-- 訂購明細標題 -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -158,7 +158,7 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="exchangeRateInput" class="form-label small text-muted mb-1">
-                                        <i class="fa-solid fa-arrow-right-arrow-left text-info"></i> 匯率 (1 MYR=)
+                                        <i class="fa-solid fa-arrow-right-arrow-left text-info"></i> 匯率 (1 MYR = ? TWD)
                                     </label>
                                     <input type="number" id="exchangeRateInput" class="form-control form-control-sm form-control-custom" value="8.0" step="0.1" min="0.1">
                                 </div>
@@ -188,14 +188,14 @@
                         <!-- 免運費進度條 -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between small">
-                                <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> NT$ 5,000 免運費門檻</span>
+                                <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> 免運費門檻</span>
                                 <span id="shipping-progress-text" class="text-info font-weight-bold">0 / 5,000</span>
                             </div>
                             <div class="progress-shipping">
                                 <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
                             </div>
                             <div id="shipping-alert" class="shipping-alert-box shipping-alert-warning">
-                                <i class="fa-solid fa-circle-info"></i> 還差 NT$ 5,000 可享有免運費（運費 NT$ 100）
+                                <i class="fa-solid fa-circle-info"></i> 滿 480 SV 免運費（未達門檻運費 NT$ 150）
                             </div>
                         </div>
 
@@ -203,7 +203,7 @@
                         <div class="stat-highlight-box">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-muted small"><i class="fa-solid fa-coins"></i> 產品金額總計：</span>
-                                <span class="h5 mb-0 price-num">NT$ <span id="summary-subtotal">0</span></span>
+                                <span class="h5 mb-0 price-num" id="summary-subtotal">NT$ 0</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-muted small"><i class="fa-solid fa-truck"></i> 物流運費：</span>
@@ -212,15 +212,15 @@
                             <hr class="my-2 border-secondary border-opacity-50">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-white font-weight-bold"><i class="fa-solid fa-wallet"></i> 應付總金額：</span>
-                                <span class="h4 mb-0 text-warning font-weight-bold">NT$ <span id="summary-grand-total">0</span></span>
+                                <span class="h4 mb-0 text-warning font-weight-bold" id="summary-grand-total">NT$ 0</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-muted small"><i class="fa-solid fa-chart-line"></i> 累積總積分 (SV)：</span>
-                                <span class="h5 mb-0 sv-num"><span id="summary-total-sv">0</span> SV</span>
+                                <span class="h5 mb-0 sv-num" id="summary-total-sv">0 SV</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted small"><i class="fa-solid fa-hand-holding-dollar"></i> 預估回饋金 (現金)：</span>
-                                <span class="text-success font-weight-bold">NT$ <span id="summary-rebate-cash">0</span></span>
+                                <span class="text-success font-weight-bold" id="summary-rebate-cash">NT$ 0</span>
                             </div>
                         </div>
 
@@ -229,18 +229,18 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <button class="btn-action-excel w-100" id="btn-export-excel">
-                                        <i class="fa-solid fa-file-excel me-1"></i> 下載 Excel
+                                        <i class="fa-solid fa-file-excel"></i> 下載 Excel
                                     </button>
                                 </div>
                                 <div class="col-6">
                                     <button class="btn-action-pdf w-100" id="btn-export-pdf">
-                                        <i class="fa-solid fa-file-pdf me-1"></i> 下載 PDF
+                                        <i class="fa-solid fa-file-pdf"></i> 下載 PDF
                                     </button>
                                 </div>
                             </div>
 
                             <button class="btn-action-clear" id="btn-clear-all">
-                                <i class="fa-solid fa-trash-can me-1"></i> 清空重選
+                                <i class="fa-solid fa-trash-can"></i> 清空重選
                             </button>
                         </div>
 
@@ -273,11 +273,11 @@
                     </div>
                 </div>
 
-                <!-- 圖表 2：各產品類別購買金額 (NT$) 分布 (圓餅圖) -->
+                <!-- 圖表 2：各產品類別購買金額分布 (圓餅圖) -->
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title">
-                            <span><i class="fa-solid fa-chart-pie me-2 text-warning"></i>2. 各類別消費金額 (NT$) 占比</span>
+                            <span><i class="fa-solid fa-chart-pie me-2 text-warning"></i>2. 各類別消費金額占比</span>
                             <span class="badge bg-secondary opacity-75 fs-8">Pie</span>
                         </div>
                         <div style="height: 220px; position: relative;">
@@ -299,32 +299,57 @@
                     </div>
                 </div>
 
-                <!-- 圖表 4：各次系列 (Sub-Series) SV 積分分佈分析 (橫向長條圖) -->
+                <!-- 圖表 4：各次系列 SV 積分分佈分析 (動態過濾次系列) -->
                 <div class="col-12 col-md-6 col-xl-6">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title">
                             <span><i class="fa-solid fa-sitemap me-2" style="color: #38bdf8;"></i>4. 各次系列 SV 積分分佈分析</span>
-                            <span class="badge bg-secondary opacity-75 fs-8">Horizontal Bar</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Dynamic Bar</span>
                         </div>
-                        <div style="height: 220px; position: relative;">
+                        <div style="height: 240px; position: relative;">
                             <canvas id="chartSubSeriesSv"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- 圖表 5：各主系列金額 (NT$) 與 積分 (SV) 雙軸對比 (群組柱狀圖) -->
-                <div class="col-12 col-md-12 col-xl-6">
+                <!-- 圖表 5：各主系列金額與積分雙軸對比 (群組柱狀圖) -->
+                <div class="col-12 col-md-6 col-xl-6">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title">
-                            <span><i class="fa-solid fa-scale-balanced me-2" style="color: #c084fc;"></i>5. 各主系列：消費金額 (NT$) vs 累積積分 (SV)</span>
+                            <span><i class="fa-solid fa-scale-balanced me-2" style="color: #c084fc;"></i>5. 各主系列：金額 vs 累積積分 (SV)</span>
                             <span class="badge bg-secondary opacity-75 fs-8">Grouped Bar</span>
                         </div>
-                        <div style="height: 220px; position: relative;">
+                        <div style="height: 240px; position: relative;">
                             <canvas id="chartMainCategoryComparison"></canvas>
                         </div>
                     </div>
                 </div>
 
+                <!-- 圖表 6：單品採購金額 Top 5 排行榜 -->
+                <div class="col-12 col-md-6 col-xl-6">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-trophy me-2" style="color: #fbbf24;"></i>6. 單品採購金額 Top 5 排行榜</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Top Rank</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartTopItems"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 7：各型態 SV 積分貢獻分析 -->
+                <div class="col-12 col-md-6 col-xl-6">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-chart-radar me-2" style="color: #f43f5e;"></i>7. 各型態 SV 積分貢獻分析</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">Radar</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartTypeSvRadar"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </main>
@@ -342,28 +367,27 @@
                 <div class="col-10 col-md-11">
                     <div class="row">
                         <div class="col-12 col-md-4">
-                            <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-warning me-1"></i>應付總金額：</span>
-                            <span class="floating-kpi-val text-warning">NT$ <span id="sticky-grand-total">0</span></span>
+                            <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-warning"></i> 應付總金額：</span>
+                            <span class="floating-kpi-val text-warning" id="sticky-grand-total">NT$ 0</span>
                         </div>
                         <div class="w-100 d-block d-md-none"></div>
                         <div class="col-12 col-md-4">
-                            <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-info me-1"></i>累積總積分：</span>
-                            <span class="floating-kpi-val text-info"><span id="sticky-total-sv">0</span> SV</span>
+                            <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-info"></i> 累積總積分：</span>
+                            <span class="floating-kpi-val text-info" id="sticky-total-sv">0 SV</span>
                         </div>
                         <div class="w-100 d-block d-md-none"></div>
                         <div class="col-12 col-md-4">
-                            <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-success me-1"></i>預估回饋金：</span>
-                            <span class="floating-kpi-val text-success">NT$ <span id="sticky-rebate-cash">0</span></span>
+                            <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-success"></i> 預估回饋金：</span>
+                            <span class="floating-kpi-val text-success" id="sticky-rebate-cash">NT$ 0</span>
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
 
         <!-- ✨ 浮動喚醒按鈕：呈現在「左下角」(`left: 25px`)，徹底避免蓋到外層右下角 BackToTop 按鈕 -->
         <button class="floating-wake-btn" id="btnShowFloatingBar">
-            <i class="fa-solid fa-chart-pie me-1"></i> 總計
+            <i class="fa-solid fa-chart-pie"></i> 總計
         </button>
         
     </body>
