@@ -1,68 +1,36 @@
-# 葡眾三軌網站 - 全景關聯式資料庫系統藍圖 (Database Schema & ERD)
+# 榮祥團隊三軌數位陣地 - 全景關聯式資料庫系統藍圖
 
-本目錄為「葡眾三軌網站（公開版 / 團隊版 / 核心樞）」之關聯式資料庫（RDBMS）完整設計規格與實體關聯圖（ERD）。
+本目錄為「榮祥團隊（Ray's Team）」專屬網站控制台之關聯式資料庫（RDBMS）完整設計規格。
 
 ---
 
-## 1. 全站系統架構總覽 (System ERD Overview)
+## 1. 全站黃金戰術實體關聯圖 (System ERD)
+
+> **📱 手機端瀏覽提示**：若 GitHub App 無法渲染下方 Mermaid 動態圖，請直接參閱解構對照表。
+
+<details open>
+<summary>🔍 點擊展開/收折 Mermaid 動態繪圖語法 (電腦端支援互動)</summary>
 
 ```mermaid
 erDiagram
-    %% 模組一：產品與內容
-    product_categories ||--|{ product_subcategories : "包含"
-    product_subcategories ||--|{ products : "分類"
-    product_types ||--|{ products : "劑型"
-    products ||--|| product_details : "詳細資料"
-    products ||--|{ product_patent_relations : "專利"
-    product_patents ||--|{ product_patent_relations : "專利"
-
-    %% 模組四：倉儲與進銷存
-    warehouses ||--|{ inventory_stocks : "存放"
-    products ||--|{ inventory_stocks : "庫存品項"
-    warehouses ||--|{ outbound_orders : "出貨自"
-    outbound_orders ||--|{ outbound_items : "出貨明細"
-    products ||--|{ outbound_items : "出貨產品"
-
-    %% 模組五：夥伴與組織樹
-    partner_ranks ||--|{ partners : "當前職級"
-    partners ||--o{ partners : "推薦/輔導人 (自關聯)"
-    partners ||--|| partner_profiles : "高敏個資"
-    partners ||--|{ partner_rank_history : "晉升歷史"
-
-    %% 模組六：客戶 CRM
-    partners ||--|{ customers : "專屬服務"
-    customers ||--|| customer_profiles : "健康檔案"
-    customers ||--|{ customer_purchases : "消費紀錄"
-
-    %% 模組七：財務對帳
-    partners ||--|{ bonus_settlements : "獎金結算"
-
-    %% 模組八：資安門禁
-    partners ||--o| system_whitelist_permissions : "通行權限"
+    partners ||--|{ pv_transfer_loans : "Ray 代轉積分借貸"
+    partners ||--|{ manager_qualification_monitors : "合格經理門檻監控"
+    partners ||--|{ customers : "直轄關懷服務"
+    customers ||--|{ customer_purchase_schedules : "時間調配協調單"
+    warehouses ||--|{ outbound_orders : "出貨據點"
+    partners ||--|{ outbound_orders : "提貨出庫"
 ```
 
----
-
-## 2. 8 大領域驅動模組規格索引
-
-* [01. 產品與品牌內容模組 (12 Tables)](./schema/01-product-and-content.md)
-* [02. 公司經營與合規模組 (6 Tables)](./schema/02-corporate-and-compliance.md)
-* [03. 活動與培訓軍備庫模組 (2 Tables)](./schema/03-events-and-training.md)
-* [04. 倉儲與進銷存管理模組 (8 Tables)](./schema/04-inventory-and-logistics.md)
-* [05. 夥伴與組織拓撲模組 (6 Tables)](./schema/05-partners-and-network.md)
-* [06. 客戶 CRM 與復購模組 (6 Tables)](./schema/06-customer-crm.md)
-* [07. 財務對帳與稅務扣繳模組 (5 Tables)](./schema/07-financials-and-tax.md)
-* [08. 資安門禁與工具輔助模組 (4 Tables)](./schema/08-security-and-utilities.md)
+</details>
 
 ---
 
-## 3. 全表標準維運稽核欄位 (Common Audit Fields)
+## 2. 7 大領域驅動模組規格索引 (模組名稱皆為 4 個字)
 
-全系統 53 個資料表均強制包含以下 4 大維運稽核欄位，確保雙創始人（Ray & Jarvis）維護之**不可竄改軌跡**：
-
-| 欄位名稱 (Field) | 資料型態 (Data Type) | 預設值 (Default) | 業務說明 |
-| :--- | :--- | :--- | :--- |
-| `created_by` | VARCHAR(100) | `'SYSTEM'` | 建立者（例如：`Jarvis`, `Ray`, 或系統服務） |
-| `created_at` | DATETIME | `CURRENT_TIMESTAMP` | 資料建立時間點 |
-| `modified_by` | VARCHAR(100) | `'SYSTEM'` | 最後異動者 |
-| `modified_at` | DATETIME | `CURRENT_TIMESTAMP ON UPDATE` | 最後異動時間點 |
+1. [模組一：產品品牌 (12 Tables)](./schema/01-product-and-brand.md)
+2. [模組二：公司培訓 (8 Tables)](./schema/02-company-and-training.md) *(合併大事記/榮譽標章/活動/軍備庫)*
+3. [模組三：倉儲進銷 (8 Tables)](./schema/03-inventory-and-sales.md)
+4. [模組四：夥伴組織 (8 Tables)](./schema/04-partners-and-network.md) *(含 Ray 積分代轉借貸對帳表)*
+5. [模組五：客戶關懷 (7 Tables)](./schema/05-customer-crm.md) *(含 Ray 消費時間調配協調表)*
+6. [模組六：財務分潤 (3 Tables)](./schema/06-team-financials.md) *(廢除政府稅務健保表)*
+7. [模組七：資安工具 (5 Tables)](./schema/07-security-and-utilities.md)
