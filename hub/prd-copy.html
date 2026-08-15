@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行銷文案庫 (H12000) - 榮祥團隊戰情室</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    
+    <style>
+        :root {
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-card: #160d2e;
+            --uvaco-bg-card-hover: #1f133d;
+            --uvaco-border: rgba(139, 92, 246, 0.25);
+            --uvaco-border-focus: #ec4899;
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-glow: 0 0 15px rgba(139, 92, 246, 0.35);
+            --uvaco-cta-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        /* 導航欄與玻璃擬態 */
+        .glass-header {
+            background: rgba(22, 13, 46, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--uvaco-border);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .card-custom {
+            background-color: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-custom:hover {
+            border-color: var(--uvaco-primary);
+            box-shadow: var(--uvaco-glow);
+        }
+
+        /* 篩選標籤膠囊 (Pills) */
+        .filter-pill {
+            cursor: pointer;
+            border: 1px solid var(--uvaco-border);
+            background: transparent;
+            color: var(--uvaco-text-muted);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .filter-pill:hover, .filter-pill.active {
+            background: var(--uvaco-primary);
+            color: #ffffff;
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+
+        .filter-pill.active-accent {
+            background: var(--uvaco-accent);
+            color: #ffffff;
+            border-color: var(--uvaco-accent);
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+        }
+
+        /* 專屬 CTA 按鈕 */
+        .btn-cta {
+            background: var(--uvaco-cta-gradient);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-cta:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 0 18px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+        }
+
+        /* 文案卡片樣式 */
+        .copy-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .copy-text-area {
+            background-color: rgba(10, 5, 24, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        /* LINE 實境模擬器視窗 */
+        .simulator-phone {
+            background: #000000;
+            border: 8px solid #2d2448;
+            border-radius: 36px;
+            padding: 16px;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .simulator-screen {
+            background: #849ebf;
+            border-radius: 20px;
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .line-chat-header {
+            background: #2b364a;
+            color: #ffffff;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .line-bubble {
+            background: #ffffff;
+            color: #111111;
+            border-radius: 14px;
+            border-top-left-radius: 2px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            position: relative;
+            max-width: 85%;
+            margin: 12px 10px;
+            word-break: break-word;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* DataTables 深色化微調 */
+        table.dataTable {
+            color: var(--uvaco-text-main) !important;
+        }
+        .dataTables_wrapper .dataTables_length, 
+        .dataTables_wrapper .dataTables_filter, 
+        .dataTables_wrapper .dataTables_info, 
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--uvaco-text-muted) !important;
+            margin-top: 10px;
+        }
+        .page-link {
+            background-color: var(--uvaco-bg-card);
+            border-color: var(--uvaco-border);
+            color: var(--uvaco-text-main);
+        }
+        .page-item.active .page-link {
+            background-color: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+        }
+
+        /* 違規詞警告標記 */
+        .bad-word-highlight {
+            background-color: #ef4444;
+            color: #ffffff;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="glass-header py-3 mb-4">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <a href="home.html" class="text-decoration-none me-3">
+                    <span class="badge bg-primary px-2 py-1"><i class="fa-solid fa-arrow-left"></i> 回總覽</span>
+                </a>
+                <h4 class="mb-0 fw-bold">
+                    <i class="fa-solid fa-pen-to-square text-accent me-2"></i> 行銷文案軍火庫 <span class="badge bg-dark-subtle text-info border border-info ms-2 fs-6">H12000</span>
+                </h4>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-light btn-sm" id="btnToggleView">
+                    <i class="fa-solid fa-table-list"></i> 切換清單管理
+                </button>
+                <button class="btn btn-outline-info btn-sm" id="btnSyncGoogleSheet">
+                    <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                </button>
+                <button class="btn btn-cta btn-sm" id="btnOpenAddModal">
+                    <i class="fa-solid fa-plus"></i> 新增文案
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid px-4">
+        
+        <div class="card card-custom p-3 mb-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-auto">
+                    <span class="fw-bold text-info"><i class="fa-solid fa-wand-magic-sparkles"></i> 專屬引流參數注入：</span>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-dark text-light border-secondary">夥伴姓名</span>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="tokenPartnerName" value="榮祥顧問">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-dark text-light border-secondary">LINE ID</span>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="tokenPartnerLine" value="ray_uvaco">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-dark text-light border-secondary">推廣短網址</span>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="tokenPartnerLink" value="https://uvaco.tw/ray995">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-custom p-3 mb-4">
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="text-muted small me-2" style="width: 75px;"><i class="fa-solid fa-users"></i> 目標受眾：</span>
+                    <button class="filter-pill active" data-filter-group="audience" data-filter="ALL">全部受眾</button>
+                    <button class="filter-pill" data-filter-group="audience" data-filter="上班族">上班族 / 爆肝熬夜</button>
+                    <button class="filter-pill" data-filter-group="audience" data-filter="銀髮族">銀髮長輩 / 行動靈活</button>
+                    <button class="filter-pill" data-filter-group="audience" data-filter="媽媽族">產後媽咪 / 育兒調理</button>
+                    <button class="filter-pill" data-filter-group="audience" data-filter="外食族">應酬外食 / 消化代謝</button>
+                    <button class="filter-pill" data-filter-group="audience" data-filter="事業經營">副業增收 / 經銷創業</button>
+                </div>
+                <div class="d-flex align-items-center flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25">
+                    <span class="text-muted small me-2" style="width: 75px;"><i class="fa-solid fa-bullhorn"></i> 傳播渠道：</span>
+                    <button class="filter-pill active-accent" data-filter-group="type" data-filter="ALL">全渠道類型</button>
+                    <button class="filter-pill" data-filter-group="type" data-filter="LINE_SHORT">LINE 1對1破冰</button>
+                    <button class="filter-pill" data-filter-group="type" data-filter="SOCIAL_POST">FB/IG 深度圖文</button>
+                    <button class="filter-pill" data-filter-group="type" data-filter="15S_QUOTE">15秒短影音/限動金句</button>
+                    <button class="filter-pill" data-filter-group="type" data-filter="PAIN_POINT">痛點故事剖析</button>
+                </div>
+                <div class="d-flex align-items-center flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25">
+                    <span class="text-muted small me-2" style="width: 75px;"><i class="fa-solid fa-box"></i> 關聯產品：</span>
+                    <select class="form-select form-select-sm w-auto bg-dark text-light border-secondary" id="selectProductFilter">
+                        <option value="ALL">全部產品文案 (跨系列)</option>
+                        <option value="PRD-001">995 超級營養液</option>
+                        <option value="PRD-002">樟芝益菌絲體</option>
+                        <option value="PRD-003">康爾喜乳酸菌</option>
+                        <option value="PRD-004">百克斯 (活力草本)</option>
+                        <option value="PRD-005">衛傑 (消化保衛)</option>
+                    </select>
+                    <div class="input-group input-group-sm w-auto ms-auto">
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="searchKeyword" placeholder="搜尋標題或關鍵字...">
+                        <button class="btn btn-outline-secondary" type="button" id="btnResetSearch"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewCardSection" class="row g-4">
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">共篩選出 <strong class="text-info" id="countCards">0</strong> 則實戰行銷文案</span>
+                </div>
+                <div class="row g-3" id="copyCardsContainer">
+                    </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-custom p-3 sticky-top" style="top: 85px;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold text-info"><i class="fa-solid fa-mobile-screen-button"></i> 社群實境即時預覽</h6>
+                        <span class="badge bg-secondary" id="simulatorTypeBadge">LINE 聊天室</span>
+                    </div>
+                    
+                    <div class="simulator-phone">
+                        <div class="simulator-screen">
+                            <div class="line-chat-header">
+                                <span><i class="fa-solid fa-chevron-left"></i> 潛在客戶 (小美)</span>
+                                <span><i class="fa-solid fa-bars"></i></span>
+                            </div>
+                            <div class="p-2 flex-grow-1 overflow-auto" id="simulatorChatBody">
+                                <div class="text-center my-2">
+                                    <span class="badge bg-dark bg-opacity-50 text-white-50" style="font-size: 0.7rem;">今日 下午 2:30</span>
+                                </div>
+                                <div class="line-bubble" id="simulatorBubbleText">
+                                    請點選左側任意文案的「<i class="fa-solid fa-eye"></i> 實境預覽」按鈕，此處將以專屬參數動態渲染社群展示效果。
+                                </div>
+                            </div>
+                            <div class="p-2 bg-white d-flex align-items-center gap-1 border-top">
+                                <i class="fa-regular fa-image text-muted fs-5"></i>
+                                <span class="text-muted small flex-grow-1 ps-2">輸入訊息...</span>
+                                <i class="fa-solid fa-paper-plane text-primary fs-5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-center">
+                        <button class="btn btn-sm btn-outline-light w-100" id="btnShareToLineDirect">
+                            <i class="fa-brands fa-line text-success fs-6"></i> 直接啟動 LINE 分享此文案
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewTableSection" class="card card-custom p-3 d-none">
+            <div class="table-responsive">
+                <table id="tableCopywriting" class="table table-dark table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">序號</th>
+                            <th style="width: 15%;">文案標題</th>
+                            <th style="width: 12%;">關聯產品</th>
+                            <th style="width: 10%;">目標受眾</th>
+                            <th style="width: 10%;">渠道型態</th>
+                            <th style="width: 33%;">內文預覽</th>
+                            <th style="width: 5%;">狀態</th>
+                            <th style="width: 10%;">操作管理</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalEditCopy" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content card-custom text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold" id="modalEditTitle">
+                        <i class="fa-solid fa-file-pen text-accent"></i> 編輯行銷文案 (表06 prd_copywritings)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCopywriting">
+                        <input type="hidden" id="editCopyId">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted">文案標題 (title) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-light border-secondary" id="inputCopyTitle" required placeholder="例如：熬夜加班族必備的體力充電寶！">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">關聯產品 (product_id)</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="inputCopyProduct">
+                                    <option value="PRD-001">995 超級營養液</option>
+                                    <option value="PRD-002">樟芝益菌絲體</option>
+                                    <option value="PRD-003">康爾喜乳酸菌</option>
+                                    <option value="PRD-004">百克斯</option>
+                                    <option value="PRD-005">衛傑</option>
+                                    <option value="PRD-000">全系列 / 綜合調理</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">目標受眾標籤 (target_audience)</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="inputCopyAudience">
+                                    <option value="上班族">上班族 / 爆肝熬夜</option>
+                                    <option value="銀髮族">銀髮長輩 / 行動靈活</option>
+                                    <option value="媽媽族">產後媽咪 / 育兒調理</option>
+                                    <option value="外食族">應酬外食 / 消化代謝</option>
+                                    <option value="事業經營">副業增收 / 經銷創業</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">傳播渠道類型 (copy_type)</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="inputCopyType">
+                                    <option value="LINE_SHORT">LINE 1對1破冰短訊</option>
+                                    <option value="SOCIAL_POST">FB/IG 深度圖文卡片</option>
+                                    <option value="15S_QUOTE">15秒短影音/限動金句</option>
+                                    <option value="PAIN_POINT">痛點故事剖析</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small text-muted mb-0">文案內文 (content) - 支援動態置換代碼</label>
+                                    <span class="small text-warning" id="complianceWarning" style="display: none;">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> 偵測到違規宣稱詞彙！
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary cursor-pointer btn-insert-token" data-token="{PARTNER_NAME}">+ 插入夥伴姓名</span>
+                                    <span class="badge bg-secondary cursor-pointer btn-insert-token" data-token="{PARTNER_LINE}">+ 插入LINE ID</span>
+                                    <span class="badge bg-secondary cursor-pointer btn-insert-token" data-token="{RECOMMEND_LINK}">+ 插入推廣連結</span>
+                                </div>
+                                <textarea class="form-control bg-dark text-light border-secondary" id="inputCopyContent" rows="6" required placeholder="請輸入行銷文案內文..."></textarea>
+                                <div class="form-text text-muted small">
+                                    字數：<span id="textCharCount">0</span> 字 | 嚴禁包含「療效、抗癌、消炎、根治、排毒」等違反食安法宣稱詞彙。
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted">情境配圖 URL (image_url)</label>
+                                <input type="url" class="form-control bg-dark text-light border-secondary" id="inputCopyImageUrl" placeholder="https://example.com/promo.jpg">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">排序 (sort_order)</label>
+                                <input type="number" class="form-control bg-dark text-light border-secondary" id="inputCopyOrder" value="10">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">狀態</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="inputCopyActive" checked>
+                                    <label class="form-check-label small" for="inputCopyActive">啟用</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-cta" id="btnSaveCopywriting">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存寫入試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * UVACO Copywriting Bank Module (H12000)
+         * 架構模式：Adapter 模式解耦 Google Sheets 欄位 + Controller 狀態驅動
+         */
+        (function ($) {
+            'use strict';
+
+            // 違規療效敏感詞字典 (直銷保健品合規守門員)
+            const FORBIDDEN_WORDS = ['治療', '根治', '消炎', '防癌', '抗癌', '排毒', '藥效', '降三高', '預防感染', '清肺'];
+
+            // 本地資料快取 (對應 表06 prd_copywritings 與 表04 prd_items)
+            let copyDataList = [];
+            let currentFilter = {
+                audience: 'ALL',
+                type: 'ALL',
+                product: 'ALL',
+                keyword: ''
+            };
+            let currentPreviewCopy = null;
+            let dataTableInstance = null;
+
+            /**
+             * 1. 資料轉接適配器 (Decoupled Adapter)
+             * 將 Google Sheets 中文或非標準欄位解耦為標準 JSON 物件
+             */
+            const CopywritingAdapter = {
+                transformFromSheet: function (rawRow) {
+                    return {
+                        id: rawRow['文案代碼'] || rawRow['id'] || rawRow['copy_id'] || 'CP-' + Math.floor(Math.random()*10000),
+                        product_id: rawRow['產品代碼'] || rawRow['product_id'] || 'PRD-001',
+                        product_name: rawRow['產品名稱'] || rawRow['product_name'] || '995 超級營養液',
+                        title: rawRow['文案標題'] || rawRow['title'] || '未命名文案',
+                        content: rawRow['文案內文'] || rawRow['content'] || '',
+                        image_url: rawRow['分享配圖'] || rawRow['image_url'] || '',
+                        copy_type: rawRow['文案類型'] || rawRow['copy_type'] || 'LINE_SHORT',
+                        target_audience: rawRow['目標受眾'] || rawRow['target_audience'] || '上班族',
+                        sort_order: parseInt(rawRow['顯示順序'] || rawRow['sort_order'] || '10', 10),
+                        is_active: (rawRow['是否啟用'] || rawRow['is_active'] || 'TRUE').toString().toUpperCase() === 'TRUE',
+                        created_at: rawRow['建立時間'] || rawRow['created_at'] || '2026-08-15'
+                    };
+                }
+            };
+
+            /**
+             * 2. 模擬自 Google 試算表拉取資料 (GViz / PapaParse Mock API)
+             */
+            function fetchGoogleSheetData() {
+                // 模擬試算表原始數據 (含多維受眾與各渠道型態)
+                const mockSheetRows = [
+                    {
+                        'id': 'CP-1001',
+                        'product_id': 'PRD-001',
+                        'product_name': '995 超級營養液',
+                        'title': '【爆肝上班族必看】每天早上精神充沛的秘密武器！',
+                        'content': '熬夜趕報告、應酬加班讓你早上爬不起來嗎？\n\n很多人問我 {PARTNER_NAME} 平時如何保持戰鬥力？我都靠這瓶「995 超級營養液」補充深層活力！\n\n專利多醣體小分子發酵，給身體最直接的元氣支持！\n👉 了解詳情：{RECOMMEND_LINK}\n歡迎私訊我的 LINE：{PARTNER_LINE} 諮詢！',
+                        'copy_type': 'LINE_SHORT',
+                        'target_audience': '上班族',
+                        'sort_order': 1,
+                        'is_active': 'TRUE'
+                    },
+                    {
+                        'id': 'CP-1002',
+                        'product_id': 'PRD-003',
+                        'product_name': '康爾喜乳酸菌',
+                        'title': '【媽媽育兒經】全家人消化道的好幫手！',
+                        'content': '小朋友挑食、換季敏感讓當媽的心好累？\n\n我們家天天必備「康爾喜」，含有 13 支共生優質益生菌株，微酸微甜包裝好攜帶，孩子主動搶著吃！守護全家人保護力！\n\n💌 立即點擊專屬連結：{RECOMMEND_LINK}\n找 {PARTNER_NAME} 領取試吃包！',
+                        'copy_type': 'SOCIAL_POST',
+                        'target_audience': '媽媽族',
+                        'sort_order': 2,
+                        'is_active': 'TRUE'
+                    },
+                    {
+                        'id': 'CP-1003',
+                        'product_id': 'PRD-002',
+                        'product_name': '樟芝益菌絲體',
+                        'title': '孝親首選！讓爸媽天天健步如飛的體力後盾',
+                        'content': '「年紀大了，爬幾層樓就喘...」聽長輩這樣說總是心疼。\n\n給父母最好的孝心，就是天然溫補的「樟芝益」液態發酵精華！極致濃縮，滋補強身。\n\n諮詢顧問 {PARTNER_NAME}：{RECOMMEND_LINK}\nLINE 預約體驗：{PARTNER_LINE}',
+                        'copy_type': 'PAIN_POINT',
+                        'target_audience': '銀髮族',
+                        'sort_order': 3,
+                        'is_active': 'TRUE'
+                    },
+                    {
+                        'id': 'CP-1004',
+                        'product_id': 'PRD-000',
+                        'product_name': '事業經營',
+                        'title': '15秒短金句：下班後的第二份被動收入',
+                        'content': '「一份死薪水，追不上通膨的速度。」用零碎時間打造健康自由雙贏人生！跟著 {PARTNER_NAME} 團隊一起啟動斜槓：{RECOMMEND_LINK}',
+                        'copy_type': '15S_QUOTE',
+                        'target_audience': '事業經營',
+                        'sort_order': 4,
+                        'is_active': 'TRUE'
+                    },
+                    {
+                        'id': 'CP-1005',
+                        'product_id': 'PRD-005',
+                        'product_name': '衛傑',
+                        'title': '外食族保衛戰！跟大魚大肉後的悶脹感說掰掰',
+                        'content': '常常聚餐外食、飲食不正常？\n衛傑草本膠囊搭配山藥與猴頭菇萃取，溫和調理消化環境。\n\n顧問 {PARTNER_NAME} 專屬推薦：{RECOMMEND_LINK}',
+                        'copy_type': 'LINE_SHORT',
+                        'target_audience': '外食族',
+                        'sort_order': 5,
+                        'is_active': 'TRUE'
+                    }
+                ];
+
+                copyDataList = mockSheetRows.map(row => CopywritingAdapter.transformFromSheet(row));
+                renderView();
+            }
+
+            /**
+             * 3. 專屬動態參數注入替換 (Token Injector)
+             */
+            function injectTokens(rawContent) {
+                const partnerName = $('#tokenPartnerName').val().trim() || '榮祥顧問';
+                const partnerLine = $('#tokenPartnerLine').val().trim() || 'ray_uvaco';
+                const partnerLink = $('#tokenPartnerLink').val().trim() || 'https://uvaco.tw';
+
+                return rawContent
+                    .replace(/\{PARTNER_NAME\}/g, partnerName)
+                    .replace(/\{PARTNER_LINE\}/g, partnerLine)
+                    .replace(/\{RECOMMEND_LINK\}/g, partnerLink);
+            }
+
+            /**
+             * 4. 取得受眾與渠道之 Bootstrap Badge 樣式
+             */
+            function getAudienceBadge(audience) {
+                const map = {
+                    '上班族': 'bg-primary text-light',
+                    '銀髮族': 'bg-warning text-dark',
+                    '媽媽族': 'bg-danger text-light',
+                    '外食族': 'bg-success text-light',
+                    '事業經營': 'bg-info text-dark'
+                };
+                return `<span class="badge ${map[audience] || 'bg-secondary'}">${audience}</span>`;
+            }
+
+            function getTypeBadge(type) {
+                const map = {
+                    'LINE_SHORT': '<span class="badge bg-success"><i class="fa-brands fa-line"></i> LINE破冰</span>',
+                    'SOCIAL_POST': '<span class="badge bg-primary"><i class="fa-solid fa-newspaper"></i> 社群圖文</span>',
+                    '15S_QUOTE': '<span class="badge bg-warning text-dark"><i class="fa-solid fa-bolt"></i> 15S金句</span>',
+                    'PAIN_POINT': '<span class="badge bg-danger"><i class="fa-solid fa-heart-crack"></i> 痛點故事</span>'
+                };
+                return map[type] || `<span class="badge bg-secondary">${type}</span>`;
+            }
+
+            /**
+             * 5. 渲染文案卡片流 (Card Grid View)
+             */
+            function renderCardView(filteredList) {
+                const container = $('#copyCardsContainer');
+                container.empty();
+
+                $('#countCards').text(filteredList.length);
+
+                if (filteredList.length === 0) {
+                    container.append(`
+                        <div class="col-12 text-center py-5 text-muted">
+                            <i class="fa-solid fa-magnifying-glass fs-1 mb-3 d-block"></i>
+                            查無符合條件的行銷文案，請嘗試放寬篩選條件。
+                        </div>
+                    `);
+                    return;
+                }
+
+                filteredList.forEach(item => {
+                    const parsedContent = injectTokens(item.content);
+                    const html = `
+                        <div class="col-md-6">
+                            <div class="card card-custom copy-card p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        ${getAudienceBadge(item.target_audience)}
+                                        ${getTypeBadge(item.copy_type)}
+                                        <span class="badge bg-dark border border-secondary text-light ms-1">${item.product_name}</span>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                            <li><a class="dropdown-item btn-edit-copy" href="#" data-id="${item.id}"><i class="fa-solid fa-pen"></i> 編輯文案</a></li>
+                                            <li><a class="dropdown-item text-danger btn-delete-copy" href="#" data-id="${item.id}"><i class="fa-solid fa-trash"></i> 刪除文案</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <h6 class="fw-bold text-light mb-2 text-truncate" title="${item.title}">${item.title}</h6>
+                                
+                                <div class="copy-text-area mb-3 flex-grow-1">
+${parsedContent}
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center gap-2 pt-2 border-top border-secondary border-opacity-25">
+                                    <button class="btn btn-sm btn-outline-info btn-preview-live" data-id="${item.id}">
+                                        <i class="fa-solid fa-eye"></i> 實境預覽
+                                    </button>
+                                    <button class="btn btn-sm btn-cta btn-copy-clipboard" data-content="${encodeURIComponent(parsedContent)}">
+                                        <i class="fa-regular fa-copy"></i> 一鍵複製
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(html);
+                });
+            }
+
+            /**
+             * 6. 渲染 DataTables 資料庫管理視圖
+             */
+            function renderTableView(filteredList) {
+                if (dataTableInstance) {
+                    dataTableInstance.clear().rows.add(filteredList).draw();
+                    return;
+                }
+
+                dataTableInstance = $('#tableCopywriting').DataTable({
+                    data: filteredList,
+                    columns: [
+                        { data: 'id' },
+                        { 
+                            data: 'title',
+                            render: function(data) {
+                                return `<strong class="text-light">${data}</strong>`;
+                            }
+                        },
+                        { data: 'product_name' },
+                        { 
+                            data: 'target_audience',
+                            render: function(data) { return getAudienceBadge(data); }
+                        },
+                        { 
+                            data: 'copy_type',
+                            render: function(data) { return getTypeBadge(data); }
+                        },
+                        { 
+                            data: 'content',
+                            render: function(data) {
+                                const injected = injectTokens(data);
+                                return `<div class="text-truncate" style="max-width: 320px;" title="${injected}">${injected}</div>`;
+                            }
+                        },
+                        { 
+                            data: 'is_active',
+                            render: function(data) {
+                                return data ? '<span class="badge bg-success">啟用</span>' : '<span class="badge bg-secondary">停用</span>';
+                            }
+                        },
+                        {
+                            data: null,
+                            render: function(data, type, row) {
+                                return `
+                                    <button class="btn btn-sm btn-outline-light me-1 btn-edit-copy" data-id="${row.id}"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger btn-delete-copy" data-id="${row.id}"><i class="fa-solid fa-trash"></i></button>
+                                `;
+                            }
+                        }
+                    ],
+                    language: {
+                        search: "表格內快速篩選：",
+                        lengthMenu: "每頁顯示 _MENU_ 筆",
+                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆文案",
+                        paginate: {
+                            first: "第一頁",
+                            previous: "上一頁",
+                            next: "下一頁",
+                            last: "最後一頁"
+                        },
+                        emptyTable: "無文案數據"
+                    },
+                    pageLength: 10,
+                    order: [[0, 'asc']]
+                });
+            }
+
+            /**
+             * 7. 綜合過濾核心演算法
+             */
+            function getFilteredList() {
+                return copyDataList.filter(item => {
+                    const matchAudience = (currentFilter.audience === 'ALL' || item.target_audience === currentFilter.audience);
+                    const matchType = (currentFilter.type === 'ALL' || item.copy_type === currentFilter.type);
+                    const matchProduct = (currentFilter.product === 'ALL' || item.product_id === currentFilter.product);
+                    const matchKeyword = (!currentFilter.keyword || 
+                        item.title.toLowerCase().includes(currentFilter.keyword) || 
+                        item.content.toLowerCase().includes(currentFilter.keyword));
+
+                    return matchAudience && matchType && matchProduct && matchKeyword;
+                });
+            }
+
+            function renderView() {
+                const filtered = getFilteredList();
+                renderCardView(filtered);
+                renderTableView(filtered);
+            }
+
+            /**
+             * 8. 敏感詞合規檢查引擎
+             */
+            function checkCompliance(text) {
+                let foundBadWords = [];
+                FORBIDDEN_WORDS.forEach(word => {
+                    if (text.includes(word)) {
+                        foundBadWords.push(word);
+                    }
+                });
+                return foundBadWords;
+            }
+
+            /**
+             * 9. 事件綁定與控制流
+             */
+            function bindEvents() {
+                // 受眾篩選切換
+                $('button[data-filter-group="audience"]').on('click', function () {
+                    $('button[data-filter-group="audience"]').removeClass('active');
+                    $(this).addClass('active');
+                    currentFilter.audience = $(this).data('filter');
+                    renderView();
+                });
+
+                // 渠道篩選切換
+                $('button[data-filter-group="type"]').on('click', function () {
+                    $('button[data-filter-group="type"]').removeClass('active-accent');
+                    $(this).addClass('active-accent');
+                    currentFilter.type = $(this).data('filter');
+                    renderView();
+                });
+
+                // 產品下拉篩選
+                $('#selectProductFilter').on('change', function () {
+                    currentFilter.product = $(this).val();
+                    renderView();
+                });
+
+                // 關鍵字搜尋
+                $('#searchKeyword').on('input', function () {
+                    currentFilter.keyword = $(this).val().trim().toLowerCase();
+                    renderView();
+                });
+
+                $('#btnResetSearch').on('click', function () {
+                    $('#searchKeyword').val('');
+                    currentFilter.keyword = '';
+                    renderView();
+                });
+
+                // 參數即時變動連動重繪
+                $('#tokenPartnerName, #tokenPartnerLine, #tokenPartnerLink').on('input', function () {
+                    renderView();
+                    if (currentPreviewCopy) {
+                        $('#simulatorBubbleText').text(injectTokens(currentPreviewCopy.content));
+                    }
+                });
+
+                // 一鍵複製到剪貼簿
+                $(document).on('click', '.btn-copy-clipboard', function () {
+                    const content = decodeURIComponent($(this).data('content'));
+                    navigator.clipboard.writeText(content).then(() => {
+                        const originalBtn = $(this).html();
+                        $(this).html('<i class="fa-solid fa-check text-success"></i> 已複製！');
+                        setTimeout(() => {
+                            $(this).html(originalBtn);
+                        }, 1800);
+                    });
+                });
+
+                // 實境預覽點擊
+                $(document).on('click', '.btn-preview-live', function () {
+                    const copyId = $(this).data('id');
+                    const copyItem = copyDataList.find(c => c.id === copyId);
+                    if (copyItem) {
+                        currentPreviewCopy = copyItem;
+                        const rendered = injectTokens(copyItem.content);
+                        $('#simulatorBubbleText').text(rendered);
+                        $('#simulatorTypeBadge').text(copyItem.copy_type);
+                        
+                        // 平滑滾動到手機預覽 (在手機端時)
+                        if ($(window).width() < 992) {
+                            $('html, body').animate({
+                                scrollTop: $('.simulator-phone').offset().top - 100
+                            }, 400);
+                        }
+                    }
+                });
+
+                // 直接透過 LINE 分享
+                $('#btnShareToLineDirect').on('click', function () {
+                    const text = $('#simulatorBubbleText').text();
+                    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+                    window.open(lineUrl, '_blank');
+                });
+
+                // 切換視圖 (卡片流 vs 表格)
+                $('#btnToggleView').on('click', function () {
+                    const isCardVisible = !$('#viewCardSection').hasClass('d-none');
+                    if (isCardVisible) {
+                        $('#viewCardSection').addClass('d-none');
+                        $('#viewTableSection').removeClass('d-none');
+                        $(this).html('<i class="fa-solid fa-grip"></i> 切換卡片軍火庫');
+                        if (dataTableInstance) dataTableInstance.columns.adjust().draw();
+                    } else {
+                        $('#viewCardSection').removeClass('d-none');
+                        $('#viewTableSection').addClass('d-none');
+                        $(this).html('<i class="fa-solid fa-table-list"></i> 切換清單管理');
+                    }
+                });
+
+                // 即時合規檢測與字數計算
+                $('#inputCopyContent').on('input', function () {
+                    const text = $(this).val();
+                    $('#textCharCount').text(text.length);
+                    
+                    const badWords = checkCompliance(text);
+                    if (badWords.length > 0) {
+                        $('#complianceWarning').html(`<i class="fa-solid fa-triangle-exclamation"></i> 違規詞警告：[${badWords.join(', ')}]`).show();
+                    } else {
+                        $('#complianceWarning').hide();
+                    }
+                });
+
+                // 插入 Token 標籤
+                $('.btn-insert-token').on('click', function () {
+                    const token = $(this).data('token');
+                    const textarea = document.getElementById('inputCopyContent');
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const val = textarea.value;
+                    textarea.value = val.substring(0, start) + token + val.substring(end);
+                    textarea.focus();
+                    textarea.selectionEnd = start + token.length;
+                    $('#inputCopyContent').trigger('input');
+                });
+
+                // 開啟新增 Modal
+                $('#btnOpenAddModal').on('click', function () {
+                    $('#formCopywriting')[0].reset();
+                    $('#editCopyId').val('');
+                    $('#modalEditTitle').html('<i class="fa-solid fa-plus text-accent"></i> 新增行銷文案 (表06 prd_copywritings)');
+                    $('#complianceWarning').hide();
+                    $('#textCharCount').text('0');
+                    new bootstrap.Modal(document.getElementById('modalEditCopy')).show();
+                });
+
+                // 開啟編輯 Modal
+                $(document).on('click', '.btn-edit-copy', function (e) {
+                    e.preventDefault();
+                    const id = $(this).data('id');
+                    const item = copyDataList.find(c => c.id === id);
+                    if (item) {
+                        $('#editCopyId').val(item.id);
+                        $('#inputCopyTitle').val(item.title);
+                        $('#inputCopyProduct').val(item.product_id);
+                        $('#inputCopyAudience').val(item.target_audience);
+                        $('#inputCopyType').val(item.copy_type);
+                        $('#inputCopyContent').val(item.content);
+                        $('#inputCopyImageUrl').val(item.image_url);
+                        $('#inputCopyOrder').val(item.sort_order);
+                        $('#inputCopyActive').prop('checked', item.is_active);
+                        
+                        $('#modalEditTitle').html(`<i class="fa-solid fa-pen text-accent"></i> 編輯文案 [${item.id}]`);
+                        $('#inputCopyContent').trigger('input');
+                        new bootstrap.Modal(document.getElementById('modalEditCopy')).show();
+                    }
+                });
+
+                // 儲存文案寫入 (模擬寫入 Google 試算表)
+                $('#btnSaveCopywriting').on('click', function () {
+                    const title = $('#inputCopyTitle').val().trim();
+                    const content = $('#inputCopyContent').val().trim();
+                    
+                    if (!title || !content) {
+                        alert('請填寫完整文案標題與內文！');
+                        return;
+                    }
+
+                    const badWords = checkCompliance(content);
+                    if (badWords.length > 0) {
+                        if (!confirm(`警告：文案內含敏感字詞 [${badWords.join(', ')}]，可能違反食安法法規宣稱，確定仍要儲存發布嗎？`)) {
+                            return;
+                        }
+                    }
+
+                    const editId = $('#editCopyId').val();
+                    if (editId) {
+                        // 編輯更新
+                        const target = copyDataList.find(c => c.id === editId);
+                        if (target) {
+                            target.title = title;
+                            target.product_id = $('#inputCopyProduct').val();
+                            target.product_name = $('#inputCopyProduct option:selected').text();
+                            target.target_audience = $('#inputCopyAudience').val();
+                            target.copy_type = $('#inputCopyType').val();
+                            target.content = content;
+                            target.image_url = $('#inputCopyImageUrl').val().trim();
+                            target.sort_order = parseInt($('#inputCopyOrder').val(), 10) || 10;
+                            target.is_active = $('#inputCopyActive').is(':checked');
+                        }
+                    } else {
+                        // 新增
+                        const newCopy = {
+                            id: 'CP-' + (copyDataList.length + 1001),
+                            product_id: $('#inputCopyProduct').val(),
+                            product_name: $('#inputCopyProduct option:selected').text(),
+                            title: title,
+                            content: content,
+                            image_url: $('#inputCopyImageUrl').val().trim(),
+                            copy_type: $('#inputCopyType').val(),
+                            target_audience: $('#inputCopyAudience').val(),
+                            sort_order: parseInt($('#inputCopyOrder').val(), 10) || 10,
+                            is_active: $('#inputCopyActive').is(':checked'),
+                            created_at: new Date().toISOString().split('T')[0]
+                        };
+                        copyDataList.unshift(newCopy);
+                    }
+
+                    bootstrap.Modal.getInstance(document.getElementById('modalEditCopy')).hide();
+                    renderView();
+                    alert('✅ 文案已成功同步寫入 Google 試算表（表 06 prd_copywritings）！');
+                });
+
+                // 同步 Google 試算表按鈕
+                $('#btnSyncGoogleSheet').on('click', function () {
+                    $(this).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                    setTimeout(() => {
+                        fetchGoogleSheetData();
+                        $(this).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表');
+                        alert('✅ 已重新自 Google 試算表拉取最新行銷文案庫！');
+                    }, 500);
+                });
+            }
+
+            // 初始化入口
+            $(document).ready(function () {
+                bindEvents();
+                fetchGoogleSheetData();
+            });
+
+        })(jQuery);
+    </script>
+</body>
+</html>

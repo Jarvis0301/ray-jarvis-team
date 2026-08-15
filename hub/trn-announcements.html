@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告管理 | 創始核心戰情室</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        /* ==========================================================================
+           1. 核心版魅影紫主題 Design Tokens (Dark Cyberpunk Purple)
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-hover: #db2777;
+            --uvaco-bg-base: #0c0817;
+            --uvaco-bg-card: #15102a;
+            --uvaco-bg-card-hover: #1e1638;
+            --uvaco-border: rgba(139, 92, 246, 0.22);
+            --uvaco-border-glow: rgba(192, 132, 252, 0.45);
+            --uvaco-text-main: #faf5ff;
+            --uvaco-text-muted: #a1a1aa;
+            --uvaco-glow: 0 0 20px rgba(139, 92, 246, 0.25);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 1.25rem;
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--uvaco-bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--uvaco-primary);
+        }
+
+        /* ==========================================================================
+           2. 核心元件與自訂樣式（打破死板儀表板）
+           ========================================================================== */
+        /* 玻璃擬態戰情底板 */
+        .glass-panel {
+            background: rgba(21, 16, 42, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: var(--uvaco-glow);
+        }
+
+        /* 頂部即時公告跑馬模擬條 */
+        .marquee-container {
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
+            border-left: 4px solid var(--uvaco-accent);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        /* 霓虹標籤 Pill */
+        .badge-cyber {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35em 0.75em;
+            border-radius: 50rem;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+        }
+        .badge-cyber-primary {
+            background: rgba(139, 92, 246, 0.2);
+            color: #ddd6fe;
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+        .badge-cyber-pink {
+            background: rgba(236, 72, 153, 0.2);
+            color: #fbcfe8;
+            border-color: rgba(236, 72, 153, 0.4);
+        }
+        .badge-cyber-success {
+            background: rgba(52, 211, 153, 0.15);
+            color: #a7f3d0;
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+        .badge-cyber-warning {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fde68a;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        /* 公告動態情報卡片 (Newsfeed Card) */
+        .feed-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 1rem;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .feed-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+        .feed-card.pinned {
+            border-left: 5px solid var(--uvaco-accent);
+        }
+        .feed-card .cover-wrap {
+            height: 160px;
+            overflow: hidden;
+            position: relative;
+            background: #110d24;
+        }
+        .feed-card .cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .feed-card:hover .cover-img {
+            transform: scale(1.05);
+        }
+        .feed-card .cover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, var(--uvaco-bg-card), transparent);
+        }
+
+        /* 按鈕樣式自訂 */
+        .btn-cyber-primary {
+            background: linear-gradient(135deg, var(--uvaco-primary), var(--uvaco-accent));
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-cyber-primary:hover {
+            background: linear-gradient(135deg, var(--uvaco-primary-hover), var(--uvaco-accent-hover));
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+        }
+
+        .btn-cyber-outline {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-secondary);
+            transition: all 0.2s ease;
+        }
+        .btn-cyber-outline:hover, .btn-cyber-outline.active {
+            background: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+        }
+
+        /* DataTables 核心紫深度適配 */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--uvaco-border);
+            color: var(--uvaco-text-main);
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-primary) !important;
+            color: #fff !important;
+            border-radius: 0.375rem;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: rgba(139, 92, 246, 0.2) !important;
+            border-color: var(--uvaco-border) !important;
+            color: var(--uvaco-secondary) !important;
+        }
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            color: #fff;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        /* 手機端預覽視窗 (Mobile Device Frame) */
+        .phone-mockup {
+            max-width: 380px;
+            margin: 0 auto;
+            border: 8px solid #2d224d;
+            border-radius: 36px;
+            background: #000000;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(139, 92, 246, 0.3);
+        }
+        .phone-notch {
+            height: 20px;
+            background: #2d224d;
+            width: 140px;
+            margin: 0 auto;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .phone-screen {
+            background: #0c0817;
+            min-height: 520px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 1rem;
+            color: #faf5ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="row g-3 align-items-center mb-4">
+        <div class="col-12 col-md-6 col-xl-5">
+            <div class="d-flex align-items-center">
+                <div class="p-3 rounded-4 me-3" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2)); border: 1px solid var(--uvaco-border);">
+                    <i class="fa-solid fa-bullhorn fa-2x" style="color: var(--uvaco-secondary);"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h4 class="mb-0 fw-bold text-white">公告管理中樞</h4>
+                        <span class="badge badge-cyber badge-cyber-primary">H210000</span>
+                    </div>
+                    <small class="text-muted">全區公文發布、促銷活動、調價政策與前台廣播排程維護</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-7">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
+                <div class="btn-group p-1 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid var(--uvaco-border);">
+                    <button class="btn btn-sm btn-cyber-outline active" id="btnViewCards" title="動態情報流">
+                        <i class="fa-solid fa-table-cells-large"></i> 情報卡片
+                    </button>
+                    <button class="btn btn-sm btn-cyber-outline" id="btnViewTable" title="資料矩陣管理表">
+                        <i class="fa-solid fa-table-list"></i> 資料矩陣
+                    </button>
+                </div>
+
+                <button class="btn btn-sm btn-cyber-outline" id="btnSyncGoogleSheets">
+                    <i class="fa-solid fa-rotate"></i> 同步試算表
+                </button>
+
+                <button class="btn btn-sm btn-cyber-outline" id="btnScrapeOfficial">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> 擷取官方公告
+                </button>
+
+                <button class="btn btn-sm btn-cyber-primary" id="btnOpenCreateModal">
+                    <i class="fa-solid fa-plus"></i> 發布新公告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-xl-8">
+            <div class="marquee-container p-2 px-3 d-flex align-items-center">
+                <span class="badge badge-cyber badge-cyber-pink me-2 flex-shrink-0">
+                    <i class="fa-solid fa-tower-broadcast"></i> 前台跑馬
+                </span>
+                <div class="overflow-hidden w-100" style="white-space: nowrap;">
+                    <div id="liveMarqueeText" class="text-light small text-truncate">
+                        <i class="fa-solid fa-thumbtack text-warning me-1"></i> 【重要調價】自 2026 年 3 月 1 日起，康爾喜益生菌與 995 營養液實施春季最新積分調整方案，請核心夥伴詳閱說明。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="glass-panel p-2 px-3 d-flex justify-content-around text-center">
+                <div>
+                    <div class="text-muted small">有效發布</div>
+                    <div class="fw-bold text-white fs-6" id="statPublished">--</div>
+                </div>
+                <div class="border-end border-secondary border-opacity-25"></div>
+                <div>
+                    <div class="text-muted small">置頂公告</div>
+                    <div class="fw-bold text-warning fs-6" id="statPinned">--</div>
+                </div>
+                <div class="border-end border-secondary border-opacity-25"></div>
+                <div>
+                    <div class="text-muted small">草稿排程</div>
+                    <div class="fw-bold text-info fs-6" id="statDrafts">--</div>
+                </div>
+                <div class="border-end border-secondary border-opacity-25"></div>
+                <div>
+                    <div class="text-muted small">累積瀏覽</div>
+                    <div class="fw-bold text-success fs-6" id="statTotalViews">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel p-3 mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-6 col-sm-4 col-md-2">
+                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterCountry">
+                    <option value="ALL"><i class="fa-solid fa-globe"></i> 全部市場 (ALL)</option>
+                    <option value="TW">台灣市場 (TW)</option>
+                    <option value="MY">馬來西亞 (MY)</option>
+                </select>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2">
+                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterCategory">
+                    <option value="ALL">全部公告類型</option>
+                    <option value="PROMOTION">促銷活動 (PROMOTION)</option>
+                    <option value="TEAM">團隊公告 (TEAM)</option>
+                    <option value="PRICE">調價通知 (PRICE)</option>
+                    <option value="POLICY">重要規章 (POLICY)</option>
+                </select>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2">
+                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterPublisher">
+                    <option value="ALL">全部發佈單位</option>
+                    <option value="COMPANY">葡眾官方 (COMPANY)</option>
+                    <option value="TEAM">團隊自營 (TEAM)</option>
+                </select>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2">
+                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterScope">
+                    <option value="ALL">全部發布對象</option>
+                    <option value="PUBLIC">全站公開 (ALL)</option>
+                    <option value="TEAM">團隊夥伴 (TEAM)</option>
+                    <option value="CORE">核心幹部 (CORE)</option>
+                </select>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2">
+                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterStatus">
+                    <option value="ALL">全部狀態</option>
+                    <option value="PUBLISHED">已發布</option>
+                    <option value="DRAFT">草稿中</option>
+                    <option value="SCHEDULED">排程中</option>
+                    <option value="ARCHIVED">已封存</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-4 col-md-2">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="filterKeyword" placeholder="搜尋標題/內文...">
+                    <button class="btn btn-cyber-outline" type="button" id="btnResetFilters" title="重設條件">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewContainerCards">
+        <div class="row g-3" id="cardsGridContainer">
+            </div>
+    </div>
+
+    <div id="viewContainerTable" class="d-none">
+        <div class="glass-panel p-3">
+            <div class="table-responsive">
+                <table id="announcementsTable" class="table table-dark-custom table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">置頂</th>
+                            <th>國家</th>
+                            <th>發佈單位</th>
+                            <th>類型</th>
+                            <th>公告標題與摘要</th>
+                            <th>發布對象</th>
+                            <th>上架排程</th>
+                            <th>狀態</th>
+                            <th>瀏覽</th>
+                            <th style="width: 110px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAnnouncementEdit" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content glass-panel" style="background: #15102a; border: 1px solid var(--uvaco-border-glow);">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center" id="modalFormTitle">
+                        <i class="fa-solid fa-pen-nib text-primary me-2"></i> 發布新公告
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAnnouncement">
+                        <input type="hidden" id="formAnnId">
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small">適用國家市場</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="formCountry" required>
+                                    <option value="ALL">ALL (全區通用)</option>
+                                    <option value="TW">TW (台灣市場)</option>
+                                    <option value="MY">MY (馬來西亞市場)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small">發佈單位</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="formPublisher" required>
+                                    <option value="COMPANY">COMPANY (葡眾官方)</option>
+                                    <option value="TEAM" selected>TEAM (團隊自營)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small">公告類型</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="formCategory" required>
+                                    <option value="PROMOTION">PROMOTION (促銷活動)</option>
+                                    <option value="TEAM">TEAM (團隊活動)</option>
+                                    <option value="PRICE">PRICE (調價通知)</option>
+                                    <option value="POLICY">POLICY (重要規章)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-muted small">公告主標題 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-light border-secondary" id="formTitle" placeholder="請輸入吸睛且精確的公告標題..." required>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-muted small">摘要 / 跑馬燈廣播文字 (Summary)</label>
+                                <textarea class="form-control bg-dark text-light border-secondary" id="formSummary" rows="2" placeholder="簡述重點，將顯示於列表摘要與前台跑馬燈..."></textarea>
+                            </div>
+
+                            <div class="col-12 col-md-8">
+                                <label class="form-label text-muted small">封面圖片 URL (Cover Image)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-image"></i></span>
+                                    <input type="url" class="form-control bg-dark text-light border-secondary" id="formCoverUrl" placeholder="https://images.unsplash.com/...">
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small">外連網址 (填 # 為彈窗)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-link"></i></span>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="formLinkUrl" value="#" placeholder="# 或 https://...">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-muted small">公告詳細富文本內容 (HTML 格式支援) <span class="text-danger">*</span></label>
+                                <textarea class="form-control bg-dark text-light border-secondary font-monospace" id="formContentHtml" rows="5" placeholder="<p>請輸入 HTML 排版內容或段落...</p>" required></textarea>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small">發布對象門禁</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="formTargetScope" required>
+                                    <option value="ALL">ALL (全站公開)</option>
+                                    <option value="TEAM">TEAM (僅團隊夥伴)</option>
+                                    <option value="CORE">CORE (僅核心幹部)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small">狀態 (Status)</label>
+                                <select class="form-select bg-dark text-light border-secondary" id="formStatus" required>
+                                    <option value="PUBLISHED">PUBLISHED (已發布)</option>
+                                    <option value="DRAFT">DRAFT (草稿中)</option>
+                                    <option value="SCHEDULED">SCHEDULED (排程中)</option>
+                                    <option value="ARCHIVED">ARCHIVED (已封存)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4 d-flex align-items-center pt-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="formIsPinned" style="cursor: pointer;">
+                                    <label class="form-check-label text-white" for="formIsPinned">
+                                        <i class="fa-solid fa-thumbtack text-warning"></i> 強制置頂顯示
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small">上架生效時間 (Start At)</label>
+                                <input type="datetime-local" class="form-control bg-dark text-light border-secondary" id="formPublishStart">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small">下架失效時間 (留空為永久有效)</label>
+                                <input type="datetime-local" class="form-control bg-dark text-light border-secondary" id="formPublishEnd">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-cyber-outline" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i> 取消
+                    </button>
+                    <button type="button" class="btn btn-cyber-primary" id="btnSaveAnnouncement">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並寫入試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalMobilePreview" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-transparent border-0">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen" id="mobilePreviewContent">
+                        </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-sm btn-cyber-outline" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i> 關閉預覽
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * ==========================================================================
+         * 榮祥團隊 核心版戰情室 - 公告管理模組 (trn_announcements)
+         * 遵循 100% 欄位解耦架構 (Decoupled Schema Engine)
+         * ==========================================================================
+         */
+
+        // 1. 中台資料表欄位解耦轉接字典 (Schema Mapping)
+        const ANNOUNCEMENT_SCHEMA_MAP = {
+            announcement_id: ['announcement_id', '公告編號', 'id', 'ann_id'],
+            publisher_unit: ['publisher_unit', '發佈單位', 'unit', 'publisher'],
+            country_code: ['country_code', '國家', '市場', 'country'],
+            category: ['category', '公告類型', '分類', 'cat'],
+            title: ['title', '公告標題', '標題', '主標題'],
+            summary: ['summary', '摘要', '跑馬燈文字', '簡介'],
+            content_html: ['content_html', '內文', '詳細內容', 'content'],
+            cover_image_url: ['cover_image_url', '封面圖', '封面網址', 'image'],
+            link_url: ['link_url', '外部連結', '跳轉網址', 'url'],
+            target_scope: ['target_scope', '發布對象', '門禁等級', 'scope'],
+            is_pinned: ['is_pinned', '是否置頂', '置頂', 'pinned'],
+            status: ['status', '發布狀態', '狀態'],
+            publish_start_at: ['publish_start_at', '上架時間', '開始時間', 'start_at'],
+            publish_end_at: ['publish_end_at', '下架時間', '結束時間', 'end_at'],
+            view_count: ['view_count', '瀏覽量', '點擊數', 'views']
+        };
+
+        // 2. 初始測試種子資料 (Seed Dataset，模擬自 Google 試算表 trn_announcements)
+        let announcementsData = [
+            {
+                announcement_id: "ANN-2026-001",
+                publisher_unit: "COMPANY",
+                country_code: "TW",
+                category: "PRICE",
+                title: "【官方重要】2026 年度春季產品積分 (SV) 與建議售價調整公文",
+                summary: "自 3 月 1 日起，康爾喜、995 超級營養液等 4 款主力產品全面實施最新積分優化規章。",
+                content_html: "<p>各位領導人與經銷夥伴好：</p><p>為因應全球頂級生技原料與包裝成本優化，葡眾官方正式公告 2026 年最新價格與積分調節方案...</p><ul><li>康爾喜 (1.5g x 90條)：維持高回饋比率</li><li>995 生技營養液：全面提升經銷點數比</li></ul>",
+                cover_image_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80",
+                link_url: "#",
+                target_scope: "ALL",
+                is_pinned: true,
+                status: "PUBLISHED",
+                publish_start_at: "2026-02-01T08:00",
+                publish_end_at: null,
+                view_count: 1420
+            },
+            {
+                announcement_id: "ANN-2026-002",
+                publisher_unit: "TEAM",
+                country_code: "ALL",
+                category: "PROMOTION",
+                title: "【榮祥團隊】2026 Q2 吉隆坡海外研習營達標衝刺獎勵方案",
+                summary: "達標藍鑽、皇冠級領導人加碼補助星級行政套房，即日起至 4 月 30 日止全面競速！",
+                content_html: "<p>榮祥團隊全體夥伴戰力集結！凡於本季組織業績達成合格經理者，即可獲取團隊加碼之海外機票全額補助津貼。</p>",
+                cover_image_url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+                link_url: "#",
+                target_scope: "TEAM",
+                is_pinned: true,
+                status: "PUBLISHED",
+                publish_start_at: "2026-02-10T10:00",
+                publish_end_at: "2026-04-30T23:59",
+                view_count: 890
+            },
+            {
+                announcement_id: "ANN-2026-003",
+                publisher_unit: "TEAM",
+                country_code: "MY",
+                category: "TEAM",
+                title: "【馬來西亞】吉隆坡營運旗艦中心夥伴實戰招商會 SOP",
+                summary: "大馬市場制度宣講會每週三晚間 8 點準時開講，線上 Google Meet 同步轉播。",
+                content_html: "<p>歡迎大馬夥伴邀請新朋友參與實戰招商會。會後將由核心藍鑽領導人進行 1 對 1 制度拆解與見證分享。</p>",
+                cover_image_url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=80",
+                link_url: "#",
+                target_scope: "ALL",
+                is_pinned: false,
+                status: "PUBLISHED",
+                publish_start_at: "2026-02-15T14:00",
+                publish_end_at: null,
+                view_count: 530
+            },
+            {
+                announcement_id: "ANN-2026-004",
+                publisher_unit: "COMPANY",
+                country_code: "TW",
+                category: "POLICY",
+                title: "【法規公告】公平交易法規與社群網路行銷禁言規範提醒",
+                summary: "嚴格禁止於公開社群提及產品療效、未經核可之誇大宣傳文字，請共同維護品牌信譽。",
+                content_html: "<p>請各位夥伴嚴格遵循衛福部與公平交易委員會之傳銷規範，社群行銷請使用官方指定標準文案庫。</p>",
+                cover_image_url: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=80",
+                link_url: "#",
+                target_scope: "ALL",
+                is_pinned: false,
+                status: "PUBLISHED",
+                publish_start_at: "2026-01-20T09:00",
+                publish_end_at: null,
+                view_count: 980
+            },
+            {
+                announcement_id: "ANN-2026-005",
+                publisher_unit: "TEAM",
+                country_code: "ALL",
+                category: "TEAM",
+                title: "【核心極密】2026 下半年度組織戰術大綱與組織結構調整預備草案",
+                summary: "僅限核心鑽石級以上領導人查閱，未經授權嚴禁截圖與外洩傳播。",
+                content_html: "<p>此為榮祥團隊 2026 核心戰略藍圖，包含跨國招商資源調配與公款研習基金補助比例。</p>",
+                cover_image_url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop&q=80",
+                link_url: "#",
+                target_scope: "CORE",
+                is_pinned: false,
+                status: "DRAFT",
+                publish_start_at: "2026-03-01T00:00",
+                publish_end_at: null,
+                view_count: 42
+            }
+        ];
+
+        let dataTableInstance = null;
+
+        /**
+         * 3. 解耦資料解析器 (Decoupling Data Adapter)
+         */
+        function parseDecoupledRow(rawRow) {
+            const mapped = {};
+            for (const [standardKey, aliasList] of Object.entries(ANNOUNCEMENT_SCHEMA_MAP)) {
+                let matchedVal = undefined;
+                for (const alias of aliasList) {
+                    if (rawRow[alias] !== undefined) {
+                        matchedVal = rawRow[alias];
+                        break;
+                    }
+                }
+                mapped[standardKey] = matchedVal !== undefined ? matchedVal : null;
+            }
+            // 型態校驗與安全防禦
+            mapped.is_pinned = String(mapped.is_pinned).toLowerCase() === 'true' || mapped.is_pinned === true;
+            mapped.view_count = parseInt(mapped.view_count) || 0;
+            return mapped;
+        }
+
+        /**
+         * 4. 輔助樣式對應函式 (Category / Scope Badges)
+         */
+        function getCategoryBadge(cat) {
+            switch(cat) {
+                case 'PROMOTION': return '<span class="badge badge-cyber badge-cyber-pink"><i class="fa-solid fa-gift me-1"></i> 促銷活動</span>';
+                case 'PRICE': return '<span class="badge badge-cyber badge-cyber-warning"><i class="fa-solid fa-tags me-1"></i> 調價通知</span>';
+                case 'POLICY': return '<span class="badge badge-cyber badge-cyber-success"><i class="fa-solid fa-scale-balanced me-1"></i> 重要規章</span>';
+                default: return '<span class="badge badge-cyber badge-cyber-primary"><i class="fa-solid fa-users me-1"></i> 團隊公告</span>';
+            }
+        }
+
+        function getPublisherBadge(pub) {
+            return pub === 'COMPANY' 
+                ? '<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25"><i class="fa-solid fa-building me-1"></i> 官方</span>'
+                : '<span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25"><i class="fa-solid fa-flag me-1"></i> 團隊</span>';
+        }
+
+        function getScopeBadge(scope) {
+            switch(scope) {
+                case 'CORE': return '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25"><i class="fa-solid fa-shield-halved me-1"></i> 核心</span>';
+                case 'TEAM': return '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25"><i class="fa-solid fa-user-group me-1"></i> 夥伴</span>';
+                default: return '<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25"><i class="fa-solid fa-earth-asia me-1"></i> 公開</span>';
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'PUBLISHED': return '<span class="text-success small fw-semibold"><i class="fa-solid fa-circle-check me-1"></i>已發布</span>';
+                case 'DRAFT': return '<span class="text-secondary small fw-semibold"><i class="fa-solid fa-file-pen me-1"></i>草稿中</span>';
+                case 'SCHEDULED': return '<span class="text-info small fw-semibold"><i class="fa-solid fa-clock me-1"></i>排程中</span>';
+                default: return '<span class="text-muted small fw-semibold"><i class="fa-solid fa-box-archive me-1"></i>已封存</span>';
+            }
+        }
+
+        /**
+         * 5. 渲染與過濾核心邏輯
+         */
+        function filterAnnouncements() {
+            const country = $('#filterCountry').val();
+            const cat = $('#filterCategory').val();
+            const pub = $('#filterPublisher').val();
+            const scope = $('#filterScope').val();
+            const status = $('#filterStatus').val();
+            const keyword = $('#filterKeyword').val().trim().toLowerCase();
+
+            return announcementsData.filter(item => {
+                if (country !== 'ALL' && item.country_code !== 'ALL' && item.country_code !== country) return false;
+                if (cat !== 'ALL' && item.category !== cat) return false;
+                if (pub !== 'ALL' && item.publisher_unit !== pub) return false;
+                if (scope !== 'ALL' && item.target_scope !== scope) return false;
+                if (status !== 'ALL' && item.status !== status) return false;
+                if (keyword) {
+                    const matchTitle = item.title && item.title.toLowerCase().includes(keyword);
+                    const matchSummary = item.summary && item.summary.toLowerCase().includes(keyword);
+                    if (!matchTitle && !matchSummary) return false;
+                }
+                return true;
+            });
+        }
+
+        function refreshViews() {
+            const filtered = filterAnnouncements();
+            updateKPIs(filtered);
+            renderCardsView(filtered);
+            renderDataTable(filtered);
+        }
+
+        /**
+         * 更新指標與跑馬燈
+         */
+        function updateKPIs(dataList) {
+            const published = dataList.filter(d => d.status === 'PUBLISHED').length;
+            const pinned = dataList.filter(d => d.is_pinned).length;
+            const drafts = dataList.filter(d => d.status === 'DRAFT' || d.status === 'SCHEDULED').length;
+            const totalViews = dataList.reduce((sum, d) => sum + (d.view_count || 0), 0);
+
+            $('#statPublished').text(published);
+            $('#statPinned').text(pinned);
+            $('#statDrafts').text(drafts);
+            $('#statTotalViews').text(totalViews.toLocaleString());
+
+            // 更新跑馬燈為最新的置頂公告或最新公告
+            const topPin = dataList.find(d => d.is_pinned && d.status === 'PUBLISHED') || dataList[0];
+            if (topPin) {
+                $('#liveMarqueeText').html(`
+                    <i class="fa-solid fa-thumbtack text-warning me-1"></i> <strong>${topPin.title}</strong> — ${topPin.summary || '點擊進入查閱完整公文排版'}
+                `);
+            } else {
+                $('#liveMarqueeText').html('<span class="text-muted">目前暫無置頂發布之公文通知</span>');
+            }
+        }
+
+        /**
+         * 渲染視圖 A：動態情報瀑布流卡片
+         */
+        function renderCardsView(dataList) {
+            const container = $('#cardsGridContainer');
+            container.empty();
+
+            if (dataList.length === 0) {
+                container.html(`
+                    <div class="col-12 text-center py-5">
+                        <div class="p-4 rounded-4 glass-panel d-inline-block">
+                            <i class="fa-solid fa-inbox fa-3x text-secondary mb-3 opacity-50"></i>
+                            <h5 class="text-muted">查無符合條件之公告項目</h5>
+                            <p class="small text-secondary mb-0">請調整篩選條件或點擊右上方「發布新公告」</p>
+                        </div>
+                    </div>
+                `);
+                return;
+            }
+
+            // 依置頂狀態優先排序
+            const sortedList = [...dataList].sort((a, b) => (b.is_pinned === true) - (a.is_pinned === true));
+
+            sortedList.forEach(item => {
+                const coverImg = item.cover_image_url || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop&q=80';
+                const pinBadge = item.is_pinned ? `<span class="badge badge-cyber badge-cyber-warning position-absolute top-0 start-0 m-3 z-2"><i class="fa-solid fa-thumbtack me-1"></i> 置頂</span>` : '';
+                const countryTag = item.country_code === 'ALL' ? '全區' : (item.country_code === 'TW' ? '台灣' : '大馬');
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="feed-card h-100 ${item.is_pinned ? 'pinned' : ''}">
+                            <div class="cover-wrap">
+                                ${pinBadge}
+                                <img src="${coverImg}" class="cover-img" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop&q=80'">
+                                <div class="cover-overlay"></div>
+                                <span class="badge bg-dark bg-opacity-75 text-light position-absolute bottom-0 start-0 m-2 border border-secondary border-opacity-50 small">
+                                    <i class="fa-solid fa-globe me-1"></i> ${countryTag}
+                                </span>
+                                <span class="position-absolute bottom-0 end-0 m-2">
+                                    ${getStatusBadge(item.status)}
+                                </span>
+                            </div>
+
+                            <div class="p-3 d-flex flex-column" style="min-height: 220px;">
+                                <div class="d-flex align-items-center gap-1 mb-2 flex-wrap">
+                                    ${getPublisherBadge(item.publisher_unit)}
+                                    ${getCategoryBadge(item.category)}
+                                    ${getScopeBadge(item.target_scope)}
+                                </div>
+
+                                <h6 class="fw-bold text-white mb-2 line-clamp-2" title="${item.title}">
+                                    ${item.title}
+                                </h6>
+                                <p class="text-muted small flex-grow-1 mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    ${item.summary || '點擊查閱詳細富文本公告排版與附件內容...'}
+                                </p>
+
+                                <div class="pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
+                                    <span class="text-muted small">
+                                        <i class="fa-solid fa-eye me-1"></i> ${item.view_count || 0} 次查閱
+                                    </span>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-cyber-outline btn-preview" data-id="${item.announcement_id}" title="手機端模擬預覽">
+                                            <i class="fa-solid fa-mobile-screen"></i> 模擬
+                                        </button>
+                                        <button class="btn btn-cyber-outline btn-edit" data-id="${item.announcement_id}" title="編輯內容">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button class="btn btn-cyber-outline btn-toggle-pin text-warning" data-id="${item.announcement_id}" title="切換置頂">
+                                            <i class="fa-solid fa-thumbtack"></i>
+                                        </button>
+                                        <button class="btn btn-cyber-outline text-danger btn-delete" data-id="${item.announcement_id}" title="刪除公告">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        /**
+         * 渲染視圖 B：DataTables 矩陣表
+         */
+        function renderDataTable(dataList) {
+            if (dataTableInstance) {
+                dataTableInstance.destroy();
+            }
+
+            const tbody = $('#announcementsTable tbody');
+            tbody.empty();
+
+            dataList.forEach(item => {
+                const tr = `
+                    <tr>
+                        <td class="text-center">
+                            ${item.is_pinned ? '<i class="fa-solid fa-thumbtack text-warning"></i>' : '<i class="fa-solid fa-minus text-secondary opacity-50"></i>'}
+                        </td>
+                        <td><span class="badge bg-dark border border-secondary">${item.country_code}</span></td>
+                        <td>${getPublisherBadge(item.publisher_unit)}</td>
+                        <td>${getCategoryBadge(item.category)}</td>
+                        <td>
+                            <div class="fw-bold text-white">${item.title}</div>
+                            <small class="text-muted text-truncate d-inline-block" style="max-width: 280px;">${item.summary || ''}</small>
+                        </td>
+                        <td>${getScopeBadge(item.target_scope)}</td>
+                        <td><small class="text-muted font-monospace">${item.publish_start_at ? item.publish_start_at.replace('T', ' ') : '即刻生效'}</small></td>
+                        <td>${getStatusBadge(item.status)}</td>
+                        <td class="font-monospace text-info">${item.view_count || 0}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-cyber-outline btn-preview" data-id="${item.announcement_id}" title="手機預覽">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                </button>
+                                <button class="btn btn-cyber-outline btn-edit" data-id="${item.announcement_id}" title="編輯">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-cyber-outline text-danger btn-delete" data-id="${item.announcement_id}" title="刪除">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(tr);
+            });
+
+            dataTableInstance = $('#announcementsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "表格內即時篩選：",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆公告，共 _TOTAL_ 筆",
+                    paginate: {
+                        first: "首頁",
+                        last: "末頁",
+                        next: "下一頁",
+                        previous: "上一頁"
+                    },
+                    zeroRecords: "查無符合資料"
+                }
+            });
+        }
+
+        /**
+         * 6. 事件綁定與互動操作 (Events & User Interactions)
+         */
+        $(document).ready(function() {
+            // 初始載入渲染
+            refreshViews();
+
+            // 視圖切換：情報卡片 ⇄ 資料矩陣
+            $('#btnViewCards').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewTable').removeClass('active');
+                $('#viewContainerCards').removeClass('d-none');
+                $('#viewContainerTable').addClass('d-none');
+            });
+
+            $('#btnViewTable').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewCards').removeClass('active');
+                $('#viewContainerCards').addClass('d-none');
+                $('#viewContainerTable').removeClass('d-none');
+                if (dataTableInstance) dataTableInstance.columns.adjust().responsive.recalc();
+            });
+
+            // 篩選器連動監聽
+            $('#filterCountry, #filterCategory, #filterPublisher, #filterScope, #filterStatus').on('change', refreshViews);
+            $('#filterKeyword').on('input', refreshViews);
+            $('#btnResetFilters').on('click', function() {
+                $('#filterCountry').val('ALL');
+                $('#filterCategory').val('ALL');
+                $('#filterPublisher').val('ALL');
+                $('#filterScope').val('ALL');
+                $('#filterStatus').val('ALL');
+                $('#filterKeyword').val('');
+                refreshViews();
+            });
+
+            // 開啟新增 Modal
+            $('#btnOpenCreateModal').on('click', function() {
+                $('#formAnnouncement')[0].reset();
+                $('#formAnnId').val('');
+                $('#modalFormTitle').html('<i class="fa-solid fa-plus text-primary me-2"></i> 發布新公告');
+                $('#formCountry').val('ALL');
+                $('#formPublisher').val('TEAM');
+                $('#formCategory').val('TEAM');
+                $('#formTargetScope').val('ALL');
+                $('#formStatus').val('PUBLISHED');
+                $('#formLinkUrl').val('#');
+                new bootstrap.Modal(document.getElementById('modalAnnouncementEdit')).show();
+            });
+
+            // 儲存公告 (新增 / 編輯)
+            $('#btnSaveAnnouncement').on('click', function() {
+                const annId = $('#formAnnId').val();
+                const title = $('#formTitle').val().trim();
+                const contentHtml = $('#formContentHtml').val().trim();
+
+                if (!title || !contentHtml) {
+                    alert('請確實填寫「公告標題」與「詳細富文本內容」！');
+                    return;
+                }
+
+                if (annId) {
+                    // 編輯更新
+                    const index = announcementsData.findIndex(d => d.announcement_id === annId);
+                    if (index !== -1) {
+                        announcementsData[index] = {
+                            ...announcementsData[index],
+                            country_code: $('#formCountry').val(),
+                            publisher_unit: $('#formPublisher').val(),
+                            category: $('#formCategory').val(),
+                            title: title,
+                            summary: $('#formSummary').val().trim(),
+                            cover_image_url: $('#formCoverUrl').val().trim(),
+                            link_url: $('#formLinkUrl').val().trim(),
+                            content_html: contentHtml,
+                            target_scope: $('#formTargetScope').val(),
+                            status: $('#formStatus').val(),
+                            is_pinned: $('#formIsPinned').is(':checked'),
+                            publish_start_at: $('#formPublishStart').val() || null,
+                            publish_end_at: $('#formPublishEnd').val() || null
+                        };
+                    }
+                } else {
+                    // 新增項目
+                    const newId = `ANN-${new Date().getFullYear()}-${String(announcementsData.length + 1).padStart(3, '0')}`;
+                    const newItem = {
+                        announcement_id: newId,
+                        country_code: $('#formCountry').val(),
+                        publisher_unit: $('#formPublisher').val(),
+                        category: $('#formCategory').val(),
+                        title: title,
+                        summary: $('#formSummary').val().trim(),
+                        cover_image_url: $('#formCoverUrl').val().trim(),
+                        link_url: $('#formLinkUrl').val().trim(),
+                        content_html: contentHtml,
+                        target_scope: $('#formTargetScope').val(),
+                        status: $('#formStatus').val(),
+                        is_pinned: $('#formIsPinned').is(':checked'),
+                        publish_start_at: $('#formPublishStart').val() || new Date().toISOString().slice(0, 16),
+                        publish_end_at: $('#formPublishEnd').val() || null,
+                        view_count: 0
+                    };
+                    announcementsData.unshift(newItem);
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('modalAnnouncementEdit')).hide();
+                refreshViews();
+                alert('公告已成功儲存並同步解耦至 Google 試算表！');
+            });
+
+            // 委派事件：編輯按鈕
+            $(document).on('click', '.btn-edit', function() {
+                const id = $(this).data('id');
+                const item = announcementsData.find(d => d.announcement_id === id);
+                if (!item) return;
+
+                $('#formAnnId').val(item.announcement_id);
+                $('#modalFormTitle').html(`<i class="fa-solid fa-pen-nib text-primary me-2"></i> 編輯公告 [${item.announcement_id}]`);
+                $('#formCountry').val(item.country_code);
+                $('#formPublisher').val(item.publisher_unit);
+                $('#formCategory').val(item.category);
+                $('#formTitle').val(item.title);
+                $('#formSummary').val(item.summary || '');
+                $('#formCoverUrl').val(item.cover_image_url || '');
+                $('#formLinkUrl').val(item.link_url || '#');
+                $('#formContentHtml').val(item.content_html);
+                $('#formTargetScope').val(item.target_scope);
+                $('#formStatus').val(item.status);
+                $('#formIsPinned').prop('checked', item.is_pinned === true);
+                $('#formPublishStart').val(item.publish_start_at ? item.publish_start_at.slice(0, 16) : '');
+                $('#formPublishEnd').val(item.publish_end_at ? item.publish_end_at.slice(0, 16) : '');
+
+                new bootstrap.Modal(document.getElementById('modalAnnouncementEdit')).show();
+            });
+
+            // 委派事件：切換置頂按鈕
+            $(document).on('click', '.btn-toggle-pin', function() {
+                const id = $(this).data('id');
+                const item = announcementsData.find(d => d.announcement_id === id);
+                if (item) {
+                    item.is_pinned = !item.is_pinned;
+                    refreshViews();
+                }
+            });
+
+            // 委派事件：刪除按鈕
+            $(document).on('click', '.btn-delete', function() {
+                const id = $(this).data('id');
+                if (confirm(`確定要刪除公告編號 [${id}] 嗎？此操作將同步自 Google 試算表移除。`)) {
+                    announcementsData = announcementsData.filter(d => d.announcement_id !== id);
+                    refreshViews();
+                }
+            });
+
+            // 委派事件：手機端 1:1 實境模擬預覽
+            $(document).on('click', '.btn-preview', function() {
+                const id = $(this).data('id');
+                const item = announcementsData.find(d => d.announcement_id === id);
+                if (!item) return;
+
+                const phoneHtml = `
+                    <div class="mb-3">
+                        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 small mb-2">
+                            ${item.publisher_unit === 'COMPANY' ? '葡眾官方公告' : '榮祥團隊快訊'}
+                        </span>
+                        <h5 class="fw-bold text-white mb-2">${item.title}</h5>
+                        <div class="d-flex justify-content-between text-muted small pb-2 border-bottom border-secondary border-opacity-25">
+                            <span><i class="fa-solid fa-clock me-1"></i> ${item.publish_start_at ? item.publish_start_at.slice(0, 10) : '即時發布'}</span>
+                            <span><i class="fa-solid fa-eye me-1"></i> ${item.view_count} 次</span>
+                        </div>
+                    </div>
+                    ${item.cover_image_url ? `<img src="${item.cover_image_url}" class="img-fluid rounded-3 mb-3 border border-secondary border-opacity-25" style="max-height: 180px; width: 100%; object-fit: cover;">` : ''}
+                    <div class="text-light small lh-lg mb-4">
+                        ${item.content_html}
+                    </div>
+                    <div class="p-2 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25 text-center">
+                        <small class="text-secondary"><i class="fa-solid fa-shield-check me-1"></i> 榮祥團隊官方資安認證發布</small>
+                    </div>
+                `;
+
+                $('#mobilePreviewContent').html(phoneHtml);
+                new bootstrap.Modal(document.getElementById('modalMobilePreview')).show();
+            });
+
+            // Google 試算表同步按鈕（模擬 PapaParse / GViz 抓取並解耦）
+            $('#btnSyncGoogleSheets').on('click', function() {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 解析試算表中...');
+
+                setTimeout(() => {
+                    // 模擬自試算表抓取的混合中文/英文非正規欄位資料
+                    const rawMockSheetRows = [
+                        { "公告編號": "ANN-2026-999", "發佈單位": "COMPANY", "市場": "TW", "分類": "PROMOTION", "公告標題": "【試算表即時連動】2026 夏季新品發表會報名開跑", "內文": "<p>官方夏季大會即將登場，請向各區領導人索取門票。</p>", "是否置頂": "true", "發布狀態": "PUBLISHED", "瀏覽量": "210" }
+                    ];
+
+                    const parsedRow = parseDecoupledRow(rawMockSheetRows[0]);
+                    announcementsData.unshift(parsedRow);
+                    refreshViews();
+
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-rotate"></i> 同步試算表');
+                    alert('已透過解耦引擎成功自 Google 試算表 (trn_announcements) 載入最新數據！');
+                }, 900);
+            });
+
+            // 官方爬取最新公告模擬
+            $('#btnScrapeOfficial').on('click', function() {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 官方連線擷取中...');
+
+                setTimeout(() => {
+                    const officialScraped = {
+                        announcement_id: `ANN-SCRAPE-${Date.now().toString().slice(-4)}`,
+                        publisher_unit: "COMPANY",
+                        country_code: "TW",
+                        category: "PROMOTION",
+                        title: "【官方最新】2026 馬來西亞吉隆坡旗艦大會報名名額公告",
+                        summary: "海外研習營達標名額已正式公布於葡眾官方系統，團隊請於 3 天內確認回傳名冊。",
+                        content_html: "<p>恭喜榮祥團隊全體達成海外研習營資格之夥伴，官方核定名冊已確認完畢。</p>",
+                        cover_image_url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+                        link_url: "https://www.uvaco.com.tw",
+                        target_scope: "ALL",
+                        is_pinned: true,
+                        status: "PUBLISHED",
+                        publish_start_at: new Date().toISOString().slice(0, 16),
+                        publish_end_at: null,
+                        view_count: 88
+                    };
+
+                    announcementsData.unshift(officialScraped);
+                    refreshViews();
+
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 擷取官方公告');
+                    alert('成功連線並擷取葡眾官方最新公告！');
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

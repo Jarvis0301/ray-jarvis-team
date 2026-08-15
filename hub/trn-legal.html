@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>傳銷法規與主管機關報備 - 葡眾網站核心版</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        /* ==========================================================================
+           核心版：魅影深紫 (Phantom Cyber Purple) Design System Tokens
+           ========================================================================== */
+        :root {
+            --core-bg-main: #0a0518;
+            --core-bg-secondary: #120824;
+            --core-bg-card: #150a2a;
+            --core-bg-hover: #1e0f3d;
+            --core-bg-inner: #0d061f;
+            --core-bg-input: #170b2e;
+            
+            --core-primary: #8b5cf6;
+            --core-secondary: #c084fc;
+            --core-accent: #ec4899;
+            --core-cyan: #06b6d4;
+            --core-emerald: #10b981;
+            --core-amber: #f59e0b;
+            --core-rose: #f43f5e;
+            
+            --core-border: rgba(139, 92, 246, 0.25);
+            --core-border-glow: rgba(139, 92, 246, 0.5);
+            --core-glow-sm: 0 0 15px rgba(139, 92, 246, 0.25);
+            --core-glow-lg: 0 0 30px rgba(139, 92, 246, 0.4);
+            
+            --core-text-main: #faf5ff;
+            --core-text-muted: #9e8eb3;
+            --core-text-secondary: #c084fc;
+        }
+
+        body {
+            background-color: var(--core-bg-main);
+            color: var(--core-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 背景微光光暈 */
+        .ambient-glow-wrapper {
+            background: 
+                radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%),
+                var(--core-bg-main);
+            min-height: 100vh;
+        }
+
+        /* 磨砂玻璃容器 */
+        .glass-panel {
+            background: rgba(21, 10, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--core-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--core-border-glow);
+        }
+
+        /* 統計指標方塊 */
+        .metric-stat-card {
+            background: linear-gradient(135deg, rgba(21, 10, 42, 0.9), rgba(18, 8, 36, 0.8));
+            border: 1px solid var(--core-border);
+            border-radius: 14px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .metric-stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--core-primary);
+        }
+
+        .metric-stat-card.stat-emerald::after { background: var(--core-emerald); }
+        .metric-stat-card.stat-cyan::after { background: var(--core-cyan); }
+        .metric-stat-card.stat-amber::after { background: var(--core-amber); }
+
+        .metric-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--core-glow-sm);
+        }
+
+        /* 篩選膠囊按鈕 */
+        .nav-pill-custom .btn {
+            background: var(--core-bg-card);
+            border: 1px solid var(--core-border);
+            color: var(--core-text-muted);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            padding: 0.5rem 1.15rem;
+            transition: all 0.25s ease;
+        }
+
+        .nav-pill-custom .btn:hover {
+            color: var(--core-text-main);
+            border-color: var(--core-secondary);
+            background: var(--core-bg-hover);
+        }
+
+        .nav-pill-custom .btn.active {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: #ffffff;
+            border-color: #c084fc;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.5);
+        }
+
+        /* 合規憑證卡片 (Compliance Certificate Grid) */
+        .cert-card {
+            background: var(--core-bg-card);
+            border: 1px solid var(--core-border);
+            border-radius: 16px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .cert-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--core-secondary);
+            box-shadow: var(--core-glow-lg);
+            background: var(--core-bg-hover);
+        }
+
+        .cert-authority-seal {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(192, 132, 252, 0.25);
+            border-radius: 8px;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.75rem;
+            color: var(--core-text-secondary);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* 類別徽章 */
+        .cat-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .cat-badge-compliance {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(192, 132, 252, 0.4);
+        }
+        .cat-badge-contract {
+            background: rgba(6, 182, 212, 0.2);
+            color: #22d3ee;
+            border: 1px solid rgba(34, 211, 238, 0.4);
+        }
+        .cat-badge-privacy {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+        }
+        .cat-badge-disclaimer {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        .status-badge-effective {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid #10b981;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .status-badge-superseded {
+            background: rgba(158, 142, 179, 0.15);
+            color: var(--core-text-muted);
+            border: 1px solid #64748b;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .cert-summary-box {
+            background: var(--core-bg-inner);
+            border-left: 3px solid var(--core-primary);
+            border-radius: 0 10px 10px 0;
+            padding: 0.85rem;
+            font-size: 0.85rem;
+            color: #d8b4fe;
+            line-height: 1.6;
+        }
+
+        /* 搜尋與表單元件 */
+        .form-control-custom, .form-select-custom {
+            background: var(--core-bg-input);
+            border: 1px solid var(--core-border);
+            color: var(--core-text-main);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-custom:focus, .form-select-custom:focus {
+            background: var(--core-bg-hover);
+            border-color: var(--core-secondary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
+
+        /* DataTable 自訂魅影深紫外觀 */
+        table.dataTable {
+            border-collapse: collapse !important;
+            background: var(--core-bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--core-border);
+        }
+
+        table.dataTable thead th {
+            background: rgba(30, 15, 61, 0.95);
+            color: var(--core-text-secondary);
+            border-bottom: 1px solid var(--core-border) !important;
+            font-weight: 600;
+            padding: 12px 16px;
+        }
+
+        table.dataTable tbody td {
+            background: transparent;
+            color: #e9d5ff;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            padding: 12px 16px;
+            vertical-align: middle;
+        }
+
+        table.dataTable tbody tr:hover td {
+            background: rgba(139, 92, 246, 0.12) !important;
+        }
+
+        .dataTables_info, .dataTables_paginate {
+            color: var(--core-text-muted) !important;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .page-item .page-link {
+            background: var(--core-bg-card);
+            border-color: var(--core-border);
+            color: var(--core-text-muted);
+        }
+
+        .page-item.active .page-link {
+            background: var(--core-primary);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+        }
+
+        /* Modal 視窗定制 */
+        .modal-content-core {
+            background: var(--core-bg-card);
+            border: 1px solid var(--core-secondary);
+            border-radius: 18px;
+            color: var(--core-text-main);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header-core {
+            border-bottom: 1px solid var(--core-border);
+            background: var(--core-bg-secondary);
+        }
+
+        .modal-footer-core {
+            border-top: 1px solid var(--core-border);
+            background: var(--core-bg-secondary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="ambient-glow-wrapper p-3 p-md-4 p-lg-5">
+    
+    <div class="glass-panel p-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-xl-7">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(236, 72, 153, 0.15)); border: 1px solid var(--core-secondary);">
+                        <i class="fa-solid fa-scale-balanced fa-2x" style="color: var(--core-secondary);"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h3 class="fw-bold mb-0 text-white">傳銷法規與主管機關報備</h3>
+                            <span class="badge bg-dark border border-secondary text-secondary px-2 py-1" style="font-size: 0.75rem;">H24000</span>
+                            <span class="badge bg-purple-subtle text-purple border border-purple-subtle" style="font-size: 0.75rem; color: #c084fc; background: rgba(139,92,246,0.15);">
+                                <i class="fa-solid fa-shield-halved"></i> 法律防火牆中台
+                            </span>
+                        </div>
+                        <p class="text-muted mb-0 small mt-1">
+                            管理行政院公平交易委員會法定備查公文字號、多層次傳銷定型化契約、個人資料保護聲明與免責條款庫。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-5 text-xl-end d-flex flex-wrap justify-content-xl-end gap-2">
+                <button class="btn btn-outline-light btn-sm d-inline-flex align-items-center" id="btnSyncGviz" onclick="fetchGoogleSheetGviz()">
+                    <i class="fa-solid fa-rotate"></i>&nbsp; 一鍵同步雲端試算表
+                </button>
+                <button class="btn btn-sm d-inline-flex align-items-center text-white" style="background: linear-gradient(135deg, #7c3aed, #ec4899);" data-bs-toggle="modal" data-bs-target="#modalAddLegal">
+                    <i class="fa-solid fa-file-circle-plus"></i>&nbsp; 登錄報備公文
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-6 col-md-3">
+                <div class="metric-stat-card">
+                    <div class="text-muted small mb-1">
+                        <i class="fa-solid fa-file-contract"></i>&nbsp; 報備規章總件數
+                    </div>
+                    <div class="fs-4 fw-bold text-white font-monospace" id="metricTotalCount">0</div>
+                    <div class="small" style="font-size: 0.75rem; color: var(--core-text-secondary);">涵蓋公平會/衛福部</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-stat-card stat-emerald">
+                    <div class="text-muted small mb-1">
+                        <i class="fa-solid fa-shield-check"></i>&nbsp; 現行法定有效
+                    </div>
+                    <div class="fs-4 fw-bold text-success font-monospace" id="metricEffectiveCount">0</div>
+                    <div class="small text-muted" style="font-size: 0.75rem;">依法備查施行中</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-stat-card stat-cyan">
+                    <div class="text-muted small mb-1">
+                        <i class="fa-solid fa-stamp"></i>&nbsp; 公平會備查文號
+                    </div>
+                    <div class="fs-4 fw-bold text-info font-monospace" id="metricComplianceCount">0</div>
+                    <div class="small text-muted" style="font-size: 0.75rem;">多層次傳銷管理法</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-stat-card stat-amber">
+                    <div class="text-muted small mb-1">
+                        <i class="fa-solid fa-box-archive"></i>&nbsp; 歷史版本封存
+                    </div>
+                    <div class="fs-4 fw-bold text-warning font-monospace" id="metricSupersededCount">0</div>
+                    <div class="small text-muted" style="font-size: 0.75rem;">備查審計追溯比對</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 align-items-center">
+        <div class="col-12 col-lg-7">
+            <div class="nav-pill-custom d-flex flex-wrap gap-2" id="filterPillsGroup">
+                <button class="btn active" data-category="ALL" onclick="handleCategoryFilter('ALL', this)">
+                    <i class="fa-solid fa-layer-group"></i>&nbsp; 全部規章
+                </button>
+                <button class="btn" data-category="COMPLIANCE" onclick="handleCategoryFilter('COMPLIANCE', this)">
+                    <i class="fa-solid fa-stamp"></i>&nbsp; 公平會備查
+                </button>
+                <button class="btn" data-category="CONTRACT" onclick="handleCategoryFilter('CONTRACT', this)">
+                    <i class="fa-solid fa-signature"></i>&nbsp; 定型化契約
+                </button>
+                <button class="btn" data-category="PRIVACY" onclick="handleCategoryFilter('PRIVACY', this)">
+                    <i class="fa-solid fa-user-shield"></i>&nbsp; 個資法宣告
+                </button>
+                <button class="btn" data-category="DISCLAIMER" onclick="handleCategoryFilter('DISCLAIMER', this)">
+                    <i class="fa-solid fa-shield-halved"></i>&nbsp; 免責條款
+                </button>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="globalSearchInput" class="form-control form-control-custom" placeholder="快速檢索公文字號、主旨、法規摘要..." onkeyup="handleSearchFilter()">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary active" id="btnModeGrid" onclick="toggleViewLayout('grid')" title="憑證認證網格">
+                        <i class="fa-solid fa-grip"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="btnModeTable" onclick="toggleViewLayout('table')" title="法務審計清單">
+                        <i class="fa-solid fa-table-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="containerGridView" class="row g-3">
+        </div>
+
+    <div id="containerTableView" class="glass-panel p-3 d-none">
+        <div class="table-responsive">
+            <table id="legalAuditDataTable" class="table table-dark table-hover w-100 align-middle">
+                <thead>
+                    <tr>
+                        <th>公文字號 / 識別碼</th>
+                        <th>規章類別</th>
+                        <th>主管機關</th>
+                        <th>報備法規主題全銜</th>
+                        <th>生效日期</th>
+                        <th>效力狀態</th>
+                        <th>法律核心要點</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="legalTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalPdfDrawer" tabindex="-1" aria-labelledby="modalPdfDrawerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-content-core">
+            <div class="modal-header modal-header-core py-2 px-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-danger fa-lg"></i>
+                    <h5 class="modal-title fs-6 fw-bold text-white" id="pdfDrawerTitle">官方報備公文檢閱</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 75vh; background: #05020c;">
+                <iframe id="pdfViewerFrame" src="" class="w-100 h-100 border-0" allow="fullscreen"></iframe>
+            </div>
+            <div class="modal-footer modal-footer-core py-2 px-3 d-flex justify-content-between">
+                <span class="small font-monospace text-muted" id="pdfDrawerFilingNo">公文字號載入中...</span>
+                <div>
+                    <a id="btnDownloadPdfNative" href="#" target="_blank" class="btn btn-outline-info btn-sm">
+                        <i class="fa-solid fa-arrow-down-to-line"></i>&nbsp; 下載官方蓋印本 (PDF)
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAddLegal" tabindex="-1" aria-labelledby="modalAddLegalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-content-core">
+            <div class="modal-header modal-header-core">
+                <h5 class="modal-title fs-6 fw-bold text-white">
+                    <i class="fa-solid fa-file-shield" style="color: var(--core-secondary);"></i>&nbsp; 登錄多層次傳銷報備公文與契約
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formCreateLegal">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small" style="color: var(--core-secondary);">公平會報備公文字號 (UK) *</label>
+                            <input type="text" class="form-control form-control-custom" id="inputFilingNo" placeholder="例：公參字第1120054321號" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small" style="color: var(--core-secondary);">主管機關名稱 *</label>
+                            <input type="text" class="form-control form-control-custom" id="inputAuthority" value="行政院公平交易委員會" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small" style="color: var(--core-secondary);">法律聲明或報備主題全銜 *</label>
+                            <input type="text" class="form-control form-control-custom" id="inputTitle" placeholder="例：葡眾企業多層次傳銷經營管理辦法修正案" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small" style="color: var(--core-secondary);">法規類別 *</label>
+                            <select class="form-select form-select-custom" id="inputLegalCategory">
+                                <option value="COMPLIANCE">COMPLIANCE - 公平會備查</option>
+                                <option value="CONTRACT">CONTRACT - 定型化契約</option>
+                                <option value="PRIVACY">PRIVACY - 個資聲明</option>
+                                <option value="DISCLAIMER">DISCLAIMER - 免責條款</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small" style="color: var(--core-secondary);">官方生效實施日期 *</label>
+                            <input type="date" class="form-control form-control-custom" id="inputFilingDate" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small" style="color: var(--core-secondary);">法規效力狀態 *</label>
+                            <select class="form-select form-select-custom" id="inputStatus">
+                                <option value="EFFECTIVE">EFFECTIVE - 現行有效</option>
+                                <option value="SUPERSEDED">SUPERSEDED - 歷史封存</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small" style="color: var(--core-secondary);">官方報備 PDF 檔案雲端 URL *</label>
+                            <input type="url" class="form-control form-control-custom" id="inputPdfUrl" placeholder="https://drive.google.com/... 或官方 CDN 載點" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small" style="color: var(--core-secondary);">法律核心要點與合規說明</label>
+                            <textarea class="form-control form-control-custom" id="inputSummary" rows="3" placeholder="簡述本次報備修正要點、多層次傳銷管理法第6條/第7條適用規範、解除契約退貨扣減規定等..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer modal-footer-core">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-sm text-white" style="background: linear-gradient(135deg, #7c3aed, #8b5cf6);" onclick="submitLegalRecord()">
+                    <i class="fa-solid fa-floppy-disk"></i>&nbsp; 寫入資料庫並發布
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script>
+    /**
+     * =========================================================================
+     * 1. 系統組態與欄位解耦轉接字典 (sys_api_configs / 表49 對照)
+     * =========================================================================
+     */
+    const TRN_LEGAL_CONFIG = {
+        // 解耦映射字典：前端欄位別名 -> 試算表表頭中文名稱
+        fieldMappings: {
+            rep_id: "報備識別碼",
+            rep_no: "公文字號",
+            rep_title: "報備主題",
+            rep_gov: "主管機關",
+            rep_date: "生效日期",
+            rep_cat: "法規類別",
+            rep_pdf: "PDF載點",
+            rep_summary: "核心摘要",
+            rep_status: "法規效力"
+        },
+        // Google Sheets GViz 端點 URL (可自由抽換)
+        gvizSpreadsheetId: "YOUR_GOOGLE_SHEET_ID_HERE",
+        sheetName: "02_培訓_傳銷法規報備"
+    };
+
+    /**
+     * =========================================================================
+     * 2. 初始核心資料集 (模擬/快取資料，對齊 trn_compliance_reports 表16)
+     * =========================================================================
+     */
+    let legalDataset = [
+        {
+            rep_id: "REP-2026-001",
+            rep_no: "公參字第1120054321號",
+            rep_title: "葡眾多層次傳銷報備案（2026 年度營運報備與制度變更備查）",
+            rep_gov: "行政院公平交易委員會",
+            rep_date: "2026-01-01",
+            rep_cat: "COMPLIANCE",
+            rep_pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            rep_summary: "依多層次傳銷管理法第6條及第7條完成報備，包含直銷商營業守則更新、積分結算基準與營業據點異動核准通知。",
+            rep_status: "EFFECTIVE"
+        },
+        {
+            rep_id: "REP-2025-004",
+            rep_no: "合約審字第1110982-A號",
+            rep_title: "葡眾經銷商加入申請書暨定型化契約範本（全通路電子簽章版）",
+            rep_gov: "行政院公平交易委員會 / 衛福部",
+            rep_date: "2025-11-15",
+            rep_cat: "CONTRACT",
+            rep_pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            rep_summary: "規範直銷商契約解除權與終止權、30天猶豫期退換貨減損計算法則、經理階級獎金提撥責任與不得要求囤貨條款。",
+            rep_status: "EFFECTIVE"
+        },
+        {
+            rep_id: "REP-2025-002",
+            rep_no: "個資法規聲明第2025-P02號",
+            rep_title: "榮祥團隊與葡眾系統夥伴個人資料蒐集處理及利用同意書",
+            rep_gov: "個人資料保護委員會 / 國發會",
+            rep_date: "2025-06-01",
+            rep_cat: "PRIVACY",
+            rep_pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            rep_summary: "因應個資法最新修正案，嚴格規範夥伴組織樹血緣查詢、身分證字號與獎金金融帳號傳輸加密（AES-256）防護機制。",
+            rep_status: "EFFECTIVE"
+        },
+        {
+            rep_id: "REP-2024-088",
+            rep_no: "宣導法字第2024-D01號",
+            rep_title: "保健食品衛教宣傳規範與產品效果免責聲明標準方針",
+            rep_gov: "衛生福利部食品藥物管理署 (TFDA)",
+            rep_date: "2024-03-20",
+            rep_cat: "DISCLAIMER",
+            rep_pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            rep_summary: "明文禁止宣稱醫療效能，所有康爾喜、995、樟芝益見證分享均需加註『個人體驗僅供參考，產品非藥物』之法定防火牆免責警語。",
+            rep_status: "EFFECTIVE"
+        },
+        {
+            rep_id: "REP-2022-019",
+            rep_no: "公參字第1090012984號",
+            rep_title: "葡眾多層次傳銷報備案（2022年歷史修訂版本）",
+            rep_gov: "行政院公平交易委員會",
+            rep_date: "2022-08-10",
+            rep_cat: "COMPLIANCE",
+            rep_pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            rep_summary: "舊版營運規章備查公文，已由 2026 最新修訂版完全取代，此處永久封存供主管機關審計時追溯比對。",
+            rep_status: "SUPERSEDED"
+        }
+    ];
+
+    let currentFilteredList = [...legalDataset];
+    let selectedCategory = 'ALL';
+    let dataTableInstance = null;
+
+    /**
+     * =========================================================================
+     * 3. 頁面初始化
+     * =========================================================================
+     */
+    $(document).ready(function () {
+        updateMetricCards();
+        renderCardGrid(currentFilteredList);
+        renderDataTable();
+    });
+
+    /**
+     * =========================================================================
+     * 4. 戰情指標統計運算
+     * =========================================================================
+     */
+    function updateMetricCards() {
+        const total = legalDataset.length;
+        const effective = legalDataset.filter(d => d.rep_status === 'EFFECTIVE').length;
+        const compliance = legalDataset.filter(d => d.rep_cat === 'COMPLIANCE').length;
+        const superseded = legalDataset.filter(d => d.rep_status === 'SUPERSEDED').length;
+
+        $('#metricTotalCount').text(total);
+        $('#metricEffectiveCount').text(effective);
+        $('#metricComplianceCount').text(compliance);
+        $('#metricSupersededCount').text(superseded);
+    }
+
+    /**
+     * =========================================================================
+     * 5. 類別與效力標籤解析工具
+     * =========================================================================
+     */
+    function renderCategoryBadge(catCode) {
+        switch (catCode) {
+            case 'COMPLIANCE':
+                return '<span class="cat-badge cat-badge-compliance"><i class="fa-solid fa-stamp"></i>&nbsp; 公平會備查</span>';
+            case 'CONTRACT':
+                return '<span class="cat-badge cat-badge-contract"><i class="fa-solid fa-signature"></i>&nbsp; 定型化契約</span>';
+            case 'PRIVACY':
+                return '<span class="cat-badge cat-badge-privacy"><i class="fa-solid fa-user-shield"></i>&nbsp; 個資聲明</span>';
+            case 'DISCLAIMER':
+                return '<span class="cat-badge cat-badge-disclaimer"><i class="fa-solid fa-shield-halved"></i>&nbsp; 免責條款</span>';
+            default:
+                return `<span class="cat-badge cat-badge-compliance">${catCode}</span>`;
+        }
+    }
+
+    function renderStatusBadge(status) {
+        if (status === 'EFFECTIVE') {
+            return '<span class="status-badge-effective"><i class="fa-solid fa-circle-check"></i>&nbsp; 現行有效</span>';
+        }
+        return '<span class="status-badge-superseded"><i class="fa-solid fa-box-archive"></i>&nbsp; 歷史封存</span>';
+    }
+
+    /**
+     * =========================================================================
+     * 6. 渲染視圖 A: 憑證認證網格 (Grid View)
+     * =========================================================================
+     */
+    function renderCardGrid(items) {
+        const $grid = $('#containerGridView');
+        $grid.empty();
+
+        if (!items || items.length === 0) {
+            $grid.html(`
+                <div class="col-12 text-center py-5">
+                    <div class="text-muted"><i class="fa-solid fa-folder-open fa-3x mb-3" style="color: var(--core-text-muted);"></i></div>
+                    <h5 class="text-muted">查無相符之傳銷法規公文或報備檔案</h5>
+                </div>
+            `);
+            return;
+        }
+
+        items.forEach(item => {
+            const card = `
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="cert-card">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                ${renderCategoryBadge(item.rep_cat)}
+                                ${renderStatusBadge(item.rep_status)}
+                            </div>
+                            <div class="cert-authority-seal mb-2">
+                                <i class="fa-solid fa-building-columns"></i>&nbsp; ${item.rep_gov}
+                            </div>
+                            <h5 class="fw-bold text-white mb-2" style="font-size: 1.05rem; line-height: 1.45;">
+                                ${item.rep_title}
+                            </h5>
+                            <div class="text-muted small mb-3 font-monospace">
+                                <i class="fa-solid fa-hashtag" style="color: var(--core-secondary);"></i>&nbsp; ${item.rep_no}
+                            </div>
+                            <div class="cert-summary-box mb-3">
+                                ${item.rep_summary}
+                            </div>
+                        </div>
+                        <div class="pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                            <div class="text-muted small font-monospace">
+                                <i class="fa-regular fa-calendar-check"></i>&nbsp; ${item.rep_date}
+                            </div>
+                            <button class="btn btn-sm btn-outline-info d-inline-flex align-items-center" onclick="showPdfDrawer('${item.rep_title}', '${item.rep_no}', '${item.rep_pdf}')">
+                                <i class="fa-solid fa-eye"></i>&nbsp; 檢閱公文
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $grid.append(card);
+        });
+    }
+
+    /**
+     * =========================================================================
+     * 7. 渲染視圖 B: 法務審計數據表 (DataTable)
+     * =========================================================================
+     */
+    function renderDataTable() {
+        if ($.fn.DataTable.isDataTable('#legalAuditDataTable')) {
+            $('#legalAuditDataTable').DataTable().destroy();
+        }
+
+        const $tbody = $('#legalTableBody');
+        $tbody.empty();
+
+        currentFilteredList.forEach(item => {
+            $tbody.append(`
+                <tr>
+                    <td>
+                        <div class="fw-bold text-white font-monospace">${item.rep_no}</div>
+                        <small class="text-muted">${item.rep_id}</small>
+                    </td>
+                    <td>${renderCategoryBadge(item.rep_cat)}</td>
+                    <td><span class="cert-authority-seal">${item.rep_gov}</span></td>
+                    <td class="fw-semibold text-white">${item.rep_title}</td>
+                    <td class="font-monospace">${item.rep_date}</td>
+                    <td>${renderStatusBadge(item.rep_status)}</td>
+                    <td><div class="text-truncate" style="max-width: 240px;" title="${item.rep_summary}">${item.rep_summary}</div></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-info px-2 py-1" onclick="showPdfDrawer('${item.rep_title}', '${item.rep_no}', '${item.rep_pdf}')" title="檢閱公文">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </button>
+                    </td>
+                </tr>
+            `);
+        });
+
+        dataTableInstance = $('#legalAuditDataTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            language: {
+                search: "清單快速檢索：",
+                lengthMenu: "每頁顯示 _MENU_ 筆",
+                info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆公文",
+                paginate: {
+                    first: "首頁",
+                    last: "末頁",
+                    next: "下一頁",
+                    previous: "上一頁"
+                },
+                emptyTable: "目前無相符之法定報備公文"
+            }
+        });
+    }
+
+    /**
+     * =========================================================================
+     * 8. 分類與關鍵字篩選控制器
+     * =========================================================================
+     */
+    function handleCategoryFilter(category, btnElement) {
+        selectedCategory = category;
+        $('#filterPillsGroup .btn').removeClass('active');
+        $(btnElement).addClass('active');
+        applyCombinedFilter();
+    }
+
+    function handleSearchFilter() {
+        applyCombinedFilter();
+    }
+
+    function applyCombinedFilter() {
+        const keyword = $('#globalSearchInput').val().trim().toLowerCase();
+
+        currentFilteredList = legalDataset.filter(item => {
+            const matchCategory = (selectedCategory === 'ALL' || item.rep_cat === selectedCategory);
+            const matchKeyword = !keyword || (
+                item.rep_title.toLowerCase().includes(keyword) ||
+                item.rep_no.toLowerCase().includes(keyword) ||
+                item.rep_gov.toLowerCase().includes(keyword) ||
+                item.rep_summary.toLowerCase().includes(keyword)
+            );
+            return matchCategory && matchKeyword;
+        });
+
+        renderCardGrid(currentFilteredList);
+        renderDataTable();
+    }
+
+    /**
+     * =========================================================================
+     * 9. 視圖切換控制器 (Grid vs. Table)
+     * =========================================================================
+     */
+    function toggleViewLayout(layout) {
+        if (layout === 'grid') {
+            $('#containerGridView').removeClass('d-none');
+            $('#containerTableView').addClass('d-none');
+            $('#btnModeGrid').addClass('active');
+            $('#btnModeTable').removeClass('active');
+        } else {
+            $('#containerGridView').addClass('d-none');
+            $('#containerTableView').removeClass('d-none');
+            $('#btnModeGrid').removeClass('active');
+            $('#btnModeTable').addClass('active');
+            if (dataTableInstance) {
+                dataTableInstance.columns.adjust().responsive.recalc();
+            }
+        }
+    }
+
+    /**
+     * =========================================================================
+     * 10. PDF 檢閱抽屜與 Modal 觸發
+     * =========================================================================
+     */
+    function showPdfDrawer(title, filingNo, pdfUrl) {
+        $('#pdfDrawerTitle').text(title);
+        $('#pdfDrawerFilingNo').html(`<i class="fa-solid fa-stamp" style="color: var(--core-secondary);"></i>&nbsp; 法定備查文號：<strong>${filingNo}</strong>`);
+        $('#pdfViewerFrame').attr('src', pdfUrl);
+        $('#btnDownloadPdfNative').attr('href', pdfUrl);
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalPdfDrawer'));
+        modal.show();
+    }
+
+    /**
+     * =========================================================================
+     * 11. 登錄新報備公文
+     * =========================================================================
+     */
+    function submitLegalRecord() {
+        const filingNo = $('#inputFilingNo').val().trim();
+        const authority = $('#inputAuthority').val().trim();
+        const title = $('#inputTitle').val().trim();
+        const category = $('#inputLegalCategory').val();
+        const filingDate = $('#inputFilingDate').val();
+        const status = $('#inputStatus').val();
+        const pdfUrl = $('#inputPdfUrl').val().trim();
+        const summary = $('#inputSummary').val().trim();
+
+        if (!filingNo || !title || !filingDate || !pdfUrl) {
+            alert("請填寫所有標記為必填 (*) 之法規公文欄位！");
+            return;
+        }
+
+        const newRecord = {
+            rep_id: `REP-${new Date().getFullYear()}-${String(legalDataset.length + 1).padStart(3, '0')}`,
+            rep_no: filingNo,
+            rep_title: title,
+            rep_gov: authority,
+            rep_date: filingDate,
+            rep_cat: category,
+            rep_pdf: pdfUrl,
+            rep_summary: summary || "依法備查存檔，無特殊修正摘要說明。",
+            rep_status: status
+        };
+
+        // 插入資料集頂部
+        legalDataset.unshift(newRecord);
+        updateMetricCards();
+        applyCombinedFilter();
+
+        const modalEl = document.getElementById('modalAddLegal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance.hide();
+        document.getElementById('formCreateLegal').reset();
+
+        alert("法定報備公文與契約已成功發布並寫入中台快取！");
+    }
+
+    /**
+     * =========================================================================
+     * 12. Google Sheets GViz / PapaParse 解耦抓取引擎
+     * =========================================================================
+     */
+    function fetchGoogleSheetGviz() {
+        const $btn = $('#btnSyncGviz');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; 正在同步雲端資料...');
+
+        // 模擬 GViz 異步回傳與欄位解耦對齊邏輯
+        setTimeout(() => {
+            $btn.prop('disabled', false).html('<i class="fa-solid fa-rotate"></i>&nbsp; 一鍵同步雲端試算表');
+            updateMetricCards();
+            applyCombinedFilter();
+            alert("已成功自 Google 試算表同步最新多層次傳銷法定報備公文！");
+        }, 900);
+    }
+</script>
+
+</body>
+</html>

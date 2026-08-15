@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葡眾中台 - 雲端資源軍備庫 (H27000)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0b0813;
+            --bg-surface: #15102a;
+            --bg-card: rgba(30, 23, 62, 0.7);
+            --bg-card-hover: rgba(43, 33, 89, 0.85);
+            --border-purple: rgba(168, 85, 247, 0.25);
+            --border-purple-hover: rgba(192, 132, 252, 0.6);
+            --primary-purple: #8b5cf6;
+            --accent-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 霓虹與玻璃擬態面板 */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-purple);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-purple-hover);
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.15);
+        }
+
+        /* 標題與光暈 */
+        .glow-title {
+            background: linear-gradient(135deg, #ffffff 0%, #d8b4fe 50%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* 分類篩選按鈕 (Pills) */
+        .nav-pills-custom .nav-link {
+            color: var(--text-secondary);
+            background: rgba(21, 16, 42, 0.6);
+            border: 1px solid var(--border-purple);
+            border-radius: 12px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .nav-pills-custom .nav-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .nav-pills-custom .nav-link.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            border-color: var(--glow-purple);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        /* 資源卡片樣式 */
+        .res-card {
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-purple);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .res-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--glow-purple);
+            box-shadow: 0 12px 28px -5px rgba(147, 51, 234, 0.25);
+        }
+
+        .res-card-img-wrap {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            background: #0d091a;
+            overflow: hidden;
+        }
+
+        .res-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        .res-card:hover .res-card-img {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        .res-badge-format {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(8px);
+        }
+
+        .format-ppt { background: rgba(239, 68, 68, 0.85); color: #fff; }
+        .format-pdf { background: rgba(249, 115, 22, 0.85); color: #fff; }
+        .format-video { background: rgba(168, 85, 247, 0.85); color: #fff; }
+        .format-graphic { background: rgba(14, 165, 233, 0.85); color: #fff; }
+        .format-form { background: rgba(16, 185, 129, 0.85); color: #fff; }
+
+        .res-badge-rank {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+        }
+
+        /* 鎖定遮罩 */
+        .res-lock-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 8, 19, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            z-index: 2;
+        }
+
+        /* 自訂按鈕 */
+        .btn-purple-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+            border: 1px solid var(--glow-purple);
+            color: #ffffff;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-purple-primary:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #7e22ce 100%);
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+            color: #ffffff;
+        }
+
+        .btn-purple-outline {
+            background: transparent;
+            border: 1px solid var(--border-purple);
+            color: #d8b4fe;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-purple-outline:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--accent-purple);
+            color: #ffffff;
+        }
+
+        /* 搜尋輸入框 */
+        .custom-search-input {
+            background: rgba(21, 16, 42, 0.8);
+            border: 1px solid var(--border-purple);
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 10px 16px 10px 42px;
+        }
+
+        .custom-search-input:focus {
+            background: rgba(30, 23, 62, 0.9);
+            border-color: var(--glow-purple);
+            box-shadow: 0 0 0 0.25rem rgba(168, 85, 247, 0.25);
+            color: #ffffff;
+        }
+
+        /* 表格深色適配 */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+            --bs-table-hover-bg: rgba(168, 85, 247, 0.08);
+            color: #e2e8f0;
+            border-color: var(--border-purple);
+        }
+
+        .table-dark-custom th {
+            color: #c084fc;
+            font-weight: 600;
+            border-bottom-color: var(--border-purple);
+        }
+
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: var(--bg-surface) !important;
+            border: 1px solid var(--border-purple) !important;
+            color: #fff !important;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--primary-purple);
+            border-color: var(--primary-purple);
+        }
+
+        .page-link {
+            background-color: var(--bg-surface);
+            border-color: var(--border-purple);
+            color: #d8b4fe;
+        }
+
+        /* 模態彈窗 (Modal) */
+        .modal-content-dark {
+            background: #15102a;
+            border: 1px solid var(--border-purple-hover);
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-lg-5 py-4">
+
+        <div class="glass-panel p-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-7">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-primary bg-opacity-25 text-purple border border-purple px-3 py-2 me-3 rounded-pill" style="color: #c084fc;">
+                            <i class="fa-solid fa-graduation-cap"></i> 培訓模組 · 表20
+                        </span>
+                        <span class="text-secondary small">
+                            <i class="fa-solid fa-code-branch"></i> Schema 解耦引擎現行中
+                        </span>
+                    </div>
+                    <h2 class="glow-title mb-1">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> 雲端資源軍備庫 (Cloud Resources Hub)
+                    </h2>
+                    <p class="text-secondary mb-0 small">
+                        集中管理官方招商簡報、產品手冊、社群圖文與影音講義，支援多層級職級門禁機制。
+                    </p>
+                </div>
+                <div class="col-12 col-md-5">
+                    <div class="d-flex justify-content-md-end align-items-center gap-3">
+                        <div class="text-end d-none d-sm-block">
+                            <span class="text-muted d-block small">當前模擬登入職級</span>
+                            <div class="dropdown">
+                                <button class="btn btn-purple-outline btn-sm dropdown-toggle" type="button" id="currentRankBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-user-shield"></i> 總監 (DIR)
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-purple" aria-labelledby="currentRankBtn">
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="switchUserRank('MEM', '會員 (MEM)')"><i class="fa-solid fa-user"></i> 會員 (MEM)</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="switchUserRank('MGR', '經理 (MGR)')"><i class="fa-solid fa-user-tie"></i> 經理 (MGR)</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="switchUserRank('DIR', '總監 (DIR)')"><i class="fa-solid fa-user-gear"></i> 總監 (DIR)</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="switchUserRank('DIA', '藍鑽 (DIA)')"><i class="fa-solid fa-gem"></i> 藍鑽 (DIA)</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <button class="btn btn-purple-primary" onclick="openUploadModal()">
+                            <i class="fa-solid fa-plus"></i> 上架新教材
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel p-3 d-flex align-items-center">
+                    <div class="rounded-circle p-3 me-3" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">
+                        <i class="fa-solid fa-folder-open fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">教材資源總數</div>
+                        <div class="h4 mb-0 fw-bold" id="statTotalCount">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel p-3 d-flex align-items-center">
+                    <div class="rounded-circle p-3 me-3" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                        <i class="fa-solid fa-download fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">累計下載次數</div>
+                        <div class="h4 mb-0 fw-bold" id="statTotalDownloads">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel p-3 d-flex align-items-center">
+                    <div class="rounded-circle p-3 me-3" style="background: rgba(249, 115, 22, 0.15); color: #fb923c;">
+                        <i class="fa-solid fa-file-powerpoint fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">招商簡報 (PPT)</div>
+                        <div class="h4 mb-0 fw-bold" id="statPptCount">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel p-3 d-flex align-items-center">
+                    <div class="rounded-circle p-3 me-3" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8;">
+                        <i class="fa-solid fa-shield-halved fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">職級門禁已授權</div>
+                        <div class="h4 mb-0 fw-bold text-success" id="statAccessibleCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 mb-4">
+            <div class="row g-3 align-items-center justify-content-between">
+                <div class="col-12 col-xl-7">
+                    <ul class="nav nav-pills nav-pills-custom mb-0 flex-nowrap overflow-auto py-1" id="categoryTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" onclick="filterByCategory('ALL')">
+                                <i class="fa-solid fa-layer-group"></i> 全部素材
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="filterByCategory('PPT')">
+                                <i class="fa-solid fa-person-chalkboard"></i> 招商簡報 (PPT)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="filterByCategory('PDF')">
+                                <i class="fa-solid fa-book-medical"></i> 產品講義 (PDF)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="filterByCategory('GRAPHIC')">
+                                <i class="fa-solid fa-images"></i> 社群圖文 (GRAPHIC)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="filterByCategory('VIDEO')">
+                                <i class="fa-solid fa-video"></i> 影音教材 (VIDEO)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="filterByCategory('FORM')">
+                                <i class="fa-solid fa-file-signature"></i> 行政表單 (FORM)
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="position-relative flex-grow-1">
+                            <i class="fa-solid fa-magnifying-glass position-absolute top-50 translate-middle-y text-secondary" style="left: 14px;"></i>
+                            <input type="text" id="resourceSearchInput" class="form-control custom-search-input" placeholder="輸入關鍵字或教材標題快速檢索...">
+                        </div>
+                        <div class="btn-group" role="group" aria-label="View Switcher">
+                            <button type="button" class="btn btn-purple-outline active" id="btnViewGrid" onclick="toggleView('GRID')">
+                                <i class="fa-solid fa-table-cells-large"></i>
+                            </button>
+                            <button type="button" class="btn btn-purple-outline" id="btnViewTable" onclick="toggleView('TABLE')">
+                                <i class="fa-solid fa-list-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gridContainer" class="row g-3">
+            </div>
+
+        <div id="tableContainer" class="glass-panel p-3 d-none">
+            <div class="table-responsive">
+                <table id="resourceDataTable" class="table table-dark-custom table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>資源代碼</th>
+                            <th>教材標題</th>
+                            <th>分類</th>
+                            <th>格式</th>
+                            <th>大小</th>
+                            <th>門檻職級</th>
+                            <th>累計下載</th>
+                            <th>狀態</th>
+                            <th class="text-end">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resourceTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-content-dark">
+                <div class="modal-header border-bottom border-purple">
+                    <h5 class="modal-title glow-title" id="previewModalLabel">
+                        <i class="fa-solid fa-file-circle-check"></i> 教材資源詳情
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-12 col-md-5">
+                            <img id="modalPreviewImg" src="" alt="預覽縮圖" class="img-fluid rounded-3 border border-purple shadow-sm w-100" style="max-height: 240px; object-fit: cover;">
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span id="modalFormatBadge" class="badge format-ppt">PPTX</span>
+                                <span id="modalRankBadge" class="badge bg-dark border border-purple">最低需 DIR 總監</span>
+                            </div>
+                            <h4 id="modalTitle" class="fw-bold mb-2">教材資源名稱</h4>
+                            <div class="text-secondary small mb-3">
+                                檔案容量：<span id="modalFileSize" class="text-white">0 MB</span> ｜
+                                累計下載：<span id="modalDownloads" class="text-white">0 次</span>
+                            </div>
+                            <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-purple);">
+                                <div class="text-muted small mb-1"><i class="fa-solid fa-link"></i> 雲端來源網址 (Google Drive)</div>
+                                <div id="modalDriveUrl" class="text-break small text-info">https://drive.google.com/...</div>
+                            </div>
+                            <div id="modalRankAlert" class="alert alert-warning d-none py-2 small" role="alert">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 您的職級未達門檻，目前僅開放高階幹部下載！
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-purple">
+                    <button type="button" class="btn btn-purple-outline" data-bs-dismiss="modal">關閉</button>
+                    <a id="modalDownloadBtn" href="#" target="_blank" class="btn btn-purple-primary">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> 即刻下載
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-dark">
+                <div class="modal-header border-bottom border-purple">
+                    <h5 class="modal-title glow-title" id="uploadModalLabel">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> 上架團隊雲端素材
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="uploadResourceForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">教材名稱 / 標題 (res_title)</label>
+                            <input type="text" class="form-control custom-search-input" id="formTitle" placeholder="例如：2026 新版葡眾招商說明簡報" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">素材分類 (res_cat)</label>
+                                <select class="form-select custom-search-input" id="formCategory">
+                                    <option value="PPT">PPT 招商簡報</option>
+                                    <option value="PDF">PDF 產品講義</option>
+                                    <option value="GRAPHIC">GRAPHIC 社群圖文</option>
+                                    <option value="VIDEO">VIDEO 影音教材</option>
+                                    <option value="FORM">FORM 行政表單</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">檔案格式 (res_format)</label>
+                                <select class="form-select custom-search-input" id="formFormat">
+                                    <option value="PPTX">PPTX</option>
+                                    <option value="PDF">PDF</option>
+                                    <option value="MP4">MP4</option>
+                                    <option value="PNG">PNG / JPG</option>
+                                    <option value="XLSX">XLSX</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">門檻職級 (res_min_rank)</label>
+                                <select class="form-select custom-search-input" id="formMinRank">
+                                    <option value="MEM">MEM 會員</option>
+                                    <option value="MGR">MGR 經理</option>
+                                    <option value="DIR" selected>DIR 總監</option>
+                                    <option value="DIA">DIA 藍鑽</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">檔案大小 MB (res_size_mb)</label>
+                                <input type="number" step="0.01" class="form-control custom-search-input" id="formSize" placeholder="12.5">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">Google Drive 下載網址 (res_drive_url)</label>
+                            <input type="url" class="form-control custom-search-input" id="formDriveUrl" placeholder="https://drive.google.com/..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">預覽縮圖 URL (res_preview)</label>
+                            <input type="url" class="form-control custom-search-input" id="formPreview" placeholder="https://images.unsplash.com/...">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-purple">
+                    <button type="button" class="btn btn-purple-outline" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-purple-primary" onclick="submitResource()">
+                        <i class="fa-solid fa-check"></i> 確認同步發布
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 培訓模組 - 雲端資源欄位解耦對映字典 (sys_api_configs / 表20 Mapping)
+         */
+        const TRN_RESOURCE_MAPPINGS = {
+            "res_id": "資源編號",
+            "res_title": "教材名稱",
+            "res_cat": "資源分類",
+            "res_format": "檔案類型",
+            "res_drive_url": "雲端硬碟載點",
+            "res_preview": "預覽縮圖",
+            "res_size_mb": "檔案大小MB",
+            "res_min_rank": "最低下載職級",
+            "res_downloads": "累計下載次數",
+            "res_active": "啟用狀態"
+        };
+
+        // 組織模組職級階層權重 (org_ranks 階層映射)
+        const RANK_HIERARCHY = {
+            "MEM": { level: 1, name: "會員" },
+            "MGR": { level: 2, name: "經理" },
+            "DIR": { level: 3, name: "總監" },
+            "DIA": { level: 4, name: "藍鑽" }
+        };
+
+        // 當前登入者職級狀態 (預設 DIR 總監)
+        let currentUserRank = "DIR";
+        let currentCategory = "ALL";
+        let currentView = "GRID";
+        let dataTableInstance = null;
+
+        // 模擬中台雲端資源初始資料庫 (trn_resources 資料集)
+        let resourceDataset = [
+            {
+                res_id: "RES-2026-001",
+                res_title: "2026 葡眾事業招商說明會 (OPP) 官方標準簡報",
+                res_cat: "PPT",
+                res_format: "PPTX",
+                res_drive_url: "https://drive.google.com/file/d/sample-opp-2026/view",
+                res_preview: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 48.5,
+                res_min_rank: "MEM",
+                res_downloads: 1420,
+                res_active: true
+            },
+            {
+                res_id: "RES-2026-002",
+                res_title: "康爾喜益生菌與百克斯全系列專業產品手冊",
+                res_cat: "PDF",
+                res_format: "PDF",
+                res_drive_url: "https://drive.google.com/file/d/sample-product-handbook/view",
+                res_preview: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 18.2,
+                res_min_rank: "MEM",
+                res_downloads: 3890,
+                res_active: true
+            },
+            {
+                res_id: "RES-2026-003",
+                res_title: "Ray 團隊專屬：高階合格經理門檻衝刺作戰方針",
+                res_cat: "PPT",
+                res_format: "PPTX",
+                res_drive_url: "https://drive.google.com/file/d/sample-manager-strategy/view",
+                res_preview: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 24.0,
+                res_min_rank: "MGR",
+                res_downloads: 512,
+                res_active: true
+            },
+            {
+                res_id: "RES-2026-004",
+                res_title: "社群朋友圈專用：餐包與健康飲高畫質宣傳圖卡包",
+                res_cat: "GRAPHIC",
+                res_format: "PNG",
+                res_drive_url: "https://drive.google.com/file/d/sample-social-pack/view",
+                res_preview: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 85.0,
+                res_min_rank: "MEM",
+                res_downloads: 2150,
+                res_active: true
+            },
+            {
+                res_id: "RES-2026-005",
+                res_title: "核心領袖研討會：組織裂變與轉點對帳實戰精華",
+                res_cat: "VIDEO",
+                res_format: "MP4",
+                res_drive_url: "https://drive.google.com/file/d/sample-video-masterclass/view",
+                res_preview: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 420.0,
+                res_min_rank: "DIR",
+                res_downloads: 180,
+                res_active: true
+            },
+            {
+                res_id: "RES-2026-006",
+                res_title: "藍鑽菁英高峰會：全球市場佈局與稅務合規講義",
+                res_cat: "PDF",
+                res_format: "PDF",
+                res_drive_url: "https://drive.google.com/file/d/sample-diamond-tax/view",
+                res_preview: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 15.6,
+                res_min_rank: "DIA",
+                res_downloads: 65,
+                res_active: true
+            },
+            {
+                res_id: "RES-2026-007",
+                res_title: "新進會員加盟與代領提貨授權書標準範本",
+                res_cat: "FORM",
+                res_format: "PDF",
+                res_drive_url: "https://drive.google.com/file/d/sample-form-auth/view",
+                res_preview: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=60",
+                res_size_mb: 2.1,
+                res_min_rank: "MEM",
+                res_downloads: 1950,
+                res_active: true
+            }
+        ];
+
+        $(document).ready(function() {
+            renderDashboard();
+
+            // 即時搜尋過濾監聽
+            $("#resourceSearchInput").on("keyup", function() {
+                const keyword = $(this).val().toLowerCase();
+                filterResources(keyword);
+            });
+        });
+
+        /**
+         * 驗證當前使用者是否有權限下載該素材
+         */
+        function checkRankAccess(requiredRank) {
+            const userLevel = RANK_HIERARCHY[currentUserRank]?.level || 1;
+            const requiredLevel = RANK_HIERARCHY[requiredRank]?.level || 1;
+            return userLevel >= requiredLevel;
+        }
+
+        /**
+         * 切換當前使用者職級 (模擬登入狀態)
+         */
+        function switchUserRank(rankCode, rankName) {
+            currentUserRank = rankCode;
+            $("#currentRankBtn").html(`<i class="fa-solid fa-user-shield"></i> ${rankName}`);
+            renderDashboard();
+        }
+
+        /**
+         * 核心渲染函式 (卡片視圖與表格視圖雙軌同步)
+         */
+        function renderDashboard() {
+            renderKPIStats();
+            renderGrid();
+            renderTable();
+        }
+
+        /**
+         * 渲染頂部 KPI 指標
+         */
+        function renderKPIStats() {
+            const total = resourceDataset.length;
+            const totalDownloads = resourceDataset.reduce((acc, curr) => acc + curr.res_downloads, 0);
+            const pptCount = resourceDataset.filter(r => r.res_cat === "PPT").length;
+            const accessibleCount = resourceDataset.filter(r => checkRankAccess(r.res_min_rank)).length;
+
+            $("#statTotalCount").text(total);
+            $("#statTotalDownloads").text(totalDownloads.toLocaleString());
+            $("#statPptCount").text(pptCount);
+            $("#statAccessibleCount").text(`${accessibleCount} / ${total}`);
+        }
+
+        /**
+         * 渲染視覺卡片網格 (Grid View)
+         */
+        function renderGrid(filteredData = null) {
+            const list = filteredData || getFilteredDataset();
+            const container = $("#gridContainer");
+            container.empty();
+
+            if (list.length === 0) {
+                container.html(`
+                    <div class="col-12 text-center py-5">
+                        <div class="text-muted mb-3"><i class="fa-solid fa-box-open fa-3x"></i></div>
+                        <h5 class="text-secondary">查無符合條件的教材資源</h5>
+                    </div>
+                `);
+                return;
+            }
+
+            list.forEach(item => {
+                const hasAccess = checkRankAccess(item.res_min_rank);
+                const formatClass = getFormatBadgeClass(item.res_format);
+
+                const cardHtml = `
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <div class="res-card">
+                            <div class="res-card-img-wrap">
+                                <img src="${item.res_preview}" class="res-card-img" alt="${item.res_title}">
+                                <span class="res-badge-format ${formatClass}">${item.res_format}</span>
+                                <span class="res-badge-rank">
+                                    <i class="fa-solid fa-shield-halved text-purple"></i> ${item.res_min_rank}+
+                                </span>
+                                ${!hasAccess ? `
+                                    <div class="res-lock-overlay">
+                                        <i class="fa-solid fa-lock fa-2x mb-2 text-warning"></i>
+                                        <div class="fw-bold small">需 ${item.res_min_rank} 職級解鎖</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <div class="text-secondary small mb-1">
+                                    <i class="fa-solid fa-fingerprint"></i> ${item.res_id} ｜ ${item.res_cat}
+                                </div>
+                                <h6 class="fw-bold text-white mb-2 text-truncate-2" style="min-height: 40px;" title="${item.res_title}">
+                                    ${item.res_title}
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center text-muted small mt-auto pt-2 border-top border-purple">
+                                    <span><i class="fa-solid fa-hard-drive"></i> ${item.res_size_mb} MB</span>
+                                    <span><i class="fa-solid fa-download"></i> ${item.res_downloads} 次</span>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-purple-outline btn-sm flex-grow-1" onclick="openPreviewModal('${item.res_id}')">
+                                        <i class="fa-solid fa-eye"></i> 預覽
+                                    </button>
+                                    <button class="btn btn-purple-primary btn-sm flex-grow-1" ${!hasAccess ? 'disabled' : ''} onclick="downloadResource('${item.res_id}')">
+                                        <i class="fa-solid fa-cloud-arrow-down"></i> 下載
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        /**
+         * 渲染數據表格 (DataTable View)
+         */
+        function renderTable(filteredData = null) {
+            const list = filteredData || getFilteredDataset();
+            const tbody = $("#resourceTableBody");
+            tbody.empty();
+
+            list.forEach(item => {
+                const hasAccess = checkRankAccess(item.res_min_rank);
+                const formatClass = getFormatBadgeClass(item.res_format);
+
+                const rowHtml = `
+                    <tr>
+                        <td><span class="badge bg-dark border border-purple">${item.res_id}</span></td>
+                        <td class="fw-bold text-white">${item.res_title}</td>
+                        <td><span class="badge bg-purple bg-opacity-25 text-purple border border-purple">${item.res_cat}</span></td>
+                        <td><span class="badge ${formatClass}">${item.res_format}</span></td>
+                        <td>${item.res_size_mb} MB</td>
+                        <td>
+                            <span class="badge ${hasAccess ? 'bg-success' : 'bg-warning text-dark'}">
+                                ${item.res_min_rank}
+                            </span>
+                        </td>
+                        <td>${item.res_downloads.toLocaleString()}</td>
+                        <td>
+                            <span class="badge bg-success bg-opacity-25 text-success">
+                                <i class="fa-solid fa-check"></i> 開放
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-purple-outline btn-sm me-1" onclick="openPreviewModal('${item.res_id}')">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn btn-purple-primary btn-sm" ${!hasAccess ? 'disabled' : ''} onclick="downloadResource('${item.res_id}')">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(rowHtml);
+            });
+
+            if (!dataTableInstance) {
+                dataTableInstance = $('#resourceDataTable').DataTable({
+                    language: {
+                        search: "表格內快速過濾：",
+                        lengthMenu: "每頁顯示 _MENU_ 筆",
+                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆教材",
+                        paginate: { first: "第一頁", last: "最後一頁", next: "下一頁", previous: "上一頁" }
+                    },
+                    pageLength: 10,
+                    ordering: true,
+                    responsive: true,
+                    dom: '<"d-flex justify-content-between align-items-center mb-3"lf>rt<"d-flex justify-content-between align-items-center mt-3"ip>'
+                });
+            } else {
+                dataTableInstance.destroy();
+                dataTableInstance = $('#resourceDataTable').DataTable({
+                    language: {
+                        search: "表格內快速過濾：",
+                        lengthMenu: "每頁顯示 _MENU_ 筆",
+                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆教材",
+                        paginate: { first: "第一頁", last: "最後一頁", next: "下一頁", previous: "上一頁" }
+                    },
+                    pageLength: 10,
+                    ordering: true,
+                    responsive: true
+                });
+            }
+        }
+
+        /**
+         * 格式徽章對應 Class
+         */
+        function getFormatBadgeClass(format) {
+            switch (format.toUpperCase()) {
+                case 'PPTX':
+                case 'PPT': return 'format-ppt';
+                case 'PDF': return 'format-pdf';
+                case 'MP4': return 'format-video';
+                case 'PNG':
+                case 'JPG': return 'format-graphic';
+                case 'XLSX':
+                case 'FORM': return 'format-form';
+                default: return 'bg-secondary';
+            }
+        }
+
+        /**
+         * 依類別篩選資料
+         */
+        function filterByCategory(cat) {
+            currentCategory = cat;
+            $("#categoryTabs .nav-link").removeClass("active");
+            $(event.target).addClass("active");
+
+            const filtered = getFilteredDataset();
+            renderGrid(filtered);
+            renderTable(filtered);
+        }
+
+        /**
+         * 取得目前篩選條件下的資料
+         */
+        function getFilteredDataset() {
+            if (currentCategory === "ALL") {
+                return resourceDataset;
+            }
+            return resourceDataset.filter(item => item.res_cat === currentCategory);
+        }
+
+        /**
+         * 關鍵字即時搜尋過濾
+         */
+        function filterResources(keyword) {
+            const base = getFilteredDataset();
+            const matched = base.filter(item => 
+                item.res_title.toLowerCase().includes(keyword) ||
+                item.res_id.toLowerCase().includes(keyword) ||
+                item.res_cat.toLowerCase().includes(keyword)
+            );
+            renderGrid(matched);
+            renderTable(matched);
+        }
+
+        /**
+         * 切換視圖 (網格 / 表格)
+         */
+        function toggleView(view) {
+            currentView = view;
+            if (view === 'GRID') {
+                $("#gridContainer").removeClass("d-none");
+                $("#tableContainer").addClass("d-none");
+                $("#btnViewGrid").addClass("active");
+                $("#btnViewTable").removeClass("active");
+            } else {
+                $("#gridContainer").addClass("d-none");
+                $("#tableContainer").removeClass("d-none");
+                $("#btnViewGrid").removeClass("active");
+                $("#btnViewTable").addClass("active");
+            }
+        }
+
+        /**
+         * 開啟詳細預覽彈窗
+         */
+        function openPreviewModal(resId) {
+            const item = resourceDataset.find(r => r.res_id === resId);
+            if (!item) return;
+
+            const hasAccess = checkRankAccess(item.res_min_rank);
+
+            $("#modalTitle").text(item.res_title);
+            $("#modalPreviewImg").attr("src", item.res_preview);
+            $("#modalFileSize").text(`${item.res_size_mb} MB`);
+            $("#modalDownloads").text(`${item.res_downloads.toLocaleString()} 次`);
+            $("#modalDriveUrl").text(item.res_drive_url);
+            $("#modalFormatBadge").text(item.res_format).attr("class", `badge ${getFormatBadgeClass(item.res_format)}`);
+            $("#modalRankBadge").text(`門檻職級：${item.res_min_rank} (${RANK_HIERARCHY[item.res_min_rank].name})`);
+
+            if (hasAccess) {
+                $("#modalRankAlert").addClass("d-none");
+                $("#modalDownloadBtn").removeClass("disabled").attr("href", item.res_drive_url);
+            } else {
+                $("#modalRankAlert").removeClass("d-none");
+                $("#modalDownloadBtn").addClass("disabled").attr("href", "#");
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+            modal.show();
+        }
+
+        /**
+         * 模擬下載教材 (累加下載次數並開啟連結)
+         */
+        function downloadResource(resId) {
+            const item = resourceDataset.find(r => r.res_id === resId);
+            if (!item) return;
+
+            if (!checkRankAccess(item.res_min_rank)) {
+                alert(`權限受限：您的職級 (${currentUserRank}) 未達該教材最低門檻 (${item.res_min_rank})！`);
+                return;
+            }
+
+            item.res_downloads += 1;
+            renderKPIStats();
+            window.open(item.res_drive_url, '_blank');
+        }
+
+        /**
+         * 開啟上架教材 Modal
+         */
+        function openUploadModal() {
+            const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+            modal.show();
+        }
+
+        /**
+         * 新增教材資料並同步更新視圖
+         */
+        function submitResource() {
+            const title = $("#formTitle").val();
+            const cat = $("#formCategory").val();
+            const format = $("#formFormat").val();
+            const minRank = $("#formMinRank").val();
+            const size = parseFloat($("#formSize").val()) || 1.0;
+            const driveUrl = $("#formDriveUrl").val();
+            const preview = $("#formPreview").val() || "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop&q=60";
+
+            if (!title || !driveUrl) {
+                alert("請填寫教材名稱與雲端下載連結！");
+                return;
+            }
+
+            const newResource = {
+                res_id: `RES-2026-00${resourceDataset.length + 1}`,
+                res_title: title,
+                res_cat: cat,
+                res_format: format,
+                res_drive_url: driveUrl,
+                res_preview: preview,
+                res_size_mb: size,
+                res_min_rank: minRank,
+                res_downloads: 0,
+                res_active: true
+            };
+
+            resourceDataset.unshift(newResource);
+            bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+            $("#uploadResourceForm")[0].reset();
+
+            renderDashboard();
+            alert("教材已成功同步至中台雲端資源庫！");
+        }
+    </script>
+</body>
+</html>

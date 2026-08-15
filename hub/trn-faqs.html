@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通用問答知識庫 CMS (H220000) - 榮祥團隊戰情室</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --uvaco-bg-base: #090514;
+            --uvaco-bg-surface: rgba(22, 13, 51, 0.7);
+            --uvaco-bg-card: rgba(28, 17, 66, 0.55);
+            --uvaco-bg-card-hover: rgba(38, 24, 88, 0.75);
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-success: #10b981;
+            --uvaco-warning: #f59e0b;
+            --uvaco-info: #06b6d4;
+            --uvaco-border: rgba(139, 92, 246, 0.22);
+            --uvaco-border-active: rgba(192, 132, 252, 0.6);
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-glow: 0 0 25px rgba(139, 92, 246, 0.3);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 玻璃擬態與霓虹陰影 */
+        .glass-panel {
+            background: var(--uvaco-bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.45);
+        }
+
+        /* HUD 標題與光條 */
+        .hub-header {
+            border-left: 4px solid var(--uvaco-accent);
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .hub-header::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--uvaco-accent), transparent);
+        }
+
+        /* 膠囊式過濾按鈕 */
+        .btn-filter-pill {
+            background: rgba(22, 13, 51, 0.8);
+            color: var(--uvaco-text-muted);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 50rem;
+            padding: 0.45rem 1.1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-filter-pill:hover {
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-filter-pill.active {
+            background: linear-gradient(135deg, var(--uvaco-primary), #6d28d9);
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+
+        /* 問答卡片流樣式 */
+        .faq-matrix-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 0.875rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faq-matrix-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--uvaco-primary);
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .faq-matrix-card:hover {
+            background: var(--uvaco-bg-card-hover);
+            border-color: var(--uvaco-border-active);
+            transform: translateY(-3px);
+            box-shadow: var(--uvaco-glow);
+        }
+
+        .faq-matrix-card:hover::before {
+            opacity: 1;
+            background: var(--uvaco-accent);
+            box-shadow: 0 0 12px var(--uvaco-accent);
+        }
+
+        .faq-matrix-card.is-pinned-card::before {
+            background: var(--uvaco-accent);
+            opacity: 1;
+        }
+
+        /* 標籤微光 Badge */
+        .badge-cat-join { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .badge-cat-sys { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+        .badge-cat-return { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .badge-cat-health { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-cat-order { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .badge-cat-tax { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+
+        /* 霓虹按鈕 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, var(--uvaco-primary), #7c3aed);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea, #6b21a8);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.7);
+            transform: translateY(-1px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, var(--uvaco-accent), #db2777);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f472b6, #be185d);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
+        }
+
+        /* 搜尋輸入框美化 */
+        .search-input-hud {
+            background: rgba(14, 8, 33, 0.8) !important;
+            border: 1px solid var(--uvaco-border) !important;
+            color: var(--uvaco-text-main) !important;
+            border-radius: 0.75rem;
+            padding-left: 2.75rem;
+            transition: all 0.25s ease;
+        }
+
+        .search-input-hud:focus {
+            border-color: var(--uvaco-secondary) !important;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4) !important;
+        }
+
+        /* DataTables 深色適配 */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            border-color: var(--uvaco-border);
+        }
+
+        .table-dark-custom thead th {
+            background: rgba(22, 13, 51, 0.9);
+            color: var(--uvaco-secondary);
+            border-bottom: 2px solid var(--uvaco-primary);
+            font-weight: 600;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-primary) !important;
+            color: #ffffff !important;
+            border-radius: 0.4rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: var(--uvaco-text-muted) !important;
+        }
+
+        /* 複製反饋浮動吐司 */
+        .copy-toast-badge {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 9999;
+            display: none;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="py-4">
+
+    <div class="container-fluid px-3 px-lg-4">
+
+        <div class="glass-panel p-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-lg-5">
+                    <div class="hub-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-purple-subtle text-purple px-2 py-1" style="background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3);">
+                                <i class="fa-solid fa-shield-halved"></i> 模組二：培訓中台
+                            </span>
+                            <span class="text-secondary small font-monospace">H220000 / prd-faqs.html</span>
+                        </div>
+                        <h2 class="h3 fw-bold mt-2 mb-0 text-white tracking-wide">
+                            <i class="fa-solid fa-messages-question text-purple me-1"></i> 通用問答知識庫
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-7">
+                    <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-2">
+                        <button class="btn btn-outline-light border-secondary-subtle px-3" id="btnSyncGoogleSheet">
+                            <i class="fa-solid fa-arrows-rotate"></i> 同步試算表 (表14)
+                        </button>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-purple active" id="btnViewCards" style="border-color: var(--uvaco-border);">
+                                <i class="fa-solid fa-layer-group"></i> 戰術卡片流
+                            </button>
+                            <button type="button" class="btn btn-outline-purple" id="btnViewTable" style="border-color: var(--uvaco-border);">
+                                <i class="fa-solid fa-table-list"></i> 資料矩陣
+                            </button>
+                        </div>
+                        <button class="btn btn-neon-primary px-3" id="btnOpenAddModal">
+                            <i class="fa-solid fa-plus"></i> 新增通用問答
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-3" style="border-color: var(--uvaco-border);">
+
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-5 col-xl-4">
+                    <div class="position-relative">
+                        <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                        <input type="text" class="form-control search-input-hud" id="searchKeyword" placeholder="搜尋問題、解答內容、關鍵字或標籤...">
+                    </div>
+                </div>
+                <div class="col-12 col-md-7 col-xl-8">
+                    <div class="d-flex flex-wrap gap-2 align-items-center" id="categoryFilterContainer">
+                        <span class="text-secondary small me-1"><i class="fa-solid fa-filter"></i> 分類：</span>
+                        <button class="btn-filter-pill active" data-cat="ALL">全部分類 (<span id="count-ALL">0</span>)</button>
+                        <button class="btn-filter-pill" data-cat="JOIN">事業加盟 (<span id="count-JOIN">0</span>)</button>
+                        <button class="btn-filter-pill" data-cat="SYS">制度說明 (<span id="count-SYS">0</span>)</button>
+                        <button class="btn-filter-pill" data-cat="RETURN">退換貨規章 (<span id="count-RETURN">0</span>)</button>
+                        <button class="btn-filter-pill" data-cat="HEALTH">養護通識 (<span id="count-HEALTH">0</span>)</button>
+                        <button class="btn-filter-pill" data-cat="ORDER">訂購配送 (<span id="count-ORDER">0</span>)</button>
+                        <button class="btn-filter-pill" data-cat="TAX">稅務合規 (<span id="count-TAX">0</span>)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewModeCards">
+            <div class="row g-3" id="faqCardContainer">
+                </div>
+            <div id="noDataAlert" class="glass-panel text-center py-5 d-none">
+                <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
+                <h5 class="text-muted">未找到符合條件的通用問答</h5>
+                <p class="text-secondary small">請嘗試更換關鍵字或點擊上方「全部分類」重新篩選。</p>
+            </div>
+        </div>
+
+        <div id="viewModeTable" class="glass-panel p-3 d-none">
+            <div class="table-responsive">
+                <table id="faqDataTable" class="table table-dark-custom align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th width="8%">問答ID</th>
+                            <th width="10%">分類維度</th>
+                            <th width="28%">問題主標題</th>
+                            <th width="24%">解答摘要 / 話術內容</th>
+                            <th width="8%" class="text-center">狀態</th>
+                            <th width="8%" class="text-center">熱度</th>
+                            <th width="14%" class="text-center">維護操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="copyToast" class="copy-toast-badge">
+        <i class="fa-solid fa-circle-check"></i> 話術已成功複製至剪貼簿！
+    </div>
+
+    <div class="modal fade" id="faqEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-panel text-light border-0" style="background: rgba(18, 10, 42, 0.96);">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
+                    <h5 class="modal-title fw-bold" id="modalTitle">
+                        <i class="fa-solid fa-pen-to-square text-purple me-1"></i> 編輯通用問答 (trn_general_faqs)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <form id="faqForm">
+                        <input type="hidden" id="formFaqId">
+                        
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-secondary small fw-bold">分類維度 (category) <span class="text-danger">*</span></label>
+                                <select class="form-select search-input-hud" id="formCategory" required>
+                                    <option value="JOIN">JOIN - 事業加盟與經銷合約</option>
+                                    <option value="SYS">SYS - 獎金制度與組織架構</option>
+                                    <option value="RETURN">RETURN - 退換貨與產品保證</option>
+                                    <option value="HEALTH">HEALTH - 營養醫學與養護通識</option>
+                                    <option value="ORDER">ORDER - 線上訂購與跨國配送</option>
+                                    <option value="TAX">TAX - 稅務合規與二代健保</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-secondary small fw-bold">顯示排序權重 (sort_order)</label>
+                                <input type="number" class="form-control search-input-hud" id="formSortOrder" value="10" min="1" max="999">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-secondary small fw-bold">問題標題 (question) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control search-input-hud" id="formQuestion" placeholder="例如：加入葡眾經營會員需要具備什麼條件與年齡限制？" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-secondary small fw-bold">標準解答 / 推薦應答話術 (answer) <span class="text-danger">*</span></label>
+                                <textarea class="form-control search-input-hud font-monospace" id="formAnswer" rows="5" placeholder="輸入富文本或條列式標準解答話術..." required></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-secondary small fw-bold">標籤組 (tags，以半形逗點隔開)</label>
+                                <input type="text" class="form-control search-input-hud" id="formTags" placeholder="入會門檻, 年齡限制, 證件準備, 馬來西亞">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="formIsPinned" style="background-color: var(--uvaco-primary); border-color: var(--uvaco-secondary);">
+                                    <label class="form-check-label text-light" for="formIsPinned">置頂重要問答 (is_pinned)</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="formIsActive" checked style="background-color: var(--uvaco-success); border-color: var(--uvaco-success);">
+                                    <label class="form-check-label text-light" for="formIsActive">前台公開啟用 (is_active)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25 pt-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary px-4" id="btnSaveFaq">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存問答
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊通用問答中台核心應用程式 (General FAQ Engine)
+         * 遵循表 14 (trn_general_faqs) 結構，並實作 GViz / PapaParse 解耦機制
+         */
+        const GeneralFaqApp = (function ($) {
+            'use strict';
+
+            // Google 試算表欄位解耦對照字典 (Decoupling Alias Map)
+            const FAQ_SCHEMA_MAP = {
+                faq_id: ['faq_id', '問答代碼', 'ID', '編號', 'UUID'],
+                category: ['category', '分類維度', '分類', 'Category', '類別'],
+                question: ['question', '問題內容', '題目', 'Question', '常見問題'],
+                answer: ['answer', '解答內容', '話術解答', 'Answer', '詳細說明'],
+                tags: ['tags', '標籤', '搜尋標籤', '關鍵字', 'Tags'],
+                is_pinned: ['is_pinned', '是否置頂', '置頂', 'Pinned'],
+                is_active: ['is_active', '是否啟用', '上架狀態', 'Active', '狀態'],
+                sort_order: ['sort_order', '排序權重', '排序', 'Order'],
+                view_count: ['view_count', '瀏覽次數', '熱度', 'Views']
+            };
+
+            // 種子資料集 (若尚未連接外部 Sheets 則作為預設初始化)
+            let faqData = [
+                {
+                    faq_id: "FAQ-2026-001",
+                    category: "JOIN",
+                    question: "加入葡眾會員的資格條件與年齡限制為何？需要繳交會費嗎？",
+                    answer: "年滿 18 歲（具備完全行為能力之中華民國國民或合法居留者）即可申請。入會僅需填寫經銷商申請書並繳交入會資料袋費用 NT$1,000 元（含創業資料手冊與合約憑證），無須每月強迫低消即可享有會員經銷批發價。",
+                    tags: "入會資格, 年齡, 會費, 經銷商",
+                    is_pinned: true,
+                    is_active: true,
+                    sort_order: 1,
+                    view_count: 3420
+                },
+                {
+                    faq_id: "FAQ-2026-002",
+                    category: "SYS",
+                    question: "葡眾的個人點數（PV）會歸零嗎？職級是否會因為當月無業績而下降？",
+                    answer: "葡眾制度具備『累積不歸零、職級不降階』的強大優勢！夥伴所累積之合格個人點數（PV）可永久累計晉升；一旦晉升為主任、副總或經理等聘階後，永遠維持該聘階，絕不因單月未達成特定額度而降級。",
+                    tags: "PV累積, 不歸零, 職級不降階, 制度優勢",
+                    is_pinned: true,
+                    is_active: true,
+                    sort_order: 2,
+                    view_count: 5120
+                },
+                {
+                    faq_id: "FAQ-2026-003",
+                    category: "RETURN",
+                    question: "消費者或經銷夥伴購買產品後，如何辦理退換貨？保固期多久？",
+                    answer: "依據多層次傳銷管理法與葡眾規章，消費者自收受產品次日起算 30 日內得解除契約退貨；經銷商解除契約依合約辦理，退款金額將扣除依法得扣除之減損及已領取獎金。換貨需檢附完整未拆封包裝與發票存單至營業所辦理。",
+                    tags: "退換貨, 30天鑑賞, 傳銷法規, 營業所",
+                    is_pinned: false,
+                    is_active: true,
+                    sort_order: 10,
+                    view_count: 1280
+                },
+                {
+                    faq_id: "FAQ-2026-004",
+                    category: "HEALTH",
+                    question: "食用生技保健品（如康爾喜、995）初期產生排氣或輕微腹瀉是否正常？",
+                    answer: "此現象多屬於『生理調適過程（好轉反應）』。例如益生菌大量定殖腸道時會促使菌相改變並加速蠕動排氣；建議初期可將劑量減半並配合充足溫開水（每日 2000cc 以上），待 3~5 日適應後再恢復標準建議量。",
+                    tags: "好轉反應, 康爾喜, 995, 腸道適應",
+                    is_pinned: false,
+                    is_active: true,
+                    sort_order: 15,
+                    view_count: 2890
+                },
+                {
+                    faq_id: "FAQ-2026-005",
+                    category: "ORDER",
+                    question: "台灣本島與外島訂購配送門檻及到貨時間為何？",
+                    answer: "單筆訂單滿額（通常為 NT$3,000 元以上或依官方活動公告）即享有免費黑貓宅配到府服務。平日下午 2:00 前完成劃撥結算者，本島地區約 1~2 個工作天內送達，外島地區約 3~5 個工作天。",
+                    tags: "配送, 免運門檻, 宅配, 外島",
+                    is_pinned: false,
+                    is_active: true,
+                    sort_order: 20,
+                    view_count: 1450
+                },
+                {
+                    faq_id: "FAQ-2026-006",
+                    category: "TAX",
+                    question: "發放獎金時，所得稅扣繳與二代健保補充保費如何計算？",
+                    answer: "經銷商佣金所得屬 50 薪資或 9A/9B 執行業務所得。若單次給付佣金超過法定扣繳起扣點（現行門檻 NT$20,000 元），公司將依法代扣 10% 所得稅與 2.11% 二代健保補充保費，並於次年寄發年度各類所得扣繳暨免扣繳憑單。",
+                    tags: "所得稅, 二代健保, 佣金扣繳, 扣繳憑單",
+                    is_pinned: false,
+                    is_active: true,
+                    sort_order: 25,
+                    view_count: 1980
+                }
+            ];
+
+            let dataTableInstance = null;
+            let currentFilterCat = 'ALL';
+            let currentSearchTerm = '';
+
+            /**
+             * 輔助工具：分類代碼轉文字與樣式
+             */
+            function getCategoryMeta(cat) {
+                const map = {
+                    JOIN: { text: "事業加盟", icon: "fa-handshake", badge: "badge-cat-join" },
+                    SYS: { text: "制度說明", icon: "fa-sitemap", badge: "badge-cat-sys" },
+                    RETURN: { text: "退換貨規章", icon: "fa-box-archive", badge: "badge-cat-return" },
+                    HEALTH: { text: "養護通識", icon: "fa-heart-pulse", badge: "badge-cat-health" },
+                    ORDER: { text: "訂購配送", icon: "fa-truck-fast", badge: "badge-cat-order" },
+                    TAX: { text: "稅務合規", icon: "fa-file-invoice-dollar", badge: "badge-cat-tax" }
+                };
+                return map[cat] || { text: cat, icon: "fa-tag", badge: "bg-secondary" };
+            }
+
+            /**
+             * 核心過濾器：結合分類與文字搜尋
+             */
+            function getFilteredDataset() {
+                return faqData.filter(item => {
+                    const matchCat = (currentFilterCat === 'ALL') || (item.category === currentFilterCat);
+                    const matchText = !currentSearchTerm || 
+                        item.question.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                        item.answer.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                        (item.tags && item.tags.toLowerCase().includes(currentSearchTerm.toLowerCase()));
+                    return matchCat && matchText;
+                });
+            }
+
+            /**
+             * 更新統計計數與膠囊 Badge
+             */
+            function updateCategoryCounts() {
+                const counts = { ALL: faqData.length, JOIN: 0, SYS: 0, RETURN: 0, HEALTH: 0, ORDER: 0, TAX: 0 };
+                faqData.forEach(item => {
+                    if (counts[item.category] !== undefined) {
+                        counts[item.category]++;
+                    }
+                });
+                Object.keys(counts).forEach(key => {
+                    $(`#count-${key}`).text(counts[key]);
+                });
+            }
+
+            /**
+             * 渲染視圖 A：互動卡片流
+             */
+            function renderCardView() {
+                const container = $('#faqCardContainer');
+                container.empty();
+                const list = getFilteredDataset();
+
+                if (list.length === 0) {
+                    $('#noDataAlert').removeClass('d-none');
+                    return;
+                }
+                $('#noDataAlert').addClass('d-none');
+
+                // 置頂排前，再按 sort_order
+                list.sort((a, b) => {
+                    if (a.is_pinned === b.is_pinned) {
+                        return a.sort_order - b.sort_order;
+                    }
+                    return a.is_pinned ? -1 : 1;
+                });
+
+                list.forEach(item => {
+                    const meta = getCategoryMeta(item.category);
+                    const tagsHtml = item.tags 
+                        ? item.tags.split(',').map(t => `<span class="badge bg-dark border border-secondary text-secondary me-1"><i class="fa-solid fa-hashtag text-purple"></i> ${t.trim()}</span>`).join('') 
+                        : '';
+                    
+                    const pinnedBadge = item.is_pinned 
+                        ? `<span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50"><i class="fa-solid fa-thumbtack"></i> 置頂話術</span>`
+                        : '';
+
+                    const cardHtml = `
+                        <div class="col-12 col-xl-6">
+                            <div class="faq-matrix-card p-4 h-100 d-flex flex-column justify-content-between ${item.is_pinned ? 'is-pinned-card' : ''}">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge ${meta.badge} px-2 py-1">
+                                                <i class="fa-solid ${meta.icon}"></i> ${meta.text}
+                                            </span>
+                                            ${pinnedBadge}
+                                        </div>
+                                        <span class="text-secondary small font-monospace">${item.faq_id}</span>
+                                    </div>
+                                    
+                                    <h5 class="fw-bold text-white mb-3 mt-1 line-clamp-2">
+                                        ${item.question}
+                                    </h5>
+                                    
+                                    <div class="p-3 rounded mb-3" style="background: rgba(10, 5, 24, 0.6); border: 1px dashed var(--uvaco-border);">
+                                        <p class="text-light-subtle mb-0 small" style="line-height: 1.6; white-space: pre-wrap;">${item.answer}</p>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        ${tagsHtml}
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+                                    <span class="text-secondary small">
+                                        <i class="fa-solid fa-fire text-danger"></i> 查閱熱度：${item.view_count.toLocaleString()}
+                                    </span>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-info btn-copy-script" data-answer="${encodeURIComponent(item.answer)}" data-question="${encodeURIComponent(item.question)}">
+                                            <i class="fa-solid fa-copy"></i> 複製話術
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-purple btn-edit-faq" data-id="${item.faq_id}">
+                                            <i class="fa-solid fa-pen"></i> 編輯
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(cardHtml);
+                });
+            }
+
+            /**
+             * 渲染視圖 B：DataTables 資料矩陣
+             */
+            function renderTableView() {
+                if ($.fn.DataTable.isDataTable('#faqDataTable')) {
+                    dataTableInstance.destroy();
+                }
+
+                const tableBody = $('#faqDataTable tbody');
+                tableBody.empty();
+
+                faqData.forEach(item => {
+                    const meta = getCategoryMeta(item.category);
+                    const statusBadge = item.is_active 
+                        ? `<span class="badge bg-success bg-opacity-25 text-success border border-success">已啟用</span>`
+                        : `<span class="badge bg-secondary">停用</span>`;
+
+                    const rowHtml = `
+                        <tr>
+                            <td class="font-monospace small text-purple">${item.faq_id}</td>
+                            <td>
+                                <span class="badge ${meta.badge}">
+                                    <i class="fa-solid ${meta.icon}"></i> ${meta.text}
+                                </span>
+                            </td>
+                            <td class="fw-medium text-white">${item.question}</td>
+                            <td><span class="text-secondary small text-truncate d-inline-block" style="max-width: 280px;">${item.answer}</span></td>
+                            <td class="text-center">${statusBadge}</td>
+                            <td class="text-center text-info font-monospace">${item.view_count}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-purple me-1 btn-edit-faq" data-id="${item.faq_id}">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger btn-delete-faq" data-id="${item.faq_id}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(rowHtml);
+                });
+
+                dataTableInstance = $('#faqDataTable').DataTable({
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "在矩陣中即時搜尋...",
+                        lengthMenu: "每頁 _MENU_ 筆",
+                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆問答",
+                        paginate: { first: "首頁", last: "末頁", next: ">", previous: "<" }
+                    },
+                    pageLength: 10,
+                    order: [[0, "desc"]],
+                    responsive: true
+                });
+            }
+
+            /**
+             * 雙向解耦適配引擎：解析 Google 試算表原始數據
+             */
+            function adaptGoogleSheetRows(rawRows) {
+                if (!Array.isArray(rawRows) || rawRows.length === 0) return [];
+
+                return rawRows.map((row, index) => {
+                    const item = {};
+                    // 根據別名映射表進行動態解耦配對
+                    Object.keys(FAQ_SCHEMA_MAP).forEach(fieldKey => {
+                        const aliases = FAQ_SCHEMA_MAP[fieldKey];
+                        let matchedVal = undefined;
+                        for (let alias of aliases) {
+                            if (row[alias] !== undefined && row[alias] !== null && row[alias] !== "") {
+                                matchedVal = row[alias];
+                                break;
+                            }
+                        }
+                        item[fieldKey] = matchedVal;
+                    });
+
+                    return {
+                        faq_id: item.faq_id || `FAQ-IMPORT-${String(index + 1).padStart(3, '0')}`,
+                        category: item.category || 'JOIN',
+                        question: item.question || '未命名問答標題',
+                        answer: item.answer || '無解答內文',
+                        tags: item.tags || '',
+                        is_pinned: String(item.is_pinned).toUpperCase() === 'TRUE' || item.is_pinned === true,
+                        is_active: item.is_active !== undefined ? (String(item.is_active).toUpperCase() === 'TRUE' || item.is_active === true) : true,
+                        sort_order: parseInt(item.sort_order, 10) || 10,
+                        view_count: parseInt(item.view_count, 10) || 0
+                    };
+                });
+            }
+
+            /**
+             * 事件綁定與互動監聽
+             */
+            function bindEvents() {
+                // 分類膠囊點擊
+                $('#categoryFilterContainer').on('click', '.btn-filter-pill', function () {
+                    $('#categoryFilterContainer .btn-filter-pill').removeClass('active');
+                    $(this).addClass('active');
+                    currentFilterCat = $(this).data('cat');
+                    renderCardView();
+                });
+
+                // 搜尋框輸入監聽
+                $('#searchKeyword').on('input', function () {
+                    currentSearchTerm = $(this).val().trim();
+                    renderCardView();
+                });
+
+                // 視圖切換
+                $('#btnViewCards').on('click', function () {
+                    $('#btnViewCards').addClass('active');
+                    $('#btnViewTable').removeClass('active');
+                    $('#viewModeCards').removeClass('d-none');
+                    $('#viewModeTable').addClass('d-none');
+                    renderCardView();
+                });
+
+                $('#btnViewTable').on('click', function () {
+                    $('#btnViewTable').addClass('active');
+                    $('#btnViewCards').removeClass('active');
+                    $('#viewModeTable').removeClass('d-none');
+                    $('#viewModeCards').addClass('d-none');
+                    renderTableView();
+                });
+
+                // 一鍵複製話術
+                $(document).on('click', '.btn-copy-script', function () {
+                    const q = decodeURIComponent($(this).data('question'));
+                    const a = decodeURIComponent($(this).data('answer'));
+                    const scriptText = `【葡眾事業與健康諮詢解答】\n❓ 問題：${q}\n💡 解答：\n${a}\n\n— 來自榮祥團隊專業知識中台`;
+
+                    navigator.clipboard.writeText(scriptText).then(() => {
+                        const toast = $('#copyToast');
+                        toast.fadeIn(200).delay(1800).fadeOut(300);
+                    });
+                });
+
+                // 新增 Modal 開啟
+                $('#btnOpenAddModal').on('click', function () {
+                    $('#modalTitle').html('<i class="fa-solid fa-plus text-purple me-1"></i> 新增通用問答 (trn_general_faqs)');
+                    $('#faqForm')[0].reset();
+                    $('#formFaqId').val('');
+                    $('#formIsActive').prop('checked', true);
+                    $('#formIsPinned').prop('checked', false);
+                    new bootstrap.Modal(document.getElementById('faqEditModal')).show();
+                });
+
+                // 編輯 Modal 開啟
+                $(document).on('click', '.btn-edit-faq', function () {
+                    const id = $(this).data('id');
+                    const target = faqData.find(item => item.faq_id === id);
+                    if (!target) return;
+
+                    $('#modalTitle').html(`<i class="fa-solid fa-pen-to-square text-purple me-1"></i> 編輯問答 [${id}]`);
+                    $('#formFaqId').val(target.faq_id);
+                    $('#formCategory').val(target.category);
+                    $('#formQuestion').val(target.question);
+                    $('#formAnswer').val(target.answer);
+                    $('#formTags').val(target.tags);
+                    $('#formSortOrder').val(target.sort_order);
+                    $('#formIsPinned').prop('checked', target.is_pinned);
+                    $('#formIsActive').prop('checked', target.is_active);
+
+                    new bootstrap.Modal(document.getElementById('faqEditModal')).show();
+                });
+
+                // 儲存表單 (新增 / 編輯)
+                $('#btnSaveFaq').on('click', function () {
+                    const id = $('#formFaqId').val();
+                    const category = $('#formCategory').val();
+                    const question = $('#formQuestion').val().trim();
+                    const answer = $('#formAnswer').val().trim();
+                    const tags = $('#formTags').val().trim();
+                    const sortOrder = parseInt($('#formSortOrder').val(), 10) || 10;
+                    const isPinned = $('#formIsPinned').is(':checked');
+                    const isActive = $('#formIsActive').is(':checked');
+
+                    if (!question || !answer) {
+                        alert('請填寫必填欄位：問題標題與解答內容！');
+                        return;
+                    }
+
+                    if (id) {
+                        // 編輯更新
+                        const idx = faqData.findIndex(item => item.faq_id === id);
+                        if (idx !== -1) {
+                            faqData[idx] = {
+                                ...faqData[idx],
+                                category, question, answer, tags,
+                                sort_order: sortOrder,
+                                is_pinned: isPinned,
+                                is_active: isActive
+                            };
+                        }
+                    } else {
+                        // 新增
+                        const newFaq = {
+                            faq_id: `FAQ-2026-${String(faqData.length + 1).padStart(3, '0')}`,
+                            category, question, answer, tags,
+                            sort_order: sortOrder,
+                            is_pinned: isPinned,
+                            is_active: isActive,
+                            view_count: 0
+                        };
+                        faqData.unshift(newFaq);
+                    }
+
+                    bootstrap.Modal.getInstance(document.getElementById('faqEditModal')).hide();
+                    updateCategoryCounts();
+                    renderCardView();
+                    if (!$('#viewModeTable').hasClass('d-none')) {
+                        renderTableView();
+                    }
+                });
+
+                // 刪除問答
+                $(document).on('click', '.btn-delete-faq', function () {
+                    const id = $(this).data('id');
+                    if (confirm(`確定要刪除問答代碼 [${id}] 嗎？此操作將同步標記為下架。`)) {
+                        faqData = faqData.filter(item => item.faq_id !== id);
+                        updateCategoryCounts();
+                        renderCardView();
+                        renderTableView();
+                    }
+                });
+
+                // Google 試算表 GViz 模擬讀取按鈕
+                $('#btnSyncGoogleSheet').on('click', function () {
+                    const btn = $(this);
+                    const originalHtml = btn.html();
+                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 正在解耦讀取...');
+
+                    setTimeout(() => {
+                        // 模擬自 Google 試算表 GViz 獲取包含中文標題的解耦資料
+                        const mockSheetData = [
+                            { "問答代碼": "FAQ-GVIZ-101", "分類維度": "JOIN", "問題內容": "外籍人士或僑生可以在台灣申請加入葡眾經銷商嗎？", "話術解答": "需檢附合法有效居留證（居留事由須符合法令工作許可規定）與居留證存摺影本，向葡眾總公司法務審查組提出專案審查核可後方可完成入會。", "標籤": "外籍, 居留證, 僑生, 資格審核", "置頂": "TRUE", "狀態": "TRUE", "排序": 3, "熱度": 420 },
+                            { "問答代碼": "FAQ-GVIZ-102", "分類維度": "SYS", "問題內容": "如何計算小組業績與組織領導獎金？", "話術解答": "小組業績係指您個人及整組未達經理聘階之所有直屬下線整月合格 PV 總和。當小組業績達標並符合代數合格條件時，即可依葡眾發放規章領取組織領導與分紅獎金。", "標籤": "小組業績, 領導獎金, 分紅, 經理聘階", "置頂": "FALSE", "狀態": "TRUE", "排序": 8, "熱度": 890 }
+                        ];
+
+                        const adapted = adaptGoogleSheetRows(mockSheetData);
+                        // 合併或取代
+                        faqData = [...adapted, ...faqData];
+                        updateCategoryCounts();
+                        renderCardView();
+                        if (!$('#viewModeTable').hasClass('d-none')) {
+                            renderTableView();
+                        }
+
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-circle-check text-success"></i> 同步完成');
+                        setTimeout(() => btn.html(originalHtml), 2000);
+                    }, 1000);
+                });
+            }
+
+            return {
+                init: function () {
+                    updateCategoryCounts();
+                    renderCardView();
+                    bindEvents();
+                }
+            };
+
+        })(jQuery);
+
+        // 頁面就緒啟動
+        $(document).ready(function () {
+            GeneralFaqApp.init();
+        });
+    </script>
+</body>
+</html>

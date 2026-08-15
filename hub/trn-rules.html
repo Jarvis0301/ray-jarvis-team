@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>營運守則與合規管理 | 葡眾核心戰情室</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap">
+
+    <style>
+        :root {
+            --bg-base: #0c0915;
+            --bg-surface: #15102a;
+            --bg-surface-elevated: #1e173b;
+            --border-color: rgba(139, 92, 246, 0.18);
+            --border-highlight: rgba(168, 85, 247, 0.45);
+            --primary-purple: #8b5cf6;
+            --primary-purple-rgb: 139, 92, 246;
+            --neon-accent: #c084fc;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --badge-rules: #8b5cf6;
+            --badge-clause: #06b6d4;
+            --badge-notice: #f59e0b;
+            --badge-penalty: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(192, 132, 252, 0.06) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        /* 頂部合規監控指標條 */
+        .governance-header {
+            background: linear-gradient(135deg, rgba(30, 23, 59, 0.7) 0%, rgba(21, 16, 42, 0.9) 100%);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        .stat-badge {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .stat-badge:hover {
+            border-color: var(--neon-accent);
+            transform: translateY(-2px);
+        }
+
+        /* 玻璃擬態主容器 */
+        .glass-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            padding: 1.5rem;
+        }
+
+        /* 分類篩選膠囊 */
+        .nav-pills-custom .nav-link {
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .nav-pills-custom .nav-link.active,
+        .nav-pills-custom .nav-link:hover {
+            color: #fff;
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            border-color: var(--neon-accent);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* DataTables 核心深紫自訂外觀 */
+        .table-custom {
+            color: var(--text-main) !important;
+            vertical-align: middle;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        .table-custom thead th {
+            background: rgba(30, 23, 59, 0.85) !important;
+            color: var(--neon-accent) !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color) !important;
+            padding: 1rem 0.75rem;
+        }
+        .table-custom tbody tr {
+            background: transparent;
+            transition: background 0.2s;
+        }
+        .table-custom tbody tr:hover {
+            background: rgba(139, 92, 246, 0.08) !important;
+        }
+        .table-custom td {
+            padding: 1rem 0.75rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+
+        /* 自訂 Badge 樣式 */
+        .badge-cat-rules { background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
+        .badge-cat-clause { background: rgba(6, 182, 212, 0.2); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
+        .badge-cat-notice { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .badge-cat-penalty { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        .rank-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        /* 模態視窗與側邊抽屜深色優化 */
+        .modal-content, .offcanvas {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            backdrop-filter: blur(16px);
+        }
+        .modal-header, .offcanvas-header, .modal-footer {
+            border-color: var(--border-color);
+        }
+
+        .form-control-custom, .form-select-custom {
+            background: rgba(15, 11, 28, 0.8) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #fff !important;
+            border-radius: 8px;
+        }
+        .form-control-custom:focus, .form-select-custom:focus {
+            border-color: var(--neon-accent) !important;
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.25) !important;
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-surface-elevated); border-radius: 3px; border: 1px solid var(--border-color); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-purple); }
+    </style>
+</head>
+<body class="py-4">
+
+<div class="container-fluid px-lg-4">
+
+    <div class="governance-header">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-md-5">
+                <div class="d-flex align-items-center">
+                    <div class="me-3 p-3 rounded-4" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.1)); border: 1px solid var(--border-highlight);">
+                        <i class="fa-solid fa-scale-balanced fa-2x text-warning"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h4 class="mb-0 fw-bold text-white">營運守則與合規管理</h4>
+                            <span class="badge bg-dark border border-secondary text-light">表15: trn_policy_docs</span>
+                        </div>
+                        <p class="text-muted mb-0 small mt-1">
+                            <i class="fa-solid fa-shield-halved"></i> 葡眾官方營業守則、處分規章與多層次傳銷合規文件總樞
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-7">
+                <div class="row g-2 justify-content-md-end">
+                    <div class="col-6 col-sm-3">
+                        <div class="stat-badge text-center">
+                            <span class="text-muted small d-block mb-1">現行生效規章</span>
+                            <span class="h5 fw-bold mb-0 text-white" id="statActiveCount">--</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="stat-badge text-center">
+                            <span class="text-muted small d-block mb-1">高階專屬公文</span>
+                            <span class="h5 fw-bold mb-0 text-info" id="statHighRankCount">--</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 d-flex align-items-center justify-content-sm-end gap-2 mt-2 mt-sm-0">
+                        <button class="btn btn-outline-light border-secondary btn-sm px-3" id="btnRefreshData">
+                            <i class="fa-solid fa-rotate"></i> 同步試算表
+                        </button>
+                        <button class="btn btn-primary btn-sm px-3 shadow" style="background: linear-gradient(135deg, #7c3aed, #9333ea); border: none;" data-bs-toggle="modal" data-bs-target="#docFormModal">
+                            <i class="fa-solid fa-plus"></i> 發布新規章
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <div class="row align-items-center mb-4 g-3">
+            <div class="col-12 col-lg-8">
+                <ul class="nav nav-pills nav-pills-custom mb-0" id="categoryTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-filter="ALL">
+                            <i class="fa-solid fa-layer-group"></i> 全部規章
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-filter="RULES">
+                            <i class="fa-solid fa-book-bookmark"></i> 營業守則
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-filter="CLAUSE">
+                            <i class="fa-solid fa-file-lines"></i> 制度條文
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-filter="NOTICE">
+                            <i class="fa-solid fa-bullhorn"></i> 官方函文
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-filter="PENALTY">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 處分規範
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="tableGlobalSearch" class="form-control form-control-custom" placeholder="全域檢索公文編號、標題、版本或關鍵字...">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="policyDocsTable" class="table table-custom w-100 align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">公文編號</th>
+                        <th style="width: 10%;">規章分類</th>
+                        <th style="width: 28%;">文件完整全銜</th>
+                        <th style="width: 8%;">版本</th>
+                        <th style="width: 12%;">最低查閱門檻</th>
+                        <th style="width: 10%;">生效日期</th>
+                        <th style="width: 8%;">狀態</th>
+                        <th style="width: 12%;" class="text-center">操作控制</th>
+                    </tr>
+                </thead>
+                <tbody id="policyTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="docFormModal" tabindex="-1" aria-labelledby="docFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="docFormModalLabel">
+                    <i class="fa-solid fa-file-pen text-primary"></i> 規章公文發布 / 維護終端
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="policyDocForm" class="row g-3">
+                    <input type="hidden" id="formDocId" name="doc_id">
+                    
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">官方公文編號 (UK)</label>
+                        <input type="text" class="form-control form-control-custom" id="formDocCode" required placeholder="例：DOC-POL-2026-01">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">規章類別 (Category)</label>
+                        <select class="form-select form-select-custom" id="formCategory" required>
+                            <option value="RULES">營業守則 (RULES)</option>
+                            <option value="CLAUSE">制度條文 (CLAUSE)</option>
+                            <option value="NOTICE">官方函文 (NOTICE)</option>
+                            <option value="PENALTY">處分規範 (PENALTY)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small text-muted">規章文件完整全銜名稱 (Title)</label>
+                        <input type="text" class="form-control form-control-custom" id="formTitle" required placeholder="例：葡眾直銷商營業守則暨違規行為處分標準辦法">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">版本編號 (Version)</label>
+                        <input type="text" class="form-control form-control-custom" id="formVersion" value="v1.0" required placeholder="例：v2.4">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">官方生效日期 (Effective Date)</label>
+                        <input type="date" class="form-control form-control-custom" id="formEffectiveDate" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">最低查閱職級門檻 (min_required_rank)</label>
+                        <select class="form-select form-select-custom" id="formMinRank" required>
+                            <option value="MEM">MEM - 會員 (一般夥伴)</option>
+                            <option value="MGR">MGR - 經理級以上</option>
+                            <option value="DIR">DIR - 總監級以上</option>
+                            <option value="DIA">DIA - 藍鑽以上 (極密)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label small text-muted">官方規章 PDF 雲端共用檢索連結 (Google Drive URL)</label>
+                        <input type="url" class="form-control form-control-custom" id="formFileUrl" required placeholder="https://drive.google.com/file/d/...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">檔案大小 (KB)</label>
+                        <input type="number" class="form-control form-control-custom" id="formFileSize" value="0">
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" id="formIsActive" checked>
+                            <label class="form-check-label text-light" for="formIsActive">
+                                <i class="fa-solid fa-circle-check text-success"></i> 啟用此公文（若關閉將歸檔為歷史作廢）
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm px-4" id="btnSaveDoc" style="background: linear-gradient(135deg, #7c3aed, #9333ea); border: none;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> 儲存並寫入試算表
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="docPreviewOffcanvas" aria-labelledby="docPreviewLabel" style="width: 500px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title text-white fw-bold" id="docPreviewLabel">
+            <i class="fa-solid fa-file-shield text-info"></i> 公文全景與權限透視
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="docPreviewBody">
+        </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    /**
+     * 葡眾網站核心架構 - 培訓模組 (表15: trn_policy_docs)
+     * 中台轉接字典 (sys_api_configs) 欄位解耦對映
+     */
+    const POLICY_DOC_CONFIG = {
+        // 模擬 Google Sheets 連接 (實際環境替換為 GViz URL)
+        sheetName: "trn_policy_docs",
+        // 欄位轉接對照表 (Google Sheets Header <-> Standard Entity Key)
+        fieldAdapter: {
+            "doc_id": "守則識別碼",
+            "doc_code": "公文編號",
+            "title": "規章文件全銜",
+            "version": "版本編號",
+            "category": "規章類別",
+            "file_url": "PDF雲端連結",
+            "file_size_kb": "檔案大小KB",
+            "effective_date": "官方生效日期",
+            "min_required_rank": "最低查閱職級",
+            "is_active": "有效狀態",
+            "created_by": "建立者",
+            "created_at": "建立時間",
+            "updated_at": "最後更新時間"
+        }
+    };
+
+    // 內建即時備份種子數據 (相容 Google 試算表格式)
+    const SEED_DATA_SHEET = [
+        {
+            "守則識別碼": "DOC-UUID-001",
+            "公文編號": "DOC-POL-2026-01",
+            "規章文件全銜": "2026 葡眾事業直銷商營業守則與組織合規管理辦法",
+            "版本編號": "v3.2",
+            "規章類別": "RULES",
+            "PDF雲端連結": "https://drive.google.com/file/d/sample1",
+            "檔案大小KB": "4250",
+            "官方生效日期": "2026-01-01",
+            "最低查閱職級": "MEM",
+            "有效狀態": "TRUE",
+            "最後更新時間": "2026-01-05 10:30:00"
+        },
+        {
+            "守則識別碼": "DOC-UUID-002",
+            "公文編號": "DOC-CLS-2026-04",
+            "規章文件全銜": "藍鑽與總監體系專屬：跨區輔導津貼發放與培育分紅規程",
+            "版本編號": "v1.5",
+            "規章類別": "CLAUSE",
+            "PDF雲端連結": "https://drive.google.com/file/d/sample2",
+            "檔案大小KB": "1840",
+            "官方生效日期": "2026-02-15",
+            "最低查閱職級": "DIR",
+            "有效狀態": "TRUE",
+            "最後更新時間": "2026-02-10 16:45:00"
+        },
+        {
+            "守則識別碼": "DOC-UUID-003",
+            "公文編號": "DOC-NOT-2026-09",
+            "規章文件全銜": "關於禁止於蝦皮、拍賣平台削價販售康貝兒與百克斯之處分公告",
+            "版本編號": "v1.0",
+            "規章類別": "NOTICE",
+            "PDF雲端連結": "https://drive.google.com/file/d/sample3",
+            "檔案大小KB": "920",
+            "官方生效日期": "2026-03-01",
+            "最低查閱職級": "MEM",
+            "有效狀態": "TRUE",
+            "最後更新時間": "2026-03-01 09:00:00"
+        },
+        {
+            "守則識別碼": "DOC-UUID-004",
+            "公文編號": "DOC-PEN-2026-02",
+            "規章文件全銜": "違規跨線招募與不實醫療誇大宣傳扣罰獎金執行細則",
+            "版本編號": "v2.0",
+            "規章類別": "PENALTY",
+            "PDF雲端連結": "https://drive.google.com/file/d/sample4",
+            "檔案大小KB": "3100",
+            "官方生效日期": "2026-01-10",
+            "最低查閱職級": "MGR",
+            "有效狀態": "TRUE",
+            "最後更新時間": "2026-01-10 14:20:00"
+        }
+    ];
+
+    let dataTableInstance = null;
+    let localPolicyDocs = [];
+
+    /**
+     * 資料適配解耦器 (將 Google 試算表欄位轉譯為標準資料模型)
+     */
+    function transformSheetData(rawSheetRows) {
+        const adapter = POLICY_DOC_CONFIG.fieldAdapter;
+        return rawSheetRows.map(row => {
+            const mapped = {};
+            for (let [entityKey, sheetColName] of Object.entries(adapter)) {
+                mapped[entityKey] = row[sheetColName] !== undefined ? row[sheetColName] : "";
+            }
+            // 型態標準化
+            mapped.is_active = (String(mapped.is_active).toUpperCase() === "TRUE");
+            mapped.file_size_kb = parseInt(mapped.file_size_kb, 10) || 0;
+            return mapped;
+        });
+    }
+
+    /**
+     * 規章類別 Badge 產生器
+     */
+    function renderCategoryBadge(category) {
+        const catMap = {
+            "RULES": { text: "營業守則", class: "badge-cat-rules", icon: "fa-book-bookmark" },
+            "CLAUSE": { text: "制度條文", class: "badge-cat-clause", icon: "fa-file-lines" },
+            "NOTICE": { text: "官方函文", class: "badge-cat-notice", icon: "fa-bullhorn" },
+            "PENALTY": { text: "處分規範", class: "badge-cat-penalty", icon: "fa-triangle-exclamation" }
+        };
+        const config = catMap[category] || { text: category, class: "badge-cat-rules", icon: "fa-file" };
+        return `<span class="badge ${config.class} px-2 py-1"><i class="fa-solid ${config.icon}"></i> ${config.text}</span>`;
+    }
+
+    /**
+     * 職級門檻 Badge 產生器
+     */
+    function renderRankBadge(rank) {
+        const rankMap = {
+            "MEM": { name: "會員以上 (全體)", color: "text-light", border: "border-secondary" },
+            "MGR": { name: "經理級 (MGR)", color: "text-warning", border: "border-warning" },
+            "DIR": { name: "總監級 (DIR)", color: "text-info", border: "border-info" },
+            "DIA": { name: "藍鑽級 (DIA)", color: "text-danger", border: "border-danger" }
+        };
+        const r = rankMap[rank] || { name: rank, color: "text-light", border: "border-secondary" };
+        return `<span class="rank-pill ${r.border} ${r.color}"><i class="fa-solid fa-id-badge"></i> ${r.name}</span>`;
+    }
+
+    /**
+     * 初始化與重新渲染 DataTable
+     */
+    function initDataTable(data) {
+        if (dataTableInstance) {
+            dataTableInstance.destroy();
+        }
+
+        const tbody = $('#policyTableBody');
+        tbody.empty();
+
+        data.forEach(item => {
+            const statusHtml = item.is_active 
+                ? `<span class="badge bg-success bg-opacity-25 text-success border border-success"><i class="fa-solid fa-check"></i> 現行生效</span>`
+                : `<span class="badge bg-secondary bg-opacity-25 text-muted border border-secondary"><i class="fa-solid fa-box-archive"></i> 歷史作廢</span>`;
+
+            const tr = `
+                <tr data-category="${item.category}" data-id="${item.doc_id}">
+                    <td><span class="font-monospace text-light fw-bold">${item.doc_code}</span></td>
+                    <td>${renderCategoryBadge(item.category)}</td>
+                    <td>
+                        <div class="fw-bold text-white mb-0">${item.title}</div>
+                        <small class="text-muted"><i class="fa-regular fa-file-pdf text-danger"></i> ${(item.file_size_kb / 1024).toFixed(2)} MB</small>
+                    </td>
+                    <td><span class="badge bg-dark border border-secondary text-info">${item.version}</span></td>
+                    <td>${renderRankBadge(item.min_required_rank)}</td>
+                    <td><small class="text-muted"><i class="fa-regular fa-calendar"></i> ${item.effective_date}</small></td>
+                    <td>${statusHtml}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-info btn-preview" title="公文詳情與鑑權"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-outline-light btn-edit" title="編輯規章"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <a href="${item.file_url}" target="_blank" class="btn btn-outline-warning" title="雲端下載"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tbody.append(tr);
+        });
+
+        dataTableInstance = $('#policyDocsTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            dom: '<"row mb-2"<"col-12"tr>><"row align-items-center mt-3"<"col-sm-6 text-muted small"i><"col-sm-6 d-flex justify-content-end"p>>',
+            language: {
+                zeroRecords: "查無符合條件的營運規章檔案",
+                info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆公文",
+                infoEmpty: "無可用的公文紀錄",
+                paginate: {
+                    next: '<i class="fa-solid fa-chevron-right"></i>',
+                    previous: '<i class="fa-solid fa-chevron-left"></i>'
+                }
+            }
+        });
+
+        updateHeaderStatistics(data);
+    }
+
+    /**
+     * 更新頂部合規監控指標
+     */
+    function updateHeaderStatistics(data) {
+        const activeCount = data.filter(d => d.is_active).length;
+        const highRankCount = data.filter(d => ["DIR", "DIA"].includes(d.min_required_rank) && d.is_active).length;
+
+        $('#statActiveCount').text(activeCount);
+        $('#statHighRankCount').text(highRankCount);
+    }
+
+    /**
+     * 側邊抽屜渲染公文詳情
+     */
+    function openPreviewDrawer(docId) {
+        const doc = localPolicyDocs.find(d => d.doc_id === docId);
+        if (!doc) return;
+
+        const body = $('#docPreviewBody');
+        body.html(`
+            <div class="p-3 mb-3 rounded-3" style="background: rgba(139, 92, 246, 0.1); border: 1px solid var(--border-color);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="font-monospace text-info">${doc.doc_code}</span>
+                    <span class="badge bg-dark border border-secondary">${doc.version}</span>
+                </div>
+                <h6 class="text-white fw-bold mb-0">${doc.title}</h6>
+            </div>
+
+            <div class="list-group list-group-flush mb-4 rounded-3 border border-secondary overflow-hidden">
+                <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
+                    <span class="text-muted"><i class="fa-solid fa-tag"></i> 規章類別</span>
+                    <span>${renderCategoryBadge(doc.category)}</span>
+                </div>
+                <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
+                    <span class="text-muted"><i class="fa-solid fa-shield-halved"></i> 最低授權職級</span>
+                    <span>${renderRankBadge(doc.min_required_rank)}</span>
+                </div>
+                <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
+                    <span class="text-muted"><i class="fa-solid fa-calendar-check"></i> 實施生效日</span>
+                    <span>${doc.effective_date}</span>
+                </div>
+                <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
+                    <span class="text-muted"><i class="fa-solid fa-hard-drive"></i> 檔案容量</span>
+                    <span>${(doc.file_size_kb / 1024).toFixed(2)} MB</span>
+                </div>
+                <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
+                    <span class="text-muted"><i class="fa-solid fa-clock-rotate-left"></i> 最後更新</span>
+                    <span>${doc.updated_at}</span>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="${doc.file_url}" target="_blank" class="btn btn-outline-info">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟 Google Drive 雲端檢視
+                </a>
+                <button class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
+                    <i class="fa-solid fa-xmark"></i> 關閉檢視
+                </button>
+            </div>
+        `);
+
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('docPreviewOffcanvas'));
+        offcanvas.show();
+    }
+
+    // DOM Ready 初始化
+    $(document).ready(function () {
+        // 載入並適配初始資料
+        localPolicyDocs = transformSheetData(SEED_DATA_SHEET);
+        initDataTable(localPolicyDocs);
+
+        // 全域即時檢索綁定
+        $('#tableGlobalSearch').on('keyup', function () {
+            if (dataTableInstance) {
+                dataTableInstance.search(this.value).draw();
+            }
+        });
+
+        // 矩陣分類標籤 Filter
+        $('#categoryTabs .nav-link').on('click', function (e) {
+            e.preventDefault();
+            $('#categoryTabs .nav-link').removeClass('active');
+            $(this).addClass('active');
+
+            const filter = $(this).data('filter');
+            if (filter === 'ALL') {
+                dataTableInstance.column(1).search('').draw();
+            } else {
+                dataTableInstance.column(1).search(filter).draw();
+            }
+        });
+
+        // 綁定抽屜預覽按鈕
+        $(document).on('click', '.btn-preview', function () {
+            const tr = $(this).closest('tr');
+            const docId = tr.data('id');
+            openPreviewDrawer(docId);
+        });
+
+        // 編輯公文按鈕
+        $(document).on('click', '.btn-edit', function () {
+            const tr = $(this).closest('tr');
+            const docId = tr.data('id');
+            const doc = localPolicyDocs.find(d => d.doc_id === docId);
+            if (!doc) return;
+
+            $('#formDocId').val(doc.doc_id);
+            $('#formDocCode').val(doc.doc_code);
+            $('#formCategory').val(doc.category);
+            $('#formTitle').val(doc.title);
+            $('#formVersion').val(doc.version);
+            $('#formEffectiveDate').val(doc.effective_date);
+            $('#formMinRank').val(doc.min_required_rank);
+            $('#formFileUrl').val(doc.file_url);
+            $('#formFileSize').val(doc.file_size_kb);
+            $('#formIsActive').prop('checked', doc.is_active);
+
+            $('#docFormModalLabel').html('<i class="fa-solid fa-file-pen text-warning"></i> 編輯現有規章公文');
+            $('#docFormModal').modal('show');
+        });
+
+        // 儲存並寫入試算表
+        $('#btnSaveDoc').on('click', function () {
+            const docId = $('#formDocId').val() || `DOC-UUID-${Date.now()}`;
+            const isEditing = Boolean($('#formDocId').val());
+
+            const newDoc = {
+                doc_id: docId,
+                doc_code: $('#formDocCode').val(),
+                category: $('#formCategory').val(),
+                title: $('#formTitle').val(),
+                version: $('#formVersion').val(),
+                effective_date: $('#formEffectiveDate').val(),
+                min_required_rank: $('#formMinRank').val(),
+                file_url: $('#formFileUrl').val(),
+                file_size_kb: parseInt($('#formFileSize').val(), 10) || 0,
+                is_active: $('#formIsActive').is(':checked'),
+                created_by: "SYSTEM_HUB",
+                updated_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+            };
+
+            if (!newDoc.doc_code || !newDoc.title || !newDoc.file_url) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '欄位未填寫完整',
+                    text: '請確認公文編號、文件全銜與雲端 URL 已完整輸入',
+                    background: '#15102a',
+                    color: '#fff'
+                });
+                return;
+            }
+
+            if (isEditing) {
+                const idx = localPolicyDocs.findIndex(d => d.doc_id === docId);
+                if (idx !== -1) localPolicyDocs[idx] = newDoc;
+            } else {
+                localPolicyDocs.unshift(newDoc);
+            }
+
+            $('#docFormModal').modal('hide');
+            initDataTable(localPolicyDocs);
+
+            Swal.fire({
+                icon: 'success',
+                title: '寫入成功',
+                text: `規章 ${newDoc.doc_code} 已同步解耦寫入 Google 試算表`,
+                background: '#15102a',
+                color: '#fff',
+                confirmButtonColor: '#7c3aed'
+            });
+        });
+
+        // 重新整理與同步試算表按鈕
+        $('#btnRefreshData').on('click', function () {
+            Swal.fire({
+                title: '同步 Google 試算表中...',
+                html: '<i class="fa-solid fa-spinner fa-spin fa-2x text-primary my-2"></i><br>透過 sys_api_configs 執行欄位字典映射',
+                background: '#15102a',
+                color: '#fff',
+                showConfirmButton: false,
+                timer: 900
+            }).then(() => {
+                localPolicyDocs = transformSheetData(SEED_DATA_SHEET);
+                initDataTable(localPolicyDocs);
+            });
+        });
+    });
+</script>
+</body>
+</html>
