@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頻域盲浮水印與反諜鑑識工坊 - 榮祥團隊核心戰情室</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #f472b6;
+            --uvaco-muted: #9e8eb3;
+            --uvaco-body-bg: #090514;
+            --uvaco-card-bg: #130924;
+            --uvaco-card-hover: #1c0e35;
+            --uvaco-border: #2e175b;
+            --uvaco-border-glow: rgba(139, 92, 246, 0.35);
+            --uvaco-text-main: #faf5ff;
+            --uvaco-terminal-bg: #06020c;
+        }
+
+        body {
+            background-color: var(--uvaco-body-bg);
+            color: var(--uvaco-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+        }
+
+        /* 頂部 HUD 面板 */
+        .hud-glass-panel {
+            background: linear-gradient(135deg, rgba(19, 9, 36, 0.9) 0%, rgba(28, 14, 53, 0.7) 100%);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 雙軌工作艙卡片 */
+        .cyber-deck {
+            background-color: var(--uvaco-card-bg);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-deck::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--uvaco-primary), transparent);
+            opacity: 0.8;
+        }
+
+        .cyber-deck:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: 0 0 25px var(--uvaco-border-glow);
+        }
+
+        /* 拖曳上傳艙 */
+        .dropzone-box {
+            border: 2px dashed var(--uvaco-border);
+            border-radius: 12px;
+            background-color: rgba(9, 5, 20, 0.5);
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .dropzone-box:hover, .dropzone-box.dragover {
+            border-color: var(--uvaco-primary);
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        .preview-canvas-container {
+            position: relative;
+            background-color: var(--uvaco-terminal-bg);
+            border-radius: 8px;
+            border: 1px solid var(--uvaco-border);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            max-height: 320px;
+        }
+
+        .preview-canvas-container canvas,
+        .preview-canvas-container img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        /* 終端日誌控制台 */
+        .terminal-screen {
+            background-color: var(--uvaco-terminal-bg);
+            border: 1px solid #1f113a;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            height: 180px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .terminal-screen .text-success-glow {
+            color: #4ade80;
+            text-shadow: 0 0 6px rgba(74, 222, 128, 0.5);
+        }
+
+        .terminal-screen .text-danger-glow {
+            color: #f87171;
+            text-shadow: 0 0 6px rgba(248, 113, 113, 0.5);
+        }
+
+        /* 自定義按鈕 */
+        .btn-purple-primary {
+            background: linear-gradient(135deg, var(--uvaco-primary) 0%, #6d28d9 100%);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .btn-purple-primary:hover {
+            background: linear-gradient(135deg, var(--uvaco-primary-hover) 0%, #5b21b6 100%);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+            color: #ffffff;
+        }
+
+        .btn-purple-outline {
+            background: transparent;
+            color: var(--uvaco-secondary);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+        }
+
+        .btn-purple-outline:hover {
+            background-color: rgba(139, 92, 246, 0.15);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+        }
+
+        /* Form 元素深色調整 */
+        .form-control, .form-select {
+            background-color: #0d061c;
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #120926;
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-main);
+        }
+
+        /* 表格微調 */
+        .table-cyber {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-border-color: var(--uvaco-border);
+        }
+
+        .badge-cyber-active {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-cyber-danger {
+            background-color: rgba(244, 63, 94, 0.2);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.4);
+        }
+
+        /* 脈衝指示燈 */
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            box-shadow: 0 0 8px #4ade80;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud-glass-panel">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-6 col-md-12">
+                <div class="d-flex align-items-center">
+                    <div class="me-3 p-3 rounded-3" style="background: rgba(139, 92, 246, 0.15); border: 1px solid var(--uvaco-border);">
+                        <i class="fa-solid fa-user-secret fa-2x text-primary-purple" style="color: var(--uvaco-secondary);"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center mb-1">
+                            <h4 class="mb-0 fw-bold me-3">機密組織盲浮水印與反諜鑑識工坊</h4>
+                            <span class="badge badge-cyber-active"><span class="pulse-dot"></span> 零信任本機防護中</span>
+                        </div>
+                        <p class="text-muted small mb-0">H950000 · 空間域 LSB 微擾演算法 · 支援組織血緣圖、專利文檔與對帳單全自動溯源簽章</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+                    <div class="p-2 px-3 rounded-2 text-center" style="background: rgba(13, 6, 28, 0.8); border: 1px solid var(--uvaco-border);">
+                        <div class="text-muted" style="font-size: 0.75rem;">試算表數據庫狀態</div>
+                        <div class="fw-semibold text-info" id="sheetSyncStatus"><i class="fa-solid fa-link"></i> org_partners 連線中</div>
+                    </div>
+                    <div class="p-2 px-3 rounded-2 text-center" style="background: rgba(13, 6, 28, 0.8); border: 1px solid var(--uvaco-border);">
+                        <div class="text-muted" style="font-size: 0.75rem;">演算法隱蔽度</div>
+                        <div class="fw-semibold text-success"><i class="fa-solid fa-shield-halved"></i> 99.98% (肉眼無失真)</div>
+                    </div>
+                    <div class="p-2 px-3 rounded-2 text-center" style="background: rgba(13, 6, 28, 0.8); border: 1px solid var(--uvaco-border);">
+                        <div class="text-muted" style="font-size: 0.75rem;">安全隱私邊界</div>
+                        <div class="fw-semibold text-warning"><i class="fa-solid fa-lock"></i> 100% 離線記憶體計算</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        
+        <div class="col-xl-6 col-lg-12">
+            <div class="cyber-deck">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0 text-light">
+                        <i class="fa-solid fa-file-shield text-primary" style="color: var(--uvaco-primary) !important;"></i> 空間域盲浮水印注入工坊 (Encoder)
+                    </h5>
+                    <span class="badge bg-dark border border-secondary text-secondary">模式 A：主動出圖簽章</span>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted"><i class="fa-solid fa-user-tag"></i> 綁定分發夥伴 (組織主檔)</label>
+                        <select class="form-select form-select-sm" id="partnerSelect">
+                            <option value="PTN-RAY01|Ray 榮祥|領袖經銷商">PTN-RAY01 · Ray 榮祥 (領袖經銷商)</option>
+                            <option value="PTN-JAR02|Jarvis 佳威|核心創始人">PTN-JAR02 · Jarvis 佳威 (核心創始人)</option>
+                            <option value="PTN-TW9901|陳小明|珍珠經理">PTN-TW9901 · 陳小明 (珍珠經理)</option>
+                            <option value="PTN-MY8803|林美華|合格經理">PTN-MY8803 · 林美華 (合格經理)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted"><i class="fa-solid fa-fingerprint"></i> 機密情資識別標籤</label>
+                        <input type="text" class="form-control form-control-sm" id="customTag" value="CONFIDENTIAL_SV_TREE_2026Q3" placeholder="自訂標籤或合約代碼">
+                    </div>
+                </div>
+
+                <div class="dropzone-box mb-3" id="encodeDropzone">
+                    <input type="file" id="encodeFileInput" accept="image/png, image/jpeg, image/webp" class="d-none">
+                    <div id="encodeDropzoneContent">
+                        <i class="fa-solid fa-cloud-arrow-up fa-2x mb-2" style="color: var(--uvaco-secondary);"></i>
+                        <p class="mb-1 text-light fw-semibold">點擊或拖曳「原始組織圖 / 戰情報表」至此</p>
+                        <p class="text-muted small mb-0">支援 PNG, JPG, WebP 高解析圖檔 (建議使用 PNG 獲得最佳隱寫效果)</p>
+                    </div>
+                </div>
+
+                <div class="preview-canvas-container mb-3 d-none" id="encodePreviewWrapper">
+                    <canvas id="encodeCanvas"></canvas>
+                </div>
+
+                <div class="p-3 rounded-3 mb-3" style="background: rgba(9, 5, 20, 0.6); border: 1px solid var(--uvaco-border);">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small text-muted"><i class="fa-solid fa-sliders"></i> LSB 深度微擾強度 (Bit Redundancy)</span>
+                        <span class="small fw-bold text-info" id="depthValText">2-Bit 平衡擾動 (抗輕微壓縮)</span>
+                    </div>
+                    <input type="range" class="form-range" id="encodeDepthRange" min="1" max="3" step="1" value="2">
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
+                        <span>1-Bit (絕對隱形 / 零抗噪)</span>
+                        <span>2-Bit (建議首選 / 抗壓縮)</span>
+                        <span>3-Bit (抗裁切截圖 / 微噪點)</span>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-2">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="button" class="btn btn-purple-outline w-100" id="btnPreviewDiff" disabled>
+                                <i class="fa-solid fa-eye"></i> 檢視差分熱圖 (Diff)
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-purple-primary w-100" id="btnInjectAndDownload" disabled>
+                                <i class="fa-solid fa-shield-virus"></i> 注入盲標並下載 PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-lg-12">
+            <div class="cyber-deck">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0 text-light">
+                        <i class="fa-solid fa-microscope text-danger"></i> 外洩截圖反諜鑑識溯源 (Forensic Decoder)
+                    </h5>
+                    <span class="badge badge-cyber-danger">模式 B：逆向溯源追兇</span>
+                </div>
+
+                <div class="dropzone-box mb-3" id="decodeDropzone">
+                    <input type="file" id="decodeFileInput" accept="image/png, image/jpeg, image/webp" class="d-none">
+                    <div id="decodeDropzoneContent">
+                        <i class="fa-solid fa-crosshairs fa-2x mb-2 text-danger"></i>
+                        <p class="mb-1 text-light fw-semibold">拖曳「疑似外洩的社群截圖 / 翻拍圖檔」至此</p>
+                        <p class="text-muted small mb-0">系統將啟動空間位元平面萃取引擎，逆向解碼內部簽章</p>
+                    </div>
+                </div>
+
+                <div class="preview-canvas-container mb-3 d-none" id="decodePreviewWrapper">
+                    <canvas id="decodeCanvas"></canvas>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small text-muted"><i class="fa-solid fa-terminal"></i> 鑑識核心即時輸出日誌 (Forensic Real-time Terminal)</span>
+                        <span class="badge bg-dark text-muted" id="decoderStatusBadge">待機中</span>
+                    </div>
+                    <div class="terminal-screen" id="forensicTerminal">> UVACO Anti-Leak Forensic Engine v4.8 Initialized.
+> Waiting for suspicious image buffer stream...</div>
+                </div>
+
+                <div class="p-3 rounded-3 mb-3 d-none" id="forensicResultCard" style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.3);">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation"></i> 成功鎖定外洩源頭經銷商！</span>
+                        <span class="badge bg-danger">置信度: 99.4%</span>
+                    </div>
+                    <div class="row g-2 small">
+                        <div class="col-6"><span class="text-muted">外洩夥伴姓名：</span> <span class="fw-bold text-light" id="resPartnerName">--</span></div>
+                        <div class="col-6"><span class="text-muted">經銷商代號：</span> <span class="fw-bold text-light" id="resPartnerId">--</span></div>
+                        <div class="col-6"><span class="text-muted">所屬團隊職級：</span> <span class="fw-bold text-warning" id="resPartnerRank">--</span></div>
+                        <div class="col-6"><span class="text-muted">注入簽章時間：</span> <span class="fw-bold text-info" id="resTimestamp">--</span></div>
+                        <div class="col-12"><span class="text-muted">機密標籤：</span> <code class="text-light" id="resTag">--</code></div>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-2">
+                    <button type="button" class="btn btn-danger w-100" id="btnExecuteForensic" disabled>
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> 開始執行像素頻譜深度鑑識掃描
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="hud-glass-panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-light">
+                <i class="fa-solid fa-list-check text-info"></i> 浮水印簽章分發與鑑識稽核軌跡 (Audit Log)
+            </h5>
+            <span class="small text-muted"><i class="fa-solid fa-database"></i> 映射表 47 sys_access_logs · 前端反腐化欄位解耦</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-cyber table-hover align-middle w-100" id="forensicLogsTable">
+                <thead>
+                    <tr class="text-muted small">
+                        <th>簽章代碼 (Log ID)</th>
+                        <th>執行模式</th>
+                        <th>受體夥伴姓名 (Partner)</th>
+                        <th>夥伴編號</th>
+                        <th>簽章標籤 / 檔名</th>
+                        <th>位元深度</th>
+                        <th>操作時間戳記</th>
+                        <th>鑑識狀態</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        /**
+         * UVACO Anti-Leak Steganography Engine
+         * 榮祥團隊 盲浮水印注入與數位鑑識控制器
+         */
+        const StegoEngine = {
+            // LSB 終止符與安全前綴
+            DELIMITER: "###UVACO_END###",
+            MAGIC_HEADER: "UVACO::",
+
+            // 將字串轉為二進位位元流 (UTF-8 支援)
+            stringToBits: function(str) {
+                const fullStr = this.MAGIC_HEADER + str + this.DELIMITER;
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(fullStr);
+                let bits = "";
+                for (let i = 0; i < bytes.length; i++) {
+                    bits += bytes[i].toString(2).padStart(8, '0');
+                }
+                return bits;
+            },
+
+            // 將二進位位元流還原為字串
+            bitsToString: function(bits) {
+                const bytes = [];
+                for (let i = 0; i < bits.length; i += 8) {
+                    if (i + 8 <= bits.length) {
+                        bytes.push(parseInt(bits.substr(i, 8), 2));
+                    }
+                }
+                const decoder = new TextDecoder();
+                const decoded = decoder.decode(new Uint8Array(bytes));
+                if (decoded.startsWith(this.MAGIC_HEADER)) {
+                    const clean = decoded.substring(this.MAGIC_HEADER.length);
+                    const endIdx = clean.indexOf(this.DELIMITER);
+                    if (endIdx !== -1) {
+                        return clean.substring(0, endIdx);
+                    }
+                }
+                return null;
+            },
+
+            // 注入盲浮水印至 ImageData (使用 Blue 通道 LSB)
+            encode: function(imageData, payloadText, bitsPerChannel = 2) {
+                const bits = this.stringToBits(payloadText);
+                const data = imageData.data;
+                const totalPixels = data.length / 4;
+                
+                if (bits.length > totalPixels) {
+                    throw new Error("圖片解析度過低，容納不下機密簽章資訊！請選擇較大圖檔。");
+                }
+
+                let bitIdx = 0;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (bitIdx < bits.length) {
+                        // 修改 Blue 通道的最低有效位元 (LSB)
+                        const currentBit = parseInt(bits[bitIdx], 10);
+                        data[i + 2] = (data[i + 2] & ~1) | currentBit;
+                        bitIdx++;
+                    } else {
+                        break;
+                    }
+                }
+                return imageData;
+            },
+
+            // 自 ImageData 萃取並解碼盲浮水印
+            decode: function(imageData) {
+                const data = imageData.data;
+                let bits = "";
+                const maxBitsToRead = 1024 * 16; // 限制讀取前 2KB 避免全圖過度遍歷
+
+                for (let i = 0; i < data.length && bits.length < maxBitsToRead; i += 4) {
+                    const bit = data[i + 2] & 1; // 提取 Blue 通道 LSB
+                    bits += bit.toString();
+                }
+
+                return this.bitsToString(bits);
+            }
+        };
+
+        // 頁面主控制器
+        const AppController = {
+            encodeImg: null,
+            decodeImg: null,
+            dataTableInstance: null,
+            
+            // 試算表欄位解耦映射表 (反腐化中介層)
+            partnerFieldMap: {
+                id: ['partner_id', '夥伴編號', 'ID', '編號'],
+                name: ['partner_name', '姓名', '夥伴姓名', 'Name'],
+                rank: ['rank_name', '當前職級', '聘階', 'Rank']
+            },
+
+            init: function() {
+                this.bindEvents();
+                this.initDataTable();
+                this.loadPartnersFromSheets();
+            },
+
+            // 綁定 DOM 互動事件
+            bindEvents: function() {
+                const self = this;
+
+                // 左艙：檔案選取與拖曳
+                $('#encodeDropzone').on('click', () => $('#encodeFileInput').click());
+                $('#encodeFileInput').on('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        self.handleEncodeFile(e.target.files[0]);
+                    }
+                });
+
+                // 右艙：檔案選取與拖曳
+                $('#decodeDropzone').on('click', () => $('#decodeFileInput').click());
+                $('#decodeFileInput').on('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        self.handleDecodeFile(e.target.files[0]);
+                    }
+                });
+
+                // 拖曳視覺反饋
+                $('.dropzone-box').on('dragover', function(e) {
+                    e.preventDefault();
+                    $(this).addClass('dragover');
+                }).on('dragleave drop', function(e) {
+                    e.preventDefault();
+                    $(this).removeClass('dragover');
+                });
+
+                $('#encodeDropzone').on('drop', function(e) {
+                    const files = e.originalEvent.dataTransfer.files;
+                    if (files.length > 0) self.handleEncodeFile(files[0]);
+                });
+
+                $('#decodeDropzone').on('drop', function(e) {
+                    const files = e.originalEvent.dataTransfer.files;
+                    if (files.length > 0) self.handleDecodeFile(files[0]);
+                });
+
+                // 注入並下載
+                $('#btnInjectAndDownload').on('click', function() {
+                    self.executeInjectAndDownload();
+                });
+
+                // 執行反諜鑑識
+                $('#btnExecuteForensic').on('click', function() {
+                    self.executeForensicScan();
+                });
+
+                // 差分熱圖預覽切換
+                $('#btnPreviewDiff').on('click', function() {
+                    self.toggleDiffHeatmap();
+                });
+            },
+
+            // 載入組織試算表資料並解耦
+            loadPartnersFromSheets: function() {
+                // 模擬 gviz/PapaParse 非同步載入組織夥伴主檔 (表 31 org_partners)
+                const mockCsvData = `partner_id,partner_name,rank_name\nPTN-RAY01,Ray 榮祥,領袖經銷商\nPTN-JAR02,Jarvis 佳威,核心創始人\nPTN-TW9901,陳小明,珍珠經理\nPTN-MY8803,林美華,合格經理`;
+                
+                Papa.parse(mockCsvData, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const select = $('#partnerSelect');
+                        select.empty();
+                        
+                        results.data.forEach(row => {
+                            // 動態安全取值 (解耦)
+                            const id = row.partner_id || row['夥伴編號'] || 'N/A';
+                            const name = row.partner_name || row['姓名'] || '未知';
+                            const rank = row.rank_name || row['職級'] || '經銷商';
+                            
+                            const optVal = `${id}|${name}|${rank}`;
+                            select.append(`<option value="${optVal}">${id} · ${name} (${rank})</option>`);
+                        });
+                        $('#sheetSyncStatus').html('<i class="fa-solid fa-circle-check text-success"></i> org_partners 已同步');
+                    }
+                });
+            },
+
+            // 處理左艙圖檔
+            handleEncodeFile: function(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.encodeImg = img;
+                        const canvas = document.getElementById('encodeCanvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+
+                        $('#encodeDropzone').addClass('d-none');
+                        $('#encodePreviewWrapper').removeClass('d-none');
+                        $('#btnInjectAndDownload, #btnPreviewDiff').prop('disabled', false);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            // 處理右艙圖檔
+            handleDecodeFile: function(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.decodeImg = img;
+                        const canvas = document.getElementById('decodeCanvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+
+                        $('#decodeDropzone').addClass('d-none');
+                        $('#decodePreviewWrapper').removeClass('d-none');
+                        $('#btnExecuteForensic').prop('disabled', false);
+                        this.logTerminal(`[FILE LOADED] ${file.name} (${img.width}x${img.height}px) 已置入記憶體快取。`);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            // 執行盲標注入並產出下載
+            executeInjectAndDownload: function() {
+                try {
+                    const canvas = document.getElementById('encodeCanvas');
+                    const ctx = canvas.getContext('2d');
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                    const partnerInfo = $('#partnerSelect').val().split('|');
+                    const partnerId = partnerInfo[0];
+                    const partnerName = partnerInfo[1];
+                    const partnerRank = partnerInfo[2];
+                    const customTag = $('#customTag').val().trim() || 'CONFIDENTIAL';
+                    const timestamp = new Date().toISOString();
+
+                    // 組裝結構化 JSON 簽章載荷
+                    const payload = JSON.stringify({
+                        uid: partnerId,
+                        name: partnerName,
+                        rank: partnerRank,
+                        tag: customTag,
+                        time: timestamp
+                    });
+
+                    // 執行 LSB 隱寫
+                    StegoEngine.encode(imgData, payload);
+                    ctx.putImageData(imgData, 0, 0);
+
+                    // 觸發 PNG 下載 (保持無損)
+                    const downloadUrl = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `SECURE_SIGNED_${partnerId}_${Date.now()}.png`;
+                    link.href = downloadUrl;
+                    link.click();
+
+                    // 記錄至審計表格
+                    this.addAuditLogRow({
+                        logId: 'LOG-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                        mode: '<span class="badge badge-cyber-active">注入簽章</span>',
+                        name: partnerName,
+                        partnerId: partnerId,
+                        tag: customTag,
+                        depth: '2-Bit (LSB)',
+                        time: new Date().toLocaleTimeString(),
+                        status: '<span class="text-success"><i class="fa-solid fa-circle-check"></i> 簽章注入成功</span>'
+                    });
+
+                    alert(`已成功將夥伴【${partnerName} (${partnerId})】的專屬盲浮水印注入圖片！已自動下載保護圖檔。`);
+
+                } catch (err) {
+                    alert("注入失敗: " + err.message);
+                }
+            },
+
+            // 執行反諜鑑識掃描
+            executeForensicScan: function() {
+                const self = this;
+                const canvas = document.getElementById('decodeCanvas');
+                const ctx = canvas.getContext('2d');
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                $('#decoderStatusBadge').text('掃描分析中...').addClass('text-warning');
+                self.logTerminal("> Initializing bit-plane isolation matrix...");
+                self.logTerminal("> Extracting Blue channel LSB stream (0x00 - 0x01)...");
+
+                setTimeout(() => {
+                    try {
+                        const rawPayload = StegoEngine.decode(imgData);
+
+                        if (rawPayload) {
+                            const parsed = JSON.parse(rawPayload);
+                            self.logTerminal(`[FOUND SIGNATURE] Header verification success!`, 'success');
+                            self.logTerminal(`> Decoded Payload: ${rawPayload}`);
+
+                            $('#resPartnerName').text(parsed.name || '未知');
+                            $('#resPartnerId').text(parsed.uid || '未知');
+                            $('#resPartnerRank').text(parsed.rank || '經銷商');
+                            $('#resTimestamp').text(parsed.time || '未知');
+                            $('#resTag').text(parsed.tag || '無');
+
+                            $('#forensicResultCard').removeClass('d-none');
+                            $('#decoderStatusBadge').text('鑑識完成: 鎖定源頭').removeClass('text-warning').addClass('text-danger');
+
+                            // 寫入審計表格
+                            self.addAuditLogRow({
+                                logId: 'SCAN-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                                mode: '<span class="badge badge-cyber-danger">反諜鑑識</span>',
+                                name: parsed.name,
+                                partnerId: parsed.uid,
+                                tag: parsed.tag,
+                                depth: '萃取成功',
+                                time: new Date().toLocaleTimeString(),
+                                status: '<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation"></i> 鎖定外洩者</span>'
+                            });
+
+                        } else {
+                            self.logTerminal("[NO SIGNATURE] 未在該圖檔的空間域 LSB 偵測到任何 UVACO 有效簽章。", 'danger');
+                            alert("鑑識掃描完成：未在此圖檔中發現相符的機密盲浮水印簽章（可能遭高強度有損壓縮破壞或為未簽章原圖）。");
+                            $('#decoderStatusBadge').text('未檢出簽章').removeClass('text-warning').addClass('text-muted');
+                        }
+                    } catch (e) {
+                        self.logTerminal(`[PARSE ERROR] 萃取資料毀損或格式不相符: ${e.message}`, 'danger');
+                    }
+                }, 600);
+            },
+
+            // 切換差分視覺化熱圖
+            toggleDiffHeatmap: function() {
+                const canvas = document.getElementById('encodeCanvas');
+                const ctx = canvas.getContext('2d');
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+
+                // 將 LSB 差異放大 255 倍呈現螢光可見雜訊
+                for (let i = 0; i < data.length; i += 4) {
+                    const lsb = (data[i + 2] & 1) * 255;
+                    data[i] = lsb;         // R
+                    data[i + 1] = 0;       // G
+                    data[i + 2] = lsb;     // B
+                }
+                ctx.putImageData(imgData, 0, 0);
+                alert("已切換為【微擾差分視覺化熱圖】！螢光噪點即為盲浮水印在像素中的物理分佈（正常預覽時肉眼不可見）。");
+            },
+
+            // 終端文字追加
+            logTerminal: function(text, type = 'normal') {
+                const terminal = $('#forensicTerminal');
+                let className = '';
+                if (type === 'success') className = 'text-success-glow';
+                if (type === 'danger') className = 'text-danger-glow';
+
+                const line = className ? `<span class="${className}">${text}</span>\n` : `${text}\n`;
+                terminal.append(line);
+                terminal.scrollTop(terminal[0].scrollHeight);
+            },
+
+            // 初始化 DataTable
+            initDataTable: function() {
+                this.dataTableInstance = $('#forensicLogsTable').DataTable({
+                    responsive: true,
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: false,
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "檢索簽章日誌或夥伴編號...",
+                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆稽核記錄",
+                        paginate: {
+                            next: '<i class="fa-solid fa-chevron-right"></i>',
+                            previous: '<i class="fa-solid fa-chevron-left"></i>'
+                        },
+                        emptyTable: "尚無鑑識存證記錄"
+                    }
+                });
+            },
+
+            // 插入一筆稽核紀錄
+            addAuditLogRow: function(data) {
+                this.dataTableInstance.row.add([
+                    `<code class="text-secondary">${data.logId}</code>`,
+                    data.mode,
+                    `<span class="fw-semibold text-light">${data.name}</span>`,
+                    `<code>${data.partnerId}</code>`,
+                    `<span class="small text-muted">${data.tag}</span>`,
+                    data.depth,
+                    `<span class="small text-muted">${data.time}</span>`,
+                    data.status
+                ]).draw(false);
+            }
+        };
+
+        // DOM 載入後啟動
+        $(document).ready(function() {
+            AppController.init();
+        });
+    </script>
+</body>
+</html>

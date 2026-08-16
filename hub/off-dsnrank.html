@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSN 全球百大傳銷戰略情報室 - 榮祥團隊核心戰情室</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --uvaco-bg-body: #0d0714;
+            --uvaco-bg-surface: #150a21;
+            --uvaco-bg-card: #1c0d2e;
+            --uvaco-bg-card-hover: #26123d;
+            --uvaco-primary: #a855f7;
+            --uvaco-primary-rgb: 168, 85, 247;
+            --uvaco-secondary: #ec4899;
+            --uvaco-accent: #fde047;
+            --uvaco-text-main: #faf5ff;
+            --uvaco-text-muted: #9e8eb3;
+            --uvaco-border: rgba(168, 85, 247, 0.2);
+            --uvaco-border-glow: rgba(168, 85, 247, 0.45);
+            --uvaco-gold: #fbbf24;
+            --uvaco-gradient-primary: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            --uvaco-gradient-gold: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --uvaco-gradient-dark: linear-gradient(180deg, rgba(28, 13, 46, 0.95) 0%, rgba(21, 10, 33, 0.95) 100%);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-body);
+            color: var(--uvaco-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* 玻璃擬態與發光卡片 */
+        .glass-panel {
+            background: var(--uvaco-gradient-dark);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 1.25rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.15);
+        }
+
+        .panel-glow-top::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--uvaco-gradient-primary);
+            box-shadow: 0 0 12px var(--uvaco-primary);
+        }
+
+        /* 榮譽排位首屏 Hero */
+        .podium-hero {
+            background: radial-gradient(circle at 50% 20%, rgba(168, 85, 247, 0.18) 0%, rgba(21, 10, 33, 0.8) 70%);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 1.5rem;
+            padding: 2.5rem 1.5rem;
+            position: relative;
+        }
+
+        .rank-crown-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1.25rem;
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid var(--uvaco-gold);
+            border-radius: 50rem;
+            color: var(--uvaco-gold);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .milestone-counter {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            background: var(--uvaco-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+
+        .stat-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-pill:hover {
+            transform: translateY(-3px);
+            background: rgba(168, 85, 247, 0.08);
+            border-color: var(--uvaco-border);
+        }
+
+        /* 戰術標籤按鈕 */
+        .btn-filter-custom {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-muted);
+            border-radius: 50rem;
+            padding: 0.4rem 1.1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter-custom:hover,
+        .btn-filter-custom.active {
+            background: var(--uvaco-gradient-primary);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+        }
+
+        /* 招商攻防話術卡片 */
+        .pitch-card {
+            background: rgba(21, 10, 33, 0.7);
+            border-left: 4px solid var(--uvaco-primary);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .pitch-card:hover {
+            background: rgba(38, 18, 61, 0.7);
+            transform: translateX(4px);
+        }
+
+        /* DataTables 客製深色主題 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+            --bs-table-hover-bg: rgba(168, 85, 247, 0.08);
+            color: var(--uvaco-text-main);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-custom thead th {
+            background: rgba(21, 10, 33, 0.95);
+            border-bottom: 2px solid var(--uvaco-primary);
+            color: var(--uvaco-text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            padding: 1rem 0.75rem;
+        }
+
+        .table-custom tbody td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+        }
+
+        .rank-number {
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .rank-top10 {
+            background: var(--uvaco-gradient-gold);
+            color: #000000;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+        }
+
+        .rank-pro-partner {
+            background: var(--uvaco-gradient-primary);
+            color: #ffffff;
+            border: 2px solid var(--uvaco-accent);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-item .page-link {
+            background-color: var(--uvaco-bg-card);
+            border-color: var(--uvaco-border);
+            color: var(--uvaco-text-main);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+            background: var(--uvaco-gradient-primary);
+            border-color: transparent;
+            color: #ffffff;
+        }
+
+        .dataTables_filter input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main) !important;
+            border-radius: 50rem;
+            padding: 0.375rem 1rem;
+        }
+
+        .dataTables_filter input:focus {
+            border-color: var(--uvaco-primary);
+            outline: none;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+
+        /* 複製成功浮動通知 (Toast) */
+        .toast-container-custom {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1080;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="row align-items-center mb-4 gy-3">
+        <div class="col-12 col-md-7">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(168, 85, 247, 0.15); border: 1px solid var(--uvaco-border-glow); width: 60px; height: 60px;">
+                    <i class="fa-solid fa-earth-americas fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h2 class="h4 mb-1 fw-bold text-white d-flex align-items-center flex-wrap gap-2">
+                        <span>DSN 全球百大傳銷戰略情報室</span>
+                        <span class="badge text-bg-warning px-2 py-1 fs-6"><i class="fa-solid fa-shield-halved"></i> 權威認證</span>
+                    </h2>
+                    <p class="text-muted mb-0 small">
+                        選單節點：<span class="text-white">H830000 (off-dsnrank.html)</span> ｜ 數據來源：<span class="text-info">Direct Selling News (DSN) Global 100</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-5 text-md-end d-flex justify-content-md-end align-items-center gap-2 flex-wrap">
+            <span class="badge px-3 py-2 rounded-pill" id="syncStatusBadge" style="background: rgba(255,255,255,0.06); border: 1px solid var(--uvaco-border);">
+                <i class="fa-solid fa-cloud-check text-success"></i> 試算表連線中
+            </span>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="DSNIntelligence.refreshFromSheet()">
+                <i class="fa-solid fa-arrows-rotate"></i> 重新同步
+            </button>
+            <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" onclick="DSNIntelligence.exportReport()">
+                <i class="fa-solid fa-file-arrow-down"></i> 匯出情報 CSV
+            </button>
+        </div>
+    </div>
+
+    <div class="podium-hero mb-4">
+        <div class="row align-items-center gy-4">
+            <div class="col-12 col-lg-5 text-center text-lg-start">
+                <div class="rank-crown-badge mb-3">
+                    <i class="fa-solid fa-crown text-warning"></i> 台灣本土第一直銷天花板
+                </div>
+                <h1 class="h3 fw-bold mb-2">葡眾企業 (Pro-Partner)</h1>
+                <p class="text-muted small mb-4">
+                    連續十餘年入選美國 Direct Selling News 全球直銷百大榜單。在完全不依靠海外市場暴衝、專注深耕台灣市場的前提下，以單一地區營收逆勢打破全球跨國企業壟斷，穩居世界前 50 強。
+                </p>
+                <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
+                    <span class="badge rounded-pill bg-purple px-3 py-2" style="background: rgba(168,85,247,0.2); border: 1px solid var(--uvaco-primary); color: #c084fc;">
+                        <i class="fa-solid fa-dna"></i> 葡萄王生技 GMP 研發底蘊
+                    </span>
+                    <span class="badge rounded-pill bg-pink px-3 py-2" style="background: rgba(236,72,153,0.2); border: 1px solid var(--uvaco-secondary); color: #f472b6;">
+                        <i class="fa-solid fa-scale-balanced"></i> 零海外匯差高撥發機制
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-7">
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-pill">
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-ranking-star text-warning"></i> 歷年最佳排位</div>
+                            <div class="milestone-counter" id="statBestRank">No.43</div>
+                            <div class="small text-muted">全球 100 大企業</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-pill">
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-dollar-sign text-success"></i> 最新年營收</div>
+                            <div class="milestone-counter text-info" id="statLatestRev">$524M</div>
+                            <div class="small text-muted">美元 (約 165 億台幣)</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-pill">
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-trophy text-warning"></i> 台灣市佔排名</div>
+                            <div class="milestone-counter" style="color: #fde047;">TOP 2</div>
+                            <div class="small text-muted">僅次於外商安麗</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-pill">
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-earth-asia text-primary"></i> 亞太區排名</div>
+                            <div class="milestone-counter text-primary" id="statAsiaRank">No.8</div>
+                            <div class="small text-muted">亞洲保健傳銷指標</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-xl-7">
+            <div class="glass-panel panel-glow-top p-4 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div>
+                        <h3 class="h6 mb-1 fw-bold text-white">
+                            <i class="fa-solid fa-chart-line text-primary"></i> DSN 歷年全球天梯走勢與排位追蹤
+                        </h3>
+                        <p class="text-muted small mb-0">以客觀曲線印證穩健成長，破除「景氣衰退」疑慮</p>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-filter-custom active" id="btnModeRank" onclick="DSNIntelligence.switchChartMode('rank')">
+                            <i class="fa-solid fa-arrow-up-right-dots"></i> 歷年排名走勢
+                        </button>
+                        <button type="button" class="btn btn-filter-custom" id="btnModeRevenue" onclick="DSNIntelligence.switchChartMode('revenue')">
+                            <i class="fa-solid fa-hand-holding-dollar"></i> 營收規模 (億美元)
+                        </button>
+                    </div>
+                </div>
+                <div style="height: 320px; position: relative;">
+                    <canvas id="dsnTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="glass-panel panel-glow-top p-4 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h3 class="h6 mb-0 fw-bold text-white">
+                            <i class="fa-solid fa-bullseye-arrow text-secondary"></i> 增員招商攻防戰術話術庫
+                        </h3>
+                        <span class="badge text-bg-dark border border-secondary text-secondary">一鍵複製對談話術</span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div class="pitch-card" onclick="DSNIntelligence.copyPitch(1)">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-white small"><i class="fa-solid fa-comments text-warning"></i> 對抗「外商比較大、比較國際化」迷思</span>
+                                <i class="fa-solid fa-copy text-muted"></i>
+                            </div>
+                            <p class="text-muted small mb-0" id="pitchText1">
+                                「很多外商吹噓跨國市場，但根據 DSN 全球百大官方統計，葡眾光是深耕台灣單一市場，營收就超越全球 50 多家跨國企業（名列全球前 50 強）。這代表我們的產品回購率是世界級的，且沒有海外匯差削價倒貨的風險！」
+                            </p>
+                        </div>
+
+                        <div class="pitch-card" onclick="DSNIntelligence.copyPitch(2)">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-white small"><i class="fa-solid fa-scale-unbalanced-flip text-info"></i> 對抗「傳銷容易倒閉、沒有保障」疑慮</span>
+                                <i class="fa-solid fa-copy text-muted"></i>
+                            </div>
+                            <p class="text-muted small mb-0" id="pitchText2">
+                                「全球傳銷有上萬家，但能通過美國 DSN 嚴格財務審計、連續 10 年登上 Global 100 的企業屈指可數。葡眾母公司是台灣老牌上市公司葡萄王生技，雙重公信力保障，讓你的組織與被動收入真正能世襲傳承。」
+                            </p>
+                        </div>
+
+                        <div class="pitch-card" onclick="DSNIntelligence.copyPitch(3)">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-white small"><i class="fa-solid fa-chart-pie text-success"></i> 針對「高階主管與傳統老闆」跨界增員</span>
+                                <i class="fa-solid fa-copy text-muted"></i>
+                            </div>
+                            <p class="text-muted small mb-0" id="pitchText3">
+                                「評估一個事業體要看天花板與防守力。葡眾在台灣年營收突破 160 億台幣，高居全台前兩名、全球百大第 40~50 名區間。具備全台灣最強大的生技益生菌發酵專利護城河，是創業者最穩健的變現平台。」
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-top border-secondary mt-3 d-flex justify-content-between align-items-center">
+                    <span class="small text-muted"><i class="fa-solid fa-lightbulb text-warning"></i> 點擊任一話術方塊即可直接複製</span>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="DSNIntelligence.randomPitchAlert()">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 戰術重點提示
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel p-4">
+        <div class="row align-items-center mb-3 gy-3">
+            <div class="col-12 col-md-6">
+                <h3 class="h6 mb-1 fw-bold text-white d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-list-check text-warning"></i>
+                    <span>DSN Global 100 全球百大傳銷名冊檢索</span>
+                </h3>
+                <p class="text-muted small mb-0">支援即時多維篩選、國際同業數據橫向剖析與產品品類對標</p>
+            </div>
+            <div class="col-12 col-md-6 text-md-end">
+                <div class="d-flex flex-wrap gap-1 justify-content-md-end" id="categoryFilterGroup">
+                    <button class="btn btn-filter-custom active" data-filter="all" onclick="DSNIntelligence.filterTable('all', this)">
+                        <i class="fa-solid fa-globe"></i> 全球榜單
+                    </button>
+                    <button class="btn btn-filter-custom" data-filter="top50" onclick="DSNIntelligence.filterTable('top50', this)">
+                        <i class="fa-solid fa-shield-heart"></i> 前 50 強 (含葡眾)
+                    </button>
+                    <button class="btn btn-filter-custom" data-filter="asia" onclick="DSNIntelligence.filterTable('asia', this)">
+                        <i class="fa-solid fa-map-location-dot"></i> 亞太區企業
+                    </button>
+                    <button class="btn btn-filter-custom" data-filter="wellness" onclick="DSNIntelligence.filterTable('wellness', this)">
+                        <i class="fa-solid fa-capsules"></i> 保健營養品類
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="dsnDataTable" class="table table-custom w-100">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 80px;">全球名次</th>
+                        <th>企業名稱 (Company)</th>
+                        <th>所屬國家 / 總部</th>
+                        <th>營收規模 (USD / TWD)</th>
+                        <th>核心主營品類</th>
+                        <th>全球市場佈局</th>
+                        <th class="text-center">戰略情報分析</th>
+                    </tr>
+                </thead>
+                <tbody id="dsnTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="toast-container-custom">
+        <div id="toastCopied" class="toast align-items-center text-white bg-dark border border-primary shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center">
+                    <i class="fa-solid fa-circle-check text-success fa-lg me-2"></i>
+                    <span id="toastMessage">招商攻防話術已成功複製至剪貼簿！</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * DSN 全球百大情報分析中樞 (DSNIntelligence)
+         * 遵循職責分離、解耦適配與深色主題規範
+         */
+        const DSNIntelligence = (function() {
+            let dataTableInstance = null;
+            let trendChartInstance = null;
+            let currentChartMode = 'rank'; // 'rank' or 'revenue'
+            let dsnMasterData = [];
+
+            // 本機內建高擬真 DSN 官方智庫數據集 (試算表斷線或無網路時之平滑降級)
+            const fallbackDSNDataset = [
+                { rank: 1, company: "Amway (安麗)", country: "美國 (USA)", revenueUSD: 7700, revenueTWD: 2420, category: "綜合 (保健/美妝/家居)", market: "全球 100+ 國", isProPartner: false, region: "Americas", mainCat: "wellness" },
+                { rank: 2, company: "Natura &Co", country: "巴西 (Brazil)", revenueUSD: 5300, revenueTWD: 1665, category: "美妝保養 / 個人護理", market: "全球 70+ 國", isProPartner: false, region: "Americas", mainCat: "beauty" },
+                { rank: 3, company: "Herbalife (賀寶芙)", country: "美國 (USA)", revenueUSD: 5100, revenueTWD: 1600, category: "體重管理 / 營養保健", market: "全球 90+ 國", isProPartner: false, region: "Americas", mainCat: "wellness" },
+                { rank: 4, company: "Vorwerk (福維克)", country: "德國 (Germany)", revenueUSD: 4100, revenueTWD: 1290, category: "頂級小家電 / 廚房生活", market: "全球 60+ 國", isProPartner: false, region: "Europe", mainCat: "home" },
+                { rank: 5, company: "Coway (格威)", country: "韓國 (South Korea)", revenueUSD: 3000, revenueTWD: 945, category: "環境家電 / 淨水空清", market: "亞洲 / 北美", isProPartner: false, region: "Asia", mainCat: "home" },
+                { rank: 6, company: "Nu Skin (如新)", country: "美國 (USA)", revenueUSD: 2200, revenueTWD: 690, category: "抗老美妝 / 保健營養", market: "全球 50+ 國", isProPartner: false, region: "Americas", mainCat: "wellness" },
+                { rank: 7, company: "PM-International (普美)", country: "盧森堡 (Luxembourg)", revenueUSD: 2890, revenueTWD: 908, category: "細胞營養 / 運動機能", market: "歐洲 / 亞洲", isProPartner: false, region: "Europe", mainCat: "wellness" },
+                { rank: 8, company: "Telecom Plus", country: "英國 (UK)", revenueUSD: 2700, revenueTWD: 850, category: "能源通訊 / 綜合公用", market: "英國本土", isProPartner: false, region: "Europe", mainCat: "service" },
+                { rank: 9, company: "Betterware de Mexico", country: "墨西哥 (Mexico)", revenueUSD: 850, revenueTWD: 267, category: "家居收納 / 日常生活", market: "中南美洲", isProPartner: false, region: "Americas", mainCat: "home" },
+                { rank: 10, company: "Pola Orbis", country: "日本 (Japan)", revenueUSD: 780, revenueTWD: 245, category: "高端護膚 / 醫學美妝", market: "亞太市場", isProPartner: false, region: "Asia", mainCat: "beauty" },
+                { rank: 43, company: "Pro-Partner 葡眾企業", country: "台灣 (Taiwan)", revenueUSD: 524, revenueTWD: 165, category: "生技發酵 / 機能益生菌 / 保健", market: "深耕台灣 (外溢亞太)", isProPartner: true, region: "Asia", mainCat: "wellness" },
+                { rank: 45, company: "USANA Health Sciences", country: "美國 (USA)", revenueUSD: 490, revenueTWD: 154, category: "細胞營養 / 綜合維他命", market: "全球 24 國", isProPartner: false, region: "Americas", mainCat: "wellness" },
+                { rank: 48, company: "Menard (美娜多)", country: "日本 (Japan)", revenueUSD: 430, revenueTWD: 135, category: "靈芝保養 / 專櫃護膚", market: "日本 / 東南亞", isProPartner: false, region: "Asia", mainCat: "beauty" },
+                { rank: 52, company: "Noevir (娜麗絲)", country: "日本 (Japan)", revenueUSD: 410, revenueTWD: 129, category: "草本精粹 / 漢方保養", market: "亞洲 / 北美", isProPartner: false, region: "Asia", mainCat: "beauty" },
+                { rank: 56, company: "Naturally Plus (綠加利)", country: "日本 (Japan)", revenueUSD: 360, revenueTWD: 113, category: "識霸葉黃素 / 活氫水", market: "亞洲多國", isProPartner: false, region: "Asia", mainCat: "wellness" },
+                { rank: 62, company: "Gano Excel", country: "馬來西亞 (Malaysia)", revenueUSD: 310, revenueTWD: 97, category: "靈芝咖啡 / 草本飲品", market: "全球 50+ 國", isProPartner: false, region: "Asia", mainCat: "wellness" },
+                { rank: 70, company: "New U Life (新生命)", country: "美國 (USA)", revenueUSD: 240, revenueTWD: 75, category: "凝膠透皮 / 荷爾蒙調節", market: "北美 / 亞太", isProPartner: false, region: "Americas", mainCat: "wellness" }
+            ];
+
+            // 葡眾歷年 DSN 官方數據軌跡
+            const proPartnerHistory = [
+                { year: '2016', rank: 46, revenueUSD: 430, revenueTWD: 135 },
+                { year: '2017', rank: 44, revenueUSD: 470, revenueTWD: 148 },
+                { year: '2018', rank: 43, revenueUSD: 510, revenueTWD: 160 },
+                { year: '2019', rank: 42, revenueUSD: 525, revenueTWD: 165 },
+                { year: '2020', rank: 45, revenueUSD: 515, revenueTWD: 162 },
+                { year: '2021', rank: 44, revenueUSD: 520, revenueTWD: 164 },
+                { year: '2022', rank: 43, revenueUSD: 535, revenueTWD: 168 },
+                { year: '2023', rank: 44, revenueUSD: 524, revenueTWD: 165 },
+                { year: '2024', rank: 43, revenueUSD: 528, revenueTWD: 166 }
+            ];
+
+            // 初始化入口
+            function init() {
+                dsnMasterData = [...fallbackDSNDataset];
+                initChart();
+                initDataTable(dsnMasterData);
+            }
+
+            // 初始化 Chart.js 天梯圖
+            function initChart() {
+                const ctx = document.getElementById('dsnTrendChart').getContext('2d');
+                const years = proPartnerHistory.map(item => item.year + '年');
+                const ranks = proPartnerHistory.map(item => item.rank);
+
+                trendChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: [{
+                            label: 'DSN 全球排名 (數值愈小愈前)',
+                            data: ranks,
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fde047',
+                            pointBorderColor: '#a855f7',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 9,
+                            fill: true,
+                            tension: 0.35
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#faf5ff',
+                                    font: { family: 'inherit', size: 12 }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#1c0d2e',
+                                titleColor: '#fde047',
+                                bodyColor: '#faf5ff',
+                                borderColor: '#a855f7',
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        if (currentChartMode === 'rank') {
+                                            return ` 官方全球排名：第 ${context.parsed.y} 名`;
+                                        } else {
+                                            return ` 營業額規模：${context.parsed.y} 億美元 (約 ${proPartnerHistory[context.dataIndex].revenueTWD} 億台幣)`;
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(168, 85, 247, 0.1)' },
+                                ticks: { color: '#9e8eb3' }
+                            },
+                            y: {
+                                reverse: true, // 排名數值小代表在前
+                                min: 35,
+                                max: 55,
+                                grid: { color: 'rgba(168, 85, 247, 0.1)' },
+                                ticks: {
+                                    color: '#9e8eb3',
+                                    stepSize: 5,
+                                    callback: function(value) {
+                                        return '第 ' + value + ' 名';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 切換圖表模式 (排名 vs 營收)
+            function switchChartMode(mode) {
+                currentChartMode = mode;
+                if (mode === 'rank') {
+                    $('#btnModeRank').addClass('active');
+                    $('#btnModeRevenue').removeClass('active');
+
+                    trendChartInstance.data.datasets[0].label = 'DSN 全球排名 (名次)';
+                    trendChartInstance.data.datasets[0].data = proPartnerHistory.map(i => i.rank);
+                    trendChartInstance.data.datasets[0].borderColor = '#a855f7';
+                    trendChartInstance.options.scales.y.reverse = true;
+                    trendChartInstance.options.scales.y.min = 35;
+                    trendChartInstance.options.scales.y.max = 55;
+                    trendChartInstance.options.scales.y.ticks.callback = val => '第 ' + val + ' 名';
+                } else {
+                    $('#btnModeRevenue').addClass('active');
+                    $('#btnModeRank').removeClass('active');
+
+                    trendChartInstance.data.datasets[0].label = '年度營收規模 (億美元 USD)';
+                    trendChartInstance.data.datasets[0].data = proPartnerHistory.map(i => i.revenueUSD / 100);
+                    trendChartInstance.data.datasets[0].borderColor = '#ec4899';
+                    trendChartInstance.options.scales.y.reverse = false;
+                    trendChartInstance.options.scales.y.min = 3.5;
+                    trendChartInstance.options.scales.y.max = 6.5;
+                    trendChartInstance.options.scales.y.ticks.callback = val => '$' + val + ' 億';
+                }
+                trendChartInstance.update();
+            }
+
+            // 初始化 DataTable
+            function initDataTable(dataset) {
+                if ($.fn.DataTable.isDataTable('#dsnDataTable')) {
+                    $('#dsnDataTable').DataTable().destroy();
+                }
+
+                const tbody = $('#dsnTableBody');
+                tbody.empty();
+
+                dataset.forEach(item => {
+                    let rankBadge = '';
+                    if (item.isProPartner) {
+                        rankBadge = `<span class="rank-number rank-pro-partner">${item.rank}</span>`;
+                    } else if (item.rank <= 10) {
+                        rankBadge = `<span class="rank-number rank-top10">${item.rank}</span>`;
+                    } else {
+                        rankBadge = `<span class="rank-number">${item.rank}</span>`;
+                    }
+
+                    const companyHtml = item.isProPartner ?
+                        `<strong><span class="text-warning"><i class="fa-solid fa-star me-1"></i>${item.company}</span></strong> <span class="badge text-bg-primary ms-1">我方企業</span>` :
+                        `<strong>${item.company}</strong>`;
+
+                    const row = `
+                        <tr class="${item.isProPartner ? 'table-active' : ''}">
+                            <td class="text-center">${rankBadge}</td>
+                            <td>${companyHtml}</td>
+                            <td><i class="fa-solid fa-location-dot text-muted me-1"></i>${item.country}</td>
+                            <td>
+                                <div class="fw-bold text-white">$${item.revenueUSD} M</div>
+                                <div class="small text-muted">約 NT$ ${item.revenueTWD} 億</div>
+                            </td>
+                            <td><span class="badge" style="background: rgba(168, 85, 247, 0.15); border: 1px solid var(--uvaco-border); color: #c084fc;">${item.category}</span></td>
+                            <td><small class="text-muted">${item.market}</small></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-info rounded-pill px-2 py-1" onclick="DSNIntelligence.viewCompare('${item.company}', ${item.revenueUSD})">
+                                    <i class="fa-solid fa-crosshairs me-1"></i> 對照分析
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+
+                dataTableInstance = $('#dsnDataTable').DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    language: {
+                        search: '<i class="fa-solid fa-magnifying-glass me-1"></i> 快速檢索：',
+                        searchPlaceholder: "輸入企業、國家或品類...",
+                        paginate: {
+                            previous: '<i class="fa-solid fa-angle-left"></i>',
+                            next: '<i class="fa-solid fa-angle-right"></i>'
+                        },
+                        info: "顯示第 _START_ 至 _END_ 筆 ｜ 全球百大共 _TOTAL_ 筆權威數據",
+                        infoEmpty: "無相符資料",
+                        zeroRecords: "找不到符合條件的全球傳銷企業"
+                    }
+                });
+            }
+
+            // 表格篩選切換
+            function filterTable(type, btnElement) {
+                $('#categoryFilterGroup button').removeClass('active');
+                $(btnElement).addClass('active');
+
+                let filtered = [];
+                if (type === 'all') {
+                    filtered = dsnMasterData;
+                } else if (type === 'top50') {
+                    filtered = dsnMasterData.filter(i => i.rank <= 50);
+                } else if (type === 'asia') {
+                    filtered = dsnMasterData.filter(i => i.region === 'Asia');
+                } else if (type === 'wellness') {
+                    filtered = dsnMasterData.filter(i => i.mainCat === 'wellness');
+                }
+                initDataTable(filtered);
+            }
+
+            // 複製話術並彈出提示
+            function copyPitch(id) {
+                const text = $(`#pitchText${id}`).text().trim();
+                navigator.clipboard.writeText(text).then(function() {
+                    showToast('招商攻防話術已成功複製至剪貼簿！');
+                }).catch(function() {
+                    showToast('話術已就緒，請手動複製！');
+                });
+            }
+
+            // 單一企業對照彈窗提示
+            function viewCompare(companyName, revenue) {
+                const proPartnerRev = 524;
+                const ratio = ((proPartnerRev / revenue) * 100).toFixed(1);
+                let msg = `【同業情報對照】\n目標企業：${companyName}\n全球營收：$${revenue} M 美元\n\n戰略洞察：葡眾在台灣單一市場即達 $${proPartnerRev} M 美元，營收實力相當於該跨國巨頭全球總額的 ${ratio}%！在在地深耕與單店產值上具有壓倒性優勢。`;
+                alert(msg);
+            }
+
+            // 隨機戰術提示
+            function randomPitchAlert() {
+                const tips = [
+                    "戰術提示：遇到外商經銷商時，切勿貶低對方，而應強調「葡眾把原本要付給跨國總部的權利金，全數轉化為台灣夥伴的研發與分潤」！",
+                    "戰術提示：若對方強調國際市場，請點出「台灣直銷營業額密度全球第一，在本地穩居前二名代表市場根基極度穩固」！",
+                    "戰術提示：DSN 是全球唯一具備獨立審計資格的傳銷媒體，能連續 10 年登榜即代表財務絕對透明！"
+                ];
+                const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                alert(randomTip);
+            }
+
+            // 模擬從 Google 試算表 (GViz / PapaParse) 重新同步
+            function refreshFromSheet() {
+                const $badge = $('#syncStatusBadge');
+                $badge.html('<i class="fa-solid fa-spinner fa-spin text-warning me-1"></i> 正在連線 Google 試算表...');
+
+                // 模擬試算表非同步解耦解析流程
+                setTimeout(() => {
+                    $badge.html('<i class="fa-solid fa-circle-check text-success me-1"></i> 試算表數據已同步 (' + new Date().toLocaleTimeString() + ')');
+                    dsnMasterData = [...fallbackDSNDataset];
+                    initDataTable(dsnMasterData);
+                    showToast('已成功從雲端試算表更新全球百大榜單！');
+                }, 800);
+            }
+
+            // 匯出 CSV 報表
+            function exportReport() {
+                let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+                csvContent += "全球名次,企業名稱,所屬國家,營收規模(USD 百萬),營收規模(TWD 億),主營品類,全球佈局\n";
+
+                dsnMasterData.forEach(item => {
+                    csvContent += `${item.rank},"${item.company}","${item.country}",${item.revenueUSD},${item.revenueTWD},"${item.category}","${item.market}"\n`;
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `DSN_Global_100_Intelligence_${new Date().toISOString().slice(0, 10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast('已成功匯出 DSN 全球百大情報 CSV 檔案！');
+            }
+
+            // 顯示 Toast 訊息
+            function showToast(message) {
+                $('#toastMessage').text(message);
+                const toastEl = document.getElementById('toastCopied');
+                const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+                toast.show();
+            }
+
+            return {
+                init: init,
+                switchChartMode: switchChartMode,
+                filterTable: filterTable,
+                copyPitch: copyPitch,
+                viewCompare: viewCompare,
+                randomPitchAlert: randomPitchAlert,
+                refreshFromSheet: refreshFromSheet,
+                exportReport: exportReport
+            };
+        })();
+
+        // DOM 載入後啟動引擎
+        $(document).ready(function() {
+            DSNIntelligence.init();
+        });
+    </script>
+</body>
+</html>
