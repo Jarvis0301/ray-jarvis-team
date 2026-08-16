@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全局管理 | 榮祥團隊戰情室</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --bs-body-bg: #0d0714;
+            --bs-body-color: #faf5ff;
+            --bs-primary: #a855f7;
+            --bs-primary-rgb: 168, 85, 247;
+            --bs-secondary: #ec4899;
+            --bs-secondary-rgb: 236, 72, 153;
+            --bs-accent: #fde047;
+            --bs-accent-rgb: 253, 224, 71;
+            --bs-surface-1: #150a21;
+            --bs-surface-2: #1c0d2e;
+            --bs-surface-3: #26123e;
+            --bs-border-subtle: #3b1c61;
+            --bs-border-strong: #6b21a8;
+            --bs-text-muted: #9e8eb3;
+            --bs-glow-purple: rgba(168, 85, 247, 0.25);
+            --bs-glow-gold: rgba(253, 224, 71, 0.35);
+        }
+
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 1.75rem 2rem;
+            }
+        }
+
+        /* 頂部指揮面板 */
+        .tactical-header-card {
+            background: linear-gradient(135deg, rgba(28, 13, 46, 0.95) 0%, rgba(21, 10, 33, 0.98) 100%);
+            border: 1px solid var(--bs-border-subtle);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tactical-header-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+        }
+
+        /* 脈衝狀態點 */
+        .status-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.25); }
+        }
+
+        /* 導航膠囊切換列 */
+        .nav-tactical-pills .nav-link {
+            color: var(--bs-text-muted);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            background: rgba(21, 10, 33, 0.6);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .nav-tactical-pills .nav-link:hover {
+            color: #ffffff;
+            background: var(--bs-surface-2);
+            border-color: rgba(168, 85, 247, 0.3);
+            transform: translateX(4px);
+        }
+
+        .nav-tactical-pills .nav-link.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.2) 100%);
+            border: 1px solid var(--bs-primary);
+            box-shadow: 0 4px 20px var(--bs-glow-purple);
+        }
+
+        .nav-tactical-pills .nav-link .badge {
+            margin-left: auto;
+        }
+
+        /* 戰術控制卡片 */
+        .tactical-card {
+            background: var(--bs-surface-1);
+            border: 1px solid var(--bs-border-subtle);
+            border-radius: 18px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .tactical-card:hover {
+            border-color: rgba(168, 85, 247, 0.5);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .tactical-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(59, 28, 97, 0.6);
+            padding-bottom: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* 開關矩陣專用項目 */
+        .toggle-switch-card {
+            background: var(--bs-surface-2);
+            border: 1px solid var(--bs-border-subtle);
+            border-radius: 14px;
+            padding: 1.25rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s ease;
+        }
+
+        .toggle-switch-card:hover {
+            border-color: var(--bs-primary);
+            background: var(--bs-surface-3);
+        }
+
+        .toggle-switch-card.active-risk {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* 霓虹 Switch */
+        .form-check-input {
+            width: 3.2em;
+            height: 1.7em;
+            cursor: pointer;
+            background-color: #2e1647;
+            border-color: #4c247d;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 15px var(--bs-glow-purple);
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(168, 85, 247, 0.35);
+        }
+
+        /* 試算表綁定卡片 */
+        .sheet-endpoint-card {
+            background: var(--bs-surface-2);
+            border: 1px solid var(--bs-border-subtle);
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.25s ease;
+        }
+
+        .sheet-endpoint-card:hover {
+            border-color: var(--bs-primary);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .code-input-box {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            background: #0d0714;
+            border: 1px solid #3b1c61;
+            color: #c084fc;
+        }
+
+        .code-input-box:focus {
+            background: #0d0714;
+            border-color: var(--bs-primary);
+            color: #ffffff;
+            box-shadow: 0 0 12px var(--bs-glow-purple);
+        }
+
+        /* 延遲微章 */
+        .latency-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+        }
+
+        /* 程式碼檢視抽屜 */
+        .code-preview-pane {
+            background: #09040d;
+            border: 1px solid var(--bs-border-subtle);
+            border-radius: 14px;
+            padding: 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #d8b4fe;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        /* CTA 按鈕特效 */
+        .btn-glow-primary {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 0.65rem 1.4rem;
+            box-shadow: 0 4px 18px var(--bs-glow-purple);
+            transition: all 0.3s ease;
+        }
+
+        .btn-glow-primary:hover {
+            background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-glow-accent {
+            background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
+            border: none;
+            color: #1a0f00;
+            font-weight: 800;
+            border-radius: 12px;
+            padding: 0.65rem 1.4rem;
+            box-shadow: 0 4px 18px var(--bs-glow-gold);
+            transition: all 0.3s ease;
+        }
+
+        .btn-glow-accent:hover {
+            background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+            color: #1a0f00;
+            box-shadow: 0 6px 25px rgba(253, 224, 71, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-dark-tactical {
+            background: var(--bs-surface-2);
+            border: 1px solid var(--bs-border-subtle);
+            color: var(--bs-body-color);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-dark-tactical:hover {
+            background: var(--bs-surface-3);
+            border-color: var(--bs-primary);
+            color: #ffffff;
+        }
+
+        /* 範圍滑桿客製 */
+        .form-range::-webkit-slider-thumb {
+            background: var(--bs-accent);
+            box-shadow: 0 0 10px var(--bs-glow-gold);
+        }
+
+        .form-range::-moz-range-thumb {
+            background: var(--bs-accent);
+            box-shadow: 0 0 10px var(--bs-glow-gold);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tactical-header-card mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-lg-6">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                        <i class="fa-solid fa-microchip"></i> H72000
+                    </span>
+                    <span class="text-muted small">系統模組 (sys_) / 全站配置核心</span>
+                </div>
+                <h2 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> 全局管理與雲端解耦中樞
+                </h2>
+                <p class="text-muted mb-0 small">
+                    動態調控 Google 試算表生態鏈映射、全域營運安全熔斷、直銷考核參數與三軌主題配置。
+                </p>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-2">
+                    <div class="d-flex align-items-center gap-2 bg-black bg-opacity-40 border border-secondary border-opacity-25 rounded-3 px-3 py-2">
+                        <span class="status-pulse text-success"></span>
+                        <div class="small">
+                            <span class="text-muted d-block" style="font-size: 0.72rem;">雲端試算表連線</span>
+                            <span class="fw-bold text-success" id="lblGvizStatus">GViz 連線正常</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 bg-black bg-opacity-40 border border-secondary border-opacity-25 rounded-3 px-3 py-2">
+                        <div class="small">
+                            <span class="text-muted d-block" style="font-size: 0.72rem;">待發布變更</span>
+                            <span class="fw-bold text-warning" id="lblDirtyCount">0 項異動</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark-tactical btn-sm px-3 py-2" id="btnExportJson">
+                        <i class="fa-solid fa-file-export"></i> 導出備份
+                    </button>
+                    <button class="btn btn-glow-accent btn-sm px-3 py-2" id="btnSaveConfig">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> 熱更新全域發布
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-3">
+            <div class="tactical-card p-3 sticky-top" style="top: 1.5rem; z-index: 10;">
+                <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+                    <span class="text-uppercase fw-bold text-muted small tracking-wider" style="font-size: 0.75rem;">
+                        <i class="fa-solid fa-compass"></i> 配置分類導航
+                    </span>
+                    <span class="badge bg-dark border border-secondary-subtle text-muted" id="badgeConfigVersion">v2.6.4</span>
+                </div>
+
+                <nav class="nav flex-column nav-tactical-pills" id="configNavTabs" role="tablist">
+                    <button class="nav-link active" id="tab-toggles-btn" data-bs-toggle="pill" data-bs-target="#tab-toggles" type="button" role="tab">
+                        <i class="fa-solid fa-shield-halved text-danger me-2"></i> 營運與安全開關
+                        <span class="badge bg-danger rounded-pill">5 項</span>
+                    </button>
+                    <button class="nav-link" id="tab-sheets-btn" data-bs-toggle="pill" data-bs-target="#tab-sheets" type="button" role="tab">
+                        <i class="fa-solid fa-table-cells text-info me-2"></i> 7 大模組試算表解耦
+                        <span class="badge bg-info bg-opacity-25 text-info rounded-pill">7 表</span>
+                    </button>
+                    <button class="nav-link" id="tab-business-btn" data-bs-toggle="pill" data-bs-target="#tab-business" type="button" role="tab">
+                        <i class="fa-solid fa-scale-balanced text-warning me-2"></i> 直銷考核與拆帳參數
+                    </button>
+                    <button class="nav-link" id="tab-brand-btn" data-bs-toggle="pill" data-bs-target="#tab-brand" type="button" role="tab">
+                        <i class="fa-solid fa-palette text-primary me-2"></i> 品牌識別與外觀 Token
+                    </button>
+                    <button class="nav-link" id="tab-inspector-btn" data-bs-toggle="pill" data-bs-target="#tab-inspector" type="button" role="tab">
+                        <i class="fa-solid fa-code text-secondary me-2"></i> 即時 JSON 鑑識與備份
+                    </button>
+                </nav>
+
+                <hr class="border-secondary border-opacity-25 my-3">
+
+                <div class="px-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small text-muted"><i class="fa-solid fa-bolt"></i> 即時全站 Ping</span>
+                        <button class="btn btn-link text-primary p-0 small text-decoration-none" id="btnRunDiagnostics">
+                            <i class="fa-solid fa-rotate"></i> 測速
+                        </button>
+                    </div>
+                    <div class="progress bg-black" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" id="pbarHealth"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted mt-2 font-monospace" style="font-size: 0.75rem;">
+                        <span>平均延遲</span>
+                        <span class="text-success fw-bold" id="lblAvgLatency">42 ms</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-9">
+            <div class="tab-content" id="configNavTabContent">
+
+                <div class="tab-pane fade show active" id="tab-toggles" role="tabpanel">
+                    <div class="tactical-card">
+                        <div class="tactical-card-header">
+                            <div>
+                                <h4 class="h5 fw-bold mb-1 text-white">
+                                    <i class="fa-solid fa-shield-virus text-danger"></i> 全站營運安全與緊急熔斷開關
+                                </h4>
+                                <p class="text-muted small mb-0">即時控制各站點之存取限制、門禁白名單與底層防禦策略。</p>
+                            </div>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">即時熱生效</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="toggle-switch-card" id="cardMaintMode">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="fw-bold text-white fs-6">
+                                                <i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 全站緊急維護模式
+                                            </div>
+                                            <div class="form-check form-switch m-0">
+                                                <input class="form-check-input config-field" type="checkbox" id="cfg_maintenance_mode" data-key="SYS_MAINTENANCE_MODE">
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-3">
+                                            開啟後，公開版與團隊版首頁將直接阻斷並呈現「維護升級中」公告，僅具備 Root 特權之 IP 可登入。
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small">
+                                        <span class="text-muted">影響範圍：全域站點</span>
+                                        <span class="badge bg-dark text-danger border border-danger border-opacity-50">熔斷級開關</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="toggle-switch-card">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="fw-bold text-white fs-6">
+                                                <i class="fa-solid fa-id-badge text-info me-1"></i> 團隊版 Google 帳號白名單
+                                            </div>
+                                            <div class="form-check form-switch m-0">
+                                                <input class="form-check-input config-field" type="checkbox" id="cfg_whitelist_strict" data-key="AUTH_WHITELIST_STRICT" checked>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-3">
+                                            強制比對 Google 試算表 `sys_permissions` 授權清單，未在白名單內之 Google 帳號一律導向無權限告警。
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small">
+                                        <span class="text-muted">機制：OAuth2 + 試算表動態對齊</span>
+                                        <span class="badge bg-success-subtle text-success">運行中</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="toggle-switch-card">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="fw-bold text-white fs-6">
+                                                <i class="fa-solid fa-user-secret text-secondary me-1"></i> 組織圖隱形盲浮水印
+                                            </div>
+                                            <div class="form-check form-switch m-0">
+                                                <input class="form-check-input config-field" type="checkbox" id="cfg_stego_watermark" data-key="SEC_STEGO_WATERMARK" checked>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-3">
+                                            於內部版組織架構圖、業績排行畫布自動注入造訪夥伴代碼與時間戳記，防止截圖外洩機密。
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small">
+                                        <span class="text-muted">演算法：Canvas LSB 頻域微擾</span>
+                                        <span class="badge bg-secondary-subtle text-secondary">防禦中</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="toggle-switch-card">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="fw-bold text-white fs-6">
+                                                <i class="fa-solid fa-boxes-packing text-warning me-1"></i> 庫存盤點與調撥凍結
+                                            </div>
+                                            <div class="form-check form-switch m-0">
+                                                <input class="form-check-input config-field" type="checkbox" id="cfg_freeze_inventory" data-key="PSI_FREEZE_DISPATCH">
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-3">
+                                            月底大盤點或官方營業處盤點時鎖定進銷存模組，禁止前台夥伴提交調撥單與扣庫動作。
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small">
+                                        <span class="text-muted">影響範圍：psi_transactions</span>
+                                        <span class="badge bg-dark text-muted">目前未鎖定</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="toggle-switch-card">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="fw-bold text-white fs-6">
+                                                <i class="fa-solid fa-robot text-primary me-1"></i> 月底雙創始人損益自動核算引擎
+                                            </div>
+                                            <div class="form-check form-switch m-0">
+                                                <input class="form-check-input config-field" type="checkbox" id="cfg_auto_reconcile" data-key="FIN_AUTO_RECONCILE" checked>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-2">
+                                            每逢每月最後一日 23:59，自動由 `fin_transactions` 彙整總收支、扣除公基金提撥後生成待簽章對帳單（`fin_reconciliations`）。
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small">
+                                        <span class="text-muted">自動排程：Cron 0 23 L * ? (月結)</span>
+                                        <span class="badge bg-primary-subtle text-primary">自動化啟用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-sheets" role="tabpanel">
+                    <div class="tactical-card">
+                        <div class="tactical-card-header">
+                            <div>
+                                <h4 class="h5 fw-bold mb-1 text-white">
+                                    <i class="fa-solid fa-cloud-nodes text-info"></i> 7 大業務模組 Google 試算表端點解耦映射
+                                </h4>
+                                <p class="text-muted small mb-0">在此動態綁定各模組 Sheet ID 與工作表 GID，前端透過 GViz SQL 引擎自動適配。</p>
+                            </div>
+                            <button class="btn btn-dark-tactical btn-sm" id="btnTestAllEndpoints">
+                                <i class="fa-solid fa-plug-circle-bolt"></i> 測試全部連通性
+                            </button>
+                        </div>
+
+                        <div id="sheetsEndpointContainer">
+                            <div class="sheet-endpoint-card" data-module="prd">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-primary bg-opacity-20 text-primary p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-box-open"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">01 產品模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">prd_items / 表01~12</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_PRD" value="1xZ9A_prd_master_sample_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_PRD" value="0">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_prd">38 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="prd">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet-endpoint-card" data-module="trn">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-success bg-opacity-20 text-success p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-graduation-cap"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">02 培訓模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">trn_faqs / 表13~20</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_TRN" value="1yB8C_training_hub_sample_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_TRN" value="10492837">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_trn">45 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="trn">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet-endpoint-card" data-module="psi">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-warning bg-opacity-20 text-warning p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-warehouse"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">03 進銷存模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">psi_inventory / 表21~28</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_PSI" value="1zC7D_psi_inventory_sample_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_PSI" value="20938471">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_psi">51 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="psi">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet-endpoint-card" data-module="org">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-secondary bg-opacity-20 text-secondary p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-sitemap"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">04 組織模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">org_partners / 表29~36</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_ORG" value="1aD6E_org_hierarchy_sample_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_ORG" value="39482019">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_org">39 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="org">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet-endpoint-card" data-module="crm">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-info bg-opacity-20 text-info p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-users"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">05 客戶模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">crm_customers / 表37~43</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_CRM" value="1bE5F_crm_pipeline_sample_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_CRM" value="48291038">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_crm">41 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="crm">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet-endpoint-card" data-module="fin">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-danger bg-opacity-20 text-danger p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-coins"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">06 財務模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">fin_accounts / 表44~46</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_FIN" value="1cF4G_finance_vault_sample_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_FIN" value="59102938">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_fin">44 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="fin">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sheet-endpoint-card" data-module="sys">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-12 col-md-3">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-3 bg-light bg-opacity-20 text-white p-2 text-center" style="width: 38px; height: 38px;">
+                                                <i class="fa-solid fa-gears"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-white d-block">07 系統模組</span>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">sys_configs / 表47~52</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-muted small mb-1">Google Spreadsheet ID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_ID_SYS" value="1dG3H_sys_config_master_sheet_id_demo">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-muted small mb-1">預設 GID</label>
+                                        <input type="text" class="form-control form-control-sm code-input-box config-field" data-key="SHEET_GID_SYS" value="69281047">
+                                    </div>
+                                    <div class="col-6 col-md-3 text-md-end">
+                                        <span class="latency-badge bg-black text-success border border-success border-opacity-25 me-2" id="ping_sys">36 ms</span>
+                                        <button class="btn btn-outline-info btn-sm btn-ping" data-target="sys">
+                                            <i class="fa-solid fa-plug"></i> 測試
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-business" role="tabpanel">
+                    <div class="tactical-card">
+                        <div class="tactical-card-header">
+                            <div>
+                                <h4 class="h5 fw-bold mb-1 text-white">
+                                    <i class="fa-solid fa-calculator text-warning"></i> 葡眾制度考核、CRM 關懷與損益拆帳閥值
+                                </h4>
+                                <p class="text-muted small mb-0">全域商業邏輯運算常數，變更後自動同步全站儀表板之達標判定。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-black bg-opacity-30 border border-secondary border-opacity-25 rounded-3 p-3 mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="fw-bold text-white small">
+                                    <i class="fa-solid fa-handshake text-accent me-1"></i> 榮祥團隊雙創始人月底淨利分潤比率
+                                </label>
+                                <span class="badge bg-warning text-dark fw-bold font-monospace" id="lblSplitRatio">Ray 50% : Jarvis 50%</span>
+                            </div>
+                            <input type="range" class="form-range config-field" min="0" max="100" step="5" id="cfg_ray_share_ratio" data-key="FIN_RAY_SHARE_RATIO" value="50">
+                            <div class="d-flex justify-content-between text-muted small font-monospace" style="font-size: 0.75rem;">
+                                <span>Ray: 0% / Jarvis: 100%</span>
+                                <span class="text-accent">預設基準 (50/50 對拆)</span>
+                                <span>Ray: 100% / Jarvis: 0%</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="bg-black bg-opacity-20 border border-secondary border-opacity-25 rounded-3 p-3">
+                                    <label class="form-label text-muted small mb-1">
+                                        <i class="fa-solid fa-user-check text-success me-1"></i> 經理級合格：個人責任額 (SV)
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control code-input-box config-field" data-key="ORG_QUALIFY_PERSONAL_SV" value="160">
+                                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">SV</span>
+                                    </div>
+                                    <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">葡眾官方經理每月基本責任積分額</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="bg-black bg-opacity-20 border border-secondary border-opacity-25 rounded-3 p-3">
+                                    <label class="form-label text-muted small mb-1">
+                                        <i class="fa-solid fa-users-viewfinder text-info me-1"></i> 經理級合格：體系整組業績 (SV)
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control code-input-box config-field" data-key="ORG_QUALIFY_GROUP_SV" value="3200">
+                                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">SV</span>
+                                    </div>
+                                    <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">含個人與小組非合格經理線累計積分</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="bg-black bg-opacity-20 border border-secondary border-opacity-25 rounded-3 p-3">
+                                    <label class="form-label text-muted small mb-1">
+                                        <i class="fa-solid fa-bell text-warning me-1"></i> 客戶保健品耗盡：主動關懷預警天數
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control code-input-box config-field" data-key="CRM_REORDER_ALERT_DAYS" value="7">
+                                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">天前</span>
+                                    </div>
+                                    <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">系統自動依據食用包數於 `crm_reorder_alerts` 拋出提醒</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="bg-black bg-opacity-20 border border-secondary border-opacity-25 rounded-3 p-3">
+                                    <label class="form-label text-muted small mb-1">
+                                        <i class="fa-solid fa-hourglass-half text-danger me-1"></i> 庫存批號：近效期警戒天數
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control code-input-box config-field" data-key="PSI_EXPIRY_WARN_DAYS" value="90">
+                                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">天內</span>
+                                    </div>
+                                    <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">低於此天數之現貨於進銷存儀表板亮紅燈警示</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="bg-black bg-opacity-20 border border-secondary border-opacity-25 rounded-3 p-3">
+                                    <label class="form-label text-muted small mb-1">
+                                        <i class="fa-solid fa-piggy-bank text-primary me-1"></i> 團隊營運公基金提撥比率 (%)
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control code-input-box config-field" data-key="FIN_RESERVE_FUND_RATE" value="10">
+                                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">%</span>
+                                    </div>
+                                    <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">毛利扣除公款池提撥後，剩餘淨利再行雙創始人拆分</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="bg-black bg-opacity-20 border border-secondary border-opacity-25 rounded-3 p-3">
+                                    <label class="form-label text-muted small mb-1">
+                                        <i class="fa-solid fa-clock-rotate-left text-info me-1"></i> 前端 Google 試算表快取 TTL
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control code-input-box config-field" data-key="SYS_GVIZ_CACHE_TTL_SEC" value="180">
+                                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">秒</span>
+                                    </div>
+                                    <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">降低 Google API 配額消耗，避免 429 請求超限</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-brand" role="tabpanel">
+                    <div class="tactical-card">
+                        <div class="tactical-card-header">
+                            <div>
+                                <h4 class="h5 fw-bold mb-1 text-white">
+                                    <i class="fa-solid fa-swatchbook text-primary"></i> 品牌外觀與三軌站點 Token 配置
+                                </h4>
+                                <p class="text-muted small mb-0">管理對外推廣品牌名稱、客服外鏈與三軌色彩主題偏好。</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">公開版品牌抬頭 (Public Site Title)</label>
+                                <input type="text" class="form-control code-input-box config-field" data-key="BRAND_PUBLIC_TITLE" value="健康生活與自由日常">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">團隊版品牌抬頭 (Team Site Title)</label>
+                                <input type="text" class="form-control code-input-box config-field" data-key="BRAND_TEAM_TITLE" value="榮祥葡眾團隊夥伴門戶">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">官方客服 LINE ID (Official LINE)</label>
+                                <input type="text" class="form-control code-input-box config-field" data-key="BRAND_LINE_ID" value="@ray_health_team">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">台灣葡眾官網外鏈 (TW Official URL)</label>
+                                <input type="text" class="form-control code-input-box config-field" data-key="LINK_UVACO_TW" value="https://www.uvaco.com.tw/">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">馬來西亞葡眾官網外鏈 (MY Official URL)</label>
+                                <input type="text" class="form-control code-input-box config-field" data-key="LINK_UVACO_MY" value="https://www.uvaco.com.my/">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small mb-1">存取日誌保留期限 (Log Retention)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control code-input-box config-field" data-key="SEC_LOG_RETENTION_DAYS" value="90">
+                                    <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted">天</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-inspector" role="tabpanel">
+                    <div class="tactical-card">
+                        <div class="tactical-card-header">
+                            <div>
+                                <h4 class="h5 fw-bold mb-1 text-white">
+                                    <i class="fa-solid fa-code-compare text-secondary"></i> 全域參數即時 JSON 結構與手動匯入
+                                </h4>
+                                <p class="text-muted small mb-0">任何在上方介面修改的數值將即時反映至此 JSON 字典，可直接匯出或貼上結構快速還原。</p>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm" id="btnCopyJson">
+                                <i class="fa-solid fa-copy"></i> 複製 JSON
+                            </button>
+                        </div>
+
+                        <div class="position-relative">
+                            <pre class="code-preview-pane mb-3" id="jsonPreview">載入中...</pre>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                            <span class="small text-muted font-monospace">
+                                <i class="fa-solid fa-database"></i> 對應資料表：sys_configs (表48)
+                            </span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-dark-tactical btn-sm" id="btnImportJson">
+                                    <i class="fa-solid fa-file-import"></i> 貼上 JSON 匯入
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" id="btnResetDefaults">
+                                    <i class="fa-solid fa-rotate-left"></i> 重設為預設值
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+        <div id="liveToast" class="toast align-items-center text-white bg-dark border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-success fs-5" id="toastIcon"></i>
+                    <span id="toastMessage">設定已成功發布！</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊戰情室 - 全局管理與解耦適配引擎 (Global Tactical Config Engine)
+         * 遵循職責解耦、單一資料流與即時狀態同步原則
+         */
+        const GlobalConfigApp = (function() {
+            // 預設全域系統配置資料字典 (映射自 Google 試算表 sys_configs)
+            let configState = {
+                SYS_MAINTENANCE_MODE: false,
+                AUTH_WHITELIST_STRICT: true,
+                SEC_STEGO_WATERMARK: true,
+                PSI_FREEZE_DISPATCH: false,
+                FIN_AUTO_RECONCILE: true,
+                SHEET_ID_PRD: "1xZ9A_prd_master_sample_sheet_id_demo",
+                SHEET_GID_PRD: "0",
+                SHEET_ID_TRN: "1yB8C_training_hub_sample_sheet_id_demo",
+                SHEET_GID_TRN: "10492837",
+                SHEET_ID_PSI: "1zC7D_psi_inventory_sample_sheet_id_demo",
+                SHEET_GID_PSI: "20938471",
+                SHEET_ID_ORG: "1aD6E_org_hierarchy_sample_sheet_id_demo",
+                SHEET_GID_ORG: "39482019",
+                SHEET_ID_CRM: "1bE5F_crm_pipeline_sample_sheet_id_demo",
+                SHEET_GID_CRM: "48291038",
+                SHEET_ID_FIN: "1cF4G_finance_vault_sample_sheet_id_demo",
+                SHEET_GID_FIN: "59102938",
+                SHEET_ID_SYS: "1dG3H_sys_config_master_sheet_id_demo",
+                SHEET_GID_SYS: "69281047",
+                FIN_RAY_SHARE_RATIO: 50,
+                ORG_QUALIFY_PERSONAL_SV: 160,
+                ORG_QUALIFY_GROUP_SV: 3200,
+                CRM_REORDER_ALERT_DAYS: 7,
+                PSI_EXPIRY_WARN_DAYS: 90,
+                FIN_RESERVE_FUND_RATE: 10,
+                SYS_GVIZ_CACHE_TTL_SEC: 180,
+                BRAND_PUBLIC_TITLE: "健康生活與自由日常",
+                BRAND_TEAM_TITLE: "榮祥葡眾團隊夥伴門戶",
+                BRAND_LINE_ID: "@ray_health_team",
+                LINK_UVACO_TW: "https://www.uvaco.com.tw/",
+                LINK_UVACO_MY: "https://www.uvaco.com.my/",
+                SEC_LOG_RETENTION_DAYS: 90
+            };
+
+            let dirtyKeys = new Set();
+
+            // 初始化入口
+            function init() {
+                loadConfigToUI();
+                bindEvents();
+                updateJsonPreview();
+                runMockDiagnostics();
+            }
+
+            // 將資料注入 UI 控制項
+            function loadConfigToUI() {
+                $('.config-field').each(function() {
+                    const $field = $(this);
+                    const key = $field.data('key');
+                    if (configState.hasOwnProperty(key)) {
+                        if ($field.is(':checkbox')) {
+                            $field.prop('checked', !!configState[key]);
+                        } else {
+                            $field.val(configState[key]);
+                        }
+                    }
+                });
+                updateSplitRatioLabel(configState.FIN_RAY_SHARE_RATIO || 50);
+                updateMaintenanceVisual(configState.SYS_MAINTENANCE_MODE);
+            }
+
+            // 事件監聽綁定
+            function bindEvents() {
+                // 輸入項異動偵測
+                $('.config-field').on('input change', function() {
+                    const $field = $(this);
+                    const key = $field.data('key');
+                    let val;
+
+                    if ($field.is(':checkbox')) {
+                        val = $field.is(':checked');
+                    } else if ($field.attr('type') === 'number' || $field.attr('type') === 'range') {
+                        val = Number($field.val());
+                    } else {
+                        val = $field.val();
+                    }
+
+                    configState[key] = val;
+                    dirtyKeys.add(key);
+                    updateDirtyState();
+                    updateJsonPreview();
+
+                    if (key === 'FIN_RAY_SHARE_RATIO') {
+                        updateSplitRatioLabel(val);
+                    }
+                    if (key === 'SYS_MAINTENANCE_MODE') {
+                        updateMaintenanceVisual(val);
+                    }
+                });
+
+                // 熱更新發布按鈕
+                $('#btnSaveConfig').on('click', handleSaveConfig);
+
+                // 導出 JSON
+                $('#btnExportJson, #btnCopyJson').on('click', exportJson);
+
+                // 測試單一端點連通性
+                $('.btn-ping').on('click', function() {
+                    const target = $(this).data('target');
+                    pingEndpoint(target);
+                });
+
+                // 測試所有端點
+                $('#btnTestAllEndpoints, #btnRunDiagnostics').on('click', runAllPings);
+
+                // 還原預設
+                $('#btnResetDefaults').on('click', resetDefaults);
+
+                // 手動匯入 JSON
+                $('#btnImportJson').on('click', importJsonPrompt);
+            }
+
+            // 雙創始人拆分標籤即時更新
+            function updateSplitRatioLabel(rayRatio) {
+                const jarvisRatio = 100 - rayRatio;
+                $('#lblSplitRatio').text(`Ray ${rayRatio}% : Jarvis ${jarvisRatio}%`);
+            }
+
+            // 維護模式視覺警示
+            function updateMaintenanceVisual(isMaint) {
+                const $card = $('#cardMaintMode');
+                if (isMaint) {
+                    $card.addClass('active-risk');
+                } else {
+                    $card.removeClass('active-risk');
+                }
+            }
+
+            // 更新未儲存變更計數
+            function updateDirtyState() {
+                const count = dirtyKeys.size;
+                $('#lblDirtyCount').text(`${count} 項異動`);
+                if (count > 0) {
+                    $('#lblDirtyCount').removeClass('text-muted').addClass('text-warning');
+                } else {
+                    $('#lblDirtyCount').removeClass('text-warning').addClass('text-muted');
+                }
+            }
+
+            // 更新 JSON 預覽器
+            function updateJsonPreview() {
+                $('#jsonPreview').text(JSON.stringify(configState, null, 4));
+            }
+
+            // 儲存發布
+            function handleSaveConfig() {
+                // 模擬發布至 Google Apps Script 或 Firebase / Supabase
+                $('#btnSaveConfig').prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 發布熱更新中...');
+
+                setTimeout(function() {
+                    dirtyKeys.clear();
+                    updateDirtyState();
+                    $('#btnSaveConfig').prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-up"></i> 熱更新全域發布');
+                    showToast('全域配置已成功熱生效並同步至雲端！', 'success');
+                }, 800);
+            }
+
+            // 複製 / 導出 JSON
+            function exportJson() {
+                const jsonStr = JSON.stringify(configState, null, 4);
+                navigator.clipboard.writeText(jsonStr).then(() => {
+                    showToast('已複製全域配置 JSON 結構至剪貼簿！', 'info');
+                }).catch(() => {
+                    showToast('複製失敗，請手動選取複製。', 'warning');
+                });
+            }
+
+            // 匯入 JSON
+            function importJsonPrompt() {
+                const input = prompt('請貼上合法的系統配置 JSON 字典字串：');
+                if (!input) return;
+
+                try {
+                    const parsed = JSON.parse(input);
+                    configState = Object.assign({}, configState, parsed);
+                    loadConfigToUI();
+                    dirtyKeys = new Set(Object.keys(parsed));
+                    updateDirtyState();
+                    updateJsonPreview();
+                    showToast('JSON 配置匯入成功，請確認後點擊「熱更新全域發布」！', 'success');
+                } catch (e) {
+                    alert('JSON 格式錯誤，解析失敗！');
+                }
+            }
+
+            // 還原預設
+            function resetDefaults() {
+                if (confirm('確定要將所有參數還原為系統初始預設值嗎？')) {
+                    configState.SYS_MAINTENANCE_MODE = false;
+                    configState.AUTH_WHITELIST_STRICT = true;
+                    configState.SEC_STEGO_WATERMARK = true;
+                    configState.PSI_FREEZE_DISPATCH = false;
+                    configState.FIN_RAY_SHARE_RATIO = 50;
+                    configState.ORG_QUALIFY_PERSONAL_SV = 160;
+                    configState.ORG_QUALIFY_GROUP_SV = 3200;
+                    loadConfigToUI();
+                    dirtyKeys.add('SYS_RESET');
+                    updateDirtyState();
+                    updateJsonPreview();
+                    showToast('已還原為初始設定值！', 'info');
+                }
+            }
+
+            // 端點連線測試 (Ping)
+            function pingEndpoint(target) {
+                const $badge = $(`#ping_${target}`);
+                $badge.html('<i class="fa-solid fa-circle-notch fa-spin"></i>');
+
+                setTimeout(function() {
+                    const lat = Math.floor(Math.random() * 25) + 30; // 模擬 30~55ms 延遲
+                    $badge.text(`${lat} ms`);
+                    showToast(`模組 [${target.toUpperCase()}] GViz 端點連通正常 (${lat} ms)`, 'success');
+                }, 400);
+            }
+
+            // 全端點連線診斷
+            function runAllPings() {
+                showToast('正在測試 7 大業務模組 Google Sheets 端點健康度...', 'info');
+                const modules = ['prd', 'trn', 'psi', 'org', 'crm', 'fin', 'sys'];
+                let totalLat = 0;
+
+                modules.forEach(function(mod, idx) {
+                    setTimeout(function() {
+                        const lat = Math.floor(Math.random() * 20) + 32;
+                        $(`#ping_${mod}`).text(`${lat} ms`);
+                        totalLat += lat;
+
+                        if (idx === modules.length - 1) {
+                            const avg = Math.round(totalLat / modules.length);
+                            $('#lblAvgLatency').text(`${avg} ms`);
+                            $('#lblGvizStatus').text(`全端點暢通 (${avg} ms)`);
+                            showToast(`全站 Google 試算表連線檢測完畢，平均延遲 ${avg} ms`, 'success');
+                        }
+                    }, idx * 120);
+                });
+            }
+
+            // 模擬初始檢測
+            function runMockDiagnostics() {
+                setTimeout(function() {
+                    $('#lblAvgLatency').text('42 ms');
+                }, 500);
+            }
+
+            // 顯示 Toast
+            function showToast(msg, type = 'success') {
+                $('#toastMessage').text(msg);
+                const $icon = $('#toastIcon');
+                $icon.removeClass('fa-circle-check fa-circle-exclamation fa-triangle-exclamation text-success text-info text-warning text-danger');
+
+                if (type === 'success') {
+                    $icon.addClass('fa-circle-check text-success');
+                } else if (type === 'warning') {
+                    $icon.addClass('fa-triangle-exclamation text-warning');
+                } else {
+                    $icon.addClass('fa-circle-info text-info');
+                }
+
+                const toastEl = document.getElementById('liveToast');
+                const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+                toast.show();
+            }
+
+            return {
+                init: init
+            };
+        })();
+
+        // DOM Ready 啟動
+        $(document).ready(function() {
+            GlobalConfigApp.init();
+        });
+    </script>
+</body>
+</html>
