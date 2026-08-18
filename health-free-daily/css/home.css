@@ -1,0 +1,195 @@
+/* :root {
+    --uvaco-bg-primary: #061410;
+    --uvaco-bg-card-primary: #0d221a;
+    --uvaco-bg-card-primary-hover: #112e23;
+    --uvaco-border-color: rgba(52, 211, 153, 1);
+    --uvaco-primary: #10b981;
+    --uvaco-primary-hover: #34d399;
+    --uvaco-text-primary: #f8fafc;
+    --uvaco-text-muted: #94a3b8;
+    --uvaco-primary-glow: rgba(16, 185, 129, 0.25);
+}
+
+body {
+    background-color: var(--uvaco-bg-primary);
+    color: var(--uvaco-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+} */
+
+/* 導覽列樣式 */
+.navbar-custom {
+    background-color: rgba(6, 20, 16, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--uvaco-border-color);
+}
+
+.navbar-brand {
+    color: var(--uvaco-primary) !important;
+    font-weight: 700;
+    font-size: 1.35rem;
+}
+
+.nav-link {
+    color: var(--uvaco-text-primary) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--uvaco-primary) !important;
+}
+
+.dropdown-menu-dark {
+    background-color: var(--uvaco-bg-card-primary);
+    border: 1px solid var(--uvaco-border-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.dropdown-item {
+    color: var(--uvaco-text-primary);
+    padding: 0.6rem 1.2rem;
+}
+
+.dropdown-item:hover {
+    background-color: var(--uvaco-bg-card-primary-hover);
+    color: var(--uvaco-primary);
+}
+
+/* 英雄區 Carousel 視覺 */
+.hero-carousel .carousel-item {
+    height: 520px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(6, 20, 16, 0.4) 0%, rgba(6, 20, 16, 0.95) 100%);
+    display: flex;
+    align-items: center;
+}
+
+/* 圖片佔位符視覺優化 */
+.img-placeholder {
+    background-color: var(--uvaco-bg-card-primary-hover);
+    border: 2px dashed var(--uvaco-border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--uvaco-text-muted);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.img-placeholder:hover {
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 0 15px var(--uvaco-primary-glow);
+}
+
+.img-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 卡片系統 */
+.card-custom {
+    background-color: var(--uvaco-bg-card-primary);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 0.75rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 8px 25px var(--uvaco-primary-glow);
+}
+
+.card-img-top-wrapper {
+    height: 180px;
+    overflow: hidden;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    position: relative;
+}
+
+.card-img-top-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card-custom:hover .card-img-top-wrapper img {
+    transform: scale(1.08);
+}
+
+/* .btn-emerald {
+    background-color: var(--uvaco-primary);
+    color: #000000;
+    font-weight: 600;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-emerald:hover {
+    background-color: var(--uvaco-primary-hover);
+    color: #000000;
+    box-shadow: 0 0 15px var(--uvaco-primary-glow);
+}
+
+.btn-outline-emerald {
+    border: 1px solid var(--uvaco-primary);
+    color: var(--uvaco-primary);
+    background: transparent;
+    font-weight: 600;
+    padding: 0.6rem 1.4rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-emerald:hover {
+    background-color: var(--uvaco-primary);
+    color: #000000;
+} */
+
+/* 標題與裝飾 */
+.section-title {
+    position: relative;
+    padding-bottom: 0.75rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--uvaco-primary);
+    border-radius: 2px;
+}
+
+/* 表格黑夜風覆寫 */
+.table-dark-custom {
+    --bs-table-bg: var(--uvaco-bg-card-primary);
+    --bs-table-border-color: var(--uvaco-border-color);
+    color: var(--uvaco-text-primary);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: var(--uvaco-text-primary) !important;
+}

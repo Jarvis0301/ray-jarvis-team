@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獎金計算與制度全貌 | 榮祥葡眾團隊戰情室</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b1329;
+            --bg-card: #132238;
+            --bg-card-hover: #1c2d4a;
+            --accent-blue: #38bdf8;
+            --light-blue: #7dd3fc;
+            --accent-gold: #facc15;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(56, 189, 248, 0.18);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        /* 頂部 Hero 區塊 */
+        .hero-banner {
+            background: linear-gradient(135deg, #0b1329 0%, #132238 50%, #0f172a 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .hero-badge {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 0.35rem 0.85rem;
+            border-radius: 50rem;
+            font-size: 0.875rem;
+            display: inline-block;
+        }
+
+        /* 戰情卡片 */
+        .card-custom {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .card-custom:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.12);
+        }
+
+        /* 預留圖片容器樣式 (符合榮祥需求) */
+        .img-placeholder-box {
+            background-color: rgba(11, 19, 41, 0.6);
+            border: 2px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 0.5rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .img-placeholder-box:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .img-placeholder-icon {
+            font-size: 2.25rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .img-placeholder-text {
+            color: var(--light-blue);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .img-placeholder-hint {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* 數據高亮標籤 */
+        .stat-badge {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.25rem;
+        }
+
+        .gold-badge {
+            background-color: rgba(250, 204, 21, 0.15);
+            color: var(--accent-gold);
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.25rem;
+        }
+
+        /* 區塊標題 */
+        .section-title {
+            color: var(--text-main);
+            font-weight: 700;
+            position: relative;
+            padding-left: 0.85rem;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        /* 導覽 Tab 樣式 */
+        .nav-pills-custom .nav-link {
+            color: var(--text-muted);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .nav-pills-custom .nav-link.active {
+            color: #0b1329;
+            background-color: var(--accent-blue);
+            font-weight: 600;
+            border-color: var(--accent-blue);
+        }
+
+        /* 表格微調 */
+        .table-dark-custom {
+            color: var(--text-main);
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+        }
+
+        .table-dark-custom th {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border-color: var(--border-color);
+        }
+
+        .table-dark-custom td {
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-banner mb-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="hero-badge mb-2"><i class="fa-solid fa-shield-halved"></i> 私域內部戰情網專用</span>
+                    <h1 class="fw-bold mt-2 mb-3 text-white"><i class="fa-solid fa-calculator text-info"></i> 葡眾獎金制度全貌解析</h1>
+                    <p class="text-secondary leading-relaxed mb-0">
+                        本頁面為夥伴提供透明、合規且結構化的三大獎金發放邏輯與四大榮耀權益介紹。無需複雜演算小工具，透過直觀的圖文架構，幫助您快速建立事業視野與團隊複製能力。
+                    </p>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0 text-lg-end">
+                    <div class="p-3 card-custom text-center">
+                        <i class="fa-solid fa-chart-pie fa-2x text-info mb-2"></i>
+                        <h6 class="text-light mb-1">總發放率高達</h6>
+                        <span class="display-6 fw-bold text-warning">52.6%</span>
+                        <p class="text-muted small mb-0 mt-1">全球唯一偏向勞方設計之健全制度</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container-fluid p-3 p-md-4">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <ul class="nav nav-pills nav-pills-custom" id="bonusTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pillar1-tab" data-bs-toggle="pill" data-bs-target="#pillar1" type="button" role="tab">
+                            <i class="fa-solid fa-layer-group"></i> 第一柱：銷售階差獎金 (5%-20%)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pillar2-tab" data-bs-toggle="pill" data-bs-target="#pillar2" type="button" role="tab">
+                            <i class="fa-solid fa-sitemap"></i> 第二柱：組織代數獎金 (黃金六代)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pillar3-tab" data-bs-toggle="pill" data-bs-target="#pillar3" type="button" role="tab">
+                            <i class="fa-solid fa-crown"></i> 第三柱：高階領導分紅與榮耀權益
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-content" id="bonusTabContent">
+
+            <div class="tab-pane fade show active" id="pillar1" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="card-custom p-4">
+                            <h3 class="section-title h5 mb-3"><i class="fa-solid fa-arrow-trend-up text-info"></i> 累積不歸零，階差獎金回饋 (5% ~ 20%)</h3>
+                            <p class="text-secondary">
+                                葡眾制度的核心基礎在於「消費轉移與個人/小組積分（SV）累積」。夥伴無須負擔高額開店成本，只要將日常保健用品換個品牌，即可開始累積積分。個人積分**終身累積不歸零**，職級升上去後**永遠不上聘不下聘**。
+                            </p>
+                            
+                            <div class="table-responsive my-3">
+                                <table class="table table-dark-custom mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>職級名稱</th>
+                                            <th>累積 SV 條件</th>
+                                            <th>回饋比例</th>
+                                            <th>階差優勢</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><i class="fa-solid fa-user text-secondary"></i> 會員</td>
+                                            <td>1,200 SV</td>
+                                            <td><span class="stat-badge">5%</span></td>
+                                            <td>開啟產品回饋資格</td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fa-solid fa-user-gear text-info"></i> 主任</td>
+                                            <td>6,000 SV</td>
+                                            <td><span class="stat-badge">10%</span></td>
+                                            <td>享 5% 階差回饋</td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fa-solid fa-user-tie text-info"></i> 副理</td>
+                                            <td>12,000 SV</td>
+                                            <td><span class="stat-badge">15%</span></td>
+                                            <td>享 5% - 10% 階差回饋</td>
+                                        </tr>
+                                        <tr>
+                                            <td><i class="fa-solid fa-user-check text-warning"></i> 經理</td>
+                                            <td>合格小組達成</td>
+                                            <td><span class="gold-badge">20%</span></td>
+                                            <td>領取最高 20% 回饋金</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="alert alert-dark border-secondary mt-3 mb-0">
+                                <i class="fa-solid fa-lightbulb text-warning"></i> <strong>第三人 AI 解析提示：</strong> 階差獎金為夥伴奠定初期穩定的現金流。當您輔導下方夥伴升階時，您可以賺取職級間的百分比差額，達到互利共好的良性循環。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="card-custom p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <h4 class="h6 text-info mb-3"><i class="fa-regular fa-image"></i> 視覺圖解：階差累積與升階路徑</h4>
+                                <div class="img-placeholder-box mb-3">
+                                    <i class="fa-regular fa-image img-placeholder-icon"></i>
+                                    <div class="img-placeholder-text"><i class="fa-solid fa-cloud-arrow-up"></i> 預留圖片空間：階差累積梯形圖</div>
+                                    <div class="img-placeholder-hint">建議上傳尺寸：800 x 500 px (16:10)</div>
+                                </div>
+                                <p class="text-secondary small">
+                                    （未來可在此置入「會員 $\rightarrow$ 主任 $\rightarrow$ 副理 $\rightarrow$ 經理」之 SV 累積視覺化地圖，讓新夥伴一眼看懂不歸零的累積優勢。）
+                                </p>
+                            </div>
+                            <div class="p-3 rounded bg-dark border border-secondary">
+                                <small class="text-light"><i class="fa-solid fa-circle-check text-success"></i> <strong>制度亮點：</strong> 每年只需消費 160 SV（約乙瓶產品），即可維持經銷資格與累積積分。</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pillar2" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-5 order-2 order-lg-1">
+                        <div class="card-custom p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <h4 class="h6 text-info mb-3"><i class="fa-regular fa-image"></i> 視覺圖解：黃金六代與自動補救</h4>
+                                <div class="img-placeholder-box mb-3">
+                                    <i class="fa-solid fa-network-wired img-placeholder-icon"></i>
+                                    <div class="img-placeholder-text"><i class="fa-solid fa-cloud-arrow-up"></i> 預留圖片空間：黃金六代組織延伸與補救架構圖</div>
+                                    <div class="img-placeholder-hint">建議上傳尺寸：800 x 600 px (4:3)</div>
+                                </div>
+                                <p class="text-secondary small">
+                                    （未來可在此置入「珍珠級自動補救機制」邏輯圖，展示如何透過系統自動遞補不合格小組，確保獎金不中斷。）
+                                </p>
+                            </div>
+                            <div class="p-3 rounded bg-dark border border-secondary">
+                                <small class="text-light"><i class="fa-solid fa-shield-cat text-info"></i> <strong>自動補救：</strong> 珍珠級以上若遇到線路暫時未達標，系統啟動補救機制，保障被動收入穩定性。</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7 order-1 order-lg-2">
+                        <div class="card-custom p-4">
+                            <h3 class="section-title h5 mb-3"><i class="fa-solid fa-diagram-project text-info"></i> 黃金六代 6% 組織深耕獎金</h3>
+                            <p class="text-secondary">
+                                當夥伴晉升至經理並開始培育獨立經理時，事業便由「個人銷售」跨越至「團隊組織企業化經營」。葡眾發放高達 **黃金六代** 的組織代數獎金，讓高階領導人願意傾囊相授，手把手帶領新夥伴成功。
+                            </p>
+
+                            <div class="row g-3 my-2">
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded bg-dark border border-secondary">
+                                        <div class="text-info fw-bold mb-1"><i class="fa-solid fa-arrows-split-up-and-left"></i> 緊密壓縮機制</div>
+                                        <small class="text-secondary">若中間代數夥伴未達合格標準，系統將自動向上緊密壓縮，確保領導人的努力能實質反應在六代獎金中。</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded bg-dark border border-secondary">
+                                        <div class="text-warning fw-bold mb-1"><i class="fa-solid fa-arrows-spin"></i> 珍珠自動補救</div>
+                                        <small class="text-secondary">當培育出 5 位合格經理達到珍珠級時，啟動被動收入防護網，避免因單一線路波動影響整體收益。</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ul class="list-group list-group-flush bg-transparent mt-3">
+                                <li class="list-group-item bg-transparent text-secondary border-secondary px-0">
+                                    <i class="fa-solid fa-check text-info"></i> <strong>第 1 代至第 6 代：</strong> 依職級可領取 2% ~ 6% 組織獎金。
+                                </li>
+                                <li class="list-group-item bg-transparent text-secondary border-secondary px-0">
+                                    <i class="fa-solid fa-check text-info"></i> <strong>深度與廣度兼備：</strong> 兼具寬度發展的無限可能與深度發展的被動收入基石。
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pillar3" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="card-custom p-4">
+                            <h3 class="section-title h5 mb-3"><i class="fa-solid fa-award text-warning"></i> 高階全國分紅與四大榮耀權益</h3>
+                            <p class="text-secondary">
+                                當您晉升至翡翠、藍鑽、耀星藍鑽及皇冠級高階領導人時，除了組織代數獎金外，更可參與葡眾企業的全國業績分紅與專屬企業家權益。
+                            </p>
+
+                            <div class="row g-3 my-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 text-center rounded bg-dark border border-secondary">
+                                        <i class="fa-solid fa-globe fa-2x text-warning mb-2"></i>
+                                        <div class="fw-bold text-light small">全國分紅</div>
+                                        <span class="gold-badge">翡翠/藍鑽</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 text-center rounded bg-dark border border-secondary">
+                                        <i class="fa-solid fa-plane-departure fa-2x text-info mb-2"></i>
+                                        <div class="fw-bold text-light small">海外旅遊</div>
+                                        <span class="stat-badge">每年發放</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 text-center rounded bg-dark border border-secondary">
+                                        <i class="fa-solid fa-car fa-2x text-success mb-2"></i>
+                                        <div class="fw-bold text-light small">購車基金</div>
+                                        <span class="stat-badge">名車過戶</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 text-center rounded bg-dark border border-secondary">
+                                        <i class="fa-solid fa-key fa-2x text-danger mb-2"></i>
+                                        <div class="fw-bold text-light small">世襲繼承</div>
+                                        <span class="gold-badge">資產鎖定</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-secondary small mb-0">
+                                <strong>世襲傳承機制：</strong> 在葡眾努力建立的事業成果，具備完整的法律保障資格，可無條件世襲傳承給下一代，真正達成「一份努力，代代受益」的家族資產目標。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="card-custom p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <h4 class="h6 text-info mb-3"><i class="fa-regular fa-image"></i> 視覺圖解：高階榮耀生活與海外旅遊</h4>
+                                <div class="img-placeholder-box mb-3">
+                                    <i class="fa-solid fa-gem img-placeholder-icon"></i>
+                                    <div class="img-placeholder-text"><i class="fa-solid fa-cloud-arrow-up"></i> 預留圖片空間：海外研習與表揚大會海報</div>
+                                    <div class="img-placeholder-hint">建議上傳尺寸：800 x 500 px (16:10)</div>
+                                </div>
+                                <p class="text-secondary small">
+                                    （未來可在此置入高階表揚大會照片、海外旅遊實況或購車基金過戶儀式之震撼視覺，增強團隊夥伴的目標嚮往感。）
+                                </p>
+                            </div>
+                            <div class="p-3 rounded bg-dark border border-secondary">
+                                <small class="text-light"><i class="fa-solid fa-star text-warning"></i> <strong>企業家精神：</strong> 高階領導人不只是獲利，更是帶領成千上萬家庭改善生活的影響力領袖。</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <section class="mt-5">
+            <div class="card-custom p-4 text-center">
+                <h4 class="text-white mb-2"><i class="fa-solid fa-graduation-cap text-info"></i> 想深入了解如何與團隊一起制定目標？</h4>
+                <p class="text-secondary mb-3">請聯繫您的專屬輔導導師，獲取一對一事業戰略地圖規劃與組織擴展 SOP。</p>
+                <div>
+                    <a href="resources.html" class="btn btn-outline-info mb-2"><i class="fa-solid fa-folder-open"></i> 前往團隊資源庫</a>
+                    <a href="rank-advancement.html" class="btn btn-info text-dark font-weight-bold mb-2"><i class="fa-solid fa-trophy"></i> 查看職級晉升條件</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 監聽 Tab 切換事件，添加微妙平滑效果
+            $('#bonusTab button').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+        });
+    </script>
+</body>
+</html>

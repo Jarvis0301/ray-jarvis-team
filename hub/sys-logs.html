@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存取日誌 Security Access Logs | 葡眾核心版戰情室</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <style>
+        /* ==========================================================================
+           1. 魅影紫深色主題 Tokens (Dark Purple Design System)
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-rgb: 192, 132, 252;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-muted: #9e8eb3;
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-surface: #130924;
+            --uvaco-bg-surface-subtle: #1c0e35;
+            --uvaco-bg-card: #170d2c;
+            --uvaco-border: rgba(139, 92, 246, 0.22);
+            --uvaco-border-glow: rgba(192, 132, 252, 0.45);
+            --uvaco-text-main: #f5f3ff;
+            --uvaco-text-muted: #9e8eb3;
+            --bs-body-bg: var(--uvaco-bg-base);
+            --bs-body-color: var(--uvaco-text-main);
+            --bs-border-color: var(--uvaco-border);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", sans-serif;
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 賽博網格背景微光 */
+        .cyber-grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: center top;
+        }
+
+        /* 玻璃擬態面板 */
+        .soc-panel {
+            background: rgba(23, 13, 44, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px 0 rgba(10, 5, 24, 0.55);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .soc-panel:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.18);
+        }
+
+        /* 呼吸發光霓虹燈號 */
+        .pulse-led {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 0.65; }
+        }
+
+        /* 終端即時串流監控窗 */
+        .telemetry-stream-box {
+            background: #080312;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 0.82rem;
+            max-height: 220px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--uvaco-primary) #080312;
+        }
+
+        .telemetry-stream-box::-webkit-scrollbar {
+            width: 5px;
+        }
+        .telemetry-stream-box::-webkit-scrollbar-thumb {
+            background: var(--uvaco-primary);
+            border-radius: 4px;
+        }
+
+        .stream-line {
+            padding: 4px 8px;
+            border-bottom: 1px dashed rgba(139, 92, 246, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stream-line:last-child {
+            border-bottom: none;
+        }
+
+        /* HUD 指標數據小晶片 */
+        .hud-stat-chip {
+            background: var(--uvaco-bg-surface-subtle);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 自訂 DataTables 賽博風格 */
+        .table-cyber {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-hover-bg: rgba(139, 92, 246, 0.12);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+
+        .table-cyber thead th {
+            background-color: var(--uvaco-bg-surface-subtle);
+            color: var(--uvaco-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--uvaco-primary);
+        }
+
+        /* 標籤徽章自訂 */
+        .badge-role-super {
+            background: rgba(236, 72, 153, 0.18);
+            color: #f472b6;
+            border: 1px solid #ec4899;
+        }
+        .badge-role-admin {
+            background: rgba(139, 92, 246, 0.18);
+            color: #c084fc;
+            border: 1px solid #8b5cf6;
+        }
+        .badge-role-team {
+            background: rgba(56, 189, 248, 0.18);
+            color: #38bdf8;
+            border: 1px solid #0284c7;
+        }
+        .badge-role-public {
+            background: rgba(158, 142, 179, 0.15);
+            color: var(--uvaco-muted);
+            border: 1px solid rgba(158, 142, 179, 0.3);
+        }
+
+        /* 耗時長條圖樣式 */
+        .latency-bar-container {
+            width: 80px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        .latency-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* JSON 檢視器高亮 */
+        .json-viewer-pre {
+            background-color: #06020e;
+            border: 1px solid var(--uvaco-border);
+            color: #a7f3d0;
+            border-radius: 8px;
+            padding: 14px;
+            max-height: 360px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.83rem;
+        }
+    </style>
+</head>
+<body class="cyber-grid-bg py-4 px-2 px-md-4">
+
+    <div class="container-fluid mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-lg-7">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="pulse-led text-success me-1"></span>
+                    <h4 class="mb-0 fw-bold text-white tracking-wide">
+                        <i class="fa-solid fa-shield-halved text-primary me-2"></i> 全域存取資安審計日誌
+                    </h4>
+                    <span class="badge bg-dark border border-primary text-secondary px-2 py-1">
+                        <i class="fa-solid fa-database"></i> sys_access_logs
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-info px-2 py-1">
+                        <i class="fa-solid fa-code-compare"></i> GViz Decoupled
+                    </span>
+                </div>
+                <p class="text-muted small mb-0 mt-1">
+                    即時監控全站 Google 帳號授權、跨模組 API 請求軌跡、資安阻斷事件與異常效能診斷。
+                </p>
+            </div>
+            
+            <div class="col-12 col-lg-5 text-lg-end">
+                <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary" id="btn-toggle-stream">
+                        <i class="fa-solid fa-tower-broadcast text-accent"></i> 暫停動態串流
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" id="btn-export-logs">
+                        <i class="fa-solid fa-file-export"></i> 匯出稽核報表
+                    </button>
+                    <button class="btn btn-sm btn-primary" id="btn-manual-sync">
+                        <i class="fa-solid fa-arrows-rotate"></i> 即時同步
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mb-4">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="soc-panel hud-stat-chip">
+                    <div>
+                        <div class="text-muted small">
+                            <i class="fa-solid fa-globe"></i> 今日累積造訪 (PV)
+                        </div>
+                        <div class="h4 fw-bold text-white mb-0 mt-1" id="stat-total-pv">18,492</div>
+                    </div>
+                    <div class="fs-3 text-primary opacity-50">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="soc-panel hud-stat-chip">
+                    <div>
+                        <div class="text-muted small">
+                            <i class="fa-solid fa-shield-virus"></i> 異常阻斷 (4xx/5xx)
+                        </div>
+                        <div class="h4 fw-bold text-danger mb-0 mt-1" id="stat-blocked-count">24 <span class="fs-6 text-muted fw-normal">次</span></div>
+                    </div>
+                    <div class="fs-3 text-danger opacity-50">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="soc-panel hud-stat-chip">
+                    <div>
+                        <div class="text-muted small">
+                            <i class="fa-solid fa-stopwatch"></i> API 平均延遲
+                        </div>
+                        <div class="h4 fw-bold text-secondary mb-0 mt-1" id="stat-avg-latency">42 <span class="fs-6 text-muted fw-normal">ms</span></div>
+                    </div>
+                    <div class="fs-3 text-secondary opacity-50">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="soc-panel hud-stat-chip">
+                    <div>
+                        <div class="text-muted small">
+                            <i class="fa-solid fa-users-viewfinder"></i> 活躍授權信箱 (UV)
+                        </div>
+                        <div class="h4 fw-bold text-accent mb-0 mt-1" id="stat-active-users">318 <span class="fs-6 text-muted fw-normal">人</span></div>
+                    </div>
+                    <div class="fs-3 text-accent opacity-50">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mb-4">
+        <div class="row g-3">
+            <div class="col-12 col-xl-7">
+                <div class="soc-panel p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-secondary">
+                            <i class="fa-solid fa-terminal me-1"></i> 即時遙測日誌串流 (Real-time Audit Ticker)
+                        </span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0">
+                            LIVE FEED
+                        </span>
+                    </div>
+                    
+                    <div class="telemetry-stream-box p-2" id="telemetry-stream-container">
+                        <div class="stream-line text-success">
+                            <span class="text-muted">[14:24:08]</span>
+                            <span class="badge bg-success text-dark">200 OK</span>
+                            <span>user.leader@gmail.com</span>
+                            <span class="text-muted">➔</span>
+                            <span class="text-secondary">[H11000] prd-basic.html</span>
+                            <span class="text-muted ms-auto">38ms</span>
+                        </div>
+                        <div class="stream-line text-danger">
+                            <span class="text-muted">[14:24:05]</span>
+                            <span class="badge bg-danger text-white">403 FORBIDDEN</span>
+                            <span>guest_unauth@gmail.com</span>
+                            <span class="text-muted">➔</span>
+                            <span class="text-danger">[H61000] fin-settlement.html</span>
+                            <span class="text-muted ms-auto">12ms</span>
+                        </div>
+                        <div class="stream-line text-info">
+                            <span class="text-muted">[14:23:59]</span>
+                            <span class="badge bg-primary text-white">LOGIN</span>
+                            <span>ray.founder@gmail.com</span>
+                            <span class="text-muted">➔</span>
+                            <span class="text-secondary">AuthGuard::GoogleOAuth2</span>
+                            <span class="text-muted ms-auto">120ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="soc-panel p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-secondary">
+                            <i class="fa-solid fa-sliders me-1"></i> 多維鑑識快速篩選 (Tactical Filters)
+                        </span>
+                        <button class="btn btn-link btn-sm text-decoration-none text-muted p-0" id="btn-reset-filters">
+                            <i class="fa-solid fa-rotate-left"></i> 重置條件
+                        </button>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label small text-muted mb-1">
+                                <i class="fa-solid fa-user-gear"></i> 權限角色 (Role Level)
+                            </label>
+                            <div class="btn-group w-100 btn-group-sm" role="group" id="filter-role-group">
+                                <input type="radio" class="btn-check" name="role_filter" id="role_all" value="" checked>
+                                <label class="btn btn-outline-secondary" for="role_all">全部</label>
+
+                                <input type="radio" class="btn-check" name="role_filter" id="role_super" value="SUPER_ADMIN">
+                                <label class="btn btn-outline-secondary" for="role_super">創始/超級</label>
+
+                                <input type="radio" class="btn-check" name="role_filter" id="role_admin" value="ADMIN">
+                                <label class="btn btn-outline-secondary" for="role_admin">核心管理</label>
+
+                                <input type="radio" class="btn-check" name="role_filter" id="role_team" value="TEAM">
+                                <label class="btn btn-outline-secondary" for="role_team">團隊夥伴</label>
+
+                                <input type="radio" class="btn-check" name="role_filter" id="role_public" value="PUBLIC">
+                                <label class="btn btn-outline-secondary" for="role_public">公開訪客</label>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label small text-muted mb-1">
+                                <i class="fa-solid fa-signal"></i> 回應狀態 (Status)
+                            </label>
+                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="select-status-filter">
+                                <option value="">全部狀態碼</option>
+                                <option value="200">200 正常 (Success)</option>
+                                <option value="401">401 未授權 (Unauthorized)</option>
+                                <option value="403">403 越權阻斷 (Forbidden)</option>
+                                <option value="500">500 伺服器例外 (Error)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label small text-muted mb-1">
+                                <i class="fa-solid fa-hand-pointer"></i> 行為類型 (Action)
+                            </label>
+                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="select-action-filter">
+                                <option value="">全部操作</option>
+                                <option value="PAGE_VIEW">PAGE_VIEW (頁面瀏覽)</option>
+                                <option value="LOGIN">LOGIN (登入驗證)</option>
+                                <option value="CREATE">CREATE (新增資料)</option>
+                                <option value="EXPORT">EXPORT (匯出名冊)</option>
+                                <option value="UPDATE">UPDATE (資料異動)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="soc-panel p-3 p-md-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-5 fw-bold text-white">
+                        <i class="fa-solid fa-list-check text-primary me-2"></i> 日誌明細紀錄網格
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="table-record-count">
+                        0 筆紀錄
+                    </span>
+                </div>
+                <div class="small text-muted">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 支援點擊單列展開「請求參數 (Payload)」與例外鑑識
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="logs-datatable" class="table table-cyber table-hover w-100">
+                    <thead>
+                        <tr>
+                            <th>日誌代碼 / 時間</th>
+                            <th>操作者 (Email / ID)</th>
+                            <th>角色等級</th>
+                            <th>存取目標 (Page / Route)</th>
+                            <th>動作</th>
+                            <th>狀態碼</th>
+                            <th>效能耗時</th>
+                            <th>來源 IP / 裝置</th>
+                            <th class="text-center">鑑識</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="payloadForensicModal" tabindex="-1" aria-labelledby="payloadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content soc-panel text-light border-primary">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title d-flex align-items-center gap-2" id="payloadModalLabel">
+                        <i class="fa-solid fa-microchip text-accent"></i> 資安封包與例外鑑識器
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <div class="p-2 rounded bg-dark border border-secondary">
+                                <span class="text-muted small d-block">日誌唯一代碼 (log_id)</span>
+                                <span class="fw-mono text-secondary" id="modal-log-id">-</span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="p-2 rounded bg-dark border border-secondary">
+                                <span class="text-muted small d-block">操作帳號 (google_email)</span>
+                                <span class="fw-mono text-light" id="modal-google-email">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold text-secondary mb-0">
+                                <i class="fa-solid fa-code"></i> 請求參數摘要 (request_payload)
+                            </label>
+                            <button class="btn btn-sm btn-link text-secondary text-decoration-none p-0" id="btn-copy-payload">
+                                <i class="fa-solid fa-copy"></i> 複製 Payload
+                            </button>
+                        </div>
+                        <pre class="json-viewer-pre" id="modal-payload-content">{}</pre>
+                    </div>
+
+                    <div id="modal-error-container" class="d-none">
+                        <label class="form-label small fw-bold text-danger mb-1">
+                            <i class="fa-solid fa-bug"></i> 系統例外或阻斷訊息 (error_message)
+                        </label>
+                        <div class="p-2 rounded bg-danger-subtle text-danger border border-danger small" id="modal-error-content">
+                            None
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i> 關閉鑑識視窗
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive@2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾系統架構：Google 試算表欄位解耦轉接中介層 (Sheet Adapter Pipeline)
+         * 說明：即便 Google Sheets 試算表標頭隨意變更為「操作者信箱」、「日誌ID」，
+         * 透過 FIELD_MAPPING_DICTIONARY 可 100% 解耦，保證前端邏輯穩定執行。
+         */
+        const FIELD_MAPPING_DICTIONARY = {
+            // 試算表欄位名稱 (中文/原始標頭) ➔ 系統內部標準鍵值 (Key)
+            "log_id": "log_id",
+            "日誌編號": "log_id",
+            "partner_id": "partner_id",
+            "夥伴編號": "partner_id",
+            "google_email": "google_email",
+            "授權信箱": "google_email",
+            "Google信箱": "google_email",
+            "role_level": "role_level",
+            "權限角色": "role_level",
+            "ip_address": "ip_address",
+            "來源IP": "ip_address",
+            "user_agent": "user_agent",
+            "裝置環境": "user_agent",
+            "page_code": "page_code",
+            "訪問頁面代碼": "page_code",
+            "action_type": "action_type",
+            "操作動作": "action_type",
+            "request_payload": "request_payload",
+            "請求參數摘要": "request_payload",
+            "status_code": "status_code",
+            "回應狀態碼": "status_code",
+            "execution_time_ms": "execution_time_ms",
+            "執行耗時": "execution_time_ms",
+            "error_message": "error_message",
+            "錯誤日誌": "error_message",
+            "created_at": "created_at",
+            "紀錄時間": "created_at",
+            "建立時間": "created_at"
+        };
+
+        // 模擬資安日誌離線備援資料庫 (對齊 Schema Table 1 / Table 47)
+        const MOCK_ACCESS_LOGS_DATA = [
+            {
+                "log_id": "LOG-20260816-8801",
+                "partner_id": "RAY-001",
+                "google_email": "ray.founder@gmail.com",
+                "role_level": "SUPER_ADMIN",
+                "ip_address": "114.34.120.55",
+                "user_agent": "Mozilla/5.0 (Macintosh; Apple M3) Chrome/128.0.0",
+                "page_code": "H61000",
+                "action_type": "VIEW",
+                "request_payload": JSON.stringify({ module: "fin-settlement", period: "2026-07", action: "export_audit" }),
+                "status_code": 200,
+                "execution_time_ms": 32,
+                "error_message": null,
+                "created_at": "2026-08-16 14:24:08"
+            },
+            {
+                "log_id": "LOG-20260816-8802",
+                "partner_id": "JARVIS-002",
+                "google_email": "jarvis.ops@gmail.com",
+                "role_level": "ADMIN",
+                "ip_address": "220.133.45.12",
+                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/127.0",
+                "page_code": "H11000",
+                "action_type": "CREATE",
+                "request_payload": JSON.stringify({ sku: "995-CAP-60", price: 1850, pv: 1200 }),
+                "status_code": 200,
+                "execution_time_ms": 78,
+                "error_message": null,
+                "created_at": "2026-08-16 14:23:45"
+            },
+            {
+                "log_id": "LOG-20260816-8803",
+                "partner_id": "TEAM-552",
+                "google_email": "leader.chen@gmail.com",
+                "role_level": "TEAM",
+                "ip_address": "125.228.90.114",
+                "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5) Safari/604.1",
+                "page_code": "T21000",
+                "action_type": "PAGE_VIEW",
+                "request_payload": JSON.stringify({ route: "/team/getting-started.html" }),
+                "status_code": 200,
+                "execution_time_ms": 18,
+                "error_message": null,
+                "created_at": "2026-08-16 14:23:12"
+            },
+            {
+                "log_id": "LOG-20260816-8804",
+                "partner_id": "GUEST",
+                "google_email": "stranger889@yahoo.com",
+                "role_level": "PUBLIC",
+                "ip_address": "45.142.122.9",
+                "user_agent": "Python-urllib/3.10",
+                "page_code": "H71000",
+                "action_type": "LOGIN",
+                "request_payload": JSON.stringify({ attempt_path: "/hub/sys-permissions.html" }),
+                "status_code": 403,
+                "execution_time_ms": 12,
+                "error_message": "AccessDenied: Google Email not in sys_permissions whitelist.",
+                "created_at": "2026-08-16 14:22:50"
+            },
+            {
+                "log_id": "LOG-20260816-8805",
+                "partner_id": "TEAM-789",
+                "google_email": "lin.prospect@gmail.com",
+                "role_level": "TEAM",
+                "ip_address": "61.216.34.88",
+                "user_agent": "Mozilla/5.0 (Linux; Android 14) Chrome/128.0.0",
+                "page_code": "T61000",
+                "action_type": "CALC",
+                "request_payload": JSON.stringify({ calc_type: "bonus_split", pv_input: 45000 }),
+                "status_code": 200,
+                "execution_time_ms": 45,
+                "error_message": null,
+                "created_at": "2026-08-16 14:21:30"
+            },
+            {
+                "log_id": "LOG-20260816-8806",
+                "partner_id": "JARVIS-002",
+                "google_email": "jarvis.ops@gmail.com",
+                "role_level": "ADMIN",
+                "ip_address": "220.133.45.12",
+                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/127.0",
+                "page_code": "API_GVIZ_PULL",
+                "action_type": "EXPORT",
+                "request_payload": JSON.stringify({ target_table: "crm_customers", rows: 1200 }),
+                "status_code": 500,
+                "execution_time_ms": 1420,
+                "error_message": "GoogleQuotaExceeded: Sheets API GViz read limit reached (100 req/min).",
+                "created_at": "2026-08-16 14:19:10"
+            }
+        ];
+
+        // 系統變數
+        let logsDataTable = null;
+        let isStreamActive = true;
+        let streamTimer = null;
+
+        $(document).ready(function () {
+            // 1. 初始化資料網格
+            initLogsDataTable(MOCK_ACCESS_LOGS_DATA);
+
+            // 2. 綁定篩選器監聽事件
+            bindFilterEvents();
+
+            // 3. 啟動即時日誌遙測串流模擬
+            startTelemetryStream();
+
+            // 4. 手動同步按鈕事件
+            $('#btn-manual-sync').on('click', function () {
+                const $btn = $(this);
+                $btn.html('<i class="fa-solid fa-arrows-rotate fa-spin"></i> 正在拉取...');
+                setTimeout(() => {
+                    $btn.html('<i class="fa-solid fa-arrows-rotate"></i> 即時同步');
+                    refreshLogsData();
+                }, 600);
+            });
+
+            // 5. 串流暫停/啟動切換
+            $('#btn-toggle-stream').on('click', function () {
+                isStreamActive = !isStreamActive;
+                if (isStreamActive) {
+                    $(this).html('<i class="fa-solid fa-tower-broadcast text-accent"></i> 暫停動態串流');
+                    startTelemetryStream();
+                } else {
+                    $(this).html('<i class="fa-solid fa-pause text-muted"></i> 啟動動態串流');
+                    clearInterval(streamTimer);
+                }
+            });
+
+            // 6. 複製 Payload 內容至剪貼簿
+            $('#btn-copy-payload').on('click', function () {
+                const text = $('#modal-payload-content').text();
+                navigator.clipboard.writeText(text).then(() => {
+                    $(this).html('<i class="fa-solid fa-check text-success"></i> 已複製');
+                    setTimeout(() => {
+                        $(this).html('<i class="fa-solid fa-copy"></i> 複製 Payload');
+                    }, 2000);
+                });
+            });
+        });
+
+        /**
+         * 解耦解析器：轉換外部試算表欄位為內部標準格式
+         */
+        function transformRawSheetData(rawList) {
+            return rawList.map(item => {
+                const cleanItem = {};
+                for (const key in item) {
+                    const mappedKey = FIELD_MAPPING_DICTIONARY[key.trim()] || key.trim();
+                    cleanItem[mappedKey] = item[key];
+                }
+                return cleanItem;
+            });
+        }
+
+        /**
+         * 初始化 DataTables 渲染
+         */
+        function initLogsDataTable(dataset) {
+            const normalizedData = transformRawSheetData(dataset);
+            $('#table-record-count').text(normalizedData.length + ' 筆紀錄');
+
+            logsDataTable = $('#logs-datatable').DataTable({
+                data: normalizedData,
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                order: [[0, 'desc']], // 預設依時間最新排列
+                columns: [
+                    // 1. 日誌代碼 / 時間
+                    {
+                        data: 'log_id',
+                        render: function (data, type, row) {
+                            return `
+                                <div>
+                                    <div class="fw-bold text-light font-monospace small">${data}</div>
+                                    <div class="text-muted font-monospace" style="font-size: 0.75rem;">
+                                        <i class="fa-regular fa-clock me-1"></i>${row.created_at}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    },
+                    // 2. 操作者帳號 / 夥伴 ID
+                    {
+                        data: 'google_email',
+                        render: function (data, type, row) {
+                            const partner = row.partner_id || 'GUEST';
+                            return `
+                                <div>
+                                    <div class="text-white small fw-semibold">${data || '匿名訪客'}</div>
+                                    <span class="badge bg-dark border border-secondary text-muted font-monospace" style="font-size: 0.7rem;">
+                                        ID: ${partner}
+                                    </span>
+                                </div>
+                            `;
+                        }
+                    },
+                    // 3. 角色等級 (Role Level)
+                    {
+                        data: 'role_level',
+                        render: function (data) {
+                            let badgeClass = 'badge-role-public';
+                            if (data === 'SUPER_ADMIN') badgeClass = 'badge-role-super';
+                            else if (data === 'ADMIN') badgeClass = 'badge-role-admin';
+                            else if (data === 'TEAM') badgeClass = 'badge-role-team';
+                            return `<span class="badge ${badgeClass} px-2 py-1">${data}</span>`;
+                        }
+                    },
+                    // 4. 存取目標 (Page / Route)
+                    {
+                        data: 'page_code',
+                        render: function (data) {
+                            return `<span class="badge bg-dark border border-primary text-secondary font-monospace">${data || 'N/A'}</span>`;
+                        }
+                    },
+                    // 5. 動作 (Action Type)
+                    {
+                        data: 'action_type',
+                        render: function (data) {
+                            let icon = 'fa-eye';
+                            if (data === 'LOGIN') icon = 'fa-right-to-bracket';
+                            else if (data === 'CREATE') icon = 'fa-plus';
+                            else if (data === 'EXPORT') icon = 'fa-file-export';
+                            return `<span class="small text-light"><i class="fa-solid ${icon} text-primary me-1"></i> ${data}</span>`;
+                        }
+                    },
+                    // 6. 回應狀態碼 (Status Code)
+                    {
+                        data: 'status_code',
+                        render: function (data) {
+                            const code = parseInt(data, 10);
+                            let colorClass = 'bg-success';
+                            if (code >= 400 && code < 500) colorClass = 'bg-warning text-dark';
+                            else if (code >= 500) colorClass = 'bg-danger';
+                            return `<span class="badge ${colorClass} font-monospace">${code}</span>`;
+                        }
+                    },
+                    // 7. 效能耗時 (Latency)
+                    {
+                        data: 'execution_time_ms',
+                        render: function (data) {
+                            const ms = parseInt(data, 10) || 0;
+                            let barColor = '#10b981'; // 綠色
+                            if (ms > 100 && ms <= 500) barColor = '#c084fc'; // 紫色
+                            if (ms > 500) barColor = '#ec4899'; // 粉紅高延遲
+                            
+                            const percent = Math.min(100, Math.max(8, (ms / 1000) * 100));
+                            return `
+                                <div class="d-flex align-items-center">
+                                    <div class="latency-bar-container">
+                                        <div class="latency-bar-fill" style="width: ${percent}%; background-color: ${barColor};"></div>
+                                    </div>
+                                    <span class="font-monospace small text-muted">${ms}ms</span>
+                                </div>
+                            `;
+                        }
+                    },
+                    // 8. 來源 IP / 裝置
+                    {
+                        data: 'ip_address',
+                        render: function (data, type, row) {
+                            return `
+                                <div>
+                                    <span class="font-monospace small text-info">${data || '0.0.0.0'}</span>
+                                    <div class="text-truncate text-muted" style="max-width: 140px; font-size: 0.72rem;" title="${row.user_agent || ''}">
+                                        ${row.user_agent || 'Unknown UA'}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    },
+                    // 9. 鑑識操作按鈕
+                    {
+                        data: null,
+                        orderable: false,
+                        className: 'text-center',
+                        render: function (data, type, row) {
+                            const rowJson = encodeURIComponent(JSON.stringify(row));
+                            return `
+                                <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="openPayloadModal('${rowJson}')" title="檢視封包鑑識">
+                                    <i class="fa-solid fa-code text-accent"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ],
+                language: {
+                    search: "<i class='fa-solid fa-magnifying-glass me-1'></i> 快速過濾：",
+                    searchPlaceholder: "搜尋帳號、IP 或頁面...",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆日誌",
+                    infoEmpty: "無任何符合日誌",
+                    zeroRecords: "找不到相符的鑑識日誌",
+                    paginate: {
+                        first: "<i class='fa-solid fa-angles-left'></i>",
+                        last: "<i class='fa-solid fa-angles-right'></i>",
+                        next: "<i class='fa-solid fa-angle-right'></i>",
+                        previous: "<i class='fa-solid fa-angle-left'></i>"
+                    }
+                }
+            });
+        }
+
+        /**
+         * 綁定客製化資安多維度過濾器
+         */
+        function bindFilterEvents() {
+            // 角色篩選
+            $('input[name="role_filter"]').on('change', function () {
+                const role = $(this).val();
+                logsDataTable.column(2).search(role ? `^${role}$` : '', true, false).draw();
+            });
+
+            // 狀態碼篩選
+            $('#select-status-filter').on('change', function () {
+                const status = $(this).val();
+                logsDataTable.column(5).search(status ? `^${status}$` : '', true, false).draw();
+            });
+
+            // 行為動作篩選
+            $('#select-action-filter').on('change', function () {
+                const action = $(this).val();
+                logsDataTable.column(4).search(action ? action : '', false, false).draw();
+            });
+
+            // 重置所有條件
+            $('#btn-reset-filters').on('click', function () {
+                $('#role_all').prop('checked', true);
+                $('#select-status-filter').val('');
+                $('#select-action-filter').val('');
+                logsDataTable.columns().search('').draw();
+            });
+        }
+
+        /**
+         * 開啟 Payload 與例外鑑識 Modal
+         */
+        window.openPayloadModal = function (encodedRowJson) {
+            try {
+                const rowData = JSON.parse(decodeURIComponent(encodedRowJson));
+                
+                $('#modal-log-id').text(rowData.log_id || 'N/A');
+                $('#modal-google-email').text(rowData.google_email || 'GUEST');
+
+                // 格式化 Payload
+                let formattedPayload = rowData.request_payload;
+                try {
+                    if (typeof formattedPayload === 'string') {
+                        formattedPayload = JSON.stringify(JSON.parse(formattedPayload), null, 4);
+                    } else if (typeof formattedPayload === 'object') {
+                        formattedPayload = JSON.stringify(formattedPayload, null, 4);
+                    }
+                } catch (e) {
+                    // 若非合法 JSON 則維持原字串
+                }
+                $('#modal-payload-content').text(formattedPayload || '// 無攜帶請求參數 (Empty Payload)');
+
+                // 錯誤日誌顯示控制
+                if (rowData.error_message) {
+                    $('#modal-error-content').text(rowData.error_message);
+                    $('#modal-error-container').removeClass('d-none');
+                } else {
+                    $('#modal-error-container').addClass('d-none');
+                }
+
+                const forensicModal = new bootstrap.Modal(document.getElementById('payloadForensicModal'));
+                forensicModal.show();
+            } catch (err) {
+                console.error("解析 Payload 發生錯誤:", err);
+            }
+        };
+
+        /**
+         * 模擬動態資安日誌即時串流 (Live Telemetry Generator)
+         */
+        function startTelemetryStream() {
+            if (streamTimer) clearInterval(streamTimer);
+
+            const randomEmails = ['ray.founder@gmail.com', 'jarvis.ops@gmail.com', 'partner.hsu@gmail.com', 'prospect.lin@yahoo.com'];
+            const randomPages = ['H11000', 'H41000', 'T21000', 'H61000', 'API_GV_SYNC'];
+            const randomActions = ['PAGE_VIEW', 'LOGIN', 'EXPORT', 'VIEW'];
+
+            streamTimer = setInterval(() => {
+                if (!isStreamActive) return;
+
+                const now = new Date();
+                const timeStr = now.toTimeString().split(' ')[0];
+                const email = randomEmails[Math.floor(Math.random() * randomEmails.length)];
+                const page = randomPages[Math.floor(Math.random() * randomPages.length)];
+                const action = randomActions[Math.floor(Math.random() * randomActions.length)];
+                const latency = Math.floor(Math.random() * 80) + 10;
+                
+                const isBlocked = Math.random() < 0.15; // 15% 機率產生阻斷事件
+                const statusCode = isBlocked ? 403 : 200;
+                const statusBadge = isBlocked ? 
+                    `<span class="badge bg-danger text-white">403 FORBIDDEN</span>` : 
+                    `<span class="badge bg-success text-dark">200 OK</span>`;
+
+                const lineHtml = `
+                    <div class="stream-line ${isBlocked ? 'text-danger' : 'text-success'}">
+                        <span class="text-muted">[${timeStr}]</span>
+                        ${statusBadge}
+                        <span>${email}</span>
+                        <span class="text-muted">➔</span>
+                        <span class="text-secondary">[${page}] ${action}</span>
+                        <span class="text-muted ms-auto">${latency}ms</span>
+                    </div>
+                `;
+
+                const $container = $('#telemetry-stream-container');
+                $container.prepend(lineHtml);
+
+                // 維持最多 20 筆歷史
+                if ($container.children().length > 20) {
+                    $container.children().last().remove();
+                }
+            }, 3500);
+        }
+
+        /**
+         * 重新整理資料集（對接 PapaParse / GViz 擴充點）
+         */
+        function refreshLogsData() {
+            // 實體串接時可置換為:
+            // Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv", {
+            //     download: true,
+            //     header: true,
+            //     complete: function(results) { initLogsDataTable(results.data); }
+            // });
+            if (logsDataTable) {
+                logsDataTable.clear();
+                logsDataTable.rows.add(transformRawSheetData(MOCK_ACCESS_LOGS_DATA));
+                logsDataTable.draw();
+            }
+        }
+    </script>
+</body>
+</html>

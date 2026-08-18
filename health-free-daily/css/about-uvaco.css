@@ -1,0 +1,204 @@
+/* 核心色彩與變數系統 (UVACO Emerald Green Palette) */
+/* :root {
+    --uvaco-primary: #10B981;
+    --uvaco-dark: #062E1E;
+    --uvaco-bg-primary: #192821;
+    --uvaco-accent: #F59E0B;
+    --uvaco-text-primary: #FFFFFF;
+    --uvaco-text-primary: #E2E8F0;
+    --uvaco-text-muted: #94A3B8;
+    --uvaco-bg-card: #0D2218;
+    --uvaco-border-color: #1B4D36;
+} */
+
+/* html, body {
+    background-color: transparent;
+    color: var(--uvaco-text-primary);
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+    padding: 15px;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+} */
+
+/* 通用區塊卡片外框 */
+.section-block {
+    background: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.section-block:hover {
+    border-color: var(--uvaco-primary);
+}
+
+/* 標題與 Icon 樣式 */
+.block-title {
+    color: var(--uvaco-text-primary);
+    font-weight: 700;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.block-title i {
+    color: var(--uvaco-primary);
+}
+
+/* 內文與描述 */
+.block-text {
+    color: var(--uvaco-text-primary);
+    line-height: 1.8;
+    font-size: 0.98rem;
+    text-align: justify;
+}
+
+/* 示意圖片容器 (自適應高畫質圖片) */
+.img-container {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0A1710;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--uvaco-border-color);
+}
+
+.img-placeholder-icon {
+    font-size: 3rem;
+    color: #1B4D36;
+}
+
+/* 按鈕樣式 (高轉化 Emerald Button) */
+/* .btn-uvaco-primary {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: #FFFFFF !important;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 24px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    margin-top: 16px;
+}
+
+.btn-uvaco-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+} */
+
+/* .btn-uvaco-gold {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #000000 !important;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 16px;
+}
+
+.btn-uvaco-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.5);
+} */
+
+/* 宮格數據卡片 (KPI Stat Card) */
+.stat-card {
+    background: rgba(6, 46, 30, 0.6);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    height: 100%;
+}
+
+.stat-number {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--uvaco-primary);
+    margin-bottom: 4px;
+}
+
+.stat-number.gold {
+    color: var(--uvaco-accent);
+}
+
+.stat-label {
+    font-size: 0.88rem;
+    color: var(--uvaco-text-primary);
+    font-weight: 500;
+}
+
+/* 備註微型字體區塊 */
+.note-box {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--uvaco-accent);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: var(--uvaco-text-muted);
+    margin-top: 16px;
+}
+
+/* 標籤雲 (Pill Badges) */
+/* .badge-pill-custom {
+    background: #133D29;
+    color: #6EE7B7;
+    border: 1px solid #1E5C38;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin: 4px;
+} */
+
+/* 認證與據點清單 */
+.cert-card {
+    background: rgba(10, 23, 16, 0.8);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.cert-card-title {
+    color: var(--uvaco-primary);
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 手機端 RWD 適應規則 */
+@media ( max-width : 768px) {
+    .section-block {
+        padding: 20px 16px;
+    }
+    .mobile-order-first {
+        order: -1;
+    }
+    .img-container {
+        min-height: 180px;
+        margin-bottom: 16px;
+    }
+}

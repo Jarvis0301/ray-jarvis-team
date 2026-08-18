@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>開發指南 | 榮祥葡眾團隊核心系統</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/business-guide.js" defer></script>
+
+        <link rel="stylesheet" href="./css/business-guide.css">
+    </head>
+
+    <body>
+
+        <main class="container-fluid p-3 p-md-4">
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-gradient p-3">
+                        <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
+                            <div>
+                                <h2 class="fw-bold mb-2 text-info">
+                                    <i class="fa-solid fa-chess-knight me-2"></i> 線上與線下開發招商實戰指南
+                                </h2>
+                                <p class="text-secondary mb-0">
+                                    封裝標準化開發流程、精準談話術與常見異議排解策略，協助夥伴迅速建立高效事業組織。
+                                </p>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <span class="badge badge-category p-2 me-2">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> 內部防護等級：團隊機密
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-4 col-md-12 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fa-solid fa-filter me-2 text-info"></i> 開發轉換漏斗 (Funnel Model)
+                        </div>
+                        <div class="card-body">
+                            <canvas id="funnelChart" style="max-height: 220px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-md-12 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fa-solid fa-chart-column me-2 text-info"></i> 各管道開發效益與轉化率統計
+                        </div>
+                        <div class="card-body">
+                            <canvas id="channelChart" style="max-height: 220px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                            <span><i class="fa-solid fa-comments me-2 text-info"></i> 招商與異議排解實戰話術資料庫</span>
+                            <div class="mt-2 mt-sm-0">
+                                <button id="btnReloadSheet" class="btn btn-sm btn-outline-info">
+                                    <i class="fa-solid fa-rotate me-1"></i> 同步最新資料
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="guideTable" class="table table-dark table-hover w-100 align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>分類</th>
+                                            <th>情境目標 / 受眾類型</th>
+                                            <th>核心痛點與切入點</th>
+                                            <th>建議招商話術與對答 SOP</th>
+                                            <th>關鍵注意事項</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="badge badge-category"><i class="fa-solid fa-user-group me-1"></i> 線下暖身</span></td>
+                                            <td>上班族 (追求兼職加薪)</td>
+                                            <td>薪水凍漲、工時長、缺乏第二曲線</td>
+                                            <td>「現在大環境不穩定，多一份備胎收入更安心。我們團隊有完整的系統，利用下班 1 小時就能開始學習。」</td>
+                                            <td>切勿直接講述複雜制度，先建立危機意識與兼職可行性。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge badge-category"><i class="fa-solid fa-globe me-1"></i> 線上社群</span></td>
+                                            <td>全職寶媽 (希望經濟獨立)</td>
+                                            <td>照顧孩子無法外出、缺乏社交與成就感</td>
+                                            <td>「在家帶小孩也能透過手機學習與經營，團隊提供現成的雲端素材與線上研討會，彈性運用碎片時間。」</td>
+                                            <td>強調團隊後援與時間自由，降低其恐懼感。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge badge-category"><i class="fa-solid fa-triangle-exclamation me-1"></i> 異議排解</span></td>
+                                            <td>「這是直銷嗎？」</td>
+                                            <td>過去對傳統傳銷有壓迫、囤貨的刻板印象</td>
+                                            <td>「我們採用的是電商加團隊分享模式，不歸零、不囤貨，回饋機制非常透明，純粹分享優質產品。」</td>
+                                            <td>保持自信態度，清楚區隔傳統直銷與葡眾創新制度的優勢。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </body>
+</html>

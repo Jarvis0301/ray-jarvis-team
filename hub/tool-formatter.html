@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字處理工坊｜榮祥團隊核心戰情室</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-primary-light: rgba(139, 92, 246, 0.15);
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #f472b6;
+            --uvaco-accent-hover: #ec4899;
+            --uvaco-bg-body: #090514;
+            --uvaco-bg-surface: #130924;
+            --uvaco-bg-surface-hover: #1c0f35;
+            --uvaco-bg-glass: rgba(19, 9, 36, 0.75);
+            --uvaco-border: rgba(139, 92, 246, 0.25);
+            --uvaco-border-glow: rgba(192, 132, 252, 0.4);
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-muted: #9e8eb3;
+            --line-green: #06c755;
+            --line-bubble-bg: #85e25a;
+            --line-bg: #8c9cad;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-body);
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+            overflow-x: hidden;
+        }
+
+        /* 霓光滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--uvaco-bg-body);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--uvaco-border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--uvaco-primary);
+        }
+
+        /* 頂部戰術標題卡 */
+        .workspace-hero {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(244, 114, 182, 0.05) 100%);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        /* 核心工作艙卡片 */
+        .studio-panel {
+            background: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .studio-panel:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--uvaco-border);
+            padding-bottom: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .panel-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--uvaco-secondary);
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        /* 編輯區域核心 */
+        .editor-container {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-textarea {
+            width: 100%;
+            flex: 1;
+            min-height: 480px;
+            background-color: rgba(9, 5, 20, 0.85);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
+            font-size: 0.95rem;
+            line-height: 1.65;
+            padding: 1rem;
+            resize: vertical;
+            transition: all 0.2s ease;
+        }
+        .main-textarea:focus {
+            outline: none;
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+            background-color: rgba(9, 5, 20, 0.95);
+        }
+
+        /* 工具微按鈕 */
+        .btn-action-tool {
+            background: rgba(139, 92, 246, 0.12);
+            color: var(--uvaco-text-main);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 8px;
+            padding: 0.4rem 0.65rem;
+            font-size: 0.825rem;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            user-select: none;
+        }
+        .btn-action-tool:hover {
+            background: var(--uvaco-primary);
+            color: #ffffff;
+            border-color: var(--uvaco-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .btn-action-tool:active {
+            transform: translateY(0);
+        }
+
+        .btn-cta-glow {
+            background: linear-gradient(135deg, var(--uvaco-primary) 0%, var(--uvaco-accent) 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            padding: 0.6rem 1.25rem;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            transition: all 0.25s ease;
+        }
+        .btn-cta-glow:hover {
+            box-shadow: 0 6px 20px rgba(244, 114, 182, 0.5);
+            transform: translateY(-2px);
+            color: #ffffff;
+        }
+
+        /* 符號與模板標籤晶片 */
+        .chip-glyph {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-block;
+            margin: 0.2rem;
+            text-align: center;
+        }
+        .chip-glyph:hover {
+            background: var(--uvaco-accent);
+            color: #ffffff;
+            border-color: var(--uvaco-accent);
+            transform: scale(1.1);
+        }
+
+        .template-card {
+            background: rgba(9, 5, 20, 0.6);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 10px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.6rem;
+        }
+        .template-card:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--uvaco-secondary);
+            transform: translateX(3px);
+        }
+
+        /* 統計指標膠囊 */
+        .stat-badge {
+            background: rgba(9, 5, 20, 0.7);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 8px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--uvaco-secondary);
+        }
+
+        /* 擬真預覽模擬艙 (LINE / FB) */
+        .preview-phone-frame {
+            background: #1e1e24;
+            border: 4px solid #2d2d38;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 520px;
+        }
+
+        .preview-phone-header {
+            background: #18181f;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .line-screen {
+            background: var(--line-bg);
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .line-message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .line-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: bold;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .line-bubble {
+            background-color: var(--line-bubble-bg);
+            color: #111111;
+            border-radius: 14px;
+            border-top-left-radius: 3px;
+            padding: 0.75rem 0.9rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            max-width: 85%;
+            word-break: break-word;
+            white-space: pre-wrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .social-card-screen {
+            background: #18191a;
+            color: #e4e6eb;
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .social-post-box {
+            background: #242526;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid #3a3b3c;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        /* 違規詞警告標籤 */
+        .compliance-alert-pill {
+            background: rgba(251, 113, 133, 0.15);
+            border: 1px solid #fb7185;
+            color: #fb7185;
+            border-radius: 6px;
+            padding: 0.2rem 0.45rem;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            margin: 0.15rem;
+        }
+
+        /* 複製成功微互動 Toast */
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            padding: 0.85rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="workspace-hero">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-md-7">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge" style="background: rgba(139, 92, 246, 0.25); color: var(--uvaco-secondary); border: 1px solid var(--uvaco-border);">
+                        <i class="fa-solid fa-code-compare"></i> H960000 / tool-formatter.html
+                    </span>
+                    <span class="badge" style="background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">
+                        <i class="fa-solid fa-shield-halved"></i> 傳銷法規合規校驗生效中
+                    </span>
+                </div>
+                <h4 class="fw-bold mb-1" style="color: #ffffff;">
+                    <i class="fa-solid fa-align-left text-primary"></i> 智能文字處理工坊與社群排版中樞
+                </h4>
+                <p class="text-muted small mb-0" style="color: var(--uvaco-text-muted) !important;">
+                    專為榮祥團隊（Ray's Team）量身打造：支援全半形修正、中英空格排版、傳銷法規敏感字詞攔截、LINE 擬真氣泡即時預覽與高轉換公告生成。
+                </p>
+            </div>
+            <div class="col-12 col-md-5 text-md-end d-flex flex-wrap justify-content-md-end gap-2">
+                <button class="btn-action-tool" id="btnResetEditor" title="清空畫布內容">
+                    <i class="fa-solid fa-rotate-right"></i> 重置畫布
+                </button>
+                <button class="btn-action-tool" id="btnInsertDisclaimer" title="注入衛福部標準食品免責宣告">
+                    <i class="fa-solid fa-scale-balanced"></i> + 免責聲明
+                </button>
+                <button class="btn-cta-glow" id="btnCopyResult">
+                    <i class="fa-solid fa-copy"></i> 一鍵複製文案
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        
+        <div class="col-12 col-lg-3">
+            <div class="d-flex flex-column gap-3 h-100">
+                
+                <div class="studio-panel">
+                    <div class="panel-header">
+                        <h6 class="panel-title">
+                            <i class="fa-solid fa-wand-magic-sparkles me-2"></i> 智慧清洗引擎
+                        </h6>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn-action-tool justify-content-start" id="toolPangu">
+                            <i class="fa-solid fa-text-width me-2 text-info"></i> 中英文與數字自動加空格
+                        </button>
+                        <button class="btn-action-tool justify-content-start" id="toolCleanSpaces">
+                            <i class="fa-solid fa-broom me-2 text-warning"></i> 移除多餘空格與行尾空白
+                        </button>
+                        <button class="btn-action-tool justify-content-start" id="toolRemoveEmptyLines">
+                            <i class="fa-solid fa-align-justify me-2 text-accent"></i> 移除多餘空行 (合併換行)
+                        </button>
+                        <button class="btn-action-tool justify-content-start" id="toolNormalizeSymbols">
+                            <i class="fa-solid fa-quote-left me-2 text-success"></i> 標點符號全形/半形正規化
+                        </button>
+                        <button class="btn-action-tool justify-content-start" id="toolProductBrandNormalize">
+                            <i class="fa-solid fa-shield-heart me-2 text-primary"></i> 葡眾產品名稱標準正名化
+                        </button>
+                    </div>
+                </div>
+
+                <div class="studio-panel">
+                    <div class="panel-header">
+                        <h6 class="panel-title">
+                            <i class="fa-solid fa-icons me-2"></i> 戰術符號與標籤晶片
+                        </h6>
+                        <span class="small text-muted">點擊即插入</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="text-muted small fw-bold mb-1" style="font-size: 0.75rem;">【 專用重點框 】</div>
+                        <span class="chip-glyph" data-insert="【重要公告】">【重要公告】</span>
+                        <span class="chip-glyph" data-insert="【限時優惠】">【限時優惠】</span>
+                        <span class="chip-glyph" data-insert="【榮耀晉升】">【榮耀晉升】</span>
+                        <span class="chip-glyph" data-insert="【見證分享】">【見證分享】</span>
+                        <span class="chip-glyph" data-insert="【會議通知】">【會議通知】</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="text-muted small fw-bold mb-1" style="font-size: 0.75rem;">【 高亮引導 Emoji 】</div>
+                        <span class="chip-glyph" data-insert="🔥 ">🔥</span>
+                        <span class="chip-glyph" data-insert="✨ ">✨</span>
+                        <span class="chip-glyph" data-insert="💎 ">💎</span>
+                        <span class="chip-glyph" data-insert="🏆 ">🏆</span>
+                        <span class="chip-glyph" data-insert="📌 ">📌</span>
+                        <span class="chip-glyph" data-insert="👉 ">👉</span>
+                        <span class="chip-glyph" data-insert="🎯 ">🎯</span>
+                        <span class="chip-glyph" data-insert="🌿 ">🌿</span>
+                        <span class="chip-glyph" data-insert="📦 ">📦</span>
+                        <span class="chip-glyph" data-insert="🚀 ">🚀</span>
+                        <span class="chip-glyph" data-insert="💡 ">💡</span>
+                        <span class="chip-glyph" data-insert="✅ ">✅</span>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-bold mb-1" style="font-size: 0.75rem;">【 視覺分隔線 】</div>
+                        <span class="chip-glyph" data-insert="━━━━━━━━━━━━━━━━━━">━━ 實線 ━━</span>
+                        <span class="chip-glyph" data-insert="┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈">┈┈ 虛線 ┈┈</span>
+                        <span class="chip-glyph" data-insert="✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦">✦ 星芒 ✦</span>
+                    </div>
+                </div>
+
+                <div class="studio-panel flex-grow-1">
+                    <div class="panel-header">
+                        <h6 class="panel-title">
+                            <i class="fa-solid fa-folder-open me-2"></i> 團隊公告模板庫
+                        </h6>
+                    </div>
+                    <div class="overflow-auto pe-1" style="max-height: 280px;">
+                        <div class="template-card" data-template="opp">
+                            <div class="fw-bold text-white small"><i class="fa-solid fa-bullhorn text-primary me-1"></i> 每週事業說明會 (OPP)</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">標準招商引流、時間地點與講師介紹</div>
+                        </div>
+                        <div class="template-card" data-template="promotion">
+                            <div class="fw-bold text-white small"><i class="fa-solid fa-award text-warning me-1"></i> 夥伴榮耀晉升喜報</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">經理/主任/珍珠/藍鑽晉升榮譽表揚</div>
+                        </div>
+                        <div class="template-card" data-template="product">
+                            <div class="fw-bold text-white small"><i class="fa-solid fa-capsules text-success me-1"></i> 產品體驗與營養科普</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">合規無宣稱療效、健康生活日常分享</div>
+                        </div>
+                        <div class="template-card" data-template="reorder">
+                            <div class="fw-bold text-white small"><i class="fa-solid fa-box-open text-accent me-1"></i> 耗盡回購主動關懷提醒</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">客戶食用週期耗盡前 7 天溫馨回訪</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="studio-panel">
+                <div class="panel-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <h6 class="panel-title">
+                            <i class="fa-solid fa-pen-to-square me-2"></i> 編輯畫布
+                        </h6>
+                        <span class="badge bg-secondary text-dark fw-bold" id="lblModeStatus">LINE / 社群通用</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-badge" id="statChars"><i class="fa-solid fa-font me-1"></i> 0 字</span>
+                        <span class="stat-badge" id="statLines"><i class="fa-solid fa-bars me-1"></i> 1 行</span>
+                    </div>
+                </div>
+
+                <div id="complianceWarningBox" class="p-2 mb-2 rounded border border-danger d-none" style="background: rgba(239, 68, 68, 0.1);">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="small fw-bold text-danger">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> 偵測到違規宣稱敏感詞 (衛福部稽查風險)：
+                        </span>
+                        <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size: 0.7rem;" id="btnAutoFixCompliance">
+                            <i class="fa-solid fa-wrench me-1"></i> 一鍵合規替換
+                        </button>
+                    </div>
+                    <div id="complianceBadgesContainer" class="d-flex flex-wrap"></div>
+                </div>
+
+                <div class="editor-container">
+                    <textarea id="txtEditor" class="main-textarea" placeholder="請在此輸入或貼上公告、文案內容...&#10;點選左側工具即可一鍵進行智慧清洗、格式化與敏感詞校準。"></textarea>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between pt-2 mt-2 border-top border-secondary border-opacity-25 text-muted small">
+                    <div>
+                        <i class="fa-solid fa-clock me-1"></i> 預估閱讀時間：<span id="statReadTime" class="text-light">0 秒</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-shield-check text-success me-1"></i> 狀態：<span id="statComplianceState" class="text-success">法規合規檢測通過</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="studio-panel p-2">
+                
+                <div class="d-flex align-items-center justify-content-between p-2 mb-2 bg-dark rounded border border-secondary border-opacity-25">
+                    <span class="small fw-bold text-light">
+                        <i class="fa-solid fa-mobile-screen-button me-1 text-primary"></i> 擬真渲染預覽
+                    </span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="previewMode" id="pModeLine" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary py-1 px-2" for="pModeLine">
+                            <i class="fa-brands fa-line me-1" style="color: #06c755;"></i> LINE 聊天
+                        </label>
+                        <input type="radio" class="btn-check" name="previewMode" id="pModeSocial" autocomplete="off">
+                        <label class="btn btn-outline-primary py-1 px-2" for="pModeSocial">
+                            <i class="fa-brands fa-facebook me-1" style="color: #1877f2;"></i> 社群貼文
+                        </label>
+                    </div>
+                </div>
+
+                <div class="preview-phone-frame">
+                    <div class="preview-phone-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-chevron-left text-muted small"></i>
+                            <span class="small fw-bold text-white" id="previewHeaderTitle">榮祥團隊｜健康自由事業群</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-muted small">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <i class="fa-solid fa-bars"></i>
+                        </div>
+                    </div>
+
+                    <div class="line-screen" id="linePreviewContainer">
+                        <div class="text-center my-1">
+                            <span class="badge bg-dark bg-opacity-50 text-light fw-normal py-1 px-2" style="font-size: 0.7rem;">今日 上午 10:30</span>
+                        </div>
+                        <div class="line-message-row">
+                            <div class="line-avatar">Ray</div>
+                            <div class="line-bubble" id="lineBubbleContent">（尚未輸入任何內容，請在中央編輯器鍵入文字...）</div>
+                        </div>
+                    </div>
+
+                    <div class="social-card-screen d-none" id="socialPreviewContainer">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="line-avatar" style="background: #8b5cf6;">葡</div>
+                            <div>
+                                <div class="fw-bold text-white small">葡眾健康生活誌・榮祥體系</div>
+                                <div class="text-muted" style="font-size: 0.7rem;">剛剛 · <i class="fa-solid fa-earth-americas"></i> 公開</div>
+                            </div>
+                        </div>
+                        <div class="social-post-box" id="socialPostContent">（尚未輸入任何內容...）</div>
+                    </div>
+
+                    <div class="p-2 bg-dark text-center border-top border-secondary border-opacity-25" style="font-size: 0.75rem; color: var(--uvaco-text-muted);">
+                        <i class="fa-solid fa-circle-info me-1"></i> LINE 建議單則字數保持在 500 字內以達最佳閱讀率
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toastCopied" class="toast-notification">
+        <i class="fa-solid fa-circle-check fs-5"></i>
+        <div>
+            <div class="fw-bold">複製成功！</div>
+            <div class="small opacity-75">格式化文案已寫入剪貼簿，可直接至 LINE/FB 貼上。</div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊 文字處理工坊控制器 (TextFormatterEngine)
+         * 模組架構：解耦純函數、合規詞典過濾器、盤古中英排版、即時雙向預覽
+         */
+        const TextFormatterEngine = {
+            // 葡眾產品正名辭典
+            brandDict: {
+                '995': '995超級營養液',
+                '樟芝': '樟芝益',
+                '益生菌': '康爾喜乳酸菌',
+                '餐包': '葡眾原味餐包',
+                '百克斯': '百克斯膠囊',
+                '衛傑': '衛傑膠囊',
+                '迪康': '迪康沖泡飲',
+                '力盛': '力盛沖泡飲',
+                '和悅': '和悅膠囊',
+                '愛益': '愛益膠囊'
+            },
+
+            // 違規敏感詞過濾辭典 (違反食安法第28條療效清單)
+            illegalTerms: [
+                { term: '治療', fix: '調節生理機能' },
+                { term: '根治', fix: '深度保養調理' },
+                { term: '抗癌', fix: '增強體力與防護力' },
+                { term: '降血壓', fix: '促進新陳代謝' },
+                { term: '降血糖', fix: '維持健康數值' },
+                { term: '消炎', fix: '舒緩不適感' },
+                { term: '減肥', fix: '維持優美體態' },
+                { term: '排毒', fix: '促進體內環保' },
+                { term: '治好', fix: '獲得體感改善' }
+            ],
+
+            // 團隊常用模板庫
+            templates: {
+                opp: `【榮祥團隊｜事業招商說明會】🔥\n━━━━━━━━━━━━━━━━━━\n✨ 想掌握後疫情時代的健康與被動收入趨勢嗎？\n葡眾創始級戰略領導人親自拆解「百億大健康商機」與「雙軌晉升藍圖」！\n\n📌 活動資訊：\n▸ 日期：本週四 19:30 - 21:00 (19:00 開放入場)\n▸ 地點：台北營運中心 3 樓國際會議廳\n▸ 費用：榮祥團隊夥伴與新朋友一律免費\n\n👉 席位有限，請立即向推薦人登記保留名額！\n━━━━━━━━━━━━━━━━━━\n✦ 選擇比努力更重要，給自己一個翻轉未來的契機 💎`,
+                
+                promotion: `【榮耀晉升喜報｜熱烈恭賀】🏆✨\n━━━━━━━━━━━━━━━━━━\n狂賀！本體系優秀菁英夥伴 榮耀晉升【合格經理】！🎉\n\n在過去的幾個月裡，秉持著「幫助他人獲得健康」的初心，一步一腳印深耕市場，成功突破單月 12,000 SV 考核門檻！\n\n💎 唯有堅持，才能創造非凡！\n期待在未來的藍鑽舞台上，與大家一同見證更大的榮耀！🚀`,
+                
+                product: `【每日健康日常｜維持滿分活力的秘密】🌿\n━━━━━━━━━━━━━━━━━━\n現代人生活忙碌、外食頻繁，你有多久沒有好好照顧自己的身體了？\n\n我自己每天早起必備的秘密武器：\n🥛 原味餐包 + 995超級營養液 ＝ 滿滿的大豆發酵多醣體與優質營養！\n\n✨ 溫馨提醒：\n健康是日積月累的習慣，每天持續給身體最好的滋養！\n\n※ 本文為個人日常保養體感分享，食品不具備醫療效能，身體不適請洽專業醫師。`,
+                
+                reorder: `【溫馨關懷｜您的健康補給站】📦\n━━━━━━━━━━━━━━━━━━\n親愛的夥伴/客戶您好：\n\n系統推算您的【康爾喜乳酸菌】食用週期約已達 25 天，剩餘份量約即將食用完畢囉！✨\n\n益生菌的定殖需要長期持續補充，建議您提前盤點庫存，維持最佳的腸道防護力！\n若需協助代訂或配送，隨時在 LINE 上跟我說一聲唷 😊`
+            },
+
+            // 初始化入口
+            init: function() {
+                this.bindEvents();
+                this.renderStats();
+            },
+
+            // 綁定事件監聽
+            bindEvents: function() {
+                const self = this;
+
+                // 輸入內容時即時運算
+                $('#txtEditor').on('input propertychange', function() {
+                    self.renderStats();
+                    self.checkCompliance();
+                    self.updatePreview();
+                });
+
+                // 清空畫布
+                $('#btnResetEditor').on('click', function() {
+                    if (confirm('確定要清空編輯畫布嗎？未儲存的內容將會遺失。')) {
+                        $('#txtEditor').val('').trigger('input');
+                    }
+                });
+
+                // 一鍵追加免責聲明
+                $('#btnInsertDisclaimer').on('click', function() {
+                    const disclaimer = '\n\n━━━━━━━━━━━━━━━━━━\n【法律免責聲明】\n本內容為直銷商個人體感分享與日常保健宣導，食品非藥品，不具醫療效能亦不得取代正規醫療；個人體質各異，食用成效因人而異。';
+                    const current = $('#txtEditor').val();
+                    if (!current.includes('【法律免責聲明】')) {
+                        $('#txtEditor').val(current + disclaimer).trigger('input');
+                    }
+                });
+
+                // 複製至剪貼簿
+                $('#btnCopyResult').on('click', function() {
+                    const text = $('#txtEditor').val();
+                    if (!text.trim()) {
+                        alert('編輯區目前為空，無法複製！');
+                        return;
+                    }
+                    navigator.clipboard.writeText(text).then(function() {
+                        self.showToast();
+                    }).catch(function(err) {
+                        alert('複製失敗，請手動複製！');
+                    });
+                });
+
+                // 工具 1：盤古排版 (中英空格)
+                $('#toolPangu').on('click', function() {
+                    let val = $('#txtEditor').val();
+                    // 中文與英文、數字間自動加空格
+                    val = val.replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, '$1 $2');
+                    val = val.replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, '$1 $2');
+                    $('#txtEditor').val(val).trigger('input');
+                });
+
+                // 工具 2：移除多餘空格
+                $('#toolCleanSpaces').on('click', function() {
+                    let val = $('#txtEditor').val();
+                    val = val.split('\n').map(line => line.trim().replace(/[ \t]+/g, ' ')).join('\n');
+                    $('#txtEditor').val(val).trigger('input');
+                });
+
+                // 工具 3：移除多餘空行 (連續 3 個換行縮減為 2 個)
+                $('#toolRemoveEmptyLines').on('click', function() {
+                    let val = $('#txtEditor').val();
+                    val = val.replace(/\n\s*\n\s*\n/g, '\n\n');
+                    $('#txtEditor').val(val.trim()).trigger('input');
+                });
+
+                // 工具 4：標點正規化
+                $('#toolNormalizeSymbols').on('click', function() {
+                    let val = $('#txtEditor').val();
+                    val = val.replace(/,/g, '，')
+                             .replace(/:/g, '：')
+                             .replace(/;/g, '；')
+                             .replace(/!/g, '！')
+                             .replace(/\?/g, '？');
+                    $('#txtEditor').val(val).trigger('input');
+                });
+
+                // 工具 5：產品名稱正名
+                $('#toolProductBrandNormalize').on('click', function() {
+                    let val = $('#txtEditor').val();
+                    for (let key in self.brandDict) {
+                        const reg = new RegExp(key, 'g');
+                        val = val.replace(reg, self.brandDict[key]);
+                    }
+                    $('#txtEditor').val(val).trigger('input');
+                });
+
+                // 點擊符號晶片直接插入
+                $(document).on('click', '.chip-glyph', function() {
+                    const insertText = $(this).data('insert');
+                    self.insertAtCursor(insertText);
+                });
+
+                // 套用團隊文案模板
+                $(document).on('click', '.template-card', function() {
+                    const tKey = $(this).data('template');
+                    if (self.templates[tKey]) {
+                        $('#txtEditor').val(self.templates[tKey]).trigger('input');
+                    }
+                });
+
+                // 一鍵合規替換
+                $('#btnAutoFixCompliance').on('click', function() {
+                    let val = $('#txtEditor').val();
+                    self.illegalTerms.forEach(item => {
+                        val = val.replaceAll(item.term, item.fix);
+                    });
+                    $('#txtEditor').val(val).trigger('input');
+                });
+
+                // 預覽模式切換 (LINE vs 社群)
+                $('input[name="previewMode"]').on('change', function() {
+                    if ($('#pModeLine').is(':checked')) {
+                        $('#linePreviewContainer').removeClass('d-none');
+                        $('#socialPreviewContainer').addClass('d-none');
+                        $('#previewHeaderTitle').text('榮祥團隊｜健康自由事業群');
+                    } else {
+                        $('#linePreviewContainer').addClass('d-none');
+                        $('#socialPreviewContainer').removeClass('d-none');
+                        $('#previewHeaderTitle').text('社群動態預覽 (Facebook / IG)');
+                    }
+                });
+            },
+
+            // 游標處插入文字
+            insertAtCursor: function(text) {
+                const textarea = document.getElementById('txtEditor');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const before = textarea.value.substring(0, start);
+                const after = textarea.value.substring(end, textarea.value.length);
+                textarea.value = before + text + after;
+                textarea.selectionStart = textarea.selectionEnd = start + text.length;
+                textarea.focus();
+                $('#txtEditor').trigger('input');
+            },
+
+            // 統計字數、行數與閱讀時間
+            renderStats: function() {
+                const val = $('#txtEditor').val();
+                const charCount = val.length;
+                const lineCount = val ? val.split('\n').length : 1;
+                const readSeconds = Math.ceil(charCount / 8); // 平均每秒閱讀 8 個中文字
+
+                $('#statChars').html(`<i class="fa-solid fa-font me-1"></i> ${charCount} 字`);
+                $('#statLines').html(`<i class="fa-solid fa-bars me-1"></i> ${lineCount} 行`);
+                $('#statReadTime').text(`${readSeconds} 秒`);
+
+                // 字數警戒狀態 (LINE 建議單篇 500 字以內)
+                if (charCount > 1000) {
+                    $('#statChars').removeClass('text-info').addClass('text-danger fw-bold');
+                } else {
+                    $('#statChars').removeClass('text-danger fw-bold').addClass('text-info');
+                }
+            },
+
+            // 法規敏感詞即時攔截
+            checkCompliance: function() {
+                const val = $('#txtEditor').val();
+                const detected = [];
+
+                this.illegalTerms.forEach(item => {
+                    if (val.includes(item.term)) {
+                        detected.push(item);
+                    }
+                });
+
+                if (detected.length > 0) {
+                    $('#complianceWarningBox').removeClass('d-none');
+                    let badgesHtml = '';
+                    detected.forEach(d => {
+                        badgesHtml += `<span class="compliance-alert-pill"><i class="fa-solid fa-ban me-1"></i> ${d.term} ➔ 建議：${d.fix}</span>`;
+                    });
+                    $('#complianceBadgesContainer').html(badgesHtml);
+                    $('#statComplianceState').removeClass('text-success').addClass('text-danger').html('<i class="fa-solid fa-circle-exclamation me-1"></i> 含有違規敏感詞');
+                } else {
+                    $('#complianceWarningBox').addClass('d-none');
+                    $('#complianceBadgesContainer').empty();
+                    $('#statComplianceState').removeClass('text-danger').addClass('text-success').html('<i class="fa-solid fa-shield-check me-1"></i> 法規合規檢測通過');
+                }
+            },
+
+            // 更新手機擬真視圖
+            updatePreview: function() {
+                const val = $('#txtEditor').val();
+                const displayHtml = val ? val : '（尚未輸入任何內容，請在中央編輯器鍵入文字...）';
+                
+                $('#lineBubbleContent').text(displayHtml);
+                $('#socialPostContent').text(displayHtml);
+            },
+
+            // 顯示複製成功 Toast
+            showToast: function() {
+                const $toast = $('#toastCopied');
+                $toast.addClass('show');
+                setTimeout(function() {
+                    $toast.removeClass('show');
+                }, 3000);
+            }
+        };
+
+        // 頁面載入完成啟動
+        $(document).ready(function() {
+            TextFormatterEngine.init();
+        });
+    </script>
+</body>
+</html>

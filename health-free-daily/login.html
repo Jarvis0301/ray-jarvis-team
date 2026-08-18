@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-green">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="referrer" content="no-referrer-when-downgrade">
+        <title>健康生活與自由日常 - 身分驗證</title>
+
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+        <script src="../assets/js/auth-guard.js"></script>
+
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/index.js" defer></script>
+
+        <link rel="stylesheet" href="./css/index.css">
+
+        <script>
+            const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz_3J3O0uCElz3NG1WKobLQBzkWfdC0YO0I-nCQ662lMCmQVeXSdyaLdS8ui43dfz8v/exec";
+            const SESSION_KEY = 'ray_team_auth_session';
+
+            window.addEventListener('AppReady', function() {
+                versionSwitch();
+            });
+
+            // Google 官方登入完成後的回調函式
+            function handleCredentialResponse(response) {
+                let idToken = response.credential;
+                
+                $('#authSpinner').removeClass('d-none');
+                $('#authAlert').addClass('d-none');
+
+                $.ajax({
+                    url: GAS_API_URL,
+                    type: "POST",
+                    data: JSON.stringify({
+                        action: 'read',
+                        idToken: idToken,
+                        targetSystem: "public" // 指名驗證公開版系統權限
+                    }),
+                    contentType: "text/plain;charset=utf-8",
+                    dataType: "json",
+                    success: function(res) {
+                        $('#authSpinner').addClass('d-none');
+                        if (res.success) {
+                            const now = new Date().getTime();
+                            const sessionData = {
+                                user: res.user,
+                                userName: res.userName,
+                                role: res.role,
+                                permissions: res.permissions,
+                                signature: res.signature, // 修復：正確保存 GAS 防篡改數位簽章
+                                lastVerifiedAt: now,
+                                expireAt: res.expireAt || (now + (30 * 24 * 60 * 60 * 1000))
+                            };
+                            localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirectUrl = urlParams.get('redirect');
+                            window.location.href = (redirectUrl) ? decodeURIComponent(redirectUrl) : 'index.html';
+                        } else {
+                            showAuthError(res.message || "驗證失敗：您暫無存取此專區的權限！");
+                        }
+                    },
+                    error: function() {
+                        $('#authSpinner').addClass('d-none');
+                        showAuthError("無法連線至身份驗證伺服器，請檢查 GAS API 部署。");
+                    }
+                });
+            }
+
+            function showAuthError(msg) {
+                $('#authAlert').removeClass('d-none').text(msg);
+            }
+
+            function versionSwitch() {
+                const currentPath = window.location.pathname;
+                const mainBtn = document.getElementById('versionDropdownBtn');
+                const versionBtns = document.querySelectorAll('.open-version-btn');
+
+                const rawSession = localStorage.getItem('ray_team_auth_session');
+                let sessionData = null;
+                if (rawSession) {
+                    try {
+                        sessionData = JSON.parse(rawSession);
+                        const now = new Date().getTime();
+                        const hubPerm = (sessionData.permissions) ? sessionData.permissions['hub'] : null;
+
+                        // 有核心版權限才顯示
+                        if (sessionData.expireAt && sessionData.expireAt > now && (hubPerm === '編輯' || hubPerm === '檢視') && sessionData.signature) {
+                            $('#hubButton').show();
+                        } else {
+                            $('#hubButton').hide();
+                        }
+                    } catch (e) {
+                        $('#hubButton').hide();
+                        console.log(e);
+                    }
+                }
+
+                let matchedBtn = null;
+
+                // 1. 比對當前網址路徑，尋找對應的版本按鈕
+                versionBtns.forEach(btn => {
+                    const rawUrl = btn.getAttribute('data-url');
+                    
+                    // 提取關鍵路徑名稱（例如：../team/ -> /team/）
+                    const pathKey = rawUrl.replace(/\.\./g, '');
+
+                    if (pathKey && currentPath.includes(pathKey)) {
+                        matchedBtn = btn;
+                    }
+                });
+
+                // 若網址比對不到（例如在地端根目錄測試時），預設為第一個（公開版）
+                if (!matchedBtn && versionBtns.length > 0) {
+                    matchedBtn = versionBtns[0];
+                }
+
+                // 2. 自動更新 UI 狀態
+                if (matchedBtn) {
+                    // 設定當前按鈕的 active 狀態與「當前」徽章
+                    matchedBtn.classList.add('active');
+                    
+                    const badgeSpan = document.createElement('span');
+                    badgeSpan.className = 'badge bg-white text-dark shadow-sm ms-2';
+                    badgeSpan.textContent = '當前';
+                    //matchedBtn.appendChild(badgeSpan);
+
+                    // 更新主按鈕的內容與配色類別 (如 btn-green-subtle / btn-blue-subtle / btn-purple-subtle)
+                    if (mainBtn) {
+                        const colorBtnClass = Array.from(matchedBtn.classList).find(c => c.startsWith('btn-') && c.endsWith('-subtle'));
+                        const colorTextClass = "text-" + colorBtnClass.split("-")[1].toString();
+                        if (colorBtnClass) {
+                            mainBtn.className = mainBtn.className.replace(/btn-[a-z]+-subtle/g, colorBtnClass);
+                            badgeSpan.className = badgeSpan.className.replace(/text-[a-z]+/g, colorTextClass);
+                        }
+
+                        const labelSpan = matchedBtn.querySelector('span:first-child');
+                        if (labelSpan) {
+                            mainBtn.innerHTML = labelSpan.innerHTML;
+                        }
+                    }
+                }
+
+                // 3. 點擊按鈕開啟新視窗
+                versionBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const url = this.getAttribute('data-url');
+                        if (url) {
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                        }
+                    });
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-body-tertiary border-bottom border-secondary">
+            <div class="container-fluid">
+                <a class="navbar-brand text-secondary fw-bold" href="#">
+                    <i class="fa-solid fa-seedling"></i> 健康生活與自由日常
+                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- 下拉式選單 -->
+                    <div class="dropdown">
+                        <!-- 主按鈕：顏色與文字會由 JS 根據當前網址自動設定 -->
+                        <button id="versionDropdownBtn" type="button" class="btn btn-green-subtle btn-sm dropdown-toggle px-3 py-2 rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-leaf me-1"></i> 公開版
+                        </button>
+
+                        <!-- 下拉選單：內部按鈕排列 -->
+                        <div class="dropdown-menu dropdown-menu-end bg-transparent p-2 border-0" style="min-width: 150px;">
+                            <div class="d-flex flex-column gap-2">
+                                
+                                <!-- 公開版 -->
+                                <button type="button" id="publicButton" class="btn btn-green-subtle open-version-btn p-2 rounded-pill" data-url="../health-free-daily/">
+                                    <i class="fa-solid fa-leaf me-1"></i> 公開版
+                                </button>
+
+                                <!-- 團隊版 -->
+                                <button type="button" id="teamButton" class="btn btn-blue-subtle open-version-btn p-2 rounded-pill" data-url="../team/">
+                                    <i class="fa-solid fa-users-gear me-1"></i> 團隊版
+                                </button>
+
+                                <!-- 核心版 -->
+                                <button type="button" id="hubButton" class="btn btn-purple-subtle open-version-btn p-2 rounded-pill" data-url="../hub/">
+                                    <i class="fa-solid fa-diagram-project me-1"></i> 核心版
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 登出按鈕 -->
+                    <button class="btn btn-outline-danger btn-sm" onclick="window.uvacoLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> 登出
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-6">
+                    <div class="card bg-body-tertiary border-secondary-subtle p-4 text-center shadow-lg">
+                        <h3 class="text-secondary mb-3">
+                            <i class="fa-solid fa-right-to-bracket"></i> 專屬資源會員驗證
+                        </h3>
+                        <p class="text-muted mb-4">歡迎登入 Google 帳號以存取公開官網之專屬保健指南與研討會資源。</p>
+                        
+                        <div class="d-flex justify-content-center mb-3">
+                            <div id="g_id_onload"
+                                data-client_id="640635151045-bmu6985u73vbcgc6ef12pkgfa89pa8d8.apps.googleusercontent.com"
+                                data-callback="handleCredentialResponse"
+                                data-auto_prompt="false">
+                            </div>
+                            <div class="g_id_signin"
+                                data-type="standard"
+                                data-size="large"
+                                data-theme="filled_dark"
+                                data-text="sign_in_with"
+                                data-shape="rectangular">
+                            </div>
+                        </div>
+                        
+                        <div id="authSpinner" class="text-secondary d-none my-2">
+                            <i class="fa-solid fa-spinner fa-spin"></i> 核對會員權限與寫入稽核日誌...
+                        </div>
+                        <div id="authAlert" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+</html>

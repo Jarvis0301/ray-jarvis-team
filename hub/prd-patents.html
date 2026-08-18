@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葡眾網站 - 專利認證管理 (Patents & Awards CMS)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0a0814;
+            --bg-surface: #130f24;
+            --bg-card: rgba(26, 20, 48, 0.7);
+            --bg-card-hover: rgba(38, 29, 71, 0.85);
+            --border-color: rgba(139, 92, 246, 0.18);
+            --border-glow: rgba(168, 85, 247, 0.4);
+            
+            --purple-primary: #8b5cf6;
+            --purple-light: #c084fc;
+            --purple-dark: #581c87;
+            --purple-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+            --purple-glow: 0 8px 32px 0 rgba(124, 58, 237, 0.25);
+            
+            --neon-teal: #14b8a6;
+            --neon-gold: #f59e0b;
+            --neon-pink: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* 玻璃擬態卡片 */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-glow);
+        }
+
+        /* 標題與按鈕 */
+        .page-header-title {
+            background: var(--purple-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(109, 40, 217, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-purple:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-outline-purple {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple-light);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-outline-purple:hover, .btn-outline-purple.active {
+            background: var(--purple-primary);
+            color: #ffffff;
+            border-color: var(--purple-primary);
+        }
+
+        /* 專利徽章風格卡片 */
+        .patent-badge-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .patent-badge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--purple-primary);
+        }
+
+        .patent-badge-card.type-SNQ::before { background: var(--neon-teal); }
+        .patent-badge-card.type-GOLD_MEDAL::before { background: var(--neon-gold); }
+
+        .patent-badge-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--purple-light);
+            box-shadow: var(--purple-glow);
+        }
+
+        /* 標籤徽章 */
+        .badge-bio {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .badge-bio-invention {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-bio-snq {
+            background: rgba(20, 184, 166, 0.2);
+            color: #2dd4bf;
+            border: 1px solid rgba(20, 184, 166, 0.4);
+        }
+
+        .badge-bio-gold {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        /* 自定義 DataTable 紫色深色樣式 */
+        .dataTables_wrapper {
+            color: var(--text-muted);
+        }
+
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 8px !important;
+            margin-top: 15px !important;
+            margin-bottom: 15px !important;
+            border-color: transparent !important;
+        }
+
+        table.dataTable thead th {
+            background-color: rgba(23, 17, 43, 0.9) !important;
+            color: var(--purple-light) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            border-top: none !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px !important;
+        }
+
+        table.dataTable tbody tr {
+            background-color: var(--bg-card) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: var(--bg-card-hover) !important;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15);
+        }
+
+        table.dataTable tbody td {
+            border: none !important;
+            color: var(--text-main) !important;
+            padding: 14px 16px !important;
+            vertical-align: middle;
+        }
+
+        .dataTables_filter input, .dataTables_length select {
+            background: rgba(19, 15, 36, 0.8) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            padding: 6px 12px;
+        }
+
+        .dataTables_filter input:focus {
+            border-color: var(--purple-primary) !important;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4) !important;
+            outline: none;
+        }
+
+        .page-item .page-link {
+            background: rgba(19, 15, 36, 0.8);
+            border-color: var(--border-color);
+            color: var(--text-muted);
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+
+        .page-item.active .page-link {
+            background: var(--purple-primary);
+            border-color: var(--purple-primary);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 證書檢視 Lightbox 彈窗 */
+        .modal-content.purple-modal {
+            background: #15102a;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .cert-preview-frame {
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            background: rgba(10, 8, 20, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-lg-4 py-4">
+        
+        <div class="row align-items-center mb-4 gy-3">
+            <div class="col-12 col-md-7">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4 glass-panel text-center" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3);">
+                        <i class="fa-solid fa-award fa-2x" style="color: var(--purple-light);"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="page-header-title mb-0">專利認證與品質標章</h3>
+                            <span class="badge badge-bio badge-bio-invention">
+                                <i class="fa-solid fa-shield-halved"></i> H15000 CMS
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">維護葡萄王生技 234+ 項官方國際發明專利、SNQ 國家品質標章與產品關聯矩陣</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5 text-md-end">
+                <div class="d-flex flex-wrap justify-content-md-end gap-2">
+                    <button class="btn btn-outline-purple" id="btnSyncGoogleSheets">
+                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                    </button>
+                    <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#patentModal" onclick="openPatentModal('add')">
+                        <i class="fa-solid fa-plus"></i> 新增專利認證
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-lg-8">
+                <div class="glass-panel p-3 p-md-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-bold fs-6 text-white d-flex align-items-center">
+                            <i class="fa-solid fa-chart-pie me-2 text-purple" style="color: var(--purple-light);"></i> 專利技術與認證資產分佈
+                        </div>
+                        <span class="badge bg-dark text-muted border border-secondary small">Real-time Metrics</span>
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-5 mb-3 mb-md-0" style="height: 180px; position: relative;">
+                            <canvas id="patentDistChart"></canvas>
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="p-2 rounded-3" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);">
+                                        <div class="text-muted small">發明專利 (Invention)</div>
+                                        <div class="fs-4 fw-bold text-white mt-1" id="statInventionCount">186 <span class="fs-6 fw-normal text-muted">項</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 rounded-3" style="background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.2);">
+                                        <div class="text-muted small">SNQ 國家品質標章</div>
+                                        <div class="fs-4 fw-bold text-white mt-1" id="statSnqCount">32 <span class="fs-6 fw-normal text-muted">項</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 rounded-3" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2);">
+                                        <div class="text-muted small">國際發明獎金牌</div>
+                                        <div class="fs-4 fw-bold text-white mt-1" id="statGoldCount">28 <span class="fs-6 fw-normal text-muted">座</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 rounded-3" style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2);">
+                                        <div class="text-muted small">SKU 賦能關聯次數</div>
+                                        <div class="fs-4 fw-bold text-white mt-1" id="statRelCount">115 <span class="fs-6 fw-normal text-muted">次</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="glass-panel p-3 p-md-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="fw-bold fs-6 text-white mb-2 d-flex align-items-center">
+                            <i class="fa-solid fa-filter me-2" style="color: var(--purple-light);"></i> 專利類別篩選
+                        </div>
+                        <p class="text-muted small mb-3">依據官方認證類別切換檢視專利與產品關聯</p>
+                        
+                        <div class="d-flex flex-wrap gap-2 mb-3" id="filterButtonGroup">
+                            <button class="btn btn-outline-purple btn-sm active" data-filter="ALL">
+                                <i class="fa-solid fa-list-ul"></i> 全部標章 (246)
+                            </button>
+                            <button class="btn btn-outline-purple btn-sm" data-filter="INVENTION">
+                                <i class="fa-solid fa-microchip"></i> 發明專利
+                            </button>
+                            <button class="btn btn-outline-purple btn-sm" data-filter="SNQ">
+                                <i class="fa-solid fa-medal"></i> SNQ 標章
+                            </button>
+                            <button class="btn btn-outline-purple btn-sm" data-filter="GOLD_MEDAL">
+                                <i class="fa-solid fa-trophy"></i> 國際金牌
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex justify-content-between align-items-center text-muted small">
+                            <span><i class="fa-solid fa-database"></i> 數據源解耦狀態</span>
+                            <span class="text-success"><i class="fa-solid fa-circle-check"></i> GViz Connected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 p-md-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div class="fw-bold fs-5 text-white d-flex align-items-center">
+                    <i class="fa-solid fa-table-list me-2 text-purple" style="color: var(--purple-light);"></i> 專利認證與產品關聯清單 (prd_patents)
+                </div>
+                <div class="text-muted small">
+                    <i class="fa-solid fa-circle-info"></i> 點擊「證書圖檔」可調閱官方高清掃描檔進行核驗
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="patentsTable" class="table table-hover w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">排序</th>
+                            <th style="width: 15%;">專利/標章號</th>
+                            <th style="width: 12%;">認證類別</th>
+                            <th style="width: 25%;">專利中文名稱 / 技術亮點</th>
+                            <th style="width: 12%;">授權國別/機構</th>
+                            <th style="width: 10%;">頒發日期</th>
+                            <th style="width: 8%;">狀態</th>
+                            <th style="width: 10%; text-align: center;">操作管理</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patentTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="patentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content purple-modal">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center">
+                        <i class="fa-solid fa-award me-2" style="color: var(--purple-light);"></i> 編輯專利認證主檔
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-3">
+                    <form id="patentForm">
+                        <input type="hidden" id="patent_id">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">專利/標章公號 (patent_no) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="patent_no" placeholder="例：I524814 或 SNQ2025-A018" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">認證類別 (patent_type) <span class="text-danger">*</span></label>
+                                <select class="form-select bg-dark text-white border-secondary" id="patent_type">
+                                    <option value="INVENTION">發明專利 (INVENTION)</option>
+                                    <option value="SNQ">SNQ 國家品質標章 (SNQ)</option>
+                                    <option value="GOLD_MEDAL">國際發明展金牌 (GOLD_MEDAL)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small">專利中文名稱 (title_zh) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="title_zh" placeholder="例：樟芝菌絲體活性成分萃取與護肝用途" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">頒發國別或權威機構 (country_or_org)</label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="country_or_org" placeholder="例：中華民國經濟部智慧財產局">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">專利公告/頒發日期 (issue_date)</label>
+                                <input type="date" class="form-control bg-dark text-white border-secondary" id="issue_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">官方專利證書掃描圖檔網址 (certificate_url)</label>
+                                <input type="url" class="form-control bg-dark text-white border-secondary" id="certificate_url" placeholder="https://...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">徽章小圖示網址 (badge_icon_url)</label>
+                                <input type="url" class="form-control bg-dark text-white border-secondary" id="badge_icon_url" placeholder="https://...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">前台展示排序 (sort_order)</label>
+                                <input type="number" class="form-control bg-dark text-white border-secondary" id="sort_order" value="0">
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center pt-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" checked>
+                                    <label class="form-check-label text-white small" for="is_active">在前台專利專區公開展現</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="p-3 rounded-3" style="background: rgba(13, 10, 26, 0.7); border: 1px solid var(--border-color);">
+                                    <label class="form-label text-white small fw-bold mb-2">
+                                        <i class="fa-solid fa-link" style="color: var(--purple-light);"></i> 綁定賦能產品 SKU (prd_patent_rels)
+                                    </label>
+                                    <div class="row g-2" id="skuBindingContainer">
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-purple" id="btnSavePatent">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存認證資料
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="certViewerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content purple-modal">
+                <div class="modal-header border-0 pb-0">
+                    <h6 class="modal-title text-white fw-bold" id="certModalTitle">
+                        <i class="fa-solid fa-file-shield me-2" style="color: var(--neon-gold);"></i> 官方專利證書核驗
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <div class="cert-preview-frame mb-2" id="certImageWrapper">
+                        <img src="" id="certViewerImg" class="img-fluid rounded shadow" alt="專利證書" style="max-height: 480px;">
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center px-2">
+                        <span class="text-muted small" id="certNoDisplay">專利公號：-</span>
+                        <a href="#" id="certDownloadLink" target="_blank" class="btn btn-sm btn-outline-purple">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟原圖
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive@2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾核心架構 - 專利認證模組 (prd_patents & prd_patent_rels)
+         * 實作 Google 試算表欄位解耦與動態渲染
+         */
+
+        // 1. 欄位解耦對照字典 (Decoupled Column Mapping)
+        const PATENT_SCHEMA_MAPPING = {
+            id: ['id', 'ID', '專利識別碼'],
+            patent_no: ['patent_no', 'PatentNo', '專利號', '證書號碼'],
+            title_zh: ['title_zh', 'TitleZh', '專利中文名稱', '專利名稱'],
+            title_en: ['title_en', 'TitleEn', '專利英文名稱'],
+            country_or_org: ['country_or_org', 'Country', '頒發國別機構', '國家/機構'],
+            patent_type: ['patent_type', 'Type', '認證類別', '種類'],
+            badge_icon_url: ['badge_icon_url', 'BadgeIcon', '勳章圖示網址'],
+            certificate_url: ['certificate_url', 'CertificateUrl', '證書掃描網址', '證書圖檔'],
+            issue_date: ['issue_date', 'IssueDate', '公告日期', '頒發日期'],
+            sort_order: ['sort_order', 'SortOrder', '排序權重'],
+            is_active: ['is_active', 'IsActive', '是否公開', '啟用狀態']
+        };
+
+        // 葡眾核心產品 SKU 列表 (供 N:M 關聯綁定使用)
+        const MOCK_PRODUCTS = [
+            { id: 1, name: '995 超級營養液' },
+            { id: 2, name: '樟芝益 濃縮飲品' },
+            { id: 3, name: '康爾喜 乳酸菌顆粒' },
+            { id: 4, name: '康爾寧 膠囊' },
+            { id: 5, name: '衛傑 膠囊' },
+            { id: 6, name: '迪多寧 膠囊' }
+        ];
+
+        // 預設專利種子資料 (當 Google 試算表連線中斷或離線時之高韌性保證)
+        let patentDataset = [
+            {
+                id: 1,
+                patent_no: 'I524814',
+                title_zh: '樟芝菌絲體活性成分萃取與護肝及抗腫瘤用途',
+                title_en: 'Antrodia cinnamomea extracts and uses thereof',
+                country_or_org: '中華民國經濟部智財局',
+                patent_type: 'INVENTION',
+                badge_icon_url: '',
+                certificate_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+                issue_date: '2016-03-11',
+                sort_order: 1,
+                is_active: true,
+                bound_products: [2]
+            },
+            {
+                id: 2,
+                patent_no: 'US 9,872,884 B2',
+                title_zh: '預防聽力退化之猴頭菇菌絲體活性物質製備方法',
+                title_en: 'Hericium erinaceus mycelium for hearing loss prevention',
+                country_or_org: '美國專利商標局 (USPTO)',
+                patent_type: 'INVENTION',
+                badge_icon_url: '',
+                certificate_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+                issue_date: '2018-01-23',
+                sort_order: 2,
+                is_active: true,
+                bound_products: [1, 5]
+            },
+            {
+                id: 3,
+                patent_no: 'SNQ2025-A018',
+                title_zh: '康爾喜乳酸菌國家品質標章認證 (微膠囊雙層包埋)',
+                title_en: 'SNQ Quality Certified Probiotics Formulation',
+                country_or_org: '生策會 / SNQ 國家品質標章',
+                patent_type: 'SNQ',
+                badge_icon_url: '',
+                certificate_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+                issue_date: '2025-01-10',
+                sort_order: 3,
+                is_active: true,
+                bound_products: [3, 4]
+            },
+            {
+                id: 4,
+                patent_no: 'GENEVA-2024-G01',
+                title_zh: '瑞士日內瓦國際發明展金牌獎 - 蟬花多醣體護眼技術',
+                title_en: 'Geneva Inventions Gold Medal - Cordyceps cicadae',
+                country_or_org: '日內瓦國際發明展評審團',
+                patent_type: 'GOLD_MEDAL',
+                badge_icon_url: '',
+                certificate_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+                issue_date: '2024-04-18',
+                sort_order: 4,
+                is_active: true,
+                bound_products: [6]
+            }
+        ];
+
+        let dataTableInstance = null;
+        let chartInstance = null;
+
+        $(document).ready(function () {
+            initPatentChart();
+            initDataTable();
+            renderSkuCheckboxes();
+            bindEvents();
+        });
+
+        // 2. 初始化 Chart.js 圖表 (深色紫色系)
+        function initPatentChart() {
+            const ctx = document.getElementById('patentDistChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['發明專利', 'SNQ 標章', '發明獎金牌'],
+                    datasets: [{
+                        data: [186, 32, 28],
+                        backgroundColor: [
+                            '#8b5cf6', // Purple
+                            '#14b8a6', // Teal
+                            '#f59e0b'  // Gold
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(19, 15, 36, 0.95)',
+                            titleColor: '#c084fc',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(139, 92, 246, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            boxPadding: 6
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        // 3. 初始化 DataTable.js
+        function initDataTable() {
+            dataTableInstance = $('#patentsTable').DataTable({
+                data: patentDataset,
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋專利字號、名稱、國別...",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆 (共 _TOTAL_ 筆專利)",
+                    paginate: {
+                        first: '<i class="fa-solid fa-angles-left"></i>',
+                        last: '<i class="fa-solid fa-angles-right"></i>',
+                        next: '<i class="fa-solid fa-angle-right"></i>',
+                        previous: '<i class="fa-solid fa-angle-left"></i>'
+                    },
+                    emptyTable: "目前尚無專利認證資料"
+                },
+                columns: [
+                    { 
+                        data: 'sort_order',
+                        render: function(data) {
+                            return `<span class="badge bg-dark text-muted">#${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'patent_no',
+                        render: function(data, type, row) {
+                            return `<span class="fw-bold text-white font-monospace">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'patent_type',
+                        render: function(data) {
+                            if (data === 'INVENTION') {
+                                return `<span class="badge-bio badge-bio-invention"><i class="fa-solid fa-microchip me-1"></i> 發明專利</span>`;
+                            } else if (data === 'SNQ') {
+                                return `<span class="badge-bio badge-bio-snq"><i class="fa-solid fa-medal me-1"></i> 品質標章</span>`;
+                            } else {
+                                return `<span class="badge-bio badge-bio-gold"><i class="fa-solid fa-trophy me-1"></i> 國際金牌</span>`;
+                            }
+                        }
+                    },
+                    { 
+                        data: 'title_zh',
+                        render: function(data, type, row) {
+                            let boundTags = '';
+                            if (row.bound_products && row.bound_products.length > 0) {
+                                boundTags = row.bound_products.map(pId => {
+                                    const p = MOCK_PRODUCTS.find(item => item.id === pId);
+                                    return p ? `<span class="badge bg-secondary bg-opacity-25 text-purple-light border border-secondary border-opacity-25 me-1" style="font-size:0.7rem;">${p.name}</span>` : '';
+                                }).join('');
+                            }
+                            return `
+                                <div>
+                                    <div class="fw-bold text-white mb-1">${data}</div>
+                                    <div class="text-muted small">${row.title_en || 'None'}</div>
+                                    <div class="mt-1">${boundTags}</div>
+                                </div>
+                            `;
+                        }
+                    },
+                    { data: 'country_or_org' },
+                    { 
+                        data: 'issue_date',
+                        render: function(data) {
+                            return `<span class="text-muted small font-monospace">${data || '-'}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'is_active',
+                        render: function(data) {
+                            return data 
+                                ? `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25"><i class="fa-solid fa-check"></i> 公開</span>`
+                                : `<span class="badge bg-secondary bg-opacity-20 text-muted"><i class="fa-solid fa-eye-slash"></i> 隱藏</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-outline-purple" onclick="viewCertificate('${row.certificate_url}', '${row.patent_no}', '${row.title_zh}')" title="檢驗證書">
+                                        <i class="fa-solid fa-certificate"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-purple" onclick="openPatentModal('edit', ${row.id})" title="編輯專利">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePatent(${row.id})" title="刪除">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                order: [[0, 'asc']],
+                pageLength: 10
+            });
+        }
+
+        // 4. 動態渲染產品 SKU 勾選器
+        function renderSkuCheckboxes(selectedIds = []) {
+            const container = $('#skuBindingContainer');
+            container.empty();
+            MOCK_PRODUCTS.forEach(p => {
+                const isChecked = selectedIds.includes(p.id) ? 'checked' : '';
+                container.append(`
+                    <div class="col-6 col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input sku-checkbox" type="checkbox" value="${p.id}" id="sku_${p.id}" ${isChecked}>
+                            <label class="form-check-label text-white small" for="sku_${p.id}">
+                                ${p.name}
+                            </label>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        // 5. 開啟編輯/新增 Modal
+        window.openPatentModal = function(mode, id = null) {
+            if (mode === 'add') {
+                $('#patentForm')[0].reset();
+                $('#patent_id').val('');
+                $('#sort_order').val(patentDataset.length + 1);
+                $('#is_active').prop('checked', true);
+                renderSkuCheckboxes([]);
+            } else if (mode === 'edit' && id) {
+                const item = patentDataset.find(p => p.id === id);
+                if (item) {
+                    $('#patent_id').val(item.id);
+                    $('#patent_no').val(item.patent_no);
+                    $('#patent_type').val(item.patent_type);
+                    $('#title_zh').val(item.title_zh);
+                    $('#title_en').val(item.title_en);
+                    $('#country_or_org').val(item.country_or_org);
+                    $('#issue_date').val(item.issue_date);
+                    $('#certificate_url').val(item.certificate_url);
+                    $('#badge_icon_url').val(item.badge_icon_url);
+                    $('#sort_order').val(item.sort_order);
+                    $('#is_active').prop('checked', item.is_active);
+                    renderSkuCheckboxes(item.bound_products || []);
+                    $('#patentModal').modal('show');
+                }
+            }
+        };
+
+        // 6. 檢驗專利證書 Lightbox
+        window.viewCertificate = function(url, no, title) {
+            $('#certModalTitle').html(`<i class="fa-solid fa-file-shield me-2" style="color: var(--neon-gold);"></i> 官方專利證書核驗 - ${title}`);
+            $('#certNoDisplay').text(`專利公號：${no}`);
+            $('#certViewerImg').attr('src', url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80');
+            $('#certDownloadLink').attr('href', url || '#');
+            $('#certViewerModal').modal('show');
+        };
+
+        // 7. 刪除專利
+        window.deletePatent = function(id) {
+            if (confirm(`確定要刪除識別碼 ID #${id} 的專利認證資料嗎？此操作將一併解除關聯之 SKU。`)) {
+                patentDataset = patentDataset.filter(p => p.id !== id);
+                refreshTableData();
+            }
+        };
+
+        // 8. 儲存專利表單
+        $('#btnSavePatent').on('click', function() {
+            const idVal = $('#patent_id').val();
+            const boundSkus = [];
+            $('.sku-checkbox:checked').each(function() {
+                boundSkus.push(parseInt($(this).val()));
+            });
+
+            const newRecord = {
+                id: idVal ? parseInt(idVal) : Date.now(),
+                patent_no: $('#patent_no').val(),
+                patent_type: $('#patent_type').val(),
+                title_zh: $('#title_zh').val(),
+                title_en: $('#title_en').val() || '',
+                country_or_org: $('#country_or_org').val() || '台灣',
+                issue_date: $('#issue_date').val(),
+                certificate_url: $('#certificate_url').val() || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+                badge_icon_url: $('#badge_icon_url').val(),
+                sort_order: parseInt($('#sort_order').val()) || 0,
+                is_active: $('#is_active').is(':checked'),
+                bound_products: boundSkus
+            };
+
+            if (!newRecord.patent_no || !newRecord.title_zh) {
+                alert('請完整填寫專利字號與中文名稱！');
+                return;
+            }
+
+            if (idVal) {
+                const index = patentDataset.findIndex(p => p.id === parseInt(idVal));
+                if (index > -1) patentDataset[index] = newRecord;
+            } else {
+                patentDataset.push(newRecord);
+            }
+
+            $('#patentModal').modal('hide');
+            refreshTableData();
+        });
+
+        // 重新加載 DataTable
+        function refreshTableData() {
+            if (dataTableInstance) {
+                dataTableInstance.clear();
+                dataTableInstance.rows.add(patentDataset);
+                dataTableInstance.draw();
+            }
+        }
+
+        // 9. 事件綁定 (分類篩選與試算表同步)
+        function bindEvents() {
+            // 分類篩選切換
+            $('#filterButtonGroup button').on('click', function() {
+                $('#filterButtonGroup button').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                if (filter === 'ALL') {
+                    dataTableInstance.column(2).search('').draw();
+                } else {
+                    dataTableInstance.column(2).search(filter).draw();
+                }
+            });
+
+            // 試算表 GViz / PapaParse 解耦同步示範
+            $('#btnSyncGoogleSheets').on('click', function() {
+                const $btn = $(this);
+                $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 載入中...').prop('disabled', true);
+                
+                // 模擬 GViz API 抓取與解耦轉換流程
+                setTimeout(() => {
+                    $btn.html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表').prop('disabled', false);
+                    alert('已成功透過解耦管道同步 Google 試算表 [01_產品 - 專利認證主表] 最新數據！');
+                }, 900);
+            });
+        }
+    </script>
+</body>
+</html>

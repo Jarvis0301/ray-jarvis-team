@@ -1,0 +1,98 @@
+/* TO DO：改成在JS中不要有預設資料，如果連不到試算表就跳出提示（AppDialog.alert）
+
+AppDialog.alert範例：
+「
+    AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
+        title: "未選擇商品",
+        icon: "fa-solid fa-circle-exclamation text-warning"
+    });
+」 */
+
+// 設定 Google 試算表 ID 與工作表名稱 (營運時替換此處ID)
+const SPREADSHEET_ID = 'YOUR_GOOGLE_SHEET_ID';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Materials`;
+
+// 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function() {
+    // 1. 初始化 DataTable.js (暗黑主題配對)
+    const materialsTable = $('#materialsTable').DataTable();
+
+    // 2. 初始化 Chart.js (學習進度圓弧圖)
+    const ctx = document.getElementById('learningProgressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['已通關階段', '未解鎖階段'],
+            datasets: [{
+                data: [75, 25],
+                backgroundColor: [
+                    '#38bdf8',
+                    '#334155'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' ' + context.label + ': ' + context.raw + '%';
+                        }
+                    }
+                }
+            },
+            cutout: '75%'
+        }
+    });
+
+    // 3. PapaParse / gviz 動態數據抓取與欄位解耦架構實作
+    function loadGoogleSheetData() {
+        Papa.parse(GVIZ_URL, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                if (results.data && results.data.length > 0) {
+                    // 清空 DataTable
+                    materialsTable.clear();
+
+                    // 欄位解耦對映映射 Adapter (不依賴固定的欄位標題文字)
+                    results.data.forEach(function(row) {
+                        const keys = Object.keys(row);
+                        const title = row[keys[0]] || '未命名教材';
+                        const category = row[keys[1]] || '通用';
+                        const format = row[keys[2]] || 'PDF';
+                        const stage = row[keys[3]] || '全階段';
+                        const usage = row[keys[4]] || '自學研讀';
+                        const downloadUrl = row[keys[5]] || '#';
+
+                        materialsTable.row.add([
+                            `<span class="fw-bold text-white"><i class="fa-regular fa-file text-info me-2"></i>${title}</span>`,
+                            `<span class="badge bg-primary">${category}</span>`,
+                            format,
+                            stage,
+                            usage,
+                            `<a href="${downloadUrl}" class="btn btn-blue btn-sm" target="_blank"><i class="fa-solid fa-download me-1"></i>下載</a>`
+                        ]);
+                    });
+
+                    materialsTable.draw();
+                }
+            },
+            error: function(err) {
+                console.log('Google 試算表動態同步訊息：使用預設備援資料庫。');
+            }
+        });
+    }
+
+    // 按鈕觸發同步
+    $('#btnReloadSheet').on('click', function() {
+        loadGoogleSheetData();
+    });
+});

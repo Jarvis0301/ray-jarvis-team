@@ -1,654 +1,95 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-bs-theme="dark-green">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>健康生活與自由日常 | 榮祥團隊 Ray's Team</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
         
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-        
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+        <script src="../assets/js/vendor-loader.js"></script>
 
-        <script>
-            // 設定 Google 試算表 CSV 發布連結
-            const SPREADSHEET_ID = '1nY-6mo9trXLMwkRGOqdvBU_va75DmsxIONIraMtTv2k';
+        <script src="../assets/js/common.js"></script>
 
-            // 備用預設選單數據
-            const fallbackMenuRawRows = [
-                ['m1', '戰情室首頁', 'Home', '0', 'root', 'home.html', 'fas fa-house', 'Y'],
-                ['m2', '關於我們', 'About Us', '0', 'root', '#', 'fas fa-building', 'Y'],
-                ['m2_1', '公司簡介', 'Company Profile', '1', 'm2', 'about-uvaco.html', 'fas fa-award', 'Y'],
-                ['m2_2', '團隊簡介', 'Team Profile', '1', 'm2', 'about-team.html', 'fas fa-users-gear', 'Y'],
-                ['m3', '產品護城河', 'Products', '0', 'root', '#', 'fas fa-box-open', 'Y'],
-                ['m3_1', '保健食品', 'Supplements', '1', 'm3', 'products.html', 'fas fa-pills', 'Y'],
-                ['m4', '官方企業網站', 'Official Site', '0', 'root', 'https://www.pro-partner.com.tw', 'fas fa-globe', 'Y']
-            ];
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-            let menuTreeMap = new Map();
+        <script src="./js/index.js" defer></script>
 
-            $(document.body).ready(function() {
-                initSidebarToggle();
-                fetchGoogleSheetMenu();
-                initDesktopSitemapObserver();
-                initIframeResizeListener();
-                
-                // 預設載入首頁內容
-                loadPage('home.html');
-            });
-
-            // 1. 左側選單收折邏輯
-            function initSidebarToggle() {
-                $('#sidebarToggle').on('click', function() {
-                    if ($(window).width() >= 992) {
-                        $('#portalSidebar').toggleClass('collapsed');
-                        $('#portalWrapper').toggleClass('sidebar-collapsed');
-                    } else {
-                        $('#portalSidebar').toggleClass('mobile-open');
-                    }
-                });
-
-                $(document).on('click', function(e) {
-                    if ($(window).width() < 992) {
-                        if (!$(e.target).closest('#portalSidebar, #sidebarToggle').length) {
-                            $('#portalSidebar').removeClass('mobile-open');
-                        }
-                    }
-                });
-            }
-
-            // 2. 抓取 Google 試算表資料（索引解耦模式）
-            function fetchGoogleSheetMenu() {
-                const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("公開版")}`;
-                
-                Papa.parse(url, {
-                    download: true,
-                    header: false,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        if (results.data && results.data.length > 1) {
-                            processAndRenderMenu(results.data.slice(1));
-                        } else {
-                            processAndRenderMenu(fallbackMenuRawRows);
-                        }
-                    },
-                    error: function(err) {
-                        console.warn('Google 試算表抓取失敗，啟用備用選單數據:', err);
-                        processAndRenderMenu(fallbackMenuRawRows);
-                    }
-                });
-            }
-
-            // 3. 處理數據並生成樹狀導覽
-            function processAndRenderMenu(rawRows) {
-                menuTreeMap.clear();
-
-                const items = rawRows.map(row => {
-                    const isValidRaw = String(row[7] || '').trim().toUpperCase();
-                    const isValid = (isValidRaw === 'Y' || isValidRaw === 'TRUE' || isValidRaw === '1' || isValidRaw === '是');
-
-                    return {
-                        id: String(row[0] || '').trim(),
-                        titleCn: String(row[1] || '').trim(),
-                        titleEn: String(row[2] || '').trim(),
-                        level: parseInt(String(row[3] || '0').trim(), 10) || 0,
-                        parentId: String(row[4] || 'root').trim(),
-                        link: String(row[5] || '#').trim(),
-                        icon: String(row[6] || 'fas fa-circle-dot').trim(),
-                        isActive: isValid
-                    };
-                }).filter(item => item.id !== '' && item.isActive);
-
-                items.forEach(item => {
-                    const pid = item.parentId || 'root';
-                    if (!menuTreeMap.has(pid)) {
-                        menuTreeMap.set(pid, []);
-                    }
-                    menuTreeMap.get(pid).push(item);
-                });
-
-                const $menuContainer = $('#dynamicMenuContainer');
-                $menuContainer.empty().append(buildRecursiveMenuHtml('root', 0));
-                renderSitemapFooter();
-
-                $('.parent-toggle').off('click').on('click', function(e) {
-                    e.preventDefault();
-                    const targetId = $(this).data('target');
-                    $(`#${targetId}`).slideToggle(200).toggleClass('show');
-                    $(this).find('.submenu-arrow').first().toggleClass('fa-rotate-180');
-                });
-            }
-
-            // 4. 遞歸構建無限層級選單 HTML
-            function buildRecursiveMenuHtml(parentId, depth) {
-                const children = menuTreeMap.get(parentId) || [];
-                if (children.length === 0) return '';
-
-                const ulClass = (depth === 0) ? 'sidebar-menu' : 'submenu-container';
-                const ulId = (depth > 0) ? `id="submenu-${parentId}"` : '';
-                
-                let html = `<ul class="${ulClass}" ${ulId}>`;
-
-                children.forEach(item => {
-                    const subChildren = menuTreeMap.get(item.id) || [];
-                    const hasChildren = subChildren.length > 0;
-                    const isExternal = item.link.startsWith('http://') || item.link.startsWith('https://');
-
-                    html += `<li class="nav-item">`;
-
-                    if (hasChildren) {
-                        html += `
-                            <a href="#" class="nav-item-link parent-toggle" data-target="submenu-${item.id}">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="menu-icon-box"><i class="${item.icon}"></i></span>
-                                    <span class="menu-text"> ${item.titleCn}</span>
-                                </div>
-                                <i class="fas fa-chevron-down submenu-arrow small"></i>
-                            </a>
-                            ${buildRecursiveMenuHtml(item.id, depth + 1)}
-                        `;
-                    } else {
-                        const targetAttr = isExternal ? 'target="_blank"' : '';
-                        const clickHandler = isExternal ? '' : `onclick="loadPage('${item.link}'); return false;"`;
-
-                        html += `
-                            <a href="${item.link}" ${targetAttr} ${clickHandler} class="nav-item-link">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="menu-icon-box"><i class="${item.icon}"></i></span>
-                                    <span class="menu-text"> ${item.titleCn}</span>
-                                </div>
-                                ${isExternal ? '<i class="fas fa-arrow-up-right-from-square small text-muted"></i>' : ''}
-                            </a>
-                        `;
-                    }
-
-                    html += `</li>`;
-                });
-
-                html += `</ul>`;
-                return html;
-            }
-
-            // 5. 【關鍵核心】iFrame 無縫切換與 100% JS 變數隔離引擎
-            function loadPage(pageUrl) {
-                if (!pageUrl || pageUrl === '#') return;
-
-                $('#portalSidebar').removeClass('mobile-open');
-
-                // 使用 iFrame 載入頁面，徹底達成 JS 作用域完全隔離！
-                const $container = $('#page-content-container');
-                $container.html(`
-                    <iframe id="portal-subpage-frame" 
-                            class="seamless-iframe" 
-                            src="${pageUrl}" 
-                            scrolling="no" 
-                            title="Subpage Content">
-                    </iframe>
-                `);
-
-                // 綁定 iFrame 載入事件與自動高度調整
-                const frame = document.getElementById('portal-subpage-frame');
-                frame.onload = function() {
-                    autoResizeIframe(frame);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                };
-            }
-
-            // 6. 消弭二次卷軸：動態即時同步 iFrame 高度與 Body
-            function autoResizeIframe(frame) {
-                try {
-                    if (frame && frame.contentWindow && frame.contentWindow.document.body) {
-                        // 取得子頁面實際 DOM 高度
-                        const body = frame.contentWindow.document.body;
-                        const html = frame.contentWindow.document.documentElement;
-                        const contentHeight = Math.max(
-                            body.scrollHeight, body.offsetHeight,
-                            html.clientHeight, html.scrollHeight, html.offsetHeight
-                        );
-
-                        // 強制套用高度給 iFrame，消除內部滾動條
-                        frame.style.height = contentHeight + 'px';
-
-                        // 監聽子頁面 DOM 變動（例如展開摺疊或載入資料）
-                        if (frame.contentWindow.ResizeObserver) {
-                            const observer = new frame.contentWindow.ResizeObserver(() => {
-                                frame.style.height = frame.contentWindow.document.body.scrollHeight + 'px';
-                            });
-                            observer.observe(frame.contentWindow.document.body);
-                        }
-                    }
-                } catch (e) {
-                    console.warn('iFrame 跨網域存取受限，採用預設高度設定:', e);
-                    frame.style.height = '800px';
-                }
-            }
-
-            // 7. 監聽視窗縮放，自動調整 iFrame
-            function initIframeResizeListener() {
-                $(window).on('resize', function() {
-                    const frame = document.getElementById('portal-subpage-frame');
-                    if (frame) {
-                        autoResizeIframe(frame);
-                    }
-                });
-            }
-
-            // 8. 電腦版 Sitemap 頁尾
-            function renderSitemapFooter() {
-                const $sitemapContainer = $('#sitemapContainer');
-                $sitemapContainer.empty();
-
-                const rootNodes = menuTreeMap.get('root') || [];
-
-                rootNodes.forEach(root => {
-                    const children = menuTreeMap.get(root.id) || [];
-                    const iconClass = root.icon || 'fas fa-circle-dot';
-
-                    let sitemapBlockHtml = `
-                        <div class="col-lg-3 col-md-4">
-                            <div class="fw-bold text-success mb-2">
-                                <i class="${iconClass}"></i> ${root.titleCn}
-                            </div>`;
-
-                    if (children.length > 0) {
-                        sitemapBlockHtml += `<ul class="sitemap-list">`;
-                        children.forEach(child => {
-                            const childExternal = child.link.startsWith('http://') || child.link.startsWith('https://');
-                            const targetAttr = childExternal ? 'target="_blank"' : '';
-                            const clickHandler = childExternal ? '' : `onclick="loadPage('${child.link}'); return false;"`;
-
-                            sitemapBlockHtml += `
-                                <li>
-                                    <a href="${child.link}" ${targetAttr} ${clickHandler}>
-                                        <i class="${child.icon} me-1"></i> ${child.titleCn}
-                                    </a>
-                                </li>`;
-                        });
-                        sitemapBlockHtml += `</ul>`;
-                    }
-
-                    sitemapBlockHtml += `</div>`;
-                    $sitemapContainer.append(sitemapBlockHtml);
-                });
-            }
-
-            // 9. IntersectionObserver 觸發 Sitemap 漸顯
-            function initDesktopSitemapObserver() {
-                if (!('IntersectionObserver' in window)) {
-                    $('#desktopSitemap').addClass('visible');
-                    return;
-                }
-
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            $('#desktopSitemap').addClass('visible');
-                        }
-                    });
-                }, { threshold: 0.2 });
-
-                const footerTarget = document.getElementById('portalFooter');
-                if (footerTarget) {
-                    observer.observe(footerTarget);
-                }
-            }
-        </script>
-
-        <style>
-            :root {
-                --bg-main: #081612;
-                --bg-sidebar: #0d1f18;
-                --bg-card: #12251e;
-                --bg-header: #0a1b14;
-                --accent-emerald: #10b981;
-                --accent-green-bright: #34d399;
-                --accent-hover: rgba(52, 211, 153, 0.15);
-                --border-color: rgba(52, 211, 153, 0.2);
-                --text-main: #f1f5f9;
-                --text-muted: #94a3b8;
-                --sidebar-width: 280px;
-                --sidebar-collapsed-width: 80px;
-                --header-height: 70px;
-            }
-
-            body {
-                background-color: var(--bg-main);
-                color: var(--text-main);
-                font-family: 'Noto Sans TC', sans-serif;
-                margin: 0;
-                padding: 0;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                overflow-x: hidden;
-            }
-
-            /* 1. 頂部標題欄 */
-            .portal-header {
-                height: var(--header-height);
-                background-color: var(--bg-header);
-                border-bottom: 1px solid var(--border-color);
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1030;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 1.5rem;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            }
-
-            .brand-logo {
-                color: var(--accent-green-bright);
-                font-size: 1.25rem;
-                font-weight: 700;
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-            .toggle-btn {
-                background: transparent;
-                border: 1px solid var(--border-color);
-                color: var(--accent-green-bright);
-                padding: 0.4rem 0.8rem;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .toggle-btn:hover {
-                background-color: var(--accent-hover);
-                color: #ffffff;
-            }
-
-            /* 2. 主區域佈局容器 */
-            .portal-wrapper {
-                display: flex;
-                flex: 1;
-                margin-top: var(--header-height);
-                position: relative;
-            }
-
-            /* 3. 左側動態選單 */
-            .portal-sidebar {
-                width: var(--sidebar-width);
-                background-color: var(--bg-sidebar);
-                border-right: 1px solid var(--border-color);
-                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                position: fixed;
-                top: var(--header-height);
-                bottom: 0;
-                left: 0;
-                z-index: 1020;
-                overflow-y: auto;
-                overflow-x: hidden;
-                display: flex;
-                flex-direction: column;
-            }
-
-            /* 桌機收折狀態 */
-            .portal-sidebar.collapsed {
-                width: var(--sidebar-collapsed-width);
-            }
-
-            .portal-sidebar.collapsed .menu-text,
-            .portal-sidebar.collapsed .submenu-arrow {
-                display: none !important;
-            }
-
-            .portal-sidebar.collapsed .nav-item-link {
-                justify-content: center;
-                padding: 0.8rem 0;
-            }
-
-            .portal-sidebar.collapsed .submenu-container {
-                display: none !important;
-            }
-
-            /* 選單樣式 */
-            .sidebar-menu, .submenu-container {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .sidebar-menu {
-                padding: 1rem 0.75rem;
-            }
-
-            .submenu-container {
-                padding-left: 1rem;
-                display: none;
-            }
-
-            .submenu-container.show {
-                display: block;
-            }
-
-            .nav-item-link {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0.75rem 1rem;
-                color: var(--text-main);
-                text-decoration: none;
-                border-radius: 8px;
-                margin-bottom: 0.3rem;
-                transition: all 0.25s ease;
-                font-size: 0.95rem;
-            }
-
-            .nav-item-link:hover, .nav-item-link.active {
-                background-color: var(--accent-hover);
-                color: var(--accent-green-bright);
-                border-left: 3px solid var(--accent-emerald);
-            }
-
-            .menu-icon-box {
-                width: 24px;
-                text-align: center;
-                font-size: 1.1rem;
-                color: var(--accent-emerald);
-            }
-
-            /* 4. 中央動態內容區塊 */
-            .portal-content {
-                background-color: var(--bg-main);
-                flex: 1;
-                margin-left: var(--sidebar-width);
-                transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                min-height: calc(100vh - var(--header-height));
-                display: flex;
-                flex-direction: column;
-            }
-
-            .portal-wrapper.sidebar-collapsed .portal-content {
-                margin-left: var(--sidebar-collapsed-width);
-            }
-
-            /* 關鍵：iFrame 容器樣式（徹底銷毀二次卷軸） */
-            #page-content-container {
-                flex: 1;
-                width: 100%;
-                position: relative;
-            }
-
-            .seamless-iframe {
-                width: 100%;
-                height: 100%;
-                min-height: 500px;
-                border: none;
-                overflow: hidden;
-                display: block;
-            }
-
-            /* 5. 頁尾樣式 */
-            .portal-footer {
-                background-color: var(--bg-header);
-                border-top: 1px solid var(--border-color);
-                padding: 2rem 2rem 2rem 2rem;
-                margin-top: auto;
-            }
-
-            .desktop-sitemap {
-                border-bottom: 1px solid var(--border-color);
-                padding-bottom: 2rem;
-                margin-bottom: 2rem;
-                opacity: 0;
-                transform: translateY(20px);
-                transition: opacity 0.6s ease, transform 0.6s ease;
-            }
-
-            .desktop-sitemap.visible {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            .sitemap-title {
-                color: var(--accent-green-bright);
-                font-size: 1.1rem;
-                font-weight: 700;
-                margin-bottom: 1rem;
-            }
-
-            .sitemap-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .sitemap-list li {
-                margin-bottom: 0.5rem;
-            }
-
-            .sitemap-list a {
-                color: var(--text-muted);
-                text-decoration: none;
-                font-size: 0.88rem;
-                transition: color 0.2s ease;
-            }
-
-            .sitemap-list a:hover {
-                color: var(--accent-green-bright);
-            }
-
-            .footer-social-btns {
-                display: flex;
-                gap: 1rem;
-                justify-content: center;
-                margin-bottom: 1.5rem;
-            }
-
-            .social-btn {
-                width: 42px;
-                height: 42px;
-                border-radius: 50%;
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-color);
-                color: var(--accent-green-bright);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-decoration: none;
-                font-size: 1.2rem;
-                transition: all 0.3s ease;
-            }
-
-            .social-btn:hover {
-                background-color: var(--accent-emerald);
-                color: #ffffff;
-                transform: translateY(-3px);
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-            }
-
-            .copyright-text {
-                color: var(--text-muted);
-                font-size: 0.85rem;
-                text-align: center;
-                line-height: 1.6;
-            }
-
-            .copyright-text a {
-                color: var(--accent-green-bright);
-                text-decoration: none;
-            }
-
-            .copyright-text a:hover {
-                text-decoration: underline;
-            }
-
-            /* RWD 移動端適應 */
-            @media (max-width: 991.98px) {
-                .portal-sidebar {
-                    transform: translateX(-100%);
-                    width: 260px !important;
-                }
-
-                .portal-sidebar.mobile-open {
-                    transform: translateX(0);
-                    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
-                }
-
-                .portal-content {
-                    margin-left: 0 !important;
-                }
-
-                .desktop-sitemap {
-                    display: none !important;
-                }
-            }
-        </style>
+        <link rel="stylesheet" href="./css/index.css">
     </head>
 
     <body>
 
         <header class="portal-header">
-            <div class="d-flex align-items-center gap-3">
-                <button class="toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation">
-                    <i class="fas fa-bars"></i> 選單
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-primary-subtle border-0 fs-3" id="sidebarToggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
                 <a href="#" class="brand-logo" onclick="loadPage('home.html'); return false;">
-                    <i class="fas fa-leaf"></i> 健康生活與自由日常
+                    <i class="fa-solid fa-leaf"></i> 健康生活與自由日常
                 </a>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-2">
-                    <i class="fas fa-shield-halved"></i> 公開版
-                </span>
+            <div class="dropdown me-1">
+                <!-- 主按鈕：顏色與文字會由 JS 根據當前網址自動設定 -->
+                <button id="versionDropdownBtn" type="button" class="btn btn-green-subtle btn-sm dropdown-toggle px-3 py-2 rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-leaf me-1"></i> 公開版
+                </button>
+
+                <!-- 下拉選單：內部按鈕排列 -->
+                <div class="dropdown-menu dropdown-menu-end bg-transparent p-2 border-0" style="min-width: 150px;">
+                    <div class="d-flex flex-column gap-2">
+                        
+                        <!-- 公開版 -->
+                        <button type="button" id="publicButton" id="publicButton" class="btn btn-green-subtle open-version-btn p-2 rounded-pill" data-url="../health-free-daily/">
+                            <i class="fa-solid fa-leaf me-1"></i> 公開版
+                        </button>
+
+                        <!-- 團隊版 -->
+                        <button type="button" id="teamButton" class="btn btn-blue-subtle open-version-btn p-2 rounded-pill" data-url="../team/">
+                            <i class="fa-solid fa-users-gear me-1"></i> 團隊版
+                        </button>
+
+                        <!-- 核心版 -->
+                        <button type="button" id="hubButton" class="btn btn-purple-subtle open-version-btn p-2 rounded-pill" data-url="../hub/">
+                            <i class="fa-solid fa-diagram-project me-1"></i> 核心版
+                        </button>
+
+                    </div>
+                </div>
             </div>
         </header>
 
         <div class="portal-wrapper" id="portalWrapper">
             
             <aside class="portal-sidebar" id="portalSidebar">
-                <div id="dynamicMenuContainer">
+                <div class="sidebar-content overflow-y-auto" id="dynamicMenuContainer">
                     <div class="text-center py-4" id="menuLoadingSpinner">
-                        <i class="fas fa-spinner fa-spin"></i> 正在載入選單...
+                        <i class="fa-solid fa-spinner fa-spin"></i> 正在載入選單...
                     </div>
+                </div>
+                <div class="sidebar-footer mt-auto w-100 d-none">
+                    <button class="btn btn-outline-danger w-100 py-2 rounded-0 d-flex align-items-center justify-content-center gap-2 border-0" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#logoutConfirmModal">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="menu-text">登出</span>
+                    </button>
                 </div>
             </aside>
 
             <main class="portal-content">
-                <div id="page-content-container">
-                    </div>
+                <div id="page-content-container"></div>
 
                 <footer class="portal-footer" id="portalFooter">
-                    <div class="desktop-sitemap d-none d-lg-block" id="desktopSitemap">
+                    <div class="desktop-sitemap d-none d-lg-block p-3" id="desktopSitemap">
                         <div class="sitemap-title">
-                            <i class="fas fa-sitemap"></i> 網站地圖 (Site Map)
+                            <i class="fa-solid fa-sitemap"></i> 網站地圖 (Site Map)
                         </div>
                         <div class="row g-4" id="sitemapContainer"></div>
                     </div>
 
                     <div class="footer-social-btns">
-                        <a href="https://www.facebook.com/health.free.daily" target="_blank" class="social-btn" title="Facebook 社群">
+                        <a href="https://www.facebook.com/health.free.daily" target="_blank" class="social-btn" title="Facebook 粉絲專頁">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                         <a href="https://www.instagram.com/health_free_daily/" target="_blank" class="social-btn" title="Instagram 專頁">
@@ -662,11 +103,47 @@
                     <div class="copyright-text">
                         © 2026 榮祥團隊 Ray's Team | 本網站由榮祥團隊獨立運營，非葡眾官方網站 | 
                         <a href="#" onclick="loadPage('disclaimer.html'); return false;">
-                            <i class="fas fa-file-contract"></i> 網站聲明
+                            <i class="fa-solid fa-file-contract"></i> 網站聲明
                         </a>
                     </div>
                 </footer>
             </main>
+        </div>
+
+        <!-- 回到頂端 Button -->
+        <button id="backToTopBtn" class="back-to-top-btn" title="回到頂端" aria-label="Back to Top">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+
+        <!-- 美化版登出確認 Modal -->
+        <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-sidebar, #0d1f18); border: 1px solid var(--uvaco-border-color) !important;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-light d-flex align-items-center gap-2" id="logoutConfirmModalLabel">
+                            <i class="fa-solid fa-shield-halved text-warning"></i> 登出確認
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <!-- 警告圖示氣氛圈 -->
+                        <div class="logout-icon-circle mb-3 mx-auto d-flex align-items-center justify-content-center" 
+                            style="width: 68px; height: 68px; border-radius: 50%; background: rgba(244, 63, 94, 0.15); color: #f43f5e; font-size: 1.8rem; box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </div>
+                        <h5 class="text-light fw-bold mb-2">確定要登出系統嗎？</h5>
+                        <p class="text-muted small mb-0">登出後需要重新驗證帳號，才能再次存取團隊系統內容。</p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary flex-fill py-2 rounded-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-danger flex-fill py-2 rounded-3" id="confirmLogoutBtn">
+                            <i class="fa-solid fa-right-from-bracket"></i> 確定登出
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </body>

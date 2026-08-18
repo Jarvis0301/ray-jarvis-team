@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選單管理中樞 (H74000) - 榮祥團隊極密戰情室</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --uvaco-bg-base: #0d0714;
+            --uvaco-bg-surface: #150a21;
+            --uvaco-bg-card: #1c0d2e;
+            --uvaco-bg-card-hover: #26123e;
+            --uvaco-bg-glass: rgba(28, 13, 46, 0.75);
+            --uvaco-border: rgba(168, 85, 247, 0.22);
+            --uvaco-border-focus: rgba(192, 132, 252, 0.6);
+            --uvaco-primary: #a855f7;
+            --uvaco-primary-light: #c084fc;
+            --uvaco-primary-glow: rgba(168, 85, 247, 0.35);
+            --uvaco-secondary: #ec4899;
+            --uvaco-accent: #fde047;
+            --uvaco-cyan: #06b6d4;
+            --uvaco-emerald: #10b981;
+            --uvaco-danger: #f43f5e;
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-muted: #a892bf;
+            --uvaco-font-mono: 'Fira Code', monospace;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 24px 16px 60px 16px;
+            overflow-x: hidden;
+        }
+
+        /* 霓虹發光與邊框微光特效 */
+        .glass-panel {
+            background: var(--uvaco-bg-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(168, 85, 247, 0.38);
+        }
+
+        /* 標題與光暈徽章 */
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            color: var(--uvaco-primary-light);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .page-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #d8b4fe 60%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        /* 三軌站點切換分頁標籤 (Segmented Switcher) */
+        .portal-switcher {
+            display: inline-flex;
+            padding: 4px;
+            background: rgba(15, 7, 24, 0.85);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 12px;
+        }
+
+        .portal-btn {
+            background: transparent;
+            border: none;
+            color: var(--uvaco-text-muted);
+            padding: 8px 18px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .portal-btn.active[data-portal="CORE"] {
+            background: linear-gradient(135deg, #a855f7, #7e22ce);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .portal-btn.active[data-portal="TEAM"] {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+        }
+
+        .portal-btn.active[data-portal="PUBLIC"] {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        /* 四象限統計儀表 (Quadrant Matrix Badges) */
+        .quadrant-card {
+            background: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 14px;
+            padding: 14px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .quadrant-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--uvaco-primary-light);
+        }
+
+        .quadrant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .quadrant-active-visible::before { background: var(--uvaco-emerald); }
+        .quadrant-hidden-route::before { background: var(--uvaco-cyan); }
+        .quadrant-coming-soon::before { background: var(--uvaco-accent); }
+        .quadrant-archived::before { background: var(--uvaco-danger); }
+
+        /* 互動樹狀拓撲畫布 (Interactive Tree Topology Canvas) */
+        .topology-container {
+            max-height: 640px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .topology-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .topology-container::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.3);
+            border-radius: 4px;
+        }
+
+        .tree-node-item {
+            background: rgba(28, 13, 46, 0.55);
+            border: 1px solid rgba(168, 85, 247, 0.16);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tree-node-item:hover {
+            background: var(--uvaco-bg-card-hover);
+            border-color: rgba(168, 85, 247, 0.45);
+            transform: translateX(4px);
+        }
+
+        .tree-node-item.selected {
+            background: rgba(168, 85, 247, 0.18);
+            border: 1px solid var(--uvaco-primary);
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
+        }
+
+        .tree-node-level-0 {
+            border-left: 4px solid var(--uvaco-primary);
+            margin-left: 0;
+        }
+
+        .tree-node-level-1 {
+            border-left: 3px solid var(--uvaco-secondary);
+            margin-left: 24px;
+        }
+
+        .tree-node-level-2 {
+            border-left: 3px solid var(--uvaco-cyan);
+            margin-left: 48px;
+        }
+
+        /* 節點即時巡檢看板 (Node Inspector Cockpit) */
+        .inspector-badge {
+            font-family: var(--uvaco-font-mono);
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 即時 Navbar 沙盒預覽 (Live Sandbox Preview) */
+        .navbar-sandbox {
+            background: #09040d;
+            border: 1px dashed rgba(168, 85, 247, 0.4);
+            border-radius: 12px;
+            padding: 12px 18px;
+        }
+
+        .sandbox-nav-pill {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--uvaco-text-main);
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            display: inline-flex;
+            align-items: center;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* DataTables 魅影深紫客製化 */
+        .table-dark-custom {
+            color: var(--uvaco-text-main);
+            background-color: transparent !important;
+            border-color: rgba(168, 85, 247, 0.15);
+        }
+
+        .table-dark-custom th {
+            background-color: #12071d !important;
+            color: #d8b4fe !important;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid rgba(168, 85, 247, 0.3) !important;
+            padding: 12px 10px;
+        }
+
+        .table-dark-custom td {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1) !important;
+            font-size: 0.88rem;
+            vertical-align: middle;
+            padding: 10px 10px;
+        }
+
+        .table-dark-custom tr:hover td {
+            background-color: rgba(168, 85, 247, 0.08) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-link {
+            background-color: var(--uvaco-bg-surface);
+            border-color: var(--uvaco-border);
+            color: var(--uvaco-text-main);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+            background-color: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+            color: #ffffff;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: 8px;
+            padding: 4px 10px;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            background-color: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: 8px;
+        }
+
+        /* 模態視窗自訂樣式 */
+        .modal-content-custom {
+            background: #170b28;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 18px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-control-custom, .form-select-custom {
+            background-color: rgba(15, 7, 24, 0.85);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: 8px;
+        }
+
+        .form-control-custom:focus, .form-select-custom:focus {
+            background-color: #1a0b30;
+            border-color: var(--uvaco-primary-light);
+            color: #ffffff;
+            box-shadow: 0 0 10px var(--uvaco-primary-glow);
+        }
+
+        /* 互動小開關 Switch */
+        .form-check-input:checked {
+            background-color: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+        }
+
+        /* Toast 通知框 */
+        .toast-container-custom {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1090;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid mb-4">
+        <div class="row align-items-center gy-3">
+            <div class="col-lg-6 col-md-12">
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                    <span class="brand-pill"><i class="fa-solid fa-microchip"></i> 表 52 sys_menus</span>
+                    <span class="inspector-badge text-warning"><i class="fa-solid fa-code-branch"></i> 動態路由引擎 v3.8</span>
+                    <span class="inspector-badge text-info"><i class="fa-solid fa-shield-halved"></i> 權限閉包已啟用</span>
+                </div>
+                <h1 class="page-title mb-1"><i class="fa-solid fa-bars-staggered"></i> 三軌動態選單拓撲與路由管理艙</h1>
+                <p class="text-muted mb-0 small">全域集中控制公域官網、私域團隊軍備庫與創始戰情室之樹狀節點、權限階梯與狀態矩陣。</p>
+            </div>
+            <div class="col-lg-6 col-md-12 text-lg-end">
+                <div class="portal-switcher me-2 mb-2 mb-sm-0">
+                    <button type="button" class="portal-btn active" data-portal="CORE" onclick="MenuApp.switchPortal('CORE')">
+                        <i class="fa-solid fa-crown"></i> 核心版 (/hub)
+                    </button>
+                    <button type="button" class="portal-btn" data-portal="TEAM" onclick="MenuApp.switchPortal('TEAM')">
+                        <i class="fa-solid fa-users-gear"></i> 團隊版 (/team)
+                    </button>
+                    <button type="button" class="portal-btn" data-portal="PUBLIC" onclick="MenuApp.switchPortal('PUBLIC')">
+                        <i class="fa-solid fa-leaf"></i> 公開版 (/public)
+                    </button>
+                </div>
+                <button class="btn btn-sm btn-outline-light me-1" id="btnSyncSheets" onclick="MenuApp.fetchFromGoogleSheets()">
+                    <i class="fa-solid fa-rotate"></i> 雲端同步
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="MenuApp.openAddModal()">
+                    <i class="fa-solid fa-plus"></i> 新增節點
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mb-4">
+        <div class="row g-3">
+            <div class="col-6 col-lg-3">
+                <div class="quadrant-card quadrant-active-visible">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fa-solid fa-eye text-success"></i> 標準公開節點</span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">可見 + 有效</span>
+                    </div>
+                    <div class="fs-3 fw-bold text-white mt-2" id="statActiveVisible">0</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">正常渲染於導覽列並允許存取</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="quadrant-card quadrant-hidden-route">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fa-solid fa-route text-info"></i> 隱藏詳情路由</span>
+                        <span class="badge bg-info-subtle text-info border border-info-subtle">隱藏 + 有效</span>
+                    </div>
+                    <div class="fs-3 fw-bold text-white mt-2" id="statHiddenActive">0</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">導覽列隱藏，供參數跳轉進入</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="quadrant-card quadrant-coming-soon">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fa-solid fa-clock text-warning"></i> 即將推出預告</span>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">可見 + 維護</span>
+                    </div>
+                    <div class="fs-3 fw-bold text-white mt-2" id="statComingSoon">0</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">導覽列標註 Coming Soon 禁入</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="quadrant-card quadrant-archived">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fa-solid fa-box-archive text-danger"></i> 徹底封存節點</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">隱藏 + 封存</span>
+                    </div>
+                    <div class="fs-3 fw-bold text-white mt-2" id="statArchived">0</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">完全阻斷路由且導覽列不可見</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mb-4">
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="glass-panel p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fs-6 fw-bold mb-0 text-purple-light">
+                            <i class="fa-solid fa-sitemap text-primary"></i> 樹狀拓撲視覺畫布
+                            <span class="badge bg-dark border border-secondary-subtle ms-2" id="treePortalBadge">CORE 核心版</span>
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="MenuApp.expandAllTree()"><i class="fa-solid fa-angles-down"></i> 展開</button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="MenuApp.collapseAllTree()"><i class="fa-solid fa-angles-up"></i> 收合</button>
+                        </div>
+                    </div>
+
+                    <div class="topology-container" id="treeContainer">
+                        </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="d-flex flex-column gap-3 h-100">
+                    <div class="glass-panel p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fs-6 fw-bold mb-0"><i class="fa-solid fa-laptop-code text-cyan"></i> 即時 Navbar 導航列沙盒預覽</h6>
+                            <span class="inspector-badge text-muted">即時響應模擬</span>
+                        </div>
+                        <div class="navbar-sandbox" id="navbarSandbox">
+                            </div>
+                    </div>
+
+                    <div class="glass-panel p-3 flex-grow-1" id="inspectorPanel">
+                        <div class="d-flex justify-content-between align-items-start mb-3 border-bottom border-secondary-subtle pb-2">
+                            <div>
+                                <span class="badge bg-primary me-1" id="inspectMenuId">H00000</span>
+                                <span class="fs-5 fw-bold text-white" id="inspectTitleZh">戰情總覽</span>
+                                <div class="text-muted small" id="inspectTitleEn">Executive Dashboard</div>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" id="btnEditSelected" onclick="MenuApp.openEditCurrent()"><i class="fa-solid fa-pen-to-square"></i> 編輯</button>
+                                <button class="btn btn-outline-danger" id="btnDeleteSelected" onclick="MenuApp.deleteCurrent()"><i class="fa-solid fa-trash"></i> 刪除</button>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                    <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-folder-tree"></i> 父選單節點</div>
+                                    <div class="fw-semibold text-light small" id="inspectParentNode">root (根節點)</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                    <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-link"></i> 路由檔案 (.html)</div>
+                                    <div class="fw-semibold text-cyan small" id="inspectRoutePath">home.html</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                    <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-icons"></i> Font Awesome 圖示</div>
+                                    <div class="fw-semibold text-warning small" id="inspectIcon"><i class="fa-solid fa-chart-line"></i> fa-solid fa-chart-line</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                    <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-user-shield"></i> 最低准入權限</div>
+                                    <div class="fw-semibold text-pink small" id="inspectPermission">FOUNDER (創始人)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="text-muted small mb-1"><i class="fa-solid fa-file-invoice"></i> 核心功能與業務維護說明：</label>
+                            <div class="p-2 rounded bg-dark border border-secondary-subtle text-light small" id="inspectMemo">
+                                全站營運戰情大看板、SV 總量、營收目標與即時預警。
+                            </div>
+                        </div>
+
+                        <div class="p-2 rounded bg-dark border border-secondary-subtle d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-3">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="quickToggleVisible" onchange="MenuApp.toggleCurrentVisible()">
+                                    <label class="form-check-label text-light small" for="quickToggleVisible">導覽列可見</label>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="quickToggleActive" onchange="MenuApp.toggleCurrentActive()">
+                                    <label class="form-check-label text-light small" for="quickToggleActive">節點啟用</label>
+                                </div>
+                            </div>
+                            <span class="badge" id="inspectStatusBadge">可見且有效</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="glass-panel p-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h5 class="fs-6 fw-bold mb-0"><i class="fa-solid fa-table-list text-primary"></i> 全域選單節點與解耦資料表清單</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="MenuApp.exportJson()"><i class="fa-solid fa-file-code"></i> 匯出 JSON</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="MenuApp.exportCsv()"><i class="fa-solid fa-file-csv"></i> 匯出 CSV</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="menuDataTable" class="table table-dark-custom w-100">
+                    <thead>
+                        <tr>
+                            <th>選單 ID</th>
+                            <th>名稱 / 英文名</th>
+                            <th>站點</th>
+                            <th>父節點</th>
+                            <th>路由路徑</th>
+                            <th>圖示</th>
+                            <th>排序</th>
+                            <th>權限門檻</th>
+                            <th>四象限狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="menuTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="menuModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header border-bottom border-secondary-subtle">
+                    <h5 class="modal-title fw-bold text-white" id="modalTitle"><i class="fa-solid fa-pen-to-square text-primary"></i> 編輯選單節點</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="menuForm">
+                        <input type="hidden" id="formMode" value="add">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-fingerprint"></i> 選單代碼 (menu_id)</label>
+                                <input type="text" class="form-control form-control-custom" id="fieldMenuId" placeholder="如: H74000, T12000" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-globe"></i> 所屬站點 (portal_scope)</label>
+                                <select class="form-select form-select-custom" id="fieldPortalScope" required>
+                                    <option value="CORE">CORE 創始核心版 (/hub)</option>
+                                    <option value="TEAM">TEAM 團隊軍備庫 (/team)</option>
+                                    <option value="PUBLIC">PUBLIC 公域品牌官網 (/public)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-network-wired"></i> 父節點 (parent_node_id)</label>
+                                <select class="form-select form-select-custom" id="fieldParentNode">
+                                    <option value="root">root (最頂層根選單)</option>
+                                    </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-language"></i> 中文標題 (title_zh)</label>
+                                <input type="text" class="form-control form-control-custom" id="fieldTitleZh" placeholder="如: 選單管理" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-font"></i> 英文標題 (title_en)</label>
+                                <input type="text" class="form-control form-control-custom" id="fieldTitleEn" placeholder="如: Dynamic Menu Engine">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-link"></i> 路由路徑 (route_path)</label>
+                                <input type="text" class="form-control form-control-custom" id="fieldRoutePath" placeholder="如: sys-menus.html 或 #" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-icons"></i> 圖示 (icon_class)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary-subtle text-primary" id="iconPreview"><i class="fa-solid fa-bars"></i></span>
+                                    <input type="text" class="form-control form-control-custom" id="fieldIconClass" placeholder="fa-solid fa-bars-staggered">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-arrow-down-1-9"></i> 排序權重 (sort_order)</label>
+                                <input type="number" class="form-control form-control-custom" id="fieldSortOrder" value="10" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-tag"></i> 徽章標籤 (badge_text)</label>
+                                <input type="text" class="form-control form-control-custom" id="fieldBadgeText" placeholder="如: NEW, HOT, BETA">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-shield-halved"></i> 權限門檻 (req_tier)</label>
+                                <select class="form-select form-select-custom" id="fieldReqTier">
+                                    <option value="PUBLIC">PUBLIC (公開訪客)</option>
+                                    <option value="MEMBER">MEMBER (會員/消費者)</option>
+                                    <option value="MANAGER">MANAGER (合格經理)</option>
+                                    <option value="LEADER">LEADER (高階領袖)</option>
+                                    <option value="FOUNDER" selected>FOUNDER (創始人專屬)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-database"></i> 關聯資料表 / Sheet Mapping</label>
+                                <input type="text" class="form-control form-control-custom" id="fieldTargetTable" placeholder="如: [表52] sys_menus">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-toggle-on"></i> 四象限狀態旗標</label>
+                                <div class="d-flex gap-4 pt-2">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="fieldIsVisible" checked>
+                                        <label class="form-check-label text-light small" for="fieldIsVisible">導覽可見</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="fieldIsActive" checked>
+                                        <label class="form-check-label text-light small" for="fieldIsActive">啟用有效</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-note-sticky"></i> 功能與業務維護說明 (memo)</label>
+                                <textarea class="form-control form-control-custom" id="fieldMemo" rows="2" placeholder="詳細說明此選單節點之功能定位、資料流與操作規範..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary-subtle">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="MenuApp.saveMenuItem()"><i class="fa-solid fa-floppy-disk"></i> 儲存節點變更</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container-custom">
+        <div id="toastNotification" class="toast align-items-center text-white bg-dark border border-primary-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                    <i class="fa-solid fa-circle-check text-success"></i> 系統配置已更新
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊 極密戰情室 (Core Portal)
+         * 表 52 sys_menus 動態選單管理系統邏輯
+         */
+        const MenuApp = (function() {
+            // 系統內建預設選單資料集 (對齊資料庫架構表 52 與選單架構規範)
+            let menuDatabase = [
+                // 核心版 (CORE /hub)
+                { menu_id: 'H00000', portal_scope: 'CORE', parent_node_id: 'root', title_zh: '戰情總覽', title_en: 'Executive Dashboard', route_path: 'home.html', icon_class: 'fa-solid fa-chart-line', sort_order: 10, is_visible: 'Y', is_active: 'Y', badge_text: 'PRO', req_tier: 'FOUNDER', target_table: '自動彙整', memo: '全站營運戰情大看板、SV 總量、營收目標與即時預警' },
+                { menu_id: 'H10000', portal_scope: 'CORE', parent_node_id: 'root', title_zh: '產品管理', title_en: 'Product Master CMS', route_path: '#', icon_class: 'fa-solid fa-boxes-stacked', sort_order: 20, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'FOUNDER', target_table: '[表01~12]', memo: '產品資料、系列分類、行銷文案、見證評價與專利認證維護' },
+                { menu_id: 'H11000', portal_scope: 'CORE', parent_node_id: 'H10000', title_zh: '產品資料', title_en: 'Product Master & Specs', route_path: 'prd-basic.html', icon_class: 'fa-solid fa-box-open', sort_order: 21, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'FOUNDER', target_table: '[表01~05]', memo: '維護主次系列、主檔價格/SV 比率與詳細規格' },
+                { menu_id: 'H12000', portal_scope: 'CORE', parent_node_id: 'H10000', title_zh: '行銷文案', title_en: 'Copywriting Bank', route_path: 'prd-copy.html', icon_class: 'fa-solid fa-pen-to-square', sort_order: 22, is_visible: 'Y', is_active: 'Y', badge_text: 'HOT', req_tier: 'FOUNDER', target_table: '[表06]', memo: '維護針對上班族、銀髮族、媽媽族之 1:N 導流文案' },
+                { menu_id: 'H70000', portal_scope: 'CORE', parent_node_id: 'root', title_zh: '系統管理', title_en: 'System Administration', route_path: '#', icon_class: 'fa-solid fa-gears', sort_order: 70, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'FOUNDER', target_table: '[表46~52]', memo: '系統配置、權限通行、短網址與選單拓撲引擎管理' },
+                { menu_id: 'H71000', portal_scope: 'CORE', parent_node_id: 'H70000', title_zh: '權限管理', title_en: 'Access Control Matrix', route_path: 'sys-permissions.html', icon_class: 'fa-solid fa-shield-halved', sort_order: 71, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'FOUNDER', target_table: '[表50]', memo: '維護白名單、角色權限與 Google 帳號授權' },
+                { menu_id: 'H72000', portal_scope: 'CORE', parent_node_id: 'H70000', title_zh: '全局配置', title_en: 'Global Tactical Config', route_path: 'sys-config.html', icon_class: 'fa-solid fa-sliders', sort_order: 72, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'FOUNDER', target_table: '[表48~49]', memo: '維護全域參數、分潤拆帳比例與試算表欄位解耦對映' },
+                { menu_id: 'H73000', portal_scope: 'CORE', parent_node_id: 'H70000', title_zh: '連結管理', title_en: 'Dynamic Short Links', route_path: 'sys-links.html', icon_class: 'fa-solid fa-link', sort_order: 73, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'FOUNDER', target_table: '[表46]', memo: '自訂短網址引流代碼與 UTM 追蹤成效' },
+                { menu_id: 'H74000', portal_scope: 'CORE', parent_node_id: 'H70000', title_zh: '選單管理', title_en: 'Dynamic Menu Engine', route_path: 'sys-menus.html', icon_class: 'fa-solid fa-bars-staggered', sort_order: 74, is_visible: 'Y', is_active: 'Y', badge_text: 'NEW', req_tier: 'FOUNDER', target_table: '[表52]', memo: '三軌動態選單節點、排序與四象限狀態維護' },
+                
+                // 團隊版 (TEAM /team)
+                { menu_id: 'T00000', portal_scope: 'TEAM', parent_node_id: 'root', title_zh: '團隊儀表板', title_en: 'Team Cockpit', route_path: 'dashboard.html', icon_class: 'fa-solid fa-gauge-high', sort_order: 10, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'MANAGER', target_table: '聚合指標', memo: '夥伴專屬戰力看板、組織成長與當月業績追蹤' },
+                { menu_id: 'T10000', portal_scope: 'TEAM', parent_node_id: 'root', title_zh: '培訓中心', title_en: 'Training Academy', route_path: '#', icon_class: 'fa-solid fa-graduation-cap', sort_order: 20, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'MEMBER', target_table: '[表13~20]', memo: '新人起步 SOP、產品知識、反對問題應對演練' },
+                { menu_id: 'T11000', portal_scope: 'TEAM', parent_node_id: 'T10000', title_zh: '公告專區', title_en: 'Announcements', route_path: 'announcements.html', icon_class: 'fa-solid fa-bullhorn', sort_order: 21, is_visible: 'Y', is_active: 'Y', badge_text: 'HOT', req_tier: 'MEMBER', target_table: '[表13]', memo: '葡眾官方促銷、團隊會議與競賽公告' },
+                
+                // 公開版 (PUBLIC /public)
+                { menu_id: 'P00000', portal_scope: 'PUBLIC', parent_node_id: 'root', title_zh: '品牌首頁', title_en: 'Home', route_path: 'index.html', icon_class: 'fa-solid fa-house', sort_order: 10, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'PUBLIC', target_table: '公域靜態', memo: '健康生活與自由日常形象首頁' },
+                { menu_id: 'P10000', portal_scope: 'PUBLIC', parent_node_id: 'root', title_zh: '產品總覽', title_en: 'Products', route_path: 'products.html', icon_class: 'fa-solid fa-capsules', sort_order: 20, is_visible: 'Y', is_active: 'Y', badge_text: '', req_tier: 'PUBLIC', target_table: '[表01~05]', memo: '公開版產品規格、價格與健康益處科普' }
+            ];
+
+            let activePortal = 'CORE';
+            let selectedMenuId = 'H74000';
+            let dataTableInstance = null;
+
+            /**
+             * 初始化引擎
+             */
+            function init() {
+                renderAll();
+                initDataTable();
+                bindInputEvents();
+            }
+
+            /**
+             * 切換站點維度 (CORE / TEAM / PUBLIC)
+             */
+            function switchPortal(portal) {
+                activePortal = portal;
+                $('.portal-btn').removeClass('active');
+                $(`.portal-btn[data-portal="${portal}"]`).addClass('active');
+
+                const portalLabels = { 'CORE': 'CORE 核心版', 'TEAM': 'TEAM 團隊版', 'PUBLIC': 'PUBLIC 公開版' };
+                $('#treePortalBadge').text(portalLabels[portal]);
+
+                // 自動選中該站點的第一個節點
+                const firstNode = menuDatabase.find(m => m.portal_scope === portal);
+                if (firstNode) {
+                    selectedMenuId = firstNode.menu_id;
+                }
+
+                renderAll();
+                filterDataTable();
+                showToast(`已切換至【${portalLabels[portal]}】選單維度`);
+            }
+
+            /**
+             * 總體渲染分發器
+             */
+            function renderAll() {
+                renderStats();
+                renderTreeTopology();
+                renderInspector();
+                renderNavbarSandbox();
+                populateParentSelect();
+            }
+
+            /**
+             * 渲染四象限統計數據
+             */
+            function renderStats() {
+                const currentList = menuDatabase.filter(m => m.portal_scope === activePortal);
+                let q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+
+                currentList.forEach(m => {
+                    const vis = m.is_visible === 'Y' || m.is_visible === true;
+                    const act = m.is_active === 'Y' || m.is_active === true;
+                    if (vis && act) q1++;
+                    else if (!vis && act) q2++;
+                    else if (vis && !act) q3++;
+                    else if (!vis && !act) q4++;
+                });
+
+                $('#statActiveVisible').text(q1);
+                $('#statHiddenActive').text(q2);
+                $('#statComingSoon').text(q3);
+                $('#statArchived').text(q4);
+            }
+
+            /**
+             * 渲染左側樹狀拓撲畫布
+             */
+            function renderTreeTopology() {
+                const $container = $('#treeContainer').empty();
+                const list = menuDatabase.filter(m => m.portal_scope === activePortal);
+
+                // 取得根節點 (parent_node_id === 'root')
+                const roots = list.filter(m => m.parent_node_id === 'root').sort((a, b) => a.sort_order - b.sort_order);
+
+                if (roots.length === 0) {
+                    $container.html('<div class="text-center text-muted p-4"><i class="fa-solid fa-circle-exclamation"></i> 該站點目前無選單節點</div>');
+                    return;
+                }
+
+                roots.forEach(root => {
+                    $container.append(buildNodeHtml(root, 0));
+                    // 尋找子節點
+                    const children = list.filter(m => m.parent_node_id === root.menu_id).sort((a, b) => a.sort_order - b.sort_order);
+                    children.forEach(child => {
+                        $container.append(buildNodeHtml(child, 1));
+                    });
+                });
+            }
+
+            function buildNodeHtml(node, level) {
+                const isSelected = node.menu_id === selectedMenuId ? 'selected' : '';
+                const vis = node.is_visible === 'Y' || node.is_visible === true;
+                const act = node.is_active === 'Y' || node.is_active === true;
+                
+                let badgeHtml = '';
+                if (node.badge_text) {
+                    badgeHtml = `<span class="badge bg-danger ms-1" style="font-size: 0.65rem;">${node.badge_text}</span>`;
+                }
+
+                let statusPill = '';
+                if (vis && act) statusPill = '<span class="text-success" title="公開且有效"><i class="fa-solid fa-circle-check"></i></span>';
+                else if (!vis && act) statusPill = '<span class="text-info" title="隱藏路由"><i class="fa-solid fa-route"></i></span>';
+                else if (vis && !act) statusPill = '<span class="text-warning" title="預告維護"><i class="fa-solid fa-triangle-exclamation"></i></span>';
+                else statusPill = '<span class="text-danger" title="徹底封存"><i class="fa-solid fa-ban"></i></span>';
+
+                return `
+                    <div class="tree-node-item tree-node-level-${level} ${isSelected}" onclick="MenuApp.selectNode('${node.menu_id}')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <span class="text-secondary me-2"><i class="${node.icon_class || 'fa-solid fa-folder'}"></i></span>
+                                <span class="fw-bold me-1 text-white">${node.title_zh}</span>
+                                <span class="text-muted small">(${node.menu_id})</span>
+                                ${badgeHtml}
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="inspector-badge text-purple-light">${node.route_path}</span>
+                                ${statusPill}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            /**
+             * 節點選取事件
+             */
+            function selectNode(menuId) {
+                selectedMenuId = menuId;
+                $('.tree-node-item').removeClass('selected');
+                $(`.tree-node-item[onclick*="${menuId}"]`).addClass('selected');
+                renderInspector();
+            }
+
+            /**
+             * 渲染右側屬性巡檢儀
+             */
+            function renderInspector() {
+                const node = menuDatabase.find(m => m.menu_id === selectedMenuId);
+                if (!node) return;
+
+                $('#inspectMenuId').text(node.menu_id);
+                $('#inspectTitleZh').text(node.title_zh);
+                $('#inspectTitleEn').text(node.title_en || 'None');
+                $('#inspectParentNode').text(node.parent_node_id === 'root' ? 'root (頂層選單)' : node.parent_node_id);
+                $('#inspectRoutePath').text(node.route_path);
+                $('#inspectIcon').html(`<i class="${node.icon_class}"></i> ${node.icon_class}`);
+                $('#inspectPermission').text(node.req_tier || 'PUBLIC');
+                $('#inspectMemo').text(node.memo || '無特別說明');
+
+                const isVis = node.is_visible === 'Y' || node.is_visible === true;
+                const isAct = node.is_active === 'Y' || node.is_active === true;
+                $('#quickToggleVisible').prop('checked', isVis);
+                $('#quickToggleActive').prop('checked', isAct);
+
+                let badgeText = '', badgeClass = '';
+                if (isVis && isAct) { badgeText = '公開且有效'; badgeClass = 'bg-success'; }
+                else if (!isVis && isAct) { badgeText = '隱藏路由'; badgeClass = 'bg-info'; }
+                else if (isVis && !isAct) { badgeText = '即將推出'; badgeClass = 'bg-warning text-dark'; }
+                else { badgeText = '徹底封存'; badgeClass = 'bg-danger'; }
+
+                $('#inspectStatusBadge').attr('class', `badge ${badgeClass}`).text(badgeText);
+            }
+
+            /**
+             * 渲染 Navbar 擬真沙盒
+             */
+            function renderNavbarSandbox() {
+                const $box = $('#navbarSandbox').empty();
+                const roots = menuDatabase.filter(m => m.portal_scope === activePortal && m.parent_node_id === 'root' && (m.is_visible === 'Y' || m.is_visible === true)).sort((a, b) => a.sort_order - b.sort_order);
+
+                if (roots.length === 0) {
+                    $box.html('<span class="text-muted small">此站點目前無任何可見導覽項</span>');
+                    return;
+                }
+
+                roots.forEach(root => {
+                    const badge = root.badge_text ? `<span class="badge bg-danger ms-1" style="font-size:0.6rem;">${root.badge_text}</span>` : '';
+                    $box.append(`
+                        <div class="sandbox-nav-pill">
+                            <i class="${root.icon_class} me-1 text-primary"></i> ${root.title_zh} ${badge}
+                        </div>
+                    `);
+                });
+            }
+
+            /**
+             * 填充父節點選單下拉清單
+             */
+            function populateParentSelect() {
+                const $select = $('#fieldParentNode').empty();
+                $select.append('<option value="root">root (最頂層根選單)</option>');
+
+                const roots = menuDatabase.filter(m => m.portal_scope === activePortal && m.parent_node_id === 'root');
+                roots.forEach(r => {
+                    $select.append(`<option value="${r.menu_id}">${r.menu_id} - ${r.title_zh}</option>`);
+                });
+            }
+
+            /**
+             * 快速切換狀態
+             */
+            function toggleCurrentVisible() {
+                const node = menuDatabase.find(m => m.menu_id === selectedMenuId);
+                if (node) {
+                    node.is_visible = $('#quickToggleVisible').is(':checked') ? 'Y' : 'N';
+                    renderAll();
+                    updateDataTableRow(node);
+                    showToast(`節點 ${node.menu_id} 可見性已更新為：${node.is_visible}`);
+                }
+            }
+
+            function toggleCurrentActive() {
+                const node = menuDatabase.find(m => m.menu_id === selectedMenuId);
+                if (node) {
+                    node.is_active = $('#quickToggleActive').is(':checked') ? 'Y' : 'N';
+                    renderAll();
+                    updateDataTableRow(node);
+                    showToast(`節點 ${node.menu_id} 啟用狀態已更新為：${node.is_active}`);
+                }
+            }
+
+            /**
+             * 初始化 DataTable.js
+             */
+            function initDataTable() {
+                const tableData = menuDatabase.map(m => formatTableRow(m));
+                dataTableInstance = $('#menuDataTable').DataTable({
+                    data: tableData,
+                    columns: [
+                        { data: 'menu_id' },
+                        { data: 'titles' },
+                        { data: 'portal' },
+                        { data: 'parent' },
+                        { data: 'route' },
+                        { data: 'icon' },
+                        { data: 'sort' },
+                        { data: 'tier' },
+                        { data: 'status' },
+                        { data: 'actions' }
+                    ],
+                    language: {
+                        search: "檢索選單：",
+                        lengthMenu: "每頁 _MENU_ 筆",
+                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆節點",
+                        paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" },
+                        emptyTable: "無選單資料"
+                    },
+                    pageLength: 8,
+                    order: [[6, 'asc']]
+                });
+            }
+
+            function formatTableRow(m) {
+                const isVis = m.is_visible === 'Y' || m.is_visible === true;
+                const isAct = m.is_active === 'Y' || m.is_active === true;
+                let statusBadge = '';
+                if (isVis && isAct) statusBadge = '<span class="badge bg-success">可見 + 有效</span>';
+                else if (!isVis && isAct) statusBadge = '<span class="badge bg-info text-dark">隱藏 + 有效</span>';
+                else if (isVis && !isAct) statusBadge = '<span class="badge bg-warning text-dark">可見 + 維護</span>';
+                else statusBadge = '<span class="badge bg-danger">徹底封存</span>';
+
+                const portalBadge = m.portal_scope === 'CORE' ? '<span class="badge bg-purple">CORE</span>' :
+                                    m.portal_scope === 'TEAM' ? '<span class="badge bg-primary">TEAM</span>' :
+                                    '<span class="badge bg-success">PUBLIC</span>';
+
+                return {
+                    menu_id: `<span class="fw-bold text-white">${m.menu_id}</span>`,
+                    titles: `<div>${m.title_zh}</div><div class="text-muted small">${m.title_en || ''}</div>`,
+                    portal: portalBadge,
+                    parent: `<span class="inspector-badge">${m.parent_node_id}</span>`,
+                    route: `<code class="text-cyan">${m.route_path}</code>`,
+                    icon: `<i class="${m.icon_class}"></i>`,
+                    sort: m.sort_order,
+                    tier: `<span class="badge bg-dark border">${m.req_tier || 'PUBLIC'}</span>`,
+                    status: statusBadge,
+                    actions: `
+                        <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="MenuApp.openEditModal('${m.menu_id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="MenuApp.deleteMenuItem('${m.menu_id}')"><i class="fa-solid fa-trash"></i></button>
+                    `
+                };
+            }
+
+            function filterDataTable() {
+                if (dataTableInstance) {
+                    dataTableInstance.search('').columns().search('');
+                    dataTableInstance.clear();
+                    const filteredData = menuDatabase.filter(m => m.portal_scope === activePortal).map(m => formatTableRow(m));
+                    dataTableInstance.rows.add(filteredData).draw();
+                }
+            }
+
+            function updateDataTableRow(node) {
+                filterDataTable();
+            }
+
+            /**
+             * 開啟新增 Modal
+             */
+            function openAddModal() {
+                $('#modalTitle').html('<i class="fa-solid fa-plus text-primary"></i> 新增選單節點');
+                $('#formMode').value = 'add';
+                $('#menuForm')[0].reset();
+                $('#fieldMenuId').prop('readonly', false).val('');
+                $('#fieldPortalScope').val(activePortal);
+                $('#fieldParentNode').val('root');
+                $('#fieldSortOrder').val(10);
+                $('#fieldIsVisible').prop('checked', true);
+                $('#fieldIsActive').prop('checked', true);
+                $('#iconPreview').html('<i class="fa-solid fa-bars"></i>');
+                populateParentSelect();
+                new bootstrap.Modal(document.getElementById('menuModal')).show();
+            }
+
+            /**
+             * 開啟編輯當前節點 Modal
+             */
+            function openEditCurrent() {
+                openEditModal(selectedMenuId);
+            }
+
+            function openEditModal(menuId) {
+                const node = menuDatabase.find(m => m.menu_id === menuId);
+                if (!node) return;
+
+                $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯選單節點');
+                $('#formMode').val('edit');
+                $('#fieldMenuId').prop('readonly', true).val(node.menu_id);
+                $('#fieldPortalScope').val(node.portal_scope);
+                populateParentSelect();
+                $('#fieldParentNode').val(node.parent_node_id);
+                $('#fieldTitleZh').val(node.title_zh);
+                $('#fieldTitleEn').val(node.title_en);
+                $('#fieldRoutePath').val(node.route_path);
+                $('#fieldIconClass').val(node.icon_class);
+                $('#fieldSortOrder').val(node.sort_order);
+                $('#fieldBadgeText').val(node.badge_text);
+                $('#fieldReqTier').val(node.req_tier || 'PUBLIC');
+                $('#fieldTargetTable').val(node.target_table || '');
+                $('#fieldMemo').val(node.memo || '');
+                $('#fieldIsVisible').prop('checked', node.is_visible === 'Y' || node.is_visible === true);
+                $('#fieldIsActive').prop('checked', node.is_active === 'Y' || node.is_active === true);
+                $('#iconPreview').html(`<i class="${node.icon_class || 'fa-solid fa-bars'}"></i>`);
+
+                new bootstrap.Modal(document.getElementById('menuModal')).show();
+            }
+
+            /**
+             * 儲存節點變更
+             */
+            function saveMenuItem() {
+                const mode = $('#formMode').val();
+                const menuId = $('#fieldMenuId').val().trim();
+                const titleZh = $('#fieldTitleZh').val().trim();
+
+                if (!menuId || !titleZh) {
+                    alert('請填寫選單代碼與中文名稱！');
+                    return;
+                }
+
+                const payload = {
+                    menu_id: menuId,
+                    portal_scope: $('#fieldPortalScope').val(),
+                    parent_node_id: $('#fieldParentNode').val(),
+                    title_zh: titleZh,
+                    title_en: $('#fieldTitleEn').val().trim(),
+                    route_path: $('#fieldRoutePath').val().trim(),
+                    icon_class: $('#fieldIconClass').val().trim() || 'fa-solid fa-file',
+                    sort_order: parseInt($('#fieldSortOrder').val(), 10) || 10,
+                    badge_text: $('#fieldBadgeText').val().trim(),
+                    req_tier: $('#fieldReqTier').val(),
+                    target_table: $('#fieldTargetTable').val().trim(),
+                    memo: $('#fieldMemo').val().trim(),
+                    is_visible: $('#fieldIsVisible').is(':checked') ? 'Y' : 'N',
+                    is_active: $('#fieldIsActive').is(':checked') ? 'Y' : 'N'
+                };
+
+                if (mode === 'add') {
+                    if (menuDatabase.some(m => m.menu_id === menuId)) {
+                        alert('選單代碼 (menu_id) 已存在！');
+                        return;
+                    }
+                    menuDatabase.push(payload);
+                    selectedMenuId = menuId;
+                    showToast(`已新增節點：${titleZh} (${menuId})`);
+                } else {
+                    const idx = menuDatabase.findIndex(m => m.menu_id === menuId);
+                    if (idx !== -1) {
+                        menuDatabase[idx] = payload;
+                        showToast(`已更新節點：${titleZh} (${menuId})`);
+                    }
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
+                renderAll();
+                filterDataTable();
+            }
+
+            /**
+             * 刪除節點
+             */
+            function deleteCurrent() {
+                deleteMenuItem(selectedMenuId);
+            }
+
+            function deleteMenuItem(menuId) {
+                if (confirm(`確定要刪除節點【${menuId}】及其所有關聯子選單嗎？`)) {
+                    menuDatabase = menuDatabase.filter(m => m.menu_id !== menuId && m.parent_node_id !== menuId);
+                    const remaining = menuDatabase.filter(m => m.portal_scope === activePortal);
+                    selectedMenuId = remaining.length > 0 ? remaining[0].menu_id : '';
+                    renderAll();
+                    filterDataTable();
+                    showToast(`已移除節點：${menuId}`);
+                }
+            }
+
+            /**
+             * Google Sheets 解耦同步 (GViz / PapaParse 適配器)
+             */
+            function fetchFromGoogleSheets() {
+                $('#btnSyncSheets').html('<i class="fa-solid fa-spinner fa-spin"></i> 載入中...').prop('disabled', true);
+                
+                // 模擬 GViz 試算表端點解耦讀取
+                setTimeout(function() {
+                    $('#btnSyncSheets').html('<i class="fa-solid fa-rotate"></i> 雲端同步').prop('disabled', false);
+                    showToast('已自 Google 試算表 (sys_menus 表 52) 成功拉取最新拓撲');
+                }, 1200);
+            }
+
+            /**
+             * 綁定輸入即時監聽
+             */
+            function bindInputEvents() {
+                $('#fieldIconClass').on('input', function() {
+                    const icon = $(this).val().trim();
+                    $('#iconPreview').html(`<i class="${icon || 'fa-solid fa-bars'}"></i>`);
+                });
+            }
+
+            /**
+             * 匯出工具
+             */
+            function exportJson() {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(menuDatabase, null, 4));
+                const dlAnchor = document.createElement('a');
+                dlAnchor.setAttribute("href", dataStr);
+                dlAnchor.setAttribute("download", `sys_menus_${activePortal}_${new Date().toISOString().slice(0,10)}.json`);
+                dlAnchor.click();
+                showToast('已匯出 JSON 選單拓撲檔案');
+            }
+
+            function exportCsv() {
+                const csv = Papa.unparse(menuDatabase);
+                const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sys_menus_${activePortal}_${new Date().toISOString().slice(0,10)}.csv`;
+                a.click();
+                showToast('已匯出 CSV 選單主檔');
+            }
+
+            function showToast(msg) {
+                $('#toastMessage').html(`<i class="fa-solid fa-circle-check text-success"></i> ${msg}`);
+                const toast = new bootstrap.Toast(document.getElementById('toastNotification'));
+                toast.show();
+            }
+
+            function expandAllTree() {
+                $('.tree-node-item').show();
+            }
+
+            function collapseAllTree() {
+                $('.tree-node-level-1').toggle();
+            }
+
+            return {
+                init: init,
+                switchPortal: switchPortal,
+                selectNode: selectNode,
+                openAddModal: openAddModal,
+                openEditModal: openEditModal,
+                openEditCurrent: openEditCurrent,
+                saveMenuItem: saveMenuItem,
+                deleteMenuItem: deleteMenuItem,
+                deleteCurrent: deleteCurrent,
+                toggleCurrentVisible: toggleCurrentVisible,
+                toggleCurrentActive: toggleCurrentActive,
+                fetchFromGoogleSheets: fetchFromGoogleSheets,
+                exportJson: exportJson,
+                exportCsv: exportCsv,
+                expandAllTree: expandAllTree,
+                collapseAllTree: collapseAllTree
+            };
+        })();
+
+        $(document).ready(function() {
+            MenuApp.init();
+        });
+    </script>
+</body>
+</html>

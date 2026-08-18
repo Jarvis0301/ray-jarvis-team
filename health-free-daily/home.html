@@ -1,551 +1,409 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-bs-theme="dark-green">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>健康生活與自由日常首頁</title>
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+        <script src="../assets/js/auth-guard.js"></script>
         
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../assets/js/vendor-loader.js"></script>
 
-        <script type="module">
-            $(document).ready(function() {
-            });
-        </script>
+        <script src="../assets/js/common.js"></script>
 
-        <style>
-            :root {
-                --bg-primary: #081612;
-                --bg-secondary: #0d231b;
-                --bg-card: #132e25;
-                --bg-card-hover: #1a3f33;
-                --border-color: rgba(52, 211, 153, 0.18);
-                --text-main: #f8fafc;
-                --text-sub: #cbd5e1;
-                --accent-emerald: #10b981;
-                --accent-mint: #34d399;
-                --accent-gold: #f59e0b;
-                --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            }
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-            body {
-                background-color: transparent;
-                color: var(--text-main);
-                font-family: 'Noto Sans TC', 'Roboto', sans-serif;
-                overflow-x: hidden;
-            }
+        <script src="./js/home.js" defer></script>
 
-            /* Hero 視覺區塊 */
-            .hero-section {
-                background: linear-gradient(135deg, rgba(8, 22, 18, 0.95) 0%, rgba(13, 35, 27, 0.85) 100%),
-                            url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-                padding: 100px 0 80px 0;
-                position: relative;
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .hero-badge {
-                background-color: rgba(16, 185, 129, 0.15);
-                color: var(--accent-mint);
-                border: 1px solid var(--accent-emerald);
-                padding: 6px 16px;
-                border-radius: 50px;
-                font-size: 0.9rem;
-                display: inline-block;
-                margin-bottom: 20px;
-            }
-
-            .hero-title {
-                font-size: 2.8rem;
-                font-weight: 700;
-                line-height: 1.25;
-                margin-bottom: 20px;
-                background: linear-gradient(135deg, #ffffff 0%, var(--accent-mint) 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-
-            .hero-desc {
-                font-size: 1.15rem;
-                color: var(--text-sub);
-                margin-bottom: 35px;
-                max-width: 700px;
-            }
-
-            /* 按鈕樣式 */
-            .btn-emerald {
-                background-color: var(--accent-emerald);
-                color: #ffffff;
-                font-weight: 600;
-                padding: 12px 28px;
-                border-radius: 8px;
-                border: none;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-            }
-
-            .btn-emerald:hover {
-                background-color: #0d9668;
-                color: #ffffff;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            }
-
-            .btn-outline-emerald {
-                background-color: transparent;
-                color: var(--accent-mint);
-                border: 1px solid var(--accent-emerald);
-                font-weight: 600;
-                padding: 12px 28px;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-            }
-
-            .btn-outline-emerald:hover {
-                background-color: rgba(16, 185, 129, 0.1);
-                color: #ffffff;
-                border-color: var(--accent-mint);
-                transform: translateY(-2px);
-            }
-
-            /* KPI 數據卡片 */
-            .stat-card {
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-color);
-                border-radius: 12px;
-                padding: 24px;
-                text-align: center;
-                transition: all 0.3s ease;
-                height: 100%;
-            }
-
-            .stat-card:hover {
-                transform: translateY(-50px);
-                background-color: var(--bg-card-hover);
-                border-color: var(--accent-mint);
-            }
-
-            .stat-number {
-                font-size: 2.2rem;
-                font-weight: 700;
-                color: var(--accent-mint);
-                margin-bottom: 5px;
-            }
-
-            .stat-label {
-                color: var(--text-main);
-                font-size: 0.95rem;
-            }
-
-            /* 通用卡片設計 */
-            .custom-card {
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-color);
-                border-radius: 12px;
-                padding: 30px;
-                transition: all 0.3s ease;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-
-            .custom-card:hover {
-                transform: translateY(-5px);
-                border-color: var(--accent-mint);
-                box-shadow: var(--shadow-glow);
-                background-color: var(--bg-card-hover);
-            }
-
-            .card-icon {
-                width: 55px;
-                height: 55px;
-                background-color: rgba(16, 185, 129, 0.12);
-                color: var(--accent-mint);
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                margin-bottom: 20px;
-            }
-
-            .section-title {
-                font-size: 2rem;
-                font-weight: 700;
-                color: var(--text-main);
-                margin-bottom: 12px;
-            }
-
-            .section-subtitle {
-                color: var(--text-main);
-                font-size: 1.05rem;
-                margin-bottom: 45px;
-            }
-
-            /* 明星產品卡片 */
-            .product-preview-card {
-                background-color: var(--bg-secondary);
-                border: 1px solid var(--border-color);
-                border-radius: 12px;
-                overflow: hidden;
-                transition: all 0.3s ease;
-                height: 100%;
-            }
-
-            .product-preview-card:hover {
-                border-color: var(--accent-mint);
-                transform: translateY(-5px);
-            }
-
-            .product-img-wrapper {
-                height: 200px;
-                background-color: #06110e;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                position: relative;
-            }
-
-            .product-badge {
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                background-color: var(--accent-gold);
-                color: #000;
-                font-size: 0.75rem;
-                font-weight: 700;
-                padding: 4px 10px;
-                border-radius: 4px;
-            }
-
-            .product-content {
-                padding: 20px;
-            }
-
-            .product-title {
-                font-size: 1.2rem;
-                font-weight: 600;
-                color: var(--text-main);
-                margin-bottom: 8px;
-            }
-
-            .product-desc {
-                font-size: 0.9rem;
-                color: var(--text-main);
-                margin-bottom: 15px;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            @media (max-width: 768px) {
-                .hero-title {
-                    font-size: 2rem;
-                }
-                .hero-section {
-                    padding: 60px 0 40px 0;
-                }
-            }
-        </style>
+        <link rel="stylesheet" href="./css/home.css">
     </head>
 
     <body>
 
-        <section class="hero-section">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <span class="hero-badge">
-                            <i class="fas fa-star"></i> 品牌煥新 邁向國際
-                        </span>
-                        <h1 class="hero-title">
-                            UVACO 葡眾<br>美滿生活 就此展開
-                        </h1>
-                        <p class="hero-desc">
-                            Life at Its Fullest. 融合東方養生智慧與現代生物科技，立足台灣本土直銷第一品牌。我們致力於為您打造全方位的健康防護與無壓力的微型事業機會。
-                        </p>
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="products.html" class="btn btn-emerald">
-                                <i class="fas fa-boxes"></i> 探索產品目錄
-                            </a>
-                            <a href="system-advantages.html" class="btn btn-outline-emerald">
-                                <i class="fas fa-chart-line"></i> 了解事業優勢
-                            </a>
+        <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=1600&auto=format&fit=crop');">
+                    <div class="hero-overlay">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <span class="badge bg-emerald mb-3 px-3 py-2 text-dark font-weight-bold" style="background-color: var(--uvaco-primary);">
+                                        <i class="fa-solid fa-flask"></i> 頂尖生物科技研發
+                                    </span>
+                                    <h1 class="display-4 fw-bold text-white mb-3">嚴選專利菌株，守護全家人的日常健康</h1>
+                                    <p class="lead text-light mb-4">結合國家級研發團隊與多項國際發明金獎專利，為您打造最安心的保健防護網。</p>
+                                    <div class="d-flex gap-3">
+                                        <a href="products.html" class="btn btn-primary">
+                                            <i class="fa-solid fa-arrow-right"></i> 探索明星產品
+                                        </a>
+                                        <a href="product-patents.html" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-award"></i> 檢視專利認證
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop');">
+                    <div class="hero-overlay">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <span class="badge bg-emerald mb-3 px-3 py-2 text-dark font-weight-bold" style="background-color: var(--uvaco-primary);">
+                                        <i class="fa-solid fa-users"></i> 榮祥團隊 Ray's Team
+                                    </span>
+                                    <h1 class="display-4 fw-bold text-white mb-3">掌握自主人生，翻轉未來的事業藍圖</h1>
+                                    <p class="lead text-light mb-4">透明永續的獎金制度與完善的全網輔導體系，協助每一位夥伴踏實實現財務自由。</p>
+                                    <div class="d-flex gap-3">
+                                        <a href="system-advantages.html" class="btn btn-primary">
+                                            <i class="fa-solid fa-chess-knight"></i> 了解制度優勢
+                                        </a>
+                                        <a href="consultation.html" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-comments"></i> 預約線上諮詢
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop');">
+                    <div class="hero-overlay">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <span class="badge bg-emerald mb-3 px-3 py-2 text-dark font-weight-bold" style="background-color: var(--uvaco-primary);">
+                                        <i class="fa-solid fa-earth-asia"></i> 跨國市場佈局
+                                    </span>
+                                    <h1 class="display-4 fw-bold text-white mb-3">立足台灣，放眼馬來西亞與東南亞</h1>
+                                    <p class="lead text-light mb-4">上市公司母體實力做後盾，打造全球化的健康事業與國際供應鏈體系。</p>
+                                    <div class="d-flex gap-3">
+                                        <a href="about-uvaco.html" class="btn btn-primary">
+                                            <i class="fa-solid fa-building"></i> 關於企業母體
+                                        </a>
+                                        <a href="events.html" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-calendar-days"></i> 查看全球活動
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <section class="py-5" style="background-color: var(--bg-secondary);">
-            <div class="container">
-                <div class="row g-4">
-                    <div class="col-6 col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-number">
-                                <i class="fas fa-trophy"></i> No.1
-                            </div>
-                            <div class="stat-label">全台本土直銷企業第一名</div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-number">
-                                <i class="fas fa-coins"></i> 100億+
-                            </div>
-                            <div class="stat-label">年度營業額新台幣突破</div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-number">
-                                <i class="fas fa-users"></i> 30萬+
-                            </div>
-                            <div class="stat-label">全台信任會員與夥伴</div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-number">
-                                <i class="fas fa-award"></i> 356+
-                            </div>
-                            <div class="stat-label">國內外專業獎項認證</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
 
         <section class="py-5">
-            <div class="container py-4">
-                <div class="text-center">
-                    <h2 class="section-title">全方位健康與事業生態系</h2>
-                    <p class="section-subtitle">從頂尖生物科技研發到透明穩健的事業平台，滿足您對生活品質的極致追求</p>
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 class="section-title d-inline-block">
+                            <i class="fa-solid fa-shield-heart text-emerald"></i> 為什麼選擇我們的產品與團隊？
+                        </h2>
+                        <p class="text-muted">結合強大生技研發實力與透明公正的事業平台，為您打造雙重防護體系</p>
+                    </div>
                 </div>
                 <div class="row g-4">
                     <div class="col-md-6 col-lg-3">
-                        <div class="custom-card">
-                            <div>
-                                <div class="card-icon">
-                                    <i class="fas fa-heartbeat"></i>
-                                </div>
-                                <h4 class="text-white mb-3">日常養護與品質產品</h4>
-                                <p class="text-main fs-6 mb-4">
-                                    嚴選草本複方與專利發酵技術，提供全家人每日所需的營養補充方案。
-                                </p>
+                        <div class="card card-custom h-100">
+                            <div class="card-img-top-wrapper">
+                                <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop" alt="專利發酵技術">
                             </div>
-                            <a href="product-advantages.html" class="btn btn-outline-emerald w-100">
-                                <i class="fas fa-arrow-right"></i> 查看產品特點
-                            </a>
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-emerald fw-bold mb-3">
+                                    <i class="fa-solid fa-vial-circle-check"></i> 獨家專利發酵技術
+                                </h5>
+                                <p class="card-text text-muted small">採用多層包埋技術與液態發酵工藝，確保益生菌與營養成分極致活性。</p>
+                                <a href="product-advantages.html" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fa-solid fa-angle-right"></i> 查看技術細節
+                                </a>
+                            </div>
                         </div>
                     </div>
-
                     <div class="col-md-6 col-lg-3">
-                        <div class="custom-card">
-                            <div>
-                                <div class="card-icon">
-                                    <i class="fas fa-microscope"></i>
-                                </div>
-                                <h4 class="text-white mb-3">頂尖科研與專利技術</h4>
-                                <p class="text-main fs-6 mb-4">
-                                    依托葡萄王生技生物科技研究所，擁有多國專利包埋與發酵核心技術。
-                                </p>
+                        <div class="card card-custom h-100">
+                            <div class="card-img-top-wrapper">
+                                <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop" alt="國家品質認證">
                             </div>
-                            <a href="product-patents.html" class="btn btn-outline-emerald w-100">
-                                <i class="fas fa-arrow-right"></i> 探索研發成果
-                            </a>
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-emerald fw-bold mb-3">
+                                    <i class="fa-solid fa-certificate"></i> 國家級品質安檢
+                                </h5>
+                                <p class="card-text text-muted small">通過 ISO22000、HACCP 及多項無農藥殘留與重金屬檢驗，百分百安心。</p>
+                                <a href="product-patents.html" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fa-solid fa-angle-right"></i> 檢視獎項標章
+                                </a>
+                            </div>
                         </div>
                     </div>
-
                     <div class="col-md-6 col-lg-3">
-                        <div class="custom-card">
-                            <div>
-                                <div class="card-icon">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <h4 class="text-white mb-3">人性化事業發展制度</h4>
-                                <p class="text-main fs-6 mb-4">
-                                    零屯貨壓力、職級不上不下聘、業績可累計，設計給普通人的創業備胎。
-                                </p>
+                        <div class="card card-custom h-100">
+                            <div class="card-img-top-wrapper">
+                                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop" alt="零風險創業">
                             </div>
-                            <a href="system-advantages.html" class="btn btn-outline-emerald w-100">
-                                <i class="fas fa-arrow-right"></i> 解密制度優勢
-                            </a>
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-emerald fw-bold mb-3">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i> 不歸零人性化制度
+                                </h5>
+                                <p class="card-text text-muted small">積分累計不歸零、職級只升不降，無需囤貨負擔，打造零風險事業基石。</p>
+                                <a href="system-advantages.html" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fa-solid fa-angle-right"></i> 解密獎金制度
+                                </a>
+                            </div>
                         </div>
                     </div>
-
                     <div class="col-md-6 col-lg-3">
-                        <div class="custom-card">
-                            <div>
-                                <div class="card-icon">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                                <h4 class="text-white mb-3">上市母公司半世紀底蘊</h4>
-                                <p class="text-main fs-6 mb-4">
-                                    葡萄王生技（股票代碼：1707）堅實後盾，ESG 評鑑前 5% 的誠信品質。
-                                </p>
+                        <div class="card card-custom h-100">
+                            <div class="card-img-top-wrapper">
+                                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop" alt="全網團隊培訓">
                             </div>
-                            <a href="about-uvaco.html" class="btn btn-outline-emerald w-100">
-                                <i class="fas fa-arrow-right"></i> 認識公司背景
-                            </a>
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-emerald fw-bold mb-3">
+                                    <i class="fa-solid fa-laptop-code"></i> 榮祥團隊雲端資源
+                                </h5>
+                                <p class="card-text text-muted small">獨家提供全套數位引流工具、線上課程與一對一陪伴式輔導系統。</p>
+                                <a href="about-team.html" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fa-solid fa-angle-right"></i> 認識榮祥團隊
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="py-5" style="background-color: var(--bg-secondary);">
-            <div class="container py-4">
+        <section class="py-5" style="background-color: var(--uvaco-bg-card-primary-hover);">
+            <div class="container">
                 <div class="d-flex justify-content-between align-items-end mb-4">
                     <div>
-                        <h2 class="section-title mb-1">熱門明星產品系列</h2>
-                        <p class="text-main mb-0">深受市場數十萬家庭喜愛的優質保健選擇</p>
+                        <h2 class="section-title mb-1">
+                            <i class="fa-solid fa-star text-emerald"></i> 明星保健產品推薦
+                        </h2>
+                        <p class="text-muted mb-0">全方位滿足不同年齡層與族群的日常保健需求</p>
                     </div>
-                    <a href="products.html" class="btn btn-outline-emerald d-none d-md-inline-block">
-                        <i class="fas fa-th-list"></i> 查看全部產品
+                    <a href="products.html" class="btn btn-outline-primary d-none d-md-inline-block">
+                        <i class="fa-solid fa-grid-2"></i> 查看全部產品
                     </a>
                 </div>
+
                 <div class="row g-4">
                     <div class="col-md-6 col-lg-3">
-                        <div class="product-preview-card">
-                            <div class="product-img-wrapper">
-                                <span class="product-badge"><i class="fas fa-fire"></i> 熱銷榜首</span>
-                                <i class="fas fa-bacteria fa-4x text-success"></i>
+                        <div class="card card-custom h-100 p-3">
+                            <div class="img-placeholder mb-3" style="height: 220px;">
+                                <img src="https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=600&auto=format&fit=crop" alt="康爾喜益生菌">
                             </div>
-                            <div class="product-content">
-                                <h5 class="product-title">康爾喜益生菌顆粒</h5>
-                                <p class="product-desc">包含 13 株複合益生菌，專利包埋技術，維持消化道機能與調整體質。</p>
-                                <a href="products.html" class="btn btn-emerald btn-sm w-100">
-                                    <i class="fas fa-search"></i> 瞭解詳細資訊
+                            <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                                <i class="fa-solid fa-arrows-rotate"></i> 順暢保衛系列
+                            </span>
+                            <h5 class="fw-bold mb-2">康爾喜益生菌</h5>
+                            <p class="text-muted small mb-3">包含 13 種複合共生益生菌，專利包埋技術，維持消化道機能。</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="text-emerald fw-bold">經典熱銷 NO.1</span>
+                                <a href="product-detail.html?id=0101" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-eye"></i> 產品詳情
                                 </a>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-6 col-lg-3">
-                        <div class="product-preview-card">
-                            <div class="product-img-wrapper">
-                                <span class="product-badge"><i class="fas fa-crown"></i> 經典旗艦</span>
-                                <i class="fas fa-flask fa-4x text-info"></i>
+                        <div class="card card-custom h-100 p-3">
+                            <div class="img-placeholder mb-3" style="height: 220px;">
+                                <img src="https://images.unsplash.com/photo-1550572017-edd951aa8f72?q=80&w=600&auto=format&fit=crop" alt="995超級營養液">
                             </div>
-                            <div class="product-content">
-                                <h5 class="product-title">995 超級營養液</h5>
-                                <p class="product-desc">游離型短胜肽液態發酵技術，好吸收，為您帶來強勁活力與營養補給。</p>
-                                <a href="products.html" class="btn btn-emerald btn-sm w-100">
-                                    <i class="fas fa-search"></i> 瞭解詳細資訊
+                            <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                                <i class="fa-solid fa-shield-halved"></i> 全能防護系列
+                            </span>
+                            <h5 class="fw-bold mb-2">995 超級營養液</h5>
+                            <p class="text-muted small mb-3">獨家大豆液態發酵技術，富含小分子多胜肽與大豆異黃酮，滋補強身。</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="text-emerald fw-bold">高純度濃縮</span>
+                                <a href="product-detail.html?id=0102" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-eye"></i> 產品詳情
                                 </a>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-6 col-lg-3">
-                        <div class="product-preview-card">
-                            <div class="product-img-wrapper">
-                                <span class="product-badge"><i class="fas fa-certificate"></i> 獨家專利</span>
-                                <i class="fas fa-capsules fa-4x text-warning"></i>
+                        <div class="card card-custom h-100 p-3">
+                            <div class="img-placeholder mb-3" style="height: 220px;">
+                                <img src="https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?q=80&w=600&auto=format&fit=crop" alt="樟芝益">
                             </div>
-                            <div class="product-content">
-                                <h5 class="product-title">樟芝益菌絲體液</h5>
-                                <p class="product-desc">榮獲多國發明專利，調節生理機能，精氣神補給的極致選擇。</p>
-                                <a href="products.html" class="btn btn-emerald btn-sm w-100">
-                                    <i class="fas fa-search"></i> 瞭解詳細資訊
+                            <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                                <i class="fa-solid fa-bolt"></i> 活力丰采系列
+                            </span>
+                            <h5 class="fw-bold mb-2">樟芝益菌絲體</h5>
+                            <p class="text-muted small mb-3">集合珍貴牛樟芝、靈芝、姬松茸菌絲體精華，調節體質精神旺盛。</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="text-emerald fw-bold">精神旺盛首選</span>
+                                <a href="product-detail.html?id=0103" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-eye"></i> 產品詳情
                                 </a>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-6 col-lg-3">
-                        <div class="product-preview-card">
-                            <div class="product-img-wrapper">
-                                <span class="product-badge"><i class="fas fa-heart"></i> 全家適用</span>
-                                <i class="fas fa-mortar-pestle fa-4x text-danger"></i>
+                        <div class="card card-custom h-100 p-3">
+                            <div class="img-placeholder mb-3" style="height: 220px;">
+                                <img src="https://images.unsplash.com/photo-1577401239170-897942555fb3?q=80&w=600&auto=format&fit=crop" alt="迪斯尼晶亮">
                             </div>
-                            <div class="product-content">
-                                <h5 class="product-title">葡眾餐包</h5>
-                                <p class="product-desc">均衡營養比例，濃縮多種草本與維生素，隨身包設計方便每日補充。</p>
-                                <a href="products.html" class="btn btn-emerald btn-sm w-100">
-                                    <i class="fas fa-search"></i> 瞭解詳細資訊
+                            <span class="badge bg-dark border border-success text-emerald mb-2 align-self-start">
+                                <i class="fa-solid fa-eye"></i> 晶亮守護系列
+                            </span>
+                            <h5 class="fw-bold mb-2">迪斯尼複方膠囊</h5>
+                            <p class="text-muted small mb-3">專為現代 3C 重度使用者設計，游離型葉黃素搭配金盞花萃取精華。</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="text-emerald fw-bold">3C 族必備</span>
+                                <a href="product-detail.html?id=0104" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-eye"></i> 產品詳情
                                 </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="text-center mt-4 d-md-none">
-                    <a href="products.html" class="btn btn-outline-emerald w-100">
-                        <i class="fas fa-th-list"></i> 查看全部產品
-                    </a>
                 </div>
             </div>
         </section>
 
         <section class="py-5">
-            <div class="container py-4">
+            <div class="container">
                 <div class="row align-items-center g-5">
-                    <div class="col-lg-6">
-                        <span class="hero-badge"><i class="fas fa-history"></i> 品牌進化史</span>
-                        <h2 class="section-title mb-3">二十餘年穩健前行<br>累積無可替代的品牌誠信</h2>
-                        <p class="text-main fs-6 mb-4">
-                            葡眾自 1998 年正式轉型為多層次傳銷企業以來，白紙黑字向公平交易委員會報備。在母公司葡萄王生技半世紀研發基底護航下，業績連年突破百億，榮登本土直銷龍頭。
-                        </p>
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            <a href="milestones-uvaco.html" class="btn btn-outline-emerald btn-sm">
-                                <i class="fas fa-clock"></i> 查看公司大事記
-                            </a>
-                            <a href="awards-uvaco.html" class="btn btn-outline-emerald btn-sm">
-                                <i class="fas fa-medal"></i> 檢視榮譽獎項標章
-                            </a>
-                            <a href="about-team.html" class="btn btn-outline-emerald btn-sm">
-                                <i class="fas fa-handshake"></i> 了解榮祥團隊文化
-                            </a>
-                        </div>
+                    <div class="col-lg-5">
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-chart-pie text-emerald"></i> 全方位五大健康防護矩陣
+                        </h2>
+                        <p class="text-muted">根據現代人日常飲食與生活型態需求，研發團隊精準調配出覆蓋各體質領域的專利防護網。</p>
+                        <ul class="list-unstyled text-light my-4">
+                            <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 消化道菌叢平衡調節（康爾喜）</li>
+                            <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 小分子營養極速吸收（995）</li>
+                            <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 固態與液態結合多醣體（樟芝益）</li>
+                            <li class="mb-2"><i class="fa-solid fa-circle-check text-emerald"></i> 游離型葉黃素晶亮防護（迪斯尼）</li>
+                        </ul>
+                        <a href="health-concepts.html" class="btn btn-primary">
+                            <i class="fa-solid fa-book-open"></i> 閱讀保健觀念指南
+                        </a>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="p-4 rounded-3" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
-                            <h4 class="text-white mb-3"><i class="fas fa-shield-alt text-success"></i> 雙重安全與品質防線</h4>
-                            <ul class="list-unstyled text-sub mb-0">
-                                <li class="mb-3 d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-2 mt-1"></i>
-                                    <span><strong>國際最高食品安全認證：</strong>通過 FSSC 22000、ISO 22000、HACCP 及 NSF GMP 廠房標準。</span>
-                                </li>
-                                <li class="mb-3 d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-2 mt-1"></i>
-                                    <span><strong>永續治理 ESG 標竿：</strong>連續五年入選臺灣證券交易所「公司治理評鑑前 5%」。</span>
-                                </li>
-                                <li class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-2 mt-1"></i>
-                                    <span><strong>全球專利佈局：</strong>累積獲得 8 國 224 項國際專利與 356 項國際發明金牌獎項。</span>
-                                </li>
-                            </ul>
+                    <div class="col-lg-7">
+                        <div class="card card-custom p-4">
+                            <h5 class="text-emerald fw-bold mb-3 text-center">
+                                <i class="fa-solid fa-radar"></i> 產品核心活性與體質防護覆蓋率分析
+                            </h5>
+                            <div style="position: relative; height: 320px;">
+                                <canvas id="healthRadarChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="py-5" style="background-color: var(--bg-secondary);">
-            <div class="container text-center py-4">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <h2 class="section-title mb-3">準備好開啟您的美滿生活了嗎？</h2>
-                        <p class="section-subtitle mb-4">
-                            不論您是希望了解適合自己與家人的日常保養方案，或是正在尋找無負擔的第二收入備胎，我們的團隊將為您提供最專業且無壓力的諮詢支援。
-                        </p>
-                        <div class="d-flex justify-content-center flex-wrap gap-3">
-                            <a href="consultation.html" class="btn btn-emerald btn-lg">
-                                <i class="fas fa-comments"></i> 預約免費線上諮詢
+        <section class="py-5" style="background-color: var(--uvaco-bg-card-primary-hover);">
+            <div class="container">
+                <div class="row align-items-center g-5 mb-5">
+                    <div class="col-lg-6">
+                        <div class="img-placeholder" style="height: 340px;">
+                            <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop" alt="生技研發中心">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <span class="badge bg-emerald text-dark mb-2 fw-bold" style="background-color: var(--uvaco-primary);">
+                            <i class="fa-solid fa-award"></i> 上市母體背景
+                        </span>
+                        <h2 class="fw-bold mb-3">承襲葡萄王生技半世紀研發能量</h2>
+                        <p class="text-muted">葡眾作為台灣生技直銷領導品牌，背後擁有強大的葡萄王生技生物科技研究所。擁有上百位專業碩博士研發團隊、國家級菌種庫與 PIC/S GMP 等級製造標準。</p>
+                        <p class="text-muted">我們堅持自產自銷，從原料萃取、發酵發酵到包裝出貨，全程嚴格把關，帶給消費者最值得信賴的在地品質。</p>
+                        <div class="d-flex gap-3 mt-4">
+                            <a href="milestones-uvaco.html" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-timeline"></i> 查看公司大事記
                             </a>
-                            <a href="events.html" class="btn btn-outline-emerald btn-lg">
-                                <i class="fas fa-calendar-alt"></i> 查看最新線上活動
+                            <a href="awards-uvaco.html" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-trophy"></i> 榮譽獎項與標章
                             </a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-bullhorn text-emerald"></i> 最新活動與團隊公告
+                        </h2>
+                        <p class="text-muted">即時掌握線上研討會、產品說明會與線下表揚大會最新資訊</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-custom p-4">
+                            <div class="table-responsive">
+                                <table id="eventsTable" class="table table-dark-custom align-middle w-100">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fa-solid fa-calendar"></i> 日期</th>
+                                            <th><i class="fa-solid fa-tag"></i> 分類</th>
+                                            <th><i class="fa-solid fa-heading"></i> 活動標題</th>
+                                            <th><i class="fa-solid fa-location-dot"></i> 地點 / 形式</th>
+                                            <th><i class="fa-solid fa-circle-info"></i> 狀態</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-03-25</td>
+                                            <td><span class="badge bg-success text-dark">線上研討會</span></td>
+                                            <td>春季保健防護網與腸道健康講座</td>
+                                            <td>Zoom 線上直播</td>
+                                            <td><a href="events.html" class="btn btn-sm btn-primary"><i class="fa-solid fa-pen-to-square"></i> 報名中</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-04-10</td>
+                                            <td><span class="badge bg-info text-dark">事業說明會</span></td>
+                                            <td>榮祥團隊創業思維與數位工具運用</td>
+                                            <td>台北營運中心 4F</td>
+                                            <td><a href="events.html" class="btn btn-sm btn-primary"><i class="fa-solid fa-pen-to-square"></i> 報名中</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-04-18</td>
+                                            <td><span class="badge bg-warning text-dark">表揚大會</span></td>
+                                            <td>2026 榮祥團隊年度榮耀表揚盛會</td>
+                                            <td>台中國際會議中心</td>
+                                            <td><span class="badge bg-secondary">即將開放</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 text-center position-relative overflow-hidden" style="background: linear-gradient(rgba(6, 20, 16, 0.85), rgba(6, 20, 16, 0.95)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1600&auto=format&fit=crop') center/cover;">
+            <div class="container py-5">
+                <h2 class="display-5 fw-bold text-white mb-3">準備好開啟您的健康與事業新篇章嗎？</h2>
+                <p class="lead text-light mb-4 max-w-2xl mx-auto">無論是尋求優質保健方案，或是希望了解零風險創業機會，榮祥團隊隨時為您提供最專業的諮詢服務。</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="consultation.html" class="btn btn-lg btn-primary">
+                        <i class="fa-solid fa-comments"></i> 立即免費線上諮詢
+                    </a>
+                    <a href="social-media.html" class="btn btn-lg btn-outline-primary">
+                        <i class="fa-solid fa-share-nodes"></i> 加入社群關注我們
+                    </a>
                 </div>
             </div>
         </section>

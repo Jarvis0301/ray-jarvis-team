@@ -1,0 +1,129 @@
+:root {
+    --bg-primary: #0f0a1c;
+    --bg-card: #1e1740;
+    --bg-card-hover: #2a1f59;
+    --accent-purple: #a855f7;
+    --accent-purple-light: #c084fc;
+    --accent-gold: #f59e0b;
+    --accent-blue: #38bdf8;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #332663;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+}
+
+/* 導覽列與邊框 */
+.navbar-custom {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-custom {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.card-custom:hover {
+    border-color: var(--accent-purple);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
+}
+
+/* 預留圖片容器樣式 */
+.img-placeholder-container {
+    position: relative;
+    background: linear-gradient(135deg, #1e1740 0%, #2e1d66 100%);
+    border: 2px dashed var(--accent-purple);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    transition: all 0.3s ease;
+}
+
+.img-placeholder-container:hover {
+    border-color: var(--accent-gold);
+    background: linear-gradient(135deg, #251b54 0%, #3a2282 100%);
+}
+
+.img-placeholder-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.85;
+    transition: opacity 0.3s;
+}
+
+.img-placeholder-container:hover img {
+    opacity: 1;
+}
+
+.img-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: rgba(15, 10, 28, 0.85);
+    border: 1px solid var(--accent-purple);
+    color: var(--accent-purple-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    z-index: 2;
+}
+
+/* KPI 卡片 */
+.kpi-card {
+    border-left: 4px solid var(--accent-purple);
+}
+
+.kpi-card.gold {
+    border-left-color: var(--accent-gold);
+}
+
+.kpi-card.blue {
+    border-left-color: var(--accent-blue);
+}
+
+/* DataTables 深色主題客製化 */
+.dataTables_wrapper {
+    color: var(--text-primary) !important;
+}
+
+.table-custom {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.table-custom th {
+    background-color: #150f30 !important;
+    color: var(--accent-purple-light) !important;
+    border-color: var(--border-color) !important;
+}
+
+.table-custom td {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+}
+
+.page-link {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-purple) !important;
+    border-color: var(--accent-purple) !important;
+}

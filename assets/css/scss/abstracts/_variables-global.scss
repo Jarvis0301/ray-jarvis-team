@@ -1,0 +1,73 @@
+// ==========================================================================
+// 1-abstracts/_variables-global.scss
+// 全局通用非色彩抽象變數（字型、排版、圓角、陰影、轉場、佈局尺寸與圖層層級）
+// ==========================================================================
+
+:root {
+    // ----------------------------------------------------------------------
+    // 1. 字型與排版規格 (Typography)
+    // ----------------------------------------------------------------------
+    --uvaco-font-family-base: 'Noto Sans TC', 'Roboto', system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    --uvaco-font-family-code: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    --uvaco-font-size-sm: 0.875rem;     // 14px
+    --uvaco-font-size-base: 1rem;       // 16px
+    --uvaco-font-size-lg: 1.25rem;      // 20px
+
+    --uvaco-line-height-base: 1.6;
+    --uvaco-font-weight-regular: 400;
+    --uvaco-font-weight-medium: 500;
+    --uvaco-font-weight-bold: 700;
+
+    // ----------------------------------------------------------------------
+    // 2. 圓角規格 (Border Radius)
+    // ----------------------------------------------------------------------
+    --uvaco-border-radius-sm: 0.375rem; // 6px (標籤/小型按鈕)
+    --uvaco-border-radius-base: 0.5rem;  // 8px (輸入框/一般按鈕)
+    --uvaco-border-radius-lg: 0.75rem;  // 12px (圖示盒/標準卡片)
+    --uvaco-border-radius-xl: 1rem;     // 16px (大卡片/Modal/大圖片容器)
+    --uvaco-border-radius-2xl: 1.25rem; // 20px (Hero 容器/外層卡片)
+    --uvaco-border-radius-pill: 50rem;  // 膠囊形/圓形按鈕
+
+    // ----------------------------------------------------------------------
+    // 3. 陰影規格 (Box Shadow)
+    // ----------------------------------------------------------------------
+    --uvaco-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.25);
+    --uvaco-shadow-base: 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+    --uvaco-shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.45);
+
+    // ----------------------------------------------------------------------
+    // 4. 門戶頁面與佈局尺寸規格 (Layout Dimensions)
+    // ----------------------------------------------------------------------
+    --uvaco-header-height: 70px;
+    --uvaco-sidebar-width: 280px;
+    --uvaco-sidebar-collapsed-width: 80px;
+
+    // ----------------------------------------------------------------------
+    // 5. 動畫與轉場時間 (Transition)
+    // ----------------------------------------------------------------------
+    --uvaco-transition-fast: all 0.15s ease-in-out;
+    --uvaco-transition-base: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --uvaco-transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // ----------------------------------------------------------------------
+    // 6. 圖層順序 (Z-index)
+    // ----------------------------------------------------------------------
+    --uvaco-zindex-dropdown: 1000;
+    --uvaco-zindex-sticky: 1020;
+    --uvaco-zindex-fixed: 1030;
+    --uvaco-zindex-modal-backdrop: 1040;
+    --uvaco-zindex-modal: 1050;
+    --uvaco-zindex-popover: 1060;
+    --uvaco-zindex-tooltip: 1070;
+
+    // ----------------------------------------------------------------------
+    // 7. Bootstrap 5 全局原生排版與元件對接
+    // ----------------------------------------------------------------------
+    --bs-font-sans-serif: var(--uvaco-font-family-base);
+    --bs-font-monospace: var(--uvaco-font-family-code);
+    --bs-body-font-family: var(--uvaco-font-family-base);
+    --bs-body-font-size: var(--uvaco-font-size-base);
+    --bs-body-font-weight: var(--uvaco-font-weight-regular);
+    --bs-body-line-height: var(--uvaco-line-height-base);
+}

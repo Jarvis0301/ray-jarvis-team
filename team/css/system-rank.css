@@ -1,0 +1,184 @@
+:root {
+    --bg-dark: #0b132b;
+    --bg-card: #1c2541;
+    --bg-card-hover: #232f54;
+    --accent-blue: #38bdf8;
+    --accent-blue-subtle: rgba(56, 189, 248, 0.15);
+    --accent-gold: #facc15;
+    --accent-green: #34d399;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: rgba(56, 189, 248, 0.25);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Noto Sans TC', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* 戰力卡片基底 */
+.card-warroom {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-warroom:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 12px 32px rgba(56, 189, 248, 0.2);
+}
+
+/* 鋼鐵藍高光標頭 */
+.header-title {
+    color: var(--accent-blue);
+    font-weight: 700;
+    border-left: 4px solid var(--accent-blue);
+    padding-left: 12px;
+}
+
+/* 戰略金標籤 */
+.badge-gold {
+    background-color: rgba(250, 204, 21, 0.15);
+    color: var(--accent-gold);
+    border: 1px solid var(--accent-gold);
+    font-weight: 600;
+}
+
+/* 電光藍標籤 */
+.badge-blue {
+    background-color: var(--accent-blue-subtle);
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+    font-weight: 600;
+}
+
+/* 翡翠綠標籤 */
+.badge-green {
+    background-color: rgba(52, 211, 153, 0.15);
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+    font-weight: 600;
+}
+
+/* 榮祥指定：高質感圖片預留容器 (Image Placeholder) */
+.img-placeholder-container {
+    background: linear-gradient(135deg, rgba(28, 37, 65, 0.8) 0%, rgba(11, 19, 43, 0.9) 100%);
+    border: 2px dashed var(--accent-blue);
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.img-placeholder-container:hover {
+    background: linear-gradient(135deg, rgba(35, 47, 84, 0.9) 0%, rgba(28, 37, 65, 1) 100%);
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+.img-placeholder-icon {
+    font-size: 2.8rem;
+    color: var(--accent-blue);
+    margin-bottom: 12px;
+    opacity: 0.85;
+}
+
+.img-placeholder-title {
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+
+.img-placeholder-spec {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 實際圖片注入後的 RWD 滿版類別 */
+.img-uploaded {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* DataTable 深色主題修正 */
+table.dataTable {
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+table.dataTable thead th {
+    background-color: rgba(56, 189, 248, 0.15) !important;
+    color: var(--accent-blue) !important;
+    border-bottom: 2px solid var(--accent-blue) !important;
+    font-weight: 700;
+}
+
+table.dataTable tbody tr {
+    background-color: var(--bg-card) !important;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: var(--bg-card-hover) !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--text-muted) !important;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: #000 !important;
+    font-weight: 700;
+}
+
+.page-link {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* 階段卡片階梯感 */
+.stage-card {
+    border-top: 4px solid var(--accent-blue);
+    height: 100%;
+}
+
+.stage-card.gold-stage {
+    border-top-color: var(--accent-gold);
+}
+
+.stage-card.green-stage {
+    border-top-color: var(--accent-green);
+}

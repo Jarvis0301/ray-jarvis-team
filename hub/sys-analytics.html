@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H76000 戰情流量分析中心 - 榮祥團隊核心戰情室</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --uvaco-bg-main: #0d0714;
+            --uvaco-bg-card: #150a21;
+            --uvaco-bg-card-hover: #1c0d2e;
+            --uvaco-primary: #a855f7;
+            --uvaco-secondary: #ec4899;
+            --uvaco-accent: #fde047;
+            --uvaco-info: #38bdf8;
+            --uvaco-success: #34d399;
+            --uvaco-danger: #f87171;
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-muted: #c084fc;
+            --uvaco-border-glow: rgba(168, 85, 247, 0.25);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-main);
+            color: var(--uvaco-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.25;
+            padding: 24px;
+        }
+
+        .analytics-card {
+            background-color: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            height: 100%;
+        }
+
+        .analytics-card:hover {
+            background-color: var(--uvaco-bg-card-hover);
+            border-color: var(--uvaco-primary);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--uvaco-primary);
+        }
+
+        .table-dark {
+            background-color: transparent !important;
+            color: var(--uvaco-text-main) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: var(--uvaco-text-main) !important;
+            border: 1px solid var(--uvaco-border-glow) !important;
+            background: var(--uvaco-bg-card) !important;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--uvaco-primary) !important;
+            color: #fff !important;
+            border-color: var(--uvaco-primary) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row mb-4 align-items-center">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-pie me-2"></i>戰情流量分析中心</h2>
+                <p class="text-secondary mb-0">即時監控全站營運流量、公眾曝光、團隊內參、新進 Leads 轉換與活躍登入指標</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <button class="btn btn-outline-light btn-sm me-2" id="btnSyncAnalytics">
+                    <i class="fa-solid fa-rotate me-1"></i>同步試算表
+                </button>
+                <span class="badge bg-purple text-light border border-purple px-3 py-2" id="syncStatusBadge">
+                    <i class="fa-solid fa-circle-check text-success me-1"></i> 數據即時同步中
+                </span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="analytics-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-secondary fw-semibold">總瀏覽量 (Total PV)</span>
+                        <div class="stat-icon-box"><i class="fa-solid fa-eye"></i></div>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="valTotalPv">128,450</h3>
+                    <span class="text-success small"><i class="fa-solid fa-arrow-trend-up me-1"></i>+12.8% 較昨日同期</span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="analytics-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-secondary fw-semibold">獨立訪客 (Total UV)</span>
+                        <div class="stat-icon-box" style="color: var(--uvaco-secondary); background: rgba(236,72,153,0.15);"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="valTotalUv">34,120</h3>
+                    <span class="text-success small"><i class="fa-solid fa-arrow-trend-up me-1"></i>+8.4% 訪客黏著度提升</span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="analytics-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-secondary fw-semibold">新進潛在名單 (Leads)</span>
+                        <div class="stat-icon-box" style="color: var(--uvaco-accent); background: rgba(253,224,71,0.15);"><i class="fa-solid fa-user-plus"></i></div>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="valNewLeads">482</h3>
+                    <span class="text-warning small"><i class="fa-solid fa-bolt me-1"></i>高轉換漏斗運行中</span>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="analytics-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-secondary fw-semibold">夥伴活躍登入 (Logins)</span>
+                        <div class="stat-icon-box" style="color: var(--uvaco-info); background: rgba(56,189,248,0.15);"><i class="fa-solid fa-right-to-bracket"></i></div>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="valActiveLogins">1,260</h3>
+                    <span class="text-info small"><i class="fa-solid fa-shield-halved me-1"></i>核心戰情室高頻造訪</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-xl-8">
+                <div class="analytics-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-line me-2"></i>近 7 日全站流量走勢與分流比例</h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active" onclick="switchChartMode('pv')">PV / UV</button>
+                            <button class="btn btn-outline-secondary" onclick="switchChartMode('source')">來源拆解</button>
+                        </div>
+                    </div>
+                    <div style="height: 320px;">
+                        <canvas id="analyticsTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="analytics-card">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-bullseye me-2"></i>渠道流量佔比分佈</h5>
+                    <div style="height: 320px;" class="d-flex align-items-center justify-content-center">
+                        <canvas id="analyticsShareChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="analytics-card">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-table-list me-2"></i>每日流量統計快取明細 (sys_analytics_daily)</h5>
+                    <div class="table-responsive">
+                        <table id="table-daily-stats" class="table table-dark table-hover align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>統計日期</th>
+                                    <th>總瀏覽量 (PV)</th>
+                                    <th>獨立訪客 (UV)</th>
+                                    <th>公開官網 (Public)</th>
+                                    <th>團隊推廣 (Team)</th>
+                                    <th>核心戰情 (Hub)</th>
+                                    <th>新進 Leads</th>
+                                    <th>活躍登入</th>
+                                    <th>更新時間</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 流量分析模組前端引擎 (H76000 / sys-analytics.html)
+         * 遵循 4 個空白縮排、欄位解耦與 DataTable.js / Chart.js 規範
+         */
+        const AnalyticsEngine = (function() {
+            let trendChartInstance = null;
+            let shareChartInstance = null;
+            let dataTableInstance = null;
+
+            // 欄位解耦對映表 (對接 sys_api_configs)
+            const FIELD_MAPPINGS = {
+                stat_date: ["統計日期", "日期", "Date"],
+                total_pv: ["總瀏覽量", "PV", "TotalPV"],
+                total_uv: ["獨立訪客", "UV", "TotalUV"],
+                public_pv: ["公開瀏覽", "PublicPV"],
+                team_pv: ["團隊PV", "TeamPV"],
+                hub_pv: ["戰情室PV", "HubPV"],
+                new_leads_count: ["新進名單", "LeadsCount"],
+                active_logins: ["活躍登入", "Logins"],
+                calculated_at: ["計算時間", "Timestamp"]
+            };
+
+            const mockDataset = [
+                { stat_date: "2026-08-16", total_pv: 18450, total_uv: 4820, public_pv: 8200, team_pv: 6450, hub_pv: 3800, new_leads_count: 78, active_logins: 210, calculated_at: "15:30" },
+                { stat_date: "2026-08-15", total_pv: 17200, total_uv: 4500, public_pv: 7800, team_pv: 6000, hub_pv: 3400, new_leads_count: 65, active_logins: 195, calculated_at: "23:59" },
+                { stat_date: "2026-08-14", total_pv: 16900, total_uv: 4350, public_pv: 7500, team_pv: 5900, hub_pv: 3500, new_leads_count: 70, active_logins: 188, calculated_at: "23:59" },
+                { stat_date: "2026-08-13", total_pv: 15800, total_uv: 4100, public_pv: 7000, team_pv: 5500, hub_pv: 3300, new_leads_count: 58, active_logins: 172, calculated_at: "23:59" },
+                { stat_date: "2026-08-12", total_pv: 19100, total_uv: 5100, public_pv: 8500, team_pv: 6800, hub_pv: 3800, new_leads_count: 85, active_logins: 230, calculated_at: "23:59" },
+                { stat_date: "2026-08-11", total_pv: 16400, total_uv: 4200, public_pv: 7300, team_pv: 5800, hub_pv: 3300, new_leads_count: 62, active_logins: 180, calculated_at: "23:59" },
+                { stat_date: "2026-08-10", total_pv: 14600, total_uv: 3850, public_pv: 6500, team_pv: 5100, hub_pv: 3000, new_leads_count: 54, active_logins: 165, calculated_at: "23:59" }
+            ];
+
+            function initCharts() {
+                const ctxTrend = document.getElementById('analyticsTrendChart').getContext('2d');
+                trendChartInstance = new Chart(ctxTrend, {
+                    type: 'line',
+                    data: {
+                        labels: mockDataset.map(d => d.stat_date).reverse(),
+                        datasets: [
+                            {
+                                label: '總瀏覽量 (PV)',
+                                data: mockDataset.map(d => d.total_pv).reverse(),
+                                borderColor: '#a855f7',
+                                backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.3
+                            },
+                            {
+                                label: '獨立訪客 (UV)',
+                                data: mockDataset.map(d => d.total_uv).reverse(),
+                                borderColor: '#ec4899',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                borderDash: [4, 4],
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#f3e8ff' } } },
+                        scales: {
+                            x: { ticks: { color: '#c084fc' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y: { ticks: { color: '#c084fc' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                        }
+                    }
+                });
+
+                const ctxShare = document.getElementById('analyticsShareChart').getContext('2d');
+                shareChartInstance = new Chart(ctxShare, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['公開官網 (Public)', '團隊推廣 (Team)', '核心戰情 (Hub)'],
+                        datasets: [{
+                            data: [45, 35, 20],
+                            backgroundColor: ['#a855f7', '#ec4899', '#38bdf8'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { color: '#f3e8ff', boxWidth: 12 } } }
+                    }
+                });
+            }
+
+            function initDataTable(dataset) {
+                dataTableInstance = $('#table-daily-stats').DataTable({
+                    data: dataset,
+                    columns: [
+                        { data: 'stat_date' },
+                        { data: 'total_pv', render: $.fn.dataTable.render.number(',', '.', 0) },
+                        { data: 'total_uv', render: $.fn.dataTable.render.number(',', '.', 0) },
+                        { data: 'public_pv', render: $.fn.dataTable.render.number(',', '.', 0) },
+                        { data: 'team_pv', render: $.fn.dataTable.render.number(',', '.', 0) },
+                        { data: 'hub_pv', render: $.fn.dataTable.render.number(',', '.', 0) },
+                        { data: 'new_leads_count' },
+                        { data: 'active_logins' },
+                        { data: 'calculated_at' }
+                    ],
+                    order: [[0, 'desc']],
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: false,
+                    info: false,
+                    language: {
+                        paginate: {
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+            }
+
+            function bindEvents() {
+                $('#btnSyncAnalytics').on('click', function() {
+                    const $badge = $('#syncStatusBadge');
+                    $badge.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步試算表中...');
+                    setTimeout(() => {
+                        $badge.html('<i class="fa-solid fa-circle-check text-success me-1"></i> 數據即時同步完成');
+                    }, 800);
+                });
+            }
+
+            function init() {
+                initCharts();
+                initDataTable(mockDataset);
+                bindEvents();
+            }
+
+            return {
+                init: init
+            };
+        })();
+
+        $(document).ready(function() {
+            AnalyticsEngine.init();
+        });
+    </script>
+</body>
+</html>

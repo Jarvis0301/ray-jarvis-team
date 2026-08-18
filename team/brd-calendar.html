@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>團隊行事曆 - 榮祥葡眾團隊</title>
+        
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/calender.js" defer></script>
+
+        <link rel="stylesheet" href="./css/calender.css">
+	</head>	
+	
+	<body>
+
+        <header class="page-header">
+            <div class="container-fluid px-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="page-title">
+                            <i class="fa-solid fa-calendar-days"></i> 榮祥團隊行事曆
+                        </h1>
+                        <p class="page-subtitle mb-0">
+                            <i class="fa-solid fa-circle-info"></i> 即時掌握線上培訓、線下研討會與公司重大活動日程（團隊專屬內部版）
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <button class="btn btn-custom-blue" data-bs-toggle="modal" data-bs-target="#syncCalendarModal">
+                            <i class="fa-solid fa-plus"></i> 同步至個人日曆
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container-fluid p-3 p-md-4">
+            
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="kpi-card d-flex align-items-center gap-3">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-value" id="kpiTotalEvents">28</div>
+                            <div class="kpi-label">本月排定活動</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="kpi-card d-flex align-items-center gap-3">
+                        <div class="kpi-icon" style="color: #38bdf8; background: rgba(56,189,248,0.1);">
+                            <i class="fa-solid fa-video"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-value" id="kpiOnlineEvents">16</div>
+                            <div class="kpi-label">線上直播研討</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="kpi-card d-flex align-items-center gap-3">
+                        <div class="kpi-icon" style="color: #34d399; background: rgba(52,211,153,0.1);">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-value" id="kpiOfflineEvents">9</div>
+                            <div class="kpi-label">線下表揚/聚會</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="kpi-card d-flex align-items-center gap-3">
+                        <div class="kpi-icon" style="color: #facc15; background: rgba(250,204,21,0.1);">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-value" id="kpiCoreEvents">3</div>
+                            <div class="kpi-label">高階領導會議</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                
+                <div class="col-lg-8">
+                    <div class="content-card">
+                        <div class="card-header-custom">
+                            <h2 class="card-title-custom">
+                                <i class="fa-solid fa-calendar-week"></i> 互動行事曆視圖
+                            </h2>
+                            <div class="d-flex align-items-center gap-2">
+                                <button id="toggleThemeBtn" class="btn btn-outline-custom btn-sm">
+                                    <i class="fa-solid fa-circle-half-stroke"></i> 切換深/淺模式
+                                </button>
+                                <a href="https://calendar.google.com/calendar/embed?src=f05b8ad09d9bf34cfe63c78b6d4b57f677036de772c76c59a41d440f1668dbb8%40group.calendar.google.com&ctz=Asia%2FTaipei" target="_blank" class="btn btn-outline-custom btn-sm">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟 Google Calendar
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="calendar-wrapper" id="calendarContainer">
+                            <iframe 
+                                id="gcalendarIframe"
+                                src="https://calendar.google.com/calendar/embed?src=f05b8ad09d9bf34cfe63c78b6d4b57f677036de772c76c59a41d440f1668dbb8%40group.calendar.google.com&ctz=Asia%2FTaipei" 
+                                style="border: 0;" 
+                                width="100%" 
+                                height="100%" 
+                                frameborder="0" 
+                                scrolling="no">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    
+                    <div class="content-card mb-4">
+                        <div class="card-header-custom">
+                            <h2 class="card-title-custom">
+                                <i class="fa-solid fa-chart-pie"></i> 本月活動型態佔比
+                            </h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="eventDistributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header-custom">
+                            <h2 class="card-title-custom">
+                                <i class="fa-solid fa-bullhorn"></i> 參與活動注意事項
+                            </h2>
+                        </div>
+                        <ul class="list-unstyled mb-0 text-secondary small">
+                            <li class="mb-2 d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-check text-info mt-1"></i>
+                                <span>線上 Zoom 研討會請於開始前 **10 分鐘** 入座，並修改暱稱為「地區-姓名」。</span>
+                            </li>
+                            <li class="mb-2 d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-check text-info mt-1"></i>
+                                <span>參加線下事業說明會請穿著正式商務休閒服裝，展現團隊專業形象。</span>
+                            </li>
+                            <li class="mb-2 d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-check text-info mt-1"></i>
+                                <span>若遇颱風或不可抗力因素，實體會議將自動轉為線上 Zoom 進行。</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-12">
+                    <div class="content-card">
+                        <div class="card-header-custom">
+                            <h2 class="card-title-custom">
+                                <i class="fa-solid fa-list-check"></i> 近期活動明細清單 (動態同步)
+                            </h2>
+                            <span class="badge bg-secondary text-light">
+                                <i class="fa-solid fa-arrows-rotate"></i> 每 5 分鐘自動更新
+                            </span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="eventsDataTable" class="table table-hover align-middle w-100">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fa-solid fa-clock"></i> 日期時間</th>
+                                        <th><i class="fa-solid fa-bookmark"></i> 活動類別</th>
+                                        <th><i class="fa-solid fa-heading"></i> 活動名稱 / 主題</th>
+                                        <th><i class="fa-solid fa-user-tie"></i> 主講人 / 負責人</th>
+                                        <th><i class="fa-solid fa-location-dot"></i> 地點 / 連結</th>
+                                        <th><i class="fa-solid fa-gear"></i> 操作選項</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTableBody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <div class="modal fade" id="syncCalendarModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content style-dark-modal" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                        <h5 class="modal-title" style="color: var(--accent-blue);">
+                            <i class="fa-solid fa-calendar-plus"></i> 同步行事曆至您的手機/電腦
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-secondary small mb-3">選擇適合您的訂閱方式，將榮祥團隊行事曆直接匯入至您的 Google Calendar 或 Apple Calendar：</p>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="https://calendar.google.com/calendar/embed?src=f05b8ad09d9bf34cfe63c78b6d4b57f677036de772c76c59a41d440f1668dbb8%40group.calendar.google.com&ctz=Asia%2FTaipei" target="_blank" class="btn btn-outline-custom text-start py-2">
+                                <i class="fa-brands fa-google text-danger"></i> 訂閱至 Google Calendar (Android / Web)
+                            </a>
+                            <a href="webcal://calendar.google.com/calendar/ical/f05b8ad09d9bf34cfe63c78b6d4b57f677036de772c76c59a41d440f1668dbb8%40group.calendar.google.com/public/basic.ics" class="btn btn-outline-custom text-start py-2">
+                                <i class="fa-brands fa-apple text-light"></i> 訂閱至 Apple Calendar (iPhone / Mac)
+                            </a>
+                            <button class="btn btn-outline-custom text-start py-2" onclick="copyIcalLink()">
+                                <i class="fa-solid fa-copy text-info"></i> 複製 iCal 訂閱連結 URL
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+</html>

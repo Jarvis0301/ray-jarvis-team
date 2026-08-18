@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>榮祥葡眾團隊</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/index.js" defer></script>
+
+        <link rel="stylesheet" href="./css/index.css">
+    </head>
+
+    <body>
+
+        <header class="portal-header">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-primary-subtle border-0 fs-3" id="sidebarToggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <a href="#" class="brand-logo" onclick="loadPage('home.html'); return false;">
+                    <i class="fa-solid fa-users-gear"></i> 榮祥葡眾團隊
+                </a>
+            </div>
+            <div class="dropdown">
+                <!-- 主按鈕：顏色與文字會由 JS 根據當前網址自動設定 -->
+                <button id="versionDropdownBtn" type="button" class="btn btn-blue-subtle btn-sm dropdown-toggle px-3 py-2 rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-users-gear me-1"></i> 團隊版
+                </button>
+
+                <!-- 下拉選單：內部按鈕排列 -->
+                <div class="dropdown-menu dropdown-menu-end bg-transparent p-2 border-0" style="min-width: 150px;">
+                    <div class="d-flex flex-column gap-2">
+                        
+                        <!-- 公開版 -->
+                        <button type="button" id="publicButton" class="btn btn-green-subtle open-version-btn p-2 rounded-pill" data-url="../health-free-daily/">
+                            <i class="fa-solid fa-leaf me-1"></i> 公開版
+                        </button>
+
+                        <!-- 團隊版 -->
+                        <button type="button" id="teamButton" class="btn btn-blue-subtle open-version-btn p-2 rounded-pill" data-url="../team/">
+                            <i class="fa-solid fa-users-gear me-1"></i> 團隊版
+                        </button>
+
+                        <!-- 核心版 -->
+                        <button type="button" id="hubButton" class="btn btn-purple-subtle open-version-btn p-2 rounded-pill" data-url="../hub/">
+                            <i class="fa-solid fa-diagram-project me-1"></i> 核心版
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="portal-wrapper" id="portalWrapper">
+            
+            <aside class="portal-sidebar" id="portalSidebar">
+                <div class="sidebar-content overflow-y-auto" id="dynamicMenuContainer">
+                    <div class="text-center py-4" id="menuLoadingSpinner">
+                        <i class="fa-solid fa-spinner fa-spin"></i> 正在載入選單...
+                    </div>
+                </div>
+                <div class="sidebar-footer mt-auto w-100">
+                    <button class="btn btn-outline-danger w-100 py-2 rounded-0 d-flex align-items-center justify-content-center gap-2 border-0" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#logoutConfirmModal">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="menu-text">登出</span>
+                    </button>
+                </div>
+            </aside>
+
+            <main class="portal-content">
+                <div id="page-content-container"></div>
+
+                <footer class="portal-footer" id="portalFooter">
+                    <div class="desktop-sitemap d-none d-lg-block p-3" id="desktopSitemap">
+                        <div class="sitemap-title">
+                            <i class="fa-solid fa-sitemap"></i> 網站地圖 (Site Map)
+                        </div>
+                        <div class="row g-4" id="sitemapContainer"></div>
+                    </div>
+
+                    <div class="footer-social-btns">
+                        <a href="https://www.facebook.com/health.free.daily" target="_blank" class="social-btn" title="Facebook 粉絲專頁">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/health_free_daily/" target="_blank" class="social-btn" title="Instagram 專頁">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://discord.gg/mZYv7Bb47C" target="_blank" class="social-btn" title="Discord 交流群">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                    </div>
+
+                    <div class="copyright-text">
+                        © 2026 榮祥團隊 Ray's Team | 榮祥葡眾團隊內部系統 · 未經授權請勿外流 | 本網站僅供團隊內部使用 | 
+                        <a href="#" onclick="loadPage('disclaimer.html'); return false;">
+                            <i class="fa-solid fa-file-contract"></i> 網站聲明
+                        </a>
+                    </div>
+                </footer>
+            </main>
+        </div>
+
+        <!-- 回到頂端 Button -->
+        <button id="backToTopBtn" class="back-to-top-btn" title="回到頂端" aria-label="Back to Top">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+
+        <!-- 美化版登出確認 Modal -->
+        <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-sidebar, #0d1f18); border: 1px solid var(--uvaco-border-color) !important;">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-light d-flex align-items-center gap-2" id="logoutConfirmModalLabel">
+                            <i class="fa-solid fa-shield-halved text-warning"></i> 登出確認
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <!-- 警告圖示氣氛圈 -->
+                        <div class="logout-icon-circle mb-3 mx-auto d-flex align-items-center justify-content-center" 
+                            style="width: 68px; height: 68px; border-radius: 50%; background: rgba(244, 63, 94, 0.15); color: #f43f5e; font-size: 1.8rem; box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </div>
+                        <h5 class="text-light fw-bold mb-2">確定要登出系統嗎？</h5>
+                        <p class="text-muted small mb-0">登出後需要重新驗證帳號，才能再次存取團隊系統內容。</p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary flex-fill py-2 rounded-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark me-1"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-danger flex-fill py-2 rounded-3" id="confirmLogoutBtn">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> 確定登出
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

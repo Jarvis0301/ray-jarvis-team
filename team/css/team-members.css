@@ -1,0 +1,169 @@
+:root {
+    --bg-dark-body: #0b1329;
+    --bg-dark-card: #111d38;
+    --bg-dark-hover: #1e293b;
+    --primary-blue: #38bdf8;
+    --primary-blue-hover: #0284c7;
+    --accent-gold: #facc15;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #1e293b;
+    --card-border: rgba(56, 189, 248, 0.15);
+}
+
+body {
+    background-color: var(--bg-dark-body);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding-bottom: 3rem;
+}
+
+/* 標題區塊 */
+.page-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2.5rem 0;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    color: var(--primary-blue);
+    font-weight: 700;
+}
+
+/* 數據卡片 */
+.stat-card {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary-blue);
+}
+
+.stat-icon {
+    font-size: 2.2rem;
+    color: var(--primary-blue);
+}
+
+/* 核心領導人卡片 */
+.member-card {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.member-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-blue);
+    box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.25);
+}
+
+.member-avatar-wrapper {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin: 1.5rem auto 0.5rem;
+}
+
+.member-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--primary-blue);
+    background-color: #1e293b;
+}
+
+.rank-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--accent-gold);
+    color: #0f172a;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 2px solid var(--bg-dark-card);
+}
+
+.tag-badge {
+    background-color: rgba(56, 189, 248, 0.1);
+    color: var(--primary-blue);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin: 2px;
+    display: inline-block;
+}
+
+/* Chart.js 容器 */
+.chart-container {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 320px;
+    position: relative;
+}
+
+/* DataTable 暗黑主題客製化 */
+.table-custom-wrapper {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+table.dataTable {
+    color: var(--text-main) !important;
+    background-color: transparent !important;
+}
+
+table.dataTable thead th {
+    background-color: #1e293b !important;
+    color: var(--primary-blue) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+}
+
+table.dataTable tbody td {
+    border-bottom: 1px solid var(--border-color) !important;
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+    vertical-align: middle;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+    color: #0f172a !important;
+    font-weight: bold;
+}
+
+.page-link {
+    background-color: #1e293b !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+.dataTables_filter input, .dataTables_length select {
+    background-color: #1e293b !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+/* 載入中動畫 */
+.loading-spinner {
+    color: var(--primary-blue);
+}

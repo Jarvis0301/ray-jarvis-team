@@ -1,0 +1,177 @@
+/* :root {
+    --uvaco-bg-primary: #192821;
+    --uvaco-bg-card: #0d1f19;
+    --uvaco-bg-card-hover: #112620;
+    --uvaco-border-color: rgba(52, 211, 153, 0.15);
+    --uvaco-border-highlight: rgba(52, 211, 153, 0.4);
+    --uvaco-text-primary: #E2E8F0;
+    --uvaco-text-muted: #94A3B8;
+    --uvaco-secondary: #34D399;
+    --uvaco-primary: #10B981;
+    --uvaco-accent: #F59E0B;
+    --ruby-red: #EF4444;
+}
+
+body {
+    background-color: transparent;
+    color: var(--uvaco-text-primary);
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+    overflow-x: hidden;
+} */
+
+/* 區塊標題樣式 */
+.section-tag {
+    color: var(--uvaco-secondary);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.section-title {
+    font-weight: 700;
+    color: #FFFFFF;
+    position: relative;
+    display: inline-block;
+}
+
+/* 自訂卡片外觀 */
+.custom-card {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+}
+
+.custom-card:hover {
+    background-color: var(--uvaco-bg-card-hover);
+    border-color: var(--uvaco-border-highlight);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(52, 211, 153, 0.15);
+}
+
+/* 圖片容器與預留區外觀 */
+.img-placeholder-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--uvaco-border-color);
+    background-color: #061510;
+}
+
+.img-placeholder-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.custom-card:hover .img-placeholder-wrapper img {
+    transform: scale(1.05);
+}
+
+.img-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(4, 35, 24, 0.85);
+    backdrop-filter: blur(4px);
+    color: var(--uvaco-secondary);
+    border: 1px solid var(--uvaco-border-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 發光特效 */
+.glow-text {
+    color: var(--uvaco-secondary);
+    text-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+}
+
+.gold-text {
+    color: var(--uvaco-accent);
+    text-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+/* 圖示容器 */
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(52, 211, 153, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--uvaco-secondary);
+    margin-bottom: 1rem;
+}
+
+.icon-box.gold {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--uvaco-accent);
+}
+
+/* 模式切換器元件 */
+/* .switch-btn {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-muted);
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.switch-btn.active {
+    background-color: var(--uvaco-primary);
+    color: #FFFFFF;
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+} */
+
+/* 進程條樣式 */
+.progress-custom {
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar-custom {
+    background: linear-gradient(90deg, var(--uvaco-primary), var(--uvaco-secondary));
+    width: 0%;
+    transition: width 1s ease-in-out;
+}
+
+/* 按鈕樣式 */
+/* .btn-cta-primary {
+    background: linear-gradient(135deg, var(--uvaco-primary), var(--uvaco-secondary));
+    color: #042318;
+    font-weight: 700;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(52, 211, 153, 0.3);
+}
+
+.btn-cta-primary:hover {
+    transform: scale(1.03);
+    color: #042318;
+    box-shadow: 0 6px 25px rgba(52, 211, 153, 0.5);
+} */
+
+/* 數據數字大字報 */
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(180deg, #FFFFFF, var(--uvaco-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

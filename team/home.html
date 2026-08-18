@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首頁 | 榮祥葡眾團隊戰略指揮中心</title>
+    
+        <script src="../assets/js/auth-guard.js"></script>
+
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+    <style>
+        :root {
+            --bg-dark-primary: #0b1329;
+            --bg-dark-secondary: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #24344d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-blue: #38bdf8;
+            --accent-blue-hover: #0284c7;
+            --accent-gold: #facc15;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+        }
+
+        body {
+            background-color: var(--bg-dark-primary);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 導覽列樣式 */
+        .navbar-custom {
+            background-color: var(--bg-dark-secondary);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .navbar-brand {
+            color: var(--accent-blue) !important;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-link {
+            color: var(--text-main) !important;
+            transition: all 0.2s ease-in-out;
+            padding: 0.5rem 0.8rem !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-blue) !important;
+            background-color: var(--accent-glow);
+            border-radius: 6px;
+        }
+
+        .dropdown-menu-dark {
+            background-color: var(--bg-dark-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown-item {
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-card);
+            color: var(--accent-blue);
+        }
+
+        /* 卡片與容器樣式 */
+        .card-custom {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.12);
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .text-accent-blue {
+            color: var(--accent-blue) !important;
+        }
+
+        .text-accent-gold {
+            color: var(--accent-gold) !important;
+        }
+
+        .btn-accent {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            font-weight: 600;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-accent:hover {
+            background-color: var(--accent-blue-hover);
+            color: #ffffff;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-outline-accent {
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            background: transparent;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-accent:hover {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+        }
+
+        /* 跑馬燈元件 */
+        .ticker-wrap {
+            background-color: var(--bg-dark-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            overflow: hidden;
+        }
+
+        /* DataTables 深色主題修飾 */
+        .dataTables_wrapper {
+            color: var(--text-main);
+        }
+
+        table.dataTable {
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        table.dataTable thead th {
+            background-color: var(--bg-dark-secondary) !important;
+            color: var(--accent-blue) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        table.dataTable tbody tr {
+            background-color: var(--bg-card) !important;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: var(--bg-card-hover) !important;
+        }
+
+        .dataTables_info, .dataTables_paginate, .dataTables_length, .dataTables_filter {
+            color: var(--text-muted) !important;
+            margin-top: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .form-select, .form-control {
+            background-color: var(--bg-dark-secondary) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 8px var(--accent-glow) !important;
+        }
+
+        .page-item .page-link {
+            background-color: var(--bg-dark-secondary);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #0f172a;
+        }
+
+        /* 頁尾樣式 */
+        footer {
+            background-color: var(--bg-dark-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+            padding: 2.5rem 0 1.5rem 0;
+        }
+
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--accent-blue);
+        }
+
+        .social-icon {
+            font-size: 1.25rem;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .social-icon:hover {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    
+    <main class="container-fluid p-3 p-md-4">
+
+        <div class="hero-banner">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-3 mb-lg-0">
+                    <span class="badge bg-primary text-dark fw-bold mb-2"><i class="fa-solid fa-circle-check"></i> 戰略指揮中心</span>
+                    <h1 class="display-6 fw-bold text-accent-blue mb-2">歡迎回到 榮祥葡眾團隊 內部軍備庫</h1>
+                    <p class="text-muted lead mb-0">專為 Ray's Team 核心夥伴打造的數位賦能平台。提供最新公告、團隊資源、產品算式與數據分析，助您精準拓展事業版圖。</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="getting-started.html" class="btn btn-accent me-2 mb-2">
+                        <i class="fa-solid fa-paper-plane"></i> 進入新手村
+                    </a>
+                    <a href="bonus-calculator.html" class="btn btn-outline-accent mb-2">
+                        <i class="fa-solid fa-calculator"></i> 開啟試算工具
+                    </a>
+                </div>
+            </div>
+
+            <div class="ticker-wrap mt-3 d-flex align-items-center">
+                <span class="badge bg-danger me-3"><i class="fa-solid fa-bell"></i> 重要通知</span>
+                <marquee class="text-main small" behavior="scroll" direction="left" scrollamount="6">
+                    【最新公告】2026 年 3 月度線上產品研討會將於本週三晚間 20:00 準時召開！請至「最新活動」取得 Zoom 連結。 | 【系統提醒】請夥伴定期下載「雲端資源」之最新簡報檔，確保招商資訊同步更新。
+                </marquee>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card-custom p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small">團隊夥伴數</span>
+                        <i class="fa-solid fa-users text-accent-blue fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0 text-main">1,280 <small class="fs-6 text-success">+12%</small></h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card-custom p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small">月度 SV 總額</span>
+                        <i class="fa-solid fa-chart-line text-accent-gold fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0 text-main">450,000 <small class="fs-6 text-muted">SV</small></h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card-custom p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small">本月培訓活動</span>
+                        <i class="fa-solid fa-calendar-check text-info fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0 text-main">8 <small class="fs-6 text-muted">場次</small></h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card-custom p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small">軍備庫素材下載</span>
+                        <i class="fa-solid fa-cloud-arrow-down text-warning fs-4"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0 text-main">3,420 <small class="fs-6 text-muted">次</small></h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="card-custom p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-accent-blue mb-0">
+                            <i class="fa-solid fa-arrow-trend-up"></i> 組織 SV 成長趨勢
+                        </h5>
+                        <span class="badge bg-secondary">近 8 個月數據</span>
+                    </div>
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card-custom p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-accent-blue mb-0">
+                            <i class="fa-solid fa-chart-pie"></i> 組織職級分佈
+                        </h5>
+                        <span class="badge bg-secondary">當月結構</span>
+                    </div>
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="rankChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card-custom p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-accent-blue mb-0">
+                            <i class="fa-solid fa-bell"></i> 最新團隊內部公告
+                        </h5>
+                        <a href="announcements.html" class="btn btn-sm btn-outline-accent">
+                            <i class="fa-solid fa-list"></i> 查看全部公告
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="announcementTable" class="table table-dark table-hover align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>編號</th>
+                                    <th>分類</th>
+                                    <th>公告標題</th>
+                                    <th>發布日期</th>
+                                    <th>狀態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card-custom p-3 text-center">
+                    <i class="fa-solid fa-book-open text-accent-blue fs-1 mb-2"></i>
+                    <h5 class="fw-bold text-main">新手村指引</h5>
+                    <p class="text-muted small">零基礎快速上手，提供基礎入門與招商開發 SOP 講稿。</p>
+                    <a href="getting-started.html" class="btn btn-sm btn-outline-accent">
+                        <i class="fa-solid fa-arrow-right"></i> 開始學習
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom p-3 text-center">
+                    <i class="fa-solid fa-calculator text-accent-gold fs-1 mb-2"></i>
+                    <h5 class="fw-bold text-main">線上速算小工具</h5>
+                    <p class="text-muted small">包含產品 PV/SV 試算、獎金回饋與職級晉升門檻精算。</p>
+                    <a href="bonus-calculator.html" class="btn btn-sm btn-outline-accent">
+                        <i class="fa-solid fa-arrow-right"></i> 立即試算
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom p-3 text-center">
+                    <i class="fa-solid fa-cloud-arrow-down text-info fs-1 mb-2"></i>
+                    <h5 class="fw-bold text-main">雲端軍備庫</h5>
+                    <p class="text-muted small">下載高解析產品圖、15 分鐘招商 PPT 與創業說明講稿。</p>
+                    <a href="cloud-resources.html" class="btn btn-sm btn-outline-accent">
+                        <i class="fa-solid fa-arrow-right"></i> 進入下載
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
+window.addEventListener('AppReady', function () {
+            // 1. 初始化 Chart.js - 組織 SV 成長趨勢圖 (Line Chart)
+            initGrowthChart();
+
+            // 2. 初始化 Chart.js - 組織職級分佈圖 (Doughnut Chart)
+            initRankChart();
+
+            // 3. 載入並初始化 DataTable.js (含 Google 試算表欄位解耦機制)
+            loadAnnouncementData();
+        });
+
+        // 1. 組織 SV 成長趨勢圖
+        function initGrowthChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'],
+                    datasets: [{
+                        label: '團隊總 SV 業績',
+                        data: [150000, 180000, 220000, 260000, 310000, 350000, 390000, 450000],
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#38bdf8',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f8fafc', font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. 組織職級分佈圖
+        function initRankChart() {
+            const ctx = document.getElementById('rankChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['會員', '主任', '經理', '專員', '珍珠/翡翠', '藍鑽級'],
+                    datasets: [{
+                        data: [42, 28, 16, 8, 4, 2],
+                        backgroundColor: [
+                            '#64748b',
+                            '#0284c7',
+                            '#38bdf8',
+                            '#34d399',
+                            '#f59e0b',
+                            '#a855f7'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#1e293b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f8fafc', padding: 12, font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Google 試算表欄位解耦機制 (Field Mapping Decoupling Adapter)
+        const SHEET_SCHEMA_MAP = {
+            id: ['id', 'ID', '編號', '公告編號'],
+            category: ['category', 'Category', '分類', '公告分類'],
+            title: ['title', 'Title', '標題', '公告標題'],
+            date: ['date', 'Date', '日期', '發布日期'],
+            priority: ['priority', 'Priority', '狀態', '重要度'],
+            link: ['link', 'Link', '連結', '目標網址']
+        };
+
+        function mapSheetData(rawData) {
+            if (!rawData || rawData.length === 0) return [];
+
+            const headers = Object.keys(rawData[0]);
+            const fieldIndices = {};
+
+            Object.keys(SHEET_SCHEMA_MAP).forEach(key => {
+                const possibleNames = SHEET_SCHEMA_MAP[key];
+                const matchedHeader = headers.find(h => possibleNames.includes(h.trim()));
+                fieldIndices[key] = matchedHeader || null;
+            });
+
+            return rawData.map(row => {
+                return {
+                    id: row[fieldIndices.id] || 'N/A',
+                    category: row[fieldIndices.category] || '團隊公告',
+                    title: row[fieldIndices.title] || '無標題公告',
+                    date: row[fieldIndices.date] || '2026-03-01',
+                    priority: row[fieldIndices.priority] || '一般',
+                    link: row[fieldIndices.link] || '#'
+                };
+            });
+        }
+
+        // 4. 加載公告數據並初始化 DataTable.js
+        function loadAnnouncementData() {
+            // 備用預設數據，確保網路或 API 延遲時系統仍可順暢渲染
+            const fallbackRawData = [
+                { ID: 'ANN-005', 分類: '制度更新', 標題: '2026 年第 2 季業績獎金算式與組織自動補救說明', 日期: '2026-03-15', 狀態: '置頂', 連結: 'announcements.html' },
+                { ID: 'ANN-004', 分類: '活動通知', 標題: '【線上研討會】三月產品優勢與招商話術實戰解析', 日期: '2026-03-12', 狀態: '重要', 連結: 'events.html' },
+                { ID: 'ANN-003', 分類: '系統維護', 標題: '線上訂購試算工具資料庫欄位同步更新完成', 日期: '2026-03-08', 狀態: '一般', 連結: 'order-calculator.html' },
+                { ID: 'ANN-002', 分類: '新手指引', 標題: '雲端軍備庫新增 15 分鐘招商 PPT 與高品質簡報檔', 日期: '2026-03-05', 狀態: '一般', 連結: 'cloud-resources.html' },
+                { ID: 'ANN-001', 分類: '團隊規範', 標題: '榮祥團隊線下聚會與網路引流合規遵守守則', 日期: '2026-03-01', 狀態: '一般', 連結: 'company-rules.html' }
+            ];
+
+            // 執行欄位解耦轉換
+            const cleanData = mapSheetData(fallbackRawData);
+
+            // 初始化 DataTable.js
+            $('#announcementTable').DataTable({
+                data: cleanData,
+                columns: [
+                    { data: 'id', width: '10%' },
+                    { 
+                        data: 'category', 
+                        width: '15%',
+                        render: function(data) {
+                            return '<span class="badge bg-secondary"><i class="fa-solid fa-tag"></i> ' + data + '</span>';
+                        }
+                    },
+                    { data: 'title', width: '40%' },
+                    { data: 'date', width: '15%' },
+                    { 
+                        data: 'priority', 
+                        width: '10%',
+                        render: function(data) {
+                            if (data === '置頂' || data === '重要') {
+                                return '<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation"></i> ' + data + '</span>';
+                            }
+                            return '<span class="badge bg-info text-dark"><i class="fa-solid fa-circle-info"></i> ' + data + '</span>';
+                        }
+                    },
+                    {
+                        data: 'link',
+                        width: '10%',
+                        render: function(data) {
+                            return '<a href="' + data + '" class="btn btn-sm btn-outline-accent"><i class="fa-solid fa-arrow-right"></i> 查看</a>';
+                        }
+                    }
+                ]
+            });
+        }
+    </script>
+</body>
+</html>

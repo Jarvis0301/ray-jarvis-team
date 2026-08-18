@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動講座排程中樞 - 榮祥團隊戰情室</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-void: #090514;
+            --bg-surface: #130c24;
+            --bg-surface-elevated: #1c1333;
+            --bg-card: rgba(28, 19, 51, 0.75);
+            --border-glow: rgba(139, 92, 246, 0.25);
+            --border-bright: rgba(168, 85, 247, 0.6);
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-600: #7c3aed;
+            --magenta-500: #ec4899;
+            --cyan-400: #22d3ee;
+            --amber-400: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-void);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 3rem;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-void);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-surface-elevated);
+            border-radius: 4px;
+            border: 1px solid var(--border-glow);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--purple-600);
+        }
+
+        /* 磨砂玻璃卡片 */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: var(--border-bright);
+            box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* 旗艦聚光燈卡片 (Hero Spotlight) */
+        .spotlight-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(28, 19, 51, 0.9) 0%, rgba(19, 12, 36, 0.95) 100%);
+            border: 1px solid var(--purple-500);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--purple-500), var(--magenta-500), var(--cyan-400));
+        }
+
+        /* 標籤與按鈕樣式 */
+        .badge-purple {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple-400);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+        .badge-magenta {
+            background: rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.4);
+        }
+        .badge-gold {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--amber-400);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        .filter-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            color: var(--text-muted);
+            border-radius: 30px;
+            padding: 6px 18px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+            border-color: var(--purple-400);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .action-btn-primary {
+            background: linear-gradient(135deg, var(--purple-600), var(--magenta-500));
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .action-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+            color: #fff;
+        }
+
+        .action-btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-bright);
+            color: var(--text-main);
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .action-btn-outline:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--purple-400);
+            color: var(--purple-400);
+        }
+
+        /* 藝人嘉賓陣容頭像標籤 */
+        .cast-pill {
+            background: rgba(19, 12, 36, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* 倒數計時盒子 */
+        .countdown-box {
+            background: rgba(9, 5, 20, 0.8);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        /* Modal 深色客製 */
+        .modal-content.dark-modal {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: 20px;
+            color: var(--text-main);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container-fluid px-3 px-lg-5 py-4">
+
+        <section class="row align-items-center g-3 mb-4">
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" 
+                         style="background: linear-gradient(135deg, var(--purple-600), var(--magenta-500)); width: 54px; height: 54px;">
+                        <i class="fa-solid fa-calendar-star text-white fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h2 class="fw-black mb-0 text-white tracking-wide">活動講座排程中樞</h2>
+                            <span class="badge badge-purple px-2 py-1 fs-xs">H26000 · trn_events</span>
+                        </div>
+                        <p class="text-muted mb-0 small">管理全台營運處、馬來西亞海外市場與線上會議之招商會、內訓與萬人表揚大會</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 text-md-end d-flex flex-wrap align-items-center justify-content-md-end gap-2">
+                <button class="btn filter-btn d-flex align-items-center" id="btnSyncGoogleSheets">
+                    <i class="fa-solid fa-arrows-rotate me-2"></i> 同步雲端資料
+                </button>
+                <button class="btn action-btn-primary px-3 py-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#eventEditModal" onclick="openCreateModal()">
+                    <i class="fa-solid fa-plus me-2"></i> 發布新活動講座
+                </button>
+            </div>
+        </section>
+
+        <section class="spotlight-card p-4 p-lg-5 mb-4" id="spotlightHeroSection">
+            <div class="row align-items-center g-4">
+                <div class="col-12 col-lg-7">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge badge-magenta px-3 py-1 fw-bold fs-6">
+                            <i class="fa-solid fa-crown me-1"></i> 年度旗艦大會
+                        </span>
+                        <span class="badge badge-gold px-3 py-1 fw-bold fs-6">
+                            <i class="fa-solid fa-earth-americas me-1"></i> 全區跨國盛典
+                        </span>
+                        <span class="badge badge-purple px-3 py-1 fs-6">
+                            <i class="fa-solid fa-shield-halved me-1"></i> 門檻: 全員開放
+                        </span>
+                    </div>
+
+                    <h1 class="display-6 fw-bold text-white mb-3" id="heroEventTitle">2026 葡眾榮耀巔峰・萬人表揚頒獎盛典 (Rally)</h1>
+                    <p class="text-light opacity-75 mb-4 line-clamp-2" id="heroEventDesc">
+                        見證藍鑽領袖加冕榮耀，特邀生技研發首席顧問深度剖析年度戰略，結合超人氣巨星演唱會與全新事業制度大公開！
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <div class="cast-pill text-light">
+                            <i class="fa-solid fa-user-tie text-purple-400 me-2"></i> 主辦：<strong class="text-white ms-1" id="heroOrganizer">葡眾總公司 / 榮祥體系</strong>
+                        </div>
+                        <div class="cast-pill text-light">
+                            <i class="fa-solid fa-microphone-lines text-magenta-500 me-2"></i> 司儀：<span class="text-white ms-1" id="heroHost">王牌主持人 艾力克斯</span>
+                        </div>
+                        <div class="cast-pill text-light">
+                            <i class="fa-solid fa-star text-amber-400 me-2"></i> 主講：<span class="text-white ms-1" id="heroSpeaker">藍鑽特級領袖 Ray & Jarvis</span>
+                        </div>
+                        <div class="cast-pill text-light">
+                            <i class="fa-solid fa-guitar text-cyan-400 me-2"></i> 特邀藝人：<span class="text-white ms-1" id="heroPerformers">神秘金曲歌王、星光樂團</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <a href="#" class="btn action-btn-primary px-4 py-2" id="heroRegBtn" target="_blank">
+                            <i class="fa-solid fa-ticket me-2"></i> 立即搶訂席位
+                        </a>
+                        <button class="btn action-btn-outline px-3 py-2" onclick="copyInvitationText('hero')">
+                            <i class="fa-solid fa-share-nodes me-2"></i> 一鍵生成邀請文案
+                        </button>
+                        <span class="text-muted small ms-lg-2">
+                            <i class="fa-solid fa-location-dot text-danger me-1"></i> <span id="heroLocation">台北小巨蛋 (主會場)</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-5 text-center">
+                    <div class="glass-panel p-4 position-relative">
+                        <div class="text-muted small fw-bold tracking-wider mb-2">COUNTDOWN TO RALLY</div>
+                        <div class="d-flex justify-content-center gap-2 mb-4" id="heroCountdown">
+                            <div class="countdown-box"><h3 class="mb-0 text-white fw-bold" id="cdDays">18</h3><small class="text-muted">天</small></div>
+                            <div class="countdown-box"><h3 class="mb-0 text-white fw-bold" id="cdHours">06</h3><small class="text-muted">時</small></div>
+                            <div class="countdown-box"><h3 class="mb-0 text-white fw-bold" id="cdMins">42</h3><small class="text-muted">分</small></div>
+                            <div class="countdown-box"><h3 class="mb-0 text-magenta-500 fw-bold" id="cdSecs">15</h3><small class="text-muted">秒</small></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted"><i class="fa-solid fa-users me-1"></i> 席次預訂率</span>
+                            <span class="text-purple-400 fw-bold">8,650 / 10,000 席 (86%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px; background: rgba(9, 5, 20, 0.8);">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: 86%; background: linear-gradient(90deg, var(--purple-500), var(--magenta-500));"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-panel p-3 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-xl-6">
+                    <div class="d-flex flex-wrap align-items-center gap-2" id="regionFilterGroup">
+                        <span class="text-muted small fw-bold me-1"><i class="fa-solid fa-map-location-dot me-1"></i> 地區:</span>
+                        <button class="btn filter-btn active" data-filter="region" data-val="ALL">全部</button>
+                        <button class="btn filter-btn" data-filter="region" data-val="線上">線上 Meet</button>
+                        <button class="btn filter-btn" data-filter="region" data-val="台北">台北</button>
+                        <button class="btn filter-btn" data-filter="region" data-val="台中">台中</button>
+                        <button class="btn filter-btn" data-filter="region" data-val="高雄">高雄</button>
+                        <button class="btn filter-btn" data-filter="region" data-val="吉隆坡">吉隆坡 (MY)</button>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6">
+                            <div class="d-flex flex-wrap align-items-center gap-1" id="typeFilterGroup">
+                                <button class="btn filter-btn active" data-filter="type" data-val="ALL">全型態</button>
+                                <button class="btn filter-btn" data-filter="type" data-val="RALLY">表揚大會</button>
+                                <button class="btn filter-btn" data-filter="type" data-val="OFFLINE_OP">實體招商</button>
+                                <button class="btn filter-btn" data-filter="type" data-val="TRAINING">核心內訓</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="searchKeyword" placeholder="搜尋主題、主講人、藝人...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row g-4" id="eventCardContainer">
+            </section>
+
+    </main>
+
+    <div class="modal fade" id="eventDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content dark-modal">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-white fw-bold" id="detailModalTitle">
+                        <i class="fa-solid fa-circle-info text-purple-400 me-2"></i> 活動講座詳細資訊
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="detailModalBody">
+                    </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn action-btn-primary" id="modalCopyBtn" onclick="executeCopyText()">
+                        <i class="fa-solid fa-copy me-2"></i> 複製專屬邀請文案
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="eventEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content dark-modal">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-white fw-bold">
+                        <i class="fa-solid fa-pen-to-square text-magenta-500 me-2"></i> 活動講座排程維護 (trn_events)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="eventForm">
+                        <input type="hidden" id="formEventId">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-light small fw-bold">活動主題名稱 *</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formTitle" required placeholder="如：2026 新人起步百萬事業營">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">活動型態 *</label>
+                                <select class="form-select bg-dark border-secondary text-white" id="formType">
+                                    <option value="ONLINE_MEET">線上視訊會議 (Online Meet)</option>
+                                    <option value="OFFLINE_OP">實體事業說明會 (Offline OP)</option>
+                                    <option value="RALLY">萬人表揚盛典 (Rally)</option>
+                                    <option value="TRAINING">核心領袖內訓 (Training)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">舉辦地區 *</label>
+                                <select class="form-select bg-dark border-secondary text-white" id="formRegion">
+                                    <option value="線上">線上 Meet</option>
+                                    <option value="台北">台北營運中心</option>
+                                    <option value="台中">台中營運中心</option>
+                                    <option value="高雄">高雄營運中心</option>
+                                    <option value="吉隆坡">馬來西亞吉隆坡</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">主辦單位 / 體系</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formOrgName" value="葡眾企業">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">司儀 / 主持人姓名</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formHost">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">主講人 / 首席講師</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formSpeaker">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">講師榮譽頭銜</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formSpeakerTitle" placeholder="如：葡眾藍鑽特級領袖">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-light small fw-bold">特邀嘉賓 (逗號隔開)</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formGuests" placeholder="如：林翡翠領袖, 陳珍珠領袖">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-light small fw-bold">表演藝人 / 樂團</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formPerformers" placeholder="如：大會特邀金曲歌王">
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">活動開始時間 *</label>
+                                <input type="datetime-local" class="form-control bg-dark border-secondary text-white" id="formStart" required>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label text-light small fw-bold">活動結束時間 *</label>
+                                <input type="datetime-local" class="form-control bg-dark border-secondary text-white" id="formEnd" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-light small fw-bold">舉辦地點 / 會議房號連結 *</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" id="formLocation" required placeholder="如：台北小巨蛋 或 https://meet.google.com/xyz-abcd">
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-light small fw-bold">專屬報名連結 (Google Form / URL)</label>
+                                <input type="url" class="form-control bg-dark border-secondary text-white" id="formRegUrl" placeholder="https://...">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-light small fw-bold">報名席次上限 (0為無限制)</label>
+                                <input type="number" class="form-control bg-dark border-secondary text-white" id="formMaxPax" value="0">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-light small fw-bold">最低參與職級門檻 (org_ranks)</label>
+                                <select class="form-select bg-dark border-secondary text-white" id="formMinRank">
+                                    <option value="MEM">MEM - 全員夥伴/顧客</option>
+                                    <option value="MGR">MGR - 主任/經理級以上</option>
+                                    <option value="DIR">DIR - 總監/翡翠級以上</option>
+                                    <option value="DIA">DIA - 藍鑽核心特級</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn action-btn-primary" onclick="saveEventForm()">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> 儲存活動資料
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 系統解耦轉接字典 (sys_api_configs / 表49 規範)
+         * 確保 Google Sheets 試算表欄位重命名時，前端程式碼零改動
+         */
+        const TRN_FIELD_ADAPTER = {
+            "trn_events": {
+                "evt_id": "活動編號",
+                "evt_region": "地區",
+                "evt_org_name": "主辦人",
+                "evt_org_title": "主辦人頭銜",
+                "evt_title": "活動主題",
+                "evt_type": "活動型態",
+                "evt_host": "主持人",
+                "evt_host_title": "主持人頭銜",
+                "evt_speaker": "主講人",
+                "evt_speaker_title": "講師頭銜",
+                "evt_guests": "嘉賓",
+                "evt_performers": "表演藝人",
+                "evt_start": "開始時間",
+                "evt_end": "結束時間",
+                "evt_location": "舉辦地點",
+                "evt_addr": "會議房號或地址",
+                "evt_reg_url": "報名網址",
+                "evt_max_pax": "人數上限",
+                "evt_deadline": "報名截止",
+                "evt_cover": "主視覺海報URL",
+                "evt_min_rank": "最低職級門檻",
+                "evt_status": "活動狀態"
+            }
+        };
+
+        // 模擬中台活動數據 (支援線上實體混成與跨國馬來西亞)
+        let EVENT_DATA_STORE = [
+            {
+                evt_id: "EVT-2026-001",
+                evt_region: "台北",
+                evt_org_name: "葡眾總公司 / 榮祥體系",
+                evt_org_title: "全區領袖核心會",
+                evt_title: "2026 葡眾榮耀巔峰・萬人表揚頒獎盛典 (Rally)",
+                evt_type: "RALLY",
+                evt_host: "王牌主持人 艾力克斯",
+                evt_host_title: "大會首席司儀",
+                evt_speaker: "藍鑽特級領袖 Ray & Jarvis",
+                evt_speaker_title: "葡眾藍鑽特級領袖",
+                evt_guests: "葡萄王生技研發博士群, 國際發明金牌團隊",
+                evt_performers: "金曲歌王 蕭敬騰, 星光打擊樂團",
+                evt_start: "2026-09-20 13:00",
+                evt_end: "2026-09-20 18:30",
+                evt_location: "台北小巨蛋 (主會場)",
+                evt_addr: "台北市松山區南京東路四段2號",
+                evt_reg_url: "https://forms.gle/rally2026example",
+                evt_max_pax: 10000,
+                evt_min_rank: "MEM",
+                evt_status: "UPCOMING",
+                evt_cover: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                evt_id: "EVT-2026-002",
+                evt_region: "線上",
+                evt_org_name: "榮祥團隊",
+                evt_org_title: "數位招商營運處",
+                evt_title: "後疫情時代百萬輕創業：90分鐘看懂生技藍海",
+                evt_type: "ONLINE_MEET",
+                evt_host: "資深經理 怡君",
+                evt_host_title: "專業活動主持",
+                evt_speaker: "創始藍鑽 Ray",
+                evt_speaker_title: "百萬團隊創始人",
+                evt_guests: "全職媽媽創業代表 美玲",
+                evt_performers: "",
+                evt_start: "2026-08-25 19:30",
+                evt_end: "2026-08-25 21:00",
+                evt_location: "Google Meet 線上會議室",
+                evt_addr: "https://meet.google.com/trn-pro-meet",
+                evt_reg_url: "https://forms.gle/online0825",
+                evt_max_pax: 250,
+                evt_min_rank: "MEM",
+                evt_status: "UPCOMING",
+                evt_cover: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                evt_id: "EVT-2026-003",
+                evt_region: "台中",
+                evt_org_name: "台中營運分部",
+                evt_org_title: "中區卓越體系",
+                evt_title: "產品養護實戰密訓：995與康爾喜複方搭配學",
+                evt_type: "TRAINING",
+                evt_host: "翡翠級總監 志豪",
+                evt_host_title: "大會司儀",
+                evt_speaker: "營養學特聘顧問 陳博士",
+                evt_speaker_title: "生技國家品質評審",
+                evt_guests: "",
+                evt_performers: "",
+                evt_start: "2026-08-28 14:00",
+                evt_end: "2026-08-28 17:00",
+                evt_location: "台中營運中心 國際會議廳",
+                evt_addr: "台中市西區台灣大道二段",
+                evt_reg_url: "https://forms.gle/tc0828",
+                evt_max_pax: 120,
+                evt_min_rank: "MGR",
+                evt_status: "UPCOMING",
+                evt_cover: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                evt_id: "EVT-2026-004",
+                evt_region: "吉隆坡",
+                evt_org_name: "馬來西亞葡眾海外拓展部",
+                evt_org_title: "吉隆坡總部營運會",
+                evt_title: "2026 東南亞跨境直銷趨勢論壇 (Kuala Lumpur)",
+                evt_type: "OFFLINE_OP",
+                evt_host: "大馬核心幹部 Kelvin",
+                evt_host_title: "海外司儀",
+                evt_speaker: "藍鑽特級領袖 Jarvis",
+                evt_speaker_title: "海外市場拓荒導師",
+                evt_guests: "大馬星級領袖代表團",
+                evt_performers: "",
+                evt_start: "2026-09-05 14:00",
+                evt_end: "2026-09-05 17:30",
+                evt_location: "吉隆坡五星級萬豪酒店宴會廳",
+                evt_addr: "183 Jalan Bukit Bintang, Kuala Lumpur",
+                evt_reg_url: "https://forms.gle/mykl0905",
+                evt_max_pax: 300,
+                evt_min_rank: "MEM",
+                evt_status: "UPCOMING",
+                evt_cover: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        let currentFilters = {
+            region: "ALL",
+            type: "ALL",
+            search: ""
+        };
+
+        let tempCopyText = "";
+
+        // 初始化
+        $(document).ready(function () {
+            renderEventCards();
+            bindFilterEvents();
+        });
+
+        // 綁定篩選器事件
+        function bindFilterEvents() {
+            $('#regionFilterGroup .filter-btn').on('click', function () {
+                $('#regionFilterGroup .filter-btn').removeClass('active');
+                $(this).addClass('active');
+                currentFilters.region = $(this).data('val');
+                renderEventCards();
+            });
+
+            $('#typeFilterGroup .filter-btn').on('click', function () {
+                $('#typeFilterGroup .filter-btn').removeClass('active');
+                $(this).addClass('active');
+                currentFilters.type = $(this).data('val');
+                renderEventCards();
+            });
+
+            $('#searchKeyword').on('input', function () {
+                currentFilters.search = $(this).val().trim().toLowerCase();
+                renderEventCards();
+            });
+        }
+
+        // 渲染活動卡片清單
+        function renderEventCards() {
+            const container = $('#eventCardContainer');
+            container.empty();
+
+            const filteredData = EVENT_DATA_STORE.filter(item => {
+                const matchRegion = currentFilters.region === 'ALL' || item.evt_region === currentFilters.region;
+                const matchType = currentFilters.type === 'ALL' || item.evt_type === currentFilters.type;
+                const matchKeyword = currentFilters.search === '' || 
+                    item.evt_title.toLowerCase().includes(currentFilters.search) ||
+                    item.evt_speaker.toLowerCase().includes(currentFilters.search) ||
+                    item.evt_location.toLowerCase().includes(currentFilters.search) ||
+                    (item.evt_performers && item.evt_performers.toLowerCase().includes(currentFilters.search));
+
+                return matchRegion && matchType && matchKeyword;
+            });
+
+            if (filteredData.length === 0) {
+                container.html(`
+                    <div class="col-12 text-center py-5">
+                        <i class="fa-solid fa-calendar-xmark text-muted fs-1 mb-3"></i>
+                        <h5 class="text-muted">尚無符合條件的活動講座</h5>
+                    </div>
+                `);
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const typeBadge = getTypeBadge(item.evt_type);
+                const rankBadge = getRankBadge(item.evt_min_rank);
+                const isMeet = item.evt_region === '線上';
+                
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="glass-panel h-100 d-flex flex-column p-4 position-relative">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex gap-1">
+                                    ${typeBadge}
+                                    <span class="badge badge-purple"><i class="fa-solid fa-location-dot me-1"></i> ${item.evt_region}</span>
+                                </div>
+                                ${rankBadge}
+                            </div>
+
+                            <h5 class="fw-bold text-white mb-2 line-clamp-2" style="min-height: 3rem;">
+                                ${item.evt_title}
+                            </h5>
+
+                            <div class="text-muted small mb-3">
+                                <div class="mb-1">
+                                    <i class="fa-solid fa-clock text-purple-400 me-2"></i> ${item.evt_start} ~ ${item.evt_end.split(' ')[1]}
+                                </div>
+                                <div class="text-truncate">
+                                    <i class="fa-solid fa-map-pin text-danger me-2"></i> ${item.evt_location}
+                                </div>
+                            </div>
+
+                            <div class="bg-dark bg-opacity-50 p-2 rounded-3 mb-3 small flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="text-muted me-2"><i class="fa-solid fa-user-tie text-purple-400"></i> 主講:</span>
+                                    <strong class="text-white">${item.evt_speaker || '主辦方導師'}</strong>
+                                    <span class="text-muted ms-1 small">(${item.evt_speaker_title || '資深講師'})</span>
+                                </div>
+                                ${item.evt_host ? `
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="text-muted me-2"><i class="fa-solid fa-microphone text-magenta-500"></i> 司儀:</span>
+                                    <span class="text-light">${item.evt_host}</span>
+                                </div>` : ''}
+                                ${item.evt_performers ? `
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-2"><i class="fa-solid fa-guitar text-amber-400"></i> 藝人:</span>
+                                    <span class="text-warning fw-bold text-truncate">${item.evt_performers}</span>
+                                </div>` : ''}
+                            </div>
+
+                            <div class="d-flex gap-2 pt-2 border-top border-secondary">
+                                <button class="btn action-btn-outline flex-grow-1 py-2 text-sm" onclick="openDetailModal('${item.evt_id}')">
+                                    <i class="fa-solid fa-eye me-1"></i> 詳情 & 文案
+                                </button>
+                                ${isMeet ? `
+                                    <a href="${item.evt_addr}" target="_blank" class="btn action-btn-primary px-3 py-2">
+                                        <i class="fa-solid fa-video me-1"></i> 進房
+                                    </a>
+                                ` : `
+                                    <a href="${item.evt_reg_url}" target="_blank" class="btn action-btn-primary px-3 py-2">
+                                        <i class="fa-solid fa-ticket me-1"></i> 報名
+                                    </a>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        // 活動型態標籤產生器
+        function getTypeBadge(type) {
+            switch(type) {
+                case 'RALLY':
+                    return '<span class="badge badge-magenta"><i class="fa-solid fa-crown me-1"></i> 表揚大會</span>';
+                case 'OFFLINE_OP':
+                    return '<span class="badge badge-purple"><i class="fa-solid fa-briefcase me-1"></i> 實體招商</span>';
+                case 'TRAINING':
+                    return '<span class="badge badge-gold"><i class="fa-solid fa-graduation-cap me-1"></i> 領袖內訓</span>';
+                case 'ONLINE_MEET':
+                default:
+                    return '<span class="badge bg-secondary text-white"><i class="fa-solid fa-laptop me-1"></i> 線上講座</span>';
+            }
+        }
+
+        // 職級門檻標籤
+        function getRankBadge(rank) {
+            if (rank === 'DIA') return '<span class="badge bg-danger text-white"><i class="fa-solid fa-lock me-1"></i> 藍鑽限定</span>';
+            if (rank === 'DIR') return '<span class="badge bg-warning text-dark"><i class="fa-solid fa-lock me-1"></i> 總監以上</span>';
+            if (rank === 'MGR') return '<span class="badge bg-info text-dark"><i class="fa-solid fa-lock me-1"></i> 主任以上</span>';
+            return '<span class="badge bg-dark text-muted border border-secondary">全員開放</span>';
+        }
+
+        // 開啟詳細資訊與文案彈窗
+        function openDetailModal(eventId) {
+            const item = EVENT_DATA_STORE.find(e => e.evt_id === eventId);
+            if (!item) return;
+
+            const isMeet = item.evt_region === '線上';
+            const locationDisplay = isMeet ? `線上視訊 (會議房號: ${item.evt_addr})` : `${item.evt_location} (${item.evt_addr})`;
+
+            // 自動生成 LINE/WhatsApp 轉發邀請文案
+            tempCopyText = `🔥【${item.evt_title}】🔥\n` +
+                           `📅 時間：${item.evt_start} ~ ${item.evt_end.split(' ')[1]}\n` +
+                           `📍 地點：${locationDisplay}\n` +
+                           `🎤 首席主講：${item.evt_speaker} (${item.evt_speaker_title})\n` +
+                           (item.evt_performers ? `🌟 特邀演出：${item.evt_performers}\n` : '') +
+                           `🎟 搶先席次報名：${item.evt_reg_url || item.evt_addr}\n\n` +
+                           `葡眾榮祥團隊 誠摯邀請您共襄盛舉！`;
+
+            const modalContent = `
+                <div class="row g-4">
+                    <div class="col-12 col-md-5">
+                        <img src="${item.evt_cover}" class="img-fluid rounded-3 border border-secondary mb-3 shadow" alt="活動海報">
+                        <div class="bg-dark p-3 rounded-3 border border-secondary">
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-sitemap text-purple-400 me-1"></i> 主辦單位</div>
+                            <div class="text-white fw-bold mb-2">${item.evt_org_name}</div>
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-users text-magenta-500 me-1"></i> 席次上限</div>
+                            <div class="text-white fw-bold">${item.evt_max_pax > 0 ? item.evt_max_pax + ' 席 (額滿即止)' : '不限名額'}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-7">
+                        <h4 class="text-white fw-bold mb-3">${item.evt_title}</h4>
+                        <div class="text-muted small mb-3">
+                            <p class="mb-1"><i class="fa-solid fa-calendar me-2 text-purple-400"></i> <strong>活動時間：</strong> ${item.evt_start} 至 ${item.evt_end}</p>
+                            <p class="mb-1"><i class="fa-solid fa-location-dot me-2 text-danger"></i> <strong>地點地址：</strong> ${locationDisplay}</p>
+                            <p class="mb-1"><i class="fa-solid fa-shield-halved me-2 text-warning"></i> <strong>最低門檻：</strong> ${item.evt_min_rank} 級以上夥伴</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-light small fw-bold">
+                                <i class="fa-solid fa-share-nodes text-magenta-500 me-1"></i> 專屬 LINE / 社群邀約文案 (點擊下方一鍵複製)：
+                            </label>
+                            <textarea class="form-control bg-dark border-secondary text-white small" rows="7" readonly id="copyTextArea">${tempCopyText}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $('#detailModalBody').html(modalContent);
+            $('#eventDetailModal').modal('show');
+        }
+
+        // 複製邀請文案邏輯
+        function executeCopyText() {
+            navigator.clipboard.writeText(tempCopyText).then(() => {
+                const btn = $('#modalCopyBtn');
+                const origHtml = btn.html();
+                btn.html('<i class="fa-solid fa-check me-2"></i> 已複製到剪貼簿！').addClass('btn-success').removeClass('action-btn-primary');
+                setTimeout(() => {
+                    btn.html(origHtml).removeClass('btn-success').addClass('action-btn-primary');
+                }, 2000);
+            });
+        }
+
+        // 焦點活動一鍵複製
+        function copyInvitationText(type) {
+            const item = EVENT_DATA_STORE[0];
+            tempCopyText = `✨【${item.evt_title}】✨\n` +
+                           `📅 盛典日期：${item.evt_start}\n` +
+                           `📍 萬人會場：${item.evt_location}\n` +
+                           `🎤 重量級主講：${item.evt_speaker}\n` +
+                           `🎸 特邀歌手：${item.evt_performers}\n` +
+                           `👉 立即預約席位：${item.evt_reg_url}`;
+            navigator.clipboard.writeText(tempCopyText).then(() => {
+                alert('已成功複製萬人表揚大會邀請文案，可直接貼至 LINE / 微信！');
+            });
+        }
+
+        // 重置並開啟發布 Modal
+        function openCreateModal() {
+            $('#eventForm')[0].reset();
+            $('#formEventId').val('');
+        }
+
+        // 儲存表單資料
+        function saveEventForm() {
+            const title = $('#formTitle').val();
+            if (!title) {
+                alert('請填寫活動主題名稱');
+                return;
+            }
+
+            const newEvent = {
+                evt_id: "EVT-" + Date.now(),
+                evt_region: $('#formRegion').val(),
+                evt_org_name: $('#formOrgName').val() || "葡眾企業",
+                evt_org_title: "體系主辦",
+                evt_title: title,
+                evt_type: $('#formType').val(),
+                evt_host: $('#formHost').val(),
+                evt_host_title: "活動司儀",
+                evt_speaker: $('#formSpeaker').val(),
+                evt_speaker_title: $('#formSpeakerTitle').val(),
+                evt_guests: $('#formGuests').val(),
+                evt_performers: $('#formPerformers').val(),
+                evt_start: $('#formStart').val().replace('T', ' '),
+                evt_end: $('#formEnd').val().replace('T', ' '),
+                evt_location: $('#formLocation').val(),
+                evt_addr: $('#formLocation').val(),
+                evt_reg_url: $('#formRegUrl').val(),
+                evt_max_pax: parseInt($('#formMaxPax').val()) || 0,
+                evt_min_rank: $('#formMinRank').val(),
+                evt_status: "UPCOMING",
+                evt_cover: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80"
+            };
+
+            EVENT_DATA_STORE.unshift(newEvent);
+            renderEventCards();
+            $('#eventEditModal').modal('hide');
+        }
+    </script>
+</body>
+</html>

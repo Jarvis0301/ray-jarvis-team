@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>團隊資源庫 | 榮祥葡眾團隊內部戰情網</title>
+            <script src="../assets/js/auth-guard.js"></script>
+            
+            <script src="../assets/js/vendor-loader.js"></script>
+
+            <script src="../assets/js/common.js"></script>
+
+            <link rel="stylesheet" href="../assets/css/common.css">
+
+            <script src="./js/cloud-resources.js" defer></script>
+
+            <link rel="stylesheet" href="./css/cloud-resources.css">
+        <style>
+            
+        </style>
+    </head>
+
+
+    <body>
+
+        <main class="container-fluid p-3 p-md-4">
+
+            <section class="mb-5">
+                <div class="d-flex align-items-center mb-4">
+                    <h3 class="fs-4 fw-bold mb-0 text-white">
+                        <i class="fa-solid fa-folder-tree text-info"></i> 核心雲端資源專區
+                    </h3>
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="resource-card p-4">
+                            <div>
+                                <div class="card-icon-wrapper">
+                                    <i class="fa-solid fa-boxes-stacked"></i> 產品資源
+                                </div>
+                                <p class="card-desc">
+                                    收錄葡眾全系列保健食品、個人保養品高解析產品圖、產品型錄、規格對照表與行銷海報，適用於社群推廣與客戶分享。
+                                </p>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://drive.google.com/drive/folders/1v4WE0s9z2NQZlxA4EDeZwlgOHngjMFgC?usp=sharing" target="_blank" class="btn-drive-primary">
+                                    <i class="fa-brands fa-google-drive"></i> 產品圖片與資料庫
+                                </a>
+                                <a href="https://drive.google.com/drive/folders/1DraQAdpZi9VooUve5bAuAQRPIRIld2iZ?usp=sharing" target="_blank" class="btn-drive-secondary">
+                                    <i class="fa-solid fa-file-image"></i> 產品高解析海報庫
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="resource-card p-4">
+                            <div>
+                                <div class="card-icon-wrapper">
+                                    <i class="fa-solid fa-file-powerpoint"></i> 簡報資源
+                                </div>
+                                <p class="card-desc">
+                                    包含最新版創業招商簡報（OPP）、公司簡介 PPT、制度優勢分析簡報與線上研討會標準投影片，助您快速開展事業說明。
+                                </p>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://drive.google.com/drive/folders/15tqtypR1-kcxgdyt-RVrXKr7FKI84-qC?usp=sharing" target="_blank" class="btn-drive-primary">
+                                    <i class="fa-brands fa-google-drive"></i> 事業招商簡報專區
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-12">
+                        <div class="resource-card p-4">
+                            <div>
+                                <div class="card-icon-wrapper">
+                                    <i class="fa-solid fa-book-bookmark"></i> 培訓教材
+                                </div>
+                                <p class="card-desc">
+                                    新人起步 SOP 手冊、名單開發實戰話術、獎金制度精算教學、領袖輔導講義與合規營業守則，打造複製化戰鬥力。
+                                </p>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://drive.google.com/drive/folders/your-training-folder-id" target="_blank" class="btn-drive-primary">
+                                    <i class="fa-brands fa-google-drive"></i> 系統培訓教材總庫
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="row g-4 mb-5">
+                <div class="col-lg-4">
+                    <div class="dashboard-card h-100">
+                        <h4 class="fs-5 fw-bold mb-3 text-info">
+                            <i class="fa-solid fa-chart-pie"></i> 軍備資產分佈統計
+                        </h4>
+                        <div style="position: relative; height: 220px;">
+                            <canvas id="resourceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="dashboard-card h-100 d-flex flex-column justify-content-center">
+                        <h4 class="fs-5 fw-bold mb-3 text-info">
+                            <i class="fa-solid fa-lightbulb"></i> 雲端資源使用指南
+                        </h4>
+                        <ul class="list-unstyled mb-0 lh-lg text-muted">
+                            <li class="mb-2">
+                                <i class="fa-solid fa-check text-warning me-2"></i> <strong>即時下載：</strong> 點擊上方按鈕可直接跳轉至 Google Drive 雲端資料夾進行線上預覽或高解析下載。
+                            </li>
+                            <li class="mb-2">
+                                <i class="fa-solid fa-check text-warning me-2"></i> <strong>合規使用：</strong> 所有產品海報與招商簡報均符合公司規範，禁止任意修改宣稱療效。
+                            </li>
+                            <li class="mb-0">
+                                <i class="fa-solid fa-check text-warning me-2"></i> <strong>快速檢索：</strong> 可善用下方動態搜尋表格，直接輸入關鍵字（如「995」、「OPP」）尋找特定文件。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <h3 class="fs-4 fw-bold mb-0 text-white">
+                        <i class="fa-solid fa-list-check text-info"></i> 雲端檔案即時檢索目錄
+                    </h3>
+                    <span class="text-muted fs-6" id="syncStatus">
+                        <i class="fa-solid fa-spinner fa-spin"></i> 正在連線至 Google 試算表...
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="resourceTable" class="table table-dark table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>編號</th>
+                                <th>資源名稱</th>
+                                <th>分類</th>
+                                <th>檔案類型</th>
+                                <th>更新日期</th>
+                                <th>雲端操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="notice-card d-flex align-items-start gap-3">
+                <div class="text-warning fs-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h6 class="text-warning fw-bold mb-1">
+                        <i class="fa-solid fa-lock"></i> 團隊內部資源使用規範說明
+                    </h6>
+                    <p class="mb-0 text-light small" style="line-height: 1.6;">
+                        本頁面所有連結均指向《榮祥葡眾團隊》專屬 Google 雲端硬碟，請確保您已使用授權之 Gmail 帳號登入。
+                    </p>
+                    <p class="mb-0 text-light small" style="line-height: 1.6;">
+                        所有產品圖卡、海報及簡報教材均受智慧財產權與團隊合規營業守則保護，嚴禁將未經授權之素材私自用於拍賣平台（如蝦皮、露天）或誇大療效之宣傳。
+                    </p>
+                </div>
+            </section>
+
+        </main>
+        
+    </body>
+</html>

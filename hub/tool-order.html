@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>訂購試算 - 榮祥葡眾團隊</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/tool-order.js" defer></script>
+
+        <script src="./js/order-printer.js" defer></script>
+
+        <link rel="stylesheet" href="./css/tool-order.css">
+	</head>	
+	
+	<body>
+
+        <main class="container-fluid p-3 p-md-4">
+            <div class="row g-3">
+                
+                <!-- 左側：多維度搜尋篩選 + 產品選擇 (可切換卡片式/表格式) -->
+                <div class="col-xl-8">
+                    
+                    <!-- 第3網頁風格：搜尋與多層次過濾區塊 -->
+                    <section class="filter-section">
+                        <div class="row g-3 mb-3">
+                            <!-- 選擇地區 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="countrySelect" class="form-label small text-muted"><i class="fa-solid fa-globe"></i> 選擇地區</label>
+                                <select id="countrySelect" class="form-select form-select-custom">
+                                    <option value="ALL">全部地區</option>
+                                    <option value="TW" selected>台灣 (TW)</option>
+                                    <option value="MY">馬來西亞 (MY)</option>
+                                </select>
+                            </div>
+
+                            <!-- 產品主系列 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="mainSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-layer-group"></i> 產品主系列</label>
+                                <select id="mainSeriesSelect" class="form-select form-select-custom">
+                                    <option value="ALL">全部主系列</option>
+                                    <option value="保健食品">保健食品</option>
+                                    <option value="個人保養">個人保養</option>
+                                    <option value="清潔用品">清潔用品</option>
+                                    <option value="營養調理">營養調理</option>
+                                </select>
+                            </div>
+
+                            <!-- 產品次系列 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="subSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-sitemap"></i> 產品次系列</label>
+                                <select id="subSeriesSelect" class="form-select form-select-custom" disabled>
+                                    <option value="ALL">請先選擇主系列</option>
+                                </select>
+                            </div>
+
+                            <!-- 關鍵字搜尋 -->
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <label for="searchInput" class="form-label small text-muted"><i class="fa-solid fa-search"></i> 關鍵字搜尋</label>
+                                <input type="text" id="searchInput" class="form-control form-control-custom" placeholder="搜尋名稱、成分或編號...">
+                            </div>
+                        </div>
+
+                        <!-- 產品型態按鈕過濾 (第3網頁風格) -->
+                        <div class="type-filter-title"><i class="fa-solid fa-filter"></i> 產品型態快速篩選</div>
+                        <div class="d-flex flex-wrap gap-2 mb-3" id="typeFilterContainer">
+                            <button class="type-btn active" data-type="ALL"><i class="fa-solid fa-border-all"></i> 全部型態</button>
+                            <button class="type-btn" data-type="粉劑/益生菌"><i class="fa-solid fa-bacteria"></i> 粉劑/益生菌</button>
+                            <button class="type-btn" data-type="膠囊"><i class="fa-solid fa-capsules"></i> 膠囊</button>
+                            <button class="type-btn" data-type="飲品/液體"><i class="fa-solid fa-wine-bottle"></i> 飲品/液體</button>
+                            <button class="type-btn" data-type="膏/霜/保養"><i class="fa-solid fa-sparkles"></i> 膏/霜/保養</button>
+                            <button class="type-btn" data-type="清潔用品"><i class="fa-solid fa-pump-soap"></i> 清潔用品</button>
+                        </div>
+
+                        <!-- 預估職級與檢視模式切換控制 -->
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pt-2 border-top border-secondary border-opacity-25 gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="rank-select" class="text-nowrap small text-muted mb-0">
+                                    <i class="fa-solid fa-user-graduate text-info"></i> 預估回饋職級：
+                                </label>
+                                <select id="rank-select" class="form-select form-select-custom form-select-sm" style="width: auto;">
+                                    <option value="0.05">會員 (5% 回饋)</option>
+                                    <option value="0.10">主任 (10% 回饋)</option>
+                                    <option value="0.15">副理 (15% 回饋)</option>
+                                    <option value="0.20" selected>經理以上 (20% 回饋)</option>
+                                </select>
+                            </div>
+
+                            <!-- 需求 4：切換第1網頁卡片式 或 第2網頁表格式 -->
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small text-muted"><i class="fa-solid fa-eye"></i> 顯示模式：</span>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn view-switch-btn active" id="btn-view-card">
+                                        <i class="fa-solid fa-grip-vertical"></i> 卡片式
+                                    </button>
+                                    <button type="button" class="btn view-switch-btn" id="btn-view-table">
+                                        <i class="fa-solid fa-table-list"></i> 表格式
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 產品展示區：卡片模式 -->
+                    <div class="row g-3" id="productGrid"></div>
+
+                    <!-- 產品展示區：表格模式 -->
+                    <div class="war-card d-none" id="productTableCard">
+                        <div class="table-responsive">
+                            <table id="productTable" class="table table-dark-custom w-100">
+                                <thead>
+                                    <tr>
+                                        <th>編號</th>
+                                        <th>產品名稱</th>
+                                        <th>次系列</th>
+                                        <th>產品型態</th>
+                                        <th class="text-end">售價</th>
+                                        <th class="text-end">積分</th>
+                                        <th class="text-center" style="width: 120px;">訂購數量</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 右側：訂購明細試算卡片 -->
+                <div class="col-xl-4">
+                    <div class="cart-summary-card">
+                        <!-- 訂購明細標題 -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0 text-white font-weight-bold">
+                                <i class="fa-solid fa-receipt text-info"></i> 訂購明細摘要
+                            </h5>
+                            <span class="badge bg-info text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
+                        </div>
+
+                        <!-- 幣別切換與匯率/地區設定 (預設摺疊) -->
+                        <div class="mb-3">
+                            <button class="btn btn-sm btn-outline-secondary w-100 d-flex justify-content-between align-items-center text-muted border-secondary border-opacity-50" type="button" data-bs-toggle="collapse" data-bs-target="#currencySettingsCollapse" aria-expanded="false" aria-controls="currencySettingsCollapse">
+                                <span><i class="fa-solid fa-sliders text-info"></i> 幣別與匯率設定</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="collapse mt-2" id="currencySettingsCollapse">
+                                <div class="p-2 rounded bg-dark-subtle border border-secondary border-opacity-50">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-6">
+                                            <label for="displayCurrencySelect" class="form-label small text-muted mb-1">
+                                                <i class="fa-solid fa-coins text-warning"></i> 結算幣別
+                                            </label>
+                                            <select id="displayCurrencySelect" class="form-select form-select-sm form-select-custom">
+                                                <option value="TWD" selected>新台幣 (TWD)</option>
+                                                <option value="MYR">馬幣 (MYR)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="exchangeRateInput" class="form-label small text-muted mb-1">
+                                                <i class="fa-solid fa-arrow-right-arrow-left text-info"></i> 匯率 (1 MYR = ? TWD)
+                                            </label>
+                                            <input type="number" id="exchangeRateInput" class="form-control form-control-sm form-control-custom" value="8.0" step="0.1" min="0.1">
+                                        </div>
+                                        <!-- 馬來西亞運費地區 (選取馬來西亞或馬幣時顯示) -->
+                                        <div class="col-12 mt-2 d-none" id="myRegionBlock">
+                                            <label class="form-label small text-muted mb-1 d-block">
+                                                <i class="fa-solid fa-map-location-dot text-success"></i> 馬來西亞配送區域
+                                            </label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="myRegion" id="myRegionWest" value="WEST" checked>
+                                                <label class="btn btn-outline-info btn-sm" for="myRegionWest">西馬 (RM 15)</label>
+                                                <input type="radio" class="btn-check" name="myRegion" id="myRegionEast" value="EAST">
+                                                <label class="btn btn-outline-info btn-sm" for="myRegionEast">東馬 (RM 35)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 已選商品項目清單 Container (無最大高度與捲軸) -->
+                        <div id="cart-items-container" class="mb-3">
+                            <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
+                                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50"></i>
+                                尚未選擇任何商品，請點擊數量增減選擇。
+                            </div>
+                        </div>
+
+                        <!-- 免運費進度條 (已移除下方文字提示區塊) -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small">
+                                <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> 免運費門檻</span>
+                                <span id="shipping-progress-text" class="text-info font-weight-bold">0 / 5,000</span>
+                            </div>
+                            <div class="progress-shipping">
+                                <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- 金額與 SV 計算 Highlight 區塊 -->
+                        <div class="stat-highlight-box">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small"><i class="fa-solid fa-coins"></i> 產品金額總計：</span>
+                                <span class="h5 mb-0 price-num" id="summary-subtotal">NT$ 0</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small"><i class="fa-solid fa-truck"></i> 物流運費：</span>
+                                <span class="text-white font-weight-bold" id="summary-shipping">NT$ 0</span>
+                            </div>
+                            <hr class="my-2 border-secondary border-opacity-50">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white font-weight-bold"><i class="fa-solid fa-wallet"></i> 應付總金額：</span>
+                                <span class="h4 mb-0 text-warning font-weight-bold" id="summary-grand-total">NT$ 0</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small"><i class="fa-solid fa-chart-line"></i> 累積總積分 (SV)：</span>
+                                <span class="h5 mb-0 sv-num" id="summary-total-sv">0 SV</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fa-solid fa-hand-holding-dollar"></i> 預估回饋金 (現金)：</span>
+                                <span class="text-success font-weight-bold" id="summary-rebate-cash">NT$ 0</span>
+                            </div>
+                        </div>
+
+                        <!-- 下載與清空操作按鈕群 (排在同一行) -->
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <button class="btn-action-excel w-100 px-1 text-nowrap" id="btn-export-excel">
+                                    <i class="fa-solid fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn-action-pdf w-100 px-1 text-nowrap" id="btn-export-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn-action-clear w-100 px-1 text-nowrap h-100" id="btn-clear-all">
+                                    <i class="fa-solid fa-trash-can"></i> 清空
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 獨立數據統計圖表戰情中心 (全獨立區塊 - 包含 5 個高實用性統計圖表) -->
+            <!-- ========================================== -->
+            <div class="analytics-section-title d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2 mb-3" id="analyticsSection">
+                <div class="d-flex align-items-center gap-2 text-nowrap">
+                    <span class="fw-bold"><i class="fa-solid fa-chart-line text-info"></i> 訂購戰情與數據統計分析中心</span>
+                </div>
+                
+                <!-- 圖表數據開關與列印按鈕區塊 -->
+                <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-lg-auto justify-content-start justify-content-lg-end">
+                    <!-- 數值顯示切換分段按鈕 -->
+                    <div class="d-flex align-items-center bg-dark-subtle p-1 rounded border border-secondary border-opacity-50">
+                        <span class="small text-muted px-2"><i class="fa-solid fa-hashtag text-info"></i> 列印數據：</span>
+                        <div class="btn-group btn-group-sm" role="group" id="btnGroupShowData">
+                            <button type="button" class="btn btn-outline-info active" data-value="true">
+                                <i class="fa-solid fa-eye"></i> 顯示數值
+                            </button>
+                            <button type="button" class="btn btn-outline-info" data-value="false">
+                                <i class="fa-solid fa-eye-slash"></i> 隱藏數值
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 列印按鈕 -->
+                    <button class="btn btn-sm btn-info text-dark font-weight-bold rounded-pill px-3" id="btnPrintAnalytics">
+                        <i class="fa-solid fa-file-pdf"></i> 列印戰情圖表 (PDF)
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+
+                <!-- 圖表 1：主系列整體占比 (支援 TWD / MYR / SV 切換) -->
+                <div class="col-12 col-lg-6">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <span><i class="fa-solid fa-chart-pie text-info"></i> 1. 主系列整體占比分析</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-info active chart1-metric-btn" data-metric="TWD">TWD</button>
+                                    <button type="button" class="btn btn-outline-info chart1-metric-btn" data-metric="MYR">MYR</button>
+                                    <button type="button" class="btn btn-outline-info chart1-metric-btn" data-metric="SV">SV</button>
+                                </div>
+                                <button class="btn btn-sm btn-info text-dark font-weight-bold" id="btnOpenSubSeriesModal" title="查看子系列細節">
+                                    <i class="fa-solid fa-sitemap"></i> 子系列明細
+                                </button>
+                            </div>
+                        </div>
+                        <div style="height: 250px; position: relative;">
+                            <canvas id="chartMainCategoryPie"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 2：主系列採購數據對比 (支援 TWD / MYR / SV 切換) -->
+                <div class="col-12 col-lg-6">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <span><i class="fa-solid fa-chart-column" style="color: #c084fc;"></i> 2. 各系列採購數據分佈</span>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-purple active chartBar-metric-btn" data-metric="TWD">TWD</button>
+                                <button type="button" class="btn btn-outline-purple chartBar-metric-btn" data-metric="MYR">MYR</button>
+                                <button type="button" class="btn btn-outline-purple chartBar-metric-btn" data-metric="SV">SV</button>
+                            </div>
+                        </div>
+                        <div style="height: 250px; position: relative;">
+                            <canvas id="chartSeriesCombinedBar"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 3：產品型態訂購數量統計 (動態讀取型態表) -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title">
+                            <span><i class="fa-solid fa-chart-simple text-success"></i> 3. 型態訂購數量統計</span>
+                            <span class="badge bg-secondary opacity-75 fs-8">全型態</span>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartTypeQty"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✨ 圖表 4：單品採購 Top 5 (新增 TWD / MYR / SV 切換) -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <span><i class="fa-solid fa-trophy" style="color: #fbbf24;"></i> 4. 單品採購 Top 5</span>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-warning active chart4-metric-btn" data-metric="TWD">TWD</button>
+                                <button type="button" class="btn btn-outline-warning chart4-metric-btn" data-metric="MYR">MYR</button>
+                                <button type="button" class="btn btn-outline-warning chart4-metric-btn" data-metric="SV">SV</button>
+                            </div>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartTopItems"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✨ 圖表 5：型態數據貢獻雷達圖 (新增 TWD / MYR / SV 切換) -->
+                <div class="col-12 col-md-12 col-xl-4">
+                    <div class="chart-standalone-card">
+                        <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <span><i class="fa-solid fa-chart-radar" style="color: #f43f5e;"></i> 5. 型態貢獻雷達圖</span>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-danger active chart5-metric-btn" data-metric="TWD">TWD</button>
+                                <button type="button" class="btn btn-outline-danger chart5-metric-btn" data-metric="MYR">MYR</button>
+                                <button type="button" class="btn btn-outline-danger chart5-metric-btn" data-metric="SV">SV</button>
+                            </div>
+                        </div>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="chartTypeSvRadar"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ✨ 懸浮子系列環形圖 Modal (動態依試算表主系列生成) -->
+            <div class="modal fade" id="subSeriesChartsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl">
+                    <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                        <div class="modal-header border-secondary">
+                            <h5 class="modal-title">
+                                <i class="fa-solid fa-sitemap text-info"></i> 主系列 - 子系列選購明細占比 (僅顯示選購項目)
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-3">
+                            <div class="row g-3" id="subSeriesChartsContainer">
+                                <!-- JS 自動依據試算表的主系列資料量動態渲染 Canvas 容器 -->
+                            </div>
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">關閉視窗</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ========================================== -->
+        <!-- ✨ 懸浮島 (Floating Suspended Island) - 支援 iframe 視窗精準動態追蹤 -->
+        <!-- ========================================== -->
+        <div class="floating-island-bar" id="floatingIslandBar">
+            <div class="row align-items-center">
+                <div class="col-2 col-md-1">
+                    <button class="btn-toggle-floating" id="btnHideFloatingBar" title="收合懸浮島">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="col-10 col-md-11">
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <span class="floating-kpi-label"><i class="fa-solid fa-wallet text-warning"></i> 應付總金額：</span>
+                            <span class="floating-kpi-val text-warning" id="sticky-grand-total">NT$ 0</span>
+                        </div>
+                        <div class="w-100 d-block d-md-none"></div>
+                        <div class="col-12 col-md-4">
+                            <span class="floating-kpi-label"><i class="fa-solid fa-chart-line text-info"></i> 累積總積分：</span>
+                            <span class="floating-kpi-val text-info" id="sticky-total-sv">0 SV</span>
+                        </div>
+                        <div class="w-100 d-block d-md-none"></div>
+                        <div class="col-12 col-md-4">
+                            <span class="floating-kpi-label"><i class="fa-solid fa-hand-holding-dollar text-success"></i> 預估回饋金：</span>
+                            <span class="floating-kpi-val text-success" id="sticky-rebate-cash">NT$ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✨ 浮動喚醒按鈕：呈現在「左下角」(`left: 25px`)，徹底避免蓋到外層右下角 BackToTop 按鈕 -->
+        <button class="floating-wake-btn" id="btnShowFloatingBar">
+            <i class="fa-solid fa-chart-pie"></i> 總計
+        </button>
+        
+    </body>
+</html>

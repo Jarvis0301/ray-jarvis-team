@@ -1,0 +1,116 @@
+@use "sass:color";
+@use "sass:map";
+@use "sass:math";
+
+$uvaco-theme-colors: (
+    "primary":   var(--uvaco-primary),
+    "secondary": var(--uvaco-secondary),
+    "accent":    var(--uvaco-accent),
+    "muted":     var(--uvaco-muted),
+    "success":   var(--uvaco-success),
+    "info":      var(--uvaco-info),
+    "warning":   var(--uvaco-warning),
+    "danger":    var(--uvaco-danger),
+    "light":     var(--uvaco-light),
+    "dark":      var(--uvaco-dark)
+) !default;
+
+@each $key, $value in $uvaco-theme-colors {
+    $prefixes: ("uvaco-#{$key}", $key);
+
+    @each $name in $prefixes {
+        // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+        }
+
+        // --------------------------------------------------------------------------
+        // 按鈕群組
+        // --------------------------------------------------------------------------
+
+        /* 未選中按鈕 hover 時 */
+        .btn-check:not(:checked) + .btn-outline-#{$name}:hover {
+            background-color: var(--uvaco-#{$key});
+            color: var(--uvaco-#{$key}-contrast);
+            border-color: var(--uvaco-#{$key}-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--uvaco-#{$key}-glow);
+        }
+
+        /* 已選中按鈕 hover 時 */
+        .btn-check:checked + .btn-#{$name}:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--uvaco-#{$key}-glow);
+        }
+    }
+}
+
+$expanded-theme-colors: (
+    "blue":      #0d6efd,
+    "indigo":    #6610f2,
+    "purple":    #6f42c1,
+    "pink":      #d63384,
+    "red":       #dc3545,
+    "orange":    #fd7e14,
+    "yellow":    #ffc107,
+    "green":     #198754,
+    "teal":      #20c997,
+    "cyan":      #0dcaf0,
+    "white":     #ffffff,
+    "gray":      #6c757d,
+    "gray-dark": #212529,
+    "black":     #000000
+) !default;
+
+// 3.1 採用 W3C 相感亮度 (Relative Luminance) 演算器 (解決 HSL 算式之黃/綠色度盲點)
+@function get-wcag-contrast($color) {
+    $red: math.div(color.channel($color, "red", $space: rgb), 255);
+    $green: math.div(color.channel($color, "green", $space: rgb), 255);
+    $blue: math.div(color.channel($color, "blue", $space: rgb), 255);
+
+    // 人眼感光加權係數: 綠 71.52%, 紅 21.26%, 藍 7.22%
+    $luminance: (0.2126 * $red) + (0.7152 * $green) + (0.0722 * $blue);
+
+    @if ($luminance > 0.45) {
+        @return --uvaco-bg-primary; // 亮色背景對接深色字體 (UVACO 深色文字)
+    } @else {
+        @return #ffffff; // 暗色背景對接高高亮純白字
+    }
+}
+
+@each $name, $color in $expanded-theme-colors {
+    $contrast-text: get-wcag-contrast($color);
+    $subtle-bg: if($color == #ffffff, #f8f9fa, color.mix(#ffffff, $color, 85%));
+    $subtle-border: if($color == #ffffff, #dee2e6, color.mix(#ffffff, $color, 60%));
+    $emphasis-text: if($color == #ffffff, #495057, if(gget-wcag-contrast($color) == #ffffff, color.mix(#000000, $color, 30%), color.mix(#000000, $color, 50%)));
+
+    // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+    }
+
+    // --------------------------------------------------------------------------
+    // 按鈕群組
+    // --------------------------------------------------------------------------
+
+    /* 未選中按鈕 hover 時 */
+    .btn-check:not(:checked) + .btn-outline-#{$name}:hover {
+        background-color: $color;
+        color: $contrast-text;
+        border-color: $subtle-border;
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px $subtle-bg;
+    }
+
+    /* 已選中按鈕 hover 時 */
+    .btn-check:checked + .btn-#{$name}:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px $subtle-bg;
+    }
+}

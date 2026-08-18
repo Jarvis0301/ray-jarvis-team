@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>常見問答管理 CMS | 榮祥團隊極密戰情室</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0a0814;
+            --bg-surface: #130f24;
+            --bg-card: #1c1635;
+            --bg-card-hover: #261f46;
+            --border-color: rgba(168, 85, 247, 0.18);
+            --border-glow: rgba(192, 132, 252, 0.35);
+            --purple-accent: #a855f7;
+            --purple-light: #c084fc;
+            --purple-dark: #6b21a8;
+            --purple-glow: rgba(168, 85, 247, 0.4);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --badge-green: #10b981;
+            --badge-amber: #f59e0b;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(217, 70, 239, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 玻璃擬態面板 */
+        .glass-panel {
+            background: rgba(28, 22, 53, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 30px rgba(126, 34, 206, 0.15);
+        }
+
+        /* 標題與光暈 */
+        .glow-text {
+            color: var(--purple-light);
+            text-shadow: 0 0 20px rgba(192, 132, 252, 0.4);
+        }
+
+        .text-purple-brand {
+            color: var(--purple-light) !important;
+        }
+
+        /* 按鈕樣式 */
+        .btn-purple {
+            background: linear-gradient(135deg, #7e22ce 0%, #9333ea 100%);
+            border: 1px solid #a855f7;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-purple:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.55);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-purple {
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid var(--purple-accent);
+            color: var(--purple-light);
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-purple:hover, .btn-outline-purple.active {
+            background: var(--purple-accent);
+            border-color: var(--purple-accent);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        /* 統計指標卡 */
+        .stat-card {
+            padding: 1.25rem;
+            border-radius: 0.875rem;
+            background: linear-gradient(145deg, rgba(28, 22, 53, 0.9) 0%, rgba(19, 15, 36, 0.8) 100%);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #a855f7, #d946ef);
+        }
+
+        /* DataTables 深色客製 */
+        .dataTables_wrapper {
+            color: var(--text-primary);
+        }
+
+        table.dataTable {
+            border-color: var(--border-color) !important;
+            margin-top: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        table.dataTable thead th {
+            background-color: rgba(19, 15, 36, 0.95) !important;
+            color: var(--purple-light) !important;
+            border-bottom: 2px solid var(--purple-accent) !important;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+            padding: 0.85rem 1rem;
+        }
+
+        table.dataTable tbody td {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
+            vertical-align: middle;
+            font-size: 0.9rem;
+            padding: 0.85rem 1rem;
+        }
+
+        table.dataTable tbody tr:hover td {
+            background-color: var(--bg-card-hover) !important;
+        }
+
+        .dataTables_filter input, .dataTables_length select {
+            background-color: var(--bg-surface) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #ffffff !important;
+            border-radius: 0.5rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .dataTables_filter input:focus, .dataTables_length select:focus {
+            border-color: var(--purple-accent) !important;
+            outline: none;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-link {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+            color: var(--purple-light) !important;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--purple-accent) !important;
+            border-color: var(--purple-accent) !important;
+            color: #ffffff !important;
+        }
+
+        /* 折疊面板客製 (Accordion) */
+        .custom-accordion .accordion-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.75rem;
+            border-radius: 0.75rem !important;
+            overflow: hidden;
+        }
+
+        .custom-accordion .accordion-button {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            font-weight: 500;
+            box-shadow: none;
+            padding: 1.1rem 1.25rem;
+        }
+
+        .custom-accordion .accordion-button:not(.collapsed) {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--purple-light);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-accordion .accordion-button::after {
+            filter: invert(1) hue-rotate(240deg);
+        }
+
+        .custom-accordion .accordion-body {
+            background: var(--bg-card);
+            color: #e2e8f0;
+            line-height: 1.7;
+            padding: 1.25rem;
+        }
+
+        /* Modal 深色客製 */
+        .modal-content {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--purple-accent);
+            box-shadow: 0 0 35px rgba(147, 51, 234, 0.3);
+            border-radius: 1rem;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(28, 22, 53, 0.8);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+            background: rgba(28, 22, 53, 0.8);
+        }
+
+        .form-control, .form-select {
+            background-color: #0d0a1a;
+            border: 1px solid var(--border-color);
+            color: #f8fafc;
+            border-radius: 0.5rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #120d24;
+            border-color: var(--purple-accent);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+        }
+
+        /* 標籤小按鈕 */
+        .quick-tag {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 2rem;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            color: var(--purple-light);
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .quick-tag:hover {
+            background: var(--purple-accent);
+            color: #ffffff;
+            transform: scale(1.04);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-lg-4">
+        
+        <div class="row align-items-center mb-4 gy-3">
+            <div class="col-md-7">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-3" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(217, 70, 239, 0.1)); border: 1px solid var(--purple-accent);">
+                        <i class="fa-solid fa-circle-question fa-2xl text-purple-brand"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 fw-bold glow-text">產品常見問答 CMS</h3>
+                            <span class="badge bg-purple-dark text-purple-light border border-purple-accent px-2 py-1 font-mono">H13000 / prd_faqs</span>
+                        </div>
+                        <p class="text-muted mb-0 small mt-1">
+                            <i class="fa-solid fa-database"></i> 雙向對齊表 07 產品常見問答 ｜ 1:N 解耦關聯表 04 產品主檔 SKU
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5 text-md-end d-flex justify-content-md-end gap-2">
+                <button class="btn btn-outline-purple" id="btn-sync-gviz" title="重新抓取 Google 試算表">
+                    <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                </button>
+                <button class="btn btn-purple" id="btn-add-faq" data-bs-toggle="modal" data-bs-target="#faqModal">
+                    <i class="fa-solid fa-plus"></i> 新增問答對
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card glass-panel">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">總問答收錄量</span>
+                        <i class="fa-solid fa-list-check text-purple-light"></i>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mt-2">
+                        <h2 class="mb-0 fw-bold font-mono text-white" id="stat-total-faqs">0</h2>
+                        <span class="text-muted small">題</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card glass-panel">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">品項知識覆蓋率</span>
+                        <i class="fa-solid fa-shield-halved text-success"></i>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mt-2">
+                        <h2 class="mb-0 fw-bold font-mono text-white" id="stat-coverage-rate">0%</h2>
+                        <span class="text-success small font-mono" id="stat-covered-skus">0/0 SKU</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card glass-panel">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">前台啟用中標題</span>
+                        <i class="fa-solid fa-circle-check text-info"></i>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mt-2">
+                        <h2 class="mb-0 fw-bold font-mono text-white" id="stat-active-faqs">0</h2>
+                        <span class="text-muted small">題在線</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card glass-panel">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">極缺問答警戒 SKU</span>
+                        <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mt-2">
+                        <h2 class="mb-0 fw-bold font-mono text-warning" id="stat-missing-skus">0</h2>
+                        <span class="text-muted small">項待補齊</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 mb-4">
+            <div class="row g-3 align-items-center justify-content-between">
+                <div class="col-lg-6 col-md-12">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="text-muted small me-2"><i class="fa-solid fa-filter"></i> 產品系列：</span>
+                        <button class="btn btn-sm btn-outline-purple active category-filter" data-cat="ALL">全部系列</button>
+                        <button class="btn btn-sm btn-outline-purple category-filter" data-cat="01">保健食品</button>
+                        <button class="btn btn-sm btn-outline-purple category-filter" data-cat="02">寵物保健</button>
+                        <button class="btn btn-sm btn-outline-purple category-filter" data-cat="03">個人護理</button>
+                        <button class="btn btn-sm btn-outline-purple category-filter" data-cat="04">臉部保養</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 d-flex justify-content-lg-end gap-2">
+                    <ul class="nav nav-pills p-1 rounded-3" style="background: rgba(10, 8, 20, 0.6); border: 1px solid var(--border-color);" id="viewTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active py-1 px-3 text-white small" id="table-view-tab" data-bs-toggle="pill" data-bs-target="#table-view" type="button">
+                                <i class="fa-solid fa-table-cells"></i> CMS 資料庫視圖
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1 px-3 text-white small" id="preview-view-tab" data-bs-toggle="pill" data-bs-target="#preview-view" type="button">
+                                <i class="fa-solid fa-mobile-screen"></i> 顧客端折疊預覽
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1 px-3 text-white small" id="chart-view-tab" data-bs-toggle="pill" data-bs-target="#chart-view" type="button">
+                                <i class="fa-solid fa-chart-pie"></i> 知識分佈診斷
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="viewTabContent">
+            
+            <div class="tab-pane fade show active" id="table-view" role="tabpanel">
+                <div class="glass-panel p-3 p-lg-4">
+                    <div class="table-responsive">
+                        <table id="faqDataTable" class="table table-hover align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">排序</th>
+                                    <th style="width: 15%;">關聯產品品名</th>
+                                    <th style="width: 28%;">問答題目 (Question)</th>
+                                    <th style="width: 32%;">解答內容摘要 (Answer Preview)</th>
+                                    <th style="width: 8%;">狀態</th>
+                                    <th style="width: 12%;" class="text-center">操作樞紐</th>
+                                </tr>
+                            </thead>
+                            <tbody id="faq-table-tbody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="preview-view" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 col-md-10">
+                        <div class="glass-panel p-4 mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-purple-brand mb-1"><i class="fa-solid fa-mobile-button"></i> 官方前台顧客問答體驗預覽</h5>
+                                    <p class="text-muted small mb-0">即時模擬消費者於官網點選折疊面板（Accordion）之效果</p>
+                                </div>
+                                <select class="form-select form-select-sm w-auto" id="preview-product-select">
+                                    <option value="ALL">全部商品問答</option>
+                                    </select>
+                            </div>
+                            <div class="accordion custom-accordion" id="customerFaqAccordion">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="chart-view" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="glass-panel p-4 h-100">
+                            <h5 class="fw-bold text-purple-brand mb-3"><i class="fa-solid fa-chart-column"></i> 各產品大類問答數量分佈</h5>
+                            <div style="height: 320px;">
+                                <canvas id="chartCategoryFaqs"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="glass-panel p-4 h-100">
+                            <h5 class="fw-bold text-purple-brand mb-3"><i class="fa-solid fa-chart-donut"></i> 問答主題屬性分佈</h5>
+                            <div style="height: 320px;">
+                                <canvas id="chartTopicFaqs"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="faqModal" tabindex="-1" aria-labelledby="faqModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-purple-brand" id="faqModalLabel">
+                        <i class="fa-solid fa-pen-to-square"></i> <span id="modal-title-text">新增產品問答對</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="faqForm">
+                        <input type="hidden" id="form-faq-id">
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label text-muted small fw-bold">關聯產品 (prd_items.id) <span class="text-danger">*</span></label>
+                                <select class="form-select" id="form-product-id" required>
+                                    <option value="" disabled selected>請選擇對應的產品主檔 SKU...</option>
+                                    </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small fw-bold">顯示排序權重 (sort_order)</label>
+                                <input type="number" class="form-control font-mono" id="form-sort-order" value="0" min="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold d-block">快速代入問答題型範本：</label>
+                            <span class="quick-tag" onclick="applyTemplate('timing')"><i class="fa-regular fa-clock"></i> 食用時機與方法</span>
+                            <span class="quick-tag" onclick="applyTemplate('pregnant')"><i class="fa-solid fa-person-pregnant"></i> 孕婦/哺乳期禁忌</span>
+                            <span class="quick-tag" onclick="applyTemplate('combo')"><i class="fa-solid fa-layer-group"></i> 與西藥/保健品搭配</span>
+                            <span class="quick-tag" onclick="applyTemplate('reaction')"><i class="fa-solid fa-heart-pulse"></i> 調理好轉反應說明</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">常見問題題目 (question) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="form-question" placeholder="例：康爾喜益生菌建議在飯前還是飯後食用？" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">專業解答內文 (answer，支援 HTML 標籤) <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="form-answer" rows="5" placeholder="請填寫詳細解答、食用配方指引或體質注意事項..." required></textarea>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between pt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="form-is-active" checked>
+                                <label class="form-check-label small" for="form-is-active">立即於前台公開啟用 (is_active)</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-purple" id="btn-save-faq">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存問答資料
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="lineCardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-success">
+                        <i class="fa-brands fa-line fa-lg"></i> LINE 客服標準話術產生器
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-2">已針對社群諮詢格式優化，點擊下方即可一鍵複製傳送給客戶：</p>
+                    <div class="p-3 rounded-3 font-mono small text-light mb-3" id="line-script-preview" style="background: #0d0a1a; border: 1px dashed var(--border-color); white-space: pre-wrap; line-height: 1.6;">
+                    </div>
+                    <button class="btn btn-success w-100 py-2" id="btn-copy-line">
+                        <i class="fa-regular fa-copy"></i> 一鍵複製完整文字
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊 產品常見問答 CMS (prd-faqs.html)
+         * 核心設計原則：
+         * 1. 欄位解耦 Mapping 字典相容 Google 試算表
+         * 2. GViz / PapaParse 非同步拉取
+         * 3. DataTable 與 Accordion 雙向同步
+         * 4. 戰術話術生成與數據分析
+         */
+
+        // ==========================================
+        // 1. 資料庫欄位解耦對照字典 (Decoupling Schema)
+        // ==========================================
+        const FAQ_FIELD_MAP = {
+            id: ['id', 'FAQ編號', '序號', 'ID'],
+            productId: ['product_id', '產品ID', '產品編號', 'sku_id'],
+            question: ['question', '常見問題', 'FAQ題目', '問題內容'],
+            answer: ['answer', '解答內容', 'FAQ解答', '專業回答'],
+            sortOrder: ['sort_order', '顯示排序', '排序', '權重'],
+            isActive: ['is_active', '是否顯示', '是否啟用', '狀態'],
+            modifiedAt: ['modified_at', '最後異動時間', '更新時間']
+        };
+
+        // 產品主檔 SKU 模擬字典（關聯 prd_items 表 04）
+        const PRODUCT_MASTER = [
+            { id: 1, code: 'TW0101001', name: '康爾喜益生菌', catCode: '01', catName: '保健食品' },
+            { id: 2, code: 'TW0101002', name: '康爾喜(N)益生菌', catCode: '01', catName: '保健食品' },
+            { id: 3, code: 'TW0102001', name: '995生技營養品', catCode: '01', catName: '保健食品' },
+            { id: 4, code: 'TW0102002', name: '樟芝益菌絲體生技飲品', catCode: '01', catName: '保健食品' },
+            { id: 5, code: 'TW0303001', name: '貝益潔護效牙膏', catCode: '03', catName: '個人護理' },
+            { id: 6, code: 'TW0401001', name: '活膚抗皺精華液', catCode: '04', catName: '臉部保養' },
+            { id: 7, code: 'TW0201001', name: '寵物綜合保健粉', catCode: '02', catName: '寵物保健' }
+        ];
+
+        // 初始 FAQ 預設數據庫（遵循 prd_faqs Schema）
+        let faqDatabase = [
+            {
+                id: 1,
+                productId: 1,
+                question: '康爾喜益生菌建議在飯前還是飯後食用？',
+                answer: '康爾喜益生菌採用特殊包埋技術，耐胃酸與膽鹽，<strong>飯前或飯後食用皆可</strong>。若腸胃較敏感者，建議於餐後半小時食用效果更佳。',
+                sortOrder: 1,
+                isActive: true,
+                modifiedAt: '2026-08-10 14:20'
+            },
+            {
+                id: 2,
+                productId: 1,
+                question: '孕婦或哺乳期間可以食用康爾喜嗎？',
+                answer: '本品為純天然發酵益生菌，通過國家安全檢驗，<strong>孕婦及哺乳期婦女皆可安心食用</strong>，亦有助於維持消化道機能與排便順暢。',
+                sortOrder: 2,
+                isActive: true,
+                modifiedAt: '2026-08-11 09:15'
+            },
+            {
+                id: 3,
+                productId: 3,
+                question: '995生技營養品食用時有哪些體質禁忌與注意事項？',
+                answer: '本品含有大豆發酵原液與菇蕈活性多醣體，<strong>對大豆過敏者請先諮詢醫師</strong>；重度腎臟疾病需限蛋白者，請依醫囑劑量食用。',
+                sortOrder: 1,
+                isActive: true,
+                modifiedAt: '2026-08-12 11:30'
+            },
+            {
+                id: 4,
+                productId: 4,
+                question: '樟芝益適合與西藥一同服用嗎？',
+                answer: '樟芝活性成分豐富，建議與西藥<strong>間隔至少 1.5 至 2 小時以上</strong>食用，以確保吸收率並避免交互影響。',
+                sortOrder: 1,
+                isActive: true,
+                modifiedAt: '2026-08-12 16:45'
+            },
+            {
+                id: 5,
+                productId: 5,
+                question: '貝益潔護效牙膏配合正確刷牙習慣有何特色？',
+                answer: '含葡萄王獨家專利菌發酵萃取物與草本精華，能溫和潔淨牙齒、幫助去除牙菌斑並保持口氣清新，不含三氯沙與刺激性防腐劑。',
+                sortOrder: 1,
+                isActive: true,
+                modifiedAt: '2026-08-14 10:00'
+            }
+        ];
+
+        let dataTableInstance = null;
+        let chartCategoryInstance = null;
+        let chartTopicInstance = null;
+
+        // ==========================================
+        // 2. 欄位解耦標準化工具函式
+        // ==========================================
+        function normalizeRowData(rawRow) {
+            const normalized = {};
+            for (const [standardKey, possibleAliases] of Object.entries(FAQ_FIELD_MAP)) {
+                for (const alias of possibleAliases) {
+                    if (rawRow[alias] !== undefined) {
+                        normalized[standardKey] = rawRow[alias];
+                        break;
+                    }
+                }
+            }
+            return {
+                id: parseInt(normalized.id) || Date.now(),
+                productId: parseInt(normalized.productId) || 1,
+                question: normalized.question || '未命名常見問題',
+                answer: normalized.answer || '尚無詳細解答說明',
+                sortOrder: parseInt(normalized.sortOrder) || 0,
+                isActive: String(normalized.isActive).toUpperCase() === 'TRUE' || normalized.isActive === true || normalized.isActive === 'Y' || normalized.isActive === '1',
+                modifiedAt: normalized.modifiedAt || new Date().toISOString().slice(0, 16).replace('T', ' ')
+            };
+        }
+
+        // ==========================================
+        // 3. UI 渲染與 DataTables 初始化
+        // ==========================================
+        function getProductInfo(productId) {
+            return PRODUCT_MASTER.find(p => p.id === productId) || { name: '未知品項', code: 'N/A', catCode: '00', catName: '一般' };
+        }
+
+        function renderHUDStats() {
+            const totalFaqs = faqDatabase.length;
+            const activeFaqs = faqDatabase.filter(f => f.isActive).length;
+            
+            // 計算產品知識庫覆蓋率
+            const coveredProductIds = new Set(faqDatabase.map(f => f.productId));
+            const totalProducts = PRODUCT_MASTER.length;
+            const coveredCount = coveredProductIds.size;
+            const coverageRate = Math.round((coveredCount / totalProducts) * 100);
+            const missingCount = totalProducts - coveredCount;
+
+            $('#stat-total-faqs').text(totalFaqs);
+            $('#stat-active-faqs').text(activeFaqs);
+            $('#stat-coverage-rate').text(`${coverageRate}%`);
+            $('#stat-covered-skus').text(`${coveredCount}/${totalProducts} SKU`);
+            $('#stat-missing-skus').text(missingCount);
+        }
+
+        function renderDataTable() {
+            if (dataTableInstance) {
+                dataTableInstance.destroy();
+            }
+
+            const tbody = $('#faq-table-tbody');
+            tbody.empty();
+
+            faqDatabase.forEach(item => {
+                const prod = getProductInfo(item.productId);
+                const statusBadge = item.isActive 
+                    ? '<span class="badge bg-success-subtle text-success border border-success px-2 py-1"><i class="fa-solid fa-check"></i> 上架中</span>'
+                    : '<span class="badge bg-secondary-subtle text-muted border border-secondary px-2 py-1"><i class="fa-solid fa-eye-slash"></i> 隱藏</span>';
+                
+                // 去除 HTML 標籤做為表格摘要預覽
+                const plainAnswer = item.answer.replace(/<[^>]*>?/gm, '');
+                const truncatedAnswer = plainAnswer.length > 55 ? plainAnswer.substring(0, 55) + '...' : plainAnswer;
+
+                const tr = `
+                    <tr data-id="${item.id}" data-cat="${prod.catCode}">
+                        <td class="font-mono text-purple-light fw-bold text-center">${item.sortOrder}</td>
+                        <td>
+                            <div class="fw-bold text-white">${prod.name}</div>
+                            <span class="text-muted font-mono small">${prod.code}</span>
+                        </td>
+                        <td>
+                            <div class="text-light fw-medium">${escapeHtml(item.question)}</div>
+                        </td>
+                        <td>
+                            <div class="text-muted small">${escapeHtml(truncatedAnswer)}</div>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-purple btn-line-script" data-id="${item.id}" title="產生 LINE 對話話術">
+                                    <i class="fa-brands fa-line text-success"></i>
+                                </button>
+                                <button class="btn btn-outline-purple btn-edit-faq" data-id="${item.id}" title="編輯此問答">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-delete-faq" data-id="${item.id}" title="刪除">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(tr);
+            });
+
+            dataTableInstance = $('#faqDataTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋問題關鍵字或品名...",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆問答",
+                    paginate: {
+                        first: '<i class="fa-solid fa-angles-left"></i>',
+                        last: '<i class="fa-solid fa-angles-right"></i>',
+                        next: '<i class="fa-solid fa-angle-right"></i>',
+                        previous: '<i class="fa-solid fa-angle-left"></i>'
+                    },
+                    emptyTable: "目前尚無任何問答資料"
+                }
+            });
+        }
+
+        function renderAccordionPreview(selectedProductId = 'ALL') {
+            const container = $('#customerFaqAccordion');
+            container.empty();
+
+            let filtered = faqDatabase.filter(f => f.isActive);
+            if (selectedProductId !== 'ALL') {
+                filtered = filtered.filter(f => f.productId === parseInt(selectedProductId));
+            }
+
+            if (filtered.length === 0) {
+                container.html(`
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-folder-open fa-3x mb-3 text-purple-light opacity-50"></i>
+                        <p>該品項目前尚無啟用的常見問答</p>
+                    </div>
+                `);
+                return;
+            }
+
+            filtered.sort((a, b) => a.sortOrder - b.sortOrder).forEach((item, index) => {
+                const prod = getProductInfo(item.productId);
+                const isFirst = index === 0;
+                const accordionItem = `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-${item.id}">
+                            <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${item.id}" aria-expanded="${isFirst ? 'true' : 'false'}">
+                                <span class="badge bg-purple-dark text-purple-light border border-purple-accent me-2 font-mono">${prod.name}</span>
+                                <i class="fa-regular fa-circle-question text-purple-light me-2"></i> ${escapeHtml(item.question)}
+                            </button>
+                        </h2>
+                        <div id="collapse-${item.id}" class="accordion-collapse collapse ${isFirst ? 'show' : ''}" data-bs-parent="#customerFaqAccordion">
+                            <div class="accordion-body">
+                                ${item.answer}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(accordionItem);
+            });
+        }
+
+        function renderCharts() {
+            // 圖表 1: 系列問答數量
+            const catCounts = { '01': 0, '02': 0, '03': 0, '04': 0 };
+            faqDatabase.forEach(item => {
+                const prod = getProductInfo(item.productId);
+                if (catCounts[prod.catCode] !== undefined) {
+                    catCounts[prod.catCode]++;
+                }
+            });
+
+            const ctxCat = document.getElementById('chartCategoryFaqs').getContext('2d');
+            if (chartCategoryInstance) chartCategoryInstance.destroy();
+            
+            chartCategoryInstance = new Chart(ctxCat, {
+                type: 'bar',
+                data: {
+                    labels: ['保健食品', '寵物保健', '個人護理', '臉部保養'],
+                    datasets: [{
+                        label: '問答題數',
+                        data: [catCounts['01'], catCounts['02'], catCounts['03'], catCounts['04']],
+                        backgroundColor: [
+                            'rgba(168, 85, 247, 0.7)',
+                            'rgba(217, 70, 239, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)'
+                        ],
+                        borderColor: '#a855f7',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94a3b8', stepSize: 1 },
+                            grid: { color: 'rgba(255, 255, 255, 0.06)' }
+                        },
+                        x: {
+                            ticks: { color: '#f8fafc' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 圖表 2: 主題標籤診斷模擬
+            const ctxTopic = document.getElementById('chartTopicFaqs').getContext('2d');
+            if (chartTopicInstance) chartTopicInstance.destroy();
+
+            chartTopicInstance = new Chart(ctxTopic, {
+                type: 'doughnut',
+                data: {
+                    labels: ['食用時機/劑量', '禁忌/過敏族群', '搭配西藥/調養', '外用手法/保存'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: [
+                            '#8b5cf6',
+                            '#d946ef',
+                            '#3b82f6',
+                            '#10b981'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#cbd5e1', font: { size: 12 }, padding: 15 }
+                        }
+                    },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        function populateProductDropdowns() {
+            const formSelect = $('#form-product-id');
+            const previewSelect = $('#preview-product-select');
+            
+            formSelect.find('option:not(:first)').remove();
+            previewSelect.find('option:not(:first)').remove();
+
+            PRODUCT_MASTER.forEach(prod => {
+                formSelect.append(`<option value="${prod.id}">[${prod.code}] ${prod.name} (${prod.catName})</option>`);
+                previewSelect.append(`<option value="${prod.id}">${prod.name}</option>`);
+            });
+        }
+
+        function refreshAllViews() {
+            renderHUDStats();
+            renderDataTable();
+            renderAccordionPreview($('#preview-product-select').val());
+            renderCharts();
+        }
+
+        // ==========================================
+        // 4. 戰術範本快捷填充器
+        // ==========================================
+        window.applyTemplate = function(type) {
+            const qInput = $('#form-question');
+            const aInput = $('#form-answer');
+            const prodName = $('#form-product-id option:selected').text().split('] ')[1]?.split(' (')[0] || '本產品';
+
+            switch (type) {
+                case 'timing':
+                    qInput.val(`${prodName}建議在什麼時間食用效果最好？`);
+                    aInput.val(`建議每日 1-2 次，於<strong>早餐前空腹或睡前</strong>搭配溫開水（水溫勿超過 40°C）食用，吸收效果最佳。`);
+                    break;
+                case 'pregnant':
+                    qInput.val(`懷孕期或哺乳中的媽媽可以食用${prodName}嗎？`);
+                    aInput.val(`本品通過嚴格安全品質檢驗，<strong>懷孕與哺乳期皆可安心食用</strong>。若有特殊妊娠體質或遵醫囑者，建議先諮詢專業醫師。`);
+                    break;
+                case 'combo':
+                    qInput.val(`${prodName}能與正在服用的西藥或抗生素一起吃嗎？`);
+                    aInput.val(`建議與西藥或抗生素<strong>間隔至少 1.5 至 2 小時</strong>以上食用，避免影響兩者吸收率與保健機能。`);
+                    break;
+                case 'reaction':
+                    qInput.val(`剛開始食用${prodName}出現排氣或排便次數增加是正常的嗎？`);
+                    aInput.val(`此為體質調理過程中的<strong>正常生理適應反應</strong>，通常持績食用 3-5 天後即會緩和。請多補充溫水分促進代謝。`);
+                    break;
+            }
+        };
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // ==========================================
+        // 5. 事件監聽與 CRUD 互動綁定
+        // ==========================================
+        $(document).ready(function() {
+            populateProductDropdowns();
+            refreshAllViews();
+
+            // 系列大類篩選
+            $('.category-filter').on('click', function() {
+                $('.category-filter').removeClass('active');
+                $(this).addClass('active');
+                const cat = $(this).data('cat');
+
+                if (dataTableInstance) {
+                    if (cat === 'ALL') {
+                        dataTableInstance.column(1).search('').draw();
+                    } else {
+                        // 依據系列篩選產品
+                        const matchedNames = PRODUCT_MASTER.filter(p => p.catCode === cat).map(p => p.name).join('|');
+                        dataTableInstance.column(1).search(matchedNames, true, false).draw();
+                    }
+                }
+            });
+
+            // 預覽下拉篩選
+            $('#preview-product-select').on('change', function() {
+                renderAccordionPreview($(this).val());
+            });
+
+            // 新增問答對 Modal 重置
+            $('#btn-add-faq').on('click', function() {
+                $('#faqForm')[0].reset();
+                $('#form-faq-id').val('');
+                $('#modal-title-text').text('新增產品問答對');
+                $('#form-sort-order').val(faqDatabase.length + 1);
+                $('#form-is-active').prop('checked', true);
+            });
+
+            // 儲存問答
+            $('#btn-save-faq').on('click', function() {
+                const form = document.getElementById('faqForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const faqId = $('#form-faq-id').val();
+                const newFaq = {
+                    id: faqId ? parseInt(faqId) : Date.now(),
+                    productId: parseInt($('#form-product-id').val()),
+                    question: $('#form-question').val().trim(),
+                    answer: $('#form-answer').val().trim(),
+                    sortOrder: parseInt($('#form-sort-order').val()) || 0,
+                    isActive: $('#form-is-active').is(':checked'),
+                    modifiedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+                };
+
+                if (faqId) {
+                    const idx = faqDatabase.findIndex(f => f.id === parseInt(faqId));
+                    if (idx !== -1) faqDatabase[idx] = newFaq;
+                } else {
+                    faqDatabase.push(newFaq);
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('faqModal')).hide();
+                refreshAllViews();
+            });
+
+            // 編輯問答
+            $(document).on('click', '.btn-edit-faq', function() {
+                const id = parseInt($(this).data('id'));
+                const faq = faqDatabase.find(f => f.id === id);
+                if (!faq) return;
+
+                $('#form-faq-id').val(faq.id);
+                $('#form-product-id').val(faq.productId);
+                $('#form-question').val(faq.question);
+                $('#form-answer').val(faq.answer);
+                $('#form-sort-order').val(faq.sortOrder);
+                $('#form-is-active').prop('checked', faq.isActive);
+
+                $('#modal-title-text').text('編輯產品問答對');
+                new bootstrap.Modal(document.getElementById('faqModal')).show();
+            });
+
+            // 刪除問答
+            $(document).on('click', '.btn-delete-faq', function() {
+                const id = parseInt($(this).data('id'));
+                if (confirm('確定要自資料庫中移除此筆問答記錄嗎？')) {
+                    faqDatabase = faqDatabase.filter(f => f.id !== id);
+                    refreshAllViews();
+                }
+            });
+
+            // LINE 話術卡產生
+            $(document).on('click', '.btn-line-script', function() {
+                const id = parseInt($(this).data('id'));
+                const faq = faqDatabase.find(f => f.id === id);
+                if (!faq) return;
+                const prod = getProductInfo(faq.productId);
+
+                // 去除 HTML 標籤產生純文字話術
+                const plainAnswer = faq.answer.replace(/<[^>]*>?/gm, '');
+
+                const lineText = `【葡眾專業健康諮詢 - ${prod.name}】\n\n❓ 客戶常問：${faq.question}\n\n💡 專業解答：\n${plainAnswer}\n\n如有任何產品搭配或食用疑問，歡迎隨時在線諮詢！`;
+                
+                $('#line-script-preview').text(lineText);
+                new bootstrap.Modal(document.getElementById('lineCardModal')).show();
+            });
+
+            // 一鍵複製話術
+            $('#btn-copy-line').on('click', function() {
+                const text = $('#line-script-preview').text();
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalBtn = $(this).html();
+                    $(this).html('<i class="fa-solid fa-check"></i> 已成功複製話術！').removeClass('btn-success').addClass('btn-light');
+                    setTimeout(() => {
+                        $(this).html(originalBtn).removeClass('btn-light').addClass('btn-success');
+                    }, 2000);
+                });
+            });
+
+            // Google 試算表 GViz 模擬讀取
+            $('#btn-sync-gviz').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 正在解耦讀取...').prop('disabled', true);
+                
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-arrows-rotate"></i> 同步完成').prop('disabled', false);
+                    refreshAllViews();
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表'), 2000);
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>

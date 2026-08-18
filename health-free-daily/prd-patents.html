@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-green">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>產品專利</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/product-patents.js" defer></script>
+
+        <link rel="stylesheet" href="./css/product-patents.css">
+    </head>
+
+    <body>
+
+        <header class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-10 mx-auto text-center">
+                        <div class="badge badge-primary-subtle rounded-pill px-3 py-2">
+                            <i class="fa-solid fa-shield-halved"></i> 研發護城河 ‧ 獨家專利技術
+                        </div>
+                        <h1 class="hero-title display-5 mb-3">母集團葡萄王生技　頂尖生技專利矩陣</h1>
+                        <p class="lead text-light opacity-75 mb-4">
+                            結合東方養生智慧與現代發酵科技，打造無法被複製的技術壁壘。從靈魂益生菌、珍稀蟬花到多層包埋與 150 噸液態發酵槽，為全家人健康提供 100% 底氣。
+                        </p>
+                        
+                        <div class="row g-3 mt-2">
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-number"><i class="fa-solid fa-award"></i> 100+</div>
+                                    <div class="stat-label">全球發明專利與獎項</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-number"><i class="fa-solid fa-vial-circle-check"></i> 150 噸</div>
+                                    <div class="stat-label">生物發酵槽單次產能</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-number"><i class="fa-solid fa-dna"></i> 6 代</div>
+                                    <div class="stat-label">小分子菌絲體穿透演進</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card">
+                                    <div class="stat-number"><i class="fa-solid fa-earth-americas"></i> 多國</div>
+                                    <div class="stat-label">台/美/德/日/馬專利布局</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="filter-section">
+            <div class="container">
+                <div class="row g-3 align-items-center mb-2">
+                    <div class="col-md-4">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="patentSearchInput" class="form-control search-input" placeholder="搜尋專利名稱、菌株代號、獎項或專利號...">
+                        </div>
+                    </div>
+                    <div class="col-md-8 text-md-end">
+                        <div id="syncStatus" class="sync-status-badge">
+                            <i class="fa-solid fa-spinner fa-spin"></i> 專利資訊同步中...
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2 mb-3" id="typeFilterContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <main class="container-fluid p-3 p-md-4">
+            <div class="row g-4" id="patentGrid"></div>
+        </main>
+
+        <div id="modalContainer"></div>
+
+    </body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獎金制度解構 - 榮祥葡眾團隊私域戰情室</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0b132b;
+            --bg-card: #1c2541;
+            --bg-card-hover: #232f54;
+            --border-color: rgba(56, 189, 248, 0.2);
+            --accent-blue: #38bdf8;
+            --accent-cyan: #7dd3fc;
+            --accent-gold: #facc15;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* 導覽列 */
+        .navbar-custom {
+            background-color: rgba(11, 19, 43, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* 戰情卡片 */
+        .card-custom {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card-custom:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        /* 文字與高亮 */
+        .text-accent-blue {
+            color: var(--accent-blue) !important;
+        }
+
+        .text-accent-cyan {
+            color: var(--accent-cyan) !important;
+        }
+
+        .text-accent-gold {
+            color: var(--accent-gold) !important;
+        }
+
+        /* 榮祥建議：圖片預留空間區塊 */
+        .img-placeholder-box {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .img-placeholder-box:hover {
+            border-color: var(--accent-blue);
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .img-placeholder-icon {
+            font-size: 2.8rem;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        /* 數據徽章 */
+        .badge-custom {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        /* DataTables 深色主題客製化 */
+        .dataTables_wrapper {
+            color: var(--text-main);
+        }
+
+        table.dataTable {
+            border-color: var(--border-color) !important;
+        }
+
+        table.dataTable thead th {
+            background-color: #151d36 !important;
+            color: var(--accent-cyan) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        table.dataTable tbody td {
+            background-color: var(--bg-card) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .dataTables_info, .dataTables_paginate {
+            color: var(--text-muted) !important;
+            margin-top: 15px;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-blue) !important;
+            border-color: var(--accent-blue) !important;
+            color: #000 !important;
+            font-weight: bold;
+        }
+
+        .page-link {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        /* 頁尾 */
+        footer {
+            background-color: #070d1e;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <section class="py-5 text-center position-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <span class="badge badge-custom mb-3">
+                        <i class="fa-solid fa-award"></i> 公開透明 ‧ 穩健永續 ‧ 世代傳承
+                    </span>
+                    <h1 class="display-5 fw-bold mb-3 text-white">
+                        葡眾三大獎金與兩大紅利制度解構
+                    </h1>
+                    <p class="lead text-accent-cyan mb-4">
+                        業界最具護城河的制度設計：累積不歸零、職級不下聘、自動補救與世代傳承機制
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pb-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-hand-holding-dollar fs-2 text-accent-blue me-3"></i>
+                            <div>
+                                <h5 class="mb-0 fw-bold">銷售業績獎金</h5>
+                                <small class="text-accent-cyan">5% ~ 20% 回饋</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            根據個人與小組累積 SV 積分進行階差提撥，消費即享回饋，越累計越划算。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-sitemap fs-2 text-accent-cyan me-3"></i>
+                            <div>
+                                <h5 class="mb-0 fw-bold">組織組織獎金</h5>
+                                <small class="text-accent-cyan">黃金六代 6%</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            晉升珍珠級經理即可領取，培育合格經理體系，代數壓縮機制保障最高收益。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-crown fs-2 text-accent-gold me-3"></i>
+                            <div>
+                                <h5 class="mb-0 fw-bold">專職領導獎金</h5>
+                                <small class="text-accent-gold">全國分紅機制</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            高階領導人享全國營業額分紅，包含翡翠、藍鑽、雙藍鑽、皇冠尊榮獎勵。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-plane-departure fs-2 text-warning me-3"></i>
+                            <div>
+                                <h5 class="mb-0 fw-bold">兩大尊榮紅利</h5>
+                                <small class="text-warning">購車與海外旅遊</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            年度海外奢華旅遊津貼與藍鑽百萬名車過戶補助，享受真正自由人生。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="card-custom p-4 p-md-5">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-chart-column fs-3 text-accent-blue me-3"></i>
+                            <h3 class="fw-bold mb-0">1. 銷售業績獎金（5% ~ 20%）</h3>
+                        </div>
+                        <p class="text-muted">
+                            銷售業績獎金採用**「階梯式累積提撥」**機制。夥伴個人與組織體系的 SV 積分持續累計且**永不歸零**，當達到指定積分門檻時，提撥比例自動調升。
+                        </p>
+                        <ul class="list-unstyled text-muted">
+                            <li class="mb-2"><i class="fa-solid fa-check-circle text-accent-blue"></i> <strong>會員 (5%)</strong>：累計 1 ~ 11,999 SV。</li>
+                            <li class="mb-2"><i class="fa-solid fa-check-circle text-accent-blue"></i> <strong>主任 (10%)</strong>：累計 12,000 ~ 119,999 SV。</li>
+                            <li class="mb-2"><i class="fa-solid fa-check-circle text-accent-blue"></i> <strong>副理 (15%)</strong>：累計 120,000 ~ 299,999 SV。</li>
+                            <li class="mb-2"><i class="fa-solid fa-check-circle text-accent-blue"></i> <strong>經理 (20%)</strong>：累計 300,000 SV 以上，享最高 20% 回饋。</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="img-placeholder-box">
+                            <i class="fa-solid fa-image img-placeholder-icon"></i>
+                            <h5 class="fw-bold text-white mb-2">【預留圖片空間】銷售業績階梯示意圖</h5>
+                            <p class="text-muted small mb-3">建議尺寸：16:9 (例如 1200x675 px) / 檔案格式：PNG 或 WEBP</p>
+                            <span class="badge badge-custom">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> 可替換為《獎金階梯與差額圖解.png》
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h5 class="fw-bold text-accent-cyan mb-3">
+                            <i class="fa-solid fa-chart-pie"></i> 各職級購物回饋率比例視覺化
+                        </h5>
+                        <div style="height: 280px; position: relative;">
+                            <canvas id="rebateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="card-custom p-4 p-md-5">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-6 order-2 order-lg-1">
+                        <div class="img-placeholder-box">
+                            <i class="fa-solid fa-diagram-project img-placeholder-icon"></i>
+                            <h5 class="fw-bold text-white mb-2">【預留圖片空間】黃金六代與壓縮機制圖</h5>
+                            <p class="text-muted small mb-3">建議尺寸：4:3 (例如 1200x900 px) / 檔案格式：PNG 或 JPG</p>
+                            <span class="badge badge-custom">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> 可替換為《世代壓縮與自動補救心智圖.png》
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 order-1 order-lg-2">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-network-wired fs-3 text-accent-cyan me-3"></i>
+                            <h3 class="fw-bold mb-0">2. 組織獎金（黃金六代 6%）</h3>
+                        </div>
+                        <p class="text-muted">
+                            當夥伴晉升為**珍珠級經理**後，即可開啟組織獎金。系統協助輔導下線夥伴晉升經理，並領取深達 **6 代的組織培育津貼**。
+                        </p>
+                        <div class="p-3 mb-3 rounded" style="background-color: rgba(15, 23, 42, 0.5); border-left: 4px solid var(--accent-cyan);">
+                            <h6 class="fw-bold text-accent-cyan mb-1">
+                                <i class="fa-solid fa-shield-cat"></i> 獨家防禦機制：自動補救與世代壓縮
+                            </h6>
+                            <p class="small text-muted mb-0">
+                                若某代經理當月業績未達合格門檻，系統自動啟動代數壓縮，保障上線領導人的黃金六代收益不被中斷，真正做到努力不白費。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="card-custom p-4 p-md-5">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="fa-solid fa-table-list fs-3 text-accent-gold me-3"></i>
+                    <div>
+                        <h3 class="fw-bold mb-0">3. 完整職級門檻與獎金權益對照表</h3>
+                        <small class="text-muted">數據即時檢索與結構化比對</small>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="bonusTable" class="table table-striped table-hover align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th>職級名稱</th>
+                                <th>累積 SV 門檻</th>
+                                <th>個人基本 SV</th>
+                                <th>銷售獎金 %</th>
+                                <th>組織獎金 (六代)</th>
+                                <th>專職領導分紅</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-secondary"><i class="fa-solid fa-user"></i> 會員</span></td>
+                                <td>1 ~ 11,999 SV</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">5%</strong></td>
+                                <td>—</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info text-dark"><i class="fa-solid fa-user-check"></i> 主任</span></td>
+                                <td>12,000 SV</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">10%</strong></td>
+                                <td>—</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary"><i class="fa-solid fa-user-gear"></i> 副理</span></td>
+                                <td>120,000 SV</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">15%</strong></td>
+                                <td>—</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success"><i class="fa-solid fa-user-tie"></i> 經理</span></td>
+                                <td>300,000 SV</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">20%</strong></td>
+                                <td>—</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark"><i class="fa-solid fa-gem"></i> 珍珠經理</span></td>
+                                <td>培育 2 線合格經理</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">20%</strong></td>
+                                <td><i class="fa-solid fa-check text-success"></i> 享黃金六代 6%</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger"><i class="fa-solid fa-gem"></i> 翡翠經理</span></td>
+                                <td>培育 4 線合格經理</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">20%</strong></td>
+                                <td><i class="fa-solid fa-check text-success"></i> 享黃金六代 6%</td>
+                                <td><i class="fa-solid fa-check text-gold"></i> 翡翠分紅</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary"><i class="fa-solid fa-diamond"></i> 藍鑽經理</span></td>
+                                <td>培育 6 線合格經理</td>
+                                <td>160 SV</td>
+                                <td><strong class="text-accent-blue">20%</strong></td>
+                                <td><i class="fa-solid fa-check text-success"></i> 享黃金六代 6%</td>
+                                <td><i class="fa-solid fa-check text-gold"></i> 藍鑽分紅 + 名車過戶</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card-custom p-4 h-100">
+                        <h4 class="fw-bold text-accent-cyan mb-3">
+                            <i class="fa-solid fa-shield-heart"></i> 制度四大安全護城河
+                        </h4>
+                        <div class="d-flex mb-3">
+                            <i class="fa-solid fa-1 text-accent-blue fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">積分累積永不歸零</h6>
+                                <p class="small text-muted mb-0">無時間限制，努力業績持續堆疊，人人皆能邁向經理職級。</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <i class="fa-solid fa-2 text-accent-blue fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">職級上聘不下聘</h6>
+                                <p class="small text-muted mb-0">職級達到即永久保留，絕無降階壓力，拒絕傳統直銷考核焦慮。</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <i class="fa-solid fa-3 text-accent-blue fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">無大額囤貨風險</h6>
+                                <p class="small text-muted mb-0">每年僅需個人 160 SV 門檻，輕鬆消費無重負，打造健康消費網。</p>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <i class="fa-solid fa-4 text-accent-blue fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">事業成就世代繼承</h6>
+                                <p class="small text-muted mb-0">建立的組織體系與持續性獎金可由下一代繼承，打造跨世代資產。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <h4 class="fw-bold text-warning mb-3">
+                                <i class="fa-solid fa-trophy"></i> 尊榮榮耀與海外獎勵
+                            </h4>
+                            <p class="text-muted small">
+                                葡眾公司每年舉辦 2 ~ 3 次海外奢華旅遊，全額招待並發放旅遊基金；達標合格藍鑽更享有百萬名車直接過戶送給夥伴的霸氣獎勵。
+                            </p>
+                        </div>
+                        <div class="img-placeholder-box mt-3">
+                            <i class="fa-solid fa-plane-circle-check img-placeholder-icon text-warning"></i>
+                            <h5 class="fw-bold text-white mb-2">【預留圖片空間】海外旅遊與名車表揚現場</h5>
+                            <p class="text-muted small mb-3">建議尺寸：16:9 / 檔案格式：PNG 或 JPG</p>
+                            <span class="badge badge-custom text-warning border-warning">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> 可替換為《海外旅遊與百萬名車過戶現場.png》
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1. 初始化 DataTables 表格
+            $('#bonusTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/zh-TW.json"
+                },
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 20],
+                "responsive": true,
+                "ordering": false
+            });
+
+            // 2. 初始化 Chart.js 圖表 (銷售回饋階梯)
+            const ctx = document.getElementById('rebateChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['會員 (1~1.1萬SV)', '主任 (1.2萬SV)', '副理 (12萬SV)', '經理 (30萬SV)'],
+                    datasets: [{
+                        label: '銷售獎金回饋率 (%)',
+                        data: [5, 10, 15, 20],
+                        backgroundColor: [
+                            'rgba(148, 163, 184, 0.6)',
+                            'rgba(56, 189, 248, 0.6)',
+                            'rgba(125, 211, 252, 0.7)',
+                            'rgba(250, 204, 21, 0.8)'
+                        ],
+                        borderColor: [
+                            '#94a3b8',
+                            '#38bdf8',
+                            '#7dd3fc',
+                            '#facc15'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' 購物回饋率: ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 25,
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(56, 189, 248, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#f8fafc'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

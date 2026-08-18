@@ -1,0 +1,275 @@
+// ==========================================================================
+// 榮祥團隊 Ray's Team - Material 3 Expressive System (100% Theme Token Aligned)
+// 檔案名稱：_m3-expressive-system.scss
+// 說明：所有色彩 100% 引用現有主題變數 (--uvaco-* 與 --bs-*)，無硬編碼色碼
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// 1. M3 Expressive Shape & Motion Design Tokens (純造型與動態階梯)
+// --------------------------------------------------------------------------
+:root {
+    --m3-shape-corner-xs: 4px;
+    --m3-shape-corner-s: 8px;
+    --m3-shape-corner-m: 12px;
+    --m3-shape-corner-l: 20px;
+    --m3-shape-corner-xl: 28px;
+    --m3-shape-corner-full: 9999px;
+    --m3-motion-standard: all 0.28s cubic-bezier(0.2, 0, 0, 1);
+    --m3-motion-expressive: all 0.4s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+// --------------------------------------------------------------------------
+// 2. M3 Expressive Cards (高海拔與微光玻璃層級)
+// --------------------------------------------------------------------------
+.card-m3 {
+    background-color: var(--uvaco-bg-card, var(--bs-card-bg));
+    border: 1px solid var(--uvaco-border-color, var(--bs-border-color));
+    border-radius: var(--m3-shape-corner-l);
+    transition: var(--m3-motion-standard);
+    position: relative;
+    overflow: hidden;
+
+    &.card-m3-elevated {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+
+        &:hover {
+            transform: translateY(-4px);
+            background-color: var(--uvaco-bg-card-hover, var(--bs-tertiary-bg));
+            border-color: var(--uvaco-border-highlight, var(--bs-primary));
+            box-shadow: var(--uvaco-shadow-glow, 0 8px 24px rgba(0, 0, 0, 0.4)),
+                        0 0 20px var(--uvaco-border-glow, transparent);
+        }
+    }
+
+    &.card-m3-filled {
+        background-color: var(--uvaco-bg-secondary, var(--bs-secondary-bg-subtle));
+        border: none;
+
+        &:hover {
+            background-color: var(--uvaco-bg-card-hover, var(--bs-tertiary-bg));
+        }
+    }
+
+    &.card-m3-outlined {
+        background-color: transparent;
+        border: 2px solid var(--uvaco-border-highlight, var(--bs-border-color));
+
+        &:hover {
+            border-color: var(--uvaco-primary, var(--bs-primary));
+            box-shadow: 0 0 15px var(--uvaco-border-glow, transparent);
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// 3. M3 Expressive Buttons & CTA (全圓膠囊與動態狀態層)
+// --------------------------------------------------------------------------
+.btn-m3 {
+    border-radius: var(--m3-shape-corner-full);
+    padding: 10px 24px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: var(--m3-motion-standard);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+
+    &.btn-m3-primary {
+        background: var(--uvaco-primary-gradient, var(--bs-primary));
+        color: var(--uvaco-primary-contrast, var(--bs-body-bg));
+        border: none;
+        box-shadow: 0 4px 12px var(--uvaco-border-glow, rgba(0, 0, 0, 0.2));
+
+        &:hover, &:focus {
+            color: var(--uvaco-primary-contrast, var(--bs-body-bg));
+            transform: scale(1.03);
+            box-shadow: var(--uvaco-shadow-glow, 0 6px 20px rgba(0, 0, 0, 0.3));
+        }
+
+        &:active {
+            transform: scale(0.97);
+        }
+    }
+
+    &.btn-m3-secondary {
+        background-color: var(--uvaco-bg-secondary, var(--bs-secondary-bg-subtle));
+        color: var(--uvaco-text-secondary, var(--bs-secondary-color));
+        border: 1px solid var(--uvaco-border-color, var(--bs-border-color));
+
+        &:hover {
+            background-color: var(--uvaco-secondary, var(--bs-secondary));
+            color: var(--uvaco-secondary-contrast, var(--bs-body-bg));
+            border-color: var(--uvaco-secondary, var(--bs-secondary));
+        }
+    }
+
+    &.btn-m3-cta {
+        background: linear-gradient(135deg, var(--uvaco-primary) 0%, var(--uvaco-accent) 100%);
+        color: var(--uvaco-text-light, var(--bs-white));
+        border: none;
+        padding: 12px 30px;
+        font-size: 1.05rem;
+        box-shadow: 0 6px 20px var(--uvaco-border-glow, rgba(0, 0, 0, 0.25));
+
+        &:hover {
+            color: var(--uvaco-text-light, var(--bs-white));
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: var(--uvaco-shadow-glow, 0 10px 28px rgba(0, 0, 0, 0.4));
+        }
+    }
+
+    &.btn-m3-tonal {
+        background-color: var(--uvaco-bg-accent, var(--bs-primary-bg-subtle));
+        color: var(--uvaco-text-accent, var(--bs-primary-text-emphasis));
+
+        &:hover {
+            background-color: var(--uvaco-accent, var(--bs-primary));
+            color: var(--uvaco-accent-contrast, var(--bs-body-bg));
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// 4. M3 Floating Action Button (FAB)
+// --------------------------------------------------------------------------
+.fab-m3 {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--m3-shape-corner-l);
+    background: var(--uvaco-primary-gradient, var(--bs-primary));
+    color: var(--uvaco-primary-contrast, var(--bs-body-bg));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    border: none;
+    transition: var(--m3-motion-expressive);
+
+    &:hover {
+        border-radius: var(--m3-shape-corner-xl);
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: var(--uvaco-shadow-glow, 0 10px 24px rgba(0, 0, 0, 0.5));
+    }
+
+    &.fab-m3-extended {
+        width: auto;
+        padding: 0 24px;
+        border-radius: var(--m3-shape-corner-full);
+    }
+}
+
+// --------------------------------------------------------------------------
+// 5. M3 Chips & Badges
+// --------------------------------------------------------------------------
+.chip-m3 {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--m3-shape-corner-s);
+    padding: 6px 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background-color: var(--uvaco-bg-card, var(--bs-tertiary-bg));
+    color: var(--uvaco-text-primary, var(--bs-body-color));
+    border: 1px solid var(--uvaco-border-color, var(--bs-border-color));
+    transition: var(--m3-motion-standard);
+    cursor: pointer;
+
+    &:hover, &.active {
+        background-color: var(--uvaco-bg-accent, var(--bs-primary-bg-subtle));
+        color: var(--uvaco-text-accent, var(--bs-primary));
+        border-color: var(--uvaco-accent, var(--bs-primary));
+    }
+}
+
+.badge-m3-pill {
+    border-radius: var(--m3-shape-corner-full);
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: var(--uvaco-bg-primary, var(--bs-primary-bg-subtle));
+    color: var(--uvaco-text-primary, var(--bs-primary-text-emphasis));
+    border: 1px solid var(--uvaco-border-glow, var(--bs-border-color));
+}
+
+// --------------------------------------------------------------------------
+// 6. M3 Segmented Buttons
+// --------------------------------------------------------------------------
+.segmented-btn-m3 {
+    display: inline-flex;
+    background-color: var(--uvaco-bg-card-inner, var(--bs-tertiary-bg));
+    border-radius: var(--m3-shape-corner-full);
+    padding: 4px;
+    border: 1px solid var(--uvaco-border-color, var(--bs-border-color));
+
+    .segmented-item {
+        border: none;
+        background: transparent;
+        color: var(--uvaco-text-muted, var(--bs-secondary-color));
+        padding: 8px 18px;
+        border-radius: var(--m3-shape-corner-full);
+        font-weight: 500;
+        transition: var(--m3-motion-standard);
+
+        &.active, &:hover {
+            background: var(--uvaco-primary-gradient, var(--bs-primary));
+            color: var(--uvaco-primary-contrast, var(--bs-body-bg));
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// 7. M3 Inputs & Text Fields
+// --------------------------------------------------------------------------
+.form-control-m3 {
+    background-color: var(--uvaco-bg-input, var(--bs-body-bg));
+    border: 1px solid var(--uvaco-border-color, var(--bs-border-color));
+    border-radius: var(--m3-shape-corner-m);
+    color: var(--uvaco-text-primary, var(--bs-body-color));
+    padding: 12px 16px;
+    transition: var(--m3-motion-standard);
+
+    &:focus {
+        background-color: var(--uvaco-bg-card-hover, var(--bs-body-bg));
+        border-color: var(--uvaco-primary, var(--bs-primary));
+        color: var(--uvaco-text-primary, var(--bs-body-color));
+        box-shadow: 0 0 12px var(--uvaco-border-glow, rgba(0, 0, 0, 0.25));
+    }
+}
+
+// --------------------------------------------------------------------------
+// 8. DataTables.js & Chart.js M3 Integration Overrides
+// --------------------------------------------------------------------------
+.dataTables_wrapper {
+    color: var(--uvaco-text-primary, var(--bs-body-color)) !important;
+
+    table.dataTable {
+        border-color: var(--uvaco-border-color, var(--bs-border-color)) !important;
+
+        thead th {
+            background-color: var(--uvaco-bg-secondary, var(--bs-tertiary-bg)) !important;
+            color: var(--uvaco-text-secondary, var(--bs-secondary-color)) !important;
+            border-bottom: 2px solid var(--uvaco-border-highlight, var(--bs-border-color)) !important;
+        }
+
+        tbody tr {
+            background-color: var(--uvaco-bg-card, var(--bs-card-bg)) !important;
+            color: var(--uvaco-text-primary, var(--bs-body-color)) !important;
+
+            &:hover {
+                background-color: var(--uvaco-bg-card-hover, var(--bs-tertiary-bg)) !important;
+            }
+        }
+    }
+
+    .dataTables_paginate .paginate_button {
+        border-radius: var(--m3-shape-corner-full) !important;
+
+        &.current {
+            background: var(--uvaco-primary-gradient, var(--bs-primary)) !important;
+            border: none !important;
+            color: var(--uvaco-primary-contrast, var(--bs-body-bg)) !important;
+        }
+    }
+}

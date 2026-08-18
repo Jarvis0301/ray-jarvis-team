@@ -1,0 +1,245 @@
+:root {
+    --bg-primary: #0b1329;
+    --bg-secondary: #0f172a;
+    --bg-card: #1e293b;
+    --border-color: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-blue-hover: #0284c7;
+    --accent-navy: #1e3a8a;
+    --accent-gold: #facc15;
+    --accent-green: #34d399;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding-bottom: 3rem;
+}
+
+/* 頂部 Header 區塊 */
+.page-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2.5rem 0;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* KPI 指標卡片 */
+.kpi-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-blue);
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background-color: rgba(56, 189, 248, 0.1);
+    color: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.2rem;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* 主內容卡片 */
+.content-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.card-title-custom {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin: 0;
+}
+
+/* Google Calendar 嵌入容器與深色濾鏡 */
+.calendar-wrapper {
+    position: relative;
+    width: 100%;
+    height: 680px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+}
+
+.calendar-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    filter: invert(0.88) hue-rotate(195deg) contrast(1.15);
+    transition: filter 0.3s ease;
+}
+
+.calendar-wrapper.light-mode iframe {
+    filter: none;
+}
+
+/* 按鈕樣式 */
+.btn-custom-blue {
+    background-color: var(--accent-blue);
+    color: #0f172a;
+    font-weight: 600;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-custom-blue:hover {
+    background-color: var(--accent-blue-hover);
+    color: #ffffff;
+}
+
+.btn-outline-custom {
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    background-color: transparent;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-custom:hover, .btn-outline-custom.active {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background-color: rgba(56, 189, 248, 0.1);
+}
+
+/* DataTable 深色主題微調 */
+.dataTables_wrapper {
+    color: var(--text-secondary);
+}
+
+table.dataTable {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table.dataTable thead th {
+    background-color: #1e293b !important;
+    color: var(--accent-blue) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+}
+
+table.dataTable tbody td {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    vertical-align: middle;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: #0f172a !important;
+    font-weight: bold;
+}
+
+.page-link {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-secondary) !important;
+}
+
+.dataTables_filter input, .dataTables_length select {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+}
+
+/* 標籤 Badge */
+.badge-online {
+    background-color: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 0.35em 0.65em;
+}
+
+.badge-offline {
+    background-color: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    padding: 0.35em 0.65em;
+}
+
+.badge-leadership {
+    background-color: rgba(250, 204, 21, 0.15);
+    color: #facc15;
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    padding: 0.35em 0.65em;
+}
+
+/* 圖表容器 */
+.chart-container {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+/* RWD 響應式調整 */
+@media (max-width: 768px) {
+    .calendar-wrapper {
+        height: 480px;
+    }
+    .card-header-custom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}

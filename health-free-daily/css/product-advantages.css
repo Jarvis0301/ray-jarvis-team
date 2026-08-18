@@ -1,0 +1,122 @@
+/* :root {
+    --uvaco-bg-primary: #192821;
+    --uvaco-bg-card: #22352B;
+    --uvaco-bg-card-hover: #2A4236;
+    --uvaco-primary: #4ADE80;
+    --uvaco-accent: #FACE15;
+    --uvaco-text-primary: #F3F4F6;
+    --uvaco-border-color: rgba(74, 222, 128, 0.18);
+}
+
+body {
+    background-color: transparent;
+    color: var(--uvaco-text-primary);
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+    overflow-x: hidden;
+} */
+
+/* Hero 區塊 */
+.hero-section {
+    padding: 4rem 0 3rem 0;
+    background: radial-gradient(circle at 50% 30%, rgba(74, 222, 128, 0.08) 0%, transparent 70%);
+}
+
+.hero-title {
+    color: var(--uvaco-primary);
+    font-weight: 700;
+}
+
+/* 圖片佔位框通用樣式 */
+.img-placeholder {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 2px dashed var(--uvaco-border-color);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--uvaco-text-primary);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.img-placeholder:hover {
+    border-color: var(--uvaco-primary);
+    color: var(--uvaco-primary);
+    background-color: rgba(74, 222, 128, 0.05);
+}
+
+.img-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* 卡片通用樣式 */
+.custom-card {
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.custom-card:hover {
+    background-color: var(--uvaco-bg-card-hover);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: var(--uvaco-primary);
+}
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(74, 222, 128, 0.1);
+    color: var(--uvaco-primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* 區塊標題 */
+.section-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.section-header h2 {
+    font-weight: 700;
+    color: var(--uvaco-text-primary);
+    position: relative;
+    display: inline-block;
+}
+
+.section-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: var(--uvaco-primary);
+    border-radius: 2px;
+}
+
+/* 明星產品標籤 */
+.star-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: var(--uvaco-accent);
+    color: #000;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 2;
+}

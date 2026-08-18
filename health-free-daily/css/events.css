@@ -1,0 +1,409 @@
+/* :root {
+    --uvaco-primary: #10B981;
+    --uvaco-secondary: #00B050;
+    --uvaco-primary-hover: #059669;
+    --uvaco-dark: #062E1E;
+    --uvaco-accent: #F59E0B;
+    
+    --uvaco-bg-primary: #051811;
+    --uvaco-bg-card: #0D281E;
+    --uvaco-bg-card-hover: #133829;
+    --uvaco-border-color: #1B4D3E;
+    
+    --uvaco-text-primary: #F8FAFC;
+    --uvaco-text-secondary: #A7F3D0;
+    --uvaco-text-muted: #94A3B8;
+}
+
+html, body {
+    background-color: transparent;
+    color: var(--uvaco-text-primary);
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+    padding: 15px 8px;
+} */
+
+/* h1, h2, h3, h4, .brand-font {
+    font-family: 'Montserrat', sans-serif;
+} */
+
+/* 載入中 Spinner */
+/* #loading-spinner {
+    text-align: center;
+    padding: 40px 0;
+    color: #10B981;
+} */
+
+/* 頂部控制面板 (綠色系搜尋與動態膠囊) */
+.filter-panel {
+    background: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.search-box input {
+    background-color: var(--uvaco-dark);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-primary);
+    border-radius: 8px;
+    padding: 10px 16px 10px 42px;
+    width: 100%;
+    transition: all 0.25s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--uvaco-primary);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+}
+
+.search-box i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--uvaco-primary);
+}
+
+.filter-group-title {
+    font-size: 0.82rem;
+    color: var(--uvaco-text-secondary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+/* .filter-pill {
+    background: rgba(6, 46, 30, 0.7);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-secondary);
+    font-size: 0.82rem;
+    padding: 5px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.filter-pill:hover {
+    color: var(--uvaco-text-primary);
+    border-color: var(--uvaco-primary);
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.filter-pill.active {
+    background-color: var(--uvaco-primary);
+    border-color: var(--uvaco-primary);
+    color: #000000;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+} */
+
+/* 區塊標題 */
+.section-title {
+    color: var(--uvaco-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid var(--uvaco-primary);
+    padding-left: 12px;
+}
+
+/* 活動卡片主體 */
+.event-card {
+    background: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+    border-color: var(--uvaco-primary);
+}
+
+/* 過期卡片視覺收合樣式 */
+.event-card.expired {
+    opacity: 0.65;
+    border-color: rgba(27, 77, 62, 0.4);
+    background: rgba(13, 40, 30, 0.5);
+}
+
+.event-card.expired:hover {
+    opacity: 0.95;
+    border-color: var(--uvaco-text-muted);
+    box-shadow: none;
+}
+
+/* 圖片容器 */
+.event-img-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    background-color: var(--uvaco-dark);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.event-card:hover .event-img {
+    transform: scale(1.04);
+}
+
+.img-placeholder-icon {
+    font-size: 3rem;
+    color: #1B4D36;
+}
+
+/* 卡片右側內容區 */
+.event-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* 頂部徽章群組：狀態、類型與藝人統一同層放置 */
+.header-badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+/* .status-badge {
+    background: rgba(5, 24, 17, 0.8);
+    border: 1px solid var(--uvaco-primary);
+    color: var(--uvaco-primary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge.expired-badge {
+    border-color: var(--uvaco-text-muted);
+    color: var(--uvaco-text-muted);
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    background-color: var(--uvaco-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--uvaco-primary);
+    animation: pulse 1.8s infinite;
+}
+
+.status-dot.expired-dot {
+    background-color: var(--uvaco-text-muted);
+    box-shadow: none;
+    animation: none;
+} */
+
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* .type-badge {
+    background: rgba(6, 46, 30, 0.9);
+    border: 1px solid var(--uvaco-primary);
+    color: #FFFFFF;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.performer-badge {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #000000;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+} */
+
+.event-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--uvaco-text-primary);
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+/* 資訊清單 (活動場地與活動地址獨立拆分) */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.info-item {
+    background: rgba(6, 46, 30, 0.5);
+    border: 1px solid rgba(27, 77, 62, 0.6);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--uvaco-text-secondary);
+}
+
+.info-item i {
+    color: var(--uvaco-primary);
+    font-size: 1rem;
+    width: 18px;
+    margin-top: 2px;
+    text-align: center;
+}
+
+.event-card.expired .info-item i {
+    color: var(--uvaco-text-muted);
+}
+
+.info-item span.highlight {
+    color: var(--uvaco-text-primary);
+    font-weight: 500;
+}
+
+/* 動作按鈕組 */
+.action-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* .btn-uvaco-primary {
+    background-color: var(--uvaco-primary);
+    color: #000000;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.btn-uvaco-primary:hover {
+    background-color: #34D399;
+    color: #000000;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-uvaco-secondary {
+    background-color: rgba(6, 46, 30, 0.8);
+    color: var(--uvaco-text-primary);
+    border: 1px solid var(--uvaco-border-color);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.btn-uvaco-disabled {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--uvaco-text-muted);
+    border: 1px solid transparent;
+    cursor: not-allowed;
+    pointer-events: none;
+    flex: 1;
+    text-align: center;
+    padding: 10px 20px;
+    border-radius: 8px;
+} */
+
+/* 折疊選單 (Accordion) 翡翠綠風格 */
+.custom-accordion .accordion-item {
+    background-color: transparent;
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.custom-accordion .accordion-button {
+    background-color: var(--uvaco-bg-card);
+    color: var(--uvaco-text-secondary);
+    font-weight: 600;
+    box-shadow: none;
+    padding: 16px 20px;
+}
+
+.custom-accordion .accordion-button:not(.collapsed) {
+    background-color: var(--uvaco-bg-card-hover);
+    color: var(--uvaco-text-primary);
+    border-bottom: 1px solid var(--uvaco-border-color);
+}
+
+.custom-accordion .accordion-button::after {
+    filter: invert(1);
+}
+
+.custom-accordion .accordion-body {
+    background-color: rgba(5, 24, 17, 0.6);
+    padding: 20px 12px 0 12px;
+}
+
+/* 手機端 RWD 適應規則 */
+@media (max-width: 767.98px) {
+    .event-img-wrapper {
+        height: 180px;
+    }
+    .event-content {
+        padding: 16px;
+    }
+}

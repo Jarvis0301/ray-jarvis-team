@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-green">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>UVACO 大事記</title>
+		
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/milestones-uvaco.js" defer></script>
+
+        <link rel="stylesheet" href="./css/milestones-uvaco.css">
+	</head>
+
+	<body>
+		<div class="timeline-container-wrapper">
+			<div class="control-toolbar d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+				<!-- 區域分頁 -->
+				<div class="d-flex flex-wrap gap-2 w-100 w-md-auto" id="region-tabs">
+					<input type="radio" class="btn-check" name="region-type" id="tab-taiwan" value="台灣" autocomplete="off" checked>
+					<label class="btn btn-outline-primary btn-sm rounded-pill" for="tab-taiwan">
+						<i class="fa-solid fa-location-dot me-1"></i> 台灣
+					</label>
+
+					<input type="radio" class="btn-check" name="region-type" id="tab-malaysia" value="馬來西亞" autocomplete="off">
+					<label class="btn btn-outline-primary btn-sm rounded-pill" for="tab-malaysia">
+						<i class="fa-solid fa-earth-americas me-1"></i> 馬來西亞
+					</label>
+				</div>
+
+				<div class="search-box-group input-group w-100 w-sm-auto" style="max-width: 320px;">
+					<span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+					<input type="text" id="timeline-search" class="form-control" placeholder="搜尋年份、月份或大事記內容..." aria-label="搜尋大事記">
+				</div>
+			</div>
+
+			<div class="timeline-container">
+				<div id="timeline-wrapper">
+					<div class="loading-spinner text-center col-12">
+						<div class="spinner-border mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<div>UVACO 大事記同步中...</div>
+						<button class="btn btn"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

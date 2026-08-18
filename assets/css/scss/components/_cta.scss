@@ -1,0 +1,148 @@
+// ==========================================================================
+// assets/scss/2-components/_cta.scss
+// 榮祥團隊 Design System - 多主題相容 CTA 商業轉換生態系 (Multi-Theme CTA)
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// 1. 全局 CTA 呼吸脈動動畫 (Pulse Glow Animation) - 100% 變數化
+// --------------------------------------------------------------------------
+@keyframes ctaPulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 15px var(--uvaco-border-glow);
+        border-color: var(--uvaco-border-highlight);
+    }
+    50% {
+        box-shadow: 0 0 28px var(--uvaco-border-glow);
+        border-color: var(--uvaco-text-light);
+    }
+}
+
+// --------------------------------------------------------------------------
+// 2. CTA 商業轉換主要按鈕 (.btn-cta)
+// --------------------------------------------------------------------------
+.btn-cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--uvaco-text-light) !important;
+    background: linear-gradient(135deg, var(--uvaco-primary) 0%, var(--uvaco-secondary) 100%);
+    border: 1px solid var(--uvaco-border-highlight);
+    border-radius: 50rem;
+    box-shadow: 0 0 20px var(--uvaco-border-glow);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 1;
+
+    // Hover 懸停狀態：浮起與動態外發光擴散
+    &:hover {
+        color: var(--uvaco-text-light) !important;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 30px var(--uvaco-border-glow);
+        border-color: var(--uvaco-text-light);
+
+        // Icon 平滑位移
+        i {
+            transform: translateX(-5px);
+        }
+    }
+
+    // Active 點擊狀態
+    &:active {
+        transform: translateY(-1px) scale(0.99);
+    }
+
+    // Font Awesome Icon 平滑過渡 (維持與文字半形空白)
+    i {
+        transition: transform 0.3s ease;
+    }
+
+    // 呼吸脈動變體
+    &.btn-cta-pulse {
+        animation: ctaPulseGlow 2.5s infinite ease-in-out;
+    }
+}
+
+// --------------------------------------------------------------------------
+// 3. CTA 微光脈動標籤 (.badge-cta)
+// --------------------------------------------------------------------------
+.badge-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--uvaco-text-light);
+    background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.25) 0%, rgba(var(--bs-secondary-rgb), 0.15) 100%);
+    border: 1px solid var(--uvaco-border-highlight);
+    border-radius: 50rem;
+    box-shadow: 0 0 12px var(--uvaco-border-glow);
+    backdrop-filter: blur(8px);
+
+    &.badge-cta-pulse {
+        animation: ctaPulseGlow 2s infinite ease-in-out;
+    }
+}
+
+// --------------------------------------------------------------------------
+// 4. CTA 沉浸式高轉換卡片 (.card-cta)
+// --------------------------------------------------------------------------
+.card-cta {
+    position: relative;
+    background: linear-gradient(145deg, var(--uvaco-bg-card) 0%, var(--uvaco-bg-primary) 100%);
+    border: 1px solid var(--uvaco-border-highlight);
+    border-radius: var(--radius, 16px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 25px var(--uvaco-border-glow);
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+
+    // 頂部 3 色微光漸層邊線
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--uvaco-primary), var(--uvaco-secondary), var(--uvaco-accent));
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 35px var(--uvaco-border-glow);
+    }
+}
+
+// --------------------------------------------------------------------------
+// 5. CTA 全寬戰略宣告區塊 (.callout-cta)
+// --------------------------------------------------------------------------
+.callout-cta {
+    padding: 2.25rem 2.5rem;
+    background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.12) 0%, var(--uvaco-bg-primary) 100%);
+    border-left: 4px solid var(--uvaco-primary);
+    border-radius: var(--radius, 12px);
+    box-shadow: inset 0 0 20px rgba(var(--bs-primary-rgb), 0.08), 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+// --------------------------------------------------------------------------
+// 6. 手機端常駐懸浮轉換列 (.cta-floating-bar)
+// --------------------------------------------------------------------------
+.cta-floating-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1080;
+    padding: 0.75rem 1rem;
+    background: rgba(var(--bs-body-bg-rgb, 5, 24, 17), 0.92);
+    border-top: 1px solid var(--uvaco-border-highlight);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+}

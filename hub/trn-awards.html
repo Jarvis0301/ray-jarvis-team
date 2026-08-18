@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大事榮譽核心戰情室 | prd-awards.html</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --bg-base: #0a0518;
+            --bg-surface: #140b2a;
+            --bg-glass: rgba(26, 14, 51, 0.75);
+            --bg-glass-card: rgba(35, 20, 68, 0.65);
+            --purple-primary: #9333ea;
+            --purple-light: #c084fc;
+            --purple-neon: #a855f7;
+            --purple-glow: rgba(168, 85, 247, 0.4);
+            --gold-primary: #f59e0b;
+            --gold-light: #fcd34d;
+            --border-purple: rgba(168, 85, 247, 0.25);
+            --border-glow: rgba(192, 132, 252, 0.4);
+            --text-pure: #ffffff;
+            --text-main: #f3e8ff;
+            --text-muted: #a79fc2;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(147, 51, 234, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(20, 11, 42, 0.9) 0%, var(--bg-base) 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* 核心版玻璃態面板 */
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-purple);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.45);
+            transition: border-color 0.3s ease;
+        }
+
+        /* 頂部動態戰情控制條 */
+        .command-bar {
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* 霓虹主按鈕 */
+        .btn-neon-purple {
+            background: linear-gradient(135deg, var(--purple-primary), #6b21a8);
+            border: 1px solid var(--purple-light);
+            color: #ffffff;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--purple-glow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-neon-purple:hover {
+            background: linear-gradient(135deg, #a855f7, var(--purple-primary));
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-gold {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            border: 1px solid var(--gold-light);
+            color: #ffffff;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+            transition: all 0.3s ease;
+        }
+        .btn-neon-gold:hover {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-glass-action {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-purple);
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 0.4rem 0.9rem;
+            transition: all 0.25s ease;
+        }
+        .btn-glass-action:hover {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: var(--purple-light);
+            color: #ffffff;
+        }
+
+        /* 視圖切換器 */
+        .view-pill-nav .nav-link {
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-purple);
+            border-radius: 12px;
+            padding: 0.55rem 1.25rem;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .view-pill-nav .nav-link.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--purple-primary), #581c87);
+            border-color: var(--purple-light);
+            box-shadow: 0 0 20px var(--purple-glow);
+        }
+
+        /* ==================== 1. 時空脈動時間軸 (Neo-Timeline) ==================== */
+        .neo-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+        .neo-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 3px;
+            background: linear-gradient(180deg, var(--purple-light) 0%, rgba(147, 51, 234, 0.15) 100%);
+            transform: translateX(-50%);
+            box-shadow: 0 0 12px var(--purple-glow);
+        }
+        .timeline-block {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        .timeline-block:nth-child(even) .timeline-card-wrapper {
+            margin-left: auto;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 3px solid var(--purple-light);
+            box-shadow: 0 0 15px var(--purple-neon);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .timeline-dot::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .timeline-card {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-purple);
+            border-radius: 18px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .timeline-card:hover {
+            border-color: var(--purple-light);
+            box-shadow: 0 10px 30px var(--purple-glow);
+            transform: translateY(-4px);
+        }
+        .timeline-card-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .timeline-card:hover .timeline-card-actions {
+            opacity: 1;
+        }
+
+        /* ==================== 2. 榮譽全息陳列館 (Honor Vault) ==================== */
+        .trophy-vault-card {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-purple);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .trophy-vault-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: var(--gold-light);
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.25);
+        }
+        .trophy-badge-container {
+            height: 200px;
+            background: radial-gradient(circle at center, rgba(147, 51, 234, 0.25) 0%, rgba(20, 11, 42, 0.95) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            position: relative;
+            border-bottom: 1px solid var(--border-purple);
+        }
+        .trophy-badge-container img {
+            max-height: 160px;
+            max-width: 85%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+            transition: transform 0.4s ease;
+        }
+        .trophy-vault-card:hover .trophy-badge-container img {
+            transform: scale(1.1) rotate(2deg);
+        }
+        .trophy-actions-float {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .trophy-vault-card:hover .trophy-actions-float {
+            opacity: 1;
+        }
+
+        /* 標籤微章 */
+        .pill-neon {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            background: rgba(147, 51, 234, 0.2);
+            border: 1px solid var(--purple-light);
+            color: #f3e8ff;
+        }
+        .pill-gold {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--gold-light);
+            color: var(--gold-light);
+        }
+
+        /* 狀態指示燈 */
+        .status-bulb {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-bulb.active {
+            background-color: var(--success-color);
+            box-shadow: 0 0 8px var(--success-color);
+        }
+        .status-bulb.inactive {
+            background-color: var(--danger-color);
+        }
+
+        /* DataTables 深色客製化 */
+        .dataTables_wrapper {
+            color: var(--text-main);
+        }
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--border-purple);
+            color: var(--text-main);
+        }
+        .table-dark-custom th {
+            color: var(--purple-light);
+            border-bottom: 2px solid var(--purple-primary);
+            font-weight: 600;
+        }
+        .page-link {
+            background-color: var(--bg-surface);
+            border-color: var(--border-purple);
+            color: var(--text-main);
+        }
+        .page-item.active .page-link {
+            background-color: var(--purple-primary);
+            border-color: var(--purple-light);
+            box-shadow: 0 0 10px var(--purple-glow);
+        }
+
+        /* 彈窗客製 */
+        .modal-content.dark-glass {
+            background: rgba(20, 11, 42, 0.95);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--purple-light);
+            box-shadow: 0 0 50px rgba(147, 51, 234, 0.4);
+            border-radius: 20px;
+        }
+        .form-control, .form-select {
+            background-color: rgba(10, 5, 24, 0.7);
+            border: 1px solid var(--border-purple);
+            color: #ffffff;
+            border-radius: 10px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(15, 8, 35, 0.9);
+            border-color: var(--purple-light);
+            color: #ffffff;
+            box-shadow: 0 0 12px var(--purple-glow);
+        }
+
+        /* RWD 斷點微調 */
+        @media (max-width: 767.98px) {
+            .neo-timeline::before {
+                left: 20px;
+            }
+            .timeline-dot {
+                left: 20px;
+            }
+            .timeline-card-wrapper {
+                width: calc(100% - 50px);
+                margin-left: 50px !important;
+            }
+            .timeline-card-actions {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="py-4">
+
+    <div class="container-fluid px-lg-5">
+        
+        <div class="glass-panel command-bar">
+            <div class="row align-items-center gy-3">
+                <div class="col-xl-5 col-lg-6">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 p-3 rounded-4" style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(245, 158, 11, 0.2)); border: 1px solid var(--purple-light);">
+                            <i class="fa-solid fa-trophy-star fs-3 text-warning"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0 fw-bold text-white tracking-wide">大事榮譽管理中樞</h3>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-database"></i> 培訓模組 · 表17 企業大事記 ＋ 表18 榮譽獎項 實時同步
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-7 col-lg-6">
+                    <div class="d-flex flex-wrap justify-content-lg-end align-items-center gap-2">
+                        <button class="btn btn-neon-gold btn-sm" id="btnSyncOfficial">
+                            <i class="fa-solid fa-arrows-rotate"></i> 一鍵跟公司網站同步
+                        </button>
+                        <button class="btn btn-neon-purple btn-sm" id="btnSaveToSheets">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> 修改後一鍵存入資料表
+                        </button>
+
+                        <div class="dropdown">
+                            <button class="btn btn-glass-action btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-circle-plus"></i> 新增發布
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark border-secondary">
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="openMilestoneModal()">
+                                        <i class="fa-solid fa-timeline me-1"></i> 新增大事記 (表17)
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="openAwardModal()">
+                                        <i class="fa-solid fa-award me-1"></i> 新增榮譽獎項 (表18)
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr style="border-color: var(--border-purple);" class="my-3">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <ul class="nav view-pill-nav" id="viewModeTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="timeline-tab" data-bs-toggle="pill" data-bs-target="#timeline-panel" type="button">
+                            <i class="fa-solid fa-clock-rotate-left"></i> 時空脈動時間軸
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="vault-tab" data-bs-toggle="pill" data-bs-target="#vault-panel" type="button">
+                            <i class="fa-solid fa-gem"></i> 榮譽全息陳列館
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="matrix-tab" data-bs-toggle="pill" data-bs-target="#matrix-panel" type="button">
+                            <i class="fa-solid fa-table-cells"></i> 數據稽核總表
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small"><i class="fa-solid fa-earth-americas"></i> 市場據點：</span>
+                        <select class="form-select form-select-sm" id="globalCountryFilter" style="width: auto;">
+                            <option value="ALL" selected>全部跨國據點 (ALL)</option>
+                            <option value="TW">台灣總部 (TW)</option>
+                            <option value="MY">馬來西亞分公司 (MY)</option>
+                            <option value="GLOBAL">全球國際認證 (GLOBAL)</option>
+                        </select>
+                    </div>
+                    <div class="text-muted small ps-2 border-start border-secondary">
+                        <span id="unsavedIndicator" class="badge bg-secondary">
+                            <i class="fa-solid fa-check-double"></i> 資料庫已同步
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="mainTabContent">
+            
+            <div class="tab-pane fade show active" id="timeline-panel" role="tabpanel">
+                <div class="neo-timeline" id="milestoneTimelineContainer">
+                    </div>
+            </div>
+
+            <div class="tab-pane fade" id="vault-panel" role="tabpanel">
+                <div class="d-flex flex-wrap gap-2 mb-4" id="awardCategoryFilters">
+                    <button class="btn btn-sm btn-glass-action active" data-cat="ALL">全部榮譽類別</button>
+                    <button class="btn btn-sm btn-glass-action" data-cat="SNQ">SNQ 國家品質標章</button>
+                    <button class="btn btn-sm btn-glass-action" data-cat="ITEX">ITEX / 國際發明展</button>
+                    <button class="btn btn-sm btn-glass-action" data-cat="ESG">ESG 永續與企業社會責任</button>
+                    <button class="btn btn-sm btn-glass-action" data-cat="BRAND">標竿生技品牌獎</button>
+                </div>
+                <div class="row g-4" id="awardVaultContainer">
+                    </div>
+            </div>
+
+            <div class="tab-pane fade" id="matrix-panel" role="tabpanel">
+                <div class="glass-panel p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-white mb-0">
+                            <i class="fa-solid fa-shield-halved text-purple-light"></i> 雙表資料庫稽核矩陣
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-light active" id="btnShowAwardsTable">榮譽獎項 (表18)</button>
+                            <button class="btn btn-outline-light" id="btnShowMilestonesTable">大事記 (表17)</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="matrixDataTable" class="table table-dark-custom table-hover w-100 align-middle">
+                            <thead>
+                                <tr id="matrixTableHead">
+                                    </tr>
+                            </thead>
+                            <tbody id="matrixTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="milestoneModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content dark-glass text-white">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="milestoneModalTitle">
+                        <i class="fa-solid fa-timeline text-purple-light"></i> 編輯企業大事記
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-3">
+                    <form id="milestoneForm">
+                        <input type="hidden" id="ms_id">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">國家/市場代碼</label>
+                                <select class="form-select" id="ms_country" required>
+                                    <option value="TW">台灣 (TW)</option>
+                                    <option value="MY">馬來西亞 (MY)</option>
+                                    <option value="GLOBAL">跨國/全球 (GLOBAL)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">發生年份 (YYYY)</label>
+                                <input type="number" class="form-control" id="ms_year" required placeholder="如 2026">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">精確發生日期 (可選)</label>
+                                <input type="date" class="form-control" id="ms_date">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted">里程碑事件標題</label>
+                                <input type="text" class="form-control" id="ms_title" required placeholder="請輸入重要發展標題">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">高亮標籤</label>
+                                <input type="text" class="form-control" id="ms_tag" placeholder="如 成立首創/生技研發">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">歷史意涵詳細說明</label>
+                                <textarea class="form-control" id="ms_desc" rows="3" required placeholder="請詳述該事件之企業戰略意涵..."></textarea>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted">歷史現場圖檔 URL</label>
+                                <input type="url" class="form-control" id="ms_img" placeholder="https://...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">排序權重</label>
+                                <input type="number" class="form-control" id="ms_order" value="999">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">展示開關</label>
+                                <select class="form-select" id="ms_active">
+                                    <option value="true">啟用 (True)</option>
+                                    <option value="false">隱藏 (False)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-purple btn-sm" id="btnSaveMilestone">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存暫存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="awardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content dark-glass text-white">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-warning" id="awardModalTitle">
+                        <i class="fa-solid fa-award"></i> 編輯榮譽專利獎項
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-3">
+                    <form id="awardForm">
+                        <input type="hidden" id="awd_id">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">國家/市場代碼</label>
+                                <select class="form-select" id="awd_country" required>
+                                    <option value="TW">台灣 (TW)</option>
+                                    <option value="MY">馬來西亞 (MY)</option>
+                                    <option value="GLOBAL">國際認證 (GLOBAL)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">獎項類別代碼</label>
+                                <select class="form-select" id="awd_cat" required>
+                                    <option value="SNQ">SNQ 國家品質標章</option>
+                                    <option value="ITEX">ITEX 國際發明展</option>
+                                    <option value="ESG">ESG 永續企業</option>
+                                    <option value="BRAND">標竿生技品牌</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">獲獎年份 (YYYY)</label>
+                                <input type="number" class="form-control" id="awd_year" required placeholder="如 2026">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">獎項全銜名稱</label>
+                                <input type="text" class="form-control" id="awd_name" required placeholder="如 SNQ 國家品質標章（康爾喜）">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">頒獎機構 / 評鑑單位</label>
+                                <input type="text" class="form-control" id="awd_org" required placeholder="如 國家生技醫療產業策進會">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">獲獎專利與技術突破摘要</label>
+                                <textarea class="form-control" id="awd_desc" rows="3" placeholder="請填寫評鑑通過事蹟與技術突破..."></textarea>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted">獎章 / 證書圖檔 URL</label>
+                                <input type="url" class="form-control" id="awd_badge" required placeholder="https://...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">排序權重</label>
+                                <input type="number" class="form-control" id="awd_order" value="999">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small text-muted">展示開關</label>
+                                <select class="form-select" id="awd_active">
+                                    <option value="true">啟用 (True)</option>
+                                    <option value="false">隱藏 (False)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-gold btn-sm" id="btnSaveAward">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存暫存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="syncDiffModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content dark-glass text-white">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-cloud-bolt text-warning"></i> 葡眾官方網站資料比對引擎
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-dark border-secondary small mb-3">
+                        <i class="fa-solid fa-info-circle text-info"></i> 已由官方發布端點爬取最新公開資料，比對結果如下：
+                    </div>
+                    <div id="diffResultsContainer">
+                        </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消同步</button>
+                    <button type="button" class="btn btn-neon-gold btn-sm" id="btnApplyOfficialSync">
+                        <i class="fa-solid fa-circle-check"></i> 確認整併進本機工作區
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        /**
+         * =========================================================================
+         * 1. 欄位解耦字典與設定 (sys_api_configs / 表49 規範)
+         * =========================================================================
+         */
+        const TRN_FIELD_ADAPTER = {
+            "trn_milestones": {
+                "ms_id": "大事記編號",
+                "ms_country": "國家",
+                "ms_year": "發生年份",
+                "ms_date": "發生日期",
+                "ms_title": "事件標題",
+                "ms_desc": "詳細說明",
+                "ms_img": "歷史照片URL",
+                "ms_tag": "高亮標籤",
+                "ms_order": "排序權重",
+                "ms_active": "啟用狀態",
+                "ms_creator": "建立者",
+                "ms_created_at": "建立時間",
+                "ms_updater": "異動者",
+                "ms_updated_at": "異動時間"
+            },
+            "trn_awards": {
+                "awd_id": "獎項編號",
+                "awd_country": "國家",
+                "awd_name": "獎項名稱",
+                "awd_org": "頒獎單位",
+                "awd_year": "獲獎年份",
+                "awd_date": "公佈日期",
+                "awd_cat": "獎項類別",
+                "awd_badge": "獎章圖檔URL",
+                "awd_desc": "獲獎說明",
+                "awd_order": "排序權重",
+                "awd_active": "啟用狀態",
+                "awd_creator": "建立者",
+                "awd_created_at": "建立時間",
+                "awd_updater": "異動者",
+                "awd_updated_at": "異動時間"
+            }
+        };
+
+        // 系統工作狀態樹 (State Tree)
+        let state = {
+            milestones: [],
+            awards: [],
+            hasUnsavedChanges: false,
+            currentTableMode: 'AWARDS', // 'AWARDS' or 'MILESTONES'
+            dataTableInstance: null
+        };
+
+        // 模擬 Google Sheets 初始資料庫數據 (含審計軌跡)
+        const initialMilestones = [
+            {
+                ms_id: "MS_2026_01",
+                ms_country: "TW",
+                ms_year: 2026,
+                ms_date: "2026-03-15",
+                ms_title: "AI 賦能智慧戰情室正式上線",
+                ms_desc: "葡眾榮祥體系全面導入數位化軍備庫，實現經銷夥伴 100% 雲端數據即時協同。",
+                ms_img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80",
+                ms_tag: "數位轉型",
+                ms_order: 1,
+                ms_active: true,
+                ms_creator: "系統管理員",
+                ms_created_at: "2026-01-10 10:00",
+                ms_updater: "系統管理員",
+                ms_updated_at: "2026-03-15 14:20"
+            },
+            {
+                ms_id: "MS_2024_01",
+                ms_country: "MY",
+                ms_year: 2024,
+                ms_date: "2024-06-20",
+                ms_title: "跨足海外：馬來西亞吉隆坡分公司正式啟航",
+                ms_desc: "進軍東協市場關鍵里程碑，落實全球化國際生技戰略版圖佈局。",
+                ms_img: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80",
+                ms_tag: "國際佈局",
+                ms_order: 2,
+                ms_active: true,
+                ms_creator: "SYSTEM",
+                ms_created_at: "2024-06-20 09:00",
+                ms_updater: "SYSTEM",
+                ms_updated_at: "2024-06-20 09:00"
+            },
+            {
+                ms_id: "MS_2020_01",
+                ms_country: "TW",
+                ms_year: 2020,
+                ms_date: "2020-12-31",
+                ms_title: "年度營收突破百億大關",
+                ms_desc: "榮登台灣本土直銷第一大企業寶座，改寫生技傳銷歷史新紀元。",
+                ms_img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+                ms_tag: "百億營收",
+                ms_order: 3,
+                ms_active: true,
+                ms_creator: "SYSTEM",
+                ms_created_at: "2020-12-31 18:00",
+                ms_updater: "SYSTEM",
+                ms_updated_at: "2020-12-31 18:00"
+            }
+        ];
+
+        const initialAwards = [
+            {
+                awd_id: "AWD_01",
+                awd_country: "TW",
+                awd_name: "SNQ 國家品質標章（康爾喜/995）",
+                awd_org: "國家生技醫療產業策進會 (生策會)",
+                awd_year: 2025,
+                awd_date: "2025-11-10",
+                awd_cat: "SNQ",
+                awd_badge: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+                awd_desc: "多層包埋乳酸菌專利與高規格發酵液品質獲國家級權威認證。",
+                awd_order: 1,
+                awd_active: true,
+                awd_creator: "SYSTEM",
+                awd_created_at: "2025-11-11 08:30",
+                awd_updater: "SYSTEM",
+                awd_updated_at: "2025-11-11 08:30"
+            },
+            {
+                awd_id: "AWD_02",
+                awd_country: "GLOBAL",
+                awd_name: "ITEX 國際發明展金牌獎",
+                awd_org: "馬來西亞國際發明展組委會",
+                awd_year: 2024,
+                awd_date: "2024-05-14",
+                awd_cat: "ITEX",
+                awd_badge: "https://images.unsplash.com/photo-1569683795645-b62e50fbf103?auto=format&fit=crop&w=600&q=80",
+                awd_desc: "猴頭菇菌絲體發酵專利技術擊敗各國強敵奪得國際金牌肯定。",
+                awd_order: 2,
+                awd_active: true,
+                awd_creator: "SYSTEM",
+                awd_created_at: "2024-05-15 10:00",
+                awd_updater: "SYSTEM",
+                awd_updated_at: "2024-05-15 10:00"
+            },
+            {
+                awd_id: "AWD_03",
+                awd_country: "TW",
+                awd_name: "天下永續公民獎 (ESG Top 50)",
+                awd_org: "天下雜誌",
+                awd_year: 2024,
+                awd_date: "2024-09-08",
+                awd_cat: "ESG",
+                awd_badge: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80",
+                awd_desc: "落實綠色包材研發、深耕社會公益回饋與透明誠信治理。",
+                awd_order: 3,
+                awd_active: true,
+                awd_creator: "SYSTEM",
+                awd_created_at: "2024-09-10 11:00",
+                awd_updater: "SYSTEM",
+                awd_updated_at: "2024-09-10 11:00"
+            }
+        ];
+
+        /**
+         * =========================================================================
+         * 2. 資料解耦轉接器 (Decoupling Transformer)
+         * =========================================================================
+         */
+        function mapFromSpreadsheet(rawRows, adapter) {
+            return rawRows.map(row => {
+                const item = {};
+                for (const [aliasKey, sheetHeader] of Object.entries(adapter)) {
+                    item[aliasKey] = row[sheetHeader] !== undefined ? row[sheetHeader] : row[aliasKey];
+                }
+                return item;
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 3. 系統初始化與渲染調度
+         * =========================================================================
+         */
+        $(document).ready(function() {
+            // 初始化載入
+            state.milestones = [...initialMilestones];
+            state.awards = [...initialAwards];
+
+            renderAllViews();
+            bindEventHandlers();
+        });
+
+        function renderAllViews() {
+            const country = $('#globalCountryFilter').val();
+            renderTimeline(country);
+            renderAwardVault(country);
+            renderMatrixTable();
+            updateUnsavedBadge();
+        }
+
+        function markUnsaved() {
+            state.hasUnsavedChanges = true;
+            updateUnsavedBadge();
+        }
+
+        function updateUnsavedBadge() {
+            const badge = $('#unsavedIndicator');
+            if (state.hasUnsavedChanges) {
+                badge.removeClass('bg-secondary').addClass('bg-warning text-dark');
+                badge.html('<i class="fa-solid fa-circle-exclamation"></i> 尚有未儲存變更');
+            } else {
+                badge.removeClass('bg-warning text-dark').addClass('bg-secondary text-light');
+                badge.html('<i class="fa-solid fa-check-double"></i> 資料庫已同步');
+            }
+        }
+
+        /**
+         * =========================================================================
+         * 4. 視圖 1 渲染：時空脈動時間軸 (Neo-Timeline)
+         * =========================================================================
+         */
+        function renderTimeline(country = 'ALL') {
+            const container = $('#milestoneTimelineContainer');
+            container.empty();
+
+            let list = state.milestones.filter(m => m.ms_active);
+            if (country !== 'ALL') {
+                list = list.filter(m => m.ms_country === country);
+            }
+
+            list.sort((a, b) => b.ms_year - a.ms_year || a.ms_order - b.ms_order);
+
+            if (list.length === 0) {
+                container.html('<div class="text-center text-muted py-5"><i class="fa-solid fa-inbox fs-3 mb-2"></i><p>暫無符合之大事記紀錄</p></div>');
+                return;
+            }
+
+            list.forEach((item, idx) => {
+                const isEven = idx % 2 === 0;
+                const countryLabel = item.ms_country === 'TW' ? '台灣 TW' : (item.ms_country === 'MY' ? '馬來西亞 MY' : '跨國 GLOBAL');
+
+                const nodeHtml = `
+                    <div class="timeline-block row g-0">
+                        <div class="timeline-dot"></div>
+                        <div class="col-md-6 timeline-card-wrapper ${isEven ? 'pe-md-4' : 'ps-md-4'}">
+                            <div class="timeline-card">
+                                <div class="timeline-card-actions">
+                                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="editMilestone('${item.ms_id}')" title="編輯大事記">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteMilestone('${item.ms_id}')" title="刪除大事記">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-purple px-3 py-1 fs-6 fw-bold" style="background-color: var(--purple-primary);">
+                                        <i class="fa-regular fa-calendar-check"></i> ${item.ms_year}
+                                    </span>
+                                    <div class="me-4 me-md-5">
+                                        <span class="pill-neon me-1">${item.ms_tag || '重要里程碑'}</span>
+                                        <span class="badge bg-dark border border-secondary">${countryLabel}</span>
+                                    </div>
+                                </div>
+                                <h5 class="fw-bold text-white mb-2">${item.ms_title}</h5>
+                                <p class="text-muted small mb-3">${item.ms_desc}</p>
+                                ${item.ms_img ? `
+                                    <div class="rounded-3 overflow-hidden" style="max-height: 200px;">
+                                        <img src="${item.ms_img}" alt="${item.ms_title}" class="w-100 object-fit-cover">
+                                    </div>
+                                ` : ''}
+                                <div class="mt-3 pt-2 border-top border-secondary small text-muted d-flex justify-content-between">
+                                    <span><i class="fa-solid fa-user-pen"></i> ${item.ms_updater || 'SYSTEM'}</span>
+                                    <span><i class="fa-solid fa-clock"></i> ${item.ms_updated_at || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(nodeHtml);
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 5. 視圖 2 渲染：榮譽全息陳列館 (Honor Vault)
+         * =========================================================================
+         */
+        function renderAwardVault(country = 'ALL', catFilter = 'ALL') {
+            const container = $('#awardVaultContainer');
+            container.empty();
+
+            let list = state.awards.filter(a => a.awd_active);
+            if (country !== 'ALL') {
+                list = list.filter(a => a.awd_country === country);
+            }
+            if (catFilter !== 'ALL') {
+                list = list.filter(a => a.awd_cat === catFilter);
+            }
+
+            list.sort((a, b) => b.awd_year - a.awd_year || a.awd_order - b.awd_order);
+
+            if (list.length === 0) {
+                container.html('<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-award fs-3 mb-2"></i><p>暫無此分類之榮譽獎項</p></div>');
+                return;
+            }
+
+            list.forEach(item => {
+                const categoryNames = {
+                    'SNQ': 'SNQ 國家品質',
+                    'ITEX': 'ITEX 國際金牌',
+                    'ESG': 'ESG 永續實踐',
+                    'BRAND': '標竿品牌'
+                };
+                const catLabel = categoryNames[item.awd_cat] || item.awd_cat;
+
+                const cardHtml = `
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="trophy-vault-card">
+                            <div class="trophy-badge-container">
+                                <img src="${item.awd_badge}" alt="${item.awd_name}" loading="lazy">
+                                <div class="trophy-actions-float">
+                                    <button class="btn btn-sm btn-dark border-secondary py-1 px-2" onclick="editAward('${item.awd_id}')">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger py-1 px-2 ms-1" onclick="deleteAward('${item.awd_id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="pill-gold"><i class="fa-solid fa-award"></i> ${item.awd_year} 年度</span>
+                                    <span class="pill-neon">${catLabel}</span>
+                                </div>
+                                <h6 class="fw-bold text-white mb-1 text-truncate" title="${item.awd_name}">${item.awd_name}</h6>
+                                <div class="text-muted small mb-2 text-truncate"><i class="fa-solid fa-landmark"></i> ${item.awd_org}</div>
+                                <p class="text-muted small flex-grow-1 mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.82rem;">
+                                    ${item.awd_desc || '官方專利技術認證與品質審查通過。'}
+                                </p>
+                                <div class="pt-2 border-top border-secondary small text-muted d-flex justify-content-between">
+                                    <span>${item.awd_country === 'TW' ? '🇹🇼 台灣' : (item.awd_country === 'MY' ? '🇲🇾 馬來西亞' : '🌐 國際')}</span>
+                                    <span><i class="fa-solid fa-clock"></i> ${item.awd_updated_at ? item.awd_updated_at.split(' ')[0] : '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 6. 視圖 3 渲染：DataTable 數據總表
+         * =========================================================================
+         */
+        function renderMatrixTable() {
+            const thead = $('#matrixTableHead');
+            const tbody = $('#matrixTableBody');
+
+            if (state.dataTableInstance) {
+                state.dataTableInstance.destroy();
+            }
+            thead.empty();
+            tbody.empty();
+
+            if (state.currentTableMode === 'AWARDS') {
+                thead.html(`
+                    <tr>
+                        <th>年份</th>
+                        <th>國家</th>
+                        <th>獎項名稱</th>
+                        <th>頒獎機構</th>
+                        <th>類別</th>
+                        <th>狀態</th>
+                        <th>異動者</th>
+                        <th>異動時間</th>
+                        <th>操作</th>
+                    </tr>
+                `);
+
+                state.awards.forEach(item => {
+                    const tr = `
+                        <tr>
+                            <td><span class="badge bg-purple" style="background-color: var(--purple-primary);">${item.awd_year}</span></td>
+                            <td>${item.awd_country}</td>
+                            <td class="fw-bold text-white">${item.awd_name}</td>
+                            <td>${item.awd_org}</td>
+                            <td><span class="pill-neon">${item.awd_cat}</span></td>
+                            <td>
+                                <span class="status-bulb ${item.awd_active ? 'active' : 'inactive'}"></span>
+                                ${item.awd_active ? '展示中' : '已隱藏'}
+                            </td>
+                            <td>${item.awd_updater || 'SYSTEM'}</td>
+                            <td class="small text-muted">${item.awd_updated_at || '-'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="editAward('${item.awd_id}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteAward('${item.awd_id}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(tr);
+                });
+            } else {
+                thead.html(`
+                    <tr>
+                        <th>年份</th>
+                        <th>國家</th>
+                        <th>事件標題</th>
+                        <th>標籤</th>
+                        <th>歷史意涵說明</th>
+                        <th>狀態</th>
+                        <th>異動者</th>
+                        <th>異動時間</th>
+                        <th>操作</th>
+                    </tr>
+                `);
+
+                state.milestones.forEach(item => {
+                    const tr = `
+                        <tr>
+                            <td><span class="badge bg-purple" style="background-color: var(--purple-primary);">${item.ms_year}</span></td>
+                            <td>${item.ms_country}</td>
+                            <td class="fw-bold text-white">${item.ms_title}</td>
+                            <td><span class="pill-gold">${item.ms_tag || '-'}</span></td>
+                            <td class="small text-muted text-truncate" style="max-width: 250px;">${item.ms_desc}</td>
+                            <td>
+                                <span class="status-bulb ${item.ms_active ? 'active' : 'inactive'}"></span>
+                                ${item.ms_active ? '展示中' : '已隱藏'}
+                            </td>
+                            <td>${item.ms_updater || 'SYSTEM'}</td>
+                            <td class="small text-muted">${item.ms_updated_at || '-'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="editMilestone('${item.ms_id}')">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteMilestone('${item.ms_id}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(tr);
+                });
+            }
+
+            state.dataTableInstance = $('#matrixDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "矩陣快速搜尋：",
+                    lengthMenu: "顯示 _MENU_ 筆",
+                    info: "第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆資料",
+                    paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" },
+                    zeroRecords: "查無符合紀錄"
+                }
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 7. CRUD 實作：企業大事記 (trn_milestones)
+         * =========================================================================
+         */
+        window.openMilestoneModal = function() {
+            $('#milestoneModalTitle').html('<i class="fa-solid fa-plus-circle text-purple-light"></i> 新增企業大事記 (表17)');
+            $('#ms_id').val('');
+            $('#milestoneForm')[0].reset();
+            $('#ms_order').val('999');
+            $('#ms_active').val('true');
+            new bootstrap.Modal(document.getElementById('milestoneModal')).show();
+        };
+
+        window.editMilestone = function(id) {
+            const item = state.milestones.find(m => m.ms_id === id);
+            if (!item) return;
+
+            $('#milestoneModalTitle').html('<i class="fa-solid fa-pen-to-square text-purple-light"></i> 編輯企業大事記');
+            $('#ms_id').val(item.ms_id);
+            $('#ms_country').val(item.ms_country);
+            $('#ms_year').val(item.ms_year);
+            $('#ms_date').val(item.ms_date || '');
+            $('#ms_title').val(item.ms_title);
+            $('#ms_tag').val(item.ms_tag || '');
+            $('#ms_desc').val(item.ms_desc);
+            $('#ms_img').val(item.ms_img || '');
+            $('#ms_order').val(item.ms_order);
+            $('#ms_active').val(item.ms_active ? 'true' : 'false');
+
+            new bootstrap.Modal(document.getElementById('milestoneModal')).show();
+        };
+
+        window.deleteMilestone = function(id) {
+            if (confirm('確定要刪除此大事記項目嗎？此操作將在儲存後永久生效。')) {
+                state.milestones = state.milestones.filter(m => m.ms_id !== id);
+                markUnsaved();
+                renderAllViews();
+            }
+        };
+
+        $('#btnSaveMilestone').on('click', function() {
+            const id = $('#ms_id').val();
+            const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+            const payload = {
+                ms_id: id || 'MS_' + Date.now(),
+                ms_country: $('#ms_country').val(),
+                ms_year: parseInt($('#ms_year').val(), 10),
+                ms_date: $('#ms_date').val() || null,
+                ms_title: $('#ms_title').val(),
+                ms_tag: $('#ms_tag').val(),
+                ms_desc: $('#ms_desc').val(),
+                ms_img: $('#ms_img').val(),
+                ms_order: parseInt($('#ms_order').val(), 10) || 999,
+                ms_active: $('#ms_active').val() === 'true',
+                ms_creator: id ? (state.milestones.find(m => m.ms_id === id)?.ms_creator || '系統管理員') : '核心管理員',
+                ms_created_at: id ? (state.milestones.find(m => m.ms_id === id)?.ms_created_at || nowStr) : nowStr,
+                ms_updater: '核心管理員',
+                ms_updated_at: nowStr
+            };
+
+            if (!payload.ms_title || !payload.ms_year) {
+                alert('請完整填寫標題與年份！');
+                return;
+            }
+
+            if (id) {
+                const idx = state.milestones.findIndex(m => m.ms_id === id);
+                if (idx !== -1) state.milestones[idx] = payload;
+            } else {
+                state.milestones.unshift(payload);
+            }
+
+            markUnsaved();
+            bootstrap.Modal.getInstance(document.getElementById('milestoneModal')).hide();
+            renderAllViews();
+        });
+
+        /**
+         * =========================================================================
+         * 8. CRUD 實作：榮譽獎項 (trn_awards)
+         * =========================================================================
+         */
+        window.openAwardModal = function() {
+            $('#awardModalTitle').html('<i class="fa-solid fa-plus-circle text-warning"></i> 新增榮譽專利獎項 (表18)');
+            $('#awd_id').val('');
+            $('#awardForm')[0].reset();
+            $('#awd_order').val('999');
+            $('#awd_active').val('true');
+            new bootstrap.Modal(document.getElementById('awardModal')).show();
+        };
+
+        window.editAward = function(id) {
+            const item = state.awards.find(a => a.awd_id === id);
+            if (!item) return;
+
+            $('#awardModalTitle').html('<i class="fa-solid fa-pen-to-square text-warning"></i> 編輯榮譽專利獎項');
+            $('#awd_id').val(item.awd_id);
+            $('#awd_country').val(item.awd_country);
+            $('#awd_cat').val(item.awd_cat);
+            $('#awd_year').val(item.awd_year);
+            $('#awd_name').val(item.awd_name);
+            $('#awd_org').val(item.awd_org);
+            $('#awd_desc').val(item.awd_desc || '');
+            $('#awd_badge').val(item.awd_badge);
+            $('#awd_order').val(item.awd_order);
+            $('#awd_active').val(item.awd_active ? 'true' : 'false');
+
+            new bootstrap.Modal(document.getElementById('awardModal')).show();
+        };
+
+        window.deleteAward = function(id) {
+            if (confirm('確定要刪除此獎項紀錄嗎？')) {
+                state.awards = state.awards.filter(a => a.awd_id !== id);
+                markUnsaved();
+                renderAllViews();
+            }
+        };
+
+        $('#btnSaveAward').on('click', function() {
+            const id = $('#awd_id').val();
+            const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+            const payload = {
+                awd_id: id || 'AWD_' + Date.now(),
+                awd_country: $('#awd_country').val(),
+                awd_cat: $('#awd_cat').val(),
+                awd_year: parseInt($('#awd_year').val(), 10),
+                awd_name: $('#awd_name').val(),
+                awd_org: $('#awd_org').val(),
+                awd_desc: $('#awd_desc').val(),
+                awd_badge: $('#awd_badge').val(),
+                awd_order: parseInt($('#awd_order').val(), 10) || 999,
+                awd_active: $('#awd_active').val() === 'true',
+                awd_creator: id ? (state.awards.find(a => a.awd_id === id)?.awd_creator || '系統管理員') : '核心管理員',
+                awd_created_at: id ? (state.awards.find(a => a.awd_id === id)?.awd_created_at || nowStr) : nowStr,
+                awd_updater: '核心管理員',
+                awd_updated_at: nowStr
+            };
+
+            if (!payload.awd_name || !payload.awd_org || !payload.awd_year) {
+                alert('請完整填寫獎項名稱、頒獎機構與年份！');
+                return;
+            }
+
+            if (id) {
+                const idx = state.awards.findIndex(a => a.awd_id === id);
+                if (idx !== -1) state.awards[idx] = payload;
+            } else {
+                state.awards.unshift(payload);
+            }
+
+            markUnsaved();
+            bootstrap.Modal.getInstance(document.getElementById('awardModal')).hide();
+            renderAllViews();
+        });
+
+        /**
+         * =========================================================================
+         * 9. 一鍵跟公司官方網站同步 (Diff Sync Engine)
+         * =========================================================================
+         */
+        let stagedSyncAwards = [];
+
+        $('#btnSyncOfficial').on('click', function() {
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 正在爬取官方最新數據...');
+
+            // 模擬請求官方網頁最新公佈得獎資料 (含差異比對)
+            setTimeout(() => {
+                btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 一鍵跟公司網站同步');
+
+                // 官方遠端最新抓取項目
+                const remoteOfficialAwards = [
+                    {
+                        awd_id: "AWD_REMOTE_2026",
+                        awd_country: "GLOBAL",
+                        awd_name: "2026 瑞士日內瓦國際發明展 - 評審團金牌獎 (樟芝菌絲體)",
+                        awd_org: "日內瓦國際發明展組委會",
+                        awd_year: 2026,
+                        awd_cat: "ITEX",
+                        awd_badge: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80",
+                        awd_desc: "葡眾生物科技研發團隊專利發酵固態培養技術，榮獲日內瓦國際發明展全場評審一致肯定。",
+                        awd_order: 1,
+                        awd_active: true,
+                        awd_creator: "官方同步引擎",
+                        awd_updater: "官方同步引擎"
+                    }
+                ];
+
+                stagedSyncAwards = remoteOfficialAwards;
+
+                let diffHtml = `
+                    <div class="table-responsive">
+                        <table class="table table-dark table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>類型</th>
+                                    <th>年份</th>
+                                    <th>項目名稱</th>
+                                    <th>機構</th>
+                                    <th>狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                stagedSyncAwards.forEach(item => {
+                    diffHtml += `
+                        <tr>
+                            <td><span class="badge bg-warning text-dark">新發現</span></td>
+                            <td>${item.awd_year}</td>
+                            <td class="fw-bold text-white">${item.awd_name}</td>
+                            <td>${item.awd_org}</td>
+                            <td><i class="fa-solid fa-circle-plus text-success"></i> 待整併入庫</td>
+                        </tr>
+                    `;
+                });
+                diffHtml += `</tbody></table></div>`;
+
+                $('#diffResultsContainer').html(diffHtml);
+                new bootstrap.Modal(document.getElementById('syncDiffModal')).show();
+            }, 900);
+        });
+
+        $('#btnApplyOfficialSync').on('click', function() {
+            if (stagedSyncAwards.length > 0) {
+                const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+                stagedSyncAwards.forEach(item => {
+                    item.awd_created_at = nowStr;
+                    item.awd_updated_at = nowStr;
+                    state.awards.unshift(item);
+                });
+                markUnsaved();
+                renderAllViews();
+                bootstrap.Modal.getInstance(document.getElementById('syncDiffModal')).hide();
+                alert('官方資料已成功整併至工作區！請點擊「一鍵存入資料表」持久化。');
+            }
+        });
+
+        /**
+         * =========================================================================
+         * 10. 修改後一鍵存入資料表 (Batch Commit API)
+         * =========================================================================
+         */
+        $('#btnSaveToSheets').on('click', function() {
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 正在回寫 Google 試算表...');
+
+            // 準備解耦還原之資料 Payload
+            const payload = {
+                trn_milestones: state.milestones,
+                trn_awards: state.awards,
+                committed_at: new Date().toISOString(),
+                operator: "核心管理幹部"
+            };
+
+            console.log("【發送 Google Apps Script 批次更新 Payload】:", payload);
+
+            // 模擬向 Google Apps Script Web App 提交非同步 POST
+            setTimeout(() => {
+                btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-up"></i> 修改後一鍵存入資料表');
+                state.hasUnsavedChanges = false;
+                updateUnsavedBadge();
+                alert('✅ 大事記 (表17) 與 榮譽獎項 (表18) 資料已成功批次寫入 Google Sheets 雲端資料庫！');
+            }, 1200);
+        });
+
+        /**
+         * =========================================================================
+         * 11. 篩選器與事件交互綁定
+         * =========================================================================
+         */
+        function bindEventHandlers() {
+            // 國家市場篩選聯動
+            $('#globalCountryFilter').on('change', function() {
+                const country = $(this).val();
+                renderTimeline(country);
+                renderAwardVault(country);
+            });
+
+            // 獎項類別按鈕切換
+            $('#awardCategoryFilters button').on('click', function() {
+                $('#awardCategoryFilters button').removeClass('active');
+                $(this).addClass('active');
+                const cat = $(this).data('cat');
+                const country = $('#globalCountryFilter').val();
+                renderAwardVault(country, cat);
+            });
+
+            // 總表切換顯示 大事記 / 榮譽獎項
+            $('#btnShowAwardsTable').on('click', function() {
+                $('#btnShowAwardsTable').addClass('active');
+                $('#btnShowMilestonesTable').removeClass('active');
+                state.currentTableMode = 'AWARDS';
+                renderMatrixTable();
+            });
+
+            $('#btnShowMilestonesTable').on('click', function() {
+                $('#btnShowMilestonesTable').addClass('active');
+                $('#btnShowAwardsTable').removeClass('active');
+                state.currentTableMode = 'MILESTONES';
+                renderMatrixTable();
+            });
+        }
+    </script>
+</body>
+</html>

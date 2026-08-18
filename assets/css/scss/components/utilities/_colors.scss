@@ -1,0 +1,395 @@
+@use "sass:color";
+@use "sass:map";
+@use "sass:math";
+
+// ==========================================================================
+// UVACO Theme Extended Component SCSS Generator (v5.3 Fully Aligned)
+// 色彩順序：primary -> secondary -> accent -> muted -> success -> info -> warning -> danger -> light -> dark
+// ==========================================================================
+
+// 1. 定義語意 Key 清單對接原生 CSS 變數
+$uvaco-theme-colors: (
+    "primary":   var(--uvaco-primary),
+    "secondary": var(--uvaco-secondary),
+    "accent":    var(--uvaco-accent),
+    "muted":     var(--uvaco-muted),
+    "success":   var(--uvaco-success),
+    "info":      var(--uvaco-info),
+    "warning":   var(--uvaco-warning),
+    "danger":    var(--uvaco-danger),
+    "light":     var(--uvaco-light),
+    "dark":      var(--uvaco-dark)
+) !default;
+
+// 1.1 為不同語意 Key 提供精準的預設對比文字色 fallback (解決 WCAG 可讀性問題)
+$uvaco-contrast-fallbacks: (
+    "primary":   var(--uvaco-text-dark),
+    "secondary": var(--uvaco-text-dark),
+    "accent":    var(--uvaco-text-dark),
+    "muted":     var(--uvaco-text-dark),
+    "success":   var(--uvaco-text-dark),
+    "info":      var(--uvaco-text-dark),
+    "warning":   var(--uvaco-text-dark),
+    "danger":    var(--uvaco-text-dark),
+    "light":     var(--uvaco-text-dark),
+    "dark":      var(--uvaco-text-light)
+) !default;
+
+// ==========================================================================
+// 2. 迴圈自動生成工具類與組件（對接 Bootstrap v5.3 原生 Custom Properties）
+// ==========================================================================
+
+@each $key, $value in $uvaco-theme-colors {
+    $prefixes: ("uvaco-#{$key}", $key);
+    $default-contrast: map.get($uvaco-contrast-fallbacks, $key);
+
+    @each $name in $prefixes {
+        // --- Backgrounds (.bg-*, .bg-*-subtle, .text-bg-*) ---
+        .bg-#{$name} {
+            color: var(--uvaco-#{$key}-contrast, #{$default-contrast}) !important;
+            background-color: var(--uvaco-#{$key}) !important;
+        }
+        .bg-#{$name}-subtle {
+            background-color: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key})) !important;
+        }
+        .text-bg-#{$name} {
+            color: var(--uvaco-#{$key}-contrast, #{$default-contrast}) !important;
+            background-color: var(--uvaco-#{$key}) !important;
+        }
+
+        // --- Text & Links (.text-*, .text-*-emphasis, .link-*) ---
+        .text-#{$name} {
+            color: var(--uvaco-#{$key}) !important;
+        }
+        .text-#{$name}-emphasis {
+            color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key})) !important;
+        }
+        .link-#{$name} {
+            color: var(--uvaco-#{$key});
+            &:hover, &:focus {
+                color: var(--uvaco-#{$key}-hover);
+            }
+        }
+
+        // --- Borders (.border-*, .border-*-subtle) ---
+        .border-#{$name} {
+            border-color: var(--uvaco-#{$key}) !important;
+        }
+        .border-#{$name}-subtle {
+            border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color)) !important;
+        }
+
+        // --- Focus Rings (.focus-ring-*) ---
+        .focus-ring-#{$name} {
+            --bs-focus-ring-color: rgba(var(--bs-#{$key}-rgb), 0.25);
+        }
+
+        // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
+        .btn-#{$name} {
+            --bs-btn-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-bg: var(--uvaco-#{$key});
+            --bs-btn-border-color: var(--uvaco-#{$key});
+            --bs-btn-hover-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-hover-bg: var(--uvaco-#{$key}-hover);
+            --bs-btn-hover-border-color: var(--uvaco-#{$key}-hover);
+            --bs-btn-focus-shadow-rgb: var(--bs-#{$key}-rgb);
+            --bs-btn-active-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-active-bg: var(--uvaco-#{$key}-hover);
+            --bs-btn-active-border-color: var(--uvaco-#{$key}-hover);
+            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-bg: var(--uvaco-#{$key});
+            --bs-btn-disabled-border-color: var(--uvaco-#{$key});
+        }
+
+        .btn-outline-#{$name} {
+            --bs-btn-color: var(--uvaco-#{$key});
+            --bs-btn-border-color: var(--uvaco-#{$key});
+            --bs-btn-hover-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-hover-bg: var(--uvaco-#{$key});
+            --bs-btn-hover-border-color: var(--uvaco-#{$key});
+            --bs-btn-focus-shadow-rgb: var(--bs-#{$key}-rgb);
+            --bs-btn-active-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+            --bs-btn-active-bg: var(--uvaco-#{$key});
+            --bs-btn-active-border-color: var(--uvaco-#{$key});
+            --bs-btn-disabled-color: var(--uvaco-#{$key});
+            --bs-btn-disabled-bg: transparent;
+            --bs-btn-disabled-border-color: var(--uvaco-#{$key});
+        }
+
+        .btn-#{$name}-subtle {
+            --bs-btn-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            --bs-btn-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-btn-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+            --bs-btn-hover-color: #ffffff;
+            --bs-btn-hover-bg: var(--uvaco-#{$key});
+            --bs-btn-hover-border-color: var(--uvaco-#{$key});
+            --bs-btn-focus-shadow-rgb: var(--bs-#{$key}-rgb);
+            --bs-btn-active-color: #ffffff;
+            --bs-btn-active-bg: var(--uvaco-#{$key}-hover);
+            --bs-btn-active-border-color: var(--uvaco-#{$key}-hover);
+            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-btn-disabled-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+        }
+
+        .btn-outline-#{$name}-subtle {
+            --bs-btn-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            --bs-btn-bg: transparent;
+            --bs-btn-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+            --bs-btn-hover-color: #ffffff;
+            --bs-btn-hover-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-btn-hover-border-color: var(--uvaco-#{$key});
+            --bs-btn-focus-shadow-rgb: var(--bs-#{$key}-rgb);
+            --bs-btn-active-color: #ffffff;
+            --bs-btn-active-bg: var(--uvaco-#{$key});
+            --bs-btn-active-border-color: var(--uvaco-#{$key});
+            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-bg: transparent;
+            --bs-btn-disabled-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+        }
+
+        // --- Badges (.badge-*-subtle) ---
+        .badge-#{$name}-subtle {
+            background-color: var(--bs-#{$key}-bg-subtle);
+            color: var(--bs-#{$key}-text-emphasis);
+            border: 1px solid var(--bs-#{$key}-border-subtle);
+        }
+
+        // --- Alerts (.alert-*) ---
+        .alert-#{$name} {
+            --bs-alert-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            --bs-alert-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-alert-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+            --bs-alert-link-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+        }
+
+        // --- List Group (.list-group-item-*) ---
+        .list-group-item-#{$name} {
+            color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            background-color: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+
+            &.list-group-item-action {
+                &:hover, &:focus {
+                    color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+                    background-color: var(--uvaco-bg-card-#{$key}-hover);
+                }
+                &.active {
+                    color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
+                    background-color: var(--uvaco-#{$key});
+                    border-color: var(--uvaco-#{$key});
+                }
+            }
+        }
+
+        // --- Tables (.table-*) ---
+        .table-#{$name} {
+            --bs-table-color: var(--bs-#{$key}-text-emphasis, var(--uvaco-text-#{$key}));
+            --bs-table-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
+            --bs-table-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
+            --bs-table-striped-bg: var(--uvaco-bg-card-#{$key}-hover);
+            --bs-table-hover-bg: var(--uvaco-bg-card-#{$key}-hover);
+            --bs-table-active-bg: var(--uvaco-bg-card-#{$key}-hover);
+        }
+    }
+}
+
+// ==========================================================================
+// 3. Bootstrap 5 Extended Palette SCSS Generator (UVACO-Aligned Standards)
+// Colors: blue, indigo, purple, pink, red, orange, yellow, green, teal, cyan, white, gray, gray-dark, black
+// ==========================================================================
+
+// 🎯 UVACO 基準深色底色 (對接暗黑主題基底 #051811 / #060d19 / #0a0518 之平均沉降色)
+$uvaco-dark-base-bg: #070d19 !default;
+
+// 🎯 UVACO 標準 Extended Palette (經由 WCAG 人因對比度優化之色階 Map)
+$expanded-theme-colors: (
+    "blue":      #38bdf8, // 鋼鐵晴空藍 (對齊團隊版 secondary)
+    "indigo":    #6366f1, // 戰略靛藍
+    "purple":    #8b5cf6, // 魅影深紫 (對齊核心版 primary)
+    "pink":      #ec4899, // 霓虹粉 (對齊核心版 accent)
+    "red":       #ef4444, // 危險玫瑰紅 (對齊 danger)
+    "orange":    #f97316, // 活力亮橘
+    "yellow":    #fde047, // 高感光純檸檬黃 (對齊純黃色系)
+    "green":     #10b981, // 翡翠草綠 (對齊公開版 primary)
+    "teal":      #14b8a6, // 科技藍綠
+    "cyan":      #06b6d4, // 戰略青藍 (對齊 info)
+    "white":     #ffffff, // 純白高亮
+    "gray":      #84a3be, // UVACO 莫蘭迪霧藍灰 (對齊 muted 色階)
+    "gray-dark": #0f172a, // 深沉灰色
+    "black":     #000000  // 純黑
+) !default;
+
+// 3.1 採用 W3C 相感亮度 (Relative Luminance) 演算器 (解決 HSL 算式之黃/綠色度盲點)
+@function get-wcag-contrast($color) {
+    $red: math.div(color.channel($color, "red", $space: rgb), 255);
+    $green: math.div(color.channel($color, "green", $space: rgb), 255);
+    $blue: math.div(color.channel($color, "blue", $space: rgb), 255);
+
+    // 人眼感光加權係數: 綠 71.52%, 紅 21.26%, 藍 7.22%
+    $luminance: (0.2126 * $red) + (0.7152 * $green) + (0.0722 * $blue);
+
+    @if ($luminance > 0.45) {
+        @return --uvaco-bg-primary; // 亮色背景對接深色字體 (UVACO 深色文字)
+    } @else {
+        @return #ffffff; // 暗色背景對接高高亮純白字
+    }
+}
+
+@each $name, $color in $expanded-theme-colors {
+    $contrast-text: get-wcag-contrast($color);
+    
+    // 🎯 UVACO 獨家：與動態主題底色 $uvaco-dark-base-bg 按比例調合，產生沉降微光 Subtles
+    $subtle-bg: color.mix($color, $uvaco-dark-base-bg, 16%);
+    $subtle-border: color.mix($color, $uvaco-dark-base-bg, 38%);
+    $emphasis-text: color.mix($color, #ffffff, 88%);
+
+    // --- Backgrounds (.bg-*, .bg-*-subtle, .text-bg-*) ---
+    .bg-#{$name} {
+        background-color: $color !important;
+    }
+    .bg-#{$name}-subtle {
+        background-color: $subtle-bg !important;
+    }
+    .text-bg-#{$name} {
+        color: $contrast-text !important;
+        background-color: $color !important;
+    }
+
+    // --- Text & Links (.text-*, .text-*-emphasis, .link-*) ---
+    .text-#{$name} {
+        color: $color !important;
+    }
+    .text-#{$name}-emphasis {
+        color: $emphasis-text !important;
+    }
+    .link-#{$name} {
+        color: $color;
+        &:hover, &:focus {
+            color: color.mix(#ffffff, $color, 25%);
+        }
+    }
+
+    // --- Borders (.border-*, .border-*-subtle) ---
+    .border-#{$name} {
+        border-color: $color !important;
+    }
+    .border-#{$name}-subtle {
+        border-color: $subtle-border !important;
+    }
+
+    // --- Focus Rings (.focus-ring-*) ---
+    .focus-ring-#{$name} {
+        --bs-focus-ring-color: #{color.change($color, $alpha: 0.3)};
+    }
+
+    // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
+    .btn-#{$name} {
+        --bs-btn-color: #{$contrast-text};
+        --bs-btn-bg: #{$color};
+        --bs-btn-border-color: #{$color};
+        --bs-btn-hover-color: #{$contrast-text};
+        --bs-btn-hover-bg: #{color.mix(#000000, $color, 15%)};
+        --bs-btn-hover-border-color: #{color.mix(#000000, $color, 20%)};
+        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-active-color: #{$contrast-text};
+        --bs-btn-active-bg: #{color.mix(#000000, $color, 25%)};
+        --bs-btn-active-border-color: #{color.mix(#000000, $color, 30%)};
+        --bs-btn-disabled-color: #{$contrast-text};
+        --bs-btn-disabled-bg: #{$color};
+        --bs-btn-disabled-border-color: #{$color};
+    }
+
+    .btn-outline-#{$name} {
+        --bs-btn-color: #{$color};
+        --bs-btn-border-color: #{$color};
+        --bs-btn-hover-color: #{$contrast-text};
+        --bs-btn-hover-bg: #{$color};
+        --bs-btn-hover-border-color: #{$color};
+        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-active-color: #{$contrast-text};
+        --bs-btn-active-bg: #{$color};
+        --bs-btn-active-border-color: #{$color};
+        --bs-btn-disabled-color: #{$color};
+        --bs-btn-disabled-bg: transparent;
+        --bs-btn-disabled-border-color: #{$color};
+    }
+
+    // 🌟 UVACO 擴充：.btn-#{$name}-subtle (低調微光實心按鈕)
+    .btn-#{$name}-subtle {
+        --bs-btn-color: #{$emphasis-text};
+        --bs-btn-bg: #{$subtle-bg};
+        --bs-btn-border-color: #{$subtle-border};
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #{color.mix($color, $uvaco-dark-base-bg, 40%)};
+        --bs-btn-hover-border-color: #{$color};
+        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-active-color: #ffffff;
+        --bs-btn-active-bg: #{$color};
+        --bs-btn-active-border-color: #{$color};
+        --bs-btn-disabled-color: #{color.mix(#ffffff, $uvaco-dark-base-bg, 35%)};
+        --bs-btn-disabled-bg: #{$subtle-bg};
+        --bs-btn-disabled-border-color: #{$subtle-border};
+    }
+
+    // 🌟 UVACO 擴充：.btn-outline-#{$name}-subtle (微光外框按鈕：Hover 時文字白、底色微亮、外框提亮)
+    .btn-outline-#{$name}-subtle {
+        --bs-btn-color: #{$emphasis-text};
+        --bs-btn-bg: transparent;
+        --bs-btn-border-color: #{$subtle-border};
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #{$subtle-bg};
+        --bs-btn-hover-border-color: #{color.mix($color, #ffffff, 25%)};
+        --bs-btn-focus-shadow-rgb: #{color.channel($color, "red", $space: rgb)}, #{color.channel($color, "green", $space: rgb)}, #{color.channel($color, "blue", $space: rgb)};
+        --bs-btn-active-color: #ffffff;
+        --bs-btn-active-bg: #{color.mix($color, $uvaco-dark-base-bg, 35%)};
+        --bs-btn-active-border-color: #{$color};
+        --bs-btn-disabled-color: #{color.mix(#ffffff, $uvaco-dark-base-bg, 25%)};
+        --bs-btn-disabled-bg: transparent;
+        --bs-btn-disabled-border-color: #{$subtle-border};
+    }
+
+    // --- Badges (.badge-*-subtle) ---
+    .badge-#{$name}-subtle {
+        background-color: #{$subtle-bg};
+        color: #{$emphasis-text};
+        border: 1px solid #{$subtle-border};
+    }
+
+    // --- Alerts (.alert-*) ---
+    .alert-#{$name} {
+        --bs-alert-color: #{$emphasis-text};
+        --bs-alert-bg: #{$subtle-bg};
+        --bs-alert-border-color: #{$subtle-border};
+        --bs-alert-link-color: #{color.mix(#ffffff, $emphasis-text, 15%)};
+    }
+
+    // --- List Group (.list-group-item-*) ---
+    .list-group-item-#{$name} {
+        color: $emphasis-text;
+        background-color: $subtle-bg;
+        border-color: $subtle-border;
+
+        &.list-group-item-action {
+            &:hover, &:focus {
+                color: $emphasis-text;
+                background-color: color.mix(#ffffff, $subtle-bg, 6%);
+            }
+            &.active {
+                color: $contrast-text;
+                background-color: $color;
+                border-color: $color;
+            }
+        }
+    }
+
+    // --- Tables (.table-*) ---
+    .table-#{$name} {
+        --bs-table-color: #{$emphasis-text};
+        --bs-table-bg: #{$subtle-bg};
+        --bs-table-border-color: #{$subtle-border};
+        --bs-table-striped-bg: #{color.mix(#ffffff, $subtle-bg, 4%)};
+        --bs-table-hover-bg: #{color.mix(#ffffff, $subtle-bg, 8%)};
+        --bs-table-active-bg: #{color.mix(#ffffff, $subtle-bg, 12%)};
+    }
+}
