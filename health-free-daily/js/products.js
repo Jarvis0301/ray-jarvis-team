@@ -44,24 +44,12 @@ async function initApp() {
 }
 
 // 4. 解析 Google Sheets 數據 (改為二維陣列，依據欄位順序索引讀取)
-// 定義各分頁的 gid (請點擊試算表各分頁，複製網址列結尾 #gid= 後方的數字)
-const SHEET_CONFIG = {
-    '產品主檔': '0',           // 通常第 1 個分頁 gid 為 0
-    '產品主系列': '279086296',  // 請替換為實際分頁 gid
-    '產品次系列': '218701384',  // 請替換為實際分頁 gid
-    '產品型態': '1211811725'    // 請替換為實際分頁 gid
-};
 async function fetchGoogleSheetsData() {
     try {
         const syncElem = document.getElementById('syncStatus');
         if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> 產品資訊同步中...';
 
         const fetchSheet = async (sheetName) => {
-            const gid = SHEET_CONFIG[sheetName];
-            if (gid === undefined) {
-                throw new Error(`找不到【${sheetName}】的 gid 設定`);
-            }
-            
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
