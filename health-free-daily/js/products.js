@@ -63,7 +63,8 @@ async function fetchGoogleSheetsData() {
                 throw new Error(`找不到【${sheetName}】的 gid 設定`);
             }
             
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+            //const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
             const text = await res.text();
@@ -84,26 +85,26 @@ async function fetchGoogleSheetsData() {
 
         // 並行抓取 4 大資料表工作表
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
-            fetchSheet('產品主表'),
-            fetchSheet('產品主系列表'),
-            fetchSheet('產品次系列表'),
-            fetchSheet('產品型態表')
+            fetchSheet('產品主檔'),
+            fetchSheet('產品主系列'),
+            fetchSheet('產品次系列'),
+            fetchSheet('產品型態')
         ]);
 
-        // A. 處理「產品主表」：依欄位順序讀取並依 region_code 分流
+        // A. 處理「產品主檔」：依欄位順序讀取並依 region_code 分流
         if (productsData && productsData.length > 0) {
             const parsedAll = parseProductsTable(productsData);
             appState.products.TW = parsedAll.filter(p => p.region_code === 'TW');
             appState.products.MY = parsedAll.filter(p => p.region_code === 'MY');
         }
 
-        // B. 處理「產品主系列表」與「產品次系列表」：動態組裝雙層選單
+        // B. 處理「產品主系列」與「產品次系列」：動態組裝雙層選單
         if (mainCategoriesData && mainCategoriesData.length > 0) {
             appState.seriesList = buildSeriesTree(mainCategoriesData, subcategoriesData || []);
             updateSeriesDropdowns();
         }
 
-        // C. 處理「產品型態表」：依欄位順序 (Col 0 ~ 6) 讀取
+        // C. 處理「產品型態」：依欄位順序 (Col 0 ~ 6) 讀取
         if (productTypesData && productTypesData.length > 0) {
             appState.typeList = [{ id: "0", code: "ALL", name: "全部", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" }];
             productTypesData.forEach((row, idx) => {
