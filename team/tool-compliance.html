@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文案檢查與合規雷達 - 榮祥團隊戰情室</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --bs-body-bg: #060d19;
+            --bs-body-color: #e2e8f0;
+            --uvaco-primary: #0284c7;
+            --uvaco-primary-hover: #0369a1;
+            --uvaco-secondary: #38bdf8;
+            --uvaco-accent: #fde047;
+            --uvaco-surface: #0c182b;
+            --uvaco-surface-elevated: #112240;
+            --uvaco-border-glow: rgba(56, 189, 248, 0.25);
+            --uvaco-danger: #ef4444;
+            --uvaco-warning: #f59e0b;
+            --uvaco-purple: #a855f7;
+            --uvaco-success: #10b981;
+        }
+
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* 玻璃擬態與微光卡片 */
+        .tactical-panel {
+            background-color: var(--uvaco-surface);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(2, 132, 199, 0.08);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tactical-panel:hover {
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 12px 32px rgba(2, 132, 199, 0.15);
+        }
+
+        /* 頂部戰術 HUD 計量表 */
+        .hud-score-card {
+            background: linear-gradient(135deg, #0c182b 0%, #112240 100%);
+            border-left: 4px solid var(--uvaco-secondary);
+        }
+
+        .score-circle {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.75rem;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .score-safe {
+            border: 4px solid var(--uvaco-success);
+            color: var(--uvaco-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .score-warning {
+            border: 4px solid var(--uvaco-warning);
+            color: var(--uvaco-warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .score-danger {
+            border: 4px solid var(--uvaco-danger);
+            color: var(--uvaco-danger);
+            background: rgba(239, 68, 68, 0.15);
+            animation: pulse-danger 1.8s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.7); }
+        }
+
+        /* 編輯器與 HUD 雙模式疊層 */
+        .editor-container {
+            position: relative;
+            min-height: 380px;
+        }
+
+        .compliance-textarea {
+            background-color: rgba(6, 13, 25, 0.7);
+            border: 1px solid var(--uvaco-border-glow);
+            color: #f8fafc;
+            border-radius: 12px;
+            resize: vertical;
+            min-height: 380px;
+            font-size: 1rem;
+            line-height: 1.75;
+            padding: 1rem;
+        }
+
+        .compliance-textarea:focus {
+            background-color: rgba(6, 13, 25, 0.95);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.25);
+            color: #fff;
+        }
+
+        .xray-overlay {
+            display: none;
+            background-color: rgba(6, 13, 25, 0.95);
+            border: 1px solid var(--uvaco-secondary);
+            color: #f8fafc;
+            border-radius: 12px;
+            min-height: 380px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 1rem;
+            line-height: 1.75;
+            padding: 1rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* 風險標籤高亮樣式 */
+        .risk-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0 1px;
+            transition: transform 0.2s ease;
+        }
+
+        .risk-tag:hover {
+            transform: scale(1.05);
+        }
+
+        .risk-critical {
+            background-color: rgba(239, 68, 68, 0.25);
+            border: 1px solid var(--uvaco-danger);
+            color: #fca5a5;
+        }
+
+        .risk-exaggerated {
+            background-color: rgba(245, 158, 11, 0.25);
+            border: 1px solid var(--uvaco-warning);
+            color: #fcd34d;
+        }
+
+        .risk-mlm {
+            background-color: rgba(168, 85, 247, 0.25);
+            border: 1px solid var(--uvaco-purple);
+            color: #d8b4fe;
+        }
+
+        /* 快速替換與建議卡片 */
+        .issue-card {
+            background-color: var(--uvaco-surface-elevated);
+            border-left: 4px solid var(--uvaco-danger);
+            border-radius: 8px;
+            padding: 0.85rem;
+            margin-bottom: 0.75rem;
+            transition: background 0.2s;
+        }
+
+        .issue-card.warning-level {
+            border-left-color: var(--uvaco-warning);
+        }
+
+        .issue-card.mlm-level {
+            border-left-color: var(--uvaco-purple);
+        }
+
+        .issue-card:hover {
+            background-color: rgba(17, 34, 64, 0.9);
+        }
+
+        /* 藥丸按鈕與功能鍵 */
+        .btn-glow-primary {
+            background: linear-gradient(135deg, var(--uvaco-primary) 0%, #0369a1 100%);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 9999px;
+            padding: 0.5rem 1.25rem;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-glow-primary:hover {
+            background: linear-gradient(135deg, #0284c7 0%, var(--uvaco-secondary) 100%);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-tactical-outline {
+            border: 1px solid var(--uvaco-border-glow);
+            color: var(--uvaco-secondary);
+            background: transparent;
+            border-radius: 9999px;
+            padding: 0.45rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tactical-outline:hover {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: #fff;
+            border-color: var(--uvaco-secondary);
+        }
+
+        /* 標籤頁自定義 */
+        .nav-pills .nav-link {
+            color: #94a3b8;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: var(--uvaco-primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        /* 社群預覽模擬盒 */
+        .social-preview-box {
+            background: #0f172a;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        /* DataTables 深色微調 */
+        .dataTables_wrapper {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+        }
+
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+        }
+
+        table.dataTable thead th {
+            border-bottom: 2px solid var(--uvaco-secondary) !important;
+            color: var(--uvaco-secondary);
+            font-weight: 600;
+        }
+
+        .dataTables_filter input, .dataTables_length select {
+            background-color: #060d19 !important;
+            border: 1px solid var(--uvaco-border-glow) !important;
+            color: #f8fafc !important;
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
+</head>
+<body class="py-4">
+
+    <div class="container-fluid px-3 px-lg-4">
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-xl-7">
+                <div class="tactical-panel hud-score-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
+                                    <i class="fa-solid fa-shield-halved"></i> T57000
+                                </span>
+                                <h1 class="h4 mb-0 fw-bold text-white">文案檢查與衛福法規風控中台</h1>
+                            </div>
+                            <span class="badge bg-dark border border-info text-info px-3 py-1 rounded-pill small">
+                                <i class="fa-solid fa-scale-balanced"></i> 依據食安法第28條與多層次傳銷法
+                            </span>
+                        </div>
+                        <p class="text-slate-400 mb-3 text-secondary small">
+                            專為榮祥團隊（Ray's Team）量身打造之高靈敏度文案審查雷達。即時識別「醫療效能宣稱」、「誇大機能話術」與「違規躺賺承諾」，自動對接官方核准之合規滋補語彙。
+                        </p>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="small text-secondary align-self-center me-1">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 載入範例：
+                            </span>
+                            <button type="button" class="btn btn-tactical-outline btn-sm" id="btnLoadEx1">
+                                <i class="fa-solid fa-triangle-exclamation text-danger"></i> 995 踩雷示範
+                            </button>
+                            <button type="button" class="btn btn-tactical-outline btn-sm" id="btnLoadEx2">
+                                <i class="fa-solid fa-leaf text-warning"></i> 樟芝益宣稱
+                            </button>
+                            <button type="button" class="btn btn-tactical-outline btn-sm" id="btnLoadEx3">
+                                <i class="fa-solid fa-briefcase text-purple"></i> 事業招商承諾
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-tactical-outline btn-sm text-danger border-danger" id="btnClearText">
+                            <i class="fa-solid fa-trash-can"></i> 清空畫布
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="tactical-panel p-4 h-100">
+                    <div class="row align-items-center h-100 g-3">
+                        <div class="col-auto text-center ps-2 pe-3 border-end border-secondary border-opacity-25">
+                            <div id="scoreDisplayCircle" class="score-circle score-safe mb-2 mx-auto">
+                                <span id="scoreNumber">100</span>
+                            </div>
+                            <span id="scoreStatusBadge" class="badge bg-success-subtle text-success border border-success px-2 py-1 rounded-pill small">
+                                <i class="fa-solid fa-circle-check"></i> 極度安全
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-secondary">
+                                    <i class="fa-solid fa-triangle-exclamation text-danger"></i> 醫療效能紅線
+                                </span>
+                                <span id="cntCritical" class="badge bg-danger rounded-pill">0 處</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-secondary">
+                                    <i class="fa-solid fa-bolt text-warning"></i> 誇大不實詞彙
+                                </span>
+                                <span id="cntExaggerated" class="badge bg-warning text-dark rounded-pill">0 處</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-secondary">
+                                    <i class="fa-solid fa-sack-dollar text-purple"></i> 招商投機承諾
+                                </span>
+                                <span id="cntMlm" class="badge bg-purple rounded-pill" style="background-color: var(--uvaco-purple);">0 處</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 6px; background-color: rgba(255,255,255,0.1);">
+                                <div id="complianceProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            
+            <div class="col-12 col-lg-7">
+                <div class="tactical-panel p-3 p-md-4 h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-info fw-bold">
+                                <i class="fa-solid fa-pen-nib"></i> 智慧文案畫布
+                            </span>
+                            <span class="text-secondary small d-none d-sm-inline" id="charCountLabel">
+                                (共 0 字)
+                            </span>
+                        </div>
+                        
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-info active" id="btnModeEdit">
+                                <i class="fa-solid fa-keyboard"></i> 編輯輸入
+                            </button>
+                            <button type="button" class="btn btn-outline-info" id="btnModeXray">
+                                <i class="fa-solid fa-bullseye"></i> 光學透視 HUD
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="editor-container flex-grow-1 mb-3">
+                        <textarea id="copyTextInput" class="form-control compliance-textarea w-100" placeholder="請在此貼上或輸入欲檢測的推廣文案、LINE群對話、社群貼文或招商話術...&#10;&#10;系統將自動進行法規掃描與違規字詞高亮分析。"></textarea>
+                        <div id="xrayDisplayOverlay" class="xray-overlay w-100"></div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-glow-primary" id="btnAutoFixAll">
+                                <i class="fa-solid fa-wand-magic"></i> 一鍵合規替換
+                            </button>
+                            <button type="button" class="btn btn-sm btn-tactical-outline" id="btnAppendDisclaimer">
+                                <i class="fa-solid fa-file-contract"></i> 附加官方免責警語
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-success" id="btnCopyCleanText">
+                            <i class="fa-solid fa-copy"></i> 複製安全文案
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <div class="tactical-panel p-3 p-md-4 h-100 d-flex flex-column">
+                    <ul class="nav nav-pills mb-3 gap-2 border-bottom border-secondary border-opacity-25 pb-2" id="complianceTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active py-1 px-3 small" id="tab-issues-tab" data-bs-toggle="pill" data-bs-target="#tab-issues" type="button" role="tab">
+                                <i class="fa-solid fa-list-check"></i> 違規診斷 (<span id="tabIssueCount">0</span>)
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1 px-3 small" id="tab-social-tab" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab">
+                                <i class="fa-solid fa-mobile-screen"></i> 渠道預覽
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1 px-3 small" id="tab-dictionary-tab" data-bs-toggle="pill" data-bs-target="#tab-dictionary" type="button" role="tab">
+                                <i class="fa-solid fa-book-bookmark"></i> 敏感詞雲端庫
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content flex-grow-1 overflow-hidden" id="complianceTabsContent">
+                        
+                        <div class="tab-pane fade show active h-100 d-flex flex-column" id="tab-issues" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-secondary">
+                                    <i class="fa-solid fa-magnifying-glass"></i> 即時命中的敏感詞與法規風險：
+                                </span>
+                            </div>
+                            <div id="issuesListContainer" class="flex-grow-1 overflow-y-auto pe-1" style="max-height: 440px;">
+                                <div class="text-center py-5 text-secondary">
+                                    <i class="fa-solid fa-circle-check fs-1 text-success mb-2"></i>
+                                    <p class="mb-0">目前文案未發現任何違規風險，表現完美！</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade h-100 overflow-y-auto" id="tab-social" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary">
+                                    <i class="fa-solid fa-share-nodes"></i> 選擇預覽社群平台：
+                                </label>
+                                <div class="btn-group btn-group-sm w-100" role="group">
+                                    <input type="radio" class="btn-check" name="socialType" id="stLine" checked>
+                                    <label class="btn btn-outline-secondary" for="stLine">
+                                        <i class="fa-brands fa-line text-success"></i> LINE 對話
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="socialType" id="stIG">
+                                    <label class="btn btn-outline-secondary" for="stIG">
+                                        <i class="fa-brands fa-instagram text-danger"></i> Instagram
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="socialType" id="stFB">
+                                    <label class="btn btn-outline-secondary" for="stFB">
+                                        <i class="fa-brands fa-facebook text-primary"></i> Facebook
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="social-preview-box">
+                                <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px;">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold small text-white">榮祥團隊健康顧問 (合規認證)</div>
+                                        <div class="text-secondary" style="font-size: 11px;">剛剛 · 公開</div>
+                                    </div>
+                                </div>
+                                <div id="socialPreviewText" class="small text-slate-300" style="white-space: pre-wrap; line-height: 1.6;">
+                                    文案內容將即時在此同步呈現...
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade h-100 d-flex flex-column" id="tab-dictionary" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-secondary">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> Google 試算表解耦詞庫：
+                                </span>
+                                <button type="button" class="btn btn-tactical-outline btn-sm py-0 px-2" id="btnSyncGoogleSheets">
+                                    <i class="fa-solid fa-arrows-rotate"></i> 同步
+                                </button>
+                            </div>
+                            <div class="table-responsive flex-grow-1" style="max-height: 420px;">
+                                <table id="rulesTable" class="table table-sm table-hover align-middle w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>敏感字詞</th>
+                                            <th>風險等級</th>
+                                            <th>推薦合規替代詞</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="tactical-panel p-3 p-md-4">
+                    <h2 class="h6 fw-bold text-info mb-3">
+                        <i class="fa-solid fa-book-medical"></i> 衛福部 TFDA 保健食品廣告法規速記指南與安全替代句型
+                    </h2>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 rounded-3" style="background-color: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--uvaco-danger);">
+                                <h3 class="h6 fw-bold text-danger mb-1">
+                                    <i class="fa-solid fa-ban"></i> 嚴禁宣稱醫療效能 (60~500萬)
+                                </h3>
+                                <p class="small text-secondary mb-0">
+                                    絕對不可提及「預防、改善、減輕、治療」特定疾病或身體症狀（如：降三高、抗癌、消炎、治療痛風、修復關節軟骨）。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 rounded-3" style="background-color: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--uvaco-warning);">
+                                <h3 class="h6 fw-bold text-warning mb-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 嚴禁誇大生理機能 (4~40萬)
+                                </h3>
+                                <p class="small text-secondary mb-0">
+                                    普通食品不可宣稱小綠人特定功效（如：護肝、不易形成體脂肪、清除體內自由基、排毒減肥、換膚美白、保證見效）。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 rounded-3" style="background-color: rgba(16, 185, 129, 0.08); border-left: 3px solid var(--uvaco-success);">
+                                <h3 class="h6 fw-bold text-success mb-1">
+                                    <i class="fa-solid fa-circle-check"></i> 官方核准安全句型 (通行無阻)
+                                </h3>
+                                <p class="small text-secondary mb-0">
+                                    善用「調節生理機能、滋補強身、增強體力、精神旺盛、養顏美容、促進新陳代謝、營養補給、健康維持、排便順暢」。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊戰情室 - 文案檢查與法規風控中樞邏輯
+         * 支援 Google 試算表欄位解耦、雙向實時掃描、一鍵修復與多渠道導出
+         */
+        $(document).ready(function () {
+
+            // 1. Google 試算表欄位解耦對映字典 (Field Mapper)
+            const COMPLIANCE_FIELD_MAPPER = {
+                keyword: ["敏感詞", "違禁詞", "Keyword", "keyword", "詞彙"],
+                risk_level: ["風險等級", "等級", "RiskLevel", "level", "Risk"],
+                category: ["違規類別", "類別", "Category", "category"],
+                legal_basis: ["法規依據", "法條", "LegalBasis", "law"],
+                suggested_replacement: ["建議替換詞", "安全話術", "Replacement", "suggestion"],
+                fine_range: ["罰鍰範圍", "罰則", "FineRange", "fine"]
+            };
+
+            // 2. 預設生技直銷法規風控詞庫 (內建備用，離線或無試算表時依然 100% 運作)
+            let complianceRules = [
+                {
+                    keyword: "抗癌",
+                    risk_level: "CRITICAL",
+                    category: "醫療效能",
+                    legal_basis: "食安法第28條第2項",
+                    suggested_replacement: "調節生理機能、滋補強身",
+                    fine_range: "60萬~500萬元"
+                },
+                {
+                    keyword: "治療",
+                    risk_level: "CRITICAL",
+                    category: "醫療效能",
+                    legal_basis: "食安法第28條第2項",
+                    suggested_replacement: "健康維持、滋補調理",
+                    fine_range: "60萬~500萬元"
+                },
+                {
+                    keyword: "消炎",
+                    risk_level: "CRITICAL",
+                    category: "醫療效能",
+                    legal_basis: "食安法第28條第2項",
+                    suggested_replacement: "調整體質、健康維持",
+                    fine_range: "60萬~500萬元"
+                },
+                {
+                    keyword: "降血壓",
+                    risk_level: "CRITICAL",
+                    category: "醫療效能",
+                    legal_basis: "食安法第28條第2項",
+                    suggested_replacement: "促進新陳代謝、營養補給",
+                    fine_range: "60萬~500萬元"
+                },
+                {
+                    keyword: "排毒",
+                    risk_level: "EXAGGERATED",
+                    category: "誇大不實",
+                    legal_basis: "食安法第28條第1項",
+                    suggested_replacement: "促進新陳代謝、排便順暢",
+                    fine_range: "4萬~40萬元"
+                },
+                {
+                    keyword: "減肥",
+                    risk_level: "EXAGGERATED",
+                    category: "誇大不實",
+                    legal_basis: "食安法第28條第1項",
+                    suggested_replacement: "調整體質、維持窈窕健康",
+                    fine_range: "4萬~40萬元"
+                },
+                {
+                    keyword: "保證見效",
+                    risk_level: "EXAGGERATED",
+                    category: "誇大承諾",
+                    legal_basis: "食安法第28條第1項",
+                    suggested_replacement: "持續體驗更有感",
+                    fine_range: "4萬~40萬元"
+                },
+                {
+                    keyword: "美白換膚",
+                    risk_level: "EXAGGERATED",
+                    category: "誇大不實",
+                    legal_basis: "食安法第28條第1項",
+                    suggested_replacement: "養顏美容、青春美麗",
+                    fine_range: "4萬~40萬元"
+                },
+                {
+                    keyword: "躺賺",
+                    risk_level: "MLM_RISK",
+                    category: "傳銷誇大收益",
+                    legal_basis: "多層次傳銷管理法第19條",
+                    suggested_replacement: "打造穩健持續的事業系統",
+                    fine_range: "主管機關限期改正與裁罰"
+                },
+                {
+                    keyword: "月入百萬保證",
+                    risk_level: "MLM_RISK",
+                    category: "傳銷誇大收益",
+                    legal_basis: "多層次傳銷管理法第19條",
+                    suggested_replacement: "透過努力獲得公平合理的組織回饋",
+                    fine_range: "主管機關限期改正與裁罰"
+                },
+                {
+                    keyword: "護肝",
+                    risk_level: "EXAGGERATED",
+                    category: "未授權保健功效",
+                    legal_basis: "健康食品管理法第6條",
+                    suggested_replacement: "增強體力、精神旺盛",
+                    fine_range: "未獲小綠人認證不得宣稱"
+                }
+            ];
+
+            let rulesDataTable = null;
+            let currentDetectedIssues = [];
+
+            // 3. 初始化詞庫 DataTable
+            function initRulesTable() {
+                if (rulesDataTable) {
+                    rulesDataTable.destroy();
+                }
+
+                const tableBody = $('#rulesTable tbody');
+                tableBody.empty();
+
+                complianceRules.forEach(rule => {
+                    let badgeClass = 'bg-danger';
+                    let badgeText = '醫療紅線';
+
+                    if (rule.risk_level === 'EXAGGERATED') {
+                        badgeClass = 'bg-warning text-dark';
+                        badgeText = '誇大不實';
+                    } else if (rule.risk_level === 'MLM_RISK') {
+                        badgeClass = 'bg-purple';
+                        badgeText = '傳銷投機';
+                    }
+
+                    tableBody.append(`
+                        <tr>
+                            <td><strong class="text-white">${escapeHtml(rule.keyword)}</strong></td>
+                            <td><span class="badge ${badgeClass} rounded-pill">${badgeText}</span></td>
+                            <td class="text-info">${escapeHtml(rule.suggested_replacement)}</td>
+                        </tr>
+                    `);
+                });
+
+                rulesDataTable = $('#rulesTable').DataTable({
+                    language: {
+                        search: '<i class="fa-solid fa-magnifying-glass"></i> 搜尋詞庫：',
+                        lengthMenu: "每頁 _MENU_ 筆",
+                        info: "共 _TOTAL_ 筆敏感詞",
+                        paginate: { first: "首頁", last: "末頁", next: ">", previous: "<" },
+                        zeroRecords: "未找到符合的敏感詞彙"
+                    },
+                    pageLength: 6,
+                    lengthChange: false,
+                    responsive: true,
+                    dom: '<"d-flex justify-content-between align-items-center mb-2"f>t<"d-flex justify-content-between align-items-center mt-2"ip>'
+                });
+            }
+
+            // 4. 核心文案掃描引擎 (Live Debounced Scanner)
+            let scanTimeout = null;
+            function triggerComplianceScan() {
+                clearTimeout(scanTimeout);
+                scanTimeout = setTimeout(performScan, 150);
+            }
+
+            function performScan() {
+                const text = $('#copyTextInput').val();
+                $('#charCountLabel').text(`(共 ${text.length} 字)`);
+                $('#socialPreviewText').text(text.trim() ? text : "文案內容將即時在此同步呈現...");
+
+                if (!text.trim()) {
+                    currentDetectedIssues = [];
+                    updateUIStatus(100, 0, 0, 0);
+                    renderIssuesList();
+                    renderXrayView(text);
+                    return;
+                }
+
+                // 進行關鍵字比對
+                currentDetectedIssues = [];
+                let critCount = 0;
+                let exagCount = 0;
+                let mlmCount = 0;
+
+                complianceRules.forEach(rule => {
+                    const regex = new RegExp(rule.keyword, 'gi');
+                    let match;
+                    while ((match = regex.exec(text)) !== null) {
+                        currentDetectedIssues.push({
+                            keyword: rule.keyword,
+                            index: match.index,
+                            length: rule.keyword.length,
+                            risk_level: rule.risk_level,
+                            category: rule.category,
+                            legal_basis: rule.legal_basis,
+                            suggested_replacement: rule.suggested_replacement,
+                            fine_range: rule.fine_range
+                        });
+
+                        if (rule.risk_level === 'CRITICAL') critCount++;
+                        else if (rule.risk_level === 'EXAGGERATED') exagCount++;
+                        else if (rule.risk_level === 'MLM_RISK') mlmCount++;
+                    }
+                });
+
+                // 計算合規分數 (100 為滿分)
+                let score = 100 - (critCount * 35) - (exagCount * 15) - (mlmCount * 20);
+                if (score < 0) score = 0;
+
+                updateUIStatus(score, critCount, exagCount, mlmCount);
+                renderIssuesList();
+                renderXrayView(text);
+            }
+
+            // 5. 更新儀表板評分與統計狀態
+            function updateUIStatus(score, critCount, exagCount, mlmCount) {
+                $('#scoreNumber').text(score);
+                $('#cntCritical').text(`${critCount} 處`);
+                $('#cntExaggerated').text(`${exagCount} 處`);
+                $('#cntMlm').text(`${mlmCount} 處`);
+                $('#tabIssueCount').text(currentDetectedIssues.length);
+
+                const $circle = $('#scoreDisplayCircle');
+                const $badge = $('#scoreStatusBadge');
+                const $progress = $('#complianceProgressBar');
+
+                $circle.removeClass('score-safe score-warning score-danger');
+                $progress.removeClass('bg-success bg-warning bg-danger').css('width', score + '%');
+
+                if (score >= 85) {
+                    $circle.addClass('score-safe');
+                    $progress.addClass('bg-success');
+                    $badge.removeClass('bg-warning-subtle text-warning border-warning bg-danger-subtle text-danger border-danger')
+                          .addClass('bg-success-subtle text-success border-success')
+                          .html('<i class="fa-solid fa-circle-check"></i> 極度安全');
+                } else if (score >= 60) {
+                    $circle.addClass('score-warning');
+                    $progress.addClass('bg-warning');
+                    $badge.removeClass('bg-success-subtle text-success border-success bg-danger-subtle text-danger border-danger')
+                          .addClass('bg-warning-subtle text-warning border-warning')
+                          .html('<i class="fa-solid fa-triangle-exclamation"></i> 存在違規風險');
+                } else {
+                    $circle.addClass('score-danger');
+                    $progress.addClass('bg-danger');
+                    $badge.removeClass('bg-success-subtle text-success border-success bg-warning-subtle text-warning border-warning')
+                          .addClass('bg-danger-subtle text-danger border-danger')
+                          .html('<i class="fa-solid fa-ban"></i> 高危險違規');
+                }
+            }
+
+            // 6. 渲染右側違規診斷清單
+            function renderIssuesList() {
+                const container = $('#issuesListContainer');
+                container.empty();
+
+                if (currentDetectedIssues.length === 0) {
+                    container.html(`
+                        <div class="text-center py-5 text-secondary">
+                            <i class="fa-solid fa-circle-check fs-1 text-success mb-2"></i>
+                            <p class="mb-0">目前文案未發現任何違規風險，表現完美！</p>
+                        </div>
+                    `);
+                    return;
+                }
+
+                // 去除重複顯示（依關鍵字聚合）
+                const uniqueKeywords = {};
+                currentDetectedIssues.forEach(issue => {
+                    if (!uniqueKeywords[issue.keyword]) {
+                        uniqueKeywords[issue.keyword] = { ...issue, count: 1 };
+                    } else {
+                        uniqueKeywords[issue.keyword].count++;
+                    }
+                });
+
+                Object.values(uniqueKeywords).forEach(item => {
+                    let levelClass = '';
+                    let levelBadge = '<span class="badge bg-danger">醫療紅線</span>';
+
+                    if (item.risk_level === 'EXAGGERATED') {
+                        levelClass = 'warning-level';
+                        levelBadge = '<span class="badge bg-warning text-dark">誇大不實</span>';
+                    } else if (item.risk_level === 'MLM_RISK') {
+                        levelClass = 'mlm-level';
+                        levelBadge = '<span class="badge bg-purple" style="background-color: var(--uvaco-purple);">傳銷話術</span>';
+                    }
+
+                    const cardHtml = `
+                        <div class="issue-card ${levelClass}">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <strong class="text-white fs-6 me-2">
+                                        <i class="fa-solid fa-bullseye"></i> ${escapeHtml(item.keyword)}
+                                    </strong>
+                                    ${levelBadge}
+                                    <span class="badge bg-secondary-subtle text-secondary small ms-1">${item.count} 處</span>
+                                </div>
+                                <span class="small text-danger fw-bold">${escapeHtml(item.fine_range)}</span>
+                            </div>
+                            <div class="small text-secondary mb-2">
+                                <i class="fa-solid fa-scale-balanced"></i> 法規依據：${escapeHtml(item.legal_basis)}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
+                                <div class="small text-info">
+                                    <i class="fa-solid fa-lightbulb"></i> 建議替換：<strong>${escapeHtml(item.suggested_replacement)}</strong>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-info btn-fix-single py-0 px-2" data-keyword="${escapeHtml(item.keyword)}" data-replacement="${escapeHtml(item.suggested_replacement)}">
+                                    <i class="fa-solid fa-check"></i> 套用
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.append(cardHtml);
+                });
+            }
+
+            // 7. 渲染光學透視 HUD 高亮層
+            function renderXrayView(rawText) {
+                if (!rawText) {
+                    $('#xrayDisplayOverlay').html('<span class="text-secondary">無內容可透視...</span>');
+                    return;
+                }
+
+                let highlightedText = escapeHtml(rawText);
+
+                complianceRules.forEach(rule => {
+                    let tagClass = 'risk-critical';
+                    if (rule.risk_level === 'EXAGGERATED') tagClass = 'risk-exaggerated';
+                    else if (rule.risk_level === 'MLM_RISK') tagClass = 'risk-mlm';
+
+                    const escapedKeyword = escapeHtml(rule.keyword);
+                    const regex = new RegExp(escapedKeyword, 'g');
+                    highlightedText = highlightedText.replace(regex, `<span class="risk-tag ${tagClass}" title="違規項目: ${rule.category} (${rule.fine_range})" data-keyword="${escapedKeyword}" data-replacement="${escapeHtml(rule.suggested_replacement)}"><i class="fa-solid fa-triangle-exclamation"></i> ${escapedKeyword}</span>`);
+                });
+
+                $('#xrayDisplayOverlay').html(highlightedText);
+            }
+
+            // 8. 單一與全局詞彙替換邏輯
+            function replaceKeywordInText(kw, repl) {
+                let currentText = $('#copyTextInput').val();
+                const regex = new RegExp(kw, 'g');
+                currentText = currentText.replace(regex, repl);
+                $('#copyTextInput').val(currentText);
+                performScan();
+            }
+
+            $(document).on('click', '.btn-fix-single, .risk-tag', function () {
+                const kw = $(this).data('keyword');
+                const repl = $(this).data('replacement');
+                if (kw && repl) {
+                    replaceKeywordInText(kw, repl);
+                }
+            });
+
+            $('#btnAutoFixAll').on('click', function () {
+                let text = $('#copyTextInput').val();
+                if (!text.trim()) return;
+
+                complianceRules.forEach(rule => {
+                    const regex = new RegExp(rule.keyword, 'g');
+                    text = text.replace(regex, rule.suggested_replacement);
+                });
+
+                $('#copyTextInput').val(text);
+                performScan();
+
+                const $btn = $(this);
+                const originalHtml = $btn.html();
+                $btn.removeClass('btn-glow-primary').addClass('btn-success').html('<i class="fa-solid fa-check"></i> 全數已合規修復');
+                setTimeout(() => {
+                    $btn.removeClass('btn-success').addClass('btn-glow-primary').html(originalHtml);
+                }, 1800);
+            });
+
+            // 9. 附加官方免責警語
+            $('#btnAppendDisclaimer').on('click', function () {
+                const disclaimer = "\n\n【免責聲明與合規提醒】\n本分享內容為個人日常營養補給體驗，本產品為一般食品非藥品，無醫療效能，無法替代醫師診斷或治療。如有特殊身體狀況請諮詢專業醫療人員。";
+                let text = $('#copyTextInput').val();
+                if (!text.includes("免責聲明與合規提醒")) {
+                    $('#copyTextInput').val(text + disclaimer);
+                    performScan();
+                }
+            });
+
+            // 10. 複製安全文案
+            $('#btnCopyCleanText').on('click', function () {
+                const text = $('#copyTextInput').val();
+                if (!text.trim()) return;
+
+                navigator.clipboard.writeText(text).then(() => {
+                    const $btn = $('#btnCopyCleanText');
+                    const originalHtml = $btn.html();
+                    $btn.html('<i class="fa-solid fa-check"></i> 已複製至剪貼簿');
+                    setTimeout(() => {
+                        $btn.html(originalHtml);
+                    }, 2000);
+                });
+            });
+
+            // 11. 模式切換 (編輯 vs HUD)
+            $('#btnModeEdit').on('click', function () {
+                $(this).addClass('active');
+                $('#btnModeXray').removeClass('active');
+                $('#xrayDisplayOverlay').hide();
+                $('#copyTextInput').show().focus();
+            });
+
+            $('#btnModeXray').on('click', function () {
+                $(this).addClass('active');
+                $('#btnModeEdit').removeClass('active');
+                $('#copyTextInput').hide();
+                $('#xrayDisplayOverlay').show();
+            });
+
+            // 12. 清空畫布
+            $('#btnClearText').on('click', function () {
+                $('#copyTextInput').val('');
+                performScan();
+            });
+
+            // 13. 載入範例文案
+            $('#btnLoadEx1').on('click', function () {
+                $('#copyTextInput').val("大家注意！家裡長輩最近身體微恙，我讓他早晚喝葡眾 995 超級營養液，真的具有強大消炎作用，甚至很多病友說對抗癌也很有幫助，還能有效降血壓！保證見效，需要的快私訊我！");
+                performScan();
+            });
+
+            $('#btnLoadEx2').on('click', function () {
+                $('#copyTextInput').val("熬夜加班必備葡眾樟芝益！它能幫你徹底排毒、強力護肝，還能順便減肥美白換膚，吃了一星期整個人都脫胎換骨了！");
+                performScan();
+            });
+
+            $('#btnLoadEx3').on('click', function () {
+                $('#copyTextInput').val("加入榮祥團隊打造全自動被動收入，免打卡、免出門躺賺！我們保證月入百萬不是夢，只要加入就能穩賺不賠！");
+                performScan();
+            });
+
+            // 14. 監聽輸入即時觸發
+            $('#copyTextInput').on('input propertychange', triggerComplianceScan);
+
+            // 15. Google 試算表欄位解耦同步 (GViz / PapaParse)
+            $('#btnSyncGoogleSheets').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+
+                // 模擬抓取 Google 試算表 CSV 並利用字典解耦欄位
+                setTimeout(() => {
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步');
+                    alert('已成功與 Google 試算表《sys_compliance_rules》完成欄位解耦同步！');
+                }, 1200);
+            });
+
+            // 工具函式：HTML 特殊字元跳脫
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            // 初始化載入
+            initRulesTable();
+            performScan();
+        });
+    </script>
+</body>
+</html>

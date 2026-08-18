@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沉睡名單喚醒戰術中台 - 榮祥團隊</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --uvaco-primary: #0284c7;
+            --uvaco-secondary: #38bdf8;
+            --uvaco-accent: #fbbf24;
+            --uvaco-muted: #84a3be;
+            --uvaco-body-bg: #060d19;
+            --uvaco-card-bg: #0f223d;
+            --uvaco-card-hover: #183359;
+            --uvaco-border: rgba(56, 189, 248, 0.3);
+            --uvaco-border-glow: rgba(56, 189, 248, 0.15);
+        }
+
+        body {
+            background-color: var(--uvaco-body-bg);
+            color: #f0f9ff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 1.25rem;
+            min-height: 100vh;
+        }
+
+        /* 戰術控制台頂部外觀 */
+        .hud-glass-panel {
+            background: linear-gradient(135deg, rgba(15, 34, 61, 0.85) 0%, rgba(6, 13, 25, 0.95) 100%);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 var(--uvaco-border-glow);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 沉睡階梯分流標籤按鈕 */
+        .tier-filter-btn {
+            background-color: var(--uvaco-card-bg);
+            border: 1px solid var(--uvaco-border);
+            color: #f0f9ff;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.25s ease-in-out;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .tier-filter-btn:hover, .tier-filter-btn.active {
+            background-color: var(--uvaco-card-hover);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+            transform: translateY(-2px);
+        }
+
+        /* 喚醒名單互動卡片 */
+        .partner-action-card {
+            background-color: var(--uvaco-card-bg);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 0.85rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partner-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--uvaco-muted);
+        }
+
+        .partner-action-card.tier-light::before { background-color: var(--uvaco-secondary); }
+        .partner-action-card.tier-mid::before { background-color: var(--uvaco-accent); }
+        .partner-action-card.tier-deep::before { background-color: #ef4444; }
+
+        .partner-action-card:hover {
+            background-color: var(--uvaco-card-hover);
+            border-color: var(--uvaco-secondary);
+        }
+
+        /* 話術即時發射器視窗 */
+        .script-drawer {
+            background-color: #0c1a30;
+            border: 1px solid var(--uvaco-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+        }
+
+        .script-content-box {
+            background-color: #060d19;
+            border: 1px dashed var(--uvaco-secondary);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: #bae6fd;
+            font-size: 0.925rem;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        /* 自訂 DataTables 暗色系樣式 */
+        .dataTables_wrapper {
+            color: #f0f9ff;
+        }
+        .table-custom {
+            color: #f0f9ff !important;
+            background-color: transparent !important;
+            border-color: rgba(56, 189, 248, 0.2) !important;
+        }
+        .table-custom th {
+            background-color: rgba(2, 132, 199, 0.2) !important;
+            border-bottom: 2px solid var(--uvaco-secondary) !important;
+            color: var(--uvaco-secondary) !important;
+        }
+        .table-custom td {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1) !important;
+        }
+        .page-item.active .page-link {
+            background-color: var(--uvaco-primary);
+            border-color: var(--uvaco-secondary);
+        }
+        .page-link {
+            background-color: var(--uvaco-card-bg);
+            border-color: rgba(56, 189, 248, 0.2);
+            color: #f0f9ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud-glass-panel">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-5">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; background: rgba(56, 189, 248, 0.15); border: 1px solid var(--uvaco-secondary);">
+                        <i class="fa-solid fa-bed text-info fs-4"></i> 
+                    </div>
+                    <div>
+                        <h4 class="mb-1 text-white fw-bold">
+                            <i class="fa-solid fa-satellite-dish text-info"></i> 沉睡名單喚醒戰情室
+                        </h4>
+                        <p class="text-muted mb-0 small" style="color: var(--uvaco-muted) !important;">
+                            運用葡眾「職級不歸零與差額回饋」制度，精準喚醒直屬經營者與自用客戶
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="row g-2 text-center">
+                    <div class="col-4">
+                        <div class="p-2 rounded" style="background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(56, 189, 248, 0.2);">
+                            <div class="small text-muted mb-1" style="color: var(--uvaco-muted) !important;">沉睡總人數</div>
+                            <h5 class="mb-0 text-white fw-bold" id="metricTotalDormant">--</h5>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded" style="background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.3);">
+                            <div class="small text-muted mb-1" style="color: var(--uvaco-muted) !important;">黃金喚醒期 (30-60天)</div>
+                            <h5 class="mb-0 text-warning fw-bold" id="metricGoldenDormant">--</h5>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div class="small text-muted mb-1" style="color: var(--uvaco-muted) !important;">預估可盤活點數</div>
+                            <h5 class="mb-0 text-success fw-bold" id="metricPotentialSV">-- <span class="fs-6">SV</span></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="tier-filter-btn active d-flex justify-content-between align-items-center" data-tier="ALL">
+                <div>
+                    <div class="fw-bold"><i class="fa-solid fa-list-check"></i> 全體名單</div>
+                    <div class="small text-muted" style="color: var(--uvaco-muted) !important;">包含所有未活躍夥伴</div>
+                </div>
+                <span class="badge bg-secondary" id="badgeAll">0</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="tier-filter-btn d-flex justify-content-between align-items-center" data-tier="LIGHT">
+                <div>
+                    <div class="fw-bold text-info"><i class="fa-solid fa-bolt"></i> 輕度沉睡 (30~60天)</div>
+                    <div class="small text-muted" style="color: var(--uvaco-muted) !important;">推薦話術：職級回饋/補點省錢</div>
+                </div>
+                <span class="badge bg-info text-dark" id="badgeLight">0</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="tier-filter-btn d-flex justify-content-between align-items-center" data-tier="MID">
+                <div>
+                    <div class="fw-bold text-warning"><i class="fa-solid fa-hourglass-half"></i> 中度沉睡 (61~120天)</div>
+                    <div class="small text-muted" style="color: var(--uvaco-muted) !important;">推薦話術：新品體感/季節調理</div>
+                </div>
+                <span class="badge bg-warning text-dark" id="badgeMid">0</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="tier-filter-btn d-flex justify-content-between align-items-center" data-tier="DEEP">
+                <div>
+                    <div class="fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation"></i> 深度預警 (>120天)</div>
+                    <div class="small text-muted" style="color: var(--uvaco-muted) !important;">推薦話術：160SV 會籍保衛戰</div>
+                </div>
+                <span class="badge bg-danger" id="badgeDeep">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="hud-glass-panel p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-white mb-0">
+                        <i class="fa-solid fa-address-book text-info"></i> 直屬沉睡夥伴追蹤清單
+                    </h5>
+                    <button class="btn btn-sm btn-outline-info" id="btnSyncGoogleSheets">
+                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表數據
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table id="dormantTable" class="table table-custom align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th>夥伴姓名</th>
+                                <th>目前職級</th>
+                                <th>沉睡天數</th>
+                                <th>最後進貨日</th>
+                                <th>累計回饋率</th>
+                                <th>戰術行動</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="hud-glass-panel h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="text-white mb-0">
+                        <i class="fa-solid fa-wand-magic-sparkles text-warning"></i> 喚醒話術裝填庫
+                    </h5>
+                    <span class="badge bg-primary" id="selectedPartnerBadge">尚未選擇對象</span>
+                </div>
+
+                <div class="script-drawer mb-3">
+                    <div class="mb-2 d-flex justify-content-between align-items-center">
+                        <span class="small text-muted" style="color: var(--uvaco-muted) !important;">話術策略模式：</span>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-info active script-mode-btn" data-mode="BONUS">職級回饋</button>
+                            <button type="button" class="btn btn-outline-info script-mode-btn" data-mode="HEALTH">健康體感</button>
+                            <button type="button" class="btn btn-outline-info script-mode-btn" data-mode="EXPIRY">資格保衛</button>
+                        </div>
+                    </div>
+                    
+                    <div class="script-content-box mb-3" id="scriptContentBox">
+請從左側名單中點擊【產生話術】，系統將自動根據該夥伴之職級、沉睡天數與回饋差額，動態組裝最佳喚醒文案。
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-info fw-bold" id="btnCopyScript" disabled>
+                            <i class="fa-solid fa-copy"></i> 複製專屬 LINE 話術
+                        </button>
+                        <a href="https://line.me" target="_blank" class="btn btn-outline-success btn-sm">
+                            <i class="fa-brands fa-line"></i> 打開 LINE App 進行發送
+                        </a>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded" style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid var(--uvaco-accent);">
+                    <div class="small fw-bold text-warning mb-1">
+                        <i class="fa-solid fa-lightbulb"></i> Ray 戰術心法提示：
+                    </div>
+                    <div class="small text-muted" style="color: var(--uvaco-muted) !important; line-height: 1.5;">
+                        對副理或主任夥伴溝通時，切記強調「職級永久保留」，只需 160 SV 即可重啟享最高 15%~20% 差額回饋，降低經營防備心。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // ==========================================
+            // 1. Google 試算表欄位解耦 Mapping 字典
+            // ==========================================
+            const FIELD_MAPPINGS = {
+                partner_id: "夥伴編號",
+                name: "夥伴姓名",
+                rank_code: "職級代碼",
+                rank_title: "職級名稱",
+                dormant_days: "沉睡天數",
+                last_order_date: "最後進貨日期",
+                rebate_rate: "當前差額回饋率",
+                accumulated_sv: "歷史累計SV",
+                phone: "聯絡電話",
+                line_id: "Line帳號"
+            };
+
+            // 模擬已解耦之資料集（實務上透過 GViz / PapaParse 自試算表抓取）
+            let dormantDataList = [
+                { partner_id: "PTN-0012", name: "林雅婷", rank_code: "MANAGER", rank_title: "經理", dormant_days: 42, last_order_date: "2026-07-07", rebate_rate: "20%", accumulated_sv: 320000, phone: "0912-345-678" },
+                { partner_id: "PTN-0035", name: "張家豪", rank_code: "ASST_MGR", rank_title: "副理", dormant_days: 55, last_order_date: "2026-06-24", rebate_rate: "15%", accumulated_sv: 150000, phone: "0922-111-222" },
+                { partner_id: "PTN-0089", name: "王美惠", rank_code: "DIRECTOR", rank_title: "主任", dormant_days: 88, last_order_date: "2026-05-22", rebate_rate: "10%", accumulated_sv: 68000, phone: "0933-444-555" },
+                { partner_id: "PTN-0104", name: "陳建國", rank_code: "ASST_MGR", rank_title: "副理", dormant_days: 135, last_order_date: "2026-04-05", rebate_rate: "15%", accumulated_sv: 182000, phone: "0955-666-777" },
+                { partner_id: "PTN-0142", name: "劉素真", rank_code: "MEMBER", rank_title: "會員", dormant_days: 36, last_order_date: "2026-07-13", rebate_rate: "5%", accumulated_sv: 12000, phone: "0988-999-000" }
+            ];
+
+            let activePartner = null;
+            let currentScriptMode = "BONUS";
+
+            // ==========================================
+            // 2. 初始化 DataTable 與篩選
+            // ==========================================
+            const table = $('#dormantTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋姓名、編號或職級...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示 _START_ 到 _END_ 筆 (共 _TOTAL_ 筆)",
+                    paginate: { first: "首頁", last: "末頁", next: ">", previous: "<" },
+                    zeroRecords: "目前無符合條件的沉睡夥伴名單"
+                },
+                order: [[2, "desc"]], // 依沉睡天數降冪排列
+                data: dormantDataList,
+                columns: [
+                    {
+                        data: "name",
+                        render: function (data, type, row) {
+                            return `<div class="fw-bold text-white">${data}</div><small class="text-muted" style="color: var(--uvaco-muted) !important;">${row.partner_id}</small>`;
+                        }
+                    },
+                    {
+                        data: "rank_title",
+                        render: function (data) {
+                            let badgeColor = "bg-primary";
+                            if (data === "經理") badgeColor = "bg-warning text-dark";
+                            if (data === "副理") badgeColor = "bg-info text-dark";
+                            return `<span class="badge ${badgeColor}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: "dormant_days",
+                        render: function (data) {
+                            let textClass = "text-info";
+                            if (data > 60 && data <= 120) textClass = "text-warning";
+                            if (data > 120) textClass = "text-danger";
+                            return `<span class="fw-bold ${textClass}">${data} 天</span>`;
+                        }
+                    },
+                    { data: "last_order_date" },
+                    {
+                        data: "rebate_rate",
+                        render: function (data) {
+                            return `<span class="badge bg-dark border border-secondary text-info">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-outline-info btn-launch-script" data-id="${row.partner_id}">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> 裝填話術
+                                </button>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            // ==========================================
+            // 3. 統計數值計算與更新
+            // ==========================================
+            function updateMetrics() {
+                const total = dormantDataList.length;
+                const golden = dormantDataList.filter(d => d.dormant_days >= 30 && d.dormant_days <= 60).length;
+                const mid = dormantDataList.filter(d => d.dormant_days > 60 && d.dormant_days <= 120).length;
+                const deep = dormantDataList.filter(d => d.dormant_days > 120).length;
+
+                $('#metricTotalDormant').text(total + " 位");
+                $('#metricGoldenDormant').text(golden + " 位");
+                $('#metricPotentialSV').html((golden * 12000 + mid * 4000).toLocaleString() + ' <span class="fs-6">SV</span>');
+
+                $('#badgeAll').text(total);
+                $('#badgeLight').text(golden);
+                $('#badgeMid').text(mid);
+                $('#badgeDeep').text(deep);
+            }
+
+            updateMetrics();
+
+            // ==========================================
+            // 4. 戰術梯隊過濾邏輯
+            // ==========================================
+            $('.tier-filter-btn').on('click', function () {
+                $('.tier-filter-btn').removeClass('active');
+                $(this).addClass('active');
+
+                const tier = $(this).data('tier');
+                $.fn.dataTable.ext.search.pop();
+
+                if (tier === 'LIGHT') {
+                    $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
+                        const days = parseInt(data[2]) || 0;
+                        return days >= 30 && days <= 60;
+                    });
+                } else if (tier === 'MID') {
+                    $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
+                        const days = parseInt(data[2]) || 0;
+                        return days > 60 && days <= 120;
+                    });
+                } else if (tier === 'DEEP') {
+                    $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
+                        const days = parseInt(data[2]) || 0;
+                        return days > 120;
+                    });
+                }
+
+                table.draw();
+            });
+
+            // ==========================================
+            // 5. 智能話術組裝引擎 (動態變數置換)
+            // ==========================================
+            function renderAwakeningScript() {
+                if (!activePartner) return;
+
+                let script = "";
+                const p = activePartner;
+
+                if (currentScriptMode === "BONUS") {
+                    script = `Hi ${p.name}～好久不見！😊\n最近在整理葡眾團隊業績時想到你，你之前已經穩穩累積到【${p.rank_title}】職級，回饋比率高達 ${p.rebate_rate} 囉！\n\n葡眾最棒的就是「職級永遠不歸零」✨，本月剛好有熱門調理組合，只要順手補貨滿 160 SV，就能直接享有 ${p.rebate_rate} 的現金回饋省荷包！\n這幾天有空嗎？幫你留一份最新體感手冊寄給你對照看看！📦`;
+                } else if (currentScriptMode === "HEALTH") {
+                    script = `哈囉 ${p.name}！最近天氣變化大，家人跟自己的精神體力還好嗎？🌿\n記得你之前很注重日常保養，我們團隊最近針對經常外食跟熬夜的夥伴，整理了一份超實用的「益生菌＋樟芝搭配日常指南」！\n因為你是我們的重要夥伴，想說第一時間傳給你參考，隨時跟我說，我把重點摘要發給你喔！💪`;
+                } else if (currentScriptMode === "EXPIRY") {
+                    script = `${p.name} 您好！溫馨提醒您～\n系統偵測到您的葡眾會員資格即將進入年度審核階段囉！為了保障您累積的【${p.rank_title}】終身回饋權益不失效，建議本月可以為家裡添購常備保健品（只需 160 SV 即可維持有效資格）！\n如果需要幫忙代訂或查看明細，隨時跟我說，我幫您一鍵處理！✨`;
+                }
+
+                $('#scriptContentBox').text(script);
+                $('#btnCopyScript').prop('disabled', false);
+            }
+
+            // 綁定點擊裝填話術
+            $('#dormantTable tbody').on('click', '.btn-launch-script', function () {
+                const pId = $(this).data('id');
+                activePartner = dormantDataList.find(d => d.partner_id === pId);
+
+                $('#selectedPartnerBadge').text(activePartner.name + " (" + activePartner.rank_title + ")");
+                renderAwakeningScript();
+            });
+
+            // 切換話術模式
+            $('.script-mode-btn').on('click', function () {
+                $('.script-mode-btn').removeClass('active');
+                $(this).addClass('active');
+                currentScriptMode = $(this).data('mode');
+                renderAwakeningScript();
+            });
+
+            // 一鍵複製話術
+            $('#btnCopyScript').on('click', function () {
+                const text = $('#scriptContentBox').text();
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalHtml = $(this).html();
+                    $(this).removeClass('btn-info').addClass('btn-success').html('<i class="fa-solid fa-check"></i> 已複製至剪貼簿');
+                    setTimeout(() => {
+                        $(this).removeClass('btn-success').addClass('btn-info').html(originalHtml);
+                    }, 2000);
+                });
+            });
+
+            // 外部 Google 試算表 GViz / PapaParse 解耦同步示範
+            $('#btnSyncGoogleSheets').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                
+                // 模擬抓取完成與重新渲染
+                setTimeout(() => {
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表數據');
+                    alert('已成功與 Google 試算表完成欄位解耦同步！');
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+</html>

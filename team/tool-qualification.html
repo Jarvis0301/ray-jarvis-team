@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>門檻會籍戰術雷達 | 榮祥葡眾團隊</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bs-body-bg: #060D19;
+            --bs-body-color: #F8FAFC;
+            --theme-primary: #0284C7;
+            --theme-secondary: #38BDF8;
+            --theme-accent: #FDE047;
+            --theme-surface: rgba(15, 23, 42, 0.85);
+            --theme-surface-glow: rgba(2, 132, 199, 0.15);
+            --theme-border: rgba(56, 189, 248, 0.18);
+            --theme-danger: #FB7185;
+            --theme-success: #34D399;
+            --theme-warning: #FBBF24;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            min-height: 100vh;
+            padding: 1.5rem 1rem 3rem 1rem;
+            overflow-x: hidden;
+        }
+
+        /* 戰術背景微光紋理 */
+        .cyber-grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 玻璃擬態戰術面板容器 */
+        .tactical-glass-card {
+            background: var(--theme-surface);
+            border: 1px solid var(--theme-border);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px -5px var(--theme-surface-glow);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .tactical-glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 14px 40px -5px rgba(2, 132, 199, 0.25);
+        }
+
+        /* 標題與標籤徽章 */
+        .badge-cyber-blue {
+            background: rgba(2, 132, 199, 0.18);
+            color: var(--theme-secondary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 2rem;
+            padding: 0.35rem 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-warning-glow {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--theme-accent);
+            border: 1px solid rgba(253, 224, 71, 0.35);
+            border-radius: 2rem;
+            padding: 0.35rem 0.85rem;
+        }
+
+        .badge-danger-glow {
+            background: rgba(251, 113, 133, 0.15);
+            color: var(--theme-danger);
+            border: 1px solid rgba(251, 113, 133, 0.35);
+            border-radius: 2rem;
+            padding: 0.35rem 0.85rem;
+        }
+
+        /* 階梯考核進度軌道 */
+        .progress-rail-container {
+            position: relative;
+            background: rgba(11, 19, 43, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: 1rem;
+            padding: 1.25rem;
+        }
+
+        .progress-bar-custom {
+            height: 14px;
+            background: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+        }
+
+        .progress-milestone {
+            position: absolute;
+            top: -24px;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .progress-milestone.active {
+            color: var(--theme-accent);
+        }
+
+        .milestone-pin {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 14px;
+            background: #ffffff;
+            opacity: 0.6;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        /* 互動湊單項目卡 */
+        .product-pick-item {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            border-radius: 1rem;
+            padding: 0.85rem 1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .product-pick-item:hover {
+            background: rgba(2, 132, 199, 0.15);
+            border-color: var(--theme-secondary);
+            transform: translateY(-2px);
+        }
+
+        .product-pick-item.selected {
+            background: rgba(2, 132, 199, 0.25);
+            border-color: var(--theme-secondary);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+        }
+
+        /* 快速行動按鈕 */
+        .btn-cyber-primary {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #ffffff;
+            border-radius: 1rem;
+            padding: 0.65rem 1.25rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-cyber-primary:hover {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: #060d19;
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-cyber-accent {
+            background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
+            border: none;
+            color: #0f172a;
+            border-radius: 1rem;
+            padding: 0.65rem 1.25rem;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(253, 224, 71, 0.25);
+        }
+
+        .btn-cyber-accent:hover {
+            background: #ffffff;
+            color: #060d19;
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* 會籍倒數光環徽章 */
+        .orbit-expiry-badge {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 23, 42, 0.9) 60%, rgba(2, 132, 199, 0.2) 100%);
+            border: 2px dashed var(--theme-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: rotate-border 20s linear infinite;
+        }
+
+        @keyframes rotate-border {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .orbit-content {
+            transform: rotate(0deg); /* 保持文字不隨外圈旋轉 */
+            text-align: center;
+        }
+
+        /* 複製成功提示微動效 */
+        .copy-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            display: none;
+            z-index: 1050;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-grid-bg"></div>
+
+    <div class="container-fluid px-lg-4 max-w-1400">
+
+        <div class="row align-items-center mb-4 gy-3">
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4 bg-primary bg-opacity-10 border border-info border-opacity-25 text-info">
+                        <i class="fa-solid fa-shield-halved fa-2x"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 fw-bold text-white tracking-wide">門檻會籍戰術雷達</h3>
+                            <span class="badge badge-cyber-blue">H54000</span>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">
+                            <i class="fa-solid fa-satellite-dish"></i> 160 SV 活躍考核 • 合格經理 3,200/12,000 SV 攻防 • 會籍續約保級監控
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-wrap justify-content-md-end align-items-center gap-2">
+                    <div class="input-group" style="max-width: 280px;">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-info">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="inputPartnerSearch" class="form-control bg-dark text-white border-secondary border-opacity-25" placeholder="輸入夥伴姓名 / 編號..." value="林志榮 (Ray)">
+                    </div>
+                    <button class="btn btn-cyber-primary" id="btnSyncGviz">
+                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            
+            <div class="col-12 col-xl-4">
+                <div class="tactical-glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge badge-cyber-blue">
+                                <i class="fa-solid fa-id-badge"></i> 核心夥伴身份檔
+                            </span>
+                            <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">
+                                <i class="fa-solid fa-signal"></i> 活躍中 (Active)
+                            </span>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="position-relative">
+                                <div class="orbit-expiry-badge"></div>
+                                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                    <span class="d-block fw-black text-warning h5 mb-0" id="txtDaysRemaining">42</span>
+                                    <span class="text-muted" style="font-size: 0.65rem;">天有效</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h4 class="fw-bold mb-0 text-white" id="txtPartnerName">林志榮 (Ray)</h4>
+                                    <span class="badge bg-primary text-white font-monospace" style="font-size: 0.7rem;">TW-880291</span>
+                                </div>
+                                <div class="mt-1 d-flex gap-2">
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25">
+                                        <i class="fa-solid fa-crown text-warning"></i> 翡翠級領袖
+                                    </span>
+                                    <span class="badge bg-secondary bg-opacity-25 text-light">推薦人: Jarvis</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-15 mb-3">
+                            <div class="row g-2 text-center">
+                                <div class="col-4 border-end border-secondary border-opacity-25">
+                                    <div class="text-muted small" style="font-size: 0.75rem;">個人當月 SV</div>
+                                    <div class="fw-bold text-info h5 mb-0 font-monospace" id="txtPersonalSv">420</div>
+                                </div>
+                                <div class="col-4 border-end border-secondary border-opacity-25">
+                                    <div class="text-muted small" style="font-size: 0.75rem;">整組當月 SV</div>
+                                    <div class="fw-bold text-warning h5 mb-0 font-monospace" id="txtGroupSv">10,880</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-muted small" style="font-size: 0.75rem;">考核狀態</div>
+                                    <div class="fw-bold text-success h6 mb-0 mt-1" id="txtEvalStatus">衝刺滿額</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                            <li class="d-flex justify-content-between text-muted">
+                                <span><i class="fa-solid fa-calendar-check text-info"></i> 會籍起始日</span>
+                                <span class="text-light font-monospace">2024-03-15</span>
+                            </li>
+                            <li class="d-flex justify-content-between text-muted">
+                                <span><i class="fa-solid fa-hourglass-half text-warning"></i> 會籍屆期日</span>
+                                <span class="text-light font-monospace" id="txtExpiryDate">2026-09-30</span>
+                            </li>
+                            <li class="d-flex justify-content-between text-muted">
+                                <span><i class="fa-solid fa-users text-primary"></i> 當前下線合格經理數</span>
+                                <span class="text-light font-monospace fw-bold">3 線合格</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-info w-100 rounded-3" id="btnGenOutreach">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> 生成戰術關懷話術
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-8">
+                <div class="tactical-glass-card p-4 h-100">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                        <div>
+                            <span class="badge badge-cyber-blue mb-1">
+                                <i class="fa-solid fa-chart-line-up"></i> 階梯合格動態推算
+                            </span>
+                            <h5 class="fw-bold text-white mb-0">本月考核門檻達成進度條</h5>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge badge-warning-glow">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 距 12,000 SV 滿額差：<span id="txtGapSv" class="fw-bold font-monospace">1,120</span> SV
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="progress-rail-container mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-light fw-bold">
+                                <i class="fa-solid fa-user-check text-info"></i> ① 個人基本活躍門檻 (160 SV)
+                            </span>
+                            <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25" id="badgePersonalStatus">
+                                <i class="fa-solid fa-check"></i> 已達標 (420 / 160 SV)
+                            </span>
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-bar-fill" style="width: 100%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mt-2">
+                            <span>基準：160 SV</span>
+                            <span class="text-success font-monospace">達成率 262.5%</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-rail-container mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-light fw-bold">
+                                <i class="fa-solid fa-sitemap text-warning"></i> ② 整組經理合格與組織代數獎金門檻
+                            </span>
+                            <span class="text-warning small font-monospace fw-bold">目前進度：10,880 SV</span>
+                        </div>
+                        
+                        <div class="position-relative my-4">
+                            <div class="progress-milestone active" style="left: 26.6%;">
+                                <span>3,200 (基礎線)</span>
+                            </div>
+                            <div class="progress-milestone active" style="left: 100%;">
+                                <span>12,000 (滿額代數獎)</span>
+                            </div>
+
+                            <div class="progress-bar-custom">
+                                <div class="milestone-pin" style="left: 26.6%;"></div>
+                                <div class="progress-bar-fill" id="barGroupFill" style="width: 90.6%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 text-center pt-2">
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-15">
+                                    <div class="text-muted" style="font-size: 0.7rem;">3,200 SV 合格</div>
+                                    <div class="text-success fw-bold small"><i class="fa-solid fa-circle-check"></i> 安全通關</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-15">
+                                    <div class="text-muted" style="font-size: 0.7rem;">12,000 SV 滿額</div>
+                                    <div class="text-warning fw-bold small"><i class="fa-solid fa-bolt"></i> 衝刺中 (90.6%)</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-15">
+                                    <div class="text-muted" style="font-size: 0.7rem;">預估代數獎金溢領</div>
+                                    <div class="text-info fw-bold small font-monospace">+ NT$ 18,400</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-15">
+                                    <div class="text-muted" style="font-size: 0.7rem;">脫離斷代風險</div>
+                                    <div class="text-success fw-bold small"><i class="fa-solid fa-shield"></i> 零斷代預警</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-4 bg-info bg-opacity-10 border border-info border-opacity-20 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-warning fa-lg"></i>
+                            <span class="small text-light">
+                                戰術建議：距離月底結算尚餘 <strong>5 天</strong>，建議調配 <strong>1~2 組 995</strong> 或 <strong>3 組康爾喜</strong> 即可觸發 12,000 SV 滿額代獎！
+                            </span>
+                        </div>
+                        <button class="btn btn-sm btn-cyber-accent" id="btnAutoFit">
+                            <i class="fa-solid fa-calculator"></i> 智能湊單模擬
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="tactical-glass-card p-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div>
+                    <span class="badge badge-cyber-blue mb-1">
+                        <i class="fa-solid fa-cart-flatbed"></i> 產品 SV 快速湊單演算
+                    </span>
+                    <h5 class="fw-bold text-white mb-0">熱門補點品項即時調配艙</h5>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted small">模擬已增補 SV：</span>
+                    <span class="h4 fw-black text-info font-monospace mb-0" id="txtSimulatedSv">+ 0</span>
+                    <button class="btn btn-sm btn-outline-secondary rounded-3" id="btnResetSim">
+                        <i class="fa-solid fa-rotate-left"></i> 重設
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3" id="productListContainer">
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="product-pick-item" data-sv="1440" data-name="995生技營養品">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary bg-opacity-20 text-info font-monospace">高分王牌</span>
+                            <span class="fw-bold text-warning font-monospace">+1,440 SV</span>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1">995 生技營養品</h6>
+                        <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
+                            <span>液態精華 (盒)</span>
+                            <span class="text-light font-monospace">NT$ 5,740</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="product-pick-item" data-sv="1440" data-name="樟芝益">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary bg-opacity-20 text-info font-monospace">防護首選</span>
+                            <span class="fw-bold text-warning font-monospace">+1,440 SV</span>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1">樟芝益生技菌絲體</h6>
+                        <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
+                            <span>口服液 (盒)</span>
+                            <span class="text-light font-monospace">NT$ 5,740</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="product-pick-item" data-sv="420" data-name="康爾喜">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-success bg-opacity-20 text-success font-monospace">熱銷常勝</span>
+                            <span class="fw-bold text-warning font-monospace">+420 SV</span>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1">康爾喜乳酸菌顆粒</h6>
+                        <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
+                            <span>90條/盒</span>
+                            <span class="text-light font-monospace">NT$ 1,764</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="product-pick-item" data-sv="700" data-name="力多精華">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-warning bg-opacity-20 text-warning font-monospace">靈活補給</span>
+                            <span class="fw-bold text-warning font-monospace">+700 SV</span>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1">力多精華膠囊</h6>
+                        <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
+                            <span>100粒/瓶</span>
+                            <span class="text-light font-monospace">NT$ 2,940</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalOutreach" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content tactical-glass-card border-info border-opacity-30 text-white">
+                    <div class="modal-header border-secondary border-opacity-25 pb-2">
+                        <h5 class="modal-title fw-bold text-info">
+                            <i class="fa-solid fa-comment-dots"></i> 智能戰術關懷話術 (AI Copilot)
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small mb-2">針對當前夥伴「會籍有效天數剩餘 42 天」與「差額 1,120 SV」自動生成之 LINE 關懷話術：</p>
+                        <div class="p-3 rounded-3 bg-dark bg-opacity-75 border border-secondary border-opacity-30 font-monospace small text-light" id="outreachMessageText" style="line-height: 1.6;">
+Ray 哥好！剛幫您盤點本月戰情數據，您的個人 160 SV 早已完美達標，整組業績目前來到 10,880 SV，距離 12,000 SV 滿額經理代數獎金只差最後 1,120 SV（約 1 盒 995 即可達標）！另外會籍剩餘 42 天，建議本週安排補單順道保級，確保下月代數獎金收益最大化！有任何需要調配先買或延買的客戶名單隨時與我對接！💪
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary border-opacity-25 pt-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">關閉</button>
+                        <button type="button" class="btn btn-cyber-primary" id="btnCopyOutreach">
+                            <i class="fa-solid fa-copy"></i> 複製話術文字
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="copy-toast" id="copyToast">
+            <i class="fa-solid fa-circle-check"></i> 話術已成功複製至剪貼簿！
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 1. Google 試算表欄位解耦對映設定 (Decoupled Schema Adapter)
+            const FieldMapping = {
+                partner_id: ["夥伴編號", "會員編號", "Partner_ID", "ID"],
+                partner_name: ["夥伴姓名", "姓名", "Name", "Partner_Name"],
+                personal_sv: ["個人當月SV", "個人SV", "Personal_SV"],
+                group_sv: ["整組當月SV", "整組SV", "Group_SV"],
+                expiry_date: ["會籍屆期日", "有效日期", "Expiry_Date"],
+                status: ["考核狀態", "狀態", "Status"]
+            };
+
+            // 基準數據常數
+            const QUAL_TARGET_PERSONAL = 160;
+            const QUAL_TARGET_MANAGER_BASIC = 3200;
+            const QUAL_TARGET_MANAGER_FULL = 12000;
+
+            let currentSimulatedSv = 0;
+            let baseGroupSv = 10880;
+
+            // 2. 湊單項目點擊累加互動
+            $('.product-pick-item').on('click', function () {
+                const sv = parseInt($(this).data('sv'), 10);
+                $(this).toggleClass('selected');
+
+                if ($(this).hasClass('selected')) {
+                    currentSimulatedSv += sv;
+                } else {
+                    currentSimulatedSv -= sv;
+                }
+
+                updateSimulationView();
+            });
+
+            // 3. 重設模擬
+            $('#btnResetSim').on('click', function () {
+                $('.product-pick-item').removeClass('selected');
+                currentSimulatedSv = 0;
+                updateSimulationView();
+            });
+
+            // 4. 一鍵智能推薦湊單 (補足 1,120 SV 差額)
+            $('#btnAutoFit').on('click', function () {
+                $('.product-pick-item').removeClass('selected');
+                currentSimulatedSv = 0;
+                // 自動選取 1 盒 995 (+1440 SV)
+                $('.product-pick-item[data-name="995生技營養品"]').addClass('selected');
+                currentSimulatedSv = 1440;
+                updateSimulationView();
+            });
+
+            // 更新模擬運算呈現
+            function updateSimulationView() {
+                $('#txtSimulatedSv').text('+ ' + currentSimulatedSv.toLocaleString());
+                
+                const newTotalGroupSv = baseGroupSv + currentSimulatedSv;
+                const newGap = Math.max(0, QUAL_TARGET_MANAGER_FULL - newTotalGroupSv);
+                
+                $('#txtGapSv').text(newGap.toLocaleString());
+
+                // 計算百分比
+                const percent = Math.min(100, (newTotalGroupSv / QUAL_TARGET_MANAGER_FULL) * 100);
+                $('#barGroupFill').css('width', percent + '%');
+
+                if (newGap === 0) {
+                    $('#txtGapSv').parent().removeClass('badge-warning-glow').addClass('badge-cyber-blue').html('<i class="fa-solid fa-check-double"></i> 恭喜已達成 12,000 SV 滿額！');
+                } else {
+                    $('#txtGapSv').parent().removeClass('badge-cyber-blue').addClass('badge-warning-glow').html('<i class="fa-solid fa-triangle-exclamation"></i> 距 12,000 SV 滿額差：<span class="fw-bold font-monospace">' + newGap.toLocaleString() + '</span> SV');
+                }
+            }
+
+            // 5. 生成關懷話術彈窗
+            const outreachModal = new bootstrap.Modal(document.getElementById('modalOutreach'));
+            $('#btnGenOutreach').on('click', function () {
+                outreachModal.show();
+            });
+
+            // 6. 複製話術文字
+            $('#btnCopyOutreach').on('click', function () {
+                const textToCopy = $('#outreachMessageText').text().trim();
+                navigator.clipboard.writeText(textToCopy).then(function () {
+                    outreachModal.hide();
+                    $('#copyToast').fadeIn().delay(2000).fadeOut();
+                });
+            });
+
+            // 7. GViz / PapaParse 解耦同步示範
+            $('#btnSyncGviz').on('click', function () {
+                const $btn = $(this);
+                const origHtml = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+
+                // 模擬非同步與 Google 試算表 GViz 欄位解析對齊
+                setTimeout(function () {
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-check"></i> 同步完成');
+                    setTimeout(function () {
+                        $btn.html(origHtml);
+                    }, 1800);
+                }, 1000);
+            });
+
+        });
+    </script>
+</body>
+</html>
