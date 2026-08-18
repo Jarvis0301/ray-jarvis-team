@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-green">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能健康體質問卷評估 - 葡眾健康生活</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #051811;
+            --bg-card: rgba(10, 37, 27, 0.75);
+            --bg-card-hover: rgba(15, 51, 37, 0.95);
+            --text-main: #f0fdf4;
+            --text-muted: #a7f3d0;
+            --primary-emerald: #10b981;
+            --primary-light: #34d399;
+            --accent-amber: #f59e0b;
+            --border-glass: rgba(16, 185, 129, 0.25);
+            --border-glow: rgba(52, 211, 153, 0.5);
+            --glass-blur: blur(14px);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(6, 78, 59, 0.2) 0px, transparent 70%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 12px;
+            box-sizing: border-box;
+        }
+
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-glow);
+        }
+
+        .step-progress-bar {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .step-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-emerald), var(--primary-light), var(--accent-amber));
+            border-radius: 999px;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .quiz-card-option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .quiz-card-option:hover {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .quiz-card-option.selected {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15));
+            border-color: var(--primary-emerald);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+        }
+
+        .quiz-card-option input[type="radio"],
+        .quiz-card-option input[type="checkbox"] {
+            display: none;
+        }
+
+        .check-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 11px;
+            color: transparent;
+        }
+
+        .quiz-card-option.selected .check-indicator {
+            background-color: var(--primary-emerald);
+            border-color: var(--primary-emerald);
+            color: #ffffff;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 28px;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-cta:hover {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-muted);
+            border-radius: 14px;
+            padding: 12px 24px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .badge-health-pill {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-amber) calc(var(--score-pct) * 1%), rgba(255, 255, 255, 0.1) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .score-circle-inner {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: #082117;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-bundle-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-bundle-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-amber);
+        }
+
+        .fade-step {
+            display: none;
+        }
+
+        .fade-step.active {
+            display: block;
+            animation: fadeIn 0.35s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-3" style="max-width: 920px;">
+
+        <div class="glass-panel p-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background: rgba(16, 185, 129, 0.2); width: 44px; height: 44px;">
+                        <i class="fa-solid fa-leaf text-success fs-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="h5 mb-0 fw-bold text-light">
+                            <i class="fa-solid fa-notes-medical"></i> 葡眾專屬體質健康檢測
+                        </h1>
+                        <span class="text-muted small">科學化 6 大生理維度評估與專屬日常保養對策</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge badge-health-pill" id="stepCounterBadge">
+                        <i class="fa-solid fa-hourglass-half"></i> 進行中：第 1 / 6 階段
+                    </span>
+                </div>
+            </div>
+
+            <div class="step-progress-bar">
+                <div class="step-progress-fill" id="progressBarFill" style="width: 16.66%;"></div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 p-md-5 mb-4 position-relative" id="quizContainer">
+
+            <div class="fade-step active" data-step="1" data-category="digest">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                        維度一
+                    </span>
+                    <h2 class="h5 mb-0 fw-bold">
+                        <i class="fa-solid fa-utensils"></i> 消化機能與腸胃吸收道評估
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">消化道是人體最大的免疫與營養吸收防線，請選取您近一個月最常發生的日常感受（可複選）：</p>
+
+                <div class="row g-3" id="group-digest">
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-wind text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">飯後容易脹氣、消化遲緩</div>
+                                    <div class="text-muted small">經常覺得肚子悶悶、咕嚕叫或排氣頻繁</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="digest" value="3" data-label="消化遲緩與易脹氣">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-restroom text-info"></i>
+                                <div>
+                                    <div class="fw-bold">排便不規律、或偏乾硬稀軟</div>
+                                    <div class="text-muted small">非每日排便，或如廁時間長且有殘便感</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="digest" value="4" data-label="腸道菌相與排便不順">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-fire-burner text-danger"></i>
+                                <div>
+                                    <div class="fw-bold">飲食油膩易胃酸逆流、火燒心</div>
+                                    <div class="text-muted small">喜愛重口味、咖啡茶飲，空腹偶有不適</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="digest" value="4" data-label="胃黏膜敏感與逆流困擾">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <div>
+                                    <div class="fw-bold">腸胃狀況非常良好</div>
+                                    <div class="text-muted small">三餐定時定量、天天順暢且胃部舒適</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="digest" value="0" data-exclusive="true" data-label="消化道機能良好">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-step" data-step="2" data-category="energy">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                        維度二
+                    </span>
+                    <h2 class="h5 mb-0 fw-bold">
+                        <i class="fa-solid fa-bolt"></i> 精力元氣與代謝續航力
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">評估您的細胞充能與生理代謝充電效率（可複選）：</p>
+
+                <div class="row g-3" id="group-energy">
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-battery-quarter text-danger"></i>
+                                <div>
+                                    <div class="fw-bold">早晨起床仍感疲憊、呵欠連連</div>
+                                    <div class="text-muted small">睡再飽都覺得身體沉重，依賴高劑量咖啡</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="energy" value="4" data-label="慢性疲勞與晨間充能不足">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-clock text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">午後 2-4 點精神斷崖式下滑</div>
+                                    <div class="text-muted small">注意力難以集中，腦袋昏沉且工作效率低</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="energy" value="3" data-label="午後續航力不足">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-dumbbell text-info"></i>
+                                <div>
+                                    <div class="fw-bold">運動或勞動後恢復期長</div>
+                                    <div class="text-muted small">肌肉痠軟不易消退，耐受度與體能退步</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="energy" value="3" data-label="乳酸代謝與體能恢復遲緩">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-sun text-success"></i>
+                                <div>
+                                    <div class="fw-bold">全天活力充沛、精神飽滿</div>
+                                    <div class="text-muted small">工作與生活思緒清晰，活力滿分</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="energy" value="0" data-exclusive="true" data-label="元氣續航狀態佳">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-step" data-step="3" data-category="sleep">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                        維度三
+                    </span>
+                    <h2 class="h5 mb-0 fw-bold">
+                        <i class="fa-solid fa-moon"></i> 睡眠深度與自律神經調節
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">睡眠品質是身體細胞修復與排毒的關鍵黃金時段：</p>
+
+                <div class="row g-3" id="group-sleep">
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-bed text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">入睡困難，翻來覆去超過 30 分鐘</div>
+                                    <div class="text-muted small">腦袋思緒高速運轉、難以關機放鬆</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="sleep" value="4" data-label="入睡潛伏期長與思緒緊繃">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-bell text-danger"></i>
+                                <div>
+                                    <div class="fw-bold">淺眠多夢、半夜易驚醒中斷</div>
+                                    <div class="text-muted small">微小聲響即醒，醒後難以再次入眠</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="sleep" value="4" data-label="深層睡眠不足與夜醒">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-brain text-info"></i>
+                                <div>
+                                    <div class="fw-bold">日常緊繃感強烈、肩頸常僵硬</div>
+                                    <div class="text-muted small">常感生活工作壓力大，無法深層吐氣放鬆</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="sleep" value="3" data-label="自律神經緊繃與肌肉僵硬">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-feather text-success"></i>
+                                <div>
+                                    <div class="fw-bold">一覺到天亮，深層好眠</div>
+                                    <div class="text-muted small">規律就寢且快速入眠，醒來神清氣爽</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="sleep" value="0" data-exclusive="true" data-label="睡眠修復力優良">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-step" data-step="4" data-category="immunity">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                        維度四
+                    </span>
+                    <h2 class="h5 mb-0 fw-bold">
+                        <i class="fa-solid fa-shield-virus"></i> 免疫防禦力與環境適應
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">評估身體外在保護罩與換季反應體質：</p>
+
+                <div class="row g-3" id="group-immunity">
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-cloud-showers-heavy text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">換季溫差大時容易打噴嚏、流鼻水</div>
+                                    <div class="text-muted small">早晨起床或進出冷氣房時呼吸道敏感</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="immunity" value="4" data-label="換季呼吸道過敏調節">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-virus-slash text-danger"></i>
+                                <div>
+                                    <div class="fw-bold">周遭有人感冒時容易被傳染</div>
+                                    <div class="text-muted small">一旦中獎病程長，常拖延超過 1~2 週</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="immunity" value="4" data-label="防護力低下與病程漫長">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-circle-exclamation text-info"></i>
+                                <div>
+                                    <div class="fw-bold">容易嘴破、皮膚敏感泛紅搔癢</div>
+                                    <div class="text-muted small">常因熬夜或壓力引發體內微發炎反應</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="immunity" value="3" data-label="黏膜組織修復與發炎敏感">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-shield-halved text-success"></i>
+                                <div>
+                                    <div class="fw-bold">防護力強韌、適應力佳</div>
+                                    <div class="text-muted small">面對氣候與環境變動始終保持穩定</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="immunity" value="0" data-exclusive="true" data-label="防護屏障完整">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-step" data-step="5" data-category="circulatory">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                        維度五
+                    </span>
+                    <h2 class="h5 mb-0 fw-bold">
+                        <i class="fa-solid fa-heart-pulse"></i> 循環通暢與新陳代謝力
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">評估末梢循環、血流暢通度與脂質代謝健康：</p>
+
+                <div class="row g-3" id="group-circulatory">
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-snowflake text-info"></i>
+                                <div>
+                                    <div class="fw-bold">手腳容易冰冷、末梢循環較差</div>
+                                    <div class="text-muted small">久坐下肢易腫脹、沉重感明顯</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="circulatory" value="3" data-label="末梢微循環不良與水腫">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-droplet text-danger"></i>
+                                <div>
+                                    <div class="fw-bold">體檢三高紅字、外食高油高鈉</div>
+                                    <div class="text-muted small">血脂/膽固醇/血壓邊緣超標，少運動</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="circulatory" value="4" data-label="三高代謝指標與血管彈性維護">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-head-side-cough text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">容易頭重腳輕、胸口偶覺沉悶</div>
+                                    <div class="text-muted small">起伏劇烈或氣溫驟降時感覺血液循環吃力</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="circulatory" value="4" data-label="心血管負荷與供氧調節">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <div>
+                                    <div class="fw-bold">手腳溫熱、代謝循環極佳</div>
+                                    <div class="text-muted small">各項健康檢查指標平穩正常</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="circulatory" value="0" data-exclusive="true" data-label="心血管循環極佳">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-step" data-step="6" data-category="aging">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill">
+                        維度六
+                    </span>
+                    <h2 class="h5 mb-0 fw-bold">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 青春抗老與美妍體態光澤
+                    </h2>
+                </div>
+                <p class="text-muted small mb-4">評估體內抗氧化力、肌膚彈潤與體態維持狀態：</p>
+
+                <div class="row g-3" id="group-aging">
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-face-grimace text-warning"></i>
+                                <div>
+                                    <div class="fw-bold">氣色暗沉蠟黃、肌膚缺水無光澤</div>
+                                    <div class="text-muted small">上妝易脫屑，膠原蛋白流失有感</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="aging" value="3" data-label="膠原流失與氣色暗沉">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-eye text-info"></i>
+                                <div>
+                                    <div class="fw-bold">長期使用 3C 螢幕、乾澀酸脹</div>
+                                    <div class="text-muted small">用眼過度，夜間視線容易模糊疲乏</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="aging" value="4" data-label="視力保養與藍光晶亮需求">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-weight-scale text-danger"></i>
+                                <div>
+                                    <div class="fw-bold">基礎代謝變慢、體態不易維持</div>
+                                    <div class="text-muted small">稍微多吃體重就上升，腰腹贅肉囤積</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="aging" value="3" data-label="基礎代謝與體態管控">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="quiz-card-option d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-gem text-success"></i>
+                                <div>
+                                    <div class="fw-bold">肌膚潤澤透亮、體態緊實</div>
+                                    <div class="text-muted small">抗氧化保養良好，維持青春活力感</div>
+                                </div>
+                            </div>
+                            <input type="checkbox" name="aging" value="0" data-exclusive="true" data-label="青春抗老狀態極佳">
+                            <div class="check-indicator"><i class="fa-solid fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary border-opacity-25" id="navActionArea">
+                <button type="button" class="btn btn-ghost" id="btnPrevStep" style="visibility: hidden;">
+                    <i class="fa-solid fa-arrow-left"></i> 上一步
+                </button>
+                <button type="button" class="btn btn-cta" id="btnNextStep">
+                    下一步 <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 p-md-5 mb-4 d-none" id="resultContainer">
+            
+            <div class="text-center mb-4">
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1 rounded-pill mb-2">
+                    <i class="fa-solid fa-award"></i> 評估完成
+                </span>
+                <h2 class="h3 fw-bold text-light">您的專屬體質健康診斷報告</h2>
+                <p class="text-muted small">根據葡眾生技全方位調理哲學：清（清毒）、調（調和）、補（滋補）、防（防護）為您量身配對</p>
+            </div>
+
+            <div class="row g-4 align-items-center mb-5">
+                <div class="col-12 col-lg-5 text-center text-lg-start">
+                    <div class="d-flex flex-column align-items-center align-items-lg-start gap-3">
+                        <div class="score-circle" id="scoreIndicator">
+                            <div class="score-circle-inner">
+                                <span class="h2 fw-bold mb-0 text-warning" id="finalScoreVal">82</span>
+                                <span class="text-muted" style="font-size: 0.7rem;">活力指數</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="h5 fw-bold mb-1 text-light" id="healthStatusTitle">活力健康型</h3>
+                            <p class="text-muted small mb-3" id="healthStatusDesc">整體機能穩定，但特定生理節點仍需日常溫和滋補。</p>
+                        </div>
+
+                        <div class="w-100 text-start">
+                            <div class="text-muted small mb-2 fw-bold">
+                                <i class="fa-solid fa-triangle-exclamation text-warning"></i> 建議優先調養的健康焦點：
+                            </div>
+                            <div class="d-flex flex-wrap gap-2" id="concernPillsBox">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-7">
+                    <div class="p-3 rounded-4" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.06);">
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="healthRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="fa-solid fa-cube text-warning fs-5"></i>
+                    <h3 class="h5 mb-0 fw-bold text-light">AI 推薦專屬調理方案</h3>
+                </div>
+
+                <div class="product-bundle-card p-4">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-md-8">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-warning text-dark fw-bold px-2 py-1" id="bundleMatchTag">96% 契合度</span>
+                                <h4 class="h5 fw-bold mb-0 text-warning" id="recBundleTitle">【全方位平衡】消化與修復套組</h4>
+                            </div>
+                            <p class="text-light opacity-75 small mb-3" id="recBundleDesc">針對腸道好菌生態平衡與黏膜修復深度調理，幫助告別沉重負擔，迅速找回元氣。</p>
+                            
+                            <div class="d-flex flex-wrap gap-3 text-muted small" id="recBundleItemsList">
+                                </div>
+                        </div>
+                        <div class="col-12 col-md-4 text-md-end border-top border-md-top-0 border-secondary border-opacity-25 pt-3 pt-md-0">
+                            <div class="text-muted small">會員預估每日平均保養</div>
+                            <div class="h3 fw-bold text-warning mb-1" id="recBundleDailyCost">NT$ 98 <span class="fs-6 text-muted">/ 天</span></div>
+                            <div class="text-muted small">平均不到一杯星巴克價格</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-4" style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.4);">
+                <div class="row g-3 align-items-center">
+                    <div class="col-12 col-lg-8">
+                        <h4 class="h6 fw-bold text-light mb-1">
+                            <i class="fa-brands fa-line text-success fs-5"></i> 預約葡眾資深健康管理顧問 1 對 1 免費諮詢
+                        </h4>
+                        <p class="text-muted small mb-0">已為您將本次體檢評估數據自動轉化為諮詢摘要，點擊下方即可直接在 LINE 與顧問討論食用建議：</p>
+                    </div>
+                    <div class="col-12 col-lg-4 text-lg-end d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+                        <button type="button" class="btn btn-ghost btn-sm" id="btnRestartQuiz">
+                            <i class="fa-solid fa-rotate-left"></i> 重新測驗
+                        </button>
+                        <button type="button" class="btn btn-cta btn-sm" id="btnOpenLineShare">
+                            <i class="fa-brands fa-line"></i> LINE 立即諮詢
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================================================
+        // 1. Google 試算表欄位解耦字典與產品組合資料庫 (Adapter Layer)
+        // ==========================================================================
+        const BUNDLE_DATABASE = [
+            {
+                bundle_id: "BND-DIGEST-01",
+                target_dimension: "digest",
+                title: "【清暢養護】腸道菌相與黏膜修復組",
+                desc: "結合 13 株專利益生菌與天然猴頭菇精華，雙向調節腸胃道消化吸收與排便順暢度。",
+                daily_cost: 92,
+                items: [
+                    { name: "康爾喜乳酸菌 (顆粒)", qty: "1盒 / 90包", timing: "每日 2~3 包" },
+                    { name: "衛傑膠囊", qty: "1瓶 / 100粒", timing: "三餐飯前 2 粒" }
+                ],
+                match_rule: (scores) => scores.digest >= 4 || scores.immunity >= 4
+            },
+            {
+                bundle_id: "BND-ENERGY-02",
+                target_dimension: "energy",
+                title: "【元氣補給】細胞充能與抗疲勞強效組",
+                desc: "嚴選珍貴牛樟芝多醣體與多重複合發酵精華，快速補充日常大量流失體力，維持全天續航。",
+                daily_cost: 148,
+                items: [
+                    { name: "995 超級營養液", qty: "1箱 / 24瓶", timing: "每日早晨空腹 1 瓶" },
+                    { name: "樟芝益發酵液", qty: "1箱 / 24瓶", timing: "每日午後 1 瓶" }
+                ],
+                match_rule: (scores) => scores.energy >= 4 || scores.sleep >= 4
+            },
+            {
+                bundle_id: "BND-CIRC-03",
+                target_dimension: "circulatory",
+                title: "【通暢護芯】紅麴納豆與活絡循環組",
+                desc: "高純度 Monacolin K 搭配專利益生菌發酵物，守護心血管循環彈性與調節血脂指標。",
+                daily_cost: 110,
+                items: [
+                    { name: "清味適 / 貝納 Q10", qty: "1瓶 / 120粒", timing: "每日晚餐後 2 粒" },
+                    { name: "百克斯膠囊", qty: "1瓶 / 100粒", timing: "每日 2 次，每次 2 粒" }
+                ],
+                match_rule: (scores) => scores.circulatory >= 4
+            },
+            {
+                bundle_id: "BND-AGING-04",
+                target_dimension: "aging",
+                title: "【青春極致】晶亮潤澤與美妍光采組",
+                desc: "高吸收率游離型葉黃素結合微分子膠原蛋白胜肽，由內而外散發青春水潤透亮光澤。",
+                daily_cost: 125,
+                items: [
+                    { name: "亮妍膠囊 / 清明亮", qty: "1瓶 / 90粒", timing: "每日早晨 2 粒" },
+                    { name: "雅雅調理精油 / 靚妍", qty: "1組", timing: "每日規律保養" }
+                ],
+                match_rule: (scores) => scores.aging >= 3
+            }
+        ];
+
+        // 預設綜合型套裝（降級 fallback）
+        const FALLBACK_BUNDLE = {
+            bundle_id: "BND-DEFAULT-00",
+            title: "【全方位活力】葡眾日常基礎調理套組",
+            desc: "專為現代忙碌族群調配之基礎營養平衡方案，兼顧消化道健康與全天代謝活力。",
+            daily_cost: 95,
+            items: [
+                { name: "康爾喜 (乳酸菌)", qty: "1盒", timing: "每日 2 包" },
+                { name: "995 超級營養液", qty: "1箱", timing: "每日 1 瓶" }
+            ]
+        };
+
+        // ==========================================================================
+        // 2. 問卷狀態機控制器 (Quiz State Machine)
+        // ==========================================================================
+        let currentStep = 1;
+        const totalSteps = 6;
+        let radarChartInstance = null;
+        let assessmentResultData = {
+            scores: { digest: 0, energy: 0, sleep: 0, immunity: 0, circulatory: 0, aging: 0 },
+            concerns: [],
+            totalScore: 100,
+            recommendedBundle: null
+        };
+
+        $(document).ready(function () {
+            bindQuizEvents();
+        });
+
+        function bindQuizEvents() {
+            // 點擊選項卡片事件
+            $('.quiz-card-option').on('click', function (e) {
+                const $card = $(this);
+                const $input = $card.find('input');
+                const isExclusive = $input.data('exclusive') === true;
+                const $group = $card.closest('.row');
+
+                if (isExclusive) {
+                    // 若選擇「良好」排他選項，取消其他選取
+                    $group.find('.quiz-card-option').removeClass('selected');
+                    $group.find('input').prop('checked', false);
+                    $card.addClass('selected');
+                    $input.prop('checked', true);
+                } else {
+                    // 若選擇問題選項，取消「良好」選項
+                    $group.find('input[data-exclusive="true"]').prop('checked', false).closest('.quiz-card-option').removeClass('selected');
+                    
+                    $input.prop('checked', !$input.prop('checked'));
+                    if ($input.prop('checked')) {
+                        $card.addClass('selected');
+                    } else {
+                        $card.removeClass('selected');
+                    }
+                }
+            });
+
+            // 下一步按鈕
+            $('#btnNextStep').on('click', function () {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateStepView();
+                } else {
+                    finishAssessment();
+                }
+            });
+
+            // 上一步按鈕
+            $('#btnPrevStep').on('click', function () {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStepView();
+                }
+            });
+
+            // 重新測驗
+            $('#btnRestartQuiz').on('click', function () {
+                currentStep = 1;
+                // 重設所有勾選
+                $('.quiz-card-option').removeClass('selected');
+                $('input[type="checkbox"]').prop('checked', false);
+                
+                $('#resultContainer').addClass('d-none');
+                $('#quizContainer').removeClass('d-none');
+                $('#navActionArea').removeClass('d-none');
+                updateStepView();
+                $('html, body').animate({ scrollTop: 0 }, 300);
+            });
+
+            // LINE 諮詢轉發
+            $('#btnOpenLineShare').on('click', function () {
+                const script = generateLineConsultScript();
+                const encodedText = encodeURIComponent(script);
+                window.open(`https://line.me/R/oaMessage/@ray_health/?${encodedText}`, '_blank');
+            });
+        }
+
+        // 更新步進器畫面
+        function updateStepView() {
+            // 切換步驟容器
+            $('.fade-step').removeClass('active');
+            $(`.fade-step[data-step="${currentStep}"]`).addClass('active');
+
+            // 更新進度條與徽章
+            const progressPercent = Math.round((currentStep / totalSteps) * 100);
+            $('#progressBarFill').css('width', `${progressPercent}%`);
+            $('#stepCounterBadge').html(`<i class="fa-solid fa-hourglass-half"></i> 進行中：第 ${currentStep} / ${totalSteps} 階段`);
+
+            // 控制按鈕顯示
+            if (currentStep === 1) {
+                $('#btnPrevStep').css('visibility', 'hidden');
+            } else {
+                $('#btnPrevStep').css('visibility', 'visible');
+            }
+
+            if (currentStep === totalSteps) {
+                $('#btnNextStep').html('查看 AI 分析結果 <i class="fa-solid fa-chart-pie"></i>');
+            } else {
+                $('#btnNextStep').html('下一步 <i class="fa-solid fa-arrow-right"></i>');
+            }
+
+            $('html, body').animate({ scrollTop: $('#quizContainer').offset().top - 30 }, 200);
+        }
+
+        // ==========================================================================
+        // 3. 核心精算運算與結果渲染
+        // ==========================================================================
+        function finishAssessment() {
+            // 1. 歸納各維度扣分與痛點
+            const scores = { digest: 0, energy: 0, sleep: 0, immunity: 0, circulatory: 0, aging: 0 };
+            const detectedConcerns = [];
+            let totalDeduction = 0;
+
+            const dimensions = ['digest', 'energy', 'sleep', 'immunity', 'circulatory', 'aging'];
+
+            dimensions.forEach(dim => {
+                let dimScore = 0;
+                $(`input[name="${dim}"]:checked`).each(function () {
+                    const val = parseInt($(this).val(), 10) || 0;
+                    dimScore += val;
+                    const label = $(this).data('label');
+                    if (val > 0 && label) {
+                        detectedConcerns.push(label);
+                    }
+                });
+                scores[dim] = dimScore;
+                totalDeduction += dimScore * 3.5;
+            });
+
+            // 計算綜合體質分數 (滿分 100)
+            const finalScore = Math.max(45, Math.min(100, Math.round(100 - totalDeduction)));
+            assessmentResultData.scores = scores;
+            assessmentResultData.concerns = detectedConcerns;
+            assessmentResultData.totalScore = finalScore;
+
+            // 2. 匹配產品組合
+            let matchedBundle = BUNDLE_DATABASE.find(b => b.match_rule(scores));
+            if (!matchedBundle) {
+                matchedBundle = FALLBACK_BUNDLE;
+            }
+            assessmentResultData.recommendedBundle = matchedBundle;
+
+            // 3. 渲染結果 UI
+            renderResultUI(finalScore, scores, detectedConcerns, matchedBundle);
+
+            // 4. 切換容器
+            $('#quizContainer').addClass('d-none');
+            $('#resultContainer').removeClass('d-none');
+            $('#stepCounterBadge').html(`<i class="fa-solid fa-circle-check text-success"></i> 評估已完成`);
+            $('#progressBarFill').css('width', '100%');
+
+            $('html, body').animate({ scrollTop: $('#resultContainer').offset().top - 30 }, 300);
+        }
+
+        function renderResultUI(score, scores, concerns, bundle) {
+            // 分數動畫與圓形指示器
+            $('#finalScoreVal').text(score);
+            $('#scoreIndicator').css('--score-pct', score);
+
+            // 狀態等級評語
+            let statusTitle = "活力平衡型";
+            let statusDesc = "恭喜！您當前的身體機能維持在優良水平，適度維持日常規律作息即可。";
+
+            if (score < 70) {
+                statusTitle = "深層亞健康警戒";
+                statusDesc = "偵測到多項生理維度出現透支訊號，建議積極啟動葡眾『清調補防』調理方案。";
+                $('#healthStatusTitle').removeClass('text-light').addClass('text-warning');
+            } else if (score < 85) {
+                statusTitle = "局部疲勞調養型";
+                statusDesc = "整體活力穩定，但在特定吸收或修復節點有代謝瓶頸，補充特定機能營養可顯著提升精神。";
+                $('#healthStatusTitle').removeClass('text-warning').addClass('text-light');
+            }
+            $('#healthStatusTitle').text(statusTitle);
+            $('#healthStatusDesc').text(statusDesc);
+
+            // 痛點標籤渲染
+            const $pillsBox = $('#concernPillsBox').empty();
+            if (concerns.length === 0) {
+                $pillsBox.append('<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50">各項機能平衡無顯著痛點</span>');
+            } else {
+                concerns.slice(0, 4).forEach(c => {
+                    $pillsBox.append(`<span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-40 px-2 py-1"><i class="fa-solid fa-circle-dot" style="font-size:8px;"></i> ${c}</span>`);
+                });
+            }
+
+            // 推薦組合渲染
+            $('#recBundleTitle').text(bundle.title);
+            $('#recBundleDesc').text(bundle.desc);
+            $('#recBundleDailyCost').html(`NT$ ${bundle.daily_cost} <span class="fs-6 text-muted">/ 天</span>`);
+
+            const $itemsList = $('#recBundleItemsList').empty();
+            bundle.items.forEach(it => {
+                $itemsList.append(`
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-success"></i>
+                        <span class="text-light">${it.name}</span>
+                        <span class="text-muted">(${it.timing})</span>
+                    </div>
+                `);
+            });
+
+            // 繪製 / 更新 Chart.js 雷達圖
+            renderHealthRadar(scores);
+        }
+
+        // 繪製 Chart.js 六維雷達圖
+        function renderHealthRadar(scores) {
+            // 將各維度扣分轉換為 100 分制健康度
+            const calcHealthVal = (deduct) => Math.max(30, 100 - (deduct * 18));
+
+            const radarData = [
+                calcHealthVal(scores.digest),
+                calcHealthVal(scores.energy),
+                calcHealthVal(scores.sleep),
+                calcHealthVal(scores.immunity),
+                calcHealthVal(scores.circulatory),
+                calcHealthVal(scores.aging)
+            ];
+
+            const ctx = document.getElementById('healthRadarChart').getContext('2d');
+
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['消化腸道', '活力充能', '深度睡眠', '免疫防護', '循環通暢', '美妍抗老'],
+                    datasets: [{
+                        label: '體質活力光譜',
+                        data: radarData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#ffffff',
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#f59e0b',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.12)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)'
+                            },
+                            pointLabels: {
+                                color: '#a7f3d0',
+                                font: {
+                                    size: 12,
+                                    family: "'Noto Sans TC', sans-serif"
+                                }
+                            },
+                            ticks: {
+                                display: false,
+                                min: 0,
+                                max: 100
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(5, 24, 17, 0.9)',
+                            titleColor: '#f0fdf4',
+                            bodyColor: '#34d399',
+                            borderColor: 'rgba(16, 185, 129, 0.4)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function (context) {
+                                    return ` 機能評分：${context.raw} 分`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==========================================================================
+        // 4. LINE 諮詢專屬話術生成器
+        // ==========================================================================
+        function generateLineConsultScript() {
+            const b = assessmentResultData.recommendedBundle;
+            const concernsText = assessmentResultData.concerns.length > 0 
+                ? assessmentResultData.concerns.join('、') 
+                : '日常整體活力保健';
+
+            return `親愛的葡眾健康顧問您好 😊！\n\n我剛完成了線上的【體質健康評估問卷】：\n🌿 綜合活力評分：${assessmentResultData.totalScore} 分\n🔍 主要關注焦點：${concernsText}\n💡 AI 推薦方案：${b.title}\n\n想進一步向您請教這套組合的具體食用方式與日常保養建議，謝謝您！`;
+        }
+    </script>
+</body>
+</html>

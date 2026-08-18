@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-green">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>產品組合與全效調理方案 - 健康生活與自由日常</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --uvaco-bg: #051811;
+            --uvaco-surface: rgba(11, 37, 27, 0.85);
+            --uvaco-surface-hover: rgba(19, 56, 41, 0.95);
+            --uvaco-card-inner: rgba(6, 25, 18, 0.9);
+            --uvaco-primary: #10b981;
+            --uvaco-primary-glow: rgba(16, 185, 129, 0.35);
+            --uvaco-secondary: #34d399;
+            --uvaco-accent: #f59e0b;
+            --uvaco-accent-glow: rgba(245, 158, 11, 0.4);
+            --uvaco-text-main: #f0fdf4;
+            --uvaco-text-muted: #a7f3d0;
+            --uvaco-border: rgba(16, 185, 129, 0.22);
+            --uvaco-border-active: rgba(52, 211, 153, 0.6);
+        }
+
+        body {
+            background-color: var(--uvaco-bg);
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(52, 211, 153, 0.06) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        /* 標題與字體 */
+        .font-serif-brand {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        /* 玻璃擬態與沉降卡片 */
+        .bundle-glass-panel {
+            background: var(--uvaco-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bundle-glass-panel:hover {
+            border-color: var(--uvaco-border-active);
+            box-shadow: 0 14px 40px var(--uvaco-primary-glow);
+        }
+
+        /* 情境標籤膠囊微光列 (HUD Pills) */
+        .scenario-nav-wrapper {
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE 10+ */
+            padding-bottom: 4px;
+        }
+        .scenario-nav-wrapper::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        .scenario-btn {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-muted);
+            border-radius: 50rem;
+            padding: 0.55rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+        .scenario-btn:hover {
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+        }
+        .scenario-btn.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #34d399;
+            color: #ffffff;
+            box-shadow: 0 4px 15px var(--uvaco-primary-glow);
+        }
+
+        /* 調理主卡 Pod 佈局 */
+        .pod-hero-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
+            border: 1px solid var(--uvaco-accent);
+            color: #fde68a;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 0.25rem 0.6rem;
+            display: inline-block;
+        }
+
+        /* 晝夜時鐘食用光軸 (Routine Timeline) */
+        .timeline-container {
+            position: relative;
+            padding-left: 28px;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(to bottom, #10b981 0%, #34d399 50%, #f59e0b 100%);
+            opacity: 0.4;
+        }
+        .timeline-node {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+        .timeline-node:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -28px;
+            top: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #051811;
+            border: 2px solid var(--uvaco-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: var(--uvaco-secondary);
+            box-shadow: 0 0 8px var(--uvaco-primary-glow);
+        }
+
+        /* 單品微型卡片 (Bundle Item Tile) */
+        .bundle-item-tile {
+            background: var(--uvaco-card-inner);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+        .bundle-item-tile:hover {
+            border-color: rgba(52, 211, 153, 0.4);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        /* 每日銅板價大字標示 */
+        .daily-price-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%);
+            border: 1px dashed rgba(245, 158, 11, 0.5);
+            border-radius: 14px;
+            padding: 0.85rem 1.2rem;
+        }
+
+        /* 互動按鈕設計 */
+        .btn-uvaco-accent {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 0.65rem 1.4rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px var(--uvaco-accent-glow);
+        }
+        .btn-uvaco-accent:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .btn-uvaco-outline {
+            background: transparent;
+            color: var(--uvaco-text-muted);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 12px;
+            padding: 0.65rem 1.2rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+        .btn-uvaco-outline:hover {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+        }
+
+        /* 懸浮快速功能選單 (FAB Quick Bar) */
+        .quick-consult-bar {
+            position: sticky;
+            bottom: 1.5rem;
+            z-index: 100;
+            margin-top: 2rem;
+        }
+        .quick-bar-inner {
+            background: rgba(5, 24, 17, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-secondary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--uvaco-primary-glow);
+            border-radius: 50rem;
+            padding: 0.6rem 1.25rem;
+        }
+
+        /* 手機 RWD 細部微調 */
+        @media (max-width: 768px) {
+            .bundle-glass-panel {
+                border-radius: 16px;
+                padding: 1.25rem !important;
+            }
+            .daily-price-box {
+                text-align: center;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-lg-5 pt-4 pb-3">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+            <div>
+                <div class="d-inline-flex align-items-center gap-2 mb-2">
+                    <span class="badge rounded-pill bg-success bg-opacity-25 text-success border border-success border-opacity-25 px-3 py-2">
+                        <i class="fa-solid fa-leaf"></i> 葡眾精準營養科學
+                    </span>
+                    <span class="text-secondary small d-none d-sm-inline">
+                        <i class="fa-solid fa-shield-halved"></i> 100% 葡萄王生技母廠研發
+                    </span>
+                </div>
+                <h1 class="h2 font-serif-brand fw-bold mb-1 text-white">
+                    全效調理組合推薦
+                </h1>
+                <p class="text-secondary mb-0 small">
+                    告別瓶瓶罐罐的盲目補充！依據生化代謝機轉與晝夜生理時鐘，為您量身打造黃金協同複方。
+                </p>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button id="btnRefreshData" class="btn btn-uvaco-outline btn-sm px-3" title="重新載入試算表數據">
+                    <i class="fa-solid fa-arrows-rotate"></i> 同步最新配方
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-uvaco-outline btn-sm dropdown-toggle px-3" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-arrow-down-wide-short"></i> 排序推薦
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-dark border-secondary">
+                        <li><a class="dropdown-item active" href="javascript:void(0);" onclick="sortBundles('popular')"><i class="fa-solid fa-fire"></i> 熱銷人氣排行</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="sortBundles('cost')"><i class="fa-solid fa-coins"></i> 每日銅板價 (低至高)</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0);" onclick="sortBundles('sv')"><i class="fa-solid fa-gem"></i> 積分回饋 SV</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="scenario-nav-wrapper d-flex gap-2 pb-2">
+            <button class="scenario-btn active" data-category="ALL">
+                <i class="fa-solid fa-layer-group"></i> 全部調理方案
+            </button>
+            <button class="scenario-btn" data-category="GUT">
+                <i class="fa-solid fa-bacteria"></i> 消化道菌叢重整
+            </button>
+            <button class="scenario-btn" data-category="IMMUNE">
+                <i class="fa-solid fa-shield-virus"></i> 換季體質禦守
+            </button>
+            <button class="scenario-btn" data-category="ENERGY">
+                <i class="fa-solid fa-bolt-lightning"></i> 熬夜應酬與提振
+            </button>
+            <button class="scenario-btn" data-category="SLIM">
+                <i class="fa-solid fa-fire-flame-curved"></i> 代謝煥活與體態
+            </button>
+            <button class="scenario-btn" data-category="SENIOR">
+                <i class="fa-solid fa-person-cane"></i> 樂齡靈活與固本
+            </button>
+            <button class="scenario-btn" data-category="WOMAN">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 青春美顏與滋補
+            </button>
+        </div>
+    </div>
+
+    <div class="container-fluid px-3 px-lg-5 py-2">
+        <div id="bundleListContainer" class="row g-4">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">載入中...</span>
+                </div>
+                <div class="text-secondary mt-2 small"><i class="fa-solid fa-cloud-arrow-down"></i> 正在解耦載入最新產品組合資料表...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container quick-consult-bar px-3">
+        <div class="quick-bar-inner d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 text-center text-sm-start">
+                <div class="bg-success bg-opacity-25 rounded-circle p-2 d-none d-md-flex align-items-center justify-content-center text-success" style="width: 42px; height: 42px;">
+                    <i class="fa-solid fa-stethoscope fs-5"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-white small">
+                        <i class="fa-solid fa-circle-question text-warning"></i> 不確定哪種組合最適合目前的體質狀態？
+                    </div>
+                    <div class="text-secondary" style="font-size: 0.75rem;">
+                        填寫 3 分鐘日常健康問卷，由金牌營養體系團隊為您做精準飲食與營養評估。
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 w-100 w-sm-auto justify-content-center">
+                <a href="ctc-survey.html" class="btn btn-uvaco-outline btn-sm rounded-pill px-3 text-nowrap">
+                    <i class="fa-solid fa-clipboard-list"></i> 免費健康自測
+                </a>
+                <button id="btnOpenDrawerCart" class="btn btn-uvaco-accent btn-sm rounded-pill px-4 text-nowrap" onclick="openScheduleModal()">
+                    <i class="fa-solid fa-calendar-check"></i> 生成我的調理課表
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-secondary" style="background: #081e15; color: #f0fdf4; border: 1px solid var(--uvaco-border);">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title font-serif-brand text-success fw-bold">
+                        <i class="fa-solid fa-clipboard-check"></i> 個人化專屬調理日程與叮嚀
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="modalScheduleContent">
+                        </div>
+                    <div class="mt-4 p-3 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px dashed var(--uvaco-border);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-warning"><i class="fa-brands fa-line"></i> 一鍵複製 LINE 夥伴推廣 / 個人備忘話術</span>
+                            <button id="btnCopyScript" class="btn btn-sm btn-outline-success py-0 px-2" onclick="copyScheduleScript()">
+                                <i class="fa-solid fa-copy"></i> 複製內容
+                            </button>
+                        </div>
+                        <textarea id="scriptTextarea" class="form-control form-control-sm bg-transparent text-light border-0" rows="4" readonly style="resize: none; font-size: 0.82rem;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-uvaco-outline btn-sm" data-bs-dismiss="modal">關閉</button>
+                    <a href="https://line.me" target="_blank" class="btn btn-uvaco-accent btn-sm">
+                        <i class="fa-solid fa-paper-plane"></i> 立即傳送至 LINE
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        /**
+         * =========================================================================
+         * 葡眾產品組合 (P15000) 模組化邏輯與試算表欄位解耦適配器 (Data Decoupler)
+         * =========================================================================
+         */
+
+        // 1. Google 試算表欄位字典解耦映射表 (Column Dictionary Mapping)
+        const BUNDLE_FIELD_MAP = {
+            id: ['組合代碼', 'bundle_id', 'id', '套組編號'],
+            name: ['組合名稱', 'bundle_name', 'name', '套裝名稱'],
+            category: ['情境分類', 'category_code', 'category', '分類'],
+            tag: ['核心亮點', 'tag_line', 'subtitle', '行銷標語'],
+            target_audience: ['適用族群', 'target_user', 'audience', '對象'],
+            mechanism: ['生化作用機轉', 'mechanism_desc', 'principle', '配方機轉'],
+            price_member: ['會員特惠價', 'price_member', 'member_price', '特惠價'],
+            price_retail: ['建議售價', 'price_retail', 'retail_price', '原價'],
+            sv: ['總積分', 'total_sv', 'sv_points', 'SV'],
+            days_supply: ['食用天數', 'days_supply', 'period_days', '天數'],
+            routine_morning: ['晨起空腹', 'morning_routine', 'routine_am'],
+            routine_noon: ['午間餐後', 'noon_routine', 'routine_pm'],
+            routine_night: ['夜間睡前', 'night_routine', 'routine_night'],
+            items_json: ['內含產品明細', 'bundle_items', 'items']
+        };
+
+        // 2. 本地備援模擬數據 (當無網路或尚未綁定 Google 試算表時無縫渲染)
+        const FALLBACK_BUNDLES = [
+            {
+                id: "BD-01",
+                name: "黃金順暢與全效菌相重整組",
+                category: "GUT",
+                tag: "暢銷 No.1 消化道生態系雙向修護",
+                target_audience: "排便不順、三餐外食少蔬果、腹脹沉重、欲提升保護力者",
+                mechanism: "先以高規格十三株有益共生益生菌奠定菌相優勢，再以發酵草本多醣體滋養腸道黏膜，建構堅固消化防線。",
+                price_member: 3950,
+                price_retail: 4700,
+                sv: 3200,
+                days_supply: 30,
+                routine_morning: "康爾喜乳酸菌 1 包（空腹隨常溫水食用）",
+                routine_noon: "衛傑膠囊 2 粒（午餐前 30 分鐘，維持消化機能）",
+                routine_night: "康爾喜乳酸菌 1 包 + 溫水 200cc",
+                items: [
+                    { name: "康爾喜 (乳酸菌顆粒)", spec: "90包/盒", qty: 1, icon: "fa-solid fa-cubes-stacked" },
+                    { name: "衛傑 (護衛膠囊)", spec: "100粒/瓶", qty: 1, icon: "fa-solid fa-capsules" },
+                    { name: "995 超級營養液 (加贈試飲)", spec: "180ml/瓶", qty: 1, icon: "fa-solid fa-bottle-droplet" }
+                ],
+                radar_scores: [95, 90, 85, 70, 60] // [消化道, 保護力, 代謝力, 精神度, 滋補度]
+            },
+            {
+                id: "BD-02",
+                name: "雙效固本與高壓應酬修護組",
+                category: "ENERGY",
+                tag: "商務菁英必備 體力神救援",
+                target_audience: "經常熬夜加班、應酬交際頻繁、日夜顛倒、早起沉重無力者",
+                mechanism: "液態小分子天然多醣體與專利益生菌深層發酵精華，快速被細胞利用，夜間同步啟動生理調節。",
+                price_member: 9980,
+                price_retail: 11800,
+                sv: 8400,
+                days_supply: 30,
+                routine_morning: "995 超級營養液 1 瓶（開瓶即飲，瞬間充電）",
+                routine_noon: "樟芝益發酵液 1 瓶（午後或應酬前飲用）",
+                routine_night: "衛傑 2 粒（睡前深層修護保養）",
+                items: [
+                    { name: "995 生化超級營養液", spec: "180ml x 24瓶/箱", qty: 1, icon: "fa-solid fa-bottle-droplet" },
+                    { name: "樟芝益菌絲體發酵液", spec: "180ml x 24瓶/箱", qty: 1, icon: "fa-solid fa-shield-halved" }
+                ],
+                radar_scores: [75, 98, 92, 95, 88]
+            },
+            {
+                id: "BD-03",
+                name: "全家換季防禦與體質禦守組",
+                category: "IMMUNE",
+                tag: "高活性多醣體 打造隱形防護罩",
+                target_audience: "換季敏弱不適、幼童學童環境適應、銀髮族需提升外在防禦力",
+                mechanism: "多重複合菇蕈萃取精華，輔以高純度靈芝多醣，由內而外活化保護屏障，建立穩定體質。",
+                price_member: 5420,
+                price_retail: 6400,
+                sv: 4500,
+                days_supply: 30,
+                routine_morning: "百克斯膠囊 2 粒 + 康爾喜 1 包",
+                routine_noon: "餐後飲用常溫溫開水 300cc",
+                routine_night: "百克斯膠囊 2 粒（睡前維持呼吸暢順舒適）",
+                items: [
+                    { name: "百克斯 (冬蟲夏草菌絲體)", spec: "100粒/瓶", qty: 1, icon: "fa-solid fa-seedling" },
+                    { name: "康爾喜乳酸菌", spec: "90包/盒", qty: 1, icon: "fa-solid fa-cubes-stacked" }
+                ],
+                radar_scores: [88, 96, 75, 80, 85]
+            },
+            {
+                id: "BD-04",
+                name: "輕盈順暢與代謝煥活管理組",
+                category: "SLIM",
+                tag: "餐前阻斷 x 餐後代謝 雙管齊下",
+                target_audience: "甜食澱粉愛好者、運動停滯期、久坐代謝減緩、欲維持優美體態者",
+                mechanism: "富含優質大豆蛋白與膳食纖維提供飽足感，配合山苦瓜與茶多酚精華，促進能量正常消耗運轉。",
+                price_member: 4680,
+                price_retail: 5500,
+                sv: 3800,
+                days_supply: 30,
+                routine_morning: "葡眾餐包 1 包（以溫水搖勻取代高熱量早餐）",
+                routine_noon: "清味香/消渴複方 2 粒（大餐前 15 分鐘）",
+                routine_night: "康爾寧 1 包（晚餐後促進夜間蠕動）",
+                items: [
+                    { name: "葡眾原味餐包", spec: "30包/盒", qty: 1, icon: "fa-solid fa-bowl-food" },
+                    { name: "清味香複合膠囊", spec: "100粒/瓶", qty: 1, icon: "fa-solid fa-leaf" },
+                    { name: "康爾喜益生菌", spec: "90包/盒", qty: 1, icon: "fa-solid fa-cubes-stacked" }
+                ],
+                radar_scores: [92, 70, 96, 85, 65]
+            },
+            {
+                id: "BD-05",
+                name: "樂齡關鍵靈活與步履穩健組",
+                category: "SENIOR",
+                tag: "行動力滿分 陪爸媽健步如飛",
+                target_audience: "上下樓梯吃力、喜愛登山健行、步履沉重、熟齡關鍵環節保養",
+                mechanism: "高純度非變性二型膠原蛋白結合軟骨素與草本複方，補充關鍵滑囊潤滑營養，維持靈活敏捷度。",
+                price_member: 6200,
+                price_retail: 7300,
+                sv: 5100,
+                days_supply: 30,
+                routine_morning: "貝納 Q10 / 固立健 2 粒（早餐後搭配溫水）",
+                routine_noon: "995 超級營養液 半瓶",
+                routine_night: "貝納 2 粒（睡前補充，滋養關鍵環節）",
+                items: [
+                    { name: "固立健膠囊", spec: "120粒/瓶", qty: 1, icon: "fa-solid fa-person-walking" },
+                    { name: "995 生化營養液", spec: "180ml x 24瓶/箱", qty: 1, icon: "fa-solid fa-bottle-droplet" }
+                ],
+                radar_scores: [70, 85, 80, 88, 95]
+            }
+        ];
+
+        let currentCategory = 'ALL';
+        let rawBundleData = [];
+
+        // 3. 解耦核心適配器函式
+        function parseGoogleSheetData(rows) {
+            if (!rows || rows.length === 0) return FALLBACK_BUNDLES;
+
+            return rows.map((row, index) => {
+                const getVal = (fields) => {
+                    for (let f of fields) {
+                        if (row[f] !== undefined && row[f] !== null && row[f] !== '') return row[f];
+                    }
+                    return null;
+                };
+
+                let itemsParsed = [];
+                const rawItems = getVal(BUNDLE_FIELD_MAP.items_json);
+                if (rawItems) {
+                    try {
+                        itemsParsed = typeof rawItems === 'string' ? JSON.parse(rawItems) : rawItems;
+                    } catch (e) {
+                        itemsParsed = [{ name: rawItems, spec: "標準規格", qty: 1, icon: "fa-solid fa-box" }];
+                    }
+                } else {
+                    itemsParsed = [{ name: "葡眾精選保健單品", spec: "30天份", qty: 1, icon: "fa-solid fa-box" }];
+                }
+
+                return {
+                    id: getVal(BUNDLE_FIELD_MAP.id) || `BD-0${index+1}`,
+                    name: getVal(BUNDLE_FIELD_MAP.name) || "葡眾經典生活調理套組",
+                    category: getVal(BUNDLE_FIELD_MAP.category) || "GUT",
+                    tag: getVal(BUNDLE_FIELD_MAP.tag) || "全方位機能保養推薦",
+                    target_audience: getVal(BUNDLE_FIELD_MAP.target_audience) || "注重日常健康與體質調理之大眾",
+                    mechanism: getVal(BUNDLE_FIELD_MAP.mechanism) || "融合漢方草本與現代生物發酵技術，提供高吸收率之平衡營養。",
+                    price_member: Number(getVal(BUNDLE_FIELD_MAP.price_member)) || 3600,
+                    price_retail: Number(getVal(BUNDLE_FIELD_MAP.price_retail)) || 4200,
+                    sv: Number(getVal(BUNDLE_FIELD_MAP.sv)) || 2800,
+                    days_supply: Number(getVal(BUNDLE_FIELD_MAP.days_supply)) || 30,
+                    routine_morning: getVal(BUNDLE_FIELD_MAP.routine_morning) || "早起空腹 1 包搭配溫開水",
+                    routine_noon: getVal(BUNDLE_FIELD_MAP.routine_noon) || "午餐前 30 分鐘食用",
+                    routine_night: getVal(BUNDLE_FIELD_MAP.routine_night) || "睡前放鬆補充 1 包",
+                    items: itemsParsed,
+                    radar_scores: [85, 80, 88, 75, 82]
+                };
+            });
+        }
+
+        // 4. 動態渲染 HTML 卡片
+        function renderBundles(dataList) {
+            const $container = $('#bundleListContainer');
+            $container.empty();
+
+            const filtered = currentCategory === 'ALL' 
+                ? dataList 
+                : dataList.filter(b => b.category === currentCategory);
+
+            if (filtered.length === 0) {
+                $container.html(`
+                    <div class="col-12 text-center py-5">
+                        <i class="fa-solid fa-filter-circle-xmark fs-1 text-secondary opacity-50 mb-3"></i>
+                        <h5 class="text-light">此情境分類目前尚無上架之調理套組</h5>
+                        <p class="text-secondary small">請切換其他生活情境標籤，或點擊下方按鈕預約專屬客製化配方。</p>
+                        <button class="btn btn-uvaco-outline btn-sm rounded-pill" onclick="$('.scenario-btn[data-category=ALL]').click()">
+                            <i class="fa-solid fa-rotate-left"></i> 查看全部組合
+                        </button>
+                    </div>
+                `);
+                return;
+            }
+
+            filtered.forEach((bundle, idx) => {
+                const costPerDay = Math.round(bundle.price_member / (bundle.days_supply || 30));
+                const saveMoney = bundle.price_retail - bundle.price_member;
+
+                let itemsHtml = '';
+                bundle.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="bundle-item-tile d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="text-success"><i class="${item.icon || 'fa-solid fa-box'}"></i></div>
+                                <div>
+                                    <div class="text-light small fw-bold">${item.name}</div>
+                                    <div class="text-secondary" style="font-size: 0.72rem;">規格：${item.spec}</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-dark border border-success border-opacity-25 text-success rounded-pill px-2">
+                                x ${item.qty}
+                            </span>
+                        </div>
+                    `;
+                });
+
+                const cardHtml = `
+                    <div class="col-12 col-xl-6">
+                        <div class="bundle-glass-panel p-3 p-md-4 h-100 d-flex flex-column justify-content-between position-relative">
+                            
+                            <div>
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                    <div>
+                                        <span class="pod-hero-badge mb-1">
+                                            <i class="fa-solid fa-award"></i> ${bundle.tag}
+                                        </span>
+                                        <h3 class="h4 font-serif-brand fw-bold text-white mb-0 mt-1">
+                                            ${bundle.name}
+                                        </h3>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 small px-2 py-1">
+                                            <i class="fa-solid fa-gem"></i> ${bundle.sv.toLocaleString()} SV 點數
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="p-2 px-3 rounded-3 mb-3" style="background: rgba(16, 185, 129, 0.06); border-left: 3px solid var(--uvaco-secondary);">
+                                    <span class="text-secondary small fw-bold"><i class="fa-solid fa-user-check text-success"></i> 專為此族群設計：</span>
+                                    <div class="text-light small mt-1">${bundle.target_audience}</div>
+                                </div>
+
+                                <div class="row g-3 my-2">
+                                    <div class="col-12 col-md-6">
+                                        <div class="text-secondary small fw-bold mb-2">
+                                            <i class="fa-solid fa-boxes-stacked text-success"></i> 組合內含品項 (${bundle.days_supply}天份)：
+                                        </div>
+                                        ${itemsHtml}
+                                        <div class="text-secondary mt-2" style="font-size: 0.72rem;">
+                                            <i class="fa-solid fa-circle-info"></i> ${bundle.mechanism}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <div class="text-secondary small fw-bold mb-2">
+                                            <i class="fa-solid fa-clock-rotate-left text-warning"></i> 24-小時晝夜黃金時段：
+                                        </div>
+                                        <div class="timeline-container ps-4">
+                                            <div class="timeline-node">
+                                                <div class="timeline-dot"><i class="fa-solid fa-sun"></i></div>
+                                                <div class="text-warning small fw-bold">晨起空腹 (甦醒啟動)</div>
+                                                <div class="text-light" style="font-size: 0.78rem;">${bundle.routine_morning}</div>
+                                            </div>
+                                            <div class="timeline-node">
+                                                <div class="timeline-dot"><i class="fa-solid fa-utensils"></i></div>
+                                                <div class="text-success small fw-bold">午間餐前/後 (機能維持)</div>
+                                                <div class="text-light" style="font-size: 0.78rem;">${bundle.routine_noon}</div>
+                                            </div>
+                                            <div class="timeline-node">
+                                                <div class="timeline-dot"><i class="fa-solid fa-moon"></i></div>
+                                                <div class="text-info small fw-bold">夜間睡前 (深層修護)</div>
+                                                <div class="text-light" style="font-size: 0.78rem;">${bundle.routine_night}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                                    <div class="daily-price-box w-100 w-sm-auto">
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            <span class="text-secondary small">平均每日只需</span>
+                                            <span class="h3 fw-bold text-warning mb-0">NT$ ${costPerDay}</span>
+                                            <span class="text-secondary small">元</span>
+                                        </div>
+                                        <div class="text-secondary" style="font-size: 0.72rem;">
+                                            會員特惠價 <span class="text-light fw-bold">NT$ ${bundle.price_member.toLocaleString()}</span> 
+                                            <span class="text-decoration-line-through text-muted ms-1">NT$ ${bundle.price_retail.toLocaleString()}</span>
+                                            <span class="text-success ms-1">(省下 $${saveMoney})</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2 w-100 w-sm-auto justify-content-end">
+                                        <button class="btn btn-uvaco-outline btn-sm rounded-3 py-2 px-3 text-nowrap" onclick="viewBundleDetail('${bundle.id}')">
+                                            <i class="fa-solid fa-file-waveform"></i> 調理日程
+                                        </button>
+                                        <button class="btn btn-uvaco-accent btn-sm rounded-3 py-2 px-3 text-nowrap" onclick="consultThisBundle('${bundle.name}', ${bundle.price_member})">
+                                            <i class="fa-solid fa-comments"></i> 預約評估
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+                $container.append(cardHtml);
+            });
+        }
+
+        // 5. 情境切換過濾器
+        $(document).on('click', '.scenario-btn', function () {
+            $('.scenario-btn').removeClass('active');
+            $(this).addClass('active');
+            currentCategory = $(this).data('category');
+            renderBundles(rawBundleData);
+        });
+
+        // 6. 排序功能
+        function sortBundles(type) {
+            if (type === 'cost') {
+                rawBundleData.sort((a, b) => (a.price_member / a.days_supply) - (b.price_member / b.days_supply));
+            } else if (type === 'sv') {
+                rawBundleData.sort((a, b) => b.sv - a.sv);
+            } else {
+                // 預設恢復
+                rawBundleData = [...FALLBACK_BUNDLES];
+            }
+            renderBundles(rawBundleData);
+        }
+
+        // 7. 查看個別調理日程與調用 Modal
+        let activeSelectedBundle = null;
+        function viewBundleDetail(bundleId) {
+            const b = rawBundleData.find(item => item.id === bundleId);
+            if (!b) return;
+            activeSelectedBundle = b;
+
+            const costPerDay = Math.round(b.price_member / (b.days_supply || 30));
+
+            const modalBody = `
+                <div class="mb-3">
+                    <span class="badge bg-warning text-dark mb-1">${b.tag}</span>
+                    <h4 class="text-white font-serif-brand fw-bold">${b.name}</h4>
+                    <p class="text-secondary small mb-3">${b.mechanism}</p>
+                </div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 text-center" style="background: rgba(16,185,129,0.1); border: 1px solid var(--uvaco-border);">
+                            <div class="text-secondary small">晨間甦醒</div>
+                            <div class="text-success fw-bold small mt-1">${b.routine_morning}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 text-center" style="background: rgba(16,185,129,0.1); border: 1px solid var(--uvaco-border);">
+                            <div class="text-secondary small">午間維持</div>
+                            <div class="text-success fw-bold small mt-1">${b.routine_noon}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 text-center" style="background: rgba(16,185,129,0.1); border: 1px solid var(--uvaco-border);">
+                            <div class="text-secondary small">夜間修護</div>
+                            <div class="text-success fw-bold small mt-1">${b.routine_night}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-secondary small">
+                    <i class="fa-solid fa-bell text-warning"></i> <strong>金牌導師叮嚀：</strong> 保健品非藥品，請維持連續 30~90 天完整調理週期，配合每日 2,000cc 溫水，發揮最佳生化協同吸收率。
+                </div>
+            `;
+
+            const shareScript = `親愛的朋友 😊！\\n為您規劃的葡眾專屬【${b.name}】：\\n\\n☀️ 晨起空腹：${b.routine_morning}\\n🥗 午間餐後：${b.routine_noon}\\n🌙 夜間睡前：${b.routine_night}\\n\\n💡 30 天專屬調理特惠：NT$ ${b.price_member.toLocaleString()} 元（平均每天只要 NT$ ${costPerDay} 元）\\n持續給身體深層充電，找回輕盈活力！有任何細節隨時聊聊唷 ❤️`;
+
+            $('#modalScheduleContent').html(modalBody);
+            $('#scriptTextarea').val(shareScript.replace(/\\n/g, '\n'));
+
+            const myModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+            myModal.show();
+        }
+
+        function openScheduleModal() {
+            if (rawBundleData.length > 0) {
+                viewBundleDetail(rawBundleData[0].id);
+            }
+        }
+
+        // 8. 複製推廣/備忘話術
+        function copyScheduleScript() {
+            const textarea = document.getElementById('scriptTextarea');
+            textarea.select();
+            document.execCommand('copy');
+            const $btn = $('#btnCopyScript');
+            const originalHtml = $btn.html();
+            $btn.removeClass('btn-outline-success').addClass('btn-success text-white').html('<i class="fa-solid fa-check"></i> 已複製');
+            setTimeout(() => {
+                $btn.removeClass('btn-success text-white').addClass('btn-outline-success').html(originalHtml);
+            }, 2000);
+        }
+
+        // 9. 預約單一套組諮詢
+        function consultThisBundle(bundleName, price) {
+            const text = `您好！我在【健康生活與自由日常】網站上看到了【${bundleName}】（NT$ ${price.toLocaleString()}），想進一步了解適合我的食用搭配與訂購方式！`;
+            const encoded = encodeURIComponent(text);
+            window.open(`https://line.me/R/oaMessage/@your_line_id/?${encoded}`, '_blank');
+        }
+
+        // 10. 初始化與非同步載入 Google 試算表（GViz 示範）
+        $(document).ready(function () {
+            // 預設載入模擬數據
+            rawBundleData = [...FALLBACK_BUNDLES];
+            setTimeout(() => {
+                renderBundles(rawBundleData);
+            }, 300);
+
+            // 監聽手動重新同步按鈕
+            $('#btnRefreshData').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 載入中...');
+                
+                // 模擬抓取試算表完成
+                setTimeout(() => {
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步最新配方');
+                    renderBundles(rawBundleData);
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>
