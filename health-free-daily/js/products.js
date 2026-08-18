@@ -71,10 +71,10 @@ async function fetchGoogleSheetsData() {
 
         // 並行抓取 4 大資料表工作表
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
-            fetchSheet('產品主表'),
-            fetchSheet('產品主系列表'),
-            fetchSheet('產品次系列表'),
-            fetchSheet('產品型態表')
+            fetchSheet('產品主檔'),
+            fetchSheet('產品主系列'),
+            fetchSheet('產品次系列'),
+            fetchSheet('產品型態')
         ]);
 
         // A. 處理「產品主表」：依欄位順序讀取並依 region_code 分流
