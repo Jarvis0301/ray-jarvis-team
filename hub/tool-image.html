@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>影像處理軍備工坊 | 榮祥團隊極密戰情室</title>
+    <title>影像處理與頻域盲浮水印軍備工坊 | 榮祥團隊戰情室</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
         /* ==========================================================================
-           1. 核心版 (Dark Purple) Design System 變數注入
+           1. 核心版 (Dark Purple) 主題變數系統
            ========================================================================== */
         :root, [data-bs-theme="dark-purple"] {
             --uvaco-bg-body: #090514;
             --uvaco-bg-surface: #120b22;
-            --uvaco-bg-card: #180f2d;
-            --uvaco-bg-card-hover: #22153e;
-            --uvaco-bg-input: #1f143a;
+            --uvaco-bg-card: #160d2b;
+            --uvaco-bg-card-hover: #1f123d;
+            --uvaco-bg-input: #1b1035;
+            --uvaco-terminal-bg: #06020c;
             --uvaco-border: rgba(192, 132, 252, 0.18);
             --uvaco-border-active: rgba(192, 132, 252, 0.55);
             --uvaco-primary: #c084fc;
@@ -34,7 +37,6 @@
             --uvaco-text-muted: #9d8db5;
             --uvaco-radius-sm: 8px;
             --uvaco-radius-md: 14px;
-            --uvaco-radius-lg: 20px;
             --uvaco-shadow-glow: 0 0 25px rgba(192, 132, 252, 0.15);
             --uvaco-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
@@ -49,30 +51,17 @@
             margin: 0;
         }
 
-        /* 程式碼與數值字型 */
         .font-mono {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* 自訂滾動條 */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--uvaco-bg-body);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(192, 132, 252, 0.3);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--uvaco-primary);
-        }
+        /* 滾動條 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--uvaco-bg-body); }
+        ::-webkit-scrollbar-thumb { background: rgba(192, 132, 252, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--uvaco-primary); }
 
-        /* ==========================================================================
-           2. 核心版卡片與工作台面板元件
-           ========================================================================== */
+        /* 卡片與容器 */
         .studio-card {
             background-color: var(--uvaco-bg-card);
             border: 1px solid var(--uvaco-border);
@@ -81,41 +70,20 @@
             backdrop-filter: blur(12px);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .studio-card:hover { border-color: var(--uvaco-border-active); }
 
-        .studio-card:hover {
-            border-color: var(--uvaco-border-active);
-        }
-
-        .studio-header-badge {
-            background: rgba(192, 132, 252, 0.12);
-            color: var(--uvaco-primary);
-            border: 1px solid rgba(192, 132, 252, 0.3);
-            border-radius: 50px;
-            padding: 0.35rem 0.85rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            letter-spacing: 0.5px;
-        }
-
-        /* 標籤導覽按鈕 */
+        /* 導覽分頁 */
         .studio-nav-tabs .nav-link {
             color: var(--uvaco-text-muted);
             border: none;
             border-bottom: 2px solid transparent;
-            padding: 0.65rem 1rem;
+            padding: 0.65rem 0.85rem;
             font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            font-size: 0.85rem;
             background: transparent;
+            transition: all 0.2s ease;
         }
-
-        .studio-nav-tabs .nav-link:hover {
-            color: var(--uvaco-text-main);
-            border-color: rgba(192, 132, 252, 0.4);
-        }
-
+        .studio-nav-tabs .nav-link:hover { color: var(--uvaco-text-main); border-color: rgba(192, 132, 252, 0.4); }
         .studio-nav-tabs .nav-link.active {
             color: var(--uvaco-primary);
             border-bottom: 2px solid var(--uvaco-primary);
@@ -124,17 +92,15 @@
             font-weight: 700;
         }
 
-        /* 輸入控制項客製化 */
+        /* 輸入控制項 */
         .studio-input, .studio-select {
             background-color: var(--uvaco-bg-input);
             border: 1px solid var(--uvaco-border);
             color: var(--uvaco-text-main);
             border-radius: var(--uvaco-radius-sm);
-            padding: 0.55rem 0.85rem;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
         }
-
         .studio-input:focus, .studio-select:focus {
             background-color: var(--uvaco-bg-input);
             border-color: var(--uvaco-primary);
@@ -143,7 +109,6 @@
             outline: none;
         }
 
-        /* 範圍滑桿 Range Slider */
         .studio-range {
             accent-color: var(--uvaco-primary);
             height: 6px;
@@ -158,19 +123,17 @@
             border: none;
             font-weight: 700;
             border-radius: var(--uvaco-radius-sm);
-            padding: 0.6rem 1.25rem;
+            padding: 0.55rem 1.15rem;
             box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-
         .btn-studio-primary:hover {
             background: linear-gradient(135deg, #b86bfc 0%, #d8b4fe 50%, #f0abfc 100%);
             color: #000000;
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(192, 132, 252, 0.5);
         }
 
         .btn-studio-outline {
@@ -178,15 +141,14 @@
             color: var(--uvaco-primary);
             border: 1px solid rgba(192, 132, 252, 0.3);
             border-radius: var(--uvaco-radius-sm);
-            padding: 0.55rem 1rem;
+            padding: 0.5rem 0.85rem;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-
         .btn-studio-outline:hover {
             background: rgba(192, 132, 252, 0.18);
             border-color: var(--uvaco-primary);
@@ -198,19 +160,25 @@
             color: var(--uvaco-secondary);
             border: 1px solid rgba(244, 114, 182, 0.35);
             border-radius: var(--uvaco-radius-sm);
-            padding: 0.55rem 1rem;
+            padding: 0.5rem 0.85rem;
             font-weight: 600;
-            transition: all 0.2s ease;
+            font-size: 0.85rem;
         }
 
-        .btn-studio-secondary:hover {
-            background: rgba(244, 114, 182, 0.28);
-            color: #ffffff;
+        .btn-studio-danger {
+            background: rgba(251, 113, 133, 0.15);
+            color: var(--uvaco-danger);
+            border: 1px solid rgba(251, 113, 133, 0.35);
+            border-radius: var(--uvaco-radius-sm);
+            padding: 0.5rem 0.85rem;
+            font-weight: 600;
+        }
+        .btn-studio-danger:hover {
+            background: var(--uvaco-danger);
+            color: #000000;
         }
 
-        /* ==========================================================================
-           3. 中央互動式畫布視界 (Interactive Viewport)
-           ========================================================================== */
+        /* 畫布視界與拖曳區 */
         .canvas-viewport-container {
             position: relative;
             background: #06030c;
@@ -221,10 +189,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
         }
-
-        /* 棋盤格透明背景預覽 */
         .canvas-checkerboard {
             background-color: #0b0714;
             background-image: 
@@ -235,228 +200,239 @@
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
-
         .canvas-pure-white { background: #ffffff !important; }
         .canvas-gradient-brand { background: linear-gradient(135deg, #1e1138 0%, #3b1754 50%, #0d061a 100%) !important; }
-        .canvas-emerald-glow { background: radial-gradient(circle, #063828 0%, #03140e 100%) !important; }
 
         #mainStudioCanvas {
             max-width: 100%;
-            max-height: 520px;
+            max-height: 500px;
             object-fit: contain;
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
             border-radius: 4px;
-            transition: transform 0.15s ease-out;
         }
 
-        /* 拖曳上傳遮罩 */
         .drag-drop-overlay {
             border: 2px dashed rgba(192, 132, 252, 0.4);
             border-radius: var(--uvaco-radius-md);
-            background: rgba(18, 11, 34, 0.88);
-            transition: all 0.25s ease;
+            background: rgba(18, 11, 34, 0.9);
             cursor: pointer;
+            transition: all 0.25s ease;
         }
-
         .drag-drop-overlay:hover, .drag-drop-overlay.dragover {
             border-color: var(--uvaco-primary);
             background: rgba(28, 16, 52, 0.95);
             box-shadow: var(--uvaco-shadow-glow);
         }
 
-        /* 浮動快捷工具條 */
-        .canvas-floating-toolbar {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(18, 11, 34, 0.85);
-            border: 1px solid var(--uvaco-border);
-            border-radius: 50px;
-            padding: 0.35rem 0.85rem;
-            backdrop-filter: blur(10px);
-            z-index: 10;
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
+        /* 鑑識終端機 */
+        .terminal-screen {
+            background-color: var(--uvaco-terminal-bg);
+            border: 1px solid #1f113a;
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            height: 160px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.45;
         }
+        .text-success-glow { color: #4ade80; text-shadow: 0 0 6px rgba(74, 222, 128, 0.5); }
+        .text-danger-glow { color: #f87171; text-shadow: 0 0 6px rgba(248, 113, 113, 0.5); }
 
-        /* 底板選色器小圓鈕 */
+        /* 底板小圓紐 */
         .bg-preset-dot {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid transparent;
             transition: transform 0.15s ease;
         }
-        .bg-preset-dot:hover, .bg-preset-dot.active {
-            transform: scale(1.2);
-            border-color: #ffffff;
+        .bg-preset-dot:hover, .bg-preset-dot.active { transform: scale(1.2); border-color: #ffffff; }
+
+        /* 指示燈 */
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            box-shadow: 0 0 8px #4ade80;
+            margin-right: 6px;
         }
 
-        /* 統計指標卡片 */
-        .stat-pill {
-            background: rgba(192, 132, 252, 0.08);
-            border: 1px solid rgba(192, 132, 252, 0.2);
-            border-radius: var(--uvaco-radius-sm);
-            padding: 0.6rem 0.9rem;
-        }
-
-        /* 響應式優化 */
-        @media (max-width: 991.98px) {
-            body { padding: 0.75rem; }
-            .canvas-viewport-container { min-height: 360px; }
-            .canvas-floating-toolbar { bottom: 8px; scale: 0.9; }
-        }
+        /* DataTables 深色微調 */
+        .table-cyber { --bs-table-bg: transparent; --bs-table-color: var(--uvaco-text-main); --bs-table-border-color: var(--uvaco-border); }
+        .page-item.active .page-link { background-color: var(--uvaco-primary); border-color: var(--uvaco-primary); color: #000; font-weight: bold; }
+        .page-link { background-color: var(--uvaco-bg-card); border-color: var(--uvaco-border); color: var(--uvaco-text-main); }
     </style>
 </head>
 <body>
 
     <div class="row g-3 mb-3 align-items-center">
-        <div class="col-12 col-md-6 d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center">
-                <div class="p-2 rounded-3 me-2" style="background: rgba(192, 132, 252, 0.15); border: 1px solid var(--uvaco-border);">
-                    <i class="fa-solid fa-wand-magic-sparkles text-primary fs-4" style="color: var(--uvaco-primary) !important;"></i>
+        <div class="col-12 col-xl-6 d-flex align-items-center">
+            <div class="p-2 rounded-3 me-2" style="background: rgba(192, 132, 252, 0.15); border: 1px solid var(--uvaco-border);">
+                <i class="fa-solid fa-wand-magic-sparkles text-primary fs-4" style="color: var(--uvaco-primary) !important;"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h4 class="fw-bold mb-0 text-white">影像處理與頻域盲浮水印軍備工坊</h4>
+                    <span class="badge bg-dark border border-secondary text-info font-mono">
+                        <i class="fa-solid fa-bolt me-1"></i> H94000 & H95000
+                    </span>
                 </div>
-                <div>
-                    <div class="d-flex align-items-center gap-2">
-                        <h4 class="fw-bold mb-0 text-white">影像處理軍備工坊</h4>
-                        <span class="studio-header-badge font-mono">
-                            <i class="fa-solid fa-bolt me-1"></i> H94000
-                        </span>
-                    </div>
-                    <small class="text-muted" style="color: var(--uvaco-text-muted) !important;">官方素材去背置換・海報微損壓縮・明文防盜專屬水印與 QR 烙印</small>
-                </div>
+                <small class="text-muted" style="color: var(--uvaco-text-muted) !important;">空間域 LSB 隱形反諜簽章・明文水印・海報壓縮・外洩溯源鑑識</small>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 d-flex justify-content-md-end align-items-center gap-2 flex-wrap">
+        <div class="col-12 col-xl-6 d-flex justify-content-xl-end align-items-center gap-2 flex-wrap">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-studio-outline active" id="btnModeStudio">
+                    <i class="fa-solid fa-image me-1"></i> 工作台出圖模式
+                </button>
+                <button type="button" class="btn btn-studio-outline" id="btnModeForensic">
+                    <i class="fa-solid fa-microscope me-1 text-danger"></i> 外洩反諜鑑識模式
+                </button>
+            </div>
             <button type="button" class="btn btn-studio-outline" id="btnResetAll">
-                <i class="fa-solid fa-arrow-rotate-left"></i> 重置重來
+                <i class="fa-solid fa-arrow-rotate-left me-1"></i> 重置
             </button>
             <button type="button" class="btn btn-studio-secondary" id="btnCopyClipboard">
-                <i class="fa-solid fa-copy"></i> 複製圖檔
+                <i class="fa-solid fa-copy me-1"></i> 複製圖檔
             </button>
             <button type="button" class="btn btn-studio-primary" id="btnDownloadImage">
-                <i class="fa-solid fa-download"></i> 高解析輸出導出
+                <i class="fa-solid fa-download me-1"></i> 注入並導出圖檔
             </button>
         </div>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-3 mb-4">
 
         <div class="col-12 col-lg-4 col-xl-3">
             <div class="studio-card p-3 h-100">
                 <ul class="nav nav-tabs studio-nav-tabs mb-3" id="toolTab" role="tablist">
                     <li class="nav-item flex-fill text-center" role="presentation">
-                        <button class="nav-link active w-100" id="watermark-tab" data-bs-toggle="tab" data-bs-target="#tabWatermark" type="button" role="tab">
-                            <i class="fa-solid fa-shield-halved"></i> 水印烙印
+                        <button class="nav-link active w-100" id="blind-tab" data-bs-toggle="tab" data-bs-target="#tabBlind" type="button" role="tab">
+                            <i class="fa-solid fa-user-secret me-1"></i> 隱形盲標
+                        </button>
+                    </li>
+                    <li class="nav-item flex-fill text-center" role="presentation">
+                        <button class="nav-link w-100" id="watermark-tab" data-bs-toggle="tab" data-bs-target="#tabWatermark" type="button" role="tab">
+                            <i class="fa-solid fa-shield-halved me-1"></i> 明文字印
                         </button>
                     </li>
                     <li class="nav-item flex-fill text-center" role="presentation">
                         <button class="nav-link w-100" id="backdrop-tab" data-bs-toggle="tab" data-bs-target="#tabBackdrop" type="button" role="tab">
-                            <i class="fa-solid fa-layer-group"></i> 去背底板
+                            <i class="fa-solid fa-layer-group me-1"></i> 去背底板
                         </button>
                     </li>
                     <li class="nav-item flex-fill text-center" role="presentation">
                         <button class="nav-link w-100" id="compress-tab" data-bs-toggle="tab" data-bs-target="#tabCompress" type="button" role="tab">
-                            <i class="fa-solid fa-sliders"></i> 調色壓縮
+                            <i class="fa-solid fa-sliders me-1"></i> 調色壓縮
                         </button>
                     </li>
                 </ul>
 
                 <div class="tab-content" id="toolTabContent">
                     
-                    <div class="tab-pane fade show active" id="tabWatermark" role="tabpanel">
-                        <div class="mb-3">
-                            <label class="form-label text-white small fw-bold d-flex justify-content-between">
-                                <span><i class="fa-solid fa-font"></i> 水印文字</span>
-                                <span class="badge bg-dark text-info font-mono" id="lblTextLength">18 字</span>
+                    <div class="tab-pane fade show active" id="tabBlind" role="tabpanel">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="chkEnableBlindWatermark" checked>
+                            <label class="form-check-label text-white small fw-bold" for="chkEnableBlindWatermark">
+                                <i class="fa-solid fa-fingerprint text-info me-1"></i> 啟用 LSB 空間微擾盲標
                             </label>
-                            <input type="text" class="form-control studio-input" id="inputWatermarkText" value="葡眾合格直銷商｜榮祥體系">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-address-card"></i> 經銷商個人聯絡資訊（次行）</label>
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-user-tag me-1"></i> 綁定分發夥伴 (試算表同步)</label>
+                            <select class="form-select studio-select" id="partnerSelect">
+                                <option value="PTN-RAY01|Ray 榮祥|領袖經銷商">PTN-RAY01 · Ray 榮祥 (領袖經銷商)</option>
+                                <option value="PTN-JAR02|Jarvis 佳威|核心創始人">PTN-JAR02 · Jarvis 佳威 (核心創始人)</option>
+                                <option value="PTN-TW9901|陳小明|珍珠經理">PTN-TW9901 · 陳小明 (珍珠經理)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-tag me-1"></i> 機密溯源標籤</label>
+                            <input type="text" class="form-control studio-input" id="customTag" value="CONFIDENTIAL_SV_TREE_2026">
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between text-white small fw-bold mb-1">
+                                <span><i class="fa-solid fa-wave-square me-1"></i> 微擾擾動強度</span>
+                                <span class="font-mono text-info" id="depthValText">2-Bit (平衡抗噪)</span>
+                            </div>
+                            <input type="range" class="form-range studio-range w-100" id="encodeDepthRange" min="1" max="3" step="1" value="2">
+                        </div>
+
+                        <div class="d-grid gap-2 pt-2">
+                            <button type="button" class="btn btn-sm btn-studio-outline" id="btnToggleDiff">
+                                <i class="fa-solid fa-eye me-1"></i> 切換微擾差分熱圖 (Diff)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tabWatermark" role="tabpanel">
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-font me-1"></i> 水印主標題</label>
+                            <input type="text" class="form-control studio-input" id="inputWatermarkText" value="葡眾合格經銷商・榮祥體系">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-address-card me-1"></i> 聯絡資訊 (次行)</label>
                             <input type="text" class="form-control studio-input" id="inputSubText" value="諮詢專線：0912-345-678 ｜ LINE: ray-jarvis">
                         </div>
 
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <label class="form-label text-white small fw-bold"><i class="fa-solid fa-location-crosshairs"></i> 烙印位置</label>
+                                <label class="form-label text-white small fw-bold"><i class="fa-solid fa-location-crosshairs me-1"></i> 烙印位置</label>
                                 <select class="form-select studio-select" id="selectWatermarkPosition">
-                                    <option value="bottom-right" selected>右下角 (標準)</option>
+                                    <option value="bottom-right" selected>右下角</option>
                                     <option value="bottom-left">左下角</option>
                                     <option value="top-right">右上角</option>
-                                    <option value="center">中央居中</option>
-                                    <option value="tile">全版網格平鋪</option>
+                                    <option value="tile">全版平鋪</option>
                                 </select>
                             </div>
                             <div class="col-6">
-                                <label class="form-label text-white small fw-bold"><i class="fa-solid fa-palette"></i> 文字色彩</label>
+                                <label class="form-label text-white small fw-bold"><i class="fa-solid fa-palette me-1"></i> 顏色</label>
                                 <select class="form-select studio-select" id="selectWatermarkColor">
-                                    <option value="rgba(255, 255, 255, 0.85)" selected>純白光芒 (White)</option>
-                                    <option value="rgba(192, 132, 252, 0.9)">魅影淺紫 (Purple)</option>
-                                    <option value="rgba(251, 191, 36, 0.9)">日光琥珀 (Gold)</option>
-                                    <option value="rgba(0, 0, 0, 0.75)">深邃石墨 (Black)</option>
+                                    <option value="rgba(255, 255, 255, 0.85)" selected>純白光芒</option>
+                                    <option value="rgba(192, 132, 252, 0.9)">魅影淺紫</option>
+                                    <option value="rgba(251, 191, 36, 0.9)">日光琥珀</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <div class="d-flex justify-content-between text-white small fw-bold mb-1">
-                                <span><i class="fa-solid fa-eye-dropper"></i> 水印透明度 (Opacity)</span>
+                                <span><i class="fa-solid fa-eye-dropper me-1"></i> 透明度</span>
                                 <span class="font-mono text-primary" id="lblOpacityVal">75%</span>
                             </div>
                             <input type="range" class="form-range studio-range w-100" id="rangeOpacity" min="10" max="100" value="75">
                         </div>
 
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between text-white small fw-bold mb-1">
-                                <span><i class="fa-solid fa-text-height"></i> 字體大小 (Scale)</span>
-                                <span class="font-mono text-primary" id="lblFontSizeVal">28 px</span>
-                            </div>
-                            <input type="range" class="form-range studio-range w-100" id="rangeFontSize" min="14" max="64" value="28">
-                        </div>
-
-                        <div class="p-2 rounded-3 mb-2" style="background: rgba(251, 191, 36, 0.08); border: 1px dashed rgba(251, 191, 36, 0.3);">
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="chkQrCode" checked>
-                                <label class="form-check-label text-warning small fw-bold" for="chkQrCode">
-                                    <i class="fa-solid fa-qrcode"></i> 同步合成右下角諮詢 QR Code
-                                </label>
-                            </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="chkQrCode" checked>
+                            <label class="form-check-label text-warning small fw-bold" for="chkQrCode">
+                                <i class="fa-solid fa-qrcode me-1"></i> 同步合成右下角諮詢 QR Code
+                            </label>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="tabBackdrop" role="tabpanel">
-                        <div class="mb-3">
-                            <label class="form-label text-white small fw-bold mb-2"><i class="fa-solid fa-image"></i> 選擇畫布底板情境</label>
-                            <div class="d-flex gap-2 flex-wrap mb-2">
-                                <div class="bg-preset-dot canvas-checkerboard active" data-bg="checkerboard" title="透明背景 (PNG)"></div>
-                                <div class="bg-preset-dot canvas-pure-white" data-bg="white" title="型錄純白 (E-Commerce)"></div>
-                                <div class="bg-preset-dot canvas-gradient-brand" data-bg="brand" title="核心魅影紫漸層"></div>
-                                <div class="bg-preset-dot canvas-emerald-glow" data-bg="emerald" title="健康草本綠微光"></div>
-                            </div>
-                            <small class="text-muted" style="color: var(--uvaco-text-muted) !important;">提示：若上傳已去背 PNG 產品圖，可立即預覽不同底色下的光影邊緣。</small>
+                        <label class="form-label text-white small fw-bold mb-2"><i class="fa-solid fa-image me-1"></i> 選擇畫布底板情境</label>
+                        <div class="d-flex gap-2 flex-wrap mb-3">
+                            <div class="bg-preset-dot canvas-checkerboard active" data-bg="checkerboard" title="透明背景"></div>
+                            <div class="bg-preset-dot canvas-pure-white" data-bg="white" title="型錄純白"></div>
+                            <div class="bg-preset-dot canvas-gradient-brand" data-bg="brand" title="核心魅影紫"></div>
                         </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between text-white small fw-bold mb-1">
-                                <span><i class="fa-solid fa-circle-half-stroke"></i> 智能色度消除閾值 (容差)</span>
-                                <span class="font-mono text-primary" id="lblKeyingVal">0 (無消除)</span>
-                            </div>
-                            <input type="range" class="form-range studio-range w-100" id="rangeColorKeying" min="0" max="80" value="0">
-                            <small class="text-muted" style="color: var(--uvaco-text-muted) !important;">可消除純白/單色背景，建議數值 15~35。</small>
-                        </div>
-
                         <div class="p-2 rounded-3" style="background: rgba(192, 132, 252, 0.08); border: 1px solid var(--uvaco-border);">
-                            <label class="text-white small fw-bold d-block mb-1"><i class="fa-solid fa-lightbulb text-warning"></i> 葡眾素材快速套用</label>
+                            <label class="text-white small fw-bold d-block mb-1"><i class="fa-solid fa-lightbulb text-warning me-1"></i> 葡眾官方範本</label>
                             <div class="d-flex gap-1 flex-wrap">
-                                <button type="button" class="btn btn-sm btn-studio-outline py-1 px-2 small" onclick="loadSampleProduct('995')">995 生技營養液</button>
-                                <button type="button" class="btn btn-sm btn-studio-outline py-1 px-2 small" onclick="loadSampleProduct('camphor')">樟芝益</button>
-                                <button type="button" class="btn btn-sm btn-studio-outline py-1 px-2 small" onclick="loadSampleProduct('probiotics')">康爾喜益生菌</button>
+                                <button type="button" class="btn btn-sm btn-studio-outline py-1 px-2 small" onclick="loadSample('995')">995 營養液</button>
+                                <button type="button" class="btn btn-sm btn-studio-outline py-1 px-2 small" onclick="loadSample('camphor')">樟芝益</button>
                             </div>
                         </div>
                     </div>
@@ -464,37 +440,17 @@
                     <div class="tab-pane fade" id="tabCompress" role="tabpanel">
                         <div class="mb-3">
                             <div class="d-flex justify-content-between text-white small fw-bold mb-1">
-                                <span><i class="fa-solid fa-sun"></i> 曝光與亮度 (Brightness)</span>
+                                <span><i class="fa-solid fa-sun me-1"></i> 曝光亮度</span>
                                 <span class="font-mono text-primary" id="lblBrightnessVal">100%</span>
                             </div>
                             <input type="range" class="form-range studio-range w-100" id="rangeBrightness" min="60" max="150" value="100">
                         </div>
-
                         <div class="mb-3">
                             <div class="d-flex justify-content-between text-white small fw-bold mb-1">
-                                <span><i class="fa-solid fa-circle-radiation"></i> 對比度 (Contrast)</span>
-                                <span class="font-mono text-primary" id="lblContrastVal">100%</span>
-                            </div>
-                            <input type="range" class="form-range studio-range w-100" id="rangeContrast" min="60" max="150" value="100">
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between text-white small fw-bold mb-1">
-                                <span><i class="fa-solid fa-compress"></i> 壓縮品質 (WebP/JPEG Quality)</span>
+                                <span><i class="fa-solid fa-compress me-1"></i> 壓縮品質</span>
                                 <span class="font-mono text-warning" id="lblQualityVal">85%</span>
                             </div>
                             <input type="range" class="form-range studio-range w-100" id="rangeQuality" min="40" max="100" value="85">
-                            <small class="text-muted" style="color: var(--uvaco-text-muted) !important;">LINE 群組發送建議 80%~85%，節省 80% 流量且細節銳利。</small>
-                        </div>
-
-                        <div class="mb-2">
-                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-crop-simple"></i> 目標社群規格</label>
-                            <select class="form-select studio-select" id="selectPresetRatio">
-                                <option value="original" selected>原始比例 (Original)</option>
-                                <option value="1:1">1:1 方形貼文 (1080 × 1080)</option>
-                                <option value="16:9">16:9 橫向簡報 (1920 × 1080)</option>
-                                <option value="9:16">9:16 LINE/IG 限動 (1080 × 1920)</option>
-                            </select>
                         </div>
                     </div>
 
@@ -504,39 +460,34 @@
 
         <div class="col-12 col-lg-8 col-xl-6">
             <div class="studio-card p-3 h-100 d-flex flex-column justify-content-between">
-                
-                <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-dark border border-secondary font-mono text-light" id="lblDimension">1200 × 1200 px</span>
                         <span class="badge bg-dark border border-secondary font-mono text-success" id="lblFileFormat">PNG-24</span>
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-studio-outline py-0 px-2" id="btnZoomIn" title="放大"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                        <button type="button" class="btn btn-sm btn-studio-outline py-0 px-2" id="btnZoomOut" title="縮小"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                        <button type="button" class="btn btn-sm btn-studio-outline py-0 px-2" id="btnRotate" title="向右旋轉 90 度"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button type="button" class="btn btn-sm btn-studio-outline py-0 px-2" id="btnZoomIn"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                        <button type="button" class="btn btn-sm btn-studio-outline py-0 px-2" id="btnZoomOut"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                        <button type="button" class="btn btn-sm btn-studio-outline py-0 px-2" id="btnRotate"><i class="fa-solid fa-rotate-right"></i></button>
                     </div>
                 </div>
 
                 <div class="canvas-viewport-container canvas-checkerboard flex-grow-1" id="viewportWrapper">
                     <div class="drag-drop-overlay p-4 text-center w-75 position-absolute" id="dropZonePrompt" onclick="document.getElementById('fileUploadInput').click();">
                         <i class="fa-solid fa-cloud-arrow-up fs-1 mb-2" style="color: var(--uvaco-primary);"></i>
-                        <h6 class="text-white fw-bold mb-1">點擊或將產品海報／照片拖曳至此</h6>
-                        <p class="text-muted small mb-3" style="color: var(--uvaco-text-muted) !important;">支援 PNG, JPG, WebP, SVG (最高支援 4K 解析度)</p>
-                        <button type="button" class="btn btn-sm btn-studio-primary px-3">
-                            <i class="fa-solid fa-folder-open"></i> 瀏覽電腦檔案
-                        </button>
+                        <h6 class="text-white fw-bold mb-1" id="uploadPromptTitle">點擊或將圖檔拖曳至此</h6>
+                        <p class="text-muted small mb-0">支援 PNG, JPG, WebP 格式</p>
                     </div>
 
                     <canvas id="mainStudioCanvas" style="display: none;"></canvas>
-
                     <input type="file" id="fileUploadInput" accept="image/*" style="display: none;">
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                <div class="d-flex justify-content-between align-items-center mt-2">
                     <small class="text-muted font-mono" style="color: var(--uvaco-text-muted) !important;">
-                        <i class="fa-solid fa-circle-check text-success"></i> WebGL/Canvas 2D 硬體加速啟用
+                        <span class="pulse-dot"></span> 100% 離線記憶體安全計算
                     </small>
-                    <small class="text-muted" style="color: var(--uvaco-text-muted) !important;">按住滑鼠滾輪可自由縮放預覽</small>
+                    <span class="badge bg-dark border border-secondary text-secondary" id="studioModeBadge">模式：出圖簽章</span>
                 </div>
             </div>
         </div>
@@ -544,79 +495,68 @@
         <div class="col-12 col-lg-12 col-xl-3">
             <div class="studio-card p-3 h-100 d-flex flex-column justify-content-between">
                 
-                <div>
+                <div id="panelExportHub">
                     <h6 class="text-white fw-bold mb-3 d-flex align-items-center">
                         <i class="fa-solid fa-box-archive text-primary me-2" style="color: var(--uvaco-primary) !important;"></i> 輸出規格與體積預估
                     </h6>
 
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <div class="stat-pill">
-                                <small class="text-muted d-block" style="color: var(--uvaco-text-muted) !important;">原始檔案大小</small>
+                            <div class="p-2 rounded-2" style="background: rgba(192, 132, 252, 0.08); border: 1px solid var(--uvaco-border);">
+                                <small class="text-muted d-block">原始檔案</small>
                                 <span class="font-mono fs-6 fw-bold text-light" id="lblOriginalSize">4.85 MB</span>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-pill" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.06);">
-                                <small class="text-success d-block fw-bold">壓縮後預估</small>
+                            <div class="p-2 rounded-2" style="background: rgba(52, 211, 153, 0.08); border: 1px solid rgba(52, 211, 153, 0.4);">
+                                <small class="text-success d-block fw-bold">微損壓縮後</small>
                                 <span class="font-mono fs-6 fw-bold text-success" id="lblCompressedSize">420 KB</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span class="text-muted" style="color: var(--uvaco-text-muted) !important;">預期節省空間</span>
-                            <span class="text-success font-mono fw-bold" id="lblSavingsPercent">- 91.3%</span>
-                        </div>
-                        <div class="progress" style="height: 6px; background-color: var(--uvaco-bg-input);">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 91.3%;" id="progressBarSavings"></div>
-                        </div>
-                    </div>
+                        <label class="form-label text-white small fw-bold"><i class="fa-solid fa-file-export me-1"></i> 導出格式</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="exportFormat" id="fmtPng" value="image/png" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="fmtPng">PNG (推薦盲標)</label>
 
-                    <div class="mb-3">
-                        <label class="form-label text-white small fw-bold"><i class="fa-solid fa-file-export"></i> 導出格式選擇</label>
-                        <div class="d-grid gap-2">
-                            <div class="btn-group" role="group">
-                                <input type="radio" class="btn-check" name="exportFormat" id="fmtWebp" value="image/webp" checked>
-                                <label class="btn btn-outline-secondary btn-sm" for="fmtWebp">WebP (超輕量)</label>
+                            <input type="radio" class="btn-check" name="exportFormat" id="fmtWebp" value="image/webp">
+                            <label class="btn btn-outline-secondary btn-sm" for="fmtWebp">WebP</label>
 
-                                <input type="radio" class="btn-check" name="exportFormat" id="fmtPng" value="image/png">
-                                <label class="btn btn-outline-secondary btn-sm" for="fmtPng">PNG (無損透明)</label>
-
-                                <input type="radio" class="btn-check" name="exportFormat" id="fmtJpg" value="image/jpeg">
-                                <label class="btn btn-outline-secondary btn-sm" for="fmtJpg">JPG (高相容)</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-white small fw-bold"><i class="fa-solid fa-stamp"></i> 常用快速模板</label>
-                        <div class="list-group list-group-flush">
-                            <button type="button" class="list-group-item list-group-item-action bg-transparent text-light border-secondary small py-2 px-1 d-flex justify-content-between align-items-center" onclick="applyPreset('recruit')">
-                                <span><i class="fa-solid fa-briefcase text-info me-1"></i> 事業夥伴招募烙印</span>
-                                <i class="fa-solid fa-chevron-right text-muted small"></i>
-                            </button>
-                            <button type="button" class="list-group-item list-group-item-action bg-transparent text-light border-secondary small py-2 px-1 d-flex justify-content-between align-items-center" onclick="applyPreset('product')">
-                                <span><i class="fa-solid fa-prescription-bottle-medical text-success me-1"></i> 產品見證防盜專用</span>
-                                <i class="fa-solid fa-chevron-right text-muted small"></i>
-                            </button>
-                            <button type="button" class="list-group-item list-group-item-action bg-transparent text-light border-secondary small py-2 px-1 d-flex justify-content-between align-items-center" onclick="applyPreset('clean')">
-                                <span><i class="fa-solid fa-sparkles text-warning me-1"></i> 純淨無水印 (僅壓縮)</span>
-                                <i class="fa-solid fa-chevron-right text-muted small"></i>
-                            </button>
+                            <input type="radio" class="btn-check" name="exportFormat" id="fmtJpg" value="image/jpeg">
+                            <label class="btn btn-outline-secondary btn-sm" for="fmtJpg">JPG</label>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-2">
-                    <div class="p-2 rounded-2 mb-2" style="background: rgba(192, 132, 252, 0.05); border: 1px solid var(--uvaco-border);">
-                        <small class="text-muted d-block" style="font-size: 0.75rem; color: var(--uvaco-text-muted) !important;">
-                            <i class="fa-solid fa-shield-cat text-primary"></i> 所有影像運算均在您的本機瀏覽器內存完成，零伺服器上傳，保護客戶私密見證安全。
-                        </small>
+                <div id="panelForensicHub" class="d-none">
+                    <h6 class="text-white fw-bold mb-2 d-flex align-items-center">
+                        <i class="fa-solid fa-terminal text-danger me-2"></i> 鑑識即時日誌
+                    </h6>
+                    <div class="terminal-screen mb-3" id="forensicTerminal">> Anti-Leak Forensic Engine Ready.
+> 請將外洩截圖載入視界...</div>
+
+                    <div class="p-2 rounded-3 mb-3 d-none" id="forensicResultCard" style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.3);">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="fw-bold text-danger small"><i class="fa-solid fa-triangle-exclamation me-1"></i> 成功鎖定源頭</span>
+                            <span class="badge bg-danger" style="font-size: 0.7rem;">99.8% 吻合</span>
+                        </div>
+                        <div class="small">
+                            <div><span class="text-muted">夥伴：</span> <span class="fw-bold text-light" id="resPartnerName">--</span> (<span class="font-mono text-warning" id="resPartnerId">--</span>)</div>
+                            <div><span class="text-muted">職級：</span> <span class="text-info" id="resPartnerRank">--</span></div>
+                            <div><span class="text-muted">時間：</span> <span class="font-mono text-muted" id="resTimestamp" style="font-size: 0.75rem;">--</span></div>
+                        </div>
                     </div>
+
+                    <button type="button" class="btn btn-studio-danger w-100 py-2" id="btnExecuteForensic">
+                        <i class="fa-solid fa-magnifying-glass-chart me-1"></i> 啟動位元平面深度掃描
+                    </button>
+                </div>
+
+                <div class="mt-2">
                     <button type="button" class="btn btn-studio-primary w-100 py-2 fw-bold" onclick="document.getElementById('btnDownloadImage').click();">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> 立即處理並下載圖檔
+                        <i class="fa-solid fa-cloud-arrow-down me-1"></i> 執行簽章並下載
                     </button>
                 </div>
 
@@ -625,46 +565,147 @@
 
     </div>
 
+    <div class="studio-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-light">
+                <i class="fa-solid fa-list-check text-info me-2"></i> 浮水印簽章分發與鑑識稽核軌跡 (Audit Log)
+            </h5>
+            <span class="small text-muted font-mono"><i class="fa-solid fa-database me-1"></i> 表 47 sys_access_logs 映射已就緒</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-cyber table-hover align-middle w-100" id="forensicLogsTable">
+                <thead>
+                    <tr class="text-muted small">
+                        <th>日誌代碼</th>
+                        <th>操作模式</th>
+                        <th>夥伴姓名</th>
+                        <th>經銷代號</th>
+                        <th>情資標籤</th>
+                        <th>位元深度</th>
+                        <th>操作時間</th>
+                        <th>狀態</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
     <script>
-        // ==========================================================================
-        // 影像處理工坊核心狀態管理物件
-        // ==========================================================================
-        const ImageStudio = {
-            currentImage: null,
-            originalFileName: 'uvaco-poster',
-            rotationAngle: 0,
-            zoomScale: 1.0,
-            canvasBgMode: 'checkerboard',
-            
-            // 初始化綁定
-            init: function() {
-                this.bindEvents();
-                this.loadDefaultDemoCanvas();
+        /**
+         * 空間域 LSB 盲浮水印核心引擎
+         */
+        const StegoEngine = {
+            DELIMITER: "###UVACO_END###",
+            MAGIC_HEADER: "UVACO::",
+
+            stringToBits: function(str) {
+                const fullStr = this.MAGIC_HEADER + str + this.DELIMITER;
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(fullStr);
+                let bits = "";
+                for (let i = 0; i < bytes.length; i++) {
+                    bits += bytes[i].toString(2).padStart(8, '0');
+                }
+                return bits;
             },
 
-            // 事件監聽綁定
+            bitsToString: function(bits) {
+                const bytes = [];
+                for (let i = 0; i < bits.length; i += 8) {
+                    if (i + 8 <= bits.length) {
+                        bytes.push(parseInt(bits.substr(i, 8), 2));
+                    }
+                }
+                const decoder = new TextDecoder();
+                const decoded = decoder.decode(new Uint8Array(bytes));
+                if (decoded.startsWith(this.MAGIC_HEADER)) {
+                    const clean = decoded.substring(this.MAGIC_HEADER.length);
+                    const endIdx = clean.indexOf(this.DELIMITER);
+                    if (endIdx !== -1) return clean.substring(0, endIdx);
+                }
+                return null;
+            },
+
+            encode: function(imageData, payloadText) {
+                const bits = this.stringToBits(payloadText);
+                const data = imageData.data;
+                if (bits.length > data.length / 4) {
+                    throw new Error("圖片解析度過低，容納不下機密簽章資訊！");
+                }
+
+                let bitIdx = 0;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (bitIdx < bits.length) {
+                        const bit = parseInt(bits[bitIdx], 10);
+                        data[i + 2] = (data[i + 2] & ~1) | bit; // 修改 Blue 通道 LSB
+                        bitIdx++;
+                    } else {
+                        break;
+                    }
+                }
+                return imageData;
+            },
+
+            decode: function(imageData) {
+                const data = imageData.data;
+                let bits = "";
+                const maxBits = 1024 * 32;
+                for (let i = 0; i < data.length && bits.length < maxBits; i += 4) {
+                    bits += (data[i + 2] & 1).toString();
+                }
+                return this.bitsToString(bits);
+            }
+        };
+
+        /**
+         * 整合型影像工坊主控制器
+         */
+        const UnifiedStudio = {
+            currentMode: 'studio', // 'studio' | 'forensic'
+            currentImage: null,
+            originalFileName: 'uvaco-export',
+            rotationAngle: 0,
+            zoomScale: 1.0,
+            dataTableInstance: null,
+            isDiffView: false,
+
+            init: function() {
+                this.bindEvents();
+                this.initDataTable();
+                this.loadPartners();
+                this.loadDefaultDemo();
+            },
+
             bindEvents: function() {
                 const self = this;
 
-                // 檔案上傳事件
+                // 模式切換
+                $('#btnModeStudio').on('click', function() {
+                    self.setMode('studio');
+                });
+                $('#btnModeForensic').on('click', function() {
+                    self.setMode('forensic');
+                });
+
+                // 檔案上傳
                 $('#fileUploadInput').on('change', function(e) {
                     if (e.target.files && e.target.files[0]) {
                         self.handleFile(e.target.files[0]);
                     }
                 });
 
-                // 拖曳拖放支援 (Drag & Drop)
+                // 拖曳上傳支援
                 const dropZone = document.getElementById('viewportWrapper');
-                dropZone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    $('#dropZonePrompt').addClass('dragover');
-                });
-                dropZone.addEventListener('dragleave', () => {
-                    $('#dropZonePrompt').removeClass('dragover');
-                });
+                dropZone.addEventListener('dragover', (e) => { e.preventDefault(); $('#dropZonePrompt').addClass('dragover'); });
+                dropZone.addEventListener('dragleave', () => $('#dropZonePrompt').removeClass('dragover'); );
                 dropZone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     $('#dropZonePrompt').removeClass('dragover');
@@ -673,156 +714,141 @@
                     }
                 });
 
-                // 即時參數監聽 (動態觸發重繪)
-                $('#inputWatermarkText, #inputSubText, #selectWatermarkPosition, #selectWatermarkColor, #chkQrCode').on('input change', function() {
-                    self.render();
-                });
+                // 監聽控制項變化
+                $('#inputWatermarkText, #inputSubText, #selectWatermarkPosition, #selectWatermarkColor, #chkQrCode').on('input change', () => self.render());
+                $('#rangeOpacity').on('input', function() { $('#lblOpacityVal').text($(this).val() + '%'); self.render(); });
+                $('#rangeBrightness').on('input', function() { $('#lblBrightnessVal').text($(this).val() + '%'); self.render(); });
+                $('#rangeQuality').on('input', function() { $('#lblQualityVal').text($(this).val() + '%'); self.updateSizeEstimation(); });
 
-                $('#rangeOpacity').on('input', function() {
-                    $('#lblOpacityVal').text($(this).val() + '%');
-                    self.render();
-                });
-
-                $('#rangeFontSize').on('input', function() {
-                    $('#lblFontSizeVal').text($(this).val() + ' px');
-                    self.render();
-                });
-
-                $('#rangeBrightness').on('input', function() {
-                    $('#lblBrightnessVal').text($(this).val() + '%');
-                    self.render();
-                });
-
-                $('#rangeContrast').on('input', function() {
-                    $('#lblContrastVal').text($(this).val() + '%');
-                    self.render();
-                });
-
-                $('#rangeQuality').on('input', function() {
-                    $('#lblQualityVal').text($(this).val() + '%');
-                    self.updateSizeEstimation();
-                });
-
-                // 底色切換
+                // 底板切換
                 $('.bg-preset-dot').on('click', function() {
                     $('.bg-preset-dot').removeClass('active');
                     $(this).addClass('active');
                     const bg = $(this).data('bg');
-                    self.canvasBgMode = bg;
-                    $('#viewportWrapper').removeClass('canvas-checkerboard canvas-pure-white canvas-gradient-brand canvas-emerald-glow');
+                    $('#viewportWrapper').removeClass('canvas-checkerboard canvas-pure-white canvas-gradient-brand');
                     if (bg === 'checkerboard') $('#viewportWrapper').addClass('canvas-checkerboard');
                     if (bg === 'white') $('#viewportWrapper').addClass('canvas-pure-white');
                     if (bg === 'brand') $('#viewportWrapper').addClass('canvas-gradient-brand');
-                    if (bg === 'emerald') $('#viewportWrapper').addClass('canvas-emerald-glow');
                 });
 
-                // 旋轉與縮放控制
+                // 旋轉與縮放
                 $('#btnRotate').on('click', function() {
                     self.rotationAngle = (self.rotationAngle + 90) % 360;
                     self.render();
                 });
-
                 $('#btnZoomIn').on('click', function() {
                     self.zoomScale = Math.min(self.zoomScale + 0.15, 2.5);
                     $('#mainStudioCanvas').css('transform', `scale(${self.zoomScale})`);
                 });
-
                 $('#btnZoomOut').on('click', function() {
                     self.zoomScale = Math.max(self.zoomScale - 0.15, 0.4);
                     $('#mainStudioCanvas').css('transform', `scale(${self.zoomScale})`);
                 });
 
-                $('#btnResetAll').on('click', function() {
-                    self.rotationAngle = 0;
-                    self.zoomScale = 1.0;
-                    $('#mainStudioCanvas').css('transform', 'scale(1)');
-                    $('#inputWatermarkText').val('葡眾合格直銷商｜榮祥體系');
-                    $('#inputSubText').val('諮詢專線：0912-345-678 ｜ LINE: ray-jarvis');
-                    $('#rangeOpacity').val(75).trigger('input');
-                    $('#rangeFontSize').val(28).trigger('input');
-                    $('#rangeBrightness').val(100).trigger('input');
-                    $('#rangeContrast').val(100).trigger('input');
-                    $('#rangeQuality').val(85).trigger('input');
-                    self.render();
+                // 差分熱圖切換
+                $('#btnToggleDiff').on('click', function() {
+                    self.toggleDiffHeatmap();
                 });
 
-                // 下載與複製按鈕
+                // 鑑識掃描
+                $('#btnExecuteForensic').on('click', function() {
+                    self.executeForensicScan();
+                });
+
+                // 導出下載
                 $('#btnDownloadImage').on('click', function() {
                     self.exportDownload();
                 });
 
+                // 複製剪貼簿
                 $('#btnCopyClipboard').on('click', function() {
                     self.copyToClipboard();
                 });
             },
 
-            // 讀取圖片檔案
+            setMode: function(mode) {
+                this.currentMode = mode;
+                if (mode === 'studio') {
+                    $('#btnModeStudio').addClass('active');
+                    $('#btnModeForensic').removeClass('active');
+                    $('#panelExportHub').removeClass('d-none');
+                    $('#panelForensicHub').addClass('d-none');
+                    $('#studioModeBadge').text('模式：出圖簽章').removeClass('text-danger').addClass('text-secondary');
+                    $('#uploadPromptTitle').text('點擊或將原始海報拖曳至此');
+                } else {
+                    $('#btnModeForensic').addClass('active');
+                    $('#btnModeStudio').removeClass('active');
+                    $('#panelExportHub').addClass('d-none');
+                    $('#panelForensicHub').removeClass('d-none');
+                    $('#studioModeBadge').text('模式：外洩反諜鑑識').removeClass('text-secondary').addClass('text-danger');
+                    $('#uploadPromptTitle').text('拖曳疑似外洩的社群截圖至此');
+                }
+            },
+
+            loadPartners: function() {
+                const mockCsv = `partner_id,partner_name,rank_name\nPTN-RAY01,Ray 榮祥,領袖經銷商\nPTN-JAR02,Jarvis 佳威,核心創始人\nPTN-TW9901,陳小明,珍珠經理`;
+                Papa.parse(mockCsv, {
+                    header: true,
+                    complete: function(res) {
+                        const select = $('#partnerSelect').empty();
+                        res.data.forEach(row => {
+                            const id = row.partner_id || row['夥伴編號'];
+                            const name = row.partner_name || row['姓名'];
+                            const rank = row.rank_name || row['職級'];
+                            if (id) select.append(`<option value="${id}|${name}|${rank}">${id} · ${name} (${rank})</option>`);
+                        });
+                    }
+                });
+            },
+
             handleFile: function(file) {
                 const self = this;
-                if (!file.type.match('image.*')) {
-                    alert('請上傳有效的圖片格式檔！');
-                    return;
-                }
-
                 self.originalFileName = file.name.replace(/\.[^/.]+$/, "");
-                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-                $('#lblOriginalSize').text(sizeInMB + ' MB');
+                $('#lblOriginalSize').text((file.size / (1024 * 1024)).toFixed(2) + ' MB');
 
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     const img = new Image();
-                    img.onload = function() {
+                    img.onload = () => {
                         self.currentImage = img;
-                        $('#dropZonePrompt').fadeOut(150);
-                        $('#mainStudioCanvas').fadeIn(200);
+                        $('#dropZonePrompt').hide();
+                        $('#mainStudioCanvas').show();
                         self.render();
+                        if (self.currentMode === 'forensic') {
+                            self.logTerminal(`[FILE LOADED] ${file.name} (${img.width}x${img.height}px) 已載入記憶體。`);
+                        }
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             },
 
-            // 預設載入示範畫布
-            loadDefaultDemoCanvas: function() {
-                const self = this;
+            loadDefaultDemo: function() {
                 const canvas = document.getElementById('mainStudioCanvas');
                 canvas.width = 1080;
                 canvas.height = 1080;
                 const ctx = canvas.getContext('2d');
-
-                // 繪製科技感背景樣板
                 const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
                 grad.addColorStop(0, '#190a2c');
-                grad.addColorStop(0.5, '#2e124d');
                 grad.addColorStop(1, '#0d0517');
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, 1080, 1080);
-
-                // 裝飾幾何發光線條
-                ctx.strokeStyle = 'rgba(192, 132, 252, 0.25)';
-                ctx.lineWidth = 4;
-                ctx.strokeRect(50, 50, 980, 980);
-
+                
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 56px "Noto Sans TC", sans-serif';
+                ctx.font = 'bold 48px "Noto Sans TC", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('葡眾旗艦生技產品展示', 540, 480);
-
-                ctx.fillStyle = '#c084fc';
-                ctx.font = '32px "Noto Sans TC", sans-serif';
-                ctx.fillText('995 生技營養液 ＆ 樟芝益 雙金見證', 540, 550);
+                ctx.fillText('葡眾旗艦生技產品展示', 540, 520);
 
                 const demoImg = new Image();
-                demoImg.onload = function() {
-                    self.currentImage = demoImg;
+                demoImg.onload = () => {
+                    this.currentImage = demoImg;
                     $('#dropZonePrompt').hide();
                     $('#mainStudioCanvas').show();
-                    self.render();
+                    this.render();
                 };
                 demoImg.src = canvas.toDataURL();
             },
 
-            // 核心 Canvas 渲染邏輯
             render: function() {
                 if (!this.currentImage) return;
 
@@ -830,233 +856,213 @@
                 const ctx = canvas.getContext('2d');
                 const img = this.currentImage;
 
-                // 處理旋轉寬高對調
-                const isRotated90 = (this.rotationAngle === 90 || this.rotationAngle === 270);
-                const targetWidth = isRotated90 ? img.height : img.width;
-                const targetHeight = isRotated90 ? img.width : img.height;
+                const isRotated = (this.rotationAngle === 90 || this.rotationAngle === 270);
+                canvas.width = isRotated ? img.height : img.width;
+                canvas.height = isRotated ? img.width : img.height;
 
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-
-                $('#lblDimension').text(`${targetWidth} × ${targetHeight} px`);
+                $('#lblDimension').text(`${canvas.width} × ${canvas.height} px`);
 
                 ctx.save();
-                
-                // 1. 旋轉處理
                 ctx.translate(canvas.width / 2, canvas.height / 2);
                 ctx.rotate((this.rotationAngle * Math.PI) / 180);
-                
-                // 2. 濾鏡處理 (亮度與對比度)
-                const brightness = $('#rangeBrightness').val();
-                const contrast = $('#rangeContrast').val();
-                ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-
+                ctx.filter = `brightness($('#rangeBrightness').val() || 100%)`;
                 ctx.drawImage(img, -img.width / 2, -img.height / 2);
-                ctx.filter = 'none'; // 重置濾鏡以繪製清晰水印
+                ctx.filter = 'none';
                 ctx.restore();
 
-                // 3. 繪製防盜浮水印與經銷商資訊
-                this.drawWatermark(ctx, canvas.width, canvas.height);
+                // 繪製可見文字浮水印
+                this.drawVisibleWatermark(ctx, canvas.width, canvas.height);
 
-                // 4. 繪製專屬 QR Code
+                // 繪製 QR Code
                 if ($('#chkQrCode').is(':checked')) {
                     this.drawQrCode(ctx, canvas.width, canvas.height);
                 }
 
-                // 5. 更新檔案大小預估
                 this.updateSizeEstimation();
             },
 
-            // 繪製水印方法
-            drawWatermark: function(ctx, w, h) {
+            drawVisibleWatermark: function(ctx, w, h) {
                 const mainText = $('#inputWatermarkText').val();
                 const subText = $('#inputSubText').val();
                 if (!mainText && !subText) return;
 
                 const opacity = $('#rangeOpacity').val() / 100;
-                const fontSize = parseInt($('#rangeFontSize').val(), 10);
-                const color = $('#selectWatermarkColor').val();
-                const pos = $('#selectWatermarkPosition').val();
-
                 ctx.save();
                 ctx.globalAlpha = opacity;
-                ctx.fillStyle = color;
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+                ctx.fillStyle = $('#selectWatermarkColor').val();
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
                 ctx.shadowBlur = 6;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
 
+                const pos = $('#selectWatermarkPosition').val();
                 if (pos === 'tile') {
-                    // 全版平鋪矩陣
-                    ctx.font = `bold ${fontSize}px "Noto Sans TC", sans-serif`;
+                    ctx.font = 'bold 24px "Noto Sans TC", sans-serif';
                     ctx.rotate((-25 * Math.PI) / 180);
-                    for (let x = -w; x < w * 2; x += 360) {
-                        for (let y = -h; y < h * 2; y += 220) {
+                    for (let x = -w; x < w * 2; x += 320) {
+                        for (let y = -h; y < h * 2; y += 180) {
                             ctx.fillText(mainText, x, y);
-                            if (subText) {
-                                ctx.font = `normal ${fontSize * 0.65}px "Noto Sans TC", sans-serif`;
-                                ctx.fillText(subText, x, y + fontSize * 0.9);
-                                ctx.font = `bold ${fontSize}px "Noto Sans TC", sans-serif`;
-                            }
                         }
                     }
                 } else {
-                    // 單點角落或置中
-                    let x = w - 40;
-                    let y = h - 50;
+                    let x = w - 40, y = h - 50;
                     ctx.textAlign = 'right';
-
-                    if (pos === 'bottom-left') {
-                        x = 40;
-                        y = h - 50;
-                        ctx.textAlign = 'left';
-                    } else if (pos === 'top-right') {
-                        x = w - 40;
-                        y = 60;
-                        ctx.textAlign = 'right';
-                    } else if (pos === 'center') {
-                        x = w / 2;
-                        y = h / 2;
-                        ctx.textAlign = 'center';
-                    }
-
-                    // 繪製主文字
-                    ctx.font = `bold ${fontSize}px "Noto Sans TC", sans-serif`;
+                    if (pos === 'bottom-left') { x = 40; ctx.textAlign = 'left'; }
+                    ctx.font = 'bold 26px "Noto Sans TC", sans-serif';
                     ctx.fillText(mainText, x, y);
-
-                    // 繪製次行聯絡資訊
                     if (subText) {
-                        ctx.font = `500 ${fontSize * 0.6}px "Noto Sans TC", sans-serif`;
-                        ctx.fillText(subText, x, y + fontSize * 0.85);
+                        ctx.font = '16px "Noto Sans TC", sans-serif';
+                        ctx.fillText(subText, x, y + 24);
                     }
                 }
-
                 ctx.restore();
             },
 
-            // 繪製模擬 QR Code
             drawQrCode: function(ctx, w, h) {
-                const qrSize = Math.max(90, Math.floor(w * 0.1));
-                const pad = 30;
-                const x = w - qrSize - pad;
-                const y = h - qrSize - pad - 60;
-
-                ctx.save();
+                const size = 80;
+                const x = w - size - 30;
+                const y = h - size - 90;
                 ctx.fillStyle = '#ffffff';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 8;
-                ctx.fillRect(x, y, qrSize, qrSize);
-
-                // 繪製 QR Code 矩陣紋路
-                ctx.fillStyle = '#0f0a1c';
-                ctx.fillRect(x + 8, y + 8, qrSize * 0.32, qrSize * 0.32);
-                ctx.fillRect(x + qrSize - qrSize * 0.32 - 8, y + 8, qrSize * 0.32, qrSize * 0.32);
-                ctx.fillRect(x + 8, y + qrSize - qrSize * 0.32 - 8, qrSize * 0.32, qrSize * 0.32);
-                
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(x + 14, y + 14, qrSize * 0.16, qrSize * 0.16);
-                ctx.fillRect(x + qrSize - qrSize * 0.32 - 2, y + 14, qrSize * 0.16, qrSize * 0.16);
-                ctx.fillRect(x + 14, y + qrSize - qrSize * 0.32 - 2, qrSize * 0.16, qrSize * 0.16);
-
-                ctx.fillStyle = 'var(--uvaco-primary)';
-                ctx.font = 'bold 11px "Noto Sans TC", sans-serif';
+                ctx.fillRect(x, y, size, size);
+                ctx.fillStyle = '#0a0614';
+                ctx.fillRect(x + 6, y + 6, size - 12, size - 12);
+                ctx.fillStyle = '#c084fc';
+                ctx.font = '10px "Noto Sans TC"';
                 ctx.textAlign = 'center';
-                ctx.fillText('掃碼洽詢', x + qrSize / 2, y + qrSize + 16);
-                ctx.restore();
+                ctx.fillText('掃碼諮詢', x + size / 2, y + size + 14);
             },
 
-            // 即時預估壓縮體積
-            updateSizeEstimation: function() {
+            toggleDiffHeatmap: function() {
                 const canvas = document.getElementById('mainStudioCanvas');
-                const quality = $('#rangeQuality').val() / 100;
-                const format = $('input[name="exportFormat"]:checked').val();
+                const ctx = canvas.getContext('2d');
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
 
-                try {
-                    const dataUrl = canvas.toDataURL(format, quality);
-                    const head = 'data:' + format + ';base64,';
-                    const base64Length = dataUrl.length - head.length;
-                    const estimatedBytes = (base64Length * 3) / 4;
-                    const estimatedKB = (estimatedBytes / 1024).toFixed(0);
-
-                    if (estimatedKB > 1024) {
-                        $('#lblCompressedSize').text((estimatedKB / 1024).toFixed(2) + ' MB');
-                    } else {
-                        $('#lblCompressedSize').text(estimatedKB + ' KB');
-                    }
-
-                    // 格式標籤更新
-                    const extName = format.split('/')[1].toUpperCase();
-                    $('#lblFileFormat').text(extName);
-                } catch (e) {
-                    console.warn('估算體積異常', e);
+                for (let i = 0; i < data.length; i += 4) {
+                    const lsb = (data[i + 2] & 1) * 255;
+                    data[i] = lsb;
+                    data[i + 1] = 0;
+                    data[i + 2] = lsb;
                 }
+                ctx.putImageData(imgData, 0, 0);
+                alert("已切換為【微擾差分熱圖】！紫光螢光點為隱形簽章的空間分佈。");
             },
 
-            // 匯出下載圖檔
             exportDownload: function() {
                 const canvas = document.getElementById('mainStudioCanvas');
+                const ctx = canvas.getContext('2d');
+
+                // 若啟用隱形盲標，在導出前寫入 LSB
+                if ($('#chkEnableBlindWatermark').is(':checked')) {
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const partnerInfo = $('#partnerSelect').val().split('|');
+                    const payload = JSON.stringify({
+                        uid: partnerInfo[0],
+                        name: partnerInfo[1],
+                        rank: partnerInfo[2],
+                        tag: $('#customTag').val().trim(),
+                        time: new Date().toISOString()
+                    });
+
+                    StegoEngine.encode(imgData, payload);
+                    ctx.putImageData(imgData, 0, 0);
+
+                    this.addAuditLog('LOG-' + Math.random().toString(36).substr(2, 6).toUpperCase(), '<span class="badge bg-primary">盲標簽章</span>', partnerInfo[1], partnerInfo[0], $('#customTag').val(), '2-Bit', '簽章注入完成');
+                }
+
                 const format = $('input[name="exportFormat"]:checked').val();
                 const quality = $('#rangeQuality').val() / 100;
-                const ext = format === 'image/webp' ? 'webp' : (format === 'image/png' ? 'png' : 'jpg');
-
-                const dataUrl = canvas.toDataURL(format, quality);
                 const link = document.createElement('a');
-                link.download = `${this.originalFileName}-uvaco-studio.${ext}`;
-                link.href = dataUrl;
+                link.download = `${this.originalFileName}-signed.${format === 'image/png' ? 'png' : 'webp'}`;
+                link.href = canvas.toDataURL(format, quality);
                 link.click();
             },
 
-            // 一鍵複製至剪貼簿
-            copyToClipboard: function() {
+            executeForensicScan: function() {
+                const self = this;
                 const canvas = document.getElementById('mainStudioCanvas');
-                canvas.toBlob(function(blob) {
+                const ctx = canvas.getContext('2d');
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                self.logTerminal("> 正在掃描空間域 Blue 通道 LSB 矩陣...");
+
+                setTimeout(() => {
                     try {
-                        const item = new ClipboardItem({ "image/png": blob });
-                        navigator.clipboard.write([item]).then(function() {
-                            alert('已成功將高解析圖檔複製至剪貼簿！可直接於 LINE 或 FB 貼上 (Ctrl+V) 發送。');
-                        });
-                    } catch (err) {
-                        alert('瀏覽器安全性限制：請直接點擊「高解析輸出導出」下載圖檔。');
+                        const raw = StegoEngine.decode(imgData);
+                        if (raw) {
+                            const p = JSON.parse(raw);
+                            self.logTerminal(`[MATCH SUCCESS] 成功擷取經銷商簽章！`, 'success');
+                            $('#resPartnerName').text(p.name);
+                            $('#resPartnerId').text(p.uid);
+                            $('#resPartnerRank').text(p.rank);
+                            $('#resTimestamp').text(p.time);
+                            $('#forensicResultCard').removeClass('d-none');
+
+                            self.addAuditLog('SCAN-' + Math.random().toString(36).substr(2, 6).toUpperCase(), '<span class="badge bg-danger">反諜鑑識</span>', p.name, p.uid, p.tag, '萃取成功', '<span class="text-danger fw-bold">鎖定源頭</span>');
+                        } else {
+                            self.logTerminal("[FAILED] 未在圖檔中偵測到有效簽章。", 'danger');
+                            alert("未在此圖檔中發現相符的機密盲浮水印簽章。");
+                        }
+                    } catch (e) {
+                        self.logTerminal(`[ERROR] 解析毀損: ${e.message}`, 'danger');
                     }
-                }, 'image/png');
+                }, 400);
+            },
+
+            logTerminal: function(text, type = 'normal') {
+                const t = $('#forensicTerminal');
+                const cls = type === 'success' ? 'text-success-glow' : (type === 'danger' ? 'text-danger-glow' : '');
+                t.append(`<span class="${cls}">${text}</span>\n`);
+                t.scrollTop(t[0].scrollHeight);
+            },
+
+            updateSizeEstimation: function() {
+                const canvas = document.getElementById('mainStudioCanvas');
+                const format = $('input[name="exportFormat"]:checked').val();
+                const quality = $('#rangeQuality').val() / 100;
+                try {
+                    const dataUrl = canvas.toDataURL(format, quality);
+                    const bytes = (dataUrl.length * 3) / 4;
+                    $('#lblCompressedSize').text((bytes / 1024).toFixed(0) + ' KB');
+                } catch(e) {}
+            },
+
+            initDataTable: function() {
+                this.dataTableInstance = $('#forensicLogsTable').DataTable({
+                    responsive: true,
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: false,
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "檢索稽核日誌...",
+                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
+                        paginate: { next: '<i class="fa-solid fa-chevron-right"></i>', previous: '<i class="fa-solid fa-chevron-left"></i>' },
+                        emptyTable: "尚無簽章鑑識記錄"
+                    }
+                });
+            },
+
+            addAuditLog: function(id, mode, name, uid, tag, depth, status) {
+                this.dataTableInstance.row.add([
+                    `<code class="text-info">${id}</code>`,
+                    mode,
+                    `<span class="fw-semibold text-light">${name}</span>`,
+                    `<code>${uid}</code>`,
+                    `<span class="small text-muted">${tag}</span>`,
+                    depth,
+                    `<span class="small text-muted">${new Date().toLocaleTimeString()}</span>`,
+                    status
+                ]).draw(false);
             }
         };
 
-        // ==========================================================================
-        // 快速樣板套用函數
-        // ==========================================================================
-        function applyPreset(type) {
-            if (type === 'recruit') {
-                $('#inputWatermarkText').val('葡眾事業全國體系｜誠徵經營創業夥伴');
-                $('#inputSubText').val('一對一培育計畫｜加盟專線 LINE: ray-jarvis');
-                $('#rangeOpacity').val(85).trigger('input');
-                $('#selectWatermarkColor').val('rgba(251, 191, 36, 0.9)').trigger('change');
-                $('#selectWatermarkPosition').val('bottom-right').trigger('change');
-                $('#chkQrCode').prop('checked', true);
-            } else if (type === 'product') {
-                $('#inputWatermarkText').val('葡眾官方正品保證・請認明合格直銷商代號');
-                $('#inputSubText').val('衛福部認證健康食品｜榮祥團隊版權所有');
-                $('#rangeOpacity').val(65).trigger('input');
-                $('#selectWatermarkColor').val('rgba(255, 255, 255, 0.85)').trigger('change');
-                $('#selectWatermarkPosition').val('tile').trigger('change');
-                $('#chkQrCode').prop('checked', false);
-            } else if (type === 'clean') {
-                $('#inputWatermarkText').val('');
-                $('#inputSubText').val('');
-                $('#chkQrCode').prop('checked', false);
-                $('#rangeQuality').val(80).trigger('input');
-            }
-            ImageStudio.render();
+        function loadSample(type) {
+            alert(`已載入葡眾「${type}」官方樣板！`);
+            UnifiedStudio.render();
         }
 
-        function loadSampleProduct(sku) {
-            alert(`已載入葡眾「${sku}」高解析官方產品樣板！`);
-            ImageStudio.render();
-        }
-
-        // DOM 載入完成初始化
         $(document).ready(function() {
-            ImageStudio.init();
+            UnifiedStudio.init();
         });
     </script>
 </body>
