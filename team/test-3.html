@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>組合推薦 - 榮祥團隊戰術中樞</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #060d19;
+            --bg-surface: #0c182b;
+            --bg-card: #13233c;
+            --bg-card-hover: #182e4e;
+            --border-color: rgba(56, 189, 248, 0.18);
+            --border-glow: rgba(56, 189, 248, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #0284c7;
+            --accent-cyan: #38bdf8;
+            --accent-gold: #fde047;
+            --accent-green: #34d399;
+            --accent-rose: #fb7185;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 1.5rem;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 玻璃擬態與沉降卡片 */
+        .tactical-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            position: relative;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+            backdrop-filter: blur(8px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tactical-panel:hover {
+            border-color: var(--border-glow);
+        }
+
+        /* 標題與光暈效果 */
+        .hero-badge {
+            background: rgba(2, 132, 199, 0.2);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.825rem;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* 預設戰術配方膠囊按鈕 */
+        .preset-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .preset-chip:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .preset-chip.active {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.4) 0%, rgba(56, 189, 248, 0.25) 100%);
+            border-color: var(--accent-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.3);
+        }
+
+        /* 產品 SKU 選擇條目 */
+        .sku-row-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .sku-row-item:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            background: var(--bg-card-hover);
+        }
+
+        /* 數量控制按鈕組 */
+        .qty-control-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .qty-control-btn:hover:not(:disabled) {
+            background: var(--accent-primary);
+            color: #ffffff;
+            border-color: var(--accent-cyan);
+        }
+
+        .qty-input {
+            width: 46px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        /* 戰術數值指標卡 */
+        .metric-pill {
+            background: rgba(12, 24, 43, 0.7);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            height: 100%;
+        }
+
+        .metric-label {
+            font-size: 0.775rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        /* 話術複製區塊 */
+        .script-box {
+            background: rgba(6, 13, 25, 0.85);
+            border: 1px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-card-hover);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+
+        /* 響應式微調 */
+        @media (max-width: 991.98px) {
+            body {
+                padding: 0.75rem;
+            }
+            .tactical-panel {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> 戰術裝備庫</span>
+                <span class="text-secondary small font-mono">T55000 / tool-bundles.html</span>
+            </div>
+            <h3 class="fw-bold mb-0 text-white"><i class="fa-solid fa-layer-group"></i> 組合推薦配置中樞</h3>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button id="btnSyncGoogleSheets" class="btn btn-outline-info btn-sm">
+                <i class="fa-solid fa-arrows-rotate"></i> 同步試算表數據
+            </button>
+            <button id="btnResetBundle" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-rotate-left"></i> 重設配方
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        
+        <div class="col-12 col-xl-8">
+            <div class="tactical-panel mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-bolt text-warning"></i> 痛點情境速配預設</h5>
+                    <span class="text-muted small">點擊快速載入專業戰術配方</span>
+                </div>
+                <div id="presetChipsContainer" class="d-flex flex-wrap gap-2">
+                    </div>
+            </div>
+
+            <div class="tactical-panel">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-boxes-packing text-info"></i> 自訂配方清單 (SKU Sandbox)</h5>
+                        <small class="text-muted">可自由調配各產品盒數與食用週期</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-secondary small">食用規劃：</span>
+                        <div class="btn-group btn-group-sm" role="group" id="planDaysGroup">
+                            <button type="button" class="btn btn-outline-primary active" data-days="30">30 天調養</button>
+                            <button type="button" class="btn btn-outline-primary" data-days="60">60 天強化</button>
+                            <button type="button" class="btn btn-outline-primary" data-days="90">90 天深層</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bundleItemsContainer">
+                    </div>
+
+                <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex flex-wrap gap-2">
+                    <select id="skuSelectDropdown" class="form-select form-select-sm bg-dark text-white border-secondary w-auto flex-grow-1">
+                        <option value="">-- 選擇其他產品加入配方 --</option>
+                    </select>
+                    <button id="btnAddSkuToBundle" class="btn btn-primary btn-sm px-3">
+                        <i class="fa-solid fa-plus"></i> 加入配方
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            
+            <div class="tactical-panel mb-3">
+                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-calculator text-success"></i> 配單效益與考核試算</h5>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="metric-label">總定價 (TWD)</div>
+                            <div class="metric-value text-white font-mono" id="totalRetailPrice">NT$ 0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="metric-label">會員優惠價</div>
+                            <div class="metric-value text-info font-mono" id="totalMemberPrice">NT$ 0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="metric-label">總積分點數 (SV)</div>
+                            <div class="metric-value text-warning font-mono" id="totalBundleSV">0 <span class="fs-6">SV</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="metric-label">每日平均成本</div>
+                            <div class="metric-value text-success font-mono" id="dailyCostText">NT$ 0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-25">
+                    <div class="d-flex justify-content-between text-secondary small mb-1">
+                        <span><i class="fa-solid fa-trophy text-warning"></i> 經理合格 (3,200 SV) 貢獻</span>
+                        <span id="svProgressText" class="font-mono text-cyan">0%</span>
+                    </div>
+                    <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.1);">
+                        <div id="svProgressBar" class="progress-bar bg-warning" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tactical-panel">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-share-nodes text-cyan"></i> 轉化推廣話術</h5>
+                    <button id="btnCopyScript" class="btn btn-outline-warning btn-sm">
+                        <i class="fa-solid fa-copy"></i> 複製話術
+                    </button>
+                </div>
+                <div class="script-box font-mono" id="generatedScriptBox">
+                    正在生成專屬配方推薦話術...
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <button id="btnOpenLineShare" class="btn btn-success fw-bold">
+                        <i class="fa-brands fa-line"></i> 分享至 LINE 客戶
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            
+            // 1. Google 試算表欄位解耦對映字典 (Schema Decoupling Dictionary)
+            const SCHEMA_MAPPING = {
+                id: ['id', '產品編號', 'item_id', 'SKU', '代碼'],
+                name: ['name', '產品名稱', '品名', 'item_name', 'Title'],
+                series: ['series', '系列', 'category', '分類維度'],
+                retailPrice: ['retail_price', '零售價', '定價', 'price_retail', '售價'],
+                memberPrice: ['member_price', '會員價', '經銷價', 'price_member'],
+                sv: ['sv', '積分', 'SV', '點數', 'points'],
+                servingsPerBox: ['servings', '每盒份量', '包數', '規格', 'spec_qty'],
+                dailyServing: ['daily_serving', '每日建議量', '每日包數', 'dosage'],
+                highlight: ['highlight', '主要體感', '核心訴求', 'feature']
+            };
+
+            // 2. 本地備援/初始產品資料 (當試算表尚未連線時無縫運行)
+            const RAW_PRODUCT_MASTER = [
+                { id: 'PRD-001', name: '995 超級營養液', series: '養生調理', retailPrice: 6038, memberPrice: 5040, sv: 4100, servings: 32, dailyServing: 1, highlight: '深層活化、迅速恢復體力、提升防護基底' },
+                { id: 'PRD-002', name: '樟芝益 菌絲體發酵液', series: '機能防護', retailPrice: 6038, memberPrice: 5040, sv: 4100, servings: 32, dailyServing: 1, highlight: '護肝降火、調節生理機能、熬夜應酬必備' },
+                { id: 'PRD-003', name: '康爾喜 益生菌複方', series: '消化代謝', retailPrice: 2040, memberPrice: 1764, sv: 1510, servings: 90, dailyServing: 3, highlight: '13種專利益生菌、維持消化道菌叢健康' },
+                { id: 'PRD-004', name: '康爾瑞 活力膠囊', series: '循環順暢', retailPrice: 2680, memberPrice: 2310, sv: 1980, servings: 60, dailyServing: 2, highlight: '輔酵 Q10、紅麴精華、維持循環健康節奏' },
+                { id: 'PRD-005', name: '百克斯 膠囊', series: '呼吸防護', retailPrice: 1680, memberPrice: 1470, sv: 1260, servings: 100, dailyServing: 4, highlight: '冬蟲夏草菌絲體、清潤呼吸道、滋補強身' },
+                { id: 'PRD-006', name: '愛益 複方膠囊', series: '青春內分泌', retailPrice: 1500, memberPrice: 1260, sv: 1080, servings: 100, dailyServing: 4, highlight: '花粉、蜂王乳、滋補養顏、調整熟齡體質' },
+                { id: 'PRD-007', name: '力盛 複方膠囊', series: '代謝順暢', retailPrice: 1680, memberPrice: 1470, sv: 1260, servings: 100, dailyServing: 4, highlight: '草本清涼調理、促進新陳代謝、水分調節' }
+            ];
+
+            // 3. 預設戰術配方模組 (Presets)
+            const PRESET_TACTICAL_BUNDLES = [
+                {
+                    id: 'PRESET-01',
+                    name: '黃金雙天王（元氣+防護）',
+                    icon: 'fa-solid fa-crown',
+                    description: '995 與樟芝益強強聯手，快速建立深層防護網',
+                    items: [
+                        { id: 'PRD-001', qty: 1 },
+                        { id: 'PRD-002', qty: 1 }
+                    ]
+                },
+                {
+                    id: 'PRESET-02',
+                    name: '消化代謝順暢組',
+                    icon: 'fa-solid fa-shield-virus',
+                    description: '益生菌搭配草本調理，打造完美消化道生態',
+                    items: [
+                        { id: 'PRD-003', qty: 1 },
+                        { id: 'PRD-007', qty: 1 }
+                    ]
+                },
+                {
+                    id: 'PRESET-03',
+                    name: '熬夜應酬重啟組',
+                    icon: 'fa-solid fa-battery-charging',
+                    description: '專為高壓高工時、經常外食與應酬族量身定制',
+                    items: [
+                        { id: 'PRD-002', qty: 1 },
+                        { id: 'PRD-004', qty: 1 },
+                        { id: 'PRD-003', qty: 1 }
+                    ]
+                },
+                {
+                    id: 'PRESET-04',
+                    name: '全家日常全方位防護',
+                    icon: 'fa-solid fa-people-roof',
+                    description: '兼顧呼吸道、腸道健康與全家日常元氣',
+                    items: [
+                        { id: 'PRD-001', qty: 1 },
+                        { id: 'PRD-003', qty: 1 },
+                        { id: 'PRD-005', qty: 1 }
+                    ]
+                }
+            ];
+
+            // 當前狀態變數
+            let productCatalog = [...RAW_PRODUCT_MASTER];
+            let activeBundleItems = [];
+            let currentPlanDays = 30;
+
+            // 4. 欄位解耦轉換器函式
+            function decoupleRowData(row) {
+                const item = {};
+                for (const [standardKey, possibleAliases] of Object.entries(SCHEMA_MAPPING)) {
+                    for (const alias of possibleAliases) {
+                        if (row[alias] !== undefined && row[alias] !== null && row[alias] !== '') {
+                            item[standardKey] = row[alias];
+                            break;
+                        }
+                    }
+                }
+                item.retailPrice = Number(item.retailPrice) || 0;
+                item.memberPrice = Number(item.memberPrice) || 0;
+                item.sv = Number(item.sv) || 0;
+                item.dailyServing = Number(item.dailyServing) || 1;
+                item.servingsPerBox = Number(item.servingsPerBox) || 30;
+                return item;
+            }
+
+            // 5. 初始化與渲染預設情境按鈕
+            function renderPresetChips() {
+                const $container = $('#presetChipsContainer');
+                $container.empty();
+
+                PRESET_TACTICAL_BUNDLES.forEach((preset, index) => {
+                    const $chip = $(`
+                        <div class="preset-chip ${index === 0 ? 'active' : ''}" data-preset-id="${preset.id}">
+                            <i class="${preset.icon}"></i> ${preset.name}
+                        </div>
+                    `);
+                    $container.append($chip);
+                });
+            }
+
+            // 6. 初始化產品下拉清單
+            function populateSkuDropdown() {
+                const $select = $('#skuSelectDropdown');
+                $select.empty().append('<option value="">-- 選擇其他產品加入配方 --</option>');
+                
+                productCatalog.forEach(prod => {
+                    $select.append(`<option value="${prod.id}">[${prod.series}] ${prod.name} (NT$ ${prod.memberPrice.toLocaleString()} / ${prod.sv} SV)</option>`);
+                });
+            }
+
+            // 7. 載入特定配方
+            function applyPreset(presetId) {
+                const preset = PRESET_TACTICAL_BUNDLES.find(p => p.id === presetId);
+                if (!preset) return;
+
+                activeBundleItems = [];
+                preset.items.forEach(itemConfig => {
+                    const prod = productCatalog.find(p => p.id === itemConfig.id);
+                    if (prod) {
+                        activeBundleItems.push({
+                            product: prod,
+                            qty: itemConfig.qty
+                        });
+                    }
+                });
+                renderBundleItems();
+                recalculateMetrics();
+            }
+
+            // 8. 渲染目前選中的配方清單
+            function renderBundleItems() {
+                const $container = $('#bundleItemsContainer');
+                $container.empty();
+
+                if (activeBundleItems.length === 0) {
+                    $container.html(`
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-box-open fs-2 mb-2 d-block"></i>
+                            目前配方清單為空，請點選上方預設情境或從下方新增產品。
+                        </div>
+                    `);
+                    return;
+                }
+
+                activeBundleItems.forEach((bundleItem, idx) => {
+                    const prod = bundleItem.product;
+                    const subtotalSV = prod.sv * bundleItem.qty;
+                    const subtotalMember = prod.memberPrice * bundleItem.qty;
+
+                    const $row = $(`
+                        <div class="sku-row-item d-flex flex-wrap align-items-center justify-content-between gap-2" data-index="${idx}">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25 px-2 py-1">
+                                    ${prod.series}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-white">${prod.name}</div>
+                                    <div class="text-muted small">${prod.highlight}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center gap-3 ms-auto">
+                                <div class="text-end">
+                                    <div class="text-warning font-mono fw-bold">${subtotalSV.toLocaleString()} SV</div>
+                                    <div class="text-muted small font-mono">NT$ ${subtotalMember.toLocaleString()}</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <button class="qty-control-btn btn-decrease"><i class="fa-solid fa-minus"></i></button>
+                                    <input type="text" class="qty-input font-mono" value="${bundleItem.qty}" readonly>
+                                    <button class="qty-control-btn btn-increase"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <button class="btn btn-link text-danger p-0 ms-1 btn-remove-item" title="移除此品項">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    $container.append($row);
+                });
+            }
+
+            // 9. 計算數值與生成文案
+            function recalculateMetrics() {
+                let totalRetail = 0;
+                let totalMember = 0;
+                let totalSV = 0;
+
+                activeBundleItems.forEach(item => {
+                    totalRetail += item.product.retailPrice * item.qty;
+                    totalMember += item.product.memberPrice * item.qty;
+                    totalSV += item.product.sv * item.qty;
+                });
+
+                const dailyCost = currentPlanDays > 0 ? Math.round(totalMember / currentPlanDays) : 0;
+                const svTarget = 3200; // 經理合格門檻點數基準
+                const svProgress = Math.min(100, Math.round((totalSV / svTarget) * 100));
+
+                // 更新 DOM
+                $('#totalRetailPrice').text(`NT$ ${totalRetail.toLocaleString()}`);
+                $('#totalMemberPrice').text(`NT$ ${totalMember.toLocaleString()}`);
+                $('#totalBundleSV').html(`${totalSV.toLocaleString()} <span class="fs-6">SV</span>`);
+                $('#dailyCostText').text(`NT$ ${dailyCost.toLocaleString()}`);
+                
+                $('#svProgressBar').css('width', `${svProgress}%`);
+                $('#svProgressText').text(`${svProgress}% (${totalSV} / ${svTarget} SV)`);
+
+                // 生成客製化推廣話術
+                generateTacticalScript(totalRetail, totalMember, totalSV, dailyCost);
+            }
+
+            // 10. 動態生成轉化話術
+            function generateTacticalScript(retail, member, sv, dailyCost) {
+                if (activeBundleItems.length === 0) {
+                    $('#generatedScriptBox').text('請配置產品以生成話術。');
+                    return;
+                }
+
+                let itemsSummary = activeBundleItems.map(i => `• ${i.product.name} × ${i.qty} 盒`).join('\n');
+                let benefits = activeBundleItems.map(i => `👉 ${i.product.highlight}`).join('\n');
+
+                const script = `【🌿 專屬全方位體質調養方案｜${currentPlanDays} 天健康重啟計畫】\n\n哈囉！針對您近期的調理需求，已為您搭配最精準的黃金配方組合：\n\n📦 專屬調養清單：\n${itemsSummary}\n\n✨ 核心調理效益：\n${benefits}\n\n💡 方案投資效益：\n• 原總定價：NT$ ${retail.toLocaleString()} 元\n• 會員專屬方案：NT$ ${member.toLocaleString()} 元（現省 NT$ ${(retail - member).toLocaleString()}）\n• 平均每天僅需：NT$ ${dailyCost} 元，輕鬆建立健康防護！\n\n📌 食用方法建議：\n每日早晨空腹飲用 1 瓶營養液，隨餐補充複方膠囊，讓吸收達到最高效益。\n\n需要我協助您直接送出這組方案嗎？隨時為您安排！`;
+
+                $('#generatedScriptBox').text(script);
+            }
+
+            // 11. 事件綁定：預設情境點擊
+            $(document).on('click', '.preset-chip', function () {
+                $('.preset-chip').removeClass('active');
+                $(this).addClass('active');
+                const presetId = $(this).data('preset-id');
+                applyPreset(presetId);
+            });
+
+            // 12. 事件綁定：天數規劃切換
+            $('#planDaysGroup button').on('click', function () {
+                $('#planDaysGroup button').removeClass('active');
+                $(this).addClass('active');
+                currentPlanDays = Number($(this).data('days')) || 30;
+                recalculateMetrics();
+            });
+
+            // 13. 事件綁定：數量增減與移除
+            $(document).on('click', '.btn-increase', function () {
+                const idx = $(this).closest('.sku-row-item').data('index');
+                activeBundleItems[idx].qty += 1;
+                renderBundleItems();
+                recalculateMetrics();
+            });
+
+            $(document).on('click', '.btn-decrease', function () {
+                const idx = $(this).closest('.sku-row-item').data('index');
+                if (activeBundleItems[idx].qty > 1) {
+                    activeBundleItems[idx].qty -= 1;
+                } else {
+                    activeBundleItems.splice(idx, 1);
+                }
+                renderBundleItems();
+                recalculateMetrics();
+            });
+
+            $(document).on('click', '.btn-remove-item', function () {
+                const idx = $(this).closest('.sku-row-item').data('index');
+                activeBundleItems.splice(idx, 1);
+                renderBundleItems();
+                recalculateMetrics();
+            });
+
+            // 14. 事件綁定：手動新增 SKU
+            $('#btnAddSkuToBundle').on('click', function () {
+                const selectedId = $('#skuSelectDropdown').val();
+                if (!selectedId) return;
+
+                const existingItem = activeBundleItems.find(i => i.product.id === selectedId);
+                if (existingItem) {
+                    existingItem.qty += 1;
+                } else {
+                    const prod = productCatalog.find(p => p.id === selectedId);
+                    if (prod) {
+                        activeBundleItems.push({ product: prod, qty: 1 });
+                    }
+                }
+                $('#skuSelectDropdown').val('');
+                renderBundleItems();
+                recalculateMetrics();
+            });
+
+            // 15. 事件綁定：重設配方
+            $('#btnResetBundle').on('click', function () {
+                if ($('.preset-chip').length > 0) {
+                    $('.preset-chip').first().click();
+                } else {
+                    activeBundleItems = [];
+                    renderBundleItems();
+                    recalculateMetrics();
+                }
+            });
+
+            // 16. 複製話術按鈕
+            $('#btnCopyScript').on('click', function () {
+                const text = $('#generatedScriptBox').text();
+                navigator.clipboard.writeText(text).then(() => {
+                    const $btn = $(this);
+                    const originalHtml = $btn.html();
+                    $btn.removeClass('btn-outline-warning').addClass('btn-success').html('<i class="fa-solid fa-check"></i> 已複製');
+                    setTimeout(() => {
+                        $btn.removeClass('btn-success').addClass('btn-outline-warning').html(originalHtml);
+                    }, 2000);
+                });
+            });
+
+            // 17. 一鍵分享至 LINE
+            $('#btnOpenLineShare').on('click', function () {
+                const text = $('#generatedScriptBox').text();
+                const encoded = encodeURIComponent(text);
+                window.open(`https://line.me/R/msg/text/?${encoded}`, '_blank');
+            });
+
+            // 18. Google 試算表 GViz / PapaParse 解耦同步示範
+            $('#btnSyncGoogleSheets').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                
+                // 模擬抓取非同步試算表並透過解耦字典對齊
+                setTimeout(() => {
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表數據');
+                    alert('已成功與 Google 試算表完成欄位解耦同步！');
+                }, 1000);
+            });
+
+            // 初始化載入第一組預設
+            renderPresetChips();
+            populateSkuDropdown();
+            applyPreset('PRESET-01');
+        });
+    </script>
+</body>
+</html>

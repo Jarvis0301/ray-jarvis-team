@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>門檻會籍戰術雷達 - 榮祥葡眾團隊</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #060d19;
+            --bg-surface-1: #0c182b;
+            --bg-surface-2: #13233c;
+            --bg-surface-3: #1a2f4e;
+            --primary-blue: #0284c7;
+            --secondary-blue: #38bdf8;
+            --accent-gold: #fde047;
+            --status-success: #10b981;
+            --status-warning: #f59e0b;
+            --status-danger: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glow: rgba(56, 189, 248, 0.2);
+            --font-family-base: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-family-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-family-base);
+            overflow-x: hidden;
+            padding-bottom: 3rem;
+        }
+
+        /* 戰術控制面板玻璃擬態 */
+        .glass-panel {
+            background: rgba(12, 24, 43, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.25);
+        }
+
+        /* 頂部戰術抬頭顯示 (HUD) */
+        .hud-banner {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(6, 13, 25, 0.9) 100%);
+            border-left: 5px solid var(--secondary-blue);
+        }
+
+        /* 戰情晶片標籤 */
+        .badge-cyber {
+            font-family: var(--font-family-mono);
+            letter-spacing: 0.5px;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50rem;
+            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .badge-danger-glow {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            box-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
+        }
+
+        .badge-warning-glow {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        .badge-success-glow {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        /* 戰術篩選器膠囊 */
+        .filter-capsule {
+            cursor: pointer;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 1rem;
+            padding: 1rem;
+            background: var(--bg-surface-1);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-capsule.active {
+            background: var(--bg-surface-2);
+            border-color: var(--secondary-blue);
+            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.15);
+        }
+
+        .filter-capsule.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--secondary-blue);
+        }
+
+        /* 數據卡數值 */
+        .stat-number {
+            font-family: var(--font-family-mono);
+            font-weight: 700;
+            font-size: 1.75rem;
+            line-height: 1.1;
+        }
+
+        /* 微型進度條 */
+        .progress-micro {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        /* 互動式雷達圖容器 */
+        .chart-container {
+            position: relative;
+            height: 260px;
+            width: 100%;
+        }
+
+        /* DataTables 深色客製化 */
+        .dataTables_wrapper {
+            color: var(--text-muted);
+        }
+
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 0.5rem !important;
+        }
+
+        table.dataTable tbody tr {
+            background-color: var(--bg-surface-1) !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.15s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: var(--bg-surface-2) !important;
+            transform: translateY(-2px);
+        }
+
+        table.dataTable tbody td {
+            border: none !important;
+            padding: 0.85rem 1rem !important;
+            vertical-align: middle;
+        }
+
+        table.dataTable tbody tr td:first-child {
+            border-top-left-radius: 0.75rem;
+            border-bottom-left-radius: 0.75rem;
+        }
+
+        table.dataTable tbody tr td:last-child {
+            border-top-right-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+        }
+
+        .page-link {
+            background-color: var(--bg-surface-1);
+            border-color: rgba(56, 189, 248, 0.2);
+            color: var(--text-main);
+        }
+
+        .page-link:hover, .page-item.active .page-link {
+            background-color: var(--primary-blue);
+            border-color: var(--secondary-blue);
+            color: #ffffff;
+        }
+
+        /* 按鈕樣式強化 */
+        .btn-action-glow {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-glow:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            color: #ffffff;
+        }
+
+        /* 模態框深色設計 */
+        .modal-content {
+            background: var(--bg-surface-1);
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+        }
+
+        .modal-header, .modal-footer {
+            border-color: rgba(148, 163, 184, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-md-4 py-4">
+
+        <div class="glass-panel hud-banner p-3 p-md-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-lg-7">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge-cyber badge-danger-glow">
+                            <i class="fa-solid fa-radar fa-beat-fade"></i> 當前考核週期倒數：11 天 08 小時
+                        </span>
+                        <span class="badge-cyber badge-warning-glow d-none d-sm-inline-flex">
+                            <i class="fa-solid fa-bolt"></i> 自動緊縮防護開啟
+                        </span>
+                    </div>
+                    <h3 class="fw-bold mb-1 text-white">
+                        <i class="fa-solid fa-shield-halved text-info"></i> 門檻會籍戰術防護中樞
+                    </h3>
+                    <p class="text-secondary mb-0 small">
+                        監控個人 160 SV 活躍門檻、12,000 SV 經理小組防線、經理斷代風險與 12 個月會籍失效預警
+                    </p>
+                </div>
+                <div class="col-12 col-lg-5 text-lg-end">
+                    <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                        <button class="btn btn-sm btn-outline-light rounded-pill px-3" id="btnSyncGviz">
+                            <i class="fa-solid fa-arrows-rotate"></i> 同步試算表主檔
+                        </button>
+                        <button class="btn btn-sm btn-action-glow px-3" id="btnBatchOutreach">
+                            <i class="fa-solid fa-paper-plane"></i> 一鍵生成戰術催單話術
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-xl-4">
+                <div class="glass-panel p-3 p-md-4 h-100 d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-info fw-bold mb-0">
+                            <i class="fa-solid fa-crosshairs"></i> 組織安全防禦拓撲
+                        </h6>
+                        <span class="badge-cyber badge-success-glow">整體達標率 78.4%</span>
+                    </div>
+                    <div class="chart-container my-auto">
+                        <canvas id="qualificationRadarChart"></canvas>
+                    </div>
+                    <div class="pt-2 border-top border-secondary border-opacity-25 mt-2">
+                        <div class="row g-2 text-center small">
+                            <div class="col-4">
+                                <div class="text-muted">已達標經理</div>
+                                <div class="fw-bold text-success font-monospace" id="statQualifiedManagers">18 / 24</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">160 SV 告急</div>
+                                <div class="fw-bold text-danger font-monospace" id="statDanger160">6 名</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">預計斷代失分</div>
+                                <div class="fw-bold text-warning font-monospace" id="statBreakawayLoss">-4,200 SV</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-8">
+                <div class="row g-3 h-100">
+                    <div class="col-12 col-md-4">
+                        <div class="filter-capsule active h-100 d-flex flex-column justify-content-between" data-filter-type="160SV">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="text-danger fw-bold small">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> 個人活躍警戒
+                                    </span>
+                                    <span class="badge-cyber badge-danger-glow">160 SV 門檻</span>
+                                </div>
+                                <div class="stat-number text-white my-2" id="count160SV">8 <span class="fs-6 text-muted fw-normal">人未達標</span></div>
+                                <p class="text-muted small mb-3">若未補足將喪失當月所有獎金資格</p>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>平均補足缺口</span>
+                                    <span class="font-monospace text-info">92 SV / 人</span>
+                                </div>
+                                <div class="progress-micro">
+                                    <div class="progress-bar bg-danger" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="filter-capsule h-100 d-flex flex-column justify-content-between" data-filter-type="12000SV">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="text-warning fw-bold small">
+                                        <i class="fa-solid fa-users-viewfinder"></i> 經理合格防線
+                                    </span>
+                                    <span class="badge-cyber badge-warning-glow">12,000 SV</span>
+                                </div>
+                                <div class="stat-number text-white my-2" id="count12000SV">4 <span class="fs-6 text-muted fw-normal">組需衝刺</span></div>
+                                <p class="text-muted small mb-3">包含 2 組即將脫離斷代經理風險</p>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>小組業績達標</span>
+                                    <span class="font-monospace text-warning">83.3%</span>
+                                </div>
+                                <div class="progress-micro">
+                                    <div class="progress-bar bg-warning" style="width: 83%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="filter-capsule h-100 d-flex flex-column justify-content-between" data-filter-type="EXPIRY">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="text-info fw-bold small">
+                                        <i class="fa-solid fa-user-clock"></i> 會籍失效搶救
+                                    </span>
+                                    <span class="badge-cyber badge-success-glow">30 天倒數</span>
+                                </div>
+                                <div class="stat-number text-white my-2" id="countExpiry">11 <span class="fs-6 text-muted fw-normal">人臨終止</span></div>
+                                <p class="text-muted small mb-3">已達 11 個月未購貨，下線即將脫幅</p>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>潛在流失積分</span>
+                                    <span class="font-monospace text-danger">3,450 SV</span>
+                                </div>
+                                <div class="progress-micro">
+                                    <div class="progress-bar bg-info" style="width: 25%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 p-md-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <div>
+                    <h5 class="fw-bold text-white mb-1">
+                        <i class="fa-solid fa-list-check text-secondary"></i> 夥伴資格監控與戰術調度清單
+                    </h5>
+                    <div class="text-muted small">支援跨國（台灣 / 馬來西亞）即時 SV 換算與一鍵智能湊單調度</div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <div class="input-group input-group-sm" style="max-width: 240px;">
+                        <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="tableCustomSearch" placeholder="搜尋夥伴姓名/代號...">
+                    </div>
+                    <select class="form-select form-select-sm bg-dark text-white border-secondary" id="filterCountry" style="width: auto;">
+                        <option value="ALL">全部市場 (TW/MY)</option>
+                        <option value="TW">台灣 (TW)</option>
+                        <option value="MY">馬來西亞 (MY)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark w-100" id="qualificationTable">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">夥伴名稱 / 編號</th>
+                            <th class="text-nowrap">職級</th>
+                            <th class="text-nowrap">市場</th>
+                            <th class="text-nowrap">個人 SV (門檻 160)</th>
+                            <th class="text-nowrap">小組 SV (經理 12K)</th>
+                            <th class="text-nowrap">會籍安全期</th>
+                            <th class="text-nowrap">狀態診斷</th>
+                            <th class="text-nowrap text-end">戰術行動</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="solverModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-info">
+                        <i class="fa-solid fa-calculator"></i> 智能 SV 湊單配比建議
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-3 bg-dark bg-opacity-50 rounded-3 mb-3 border border-secondary border-opacity-25">
+                        <div class="d-flex justify-content-between text-muted small mb-1">
+                            <span>目標夥伴：<strong class="text-white" id="solverPartnerName">-</strong></span>
+                            <span>職級：<span class="text-warning" id="solverPartnerRank">-</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">當前差額缺口：</span>
+                            <span class="font-monospace text-danger fs-5 fw-bold" id="solverGapSV">0 SV</span>
+                        </div>
+                    </div>
+
+                    <h6 class="text-white small fw-bold mb-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-warning"></i> AI 推薦最精準補點組合：
+                    </h6>
+                    <div class="list-group list-group-flush mb-3" id="solverProductList">
+                        </div>
+
+                    <div class="alert alert-info py-2 small mb-0 d-flex align-items-center">
+                        <i class="fa-solid fa-circle-info fs-5 me-2"></i>
+                        <span>已依照當前兩國售價與積分自動對齊，湊單多餘點數將納入小組安全邊際。</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-sm btn-action-glow" id="btnCopySolverOrder">
+                        <i class="fa-solid fa-copy"></i> 複製湊單建議至 LINE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="outreachModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-warning">
+                        <i class="fa-solid fa-comment-nodes"></i> 戰術關懷與提醒話術
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">話術溝通目標：</label>
+                        <select class="form-select form-select-sm bg-dark text-white border-secondary" id="scriptTypeSelect">
+                            <option value="160_ALERT">160 SV 獎金領取資格緊急提醒</option>
+                            <option value="12000_MARGIN">經理 12,000 SV 保級與分紅激勵</option>
+                            <option value="EXPIRY_RECOVERY">會籍即將到期（12 個月未進貨）溫馨關懷</option>
+                        </select>
+                    </div>
+                    <div class="position-relative">
+                        <textarea class="form-control bg-dark text-white border-secondary font-monospace small" id="outreachMessageText" rows="7"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-sm btn-success" id="btnCopyOutreach">
+                        <i class="fa-solid fa-paper-plane"></i> 複製並開啟 LINE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        // ==========================================================================
+        // 1. Google 試算表欄位名稱解耦合字典 (Data Decoupling Mapper)
+        // ==========================================================================
+        const QUALIFICATION_MAPPER = {
+            partner_id: '夥伴編號',
+            partner_name: '夥伴姓名',
+            rank_name: '當前職級',
+            country: '市場國別',
+            personal_sv: '本月個人SV',
+            group_sv: '本月小組SV',
+            last_order_days: '距上次進貨天數',
+            breakaway_risk: '斷代脫離風險',
+            status_tag: '警示等級'
+        };
+
+        // 葡眾主力產品點數庫 (用於智能湊單)
+        const PRODUCT_CATALOG = [
+            { id: 'P01', name: '995 生化營養品 (1箱)', sv: 74, price_tw: 5640 },
+            { id: 'P02', name: '樟芝益菌絲體 (1箱)', sv: 74, price_tw: 5640 },
+            { id: 'P03', name: '康貝兒/康爾喜益生菌 (1盒)', sv: 20, price_tw: 1764 },
+            { id: 'P04', name: '百克斯 (1瓶)', sv: 24, price_tw: 1512 },
+            { id: 'P05', name: '衛傑 (1瓶)', sv: 24, price_tw: 1512 }
+        ];
+
+        // 模擬數據源 (對齊試算表原始欄位結構)
+        let rawSheetData = [
+            { '夥伴編號': 'TW008821', '夥伴姓名': '陳美芳', '當前職級': '經理', '市場國別': 'TW', '本月個人SV': 45, '本月小組SV': 11200, '距上次進貨天數': 12, '斷代脫離風險': 'LOW', '警示等級': '160SV' },
+            { '夥伴編號': 'TW009312', '夥伴姓名': '林志偉', '當前職級': '主任', '市場國別': 'TW', '本月個人SV': 0, '本月小組SV': 1800, '距上次進貨天數': 25, '斷代脫離風險': 'NONE', '警示等級': '160SV' },
+            { '夥伴編號': 'MY001045', '夥伴姓名': 'Tan Wei Lun', '當前職級': '經理', '市場國別': 'MY', '本月個人SV': 160, '本月小組SV': 8400, '距上次進貨天數': 5, '斷代脫離風險': 'HIGH', '警示等級': '12000SV' },
+            { '夥伴編號': 'TW007142', '夥伴姓名': '張淑琴', '當前職級': '珍珠', '市場國別': 'TW', '本月個人SV': 210, '本月小組SV': 10500, '距上次進貨天數': 3, '斷代脫離風險': 'HIGH', '警示等級': '12000SV' },
+            { '夥伴編號': 'TW003411', '夥伴姓名': '李雅婷', '當前職級': '會員', '市場國別': 'TW', '本月個人SV': 0, '本月小組SV': 0, '距上次進貨天數': 340, '斷代脫離風險': 'NONE', '警示等級': 'EXPIRY' },
+            { '夥伴編號': 'MY000892', '夥伴姓名': 'Siti Rahmah', '當前職級': '會員', '市場國別': 'MY', '本月個人SV': 0, '本月小組SV': 0, '距上次進貨天數': 355, '斷代脫離風險': 'NONE', '警示等級': 'EXPIRY' },
+            { '夥伴編號': 'TW005523', '夥伴姓名': '王大同', '當前職級': '經理', '市場國別': 'TW', '本月個人SV': 180, '本月小組SV': 13500, '距上次進貨天數': 8, '斷代脫離風險': 'NONE', '警示等級': 'NORMAL' }
+        ];
+
+        let dataTableInstance = null;
+        let radarChartInstance = null;
+        let currentFilterType = '160SV'; // 預設篩選 160 SV
+
+        // ==========================================================================
+        // 2. 核心邏輯：數據適配與欄位解耦
+        // ==========================================================================
+        function mapSheetRow(row) {
+            return {
+                id: row[QUALIFICATION_MAPPER.partner_id] || '',
+                name: row[QUALIFICATION_MAPPER.partner_name] || '',
+                rank: row[QUALIFICATION_MAPPER.rank_name] || '會員',
+                country: row[QUALIFICATION_MAPPER.country] || 'TW',
+                personalSV: parseInt(row[QUALIFICATION_MAPPER.personal_sv]) || 0,
+                groupSV: parseInt(row[QUALIFICATION_MAPPER.group_sv]) || 0,
+                daysSinceOrder: parseInt(row[QUALIFICATION_MAPPER.last_order_days]) || 0,
+                breakaway: row[QUALIFICATION_MAPPER.breakaway_risk] || 'NONE',
+                alertType: row[QUALIFICATION_MAPPER.status_tag] || 'NORMAL'
+            };
+        }
+
+        // ==========================================================================
+        // 3. 圖表渲染：全向安全防禦拓撲 (Chart.js Radar)
+        // ==========================================================================
+        function initRadarChart() {
+            const ctx = document.getElementById('qualificationRadarChart').getContext('2d');
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['160SV 個人活躍', '經理 12K 保級', '斷代防脫離', '會籍安全留存', '跨國市場連動'],
+                    datasets: [{
+                        label: '當前安全指數',
+                        data: [68, 75, 55, 88, 70],
+                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                        borderColor: '#38bdf8',
+                        pointBackgroundColor: '#fde047',
+                        pointBorderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(148, 163, 184, 0.15)' },
+                            grid: { color: 'rgba(148, 163, 184, 0.15)' },
+                            pointLabels: {
+                                color: '#94a3b8',
+                                font: { family: "'Noto Sans TC', sans-serif", size: 11 }
+                            },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // ==========================================================================
+        // 4. 表格初始化與 DataTables 整合
+        // ==========================================================================
+        function renderQualificationTable() {
+            const mappedData = rawSheetData.map(mapSheetRow);
+
+            if ($.fn.DataTable.isDataTable('#qualificationTable')) {
+                dataTableInstance.destroy();
+            }
+
+            dataTableInstance = $('#qualificationTable').DataTable({
+                data: mappedData,
+                responsive: true,
+                autoWidth: false,
+                pageLength: 5,
+                dom: 'rt<"d-flex flex-column flex-md-row justify-content-between align-items-center mt-3"ip>',
+                language: {
+                    info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆夥伴',
+                    paginate: { previous: '<i class="fa-solid fa-chevron-left"></i>', next: '<i class="fa-solid fa-chevron-right"></i>' },
+                    emptyTable: '目前無符合條件之警示夥伴'
+                },
+                columns: [
+                    {
+                        data: null,
+                        render: function (data) {
+                            return `<div>
+                                <strong class="text-white">${data.name}</strong>
+                                <div class="font-monospace text-muted small">${data.id}</div>
+                            </div>`;
+                        }
+                    },
+                    {
+                        data: 'rank',
+                        render: function (data) {
+                            const badgeColor = data === '經理' || data === '珍珠' ? 'bg-primary' : 'bg-secondary';
+                            return `<span class="badge ${badgeColor}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'country',
+                        render: function (data) {
+                            return data === 'TW' 
+                                ? '<span class="text-info"><i class="fa-solid fa-location-dot"></i> 台灣</span>' 
+                                : '<span class="text-warning"><i class="fa-solid fa-location-dot"></i> 馬來西亞</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            const gap = 160 - data.personalSV;
+                            const isMet = gap <= 0;
+                            const colorClass = isMet ? 'text-success' : 'text-danger fw-bold';
+                            return `<div>
+                                <span class="font-monospace ${colorClass}">${data.personalSV} SV</span>
+                                ${!isMet ? `<div class="small text-danger">差 ${gap} SV</div>` : ''}
+                            </div>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            if (data.rank === '會員' || data.rank === '主任') return '<span class="text-muted">-</span>';
+                            const gap = 12000 - data.groupSV;
+                            const isMet = gap <= 0;
+                            const colorClass = isMet ? 'text-success' : 'text-warning fw-bold';
+                            return `<div>
+                                <span class="font-monospace ${colorClass}">${data.groupSV.toLocaleString()} SV</span>
+                                ${!isMet ? `<div class="small text-warning">差 ${gap.toLocaleString()} SV</div>` : ''}
+                            </div>`;
+                        }
+                    },
+                    {
+                        data: 'daysSinceOrder',
+                        render: function (data) {
+                            const remainingDays = 365 - data;
+                            if (remainingDays <= 30) {
+                                return `<span class="badge-cyber badge-danger-glow"><i class="fa-solid fa-clock"></i> 剩 ${remainingDays} 天</span>`;
+                            }
+                            return `<span class="font-monospace text-muted">${data} 天前進貨</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            if (data.alertType === '160SV') {
+                                return '<span class="badge-cyber badge-danger-glow"><i class="fa-solid fa-circle-exclamation"></i> 缺 160 SV</span>';
+                            } else if (data.alertType === '12000SV') {
+                                return '<span class="badge-cyber badge-warning-glow"><i class="fa-solid fa-person-running"></i> 經理缺額</span>';
+                            } else if (data.alertType === 'EXPIRY') {
+                                return '<span class="badge-cyber badge-danger-glow"><i class="fa-solid fa-user-xmark"></i> 會籍即將失效</span>';
+                            }
+                            return '<span class="badge-cyber badge-success-glow"><i class="fa-solid fa-circle-check"></i> 安全</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        className: 'text-end',
+                        render: function (data) {
+                            return `<div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-info btn-solver" data-id="${data.id}" title="智能湊單">
+                                    <i class="fa-solid fa-calculator"></i> 湊單
+                                </button>
+                                <button class="btn btn-outline-warning btn-outreach" data-id="${data.id}" title="關懷話術">
+                                    <i class="fa-solid fa-comment-dots"></i> 話術
+                                </button>
+                            </div>`;
+                        }
+                    }
+                ]
+            });
+
+            // 觸發初始篩選
+            applyCurrentFilter();
+        }
+
+        // ==========================================================================
+        // 5. 戰術篩選與自定義搜尋事件
+        // ==========================================================================
+        function applyCurrentFilter() {
+            if (!dataTableInstance) return;
+
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                const row = mapSheetRow(rawSheetData[dataIndex]);
+                const countryFilter = $('#filterCountry').val();
+
+                // 國別過濾
+                if (countryFilter !== 'ALL' && row.country !== countryFilter) {
+                    return false;
+                }
+
+                // 戰術分類卡過濾
+                if (currentFilterType === '160SV') {
+                    return row.personalSV < 160;
+                } else if (currentFilterType === '12000SV') {
+                    return (row.rank === '經理' || row.rank === '珍珠') && row.groupSV < 12000;
+                } else if (currentFilterType === 'EXPIRY') {
+                    return (365 - row.daysSinceOrder) <= 30;
+                }
+                return true;
+            });
+
+            dataTableInstance.draw();
+            $.fn.dataTable.ext.search.pop();
+        }
+
+        // ==========================================================================
+        // 6. 湊單演算器與話術互動事件
+        // ==========================================================================
+        $(document).ready(function () {
+            // 初始化圖表與表格
+            initRadarChart();
+            renderQualificationTable();
+
+            // 戰術分流切換
+            $('.filter-capsule').on('click', function () {
+                $('.filter-capsule').removeClass('active');
+                $(this).addClass('active');
+                currentFilterType = $(this).data('filter-type');
+                applyCurrentFilter();
+            });
+
+            // 自定義搜尋
+            $('#tableCustomSearch').on('keyup', function () {
+                dataTableInstance.search(this.value).draw();
+            });
+
+            // 國家過濾
+            $('#filterCountry').on('change', function () {
+                applyCurrentFilter();
+            });
+
+            // 點擊「湊單」按鈕
+            $(document).on('click', '.btn-solver', function () {
+                const partnerId = $(this).data('id');
+                const rawRow = rawSheetData.find(r => r['夥伴編號'] === partnerId);
+                const partner = mapSheetRow(rawRow);
+
+                let gap = partner.personalSV < 160 ? (160 - partner.personalSV) : (12000 - partner.groupSV);
+                if (gap < 0) gap = 0;
+
+                $('#solverPartnerName').text(partner.name);
+                $('#solverPartnerRank').text(partner.rank);
+                $('#solverGapSV').text(`${gap} SV`);
+
+                // 智能生成產品組合清單
+                const $list = $('#solverProductList').empty();
+                if (gap <= 24) {
+                    $list.append(`<div class="list-group-item bg-dark text-white border-secondary small d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-box text-info"></i> 康貝兒益生菌 1 盒 (20 SV)</span>
+                        <span class="text-warning">NT$ 1,764</span>
+                    </div>`);
+                } else if (gap <= 74) {
+                    $list.append(`<div class="list-group-item bg-dark text-white border-secondary small d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-box text-info"></i> 995 生化營養品 1 箱 (74 SV)</span>
+                        <span class="text-warning">NT$ 5,640</span>
+                    </div>`);
+                } else {
+                    $list.append(`<div class="list-group-item bg-dark text-white border-secondary small d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-box text-info"></i> 995 + 樟芝益 各 1 箱 (148 SV)</span>
+                        <span class="text-warning">NT$ 11,280</span>
+                    </div>`);
+                }
+
+                new bootstrap.Modal(document.getElementById('solverModal')).show();
+            });
+
+            // 點擊「話術」按鈕
+            $(document).on('click', '.btn-outreach', function () {
+                const partnerId = $(this).data('id');
+                const rawRow = rawSheetData.find(r => r['夥伴編號'] === partnerId);
+                const partner = mapSheetRow(rawRow);
+
+                let script = '';
+                if (partner.personalSV < 160) {
+                    script = `親愛的 ${partner.name} 您好 😊！\n提醒您本月考核結算剩倒數幾天囉～目前個人業績尚差 ${160 - partner.personalSV} SV 即可達到 160 SV 活躍門檻！\n只要補齊就能順利領取整組獎金，別讓您的辛勞回饋擦身而過囉！有需要幫忙調度湊單隨時告訴我 ❤️`;
+                } else if (partner.groupSV < 12000) {
+                    script = `${partner.name} 夥伴加油 💪！\n目前您小組業績距離 12,000 SV 合格經理門檻只差 ${12000 - partner.groupSV} SV！\n我們團隊已準備好最佳的顧客復購與湊單組合，今晚一起對齊衝刺拿下本月分紅！🔥`;
+                } else {
+                    script = `${partner.name} 您好！\n溫馨提醒您的葡眾會員資格即將滿期，只需在月底前採購任一日常保健單品（如益生菌或百克斯），即可輕鬆延續一整年會員特惠權益與點數累積唷 ✨！`;
+                }
+
+                $('#outreachMessageText').val(script);
+                new bootstrap.Modal(document.getElementById('outreachModal')).show();
+            });
+
+            // 複製話術文字
+            $('#btnCopyOutreach').on('click', function () {
+                const textToCopy = $('#outreachMessageText').val();
+                navigator.clipboard.writeText(textToCopy).then(function () {
+                    const $btn = $('#btnCopyOutreach');
+                    const origText = $btn.html();
+                    $btn.html('<i class="fa-solid fa-check"></i> 已複製至剪貼簿');
+                    setTimeout(() => $btn.html(origText), 2000);
+                });
+            });
+
+            // 複製湊單建議
+            $('#btnCopySolverOrder').on('click', function () {
+                const partnerName = $('#solverPartnerName').text();
+                const gapSV = $('#solverGapSV').text();
+                const msg = `【葡眾智能湊單建議】\n夥伴：${partnerName}\n目前缺額：${gapSV}\n建議方案已生成，請儘速於系統排定出貨調度。`;
+                navigator.clipboard.writeText(msg).then(() => {
+                    alert('湊單建議已複製！');
+                });
+            });
+
+            // GViz / PapaParse 解耦同步示範
+            $('#btnSyncGviz').on('click', function () {
+                const $btn = $(this);
+                const origHtml = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+
+                // 模擬非同步與 Google 試算表 GViz 欄位解析對齊
+                setTimeout(function () {
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-check text-success"></i> 同步完成');
+                    setTimeout(function () {
+                        $btn.html(origHtml);
+                    }, 1800);
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

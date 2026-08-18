@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>匯率積分換算與跨國戰術中樞 - UVACO 榮祥團隊</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --bs-body-bg: #060d19;
+            --bs-body-color: #f1f5f9;
+            --uvaco-primary: #0284c7;
+            --uvaco-secondary: #38bdf8;
+            --uvaco-accent: #fde047;
+            --uvaco-card-bg: #0c182b;
+            --uvaco-card-hover: #13233d;
+            --uvaco-border-glow: rgba(56, 189, 248, 0.2);
+            --uvaco-border-active: rgba(56, 189, 248, 0.5);
+            --uvaco-glass-bg: rgba(12, 24, 43, 0.75);
+            --uvaco-myr-gold: #fbbf24;
+            --uvaco-twd-blue: #38bdf8;
+        }
+
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 玻璃擬態與戰術微光外框 */
+        .tactical-glass-card {
+            background: var(--uvaco-glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 18px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tactical-glass-card:hover {
+            border-color: var(--uvaco-border-active);
+            box-shadow: 0 8px 32px rgba(2, 132, 199, 0.15);
+        }
+
+        /* HUD 控制面板樣式 */
+        .hud-banner {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(6, 13, 25, 0.85) 100%);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 20px;
+        }
+
+        /* 極速輸入與雙向微調轉換器 */
+        .converter-pod {
+            background: rgba(6, 13, 25, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            border-radius: 14px;
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .converter-pod.active-pod {
+            border-color: var(--uvaco-secondary);
+            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.1);
+        }
+
+        .huge-input {
+            background: transparent !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-size: 2rem;
+            font-weight: 800;
+            padding: 0;
+            width: 100%;
+            outline: none;
+            box-shadow: none !important;
+        }
+
+        .huge-input::placeholder {
+            color: rgba(148, 163, 184, 0.4);
+        }
+
+        .rate-slider-track {
+            accent-color: var(--uvaco-secondary);
+        }
+
+        /* 標籤微光 Badge */
+        .badge-cyber {
+            background: rgba(2, 132, 199, 0.2);
+            color: var(--uvaco-secondary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-gold {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--uvaco-myr-gold);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        /* CTA 按鈕設計 */
+        .btn-cyber-primary {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: 1px solid #38bdf8;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cyber-primary:hover {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-cyber-accent {
+            background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
+            color: #060d19;
+            border: 1px solid #fef08a;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .btn-cyber-accent:hover {
+            box-shadow: 0 0 18px rgba(253, 224, 71, 0.5);
+            color: #000000;
+        }
+
+        /* 購物清單卡片 */
+        .sku-card-item {
+            background: rgba(12, 24, 43, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .sku-card-item:hover {
+            background: rgba(19, 35, 61, 0.9);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        /* DataTables 深色微調 */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            color: #94a3b8 !important;
+            font-size: 0.875rem;
+        }
+
+        table.dataTable {
+            border-color: rgba(56, 189, 248, 0.1) !important;
+        }
+
+        .table-dark-custom th {
+            background-color: #0c182b !important;
+            color: #38bdf8 !important;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important;
+        }
+
+        .table-dark-custom td {
+            background-color: rgba(6, 13, 25, 0.4) !important;
+            color: #e2e8f0 !important;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.08) !important;
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060d19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+    </style>
+</head>
+<body class="p-2 p-md-4">
+
+    <div class="container-fluid px-0 px-lg-3">
+
+        <div class="hud-banner p-3 p-md-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-lg-5">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 p-3 rounded-circle" style="background: rgba(2, 132, 199, 0.2); border: 1px solid #38bdf8;">
+                            <i class="fa-solid fa-coins text-info fs-3"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h4 class="fw-bold mb-0 text-white">匯率積分換算中樞</h4>
+                                <span class="badge badge-cyber px-2 py-1"><i class="fa-solid fa-satellite-dish"></i> T56000</span>
+                            </div>
+                            <p class="text-secondary small mb-0">台馬雙向多幣別對沖 ‧ 組織標準積分（SV）即時演算 ‧ 跨境代購報價</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-8 col-lg-5">
+                    <div class="bg-dark bg-opacity-50 p-2 px-3 rounded-3 border border-secondary border-opacity-25">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small text-secondary"><i class="fa-solid fa-arrows-rotate"></i> 台馬結算匯率 (MYR / TWD)</span>
+                            <span class="fw-bold text-warning" id="rateDisplay">1 MYR = 7.15 TWD</span>
+                        </div>
+                        <input type="range" class="form-range rate-slider-track" id="fxRateRange" min="6.50" max="8.00" step="0.01" value="7.15">
+                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                            <span>6.50 (低點)</span>
+                            <span>7.15 (官方基準)</span>
+                            <span>8.00 (高點)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2 text-md-end">
+                    <button class="btn btn-sm btn-outline-info w-100 py-2" id="btnSyncSheets">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> 同步產品主檔
+                    </button>
+                    <div class="text-muted mt-1 text-center" style="font-size: 0.7rem;">
+                        <i class="fa-solid fa-circle-check text-success"></i> 欄位解耦適配中
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tactical-glass-card p-3 p-md-4 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                <span class="fw-bold text-info"><i class="fa-solid fa-bolt-lightning"></i> 雙向極速算力閥 (Bidirectional Solver)</span>
+                <span class="badge bg-secondary bg-opacity-25 text-light small"><i class="fa-solid fa-keyboard"></i> 任意輸入欄位即可連鎖換算</span>
+            </div>
+
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-4">
+                    <div class="converter-pod active-pod" id="podTWD">
+                        <div class="d-flex justify-content-between text-secondary small mb-1">
+                            <span><i class="fa-solid fa-money-bill-wave text-info"></i> 新台幣 (TWD)</span>
+                            <span class="badge badge-cyber">NT$</span>
+                        </div>
+                        <input type="number" class="huge-input" id="inputTWD" placeholder="0" value="4800">
+                        <div class="text-secondary small mt-1">
+                            推估點數產出比率：<span class="text-white fw-bold" id="ratioTWD">1.00 SV / NT$</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="converter-pod border-warning border-opacity-50" id="podSV" style="background: rgba(251, 191, 36, 0.04);">
+                        <div class="d-flex justify-content-between text-warning small mb-1">
+                            <span><i class="fa-solid fa-award"></i> 組織業績積分 (SV)</span>
+                            <span class="badge badge-gold">全球標準</span>
+                        </div>
+                        <input type="number" class="huge-input text-warning" id="inputSV" placeholder="0" value="4800" style="color: #fde047 !important;">
+                        <div class="text-secondary small mt-1 d-flex justify-content-between">
+                            <span>門檻達標：<span class="text-success fw-bold" id="svThresholdTag">個人活躍 (160 SV)</span></span>
+                            <span class="text-muted" id="svProgressPct">40.0% 至經理</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="converter-pod" id="podMYR">
+                        <div class="d-flex justify-content-between text-secondary small mb-1">
+                            <span><i class="fa-solid fa-coins text-warning"></i> 馬來西亞令吉 (MYR)</span>
+                            <span class="badge badge-gold">RM</span>
+                        </div>
+                        <input type="number" class="huge-input" id="inputMYR" placeholder="0" value="671">
+                        <div class="text-secondary small mt-1">
+                            折合台幣成本：<span class="text-white fw-bold" id="myrToTwdDisplay">NT$ 4,800</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3 pt-2">
+                <span class="text-muted small align-self-center"><i class="fa-solid fa-crosshairs"></i> 戰術門檻快速注入：</span>
+                <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="setQuickSV(160)">160 SV (個人活躍)</button>
+                <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="setQuickSV(1000)">1,000 SV (主任小組)</button>
+                <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="setQuickSV(4000)">4,000 SV (襄理衝刺)</button>
+                <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="setQuickSV(12000)">12,000 SV (合格經理防線)</button>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            
+            <div class="col-12 col-xl-7">
+                <div class="tactical-glass-card p-3 p-md-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-cart-flatbed"></i> 跨國採購與現貨對沖艙</h5>
+                            <span class="text-muted small">精算台馬兩地進貨總額、國際託運重量與價差套利空間</span>
+                        </div>
+                        <button class="btn btn-sm btn-cyber-primary" data-bs-toggle="modal" data-bs-target="#skuSelectorModal">
+                            <i class="fa-solid fa-plus"></i> 添加品項
+                        </button>
+                    </div>
+
+                    <div id="cartItemsList" class="d-flex flex-column gap-2 mb-3" style="min-height: 220px; max-height: 360px; overflow-y: auto;">
+                        </div>
+
+                    <div class="p-3 rounded-3" style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(56, 189, 248, 0.25);">
+                        <div class="row g-2 text-center text-md-start">
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">總計 SV 積分</div>
+                                <div class="fs-5 fw-bold text-warning" id="totalCartSV">0 SV</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">台灣總價 (TWD)</div>
+                                <div class="fs-5 fw-bold text-info" id="totalCartTWD">NT$ 0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">大馬總價 (MYR)</div>
+                                <div class="fs-5 fw-bold text-warning" id="totalCartMYR">RM 0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-muted small">預估總重 / 運費</div>
+                                <div class="fs-5 fw-bold text-light" id="totalCartWeight">0.0 kg</div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-secondary border-opacity-25 flex-wrap gap-2">
+                            <span class="small text-secondary" id="cartArbitrageText">
+                                <i class="fa-solid fa-scale-balanced"></i> 兩地換算折合差額：<span class="text-success fw-bold">NT$ 0 (0.0%)</span>
+                            </span>
+                            <button class="btn btn-sm btn-cyber-accent" id="btnCopyQuote">
+                                <i class="fa-solid fa-paper-plane"></i> 產出 LINE / WhatsApp 報價單
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="tactical-glass-card p-3 p-md-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-wand-magic-sparkles text-warning"></i> 缺額智能湊單求解</h5>
+                            <span class="text-muted small">演算法依據目標自動尋優最省現金與輕量組合</span>
+                        </div>
+                        <span class="badge badge-cyber"><i class="fa-solid fa-microchip"></i> AI 推薦</span>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="text-secondary small mb-1">目標達成 SV</label>
+                            <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary" id="solverTargetSV" value="12000">
+                        </div>
+                        <div class="col-6">
+                            <label class="text-secondary small mb-1">優化策略導向</label>
+                            <select class="form-select form-select-sm bg-dark text-white border-secondary" id="solverStrategy">
+                                <option value="MIN_CASH">最低現金成本 (最高 CP)</option>
+                                <option value="MIN_WEIGHT">最輕託運重量 (跨境易攜)</option>
+                                <option value="STAR_PRODUCTS">明星爆款主力 (好轉化)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="solverRecommendationBox" class="p-3 mb-3 rounded-3 border border-secondary border-opacity-25" style="background: rgba(6, 13, 25, 0.7);">
+                        </div>
+
+                    <div style="height: 180px; position: relative;">
+                        <canvas id="svEfficiencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tactical-glass-card p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-table-list text-info"></i> 葡眾全系列產品台馬對照庫</h5>
+                    <span class="text-muted small">來源：Google 試算表 `prd_items` 與 `fin_tax_configs` 動態解耦數據庫</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge badge-cyber px-2 py-2"><i class="fa-solid fa-shield-halved"></i> 2026 最新官方規格</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="productMasterTable" class="table table-dark table-hover table-dark-custom align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>產品代碼</th>
+                            <th>品名與包裝規格</th>
+                            <th>系列分類</th>
+                            <th>SV 積分</th>
+                            <th>台灣定價 (TWD)</th>
+                            <th>大馬定價 (MYR)</th>
+                            <th>每 SV 成本 (TWD)</th>
+                            <th>每 SV 成本 (MYR)</th>
+                            <th>重量 (kg)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="skuSelectorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title"><i class="fa-solid fa-box-open text-info"></i> 選擇產品加入跨國採購艙</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2" id="skuGridContainer">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        // ==========================================================================
+        // 1. Google 試算表欄位解耦字典與產品離線備援資料庫 (Adapter Pattern)
+        // ==========================================================================
+        const FIELD_MAPPER = {
+            prod_id: ['產品代碼', '商品編號', 'prod_id', 'SKU'],
+            prod_name: ['品名與包裝規格', '產品名稱', '品名', 'prod_name', 'Name'],
+            category: ['系列分類', '分類', 'category', 'Cat'],
+            sv_point: ['SV 積分', 'SV', 'sv_point', '積分'],
+            price_twd: ['台灣定價', '台灣售價', 'price_twd', 'TWD'],
+            price_myr: ['大馬定價', '馬來西亞售價', 'price_myr', 'MYR'],
+            weight_kg: ['單盒重量', '重量', 'weight_kg', 'Weight']
+        };
+
+        // 葡眾官方最新主力產品主檔 (備援/預設數據)
+        const DEFAULT_PRODUCTS = [
+            { id: "P001", name: "995 超級營養液 (180ml×24包)", category: "調理系列", sv: 4800, twd: 4800, myr: 671, weight: 4.8 },
+            { id: "P002", name: "樟芝益 (180ml×24包)", category: "防護系列", sv: 4800, twd: 4800, myr: 671, weight: 4.8 },
+            { id: "P003", name: "康爾喜乳酸菌 (1.5g×90包)", category: "順暢系列", sv: 1530, twd: 1764, myr: 252, weight: 0.35 },
+            { id: "P004", name: "康爾喜-N乳酸菌 (1.5g×90包)", category: "順暢系列", sv: 1530, twd: 1764, myr: 252, weight: 0.35 },
+            { id: "P005", name: "衛傑 (100粒/瓶)", category: "機能系列", sv: 1800, twd: 2100, myr: 300, weight: 0.25 },
+            { id: "P006", name: "百克斯 (100粒/瓶)", category: "呼吸固本", sv: 1800, twd: 2100, myr: 300, weight: 0.25 },
+            { id: "P007", name: "迪康 (12g×30包)", category: "清調系列", sv: 2160, twd: 2520, myr: 360, weight: 0.5 },
+            { id: "P008", name: "力盛 (12g×30包)", category: "清調系列", sv: 2160, twd: 2520, myr: 360, weight: 0.5 },
+            { id: "P009", name: "貝力耐 (100粒/瓶)", category: "骨骼靈活", sv: 2040, twd: 2380, myr: 340, weight: 0.25 },
+            { id: "P010", name: "清味香 (100粒/瓶)", category: "循環系列", sv: 2040, twd: 2380, myr: 340, weight: 0.25 }
+        ];
+
+        let activeProducts = [...DEFAULT_PRODUCTS];
+        let currentFxRate = 7.15;
+        let cart = [
+            { id: "P001", qty: 1 },
+            { id: "P003", qty: 2 }
+        ];
+
+        let dataTableInstance = null;
+        let chartInstance = null;
+
+        // ==========================================================================
+        // 2. 核心計算引擎與雙向聯動邏輯 (Bidirectional Converter Engine)
+        // ==========================================================================
+        $(document).ready(function () {
+            initDataTable();
+            initChart();
+            renderCart();
+            renderSkuModalGrid();
+            recalculateSolver();
+
+            // 匯率滑桿事件
+            $('#fxRateRange').on('input', function () {
+                currentFxRate = parseFloat($(this).val());
+                $('#rateDisplay').text(`1 MYR = ${currentFxRate.toFixed(2)} TWD`);
+                // 連鎖觸發各計算模組
+                triggerConverterFromTWD();
+                renderCart();
+                refreshTableData();
+                recalculateSolver();
+            });
+
+            // 雙向極速輸入框事件綁定
+            $('#inputTWD').on('input', function () {
+                triggerConverterFromTWD();
+            });
+
+            $('#inputSV').on('input', function () {
+                const sv = parseFloat($(this).val()) || 0;
+                // 葡眾平均 1 SV 約等值 1 TWD ~ 1.15 TWD (以此處 1:1 為基準推算)
+                const twd = Math.round(sv * 1.0);
+                const myr = Math.round(twd / currentFxRate);
+                $('#inputTWD').val(twd);
+                $('#inputMYR').val(myr);
+                updateConverterMetrics(twd, sv, myr);
+            });
+
+            $('#inputMYR').on('input', function () {
+                const myr = parseFloat($(this).val()) || 0;
+                const twd = Math.round(myr * currentFxRate);
+                const sv = Math.round(twd * 1.0);
+                $('#inputTWD').val(twd);
+                $('#inputSV').val(sv);
+                updateConverterMetrics(twd, sv, myr);
+            });
+
+            // 湊單條件變更
+            $('#solverTargetSV, #solverStrategy').on('change input', function () {
+                recalculateSolver();
+            });
+
+            // 複製報價單
+            $('#btnCopyQuote').on('click', function () {
+                copyQuoteToClipboard();
+            });
+
+            // 試算表同步模擬
+            $('#btnSyncSheets').on('click', function () {
+                syncGoogleSheetsData();
+            });
+        });
+
+        // 由 TWD 觸發的連鎖換算
+        function triggerConverterFromTWD() {
+            const twd = parseFloat($('#inputTWD').val()) || 0;
+            const myr = Math.round(twd / currentFxRate);
+            const sv = Math.round(twd * 1.0); // 標準推估
+
+            $('#inputMYR').val(myr);
+            $('#inputSV').val(sv);
+            updateConverterMetrics(twd, sv, myr);
+        }
+
+        // 更新轉換指標狀態
+        function updateConverterMetrics(twd, sv, myr) {
+            $('#ratioTWD').text(twd > 0 ? (sv / twd).toFixed(2) + " SV / NT$" : "1.00 SV / NT$");
+            $('#myrToTwdDisplay').text(`NT$ ${Math.round(myr * currentFxRate).toLocaleString()}`);
+
+            // 門檻提示
+            let threshold = "未達活躍門檻";
+            let progress = "0%";
+            if (sv >= 12000) {
+                threshold = "合格經理 (12,000 SV 達成)";
+                progress = "100% (已達標)";
+            } else if (sv >= 4000) {
+                threshold = "襄理資格 (4,000 SV)";
+                progress = ((sv / 12000) * 100).toFixed(1) + "% 至經理";
+            } else if (sv >= 1000) {
+                threshold = "主任資格 (1,000 SV)";
+                progress = ((sv / 12000) * 100).toFixed(1) + "% 至經理";
+            } else if (sv >= 160) {
+                threshold = "個人活躍 (160 SV 達成)";
+                progress = ((sv / 12000) * 100).toFixed(1) + "% 至經理";
+            }
+
+            $('#svThresholdTag').text(threshold);
+            $('#svProgressPct').text(progress);
+        }
+
+        // 快捷注入 SV
+        window.setQuickSV = function (targetSV) {
+            $('#inputSV').val(targetSV).trigger('input');
+            $('#solverTargetSV').val(targetSV);
+            recalculateSolver();
+        };
+
+        // ==========================================================================
+        // 3. 跨國採購車與差價分析艙 (Cart & Arbitrage Engine)
+        // ==========================================================================
+        function renderCart() {
+            const $container = $('#cartItemsList');
+            $container.empty();
+
+            if (cart.length === 0) {
+                $container.html(`
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-cart-arrow-down fs-2 mb-2"></i>
+                        <p class="mb-0">採購艙目前為空，請點擊上方「添加品項」進行跨境試算</p>
+                    </div>
+                `);
+                updateCartTotals(0, 0, 0, 0);
+                return;
+            }
+
+            let totalSV = 0;
+            let totalTWD = 0;
+            let totalMYR = 0;
+            let totalWeight = 0;
+
+            cart.forEach((item, index) => {
+                const prod = activeProducts.find(p => p.id === item.id);
+                if (!prod) return;
+
+                const itemSV = prod.sv * item.qty;
+                const itemTWD = prod.twd * item.qty;
+                const itemMYR = prod.myr * item.qty;
+                const itemWeight = prod.weight * item.qty;
+
+                totalSV += itemSV;
+                totalTWD += itemTWD;
+                totalMYR += itemMYR;
+                totalWeight += itemWeight;
+
+                $container.append(`
+                    <div class="sku-card-item p-2 px-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-white small">${prod.name}</div>
+                            <div class="text-secondary" style="font-size: 0.75rem;">
+                                單價：NT$ ${prod.twd.toLocaleString()} / RM ${prod.myr} ‧ 單重 ${prod.weight}kg ‧ <span class="text-warning">${prod.sv} SV</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="input-group input-group-sm" style="width: 100px;">
+                                <button class="btn btn-outline-secondary py-0" onclick="updateQty(${index}, -1)">-</button>
+                                <input type="text" class="form-control text-center bg-dark text-white p-0" value="${item.qty}" readonly>
+                                <button class="btn btn-outline-secondary py-0" onclick="updateQty(${index}, 1)">+</button>
+                            </div>
+                            <button class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="removeCartItem(${index})">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+            });
+
+            updateCartTotals(totalSV, totalTWD, totalMYR, totalWeight);
+        }
+
+        window.updateQty = function (index, change) {
+            cart[index].qty += change;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            renderCart();
+            updateChartData();
+        };
+
+        window.removeCartItem = function (index) {
+            cart.splice(index, 1);
+            renderCart();
+            updateChartData();
+        };
+
+        function updateCartTotals(sv, twd, myr, weight) {
+            $('#totalCartSV').text(`${sv.toLocaleString()} SV`);
+            $('#totalCartTWD').text(`NT$ ${twd.toLocaleString()}`);
+            $('#totalCartMYR').text(`RM ${myr.toLocaleString()}`);
+            $('#totalCartWeight').text(`${weight.toFixed(1)} kg`);
+
+            // 價差計算：馬來西亞換算回台幣後的差額
+            const myrConvertedToTwd = myr * currentFxRate;
+            const variance = myrConvertedToTwd - twd;
+            const variancePct = twd > 0 ? ((variance / twd) * 100).toFixed(1) : 0;
+
+            const isPremium = variance >= 0;
+            const varianceText = isPremium 
+                ? `大馬現貨溢價約 NT$ ${Math.abs(Math.round(variance)).toLocaleString()} (+${variancePct}%)`
+                : `台灣自提具有 NT$ ${Math.abs(Math.round(variance)).toLocaleString()} (-${Math.abs(variancePct)}%) 成本優勢`;
+
+            $('#cartArbitrageText').html(`
+                <i class="fa-solid fa-scale-balanced"></i> ${varianceText} 
+                <span class="text-muted">(含預估跨境物流調節)</span>
+            `);
+        }
+
+        // ==========================================================================
+        // 4. 模態框產品網格渲染與加入
+        // ==========================================================================
+        function renderSkuModalGrid() {
+            const $grid = $('#skuGridContainer');
+            $grid.empty();
+
+            activeProducts.forEach(prod => {
+                $grid.append(`
+                    <div class="col-12 col-md-6">
+                        <div class="p-2 border border-secondary border-opacity-25 rounded-3 d-flex justify-content-between align-items-center" style="background: #060d19;">
+                            <div>
+                                <div class="fw-bold text-white small">${prod.name}</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">
+                                    ${prod.sv} SV ‧ NT$ ${prod.twd} / RM ${prod.myr}
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-info" onclick="addToCart('${prod.id}')">
+                                <i class="fa-solid fa-plus"></i> 加入
+                            </button>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        window.addToCart = function (prodId) {
+            const existing = cart.find(item => item.id === prodId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: prodId, qty: 1 });
+            }
+            renderCart();
+            updateChartData();
+            bootstrap.Modal.getInstance($('#skuSelectorModal')).hide();
+        };
+
+        // ==========================================================================
+        // 5. 目標 SV 逆向智能湊單求解器 (Goal SV Solver)
+        // ==========================================================================
+        function recalculateSolver() {
+            const targetSV = parseFloat($('#solverTargetSV').val()) || 12000;
+            const strategy = $('#solverStrategy').val();
+
+            // 簡單背包/貪婪求解邏輯
+            let sortedProducts = [...activeProducts];
+            if (strategy === 'MIN_CASH') {
+                sortedProducts.sort((a, b) => (a.twd / a.sv) - (b.twd / b.sv));
+            } else if (strategy === 'MIN_WEIGHT') {
+                sortedProducts.sort((a, b) => (a.weight / a.sv) - (b.weight / b.sv));
+            } else {
+                // 明星爆款優先 (995、樟芝益、康爾喜優先)
+                sortedProducts.sort((a, b) => b.sv - a.sv);
+            }
+
+            let accumulatedSV = 0;
+            let totalTWD = 0;
+            let totalMYR = 0;
+            let packageItems = [];
+
+            // 貪婪填補
+            for (let prod of sortedProducts) {
+                if (accumulatedSV >= targetSV) break;
+                const needed = targetSV - accumulatedSV;
+                let count = Math.ceil(needed / prod.sv);
+                if (count > 4 && strategy === 'STAR_PRODUCTS') count = 2; // 分散配置
+
+                if (count > 0) {
+                    accumulatedSV += prod.sv * count;
+                    totalTWD += prod.twd * count;
+                    totalMYR += prod.myr * count;
+                    packageItems.push({ name: prod.name, qty: count, sv: prod.sv * count });
+                }
+            }
+
+            const itemsHtml = packageItems.map(i => `
+                <span class="badge bg-secondary bg-opacity-25 text-light me-1 mb-1 p-1 px-2">
+                    ${i.name} × ${i.qty} (${i.sv} SV)
+                </span>
+            `).join('');
+
+            $('#solverRecommendationBox').html(`
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-info small"><i class="fa-solid fa-calculator"></i> 最佳推薦湊單組合</span>
+                    <span class="badge badge-gold">${accumulatedSV.toLocaleString()} SV 達成</span>
+                </div>
+                <div class="mb-2 d-flex flex-wrap">${itemsHtml}</div>
+                <div class="d-flex justify-content-between text-secondary small pt-2 border-top border-secondary border-opacity-25">
+                    <span>台灣預估總支：<b class="text-white">NT$ ${totalTWD.toLocaleString()}</b></span>
+                    <span>大馬預估總支：<b class="text-warning">RM ${totalMYR.toLocaleString()}</b></span>
+                </div>
+            `);
+        }
+
+        // ==========================================================================
+        // 6. Chart.js 數據視覺化整合 (SV 效益對比圖)
+        // ==========================================================================
+        function initChart() {
+            const ctx = document.getElementById('svEfficiencyChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['995液', '樟芝益', '康爾喜', '衛傑', '迪康'],
+                    datasets: [
+                        {
+                            label: '每 SV 成本 (TWD)',
+                            data: [1.00, 1.00, 1.15, 1.16, 1.16],
+                            backgroundColor: 'rgba(56, 189, 248, 0.6)',
+                            borderColor: '#38bdf8',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '折合每 SV 成本 (MYR×匯率)',
+                            data: [1.00, 1.00, 1.17, 1.19, 1.19],
+                            backgroundColor: 'rgba(251, 191, 36, 0.6)',
+                            borderColor: '#fbbf24',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(56, 189, 248, 0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(56, 189, 248, 0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartData() {
+            if (!chartInstance) return;
+            // 根據當前匯率微調圖表第二項數值
+            chartInstance.data.datasets[1].data = [
+                (671 * currentFxRate / 4800).toFixed(2),
+                (671 * currentFxRate / 4800).toFixed(2),
+                (252 * currentFxRate / 1530).toFixed(2),
+                (300 * currentFxRate / 1800).toFixed(2),
+                (360 * currentFxRate / 2160).toFixed(2)
+            ];
+            chartInstance.update();
+        }
+
+        // ==========================================================================
+        // 7. DataTable.js 整合與產品列表渲染
+        // ==========================================================================
+        function initDataTable() {
+            refreshTableData();
+            dataTableInstance = $('#productMasterTable').DataTable({
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋產品名稱、代碼或系列...",
+                    lengthMenu: "顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆產品",
+                    paginate: {
+                        previous: "<i class='fa-solid fa-angle-left'></i>",
+                        next: "<i class='fa-solid fa-angle-right'></i>"
+                    },
+                    zeroRecords: "未找到符合之產品資料"
+                },
+                pageLength: 5,
+                responsive: true,
+                dom: '<"d-flex justify-content-between align-items-center mb-2"lf>rt<"d-flex justify-content-between align-items-center mt-2"ip>'
+            });
+        }
+
+        function refreshTableData() {
+            const $tbody = $('#productTableBody');
+            $tbody.empty();
+
+            activeProducts.forEach(prod => {
+                const costPerSvTwd = (prod.twd / prod.sv).toFixed(2);
+                const costPerSvMyr = (prod.myr / prod.sv).toFixed(3);
+
+                $tbody.append(`
+                    <tr>
+                        <td><span class="badge badge-cyber">${prod.id}</span></td>
+                        <td class="fw-bold text-white">${prod.name}</td>
+                        <td><span class="text-secondary">${prod.category}</span></td>
+                        <td><span class="text-warning fw-bold">${prod.sv} SV</span></td>
+                        <td class="text-info fw-bold">NT$ ${prod.twd.toLocaleString()}</td>
+                        <td class="text-warning fw-bold">RM ${prod.myr}</td>
+                        <td>NT$ ${costPerSvTwd}</td>
+                        <td>RM ${costPerSvMyr}</td>
+                        <td>${prod.weight} kg</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info py-0 px-2" onclick="addToCart('${prod.id}')">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // ==========================================================================
+        // 8. 報價單輸出話術與剪貼簿整合 (Quote Script Exporter)
+        // ==========================================================================
+        function copyQuoteToClipboard() {
+            if (cart.length === 0) {
+                alert("請先添加品項至採購艙！");
+                return;
+            }
+
+            let totalSV = 0;
+            let totalTWD = 0;
+            let totalMYR = 0;
+            let lines = [];
+
+            cart.forEach(item => {
+                const p = activeProducts.find(x => x.id === item.id);
+                if (p) {
+                    const itemSV = p.sv * item.qty;
+                    const itemTWD = p.twd * item.qty;
+                    const itemMYR = p.myr * item.qty;
+                    totalSV += itemSV;
+                    totalTWD += itemTWD;
+                    totalMYR += itemMYR;
+                    lines.push(`▫️ ${p.name} × ${item.qty} 盒 (${itemSV} SV) -> NT$ ${itemTWD.toLocaleString()} / RM ${itemMYR}`);
+                }
+            });
+
+            const quoteText = 
+`🌟【UVACO 葡眾 跨境台馬產品結算與報價單】🌟
+--------------------------------------
+📋 採購明細清單：
+${lines.join('\n')}
+--------------------------------------
+🎯 總累計業績積分：${totalSV.toLocaleString()} SV
+💰 台灣現貨結算總額：NT$ ${totalTWD.toLocaleString()}
+🇲🇾 大馬現貨折算總額：RM ${totalMYR.toLocaleString()}
+📊 當前結算參考匯率：1 MYR ≈ ${currentFxRate.toFixed(2)} TWD
+--------------------------------------
+💡 夥伴溫馨提醒：本報價單積分全球統一認列，可即時用於個人門檻或經理考核！`;
+
+            navigator.clipboard.writeText(quoteText).then(() => {
+                const $btn = $('#btnCopyQuote');
+                const originalHtml = $btn.html();
+                $btn.removeClass('btn-cyber-accent').addClass('btn-success').html('<i class="fa-solid fa-check"></i> 已複製報價單！');
+                setTimeout(() => {
+                    $btn.removeClass('btn-success').addClass('btn-cyber-accent').html(originalHtml);
+                }, 2500);
+            });
+        }
+
+        // ==========================================================================
+        // 9. Google 試算表 GViz / PapaParse 解耦同步示範
+        // ==========================================================================
+        function syncGoogleSheetsData() {
+            const $btn = $('#btnSyncSheets');
+            $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步試算表中...');
+
+            // 模擬解耦抓取與欄位別名容錯映射
+            setTimeout(() => {
+                // 模擬抓取回傳之 CSV/GViz 資料
+                const mockRawData = [
+                    { "商品編號": "P001", "品名與包裝規格": "995 超級營養液 (180ml×24包)", "分類": "調理系列", "SV 積分": "4800", "台灣售價": "4800", "馬來西亞售價": "671", "重量": "4.8" },
+                    { "商品編號": "P002", "品名與包裝規格": "樟芝益 (180ml×24包)", "分類": "防護系列", "SV 積分": "4800", "台灣售價": "4800", "馬來西亞售價": "671", "重量": "4.8" },
+                    { "商品編號": "P003", "品名與包裝規格": "康爾喜乳酸菌 (1.5g×90包)", "分類": "順暢系列", "SV 積分": "1530", "台灣售價": "1764", "馬來西亞售價": "252", "重量": "0.35" }
+                ];
+
+                // 透過 FIELD_MAPPER 進行動態解耦映射
+                const mappedProducts = mockRawData.map(row => {
+                    const getVal = (aliases) => {
+                        for (let alias of aliases) {
+                            if (row[alias] !== undefined) return row[alias];
+                        }
+                        return null;
+                    };
+
+                    return {
+                        id: getVal(FIELD_MAPPER.prod_id),
+                        name: getVal(FIELD_MAPPER.prod_name),
+                        category: getVal(FIELD_MAPPER.category),
+                        sv: parseInt(getVal(FIELD_MAPPER.sv_point)) || 0,
+                        twd: parseFloat(getVal(FIELD_MAPPER.price_twd)) || 0,
+                        myr: parseFloat(getVal(FIELD_MAPPER.price_myr)) || 0,
+                        weight: parseFloat(getVal(FIELD_MAPPER.weight_kg)) || 0.5
+                    };
+                });
+
+                activeProducts = mappedProducts;
+                refreshTableData();
+                recalculateSolver();
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-check"></i> 同步完成');
+
+                setTimeout(() => {
+                    $btn.html('<i class="fa-solid fa-cloud-arrow-down"></i> 同步產品主檔');
+                }, 2000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
