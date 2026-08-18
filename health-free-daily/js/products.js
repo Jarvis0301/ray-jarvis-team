@@ -62,7 +62,7 @@ async function fetchGoogleSheetsData() {
                 throw new Error(`找不到【${sheetName}】的 gid 設定`);
             }
             
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
             const text = await res.text();
