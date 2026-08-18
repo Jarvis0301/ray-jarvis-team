@@ -44,12 +44,24 @@ async function initApp() {
 }
 
 // 4. 解析 Google Sheets 數據 (改為二維陣列，依據欄位順序索引讀取)
+// 定義各分頁的 gid (請點擊試算表各分頁，複製網址列結尾 #gid= 後方的數字)
+const SHEET_CONFIG = {
+    '產品主檔': '0',           // 通常第 1 個分頁 gid 為 0
+    '產品主系列': '2',  // 請替換為實際分頁 gid
+    '產品次系列': '3',  // 請替換為實際分頁 gid
+    '產品型態': '4'    // 請替換為實際分頁 gid
+};
 async function fetchGoogleSheetsData() {
     try {
         const syncElem = document.getElementById('syncStatus');
         if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> 產品資訊同步中...';
 
         const fetchSheet = async (sheetName) => {
+            const gid = SHEET_CONFIG[sheetName];
+            if (gid === undefined) {
+                throw new Error(`找不到【${sheetName}】的 gid 設定`);
+            }
+            
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
@@ -77,20 +89,20 @@ async function fetchGoogleSheetsData() {
             fetchSheet('產品型態')
         ]);
 
-        // A. 處理「產品主表」：依欄位順序讀取並依 region_code 分流
+        // A. 處理「產品主」：依欄位順序讀取並依 region_code 分流
         if (productsData && productsData.length > 0) {
             const parsedAll = parseProductsTable(productsData);
             appState.products.TW = parsedAll.filter(p => p.region_code === 'TW');
             appState.products.MY = parsedAll.filter(p => p.region_code === 'MY');
         }
 
-        // B. 處理「產品主系列表」與「產品次系列表」：動態組裝雙層選單
+        // B. 處理「產品主系列」與「產品次系列」：動態組裝雙層選單
         if (mainCategoriesData && mainCategoriesData.length > 0) {
             appState.seriesList = buildSeriesTree(mainCategoriesData, subcategoriesData || []);
             updateSeriesDropdowns();
         }
 
-        // C. 處理「產品型態表」：依欄位順序 (Col 0 ~ 6) 讀取
+        // C. 處理「產品型態」：依欄位順序 (Col 0 ~ 6) 讀取
         if (productTypesData && productTypesData.length > 0) {
             appState.typeList = [{ id: "0", code: "ALL", name: "全部", icon: "fa-solid fa-border-all", color: "#94a3b8", bg: "rgba(10, 25, 19, 0.88)" }];
             productTypesData.forEach((row, idx) => {
@@ -309,6 +321,7 @@ function bindEvents() {
         countryElem.addEventListener('change', (e) => {
             appState.country = e.target.value;
             appState.mainSeries = 'ALL';
+            appState.subSeries = 'ALL';
             updateSeriesDropdowns();
             renderProducts();
         });
