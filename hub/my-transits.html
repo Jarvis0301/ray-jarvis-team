@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>機票交通調度中樞 - 核心版戰情室</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           核心版深紫主題 Token (Phantom Cyber Purple System)
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-bg-body: #090314;
+            --uvaco-bg-surface: #120724;
+            --uvaco-bg-card: #1a0b33;
+            --uvaco-bg-card-hover: #240f46;
+            --uvaco-border-color: rgba(168, 85, 247, 0.25);
+            --uvaco-border-glow: rgba(192, 132, 252, 0.5);
+            
+            --uvaco-primary: #a855f7;
+            --uvaco-primary-rgb: 168, 85, 247;
+            --uvaco-secondary: #e879f9;
+            --uvaco-accent: #fde047;
+            --uvaco-info: #38bdf8;
+            --uvaco-success: #34d399;
+            --uvaco-danger: #f43f5e;
+            --uvaco-warning: #fb923c;
+            
+            --uvaco-text-main: #f5f3ff;
+            --uvaco-text-muted: #a78bfa;
+            --uvaco-font-tech: 'Chakra Petch', sans-serif;
+            --uvaco-font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-body);
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 頂部戰情 HUD 跑馬燈 */
+        .transit-hud-header {
+            background: linear-gradient(135deg, rgba(26, 11, 51, 0.9) 0%, rgba(18, 7, 36, 0.95) 100%);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 20px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(168, 85, 247, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .transit-hud-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--uvaco-primary), var(--uvaco-secondary));
+        }
+
+        /* 擬真賽博登機證 (Boarding Pass) */
+        .boarding-pass-card {
+            background: linear-gradient(145deg, #180933 0%, #110526 100%);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 24px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .boarding-pass-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--uvaco-border-glow);
+            box-shadow: 0 20px 45px rgba(168, 85, 247, 0.25);
+        }
+
+        /* 登機證撕角虛線與凹槽 */
+        .pass-notch-container {
+            position: relative;
+        }
+        .pass-notch-left, .pass-notch-right {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: var(--uvaco-bg-body);
+            border-radius: 50%;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .pass-notch-left {
+            left: -12px;
+            border-right: 1px solid var(--uvaco-border-color);
+        }
+        .pass-notch-right {
+            right: -12px;
+            border-left: 1px solid var(--uvaco-border-color);
+        }
+        .pass-divide-line {
+            border-top: 2px dashed rgba(168, 85, 247, 0.3);
+            margin: 0 12px;
+        }
+
+        /* 機票標籤與數據文字 */
+        .pass-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--uvaco-text-muted);
+            margin-bottom: 2px;
+        }
+        .pass-value {
+            font-family: var(--uvaco-font-tech);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .airport-code {
+            font-family: var(--uvaco-font-tech);
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(180deg, #ffffff 0%, var(--uvaco-text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .flight-path-indicator {
+            position: relative;
+            text-align: center;
+            padding: 0 10px;
+        }
+        .flight-path-line {
+            height: 2px;
+            background: linear-gradient(90deg, var(--uvaco-primary), var(--uvaco-accent), var(--uvaco-secondary));
+            position: relative;
+            top: 14px;
+            box-shadow: 0 0 10px var(--uvaco-primary);
+        }
+        .plane-pulse-icon {
+            display: inline-block;
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-secondary);
+            color: var(--uvaco-secondary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            line-height: 28px;
+            position: relative;
+            z-index: 2;
+            animation: pulsePlane 2s infinite ease-in-out;
+        }
+        @keyframes pulsePlane {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232, 121, 249, 0.4); }
+            50% { transform: scale(1.1); box-shadow: 0 0 12px 4px rgba(232, 121, 249, 0.6); }
+        }
+
+        /* 條碼與 QR 掃描按鈕區塊 */
+        .barcode-section {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px dashed rgba(168, 85, 247, 0.25);
+        }
+
+        /* 地面接駁極速卡片 */
+        .ground-transit-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 20px;
+            padding: 18px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+        .ground-transit-card:hover {
+            border-color: var(--uvaco-info);
+            background: var(--uvaco-bg-card-hover);
+        }
+        .transit-badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        /* 行李載重計量槽 */
+        .luggage-meter {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid var(--uvaco-border-color);
+        }
+        .luggage-bar-bg {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .luggage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--uvaco-success) 0%, var(--uvaco-primary) 70%, var(--uvaco-danger) 100%);
+            border-radius: 20px;
+            transition: width 0.6s ease;
+        }
+
+        /* 自訂按鈕群 */
+        .btn-cyber-purple {
+            background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+            color: #ffffff;
+            border: 1px solid var(--uvaco-secondary);
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 8px 18px;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+            transition: all 0.25s ease;
+        }
+        .btn-cyber-purple:hover {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+            transform: translateY(-1px);
+        }
+        .btn-cyber-glass {
+            background: rgba(168, 85, 247, 0.12);
+            color: var(--uvaco-secondary);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 12px;
+            font-weight: 500;
+            padding: 8px 16px;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+        }
+        .btn-cyber-glass:hover {
+            background: rgba(168, 85, 247, 0.25);
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+        }
+
+        /* DataTables 深色優化 */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(168, 85, 247, 0.04);
+            --bs-table-hover-bg: rgba(168, 85, 247, 0.08);
+            border-color: var(--uvaco-border-color);
+            color: var(--uvaco-text-main);
+        }
+        .table-dark-custom th {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--uvaco-text-muted);
+            border-bottom: 2px solid var(--uvaco-border-color);
+            padding: 12px 14px;
+        }
+        .table-dark-custom td {
+            vertical-align: middle;
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.12);
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: var(--uvaco-text-main) !important;
+            border-radius: 8px !important;
+            border: 1px solid transparent !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-secondary) !important;
+            color: white !important;
+        }
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+            background-color: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border-color);
+            color: white;
+            border-radius: 8px;
+            padding: 4px 8px;
+        }
+
+        /* Modal 深色客製化 */
+        .modal-cyber .modal-content {
+            background-color: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border-glow);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 85, 247, 0.3);
+            border-radius: 24px;
+        }
+        .modal-cyber .modal-header {
+            border-bottom: 1px solid var(--uvaco-border-color);
+        }
+        .modal-cyber .modal-footer {
+            border-top: 1px solid var(--uvaco-border-color);
+        }
+        .form-control-cyber, .form-select-cyber {
+            background-color: rgba(10, 4, 20, 0.7);
+            border: 1px solid var(--uvaco-border-color);
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+        .form-control-cyber:focus, .form-select-cyber:focus {
+            background-color: rgba(18, 7, 36, 0.9);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(232, 121, 249, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid py-4 px-3 px-lg-4">
+
+        <div class="transit-hud-header mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-xl-6">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="badge bg-purple-subtle text-purple fs-6 border border-purple px-3 py-2" style="background: rgba(168,85,247,0.15); color: #c084fc; border-color: #a855f7 !important;">
+                                <i class="fa-solid fa-plane-departure"></i> HM3000
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold text-white tracking-wide" style="font-family: var(--uvaco-font-tech);">
+                                機票交通調度指揮中樞 <span class="badge bg-danger ms-2 fs-6 align-middle"><i class="fa-solid fa-satellite-dish"></i> LIVE</span>
+                            </h2>
+                            <p class="mb-0 text-muted small">
+                                專案代碼：<span class="text-white fw-bold font-monospace" id="hudTripCode">MY-202608-KL</span>（吉隆坡跨境拓荒戰役） | 執勤指揮官：<span class="text-info fw-bold">Ray & Jarvis</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-xl-6">
+                    <div class="d-flex flex-wrap align-items-center justify-content-xl-end gap-2">
+                        <div class="input-group input-group-sm w-auto">
+                            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-location-crosshairs"></i> 戰役專案</span>
+                            <select class="form-select form-select-cyber" id="selTripFilter" style="min-width: 180px;">
+                                <option value="MY-202608-KL" selected>MY-202608-KL (吉隆坡 8月)</option>
+                                <option value="MY-202611-PG">MY-202611-PG (檳城 11月)</option>
+                                <option value="SG-202612-ALL">SG-202612-ALL (新加坡年底大會)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-cyber-glass" id="btnSyncGoogleSheets" title="與 Google 試算表 my_transits 欄位解耦同步">
+                            <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                        </button>
+                        <button class="btn btn-cyber-purple" data-bs-toggle="modal" data-bs-target="#modalAddTransit">
+                            <i class="fa-solid fa-plus"></i> 新增交通接駁
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-4">
+                <div class="boarding-pass-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="pass-tag"><i class="fa-solid fa-clock"></i> 下一段航程倒數 (T-MINUS)</span>
+                            <span class="badge rounded-pill bg-success text-dark fw-bold px-3 py-1"><i class="fa-solid fa-circle-check"></i> 準點準時 ON TIME</span>
+                        </div>
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <div class="display-5 fw-bold text-white font-monospace" id="countdownTimer">04<span class="fs-6 text-muted">D</span> 16<span class="fs-6 text-muted">H</span> 42<span class="fs-6 text-muted">M</span></div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            下一航段：<span class="text-warning fw-bold">長榮航空 BR227</span> (TPE ➔ KUL)<br>
+                            預定起飛：<span class="text-white font-monospace">2026-08-25 09:30 (GMT+8)</span>
+                        </p>
+                    </div>
+                    <div class="mt-3 pt-3 border-top border-purple-subtle" style="border-color: rgba(168,85,247,0.2) !important;">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>吉隆坡天氣：<span class="text-white"><i class="fa-solid fa-sun text-warning"></i> 32°C 晴午後局部陣雨</span></span>
+                            <span>時差：<span class="text-info">GMT+8 (無時差)</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-8">
+                <div class="ground-transit-card h-100 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold text-white"><i class="fa-solid fa-scale-balanced text-primary"></i> 航空行李配重監控與試用備品載重天平</h5>
+                        <span class="badge bg-purple-subtle text-light border border-secondary px-2 py-1"><i class="fa-solid fa-boxes-stacked"></i> 樣品物資優先保障</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="luggage-meter">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="fw-bold text-white"><i class="fa-solid fa-user-tie text-info"></i> Ray 托運行李 (個人+樟芝物資)</span>
+                                    </div>
+                                    <span class="text-white font-monospace fw-bold" id="txtRayLuggage">19.5 / 23.0 kg</span>
+                                </div>
+                                <div class="luggage-bar-bg mb-2">
+                                    <div class="luggage-bar-fill" style="width: 84.7%;"></div>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                    <span>隨身 7kg：已載 4.2kg</span>
+                                    <span class="text-success"><i class="fa-solid fa-circle-check"></i> 安全限額內 (剩餘 3.5kg)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="luggage-meter">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="fw-bold text-white"><i class="fa-solid fa-user-ninja text-warning"></i> Jarvis 托運行李 (個人+995與設備)</span>
+                                    </div>
+                                    <span class="text-white font-monospace fw-bold" id="txtJarvisLuggage">21.8 / 23.0 kg</span>
+                                </div>
+                                <div class="luggage-bar-bg mb-2">
+                                    <div class="luggage-bar-fill" style="width: 94.7%; background: linear-gradient(90deg, #34d399, #fde047 70%, #f43f5e 100%);"></div>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                    <span>隨身 7kg：已載 6.5kg</span>
+                                    <span class="text-warning"><i class="fa-solid fa-triangle-exclamation"></i> 接近上限 (剩餘 1.2kg)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 p-2 rounded bg-black bg-opacity-30 d-flex justify-content-between align-items-center text-muted small">
+                        <span><i class="fa-solid fa-triangle-exclamation text-warning"></i> 長榮航空單件行李限重 23kg，超重每公斤加收 USD 15。</span>
+                        <a href="my-supplies.html" class="text-info text-decoration-none"><i class="fa-solid fa-arrow-up-right-from-square"></i> 前往試用備品調度 (HM5000)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="h5 mb-0 fw-bold text-white">
+                <i class="fa-solid fa-ticket text-primary"></i> 核心電子航段登機證憑證 (Active Flight Passes)
+            </h4>
+            <span class="text-muted small">共 2 個關鍵飛行航段 | 點擊憑證可全螢幕感應掃碼</span>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-xl-6">
+                <div class="boarding-pass-card">
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary text-white font-monospace px-2 py-1"><i class="fa-solid fa-plane"></i> BR 227</span>
+                                <span class="text-white fw-bold">長榮航空 EVA Air</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-dark border border-purple text-purple px-3 py-1 font-monospace" style="color: #c084fc; border-color: #a855f7;">PNR: 6KX9RP</span>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center my-3">
+                            <div class="col-4 text-start">
+                                <div class="pass-tag">DEPARTURE</div>
+                                <div class="airport-code">TPE</div>
+                                <div class="text-white fw-bold small">台北桃園 T2</div>
+                                <div class="text-muted small font-monospace">08/25 09:30</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="flight-path-indicator">
+                                    <div class="flight-path-line"></div>
+                                    <div class="plane-pulse-icon"><i class="fa-solid fa-plane"></i></div>
+                                </div>
+                                <div class="text-muted mt-2 font-monospace" style="font-size: 0.75rem;">4H 45M 直飛</div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="pass-tag">ARRIVAL</div>
+                                <div class="airport-code">KUL</div>
+                                <div class="text-white fw-bold small">吉隆坡國際 T1</div>
+                                <div class="text-muted small font-monospace">08/25 14:15</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pass-notch-container">
+                        <div class="pass-notch-left"></div>
+                        <div class="pass-divide-line"></div>
+                        <div class="pass-notch-right"></div>
+                    </div>
+
+                    <div class="p-4 bg-black bg-opacity-25">
+                        <div class="row align-items-center g-3">
+                            <div class="col-8">
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <div class="pass-tag">PASSENGER</div>
+                                        <div class="pass-value fs-6 text-truncate">Ray / Jarvis</div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="pass-tag">GATE</div>
+                                        <div class="pass-value text-warning">C6</div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="pass-tag">SEAT</div>
+                                        <div class="pass-value text-info">18A / 18B</div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="pass-tag">CLASS</div>
+                                        <div class="pass-value">Y</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <button class="btn btn-cyber-glass btn-sm w-100 py-2" onclick="showQrModal('長榮航空 BR227 登機憑證', 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BR227-TPE-KUL-RAY-JARVIS-6KX9RP', 'TPE ➔ KUL | PNR: 6KX9RP | 閘門: C6')">
+                                    <i class="fa-solid fa-qrcode"></i> 電子登機證
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="boarding-pass-card">
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-purple text-white font-monospace px-2 py-1" style="background: #7e22ce;"><i class="fa-solid fa-plane"></i> BR 228</span>
+                                <span class="text-white fw-bold">長榮航空 EVA Air</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-dark border border-purple text-purple px-3 py-1 font-monospace" style="color: #c084fc; border-color: #a855f7;">PNR: 6KX9RP</span>
+                            </div>
+                        </div>

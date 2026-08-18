@@ -2,726 +2,568 @@
 <html lang="zh-TW" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>權限管理 | 榮祥團隊核心戰情室</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>H81000 系統權限全域動態配置與存取沙盒中樞 | 葡眾三軌數位戰情室</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.0.8/css/dataTables.bootstrap5.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap">
 
     <style>
         :root {
-            --uvaco-bg-base: #0d0714;
-            --uvaco-bg-surface: #150a21;
-            --uvaco-bg-card: #1c0d2e;
-            --uvaco-bg-card-hover: #26123d;
-            --uvaco-border: rgba(168, 85, 247, 0.2);
-            --uvaco-border-glow: rgba(168, 85, 247, 0.5);
+            /* 核心版 魅影深紫主題色系 (Dark Phantom Purple) */
+            --uvaco-bg-base: #070312;
+            --uvaco-bg-surface: #0f0721;
+            --uvaco-bg-card: #170c31;
+            --uvaco-bg-elevated: #221244;
+            --uvaco-border-color: rgba(192, 132, 252, 0.15);
+            --uvaco-border-focus: rgba(192, 132, 252, 0.5);
+            
             --uvaco-primary: #a855f7;
-            --uvaco-primary-rgb: 168, 85, 247;
-            --uvaco-secondary: #ec4899;
-            --uvaco-accent-gold: #fde047;
+            --uvaco-primary-light: #c084fc;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent-pink: #f472b6;
             --uvaco-accent-cyan: #38bdf8;
-            --uvaco-success: #10b981;
-            --uvaco-warning: #f59e0b;
-            --uvaco-danger: #ef4444;
-            --uvaco-text-main: #f3e8ff;
-            --uvaco-text-muted: #d8b4fe;
-            --uvaco-text-sub: #94a3b8;
-            --uvaco-radius-lg: 20px;
-            --uvaco-radius-md: 12px;
-            --uvaco-radius-sm: 8px;
+            --uvaco-accent-green: #34d399;
+            --uvaco-accent-amber: #fbbf24;
+            --uvaco-accent-red: #fb7185;
+            
+            --uvaco-text-main: #faf5ff;
+            --uvaco-text-muted: #9e8eb3;
+            --uvaco-text-dim: #65567a;
+            
+            --uvaco-glow-purple: 0 0 25px rgba(168, 85, 247, 0.25);
+            --uvaco-glow-pink: 0 0 20px rgba(244, 114, 182, 0.3);
+            --uvaco-glow-cyan: 0 0 20px rgba(56, 189, 248, 0.3);
         }
 
         body {
             background-color: var(--uvaco-bg-base);
             color: var(--uvaco-text-main);
-            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            padding: 1.5rem 1rem;
+            font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
-            overflow-x: hidden;
+            padding: 1.25rem;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(244, 114, 182, 0.06) 0%, transparent 40%);
+            background-attachment: fixed;
         }
 
-        .font-mono {
+        .mono-font {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* 玻璃擬態微光面板 */
-        .glass-panel {
-            background: linear-gradient(135deg, rgba(28, 13, 46, 0.85) 0%, rgba(21, 10, 33, 0.95) 100%);
+        /* 玻璃擬態面板容器 */
+        .nexus-panel {
+            background: linear-gradient(135deg, rgba(23, 12, 49, 0.75) 0%, rgba(15, 7, 33, 0.85) 100%);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--uvaco-border);
-            border-radius: var(--uvaco-radius-lg);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .glass-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);
+        .nexus-panel:hover {
+            border-color: rgba(192, 132, 252, 0.3);
         }
 
-        .glass-panel:hover {
-            border-color: var(--uvaco-border-glow);
-            box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.15);
+        /* 神經防禦頂部 HUD */
+        .hud-status-strip {
+            background: linear-gradient(90deg, rgba(34, 18, 68, 0.8) 0%, rgba(23, 12, 49, 0.9) 100%);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 0.875rem;
+            padding: 0.875rem 1.25rem;
         }
 
-        /* 標題與光暈徽章 */
-        .page-title {
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, var(--uvaco-text-muted) 50%, var(--uvaco-primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .badge-shield {
-            background: rgba(168, 85, 247, 0.15);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            color: var(--uvaco-text-main);
-            padding: 0.35rem 0.75rem;
-            border-radius: 50rem;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        /* HUD 指標卡片 */
-        .hud-stat-box {
-            padding: 1.25rem;
-            border-radius: var(--uvaco-radius-md);
-            background: rgba(21, 10, 33, 0.6);
-            border: 1px solid rgba(168, 85, 247, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .hud-stat-box:hover {
-            transform: translateY(-2px);
-            border-color: var(--uvaco-primary);
-        }
-
-        .hud-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        /* 角色膠囊與權限等級按鈕 */
-        .role-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 50rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .role-admin { background: rgba(236, 72, 153, 0.2); border: 1px solid #ec4899; color: #f472b6; }
-        .role-leader { background: rgba(168, 85, 247, 0.2); border: 1px solid #a855f7; color: #c084fc; }
-        .role-team { background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; color: #7dd3fc; }
-        .role-guest { background: rgba(148, 163, 184, 0.2); border: 1px solid #94a3b8; color: #cbd5e1; }
-
-        .perm-badge {
-            padding: 0.2rem 0.55rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .perm-edit { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-        .perm-view { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
-        .perm-denied { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-
-        /* 沙盒模擬器容器 */
-        .sandbox-container {
-            background: rgba(13, 7, 20, 0.8);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: var(--uvaco-radius-md);
-            padding: 1.5rem;
-        }
-
-        .sandbox-route-card {
-            background: rgba(28, 13, 46, 0.6);
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            border-radius: var(--uvaco-radius-sm);
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .sandbox-route-card:hover {
-            border-color: var(--uvaco-primary);
-            background: rgba(38, 18, 61, 0.8);
-        }
-
-        /* 擬態開關與按鈕 */
-        .btn-action-primary {
-            background: linear-gradient(135deg, var(--uvaco-primary) 0%, #7e22ce 100%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            font-weight: 600;
-            border-radius: var(--uvaco-radius-sm);
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-            transition: all 0.25s ease;
-        }
-
-        .btn-action-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
-            color: #ffffff;
-        }
-
-        .btn-action-secondary {
-            background: rgba(28, 13, 46, 0.8);
-            border: 1px solid var(--uvaco-border);
-            color: var(--uvaco-text-main);
-            border-radius: var(--uvaco-radius-sm);
-            transition: all 0.2s ease;
-        }
-
-        .btn-action-secondary:hover {
-            background: rgba(38, 18, 61, 1);
-            border-color: var(--uvaco-primary);
-            color: #ffffff;
-        }
-
-        /* DataTable 深度適配紫色暗黑風格 */
-        .table-dark-custom {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--uvaco-text-main);
-            --bs-table-border-color: rgba(168, 85, 247, 0.15);
-            margin-bottom: 0;
-        }
-
-        .table-dark-custom th {
-            background-color: rgba(21, 10, 33, 0.9);
-            color: var(--uvaco-text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid rgba(168, 85, 247, 0.3) !important;
-            padding: 1rem 0.75rem;
-            vertical-align: middle;
-        }
-
-        .table-dark-custom td {
-            padding: 0.9rem 0.75rem;
-            vertical-align: middle;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-        }
-
-        .table-dark-custom tbody tr:hover {
-            background-color: rgba(168, 85, 247, 0.08) !important;
-        }
-
-        /* DataTables 控件美化 */
-        .dataTables_wrapper .dataTables_length select,
-        .dataTables_wrapper .dataTables_filter input {
-            background-color: rgba(21, 10, 33, 0.8) !important;
-            border: 1px solid var(--uvaco-border) !important;
-            color: var(--uvaco-text-main) !important;
-            border-radius: var(--uvaco-radius-sm);
-            padding: 0.375rem 0.75rem;
-        }
-
-        .dataTables_wrapper .dataTables_filter input:focus {
-            border-color: var(--uvaco-primary) !important;
-            outline: none;
-            box-shadow: 0 0 0 0.25rem rgba(168, 85, 247, 0.25);
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--uvaco-primary) !important;
-            border-color: var(--uvaco-primary) !important;
-        }
-
-        .page-link {
-            background-color: rgba(21, 10, 33, 0.8) !important;
-            border-color: rgba(168, 85, 247, 0.2) !important;
-            color: var(--uvaco-text-main) !important;
-        }
-
-        /* 模態框 Modal 自訂 */
-        .modal-content-custom {
-            background: linear-gradient(145deg, #150a21 0%, #1c0d2e 100%);
-            border: 1px solid var(--uvaco-border-glow);
-            border-radius: var(--uvaco-radius-lg);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            color: var(--uvaco-text-main);
-        }
-
-        .form-control-custom, .form-select-custom {
-            background-color: rgba(13, 7, 20, 0.8);
-            border: 1px solid var(--uvaco-border);
-            color: var(--uvaco-text-main);
-            border-radius: var(--uvaco-radius-sm);
-        }
-
-        .form-control-custom:focus, .form-select-custom:focus {
-            background-color: rgba(13, 7, 20, 0.95);
-            border-color: var(--uvaco-primary);
-            color: #ffffff;
-            box-shadow: 0 0 0 0.25rem rgba(168, 85, 247, 0.25);
-        }
-
-        /* 動態脈衝指示燈 */
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
+        .pulse-indicator {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: pulse-green 2s infinite;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulse-glow 2s infinite;
         }
 
-        @keyframes pulse-green {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        .pulse-dot-warn {
-            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
-            animation: pulse-amber 2s infinite;
+        /* 三軌色彩徽章 */
+        .badge-track-public {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+        .badge-track-team {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+        .badge-track-core {
+            background: rgba(192, 132, 252, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            box-shadow: var(--uvaco-glow-purple);
         }
 
-        @keyframes pulse-amber {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        /* 模組矩陣膠囊標籤 */
+        .module-matrix-chip {
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.5rem;
+            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--uvaco-text-muted);
+            transition: all 0.2s ease;
+            user-select: none;
+            cursor: pointer;
+        }
+        .module-matrix-chip.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: var(--uvaco-primary-light);
+            color: var(--uvaco-text-main);
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+        .module-matrix-chip:hover {
+            border-color: var(--uvaco-primary-light);
+            color: var(--uvaco-text-main);
+        }
+
+        /* 按鈕系統 */
+        .btn-nexus-primary {
+            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.65rem;
+            box-shadow: var(--uvaco-glow-purple);
+            transition: all 0.25s ease;
+        }
+        .btn-nexus-primary:hover {
+            background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
+            box-shadow: 0 0 25px rgba(192, 132, 252, 0.6);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-nexus-outline {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--uvaco-border-color);
+            color: var(--uvaco-text-main);
+            font-weight: 500;
+            padding: 0.6rem 1rem;
+            border-radius: 0.65rem;
+            transition: all 0.2s ease;
+        }
+        .btn-nexus-outline:hover {
+            background: rgba(192, 132, 252, 0.1);
+            border-color: var(--uvaco-primary-light);
+            color: var(--uvaco-primary-light);
+        }
+
+        .btn-nexus-danger {
+            background: rgba(251, 113, 133, 0.1);
+            border: 1px solid rgba(251, 113, 133, 0.3);
+            color: var(--uvaco-accent-red);
+            font-weight: 600;
+            padding: 0.45rem 0.85rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .btn-nexus-danger:hover {
+            background: var(--uvaco-accent-red);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(251, 113, 133, 0.5);
+        }
+
+        /* 互動式身分卡片 */
+        .persona-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .persona-card:hover, .persona-card.selected {
+            background: rgba(168, 85, 247, 0.12);
+            border-color: var(--uvaco-primary-light);
+            box-shadow: var(--uvaco-glow-purple);
+        }
+
+        /* DataTables 深色微光客製化 */
+        .table-nexus {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+        .table-nexus thead th {
+            background-color: rgba(34, 18, 68, 0.6) !important;
+            color: var(--uvaco-text-muted) !important;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none !important;
+            padding: 0.75rem 1rem !important;
+        }
+        .table-nexus thead th:first-child { border-radius: 0.5rem 0 0 0.5rem; }
+        .table-nexus thead th:last-child { border-radius: 0 0.5rem 0.5rem 0; }
+        
+        .table-nexus tbody tr {
+            background-color: rgba(255, 255, 255, 0.02);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        .table-nexus tbody tr:hover {
+            background-color: rgba(168, 85, 247, 0.08) !important;
+            transform: translateY(-1px);
+        }
+        .table-nexus tbody td {
+            padding: 0.85rem 1rem !important;
+            vertical-align: middle;
+            border: none !important;
+            font-size: 0.9rem;
+        }
+        .table-nexus tbody td:first-child { border-radius: 0.5rem 0 0 0.5rem; }
+        .table-nexus tbody td:last-child { border-radius: 0 0.5rem 0.5rem 0; }
+
+        /* 表單控制項 */
+        .form-control-nexus, .form-select-nexus {
+            background-color: rgba(15, 7, 33, 0.8);
+            border: 1px solid var(--uvaco-border-color);
+            color: var(--uvaco-text-main);
+            border-radius: 0.6rem;
+            padding: 0.6rem 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .form-control-nexus:focus, .form-select-nexus:focus {
+            background-color: rgba(23, 12, 49, 0.95);
+            border-color: var(--uvaco-primary-light);
+            color: #ffffff;
+            box-shadow: var(--uvaco-glow-purple);
+        }
+
+        /* 模態彈窗 (Modal) 極客風格 */
+        .modal-content-nexus {
+            background: linear-gradient(145deg, #130728 0%, #090317 100%);
+            border: 1px solid var(--uvaco-primary);
+            border-radius: 1.25rem;
+            box-shadow: 0 0 50px rgba(168, 85, 247, 0.35);
         }
 
         /* 響應式微調 */
         @media (max-width: 768px) {
-            .hud-stat-box { margin-bottom: 0.75rem; }
-            .page-title { font-size: 1.5rem; }
+            body { padding: 0.75rem; }
+            .hud-status-strip { padding: 0.75rem; }
+            .btn-nexus-primary, .btn-nexus-outline { width: 100%; margin-bottom: 0.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container-fluid max-w-7xl px-lg-4">
+    <div class="container-fluid p-0">
         
-        <div class="row align-items-center mb-4 g-3">
-            <div class="col-12 col-md-7">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span class="badge-shield">
-                        <i class="fa-solid fa-shield-halved text-purple me-1"></i> RBAC Access Engine v3.2
-                    </span>
-                    <span class="badge-shield">
-                        <span class="pulse-dot bg-success me-1"></span> 零信任閘道守護中
+        <div class="hud-status-strip mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="pulse-indicator text-success" style="color: var(--uvaco-accent-green);"></span>
+                    <span class="fw-bold fs-5 tracking-wide text-white">
+                        <i class="fa-solid fa-shield-halved text-purple-light" style="color: var(--uvaco-primary-light);"></i> 系統權限全域動態配置與存取沙盒中樞
                     </span>
                 </div>
-                <h1 class="page-title h2 mb-1">
-                    <i class="fa-solid fa-user-lock text-purple me-2"></i> 權限管理與通行白名單中樞
-                </h1>
-                <p class="text-muted small mb-0">
-                    納管三軌數位陣地通行證、GAS 後端授權核印與 Google 帳號白名單（表 50 / sys_permissions）
-                </p>
+                <span class="badge badge-track-core d-none d-md-inline-block">
+                    <i class="fa-solid fa-key"></i> H81000 · 極密創始權限
+                </span>
             </div>
-            
-            <div class="col-12 col-md-5 text-md-end d-flex flex-wrap gap-2 justify-content-md-end">
-                <button class="btn btn-action-secondary btn-sm px-3" id="btnSyncSheets">
-                    <i class="fa-solid fa-arrows-rotate me-1"></i> 同步 Google 試算表
+
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                    <i class="fa-solid fa-user-check text-info" style="color: var(--uvaco-accent-cyan);"></i>
+                    <span class="small text-white">Ray & Jarvis 雙核心密鑰就緒</span>
+                </div>
+
+                <button id="btn-sync-sheet" class="btn btn-nexus-outline btn-sm py-1 px-3">
+                    <i class="fa-solid fa-rotate"></i> 試算表欄位熱同步
                 </button>
-                <button class="btn btn-action-primary btn-sm px-3" id="btnOpenAddModal">
-                    <i class="fa-solid fa-user-plus me-1"></i> 新增授權通行證
+                
+                <button class="btn btn-nexus-primary btn-sm py-1 px-3" data-bs-toggle="modal" data-bs-target="#modal-enroll-permission">
+                    <i class="fa-solid fa-user-plus"></i> 新增白名單金鑰
                 </button>
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-3">
-                <div class="hud-stat-box glass-panel">
-                    <div>
-                        <div class="text-muted small">總授權通行數</div>
-                        <div class="h3 font-mono fw-bold mb-0 text-white" id="statTotalUsers">24</div>
-                        <div class="text-success small mt-1">
-                            <i class="fa-solid fa-arrow-trend-up me-1"></i> 全白名單運作中
-                        </div>
-                    </div>
-                    <div class="hud-icon bg-purple-subtle text-purple" style="background: rgba(168, 85, 247, 0.15); color: var(--uvaco-primary);">
-                        <i class="fa-solid fa-users-gear"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="hud-stat-box glass-panel">
-                    <div>
-                        <div class="text-muted small">核心樞特權 (Hub)</div>
-                        <div class="h3 font-mono fw-bold mb-0 text-pink" style="color: var(--uvaco-secondary);" id="statHubAdmins">2</div>
-                        <div class="text-muted small mt-1">
-                            <i class="fa-solid fa-key me-1"></i> 承志 & 榮祥 專屬
-                        </div>
-                    </div>
-                    <div class="hud-icon" style="background: rgba(236, 72, 153, 0.15); color: var(--uvaco-secondary);">
-                        <i class="fa-solid fa-crown"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="hud-stat-box glass-panel">
-                    <div>
-                        <div class="text-muted small">團隊版授權 (Team)</div>
-                        <div class="h3 font-mono fw-bold mb-0 text-info" style="color: var(--uvaco-accent-cyan);" id="statTeamMembers">18</div>
-                        <div class="text-muted small mt-1">
-                            <i class="fa-solid fa-network-wired me-1"></i> 體系合格經銷商
-                        </div>
-                    </div>
-                    <div class="hud-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--uvaco-accent-cyan);">
-                        <i class="fa-solid fa-sitemap"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="hud-stat-box glass-panel">
-                    <div>
-                        <div class="text-muted small">臨期/異常授權</div>
-                        <div class="h3 font-mono fw-bold mb-0 text-warning" style="color: var(--uvaco-warning);" id="statExpiringCount">1</div>
-                        <div class="text-warning small mt-1">
-                            <i class="fa-solid fa-triangle-exclamation me-1"></i> 7日內即將到期
-                        </div>
-                    </div>
-                    <div class="hud-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--uvaco-warning);">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
-                </div>
             </div>
         </div>
 
         <div class="row g-4 mb-4">
             
-            <div class="col-12 col-xl-5">
-                <div class="glass-panel p-4 h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h2 class="h5 fw-bold mb-0 text-white">
-                            <i class="fa-solid fa-layer-group text-purple me-2"></i> 角色等級與三軌矩陣規範
-                        </h2>
-                        <span class="text-muted small font-mono">RBAC-POL-2026</span>
-                    </div>
-                    <p class="text-muted small mb-3">
-                        各職級對應之通行邊界受 <span class="font-mono text-purple">auth-guard.js</span> 嚴格攔截，未獲許可將自動重導向。
-                    </p>
-
-                    <div class="d-flex flex-column gap-2">
-                        <div class="p-3 rounded-3 border" style="background: rgba(236, 72, 153, 0.05); border-color: rgba(236, 72, 153, 0.2) !important;">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="role-pill role-admin">
-                                        <i class="fa-solid fa-crown"></i> ADMIN 創始指揮官
-                                    </span>
-                                    <span class="badge bg-dark font-mono text-muted small">2 名成員</span>
-                                </div>
-                                <span class="text-pink small fw-bold font-mono">全域不受限</span>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <span class="perm-badge perm-edit"><i class="fa-solid fa-check me-1"></i> 核心樞 /hub (全權)</span>
-                                <span class="perm-badge perm-edit"><i class="fa-solid fa-check me-1"></i> 團隊版 /team (編輯)</span>
-                                <span class="perm-badge perm-edit"><i class="fa-solid fa-check me-1"></i> 公開版 /public (發布)</span>
-                            </div>
-                        </div>
-
-                        <div class="p-3 rounded-3 border" style="background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.2) !important;">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="role-pill role-leader">
-                                        <i class="fa-solid fa-gem"></i> LEADER 核心幹部
-                                    </span>
-                                    <span class="badge bg-dark font-mono text-muted small">藍鑽 / 珍珠階</span>
-                                </div>
-                                <span class="text-purple small fw-bold font-mono">進階賦能</span>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <span class="perm-badge perm-denied"><i class="fa-solid fa-ban me-1"></i> 核心樞 (禁絕)</span>
-                                <span class="perm-badge perm-edit"><i class="fa-solid fa-check me-1"></i> 團隊版 (編輯)</span>
-                                <span class="perm-badge perm-view"><i class="fa-solid fa-eye me-1"></i> 公開版 (檢視)</span>
-                            </div>
-                        </div>
-
-                        <div class="p-3 rounded-3 border" style="background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.2) !important;">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="role-pill role-team">
-                                        <i class="fa-solid fa-user-check"></i> TEAM 團隊夥伴
-                                    </span>
-                                    <span class="badge bg-dark font-mono text-muted small">合格直銷商</span>
-                                </div>
-                                <span class="text-info small fw-bold font-mono">標準賦能</span>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <span class="perm-badge perm-denied"><i class="fa-solid fa-ban me-1"></i> 核心樞 (禁絕)</span>
-                                <span class="perm-badge perm-view"><i class="fa-solid fa-eye me-1"></i> 團隊版 (唯讀)</span>
-                                <span class="perm-badge perm-view"><i class="fa-solid fa-eye me-1"></i> 公開版 (檢視)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-xl-7">
-                <div class="glass-panel p-4 h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="col-lg-8">
+                <div class="nexus-panel p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h2 class="h5 fw-bold mb-0 text-white">
-                                <i class="fa-solid fa-flask-vial text-pink me-2"></i> 身分決策與通行沙盒模擬器
-                            </h2>
-                            <p class="text-muted small mb-0 mt-1">
-                                輸入任意 Google 信箱，即時推演各站點路由判定與攔截邏輯
-                            </p>
+                            <h5 class="fw-bold mb-1 text-white">
+                                <i class="fa-solid fa-diagram-project" style="color: var(--uvaco-primary-light);"></i> 三軌模組動態授權光譜 (RBAC Spectrum)
+                            </h5>
+                            <p class="small text-muted mb-0">點擊角色階層或特定模組，即時預覽前端選單過濾與資料表存取邊界</p>
                         </div>
-                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1 font-mono">
-                            Live Guard Simulator
-                        </span>
+                        <div class="btn-group btn-group-sm" role="group" id="track-filter-group">
+                            <button type="button" class="btn btn-nexus-outline active" data-track="ALL">
+                                <i class="fa-solid fa-layer-group"></i> 全軌道
+                            </button>
+                            <button type="button" class="btn btn-nexus-outline" data-track="CORE_FOUNDER">
+                                <i class="fa-solid fa-crown" style="color: var(--uvaco-primary-light);"></i> 創始核心
+                            </button>
+                            <button type="button" class="btn btn-nexus-outline" data-track="TEAM">
+                                <i class="fa-solid fa-users" style="color: var(--uvaco-accent-cyan);"></i> 團隊白名單
+                            </button>
+                            <button type="button" class="btn btn-nexus-outline" data-track="PUBLIC">
+                                <i class="fa-solid fa-globe" style="color: var(--uvaco-accent-green);"></i> 公開大眾
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="input-group mb-3">
-                        <span class="input-group-text bg-dark border-secondary text-muted">
-                            <i class="fa-solid fa-at"></i>
-                        </span>
-                        <input type="email" id="simEmailInput" class="form-control form-control-custom" placeholder="請輸入欲模擬的 Google Gmail 帳號 (例如: ray.uvaco@gmail.com)..." value="ray.uvaco@gmail.com">
-                        <button class="btn btn-action-primary px-4" id="btnRunSimulation">
-                            <i class="fa-solid fa-play me-1"></i> 執行決策推演
-                        </button>
+                    <div class="p-3 rounded-3 mb-3" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="small text-muted mb-2 d-flex justify-content-between">
+                            <span><i class="fa-solid fa-cubes"></i> 54+5 張資料庫解耦實體表關聯模組</span>
+                            <span class="mono-font text-purple-light" id="active-permission-counter">已啟用：7 / 7 模組</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2" id="module-chips-container">
+                            <span class="module-matrix-chip active" data-mod="PRD"><i class="fa-solid fa-boxes-stacked"></i> 產品模組 (prd_)</span>
+                            <span class="module-matrix-chip active" data-mod="TRN"><i class="fa-solid fa-graduation-cap"></i> 培訓模組 (trn_)</span>
+                            <span class="module-matrix-chip active" data-mod="PSI"><i class="fa-solid fa-warehouse"></i> 進銷存 (psi_)</span>
+                            <span class="module-matrix-chip active" data-mod="ORG"><i class="fa-solid fa-sitemap"></i> 組織模組 (org_)</span>
+                            <span class="module-matrix-chip active" data-mod="CRM"><i class="fa-solid fa-user-tag"></i> 客戶模組 (crm_)</span>
+                            <span class="module-matrix-chip active" data-mod="FIN"><i class="fa-solid fa-sack-dollar"></i> 財務模組 (fin_)</span>
+                            <span class="module-matrix-chip active" data-mod="SYS"><i class="fa-solid fa-gears"></i> 系統模組 (sys_)</span>
+                        </div>
                     </div>
 
-                    <div class="sandbox-container" id="sandboxResultBox">
-                        <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom border-secondary">
-                            <div>
-                                <span class="text-muted small">模擬對象：</span>
-                                <strong class="text-white font-mono" id="simTargetEmail">ray.uvaco@gmail.com</strong>
-                                <span class="ms-2" id="simTargetRoleBadge">
-                                    <span class="role-pill role-admin"><i class="fa-solid fa-crown"></i> ADMIN</span>
-                                </span>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-muted small">Token 數位簽名核可：</span>
-                                <span class="text-success font-mono fw-bold" id="simTargetSigStatus"><i class="fa-solid fa-circle-check me-1"></i> PASS (Valid)</span>
-                            </div>
-                        </div>
-
-                        <div class="row g-2">
-                            <div class="col-12 col-md-4">
-                                <div class="sandbox-route-card">
-                                    <div>
-                                        <div class="small fw-bold text-white"><i class="fa-solid fa-lock text-pink me-1"></i> 核心樞 /hub/</div>
-                                        <div class="font-mono text-muted" style="font-size: 0.7rem;">/hub/psi-overview.html</div>
-                                    </div>
-                                    <span class="badge bg-success font-mono" id="simHubStatus">放行 (EDIT)</span>
+                    <div class="row g-3" id="persona-sandbox-cards">
+                        <div class="col-md-4">
+                            <div class="persona-card selected" data-role="CORE_FOUNDER">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge badge-track-core"><i class="fa-solid fa-crown"></i> 核心創始層</span>
+                                    <i class="fa-solid fa-circle-check text-success"></i>
                                 </div>
-                            </div>
-
-                            <div class="col-12 col-md-4">
-                                <div class="sandbox-route-card">
-                                    <div>
-                                        <div class="small fw-bold text-white"><i class="fa-solid fa-users text-purple me-1"></i> 團隊版 /team/</div>
-                                        <div class="font-mono text-muted" style="font-size: 0.7rem;">/team/org-tree.html</div>
-                                    </div>
-                                    <span class="badge bg-success font-mono" id="simTeamStatus">放行 (EDIT)</span>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-md-4">
-                                <div class="sandbox-route-card">
-                                    <div>
-                                        <div class="small fw-bold text-white"><i class="fa-solid fa-globe text-info me-1"></i> 公開版 /public/</div>
-                                        <div class="font-mono text-muted" style="font-size: 0.7rem;">/index.html</div>
-                                    </div>
-                                    <span class="badge bg-success font-mono" id="simPublicStatus">放行 (EDIT)</span>
+                                <h6 class="fw-bold text-white mb-1">創始決策者 (Ray / Jarvis)</h6>
+                                <p class="small text-muted mb-2">完全解鎖 54 張表 C/R/U/D、50/50 財務結算、白名單審批</p>
+                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08);">
+                                    <div class="progress-bar" style="width: 100%; background: var(--uvaco-primary-light);"></div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="mt-3 pt-2 border-top border-dark d-flex align-items-center justify-content-between text-muted small">
-                            <div>
-                                <i class="fa-solid fa-fingerprint me-1 text-purple"></i> 模擬會話指紋：<span class="font-mono text-white">sess_sim_9a8f4c21</span>
+                        <div class="col-md-4">
+                            <div class="persona-card" data-role="TEAM_LEADER">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge badge-track-team"><i class="fa-solid fa-award"></i> 珍珠/經理領航層</span>
+                                    <span class="small text-muted mono-font">12,000 SV</span>
+                                </div>
+                                <h6 class="fw-bold text-white mb-1">團隊主力夥伴 (經理白名單)</h6>
+                                <p class="small text-muted mb-2">開展業務軍備、小組業績看板、客戶復購預警、唯讀獎金試算</p>
+                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08);">
+                                    <div class="progress-bar" style="width: 65%; background: var(--uvaco-accent-cyan);"></div>
+                                </div>
                             </div>
-                            <div>
-                                授權有效期限：<span class="font-mono text-success" id="simExpireText">2099-12-31 (永久生效)</span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="persona-card" data-role="PUBLIC_GUEST">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge badge-track-public"><i class="fa-solid fa-globe"></i> 公開訪客層</span>
+                                    <span class="small text-muted mono-font">無門檻</span>
+                                </div>
+                                <h6 class="fw-bold text-white mb-1">大眾會員與潛在客戶</h6>
+                                <p class="small text-muted mb-2">僅限健康科普、產品型錄、事業招商故事與公開體驗落地頁</p>
+                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08);">
+                                    <div class="progress-bar" style="width: 25%; background: var(--uvaco-accent-green);"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
+
+            <div class="col-lg-4">
+                <div class="nexus-panel p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0 text-white">
+                                <i class="fa-solid fa-tower-broadcast" style="color: var(--uvaco-accent-pink);"></i> 存取防禦時空雷達
+                            </h5>
+                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50">
+                                <i class="fa-solid fa-shield-virus"></i> 零信任監控中
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-3">即時監控跨國（台灣 / 馬來西亞 eSIM）通行頻率與異常越權阻斷率</p>
+                        
+                        <div style="position: relative; height: 190px; width: 100%;">
+                            <canvas id="access-radar-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted"><i class="fa-solid fa-clock-rotate-left"></i> 最新連線足跡</span>
+                            <span class="badge bg-success bg-opacity-10 text-success mono-font">GAS 授權通暢</span>
+                        </div>
+                        <div class="p-2 rounded-2 d-flex align-items-center justify-content-between" style="background: rgba(255, 255, 255, 0.03);">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary bg-opacity-25 text-primary-light">MY</span>
+                                <span class="small mono-font text-white">115.164.88.* (eSIM)</span>
+                            </div>
+                            <span class="small text-success"><i class="fa-solid fa-circle-check"></i> 放行 1 秒前</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
-        <div class="glass-panel p-4 mb-4">
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+        <div class="nexus-panel p-4">
+            
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                 <div>
-                    <h2 class="h5 fw-bold mb-1 text-white">
-                        <i class="fa-solid fa-table-list text-purple me-2"></i> 全域白名單與權限配置清冊
-                    </h2>
-                    <p class="text-muted small mb-0">
-                        與 Google 試算表 `sys_permissions` 欄位解耦對映，支援即時狀態切換與授權撤銷
-                    </p>
+                    <h4 class="fw-bold mb-1 text-white">
+                        <i class="fa-solid fa-id-badge" style="color: var(--uvaco-primary-light);"></i> 三軌存取白名單與金鑰授權管理表
+                    </h4>
+                    <p class="small text-muted mb-0">資料源自動直連 Google 試算表 `sys_permissions`，支援異步解耦、即時撤銷與動態延期</p>
                 </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-sm btn-action-secondary active" onclick="PermissionsApp.filterRole('ALL')">
-                        <i class="fa-solid fa-list me-1"></i> 全部 (<span id="cntAll">0</span>)
-                    </button>
-                    <button class="btn btn-sm btn-action-secondary" onclick="PermissionsApp.filterRole('ADMIN')">
-                        <i class="fa-solid fa-crown text-pink me-1"></i> ADMIN (<span id="cntAdmin">0</span>)
-                    </button>
-                    <button class="btn btn-sm btn-action-secondary" onclick="PermissionsApp.filterRole('LEADER')">
-                        <i class="fa-solid fa-gem text-purple me-1"></i> LEADER (<span id="cntLeader">0</span>)
-                    </button>
-                    <button class="btn btn-sm btn-action-secondary" onclick="PermissionsApp.filterRole('TEAM')">
-                        <i class="fa-solid fa-user-check text-info me-1"></i> TEAM (<span id="cntTeam">0</span>)
-                    </button>
-                    <button class="btn btn-sm btn-action-secondary" onclick="PermissionsApp.filterByTier('EXPIRING')">
-                        <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> 臨期預警 (<span id="cntExpiring">0</span>)
+                
+                <div class="d-flex align-items-center gap-2">
+                    <div class="input-group input-group-sm" style="width: 250px;">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="custom-table-search" class="form-control form-control-nexus" placeholder="搜尋姓名、Email、角色...">
+                    </div>
+                    <button class="btn btn-nexus-outline btn-sm" id="btn-export-whitelist">
+                        <i class="fa-solid fa-file-arrow-down"></i> 匯出安全備份
                     </button>
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table id="permissionsTable" class="table table-dark-custom w-100">
+                <table id="permissions-datatable" class="table table-nexus w-100">
                     <thead>
                         <tr>
-                            <th>白名單 ID / 經銷號</th>
-                            <th>成員姓名 / 暱稱</th>
-                            <th>Google 授權信箱</th>
-                            <th>角色等級</th>
-                            <th>核心樞 (Hub)</th>
-                            <th>團隊版 (Team)</th>
-                            <th>公開版 (Public)</th>
-                            <th>有效狀態</th>
-                            <th>到期日期</th>
-                            <th>最後登入</th>
-                            <th class="text-end">管理操作</th>
+                            <th>金鑰識別碼</th>
+                            <th>通行持有者</th>
+                            <th>Google 驗證帳號</th>
+                            <th>三軌角色等級</th>
+                            <th>模組授權範疇</th>
+                            <th>eSIM / 漫遊 IP 白名單</th>
+                            <th>有效截止日</th>
+                            <th>金鑰狀態</th>
+                            <th class="text-end">動態調度指令</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="permissions-table-body">
                         </tbody>
                 </table>
             </div>
+
         </div>
 
     </div>
 
-    <div class="modal fade" id="modalPermission" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modal-enroll-permission" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content modal-content-custom">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white" id="modalTitle">
-                        <i class="fa-solid fa-id-card-clip text-purple me-2"></i> 配置成員通行權限
+            <div class="modal-content modal-content-nexus">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 p-4">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-key" style="color: var(--uvaco-primary-light);"></i> 配發三軌動態通行金鑰 (Issue Access Key)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="formPermission">
-                        <input type="hidden" id="fieldWhitelistId">
-                        
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">Google 帳號信箱 (Gmail) <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control form-control-custom" id="fieldGoogleEmail" required placeholder="user@gmail.com">
+                    <form id="form-enroll-key">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user"></i> 夥伴姓名 / 稱謂</label>
+                                <input type="text" id="enroll-name" class="form-control form-control-nexus" placeholder="例如：林榮祥 (Ray)" required>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">成員姓名 / 顯示暱稱 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-custom" id="fieldName" required placeholder="例如: 榮祥 (Ray)">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-brands fa-google"></i> Google 登入驗證 Email</label>
+                                <input type="email" id="enroll-email" class="form-control form-control-nexus" placeholder="user@gmail.com" required>
                             </div>
-                        </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">關聯夥伴編號 (Partner ID)</label>
-                                <input type="text" class="form-control form-control-custom font-mono" id="fieldPartnerId" placeholder="例如: P10001">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">指派角色等級 (Role Tier) <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-custom" id="fieldRole" required>
-                                    <option value="ADMIN">ADMIN - 創始指揮官 (全權)</option>
-                                    <option value="LEADER">LEADER - 核心幹部 (藍鑽/珍珠)</option>
-                                    <option value="TEAM" selected>TEAM - 團隊經營夥伴</option>
-                                    <option value="GUEST">GUEST - 潛在白名單 / 訪客</option>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-shield-halved"></i> 賦予角色層級 (RBAC)</label>
+                                <select id="enroll-role" class="form-select form-select-nexus">
+                                    <option value="CORE_FOUNDER">🟣 核心創始人 (Core Founder · 全權限)</option>
+                                    <option value="TEAM_LEADER" selected>🔵 團隊領導者 (Team Leader · 經理級以上)</option>
+                                    <option value="TEAM_MEMBER">🔵 團隊一般夥伴 (Team Member · 展業專用)</option>
+                                    <option value="PUBLIC_GUEST">🟢 公開體驗用戶 (Public · 僅限公開版)</option>
                                 </select>
                             </div>
-                        </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-days"></i> 授權有效期限</label>
+                                <input type="date" id="enroll-expiry" class="form-control form-control-nexus" value="2026-12-31">
+                            </div>
 
-                        <div class="p-3 rounded-3 border border-secondary mb-3" style="background: rgba(13, 7, 20, 0.5);">
-                            <div class="text-white small fw-bold mb-2">
-                                <i class="fa-solid fa-sliders text-purple me-1"></i> 三軌細粒度權限微調 (Granular Overrides)
+                            <div class="col-12">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-cubes"></i> 細粒度模組授權 (Fine-grained ACL)</label>
+                                <div class="p-3 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mod-prd" checked>
+                                                <label class="form-check-label text-white small" for="mod-prd">產品管理 (prd_)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mod-trn" checked>
+                                                <label class="form-check-label text-white small" for="mod-trn">培訓系統 (trn_)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mod-psi" checked>
+                                                <label class="form-check-label text-white small" for="mod-psi">進銷存調度 (psi_)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mod-org" checked>
+                                                <label class="form-check-label text-white small" for="mod-org">組織業績 (org_)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mod-crm" checked>
+                                                <label class="form-check-label text-white small" for="mod-crm">客戶復購 (crm_)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mod-fin">
+                                                <label class="form-check-label text-white small" for="mod-fin">財務分潤 (fin_ 創始專屬)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="row g-2">
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label text-muted small">核心樞 (/hub)</label>
-                                    <select class="form-select form-select-custom font-mono" id="fieldHubAccess">
-                                        <option value="DENIED" selected>DENIED (禁用)</option>
-                                        <option value="VIEW">VIEW (唯讀)</option>
-                                        <option value="EDIT">EDIT (編輯)</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label text-muted small">團隊版 (/team)</label>
-                                    <select class="form-select form-select-custom font-mono" id="fieldTeamAccess">
-                                        <option value="DENIED">DENIED (禁用)</option>
-                                        <option value="VIEW" selected>VIEW (唯讀)</option>
-                                        <option value="EDIT">EDIT (編輯)</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label text-muted small">公開版 (/public)</label>
-                                    <select class="form-select form-select-custom font-mono" id="fieldPublicAccess">
-                                        <option value="DENIED">DENIED (禁用)</option>
-                                        <option value="VIEW" selected>VIEW (唯讀)</option>
-                                        <option value="EDIT">EDIT (發布)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">授權到期日 (Expire At)</label>
-                                <input type="date" class="form-control form-control-custom font-mono" id="fieldExpireAt" value="2026-12-31">
+                            <div class="col-12">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-network-wired"></i> 跨國漫遊 / eSIM IP 白名單約束 (留空表示不限制)</label>
+                                <input type="text" id="enroll-ip-whitelist" class="form-control form-control-nexus mono-font" placeholder="例如：115.164.*.*, 210.186.*.* (馬來西亞漫遊區段)">
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">啟用通行狀態</label>
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" id="fieldIsActive" checked style="background-color: var(--uvaco-primary); border-color: var(--uvaco-primary);">
-                                    <label class="form-check-label text-white small" for="fieldIsActive">正常通行 (Active)</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-bold">備註與授權原因說明</label>
-                            <input type="text" class="form-control form-control-custom" id="fieldRemarks" placeholder="例如: 2026 第一季晉升合格珍珠領導人">
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-action-secondary px-3" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-action-primary px-4" id="btnSavePermission">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> 儲存授權設定
+                <div class="modal-footer border-top border-secondary border-opacity-25 p-4">
+                    <button type="button" class="btn btn-nexus-outline" data-bs-dismiss="modal">取消關閉</button>
+                    <button type="button" class="btn btn-nexus-primary" id="btn-save-enrollment">
+                        <i class="fa-solid fa-signature"></i> 雙簽驗章並寫入白名單
                     </button>
                 </div>
             </div>
@@ -730,537 +572,381 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/datatables.net@2.0.8/js/dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <script>
         /**
-         * 權限管理與欄位解耦引擎 (Permissions Management Engine)
-         * 嚴格落實 4 空格縮排與 Google 試算表欄位名稱解耦規範
+         * 葡眾三軌戰情系統：H81000 權限動態調度中樞
+         * 具備 Google 試算表欄位解耦對映、DataTables 深色微光適配與 Chart.js 雷達渲染
          */
-        const PermissionsApp = (function() {
-
-            // 1. Google 試算表欄位解耦適配字典 (Field Alias Mapping)
-            const FIELD_ALIASES = {
-                id: ['id', 'whitelist_id', '白名單ID', '識別碼'],
-                email: ['google_email', 'email', 'Google信箱', '授權郵箱'],
-                name: ['name', 'user_name', '姓名', '夥伴姓名'],
-                partnerId: ['partner_id', '經銷商編號', '夥伴ID'],
-                role: ['role', '角色等級', '使用者角色'],
-                hubAccess: ['hub_access', '核心樞權限', 'hub權限'],
-                teamAccess: ['team_access', '團隊版權限', 'team權限'],
-                publicAccess: ['public_access', '公開版權限', 'public權限'],
-                isActive: ['is_active', '有效狀態', '是否啟用'],
-                expireAt: ['expire_at', '到期日', '授權期限'],
-                lastLoginAt: ['last_login_at', '最後登入時間', '最後上線']
+        const SysPermissionsNexus = (function ($) {
+            
+            // 試算表欄位解耦字典 (sys_permissions -> UI Schema Decoupling)
+            const SCHEMA_MAP = {
+                "金鑰編號": "perm_id",
+                "成員姓名": "partner_name",
+                "登入帳號": "auth_email",
+                "角色等級": "user_role",
+                "模組許可": "allowed_modules",
+                "IP限制": "ip_whitelist",
+                "截止期限": "valid_until",
+                "狀態": "status"
             };
 
-            // 2. 本地 Fallback 演示資料集 (對齊葡萄王/葡眾榮祥團隊架構)
-            const fallbackPermissions = [
+            // 預設模擬資料庫 (符合表 50 sys_permissions 綱要)
+            let permissionsDataset = [
                 {
-                    id: 'WL-001',
-                    email: 'jarvis20250807@gmail.com',
-                    name: '承志 (Jarvis)',
-                    partnerId: 'P10000',
-                    role: 'ADMIN',
-                    hubAccess: 'EDIT',
-                    teamAccess: 'EDIT',
-                    publicAccess: 'EDIT',
-                    isActive: true,
-                    expireAt: '2099-12-31',
-                    lastLoginAt: '2026-08-16 13:20'
+                    perm_id: "KEY-COR-001",
+                    partner_name: "林榮祥 (Ray)",
+                    auth_email: "ray.founder@gmail.com",
+                    user_role: "CORE_FOUNDER",
+                    allowed_modules: "PRD, TRN, PSI, ORG, CRM, FIN, SYS",
+                    ip_whitelist: "跨國漫遊放行 (TW/MY)",
+                    valid_until: "2099-12-31",
+                    status: "ACTIVE"
                 },
                 {
-                    id: 'WL-002',
-                    email: 'ray.uvaco@gmail.com',
-                    name: '榮祥 (Ray)',
-                    partnerId: 'P10001',
-                    role: 'ADMIN',
-                    hubAccess: 'EDIT',
-                    teamAccess: 'EDIT',
-                    publicAccess: 'EDIT',
-                    isActive: true,
-                    expireAt: '2099-12-31',
-                    lastLoginAt: '2026-08-16 11:45'
+                    perm_id: "KEY-COR-002",
+                    partner_name: "Jarvis (共同創始)",
+                    auth_email: "jarvis.director@gmail.com",
+                    user_role: "CORE_FOUNDER",
+                    allowed_modules: "PRD, TRN, PSI, ORG, CRM, FIN, SYS",
+                    ip_whitelist: "跨國漫遊放行 (TW/MY)",
+                    valid_until: "2099-12-31",
+                    status: "ACTIVE"
                 },
                 {
-                    id: 'WL-003',
-                    email: 'leader.chen@gmail.com',
-                    name: '陳珍珠 (Leader A)',
-                    partnerId: 'P10204',
-                    role: 'LEADER',
-                    hubAccess: 'DENIED',
-                    teamAccess: 'EDIT',
-                    publicAccess: 'VIEW',
-                    isActive: true,
-                    expireAt: '2026-12-31',
-                    lastLoginAt: '2026-08-15 09:12'
+                    perm_id: "KEY-TEM-108",
+                    partner_name: "陳經理 (台北一體系)",
+                    auth_email: "chen.leader@gmail.com",
+                    user_role: "TEAM_LEADER",
+                    allowed_modules: "PRD, TRN, PSI, ORG, CRM",
+                    ip_whitelist: "118.163.*.*",
+                    valid_until: "2026-12-31",
+                    status: "ACTIVE"
                 },
                 {
-                    id: 'WL-004',
-                    email: 'member.lin@gmail.com',
-                    name: '林經理 (Member B)',
-                    partnerId: 'P10311',
-                    role: 'TEAM',
-                    hubAccess: 'DENIED',
-                    teamAccess: 'VIEW',
-                    publicAccess: 'VIEW',
-                    isActive: true,
-                    expireAt: '2026-08-20', // 即將到期
-                    lastLoginAt: '2026-08-14 18:30'
+                    perm_id: "KEY-TEM-204",
+                    partner_name: "黃珍珠 (吉隆坡先鋒)",
+                    auth_email: "huang.kl@gmail.com",
+                    user_role: "TEAM_LEADER",
+                    allowed_modules: "PRD, TRN, ORG, CRM",
+                    ip_whitelist: "115.164.*.* (MY eSIM)",
+                    valid_until: "2026-09-30",
+                    status: "ACTIVE"
                 },
                 {
-                    id: 'WL-005',
-                    email: 'newbie.wang@gmail.com',
-                    name: '王專員 (Member C)',
-                    partnerId: 'P10450',
-                    role: 'TEAM',
-                    hubAccess: 'DENIED',
-                    teamAccess: 'VIEW',
-                    publicAccess: 'VIEW',
-                    isActive: false, // 停權示範
-                    expireAt: '2026-12-31',
-                    lastLoginAt: '2026-07-30 14:10'
+                    perm_id: "KEY-PUB-901",
+                    partner_name: "VIP 體驗貴賓",
+                    auth_email: "vip.guest@gmail.com",
+                    user_role: "PUBLIC_GUEST",
+                    allowed_modules: "PRD, TRN",
+                    ip_whitelist: "無限制",
+                    valid_until: "2026-06-30",
+                    status: "ACTIVE"
                 }
             ];
 
             let dataTableInstance = null;
-            let currentDataset = [];
+            let radarChartInstance = null;
 
-            /**
-             * 欄位解耦取值工具函式
-             */
-            function extractFieldValue(rawRow, aliasKey) {
-                const possibleKeys = FIELD_ALIASES[aliasKey] || [aliasKey];
-                for (const key of possibleKeys) {
-                    if (rawRow[key] !== undefined && rawRow[key] !== null) {
-                        return rawRow[key];
-                    }
+            // 角色徽章渲染輔助器
+            function renderRoleBadge(role) {
+                switch(role) {
+                    case 'CORE_FOUNDER':
+                        return `<span class="badge badge-track-core"><i class="fa-solid fa-crown"></i> 核心創始層</span>`;
+                    case 'TEAM_LEADER':
+                        return `<span class="badge badge-track-team"><i class="fa-solid fa-users-gear"></i> 團隊領航層</span>`;
+                    case 'PUBLIC_GUEST':
+                        return `<span class="badge badge-track-public"><i class="fa-solid fa-globe"></i> 公開訪客層</span>`;
+                    default:
+                        return `<span class="badge bg-secondary">${role}</span>`;
                 }
-                return '';
             }
 
-            /**
-             * 正規化單筆數據 (Normalize Row Data)
-             */
-            function normalizeRowData(raw) {
-                return {
-                    id: extractFieldValue(raw, 'id') || `WL-${Math.floor(100 + Math.random() * 900)}`,
-                    email: extractFieldValue(raw, 'email'),
-                    name: extractFieldValue(raw, 'name') || '未命名夥伴',
-                    partnerId: extractFieldValue(raw, 'partnerId') || '-',
-                    role: (extractFieldValue(raw, 'role') || 'TEAM').toUpperCase(),
-                    hubAccess: (extractFieldValue(raw, 'hubAccess') || 'DENIED').toUpperCase(),
-                    teamAccess: (extractFieldValue(raw, 'teamAccess') || 'VIEW').toUpperCase(),
-                    publicAccess: (extractFieldValue(raw, 'publicAccess') || 'VIEW').toUpperCase(),
-                    isActive: String(extractFieldValue(raw, 'isActive')).toLowerCase() === 'true' || extractFieldValue(raw, 'isActive') === true,
-                    expireAt: extractFieldValue(raw, 'expireAt') || '2026-12-31',
-                    lastLoginAt: extractFieldValue(raw, 'lastLoginAt') || '從未登入'
-                };
+            // 狀態徽章渲染輔助器
+            function renderStatusBadge(status) {
+                if (status === 'ACTIVE') {
+                    return `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25"><i class="fa-solid fa-shield-check"></i> 通行中</span>`;
+                } else {
+                    return `<span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25"><i class="fa-solid fa-ban"></i> 已凍結</span>`;
+                }
             }
 
-            /**
-             * 初始化 DataTable 表格
-             */
-            function initDataTable(dataset) {
-                if (dataTableInstance) {
-                    dataTableInstance.destroy();
-                }
-
-                const tableBody = $('#permissionsTable tbody');
-                tableBody.empty();
-
-                dataset.forEach(item => {
-                    // 角色 Badge
-                    let roleBadge = '';
-                    if (item.role === 'ADMIN') {
-                        roleBadge = `<span class="role-pill role-admin"><i class="fa-solid fa-crown"></i> ADMIN</span>`;
-                    } else if (item.role === 'LEADER') {
-                        roleBadge = `<span class="role-pill role-leader"><i class="fa-solid fa-gem"></i> LEADER</span>`;
-                    } else if (item.role === 'TEAM') {
-                        roleBadge = `<span class="role-pill role-team"><i class="fa-solid fa-user-check"></i> TEAM</span>`;
-                    } else {
-                        roleBadge = `<span class="role-pill role-guest"><i class="fa-solid fa-user"></i> GUEST</span>`;
-                    }
-
-                    // 權限徽章函式
-                    const getPermBadge = (perm) => {
-                        if (perm === 'EDIT') return `<span class="perm-badge perm-edit">EDIT</span>`;
-                        if (perm === 'VIEW') return `<span class="perm-badge perm-view">VIEW</span>`;
-                        return `<span class="perm-badge perm-denied">DENIED</span>`;
-                    };
-
-                    // 狀態指示燈
-                    const statusHtml = item.isActive 
-                        ? `<span class="badge bg-success-subtle text-success border border-success-subtle"><span class="pulse-dot bg-success me-1"></span> 正常</span>`
-                        : `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fa-solid fa-ban me-1"></i> 停用</span>`;
-
-                    // 到期日警示
-                    const isExpiring = checkIsExpiring(item.expireAt);
-                    const expireHtml = isExpiring
-                        ? `<span class="text-warning fw-bold font-mono"><i class="fa-solid fa-triangle-exclamation me-1"></i> ${item.expireAt}</span>`
-                        : `<span class="font-mono text-muted">${item.expireAt}</span>`;
-
-                    const rowHtml = `
-                        <tr>
-                            <td>
-                                <div class="font-mono fw-bold text-white">${item.id}</div>
-                                <div class="font-mono text-purple small">${item.partnerId}</div>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-white">${item.name}</div>
-                            </td>
-                            <td>
-                                <div class="font-mono text-info">${item.email}</div>
-                            </td>
-                            <td>${roleBadge}</td>
-                            <td>${getPermBadge(item.hubAccess)}</td>
-                            <td>${getPermBadge(item.teamAccess)}</td>
-                            <td>${getPermBadge(item.publicAccess)}</td>
-                            <td>${statusHtml}</td>
-                            <td>${expireHtml}</td>
-                            <td><span class="font-mono text-muted small">${item.lastLoginAt}</span></td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-action-secondary" title="模擬此身分" onclick="PermissionsApp.simulateUser('${item.email}')">
-                                        <i class="fa-solid fa-flask text-pink"></i>
-                                    </button>
-                                    <button class="btn btn-action-secondary" title="編輯權限" onclick="PermissionsApp.openEditModal('${item.id}')">
-                                        <i class="fa-solid fa-pen-to-square text-purple"></i>
-                                    </button>
-                                    <button class="btn btn-action-secondary" title="${item.isActive ? '停用' : '啟用'}" onclick="PermissionsApp.toggleStatus('${item.id}')">
-                                        <i class="fa-solid ${item.isActive ? 'fa-user-slash text-warning' : 'fa-user-check text-success'}"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.append(rowHtml);
-                });
-
-                dataTableInstance = $('#permissionsTable').DataTable({
+            // 初始化 DataTable
+            function initDataTable() {
+                dataTableInstance = $('#permissions-datatable').DataTable({
+                    data: permissionsDataset,
                     responsive: true,
-                    pageLength: 10,
-                    order: [[0, 'asc']],
+                    pageLength: 5,
+                    lengthChange: false,
+                    dom: 'rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+                    columns: [
+                        { 
+                            data: 'perm_id',
+                            render: function(data) {
+                                return `<span class="mono-font fw-bold" style="color: var(--uvaco-primary-light);">${data}</span>`;
+                            }
+                        },
+                        { 
+                            data: 'partner_name',
+                            render: function(data) {
+                                return `<span class="fw-bold text-white"><i class="fa-solid fa-user text-muted"></i> ${data}</span>`;
+                            }
+                        },
+                        { 
+                            data: 'auth_email',
+                            render: function(data) {
+                                return `<span class="mono-font text-muted small">${data}</span>`;
+                            }
+                        },
+                        { 
+                            data: 'user_role',
+                            render: function(data) {
+                                return renderRoleBadge(data);
+                            }
+                        },
+                        { 
+                            data: 'allowed_modules',
+                            render: function(data) {
+                                const mods = data.split(', ');
+                                return mods.map(m => `<span class="badge bg-dark border border-secondary border-opacity-50 me-1 mono-font small">${m}</span>`).join('');
+                            }
+                        },
+                        { 
+                            data: 'ip_whitelist',
+                            render: function(data) {
+                                return `<span class="mono-font small text-info"><i class="fa-solid fa-network-wired"></i> ${data}</span>`;
+                            }
+                        },
+                        { 
+                            data: 'valid_until',
+                            render: function(data) {
+                                return `<span class="mono-font small text-muted">${data}</span>`;
+                            }
+                        },
+                        { 
+                            data: 'status',
+                            render: function(data) {
+                                return renderStatusBadge(data);
+                            }
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            className: 'text-end',
+                            render: function(data, type, row) {
+                                return `
+                                    <button class="btn btn-nexus-outline btn-sm py-1 px-2 me-1 btn-toggle-status" data-id="${row.perm_id}" title="切換凍結/啟用">
+                                        <i class="fa-solid fa-power-off"></i>
+                                    </button>
+                                    <button class="btn btn-nexus-danger btn-sm py-1 px-2 btn-revoke-key" data-id="${row.perm_id}" title="廢除金鑰">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                `;
+                            }
+                        }
+                    ],
                     language: {
-                        search: "_INPUT_",
-                        searchPlaceholder: "搜尋姓名、Gmail 或經銷編號...",
-                        lengthMenu: "每頁顯示 _MENU_ 筆",
-                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆白名單",
-                        infoEmpty: "無符合之白名單紀錄",
-                        zeroRecords: "查無符合條件的授權成員",
+                        info: "顯示 _START_ 至 _END_ 筆，共 _TOTAL_ 筆通行金鑰",
+                        infoEmpty: "無符合條件的名單",
+                        zeroRecords: "未找到符合的權限白名單資料",
                         paginate: {
-                            previous: '<i class="fa-solid fa-chevron-left"></i>',
-                            next: '<i class="fa-solid fa-chevron-right"></i>'
+                            next: '<i class="fa-solid fa-chevron-right"></i>',
+                            previous: '<i class="fa-solid fa-chevron-left"></i>'
                         }
                     }
                 });
 
-                updateSummaryStats(dataset);
+                // 綁定自訂搜尋欄位
+                $('#custom-table-search').on('keyup', function () {
+                    dataTableInstance.search(this.value).draw();
+                });
             }
 
-            /**
-             * 檢查是否 7 天內臨期
-             */
-            function checkIsExpiring(dateStr) {
-                if (!dateStr || dateStr.includes('2099')) return false;
-                const expireDate = new Date(dateStr);
-                const today = new Date('2026-08-16'); // 基準日期
-                const diffTime = expireDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays >= 0 && diffDays <= 7;
+            // 初始化 Chart.js 存取時空雷達圖表
+            function initRadarChart() {
+                const ctx = document.getElementById('access-radar-chart').getContext('2d');
+                radarChartInstance = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['產品', '培訓', '進銷存', '組織', '客戶', '財務', '系統'],
+                        datasets: [
+                            {
+                                label: '創始核心存取頻率',
+                                data: [95, 80, 100, 90, 85, 100, 95],
+                                borderColor: '#c084fc',
+                                backgroundColor: 'rgba(192, 132, 252, 0.25)',
+                                pointBackgroundColor: '#c084fc',
+                                borderWidth: 2
+                            },
+                            {
+                                label: '團隊白名單活躍度',
+                                data: [85, 90, 40, 75, 80, 0, 15],
+                                borderColor: '#38bdf8',
+                                backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                                pointBackgroundColor: '#38bdf8',
+                                borderWidth: 1.5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                                pointLabels: {
+                                    color: '#9e8eb3',
+                                    font: { size: 10, family: 'Noto Sans TC' }
+                                },
+                                ticks: { display: false, max: 100 }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
             }
 
-            /**
-             * 更新頂部 HUD 與過濾計數器
-             */
-            function updateSummaryStats(dataset) {
-                const total = dataset.length;
-                const hubAdmins = dataset.filter(d => d.role === 'ADMIN').length;
-                const teamMembers = dataset.filter(d => d.role === 'TEAM').length;
-                const leaders = dataset.filter(d => d.role === 'LEADER').length;
-                const expiring = dataset.filter(d => checkIsExpiring(d.expireAt)).length;
-
-                $('#statTotalUsers').text(total);
-                $('#statHubAdmins').text(hubAdmins);
-                $('#statTeamMembers').text(teamMembers);
-                $('#statExpiringCount').text(expiring);
-
-                $('#cntAll').text(total);
-                $('#cntAdmin').text(hubAdmins);
-                $('#cntLeader').text(leaders);
-                $('#cntTeam').text(teamMembers);
-                $('#cntExpiring').text(expiring);
-            }
-
-            /**
-             * 沙盒身分決策推演引擎 (Live Auth Simulator)
-             */
-            function runSimulation() {
-                const inputEmail = $('#simEmailInput').val().trim().toLowerCase();
-                if (!inputEmail) {
-                    alert('請輸入欲模擬之 Google Email 信箱！');
-                    return;
-                }
-
-                // 在白名單中查找
-                const matched = currentDataset.find(u => u.email.toLowerCase() === inputEmail);
-
-                $('#simTargetEmail').text(inputEmail);
-
-                if (matched) {
-                    // 渲染角色
-                    let roleHtml = '';
-                    if (matched.role === 'ADMIN') roleHtml = '<span class="role-pill role-admin"><i class="fa-solid fa-crown"></i> ADMIN</span>';
-                    else if (matched.role === 'LEADER') roleHtml = '<span class="role-pill role-leader"><i class="fa-solid fa-gem"></i> LEADER</span>';
-                    else roleHtml = '<span class="role-pill role-team"><i class="fa-solid fa-user-check"></i> TEAM</span>';
-                    
-                    $('#simTargetRoleBadge').html(roleHtml);
-                    $('#simTargetSigStatus').html('<i class="fa-solid fa-circle-check text-success me-1"></i> PASS (Valid)');
-                    $('#simExpireText').text(matched.expireAt);
-
-                    // 核心樞判定
-                    if (matched.hubAccess === 'EDIT') {
-                        $('#simHubStatus').removeClass().addClass('badge bg-success font-mono').text('放行 (EDIT)');
-                    } else if (matched.hubAccess === 'VIEW') {
-                        $('#simHubStatus').removeClass().addClass('badge bg-info font-mono').text('放行 (VIEW)');
+            // 綁定動態事件
+            function bindEvents() {
+                
+                // 軌道快速篩選按鈕
+                $('#track-filter-group button').on('click', function () {
+                    $('#track-filter-group button').removeClass('active');
+                    $(this).addClass('active');
+                    const track = $(this).data('track');
+                    if (track === 'ALL') {
+                        dataTableInstance.column(3).search('').draw();
                     } else {
-                        $('#simHubStatus').removeClass().addClass('badge bg-danger font-mono').text('攔截阻擋 (403)');
+                        dataTableInstance.column(3).search(track).draw();
                     }
-
-                    // 團隊版判定
-                    if (matched.teamAccess === 'EDIT') {
-                        $('#simTeamStatus').removeClass().addClass('badge bg-success font-mono').text('放行 (EDIT)');
-                    } else if (matched.teamAccess === 'VIEW') {
-                        $('#simTeamStatus').removeClass().addClass('badge bg-info font-mono').text('放行 (VIEW)');
-                    } else {
-                        $('#simTeamStatus').removeClass().addClass('badge bg-danger font-mono').text('攔截阻擋 (403)');
-                    }
-
-                    // 公開版判定
-                    if (matched.publicAccess === 'EDIT') {
-                        $('#simPublicStatus').removeClass().addClass('badge bg-success font-mono').text('放行 (EDIT)');
-                    } else {
-                        $('#simPublicStatus').removeClass().addClass('badge bg-info font-mono').text('放行 (VIEW)');
-                    }
-
-                } else {
-                    // 未在白名單中
-                    $('#simTargetRoleBadge').html('<span class="role-pill role-guest"><i class="fa-solid fa-triangle-exclamation"></i> GUEST / 未授權</span>');
-                    $('#simTargetSigStatus').html('<i class="fa-solid fa-circle-xmark text-danger me-1"></i> REJECT (無白名單紀錄)');
-                    $('#simExpireText').text('N/A (無效身分)');
-
-                    $('#simHubStatus').removeClass().addClass('badge bg-danger font-mono').text('攔截阻擋 (403)');
-                    $('#simTeamStatus').removeClass().addClass('badge bg-danger font-mono').text('重導登入 (401)');
-                    $('#simPublicStatus').removeClass().addClass('badge bg-info font-mono').text('唯讀通行 (Public)');
-                }
-            }
-
-            /**
-             * 同步試算表 (使用 PapaParse 與 gviz 解耦模式)
-             */
-            function syncFromSheets() {
-                const $btn = $('#btnSyncSheets');
-                const originalHtml = $btn.html();
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 同步中...');
-
-                // 模擬抓取 Google Sheets CSV / gviz
-                setTimeout(() => {
-                    currentDataset = fallbackPermissions.map(normalizeRowData);
-                    initDataTable(currentDataset);
-                    $btn.prop('disabled', false).html(originalHtml);
-                    alert('【試算表同步完成】已成功自 Google Sheets 解耦對映最新白名單資料！');
-                }, 600);
-            }
-
-            /**
-             * 開啟新增 Modal
-             */
-            function openAddModal() {
-                $('#modalTitle').html('<i class="fa-solid fa-user-plus text-purple me-2"></i> 新增授權通行證');
-                $('#formPermission')[0].reset();
-                $('#fieldWhitelistId').val('');
-                $('#fieldIsActive').prop('checked', true);
-                $('#fieldRole').trigger('change');
-                const modal = new bootstrap.Modal(document.getElementById('modalPermission'));
-                modal.show();
-            }
-
-            /**
-             * 開啟編輯 Modal
-             */
-            function openEditModal(id) {
-                const item = currentDataset.find(u => u.id === id);
-                if (!item) return;
-
-                $('#modalTitle').html('<i class="fa-solid fa-user-pen text-purple me-2"></i> 編輯通行權限 - ' + item.name);
-                $('#fieldWhitelistId').val(item.id);
-                $('#fieldGoogleEmail').val(item.email);
-                $('#fieldName').val(item.name);
-                $('#fieldPartnerId').val(item.partnerId);
-                $('#fieldRole').val(item.role);
-                $('#fieldHubAccess').val(item.hubAccess);
-                $('#fieldTeamAccess').val(item.teamAccess);
-                $('#fieldPublicAccess').val(item.publicAccess);
-                $('#fieldExpireAt').val(item.expireAt);
-                $('#fieldIsActive').prop('checked', item.isActive);
-
-                const modal = new bootstrap.Modal(document.getElementById('modalPermission'));
-                modal.show();
-            }
-
-            /**
-             * 儲存設定 (新增/更新)
-             */
-            function handleSavePermission() {
-                const email = $('#fieldGoogleEmail').val().trim();
-                const name = $('#fieldName').val().trim();
-                if (!email || !name) {
-                    alert('請確實填寫 Google 信箱與成員姓名！');
-                    return;
-                }
-
-                const editId = $('#fieldWhitelistId').val();
-                const role = $('#fieldRole').val();
-                const hub = $('#fieldHubAccess').val();
-                const team = $('#fieldTeamAccess').val();
-                const pub = $('#fieldPublicAccess').val();
-                const exp = $('#fieldExpireAt').val();
-                const active = $('#fieldIsActive').is(':checked');
-                const partnerId = $('#fieldPartnerId').val().trim() || '-';
-
-                if (editId) {
-                    // 更新
-                    const idx = currentDataset.findIndex(u => u.id === editId);
-                    if (idx !== -1) {
-                        currentDataset[idx] = {
-                            ...currentDataset[idx],
-                            email, name, partnerId, role,
-                            hubAccess: hub, teamAccess: team, publicAccess: pub,
-                            expireAt: exp, isActive: active
-                        };
-                    }
-                } else {
-                    // 新增
-                    const newId = `WL-${Math.floor(100 + Math.random() * 900)}`;
-                    currentDataset.unshift({
-                        id: newId,
-                        email, name, partnerId, role,
-                        hubAccess: hub, teamAccess: team, publicAccess: pub,
-                        expireAt: exp, isActive: active,
-                        lastLoginAt: '從未登入'
-                    });
-                }
-
-                initDataTable(currentDataset);
-                bootstrap.Modal.getInstance(document.getElementById('modalPermission')).hide();
-                alert('【權限配置已儲存】已更新本地記憶體並排程發布至 Google 試算表！');
-            }
-
-            /**
-             * 切換有效狀態
-             */
-            function toggleStatus(id) {
-                const item = currentDataset.find(u => u.id === id);
-                if (item) {
-                    item.isActive = !item.isActive;
-                    initDataTable(currentDataset);
-                }
-            }
-
-            /**
-             * 快速角色聯動設定
-             */
-            function handleRoleChange() {
-                const role = $('#fieldRole').val();
-                if (role === 'ADMIN') {
-                    $('#fieldHubAccess').val('EDIT');
-                    $('#fieldTeamAccess').val('EDIT');
-                    $('#fieldPublicAccess').val('EDIT');
-                    $('#fieldExpireAt').val('2099-12-31');
-                } else if (role === 'LEADER') {
-                    $('#fieldHubAccess').val('DENIED');
-                    $('#fieldTeamAccess').val('EDIT');
-                    $('#fieldPublicAccess').val('VIEW');
-                } else if (role === 'TEAM') {
-                    $('#fieldHubAccess').val('DENIED');
-                    $('#fieldTeamAccess').val('VIEW');
-                    $('#fieldPublicAccess').val('VIEW');
-                } else {
-                    $('#fieldHubAccess').val('DENIED');
-                    $('#fieldTeamAccess').val('DENIED');
-                    $('#fieldPublicAccess').val('VIEW');
-                }
-            }
-
-            /**
-             * 篩選角色
-             */
-            function filterRole(role) {
-                if (!dataTableInstance) return;
-                if (role === 'ALL') {
-                    dataTableInstance.search('').columns().search('').draw();
-                } else {
-                    dataTableInstance.column(3).search(role).draw();
-                }
-            }
-
-            /**
-             * 篩選特定條件
-             */
-            function filterByTier(type) {
-                if (!dataTableInstance) return;
-                if (type === 'EXPIRING') {
-                    const expiringDataset = currentDataset.filter(d => checkIsExpiring(d.expireAt));
-                    initDataTable(expiringDataset);
-                }
-            }
-
-            /**
-             * 點擊直接載入沙盒模擬
-             */
-            function simulateUser(email) {
-                $('#simEmailInput').val(email);
-                runSimulation();
-                window.scrollTo({ top: 120, behavior: 'smooth' });
-            }
-
-            /**
-             * 系統初始化進入點
-             */
-            function init() {
-                currentDataset = fallbackPermissions.map(normalizeRowData);
-                initDataTable(currentDataset);
-
-                // 事件綁定
-                $('#btnRunSimulation').on('click', runSimulation);
-                $('#simEmailInput').on('keypress', function(e) {
-                    if (e.which === 13) runSimulation();
                 });
 
-                $('#btnOpenAddModal').on('click', openAddModal);
-                $('#btnSavePermission').on('click', handleSavePermission);
-                $('#btnSyncSheets').on('click', syncFromSheets);
-                $('#fieldRole').on('change', handleRoleChange);
+                // 身分沙盒卡片切換
+                $('.persona-card').on('click', function () {
+                    $('.persona-card').removeClass('selected');
+                    $(this).addClass('selected');
+                    const role = $(this).data('role');
+                    // 根據沙盒切換模組高亮
+                    if (role === 'CORE_FOUNDER') {
+                        $('.module-matrix-chip').addClass('active');
+                        $('#active-permission-counter').text('已啟用：7 / 7 模組');
+                    } else if (role === 'TEAM_LEADER') {
+                        $('.module-matrix-chip').removeClass('active');
+                        $('.module-matrix-chip[data-mod="PRD"], .module-matrix-chip[data-mod="TRN"], .module-matrix-chip[data-mod="ORG"], .module-matrix-chip[data-mod="CRM"]').addClass('active');
+                        $('#active-permission-counter').text('已啟用：4 / 7 模組');
+                    } else {
+                        $('.module-matrix-chip').removeClass('active');
+                        $('.module-matrix-chip[data-mod="PRD"], .module-matrix-chip[data-mod="TRN"]').addClass('active');
+                        $('#active-permission-counter').text('已啟用：2 / 7 模組');
+                    }
+                });
 
-                // 預先執行一次沙盒推演示範
-                runSimulation();
+                // 模組矩陣膠囊點擊互動
+                $('.module-matrix-chip').on('click', function () {
+                    $(this).toggleClass('active');
+                    const count = $('.module-matrix-chip.active').length;
+                    $('#active-permission-counter').text(`已啟用：${count} / 7 模組`);
+                });
+
+                // 切換通行狀態 (凍結/啟用)
+                $('#permissions-datatable').on('click', '.btn-toggle-status', function () {
+                    const id = $(this).data('id');
+                    const item = permissionsDataset.find(x => x.perm_id === id);
+                    if (item) {
+                        item.status = item.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+                        dataTableInstance.clear().rows.add(permissionsDataset).draw();
+                    }
+                });
+
+                // 廢除金鑰
+                $('#permissions-datatable').on('click', '.btn-revoke-key', function () {
+                    const id = $(this).data('id');
+                    if (confirm(`確定要永久註銷通行金鑰 [${id}] 嗎？此操作將立即阻斷該 Google 帳號存取戰情系統！`)) {
+                        permissionsDataset = permissionsDataset.filter(x => x.perm_id !== id);
+                        dataTableInstance.clear().rows.add(permissionsDataset).draw();
+                    }
+                });
+
+                // 儲存並配發新金鑰
+                $('#btn-save-enrollment').on('click', function () {
+                    const name = $('#enroll-name').val().trim();
+                    const email = $('#enroll-email').val().trim();
+                    const role = $('#enroll-role').val();
+                    const expiry = $('#enroll-expiry').val();
+                    const ip = $('#enroll-ip-whitelist').val().trim() || '無限制';
+
+                    if (!name || !email) {
+                        alert('請填寫夥伴姓名與 Google 驗證 Email！');
+                        return;
+                    }
+
+                    // 收集模組權限
+                    let selectedMods = [];
+                    if ($('#mod-prd').is(':checked')) selectedMods.push('PRD');
+                    if ($('#mod-trn').is(':checked')) selectedMods.push('TRN');
+                    if ($('#mod-psi').is(':checked')) selectedMods.push('PSI');
+                    if ($('#mod-org').is(':checked')) selectedMods.push('ORG');
+                    if ($('#mod-crm').is(':checked')) selectedMods.push('CRM');
+                    if ($('#mod-fin').is(':checked')) selectedMods.push('FIN');
+                    if (role === 'CORE_FOUNDER') selectedMods.push('SYS');
+
+                    const newKey = {
+                        perm_id: `KEY-${role.substring(0, 3)}-${Math.floor(100 + Math.random() * 900)}`,
+                        partner_name: name,
+                        auth_email: email,
+                        user_role: role,
+                        allowed_modules: selectedMods.join(', '),
+                        ip_whitelist: ip,
+                        valid_until: expiry,
+                        status: 'ACTIVE'
+                    };
+
+                    permissionsDataset.unshift(newKey);
+                    dataTableInstance.clear().rows.add(permissionsDataset).draw();
+                    
+                    $('#modal-enroll-permission').modal('hide');
+                    $('#form-enroll-key')[0].reset();
+                    alert(`✅ 通行金鑰 [${newKey.perm_id}] 已成功簽發並掛載至 Google 帳號：${email}`);
+                });
+
+                // 模擬 Google GViz / 試算表同步
+                $('#btn-sync-sheet').on('click', function () {
+                    const btn = $(this);
+                    btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 欄位解耦同步中...').prop('disabled', true);
+                    
+                    setTimeout(() => {
+                        btn.html('<i class="fa-solid fa-check text-success"></i> 試算表同步完成');
+                        setTimeout(() => {
+                            btn.html('<i class="fa-solid fa-rotate"></i> 試算表欄位熱同步').prop('disabled', false);
+                        }, 2000);
+                    }, 1200);
+                });
             }
 
             return {
-                init: init,
-                simulateUser: simulateUser,
-                openEditModal: openEditModal,
-                toggleStatus: toggleStatus,
-                filterRole: filterRole,
-                filterByTier: filterByTier
+                init: function () {
+                    initDataTable();
+                    initRadarChart();
+                    bindEvents();
+                }
             };
-        })();
 
-        // DOM Ready 啟動引擎
-        $(document).ready(function() {
-            PermissionsApp.init();
+        })(jQuery);
+
+        // 頁面就緒後啟動中樞
+        $(document).ready(function () {
+            SysPermissionsNexus.init();
         });
     </script>
 </body>

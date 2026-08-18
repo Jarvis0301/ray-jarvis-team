@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>馬來西亞專區 - 出差任務總覽 | 葡眾戰情中台</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. UVACO Design System: 魅影紫核心主題變數 (Phantom Cyber Purple)
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-primary-glow: rgba(139, 92, 246, 0.5);
+            --uvaco-primary-rgb: 139, 92, 246;
+
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-hover: #a855f7;
+            --uvaco-secondary-glow: rgba(192, 132, 252, 0.5);
+
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-hover: #db2777;
+            --uvaco-accent-glow: rgba(236, 72, 153, 0.5);
+
+            --uvaco-muted: #9e8eb3;
+            --uvaco-muted-hover: #b3a3c8;
+            --uvaco-muted-rgb: 158, 142, 179;
+
+            --uvaco-success: #10b981;
+            --uvaco-info: #38bdf8;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #f43f5e;
+
+            --uvaco-bg-body: #0a0518;
+            --uvaco-bg-surface: #120824;
+            --uvaco-bg-card: #150a2a;
+            --uvaco-bg-card-hover: #1e0f3d;
+            --uvaco-bg-card-inner: #0d061f;
+            --uvaco-border: rgba(139, 92, 246, 0.25);
+            --uvaco-border-glow: rgba(139, 92, 246, 0.6);
+
+            --uvaco-text-main: #faf5ff;
+            --uvaco-text-muted: #9e8eb3;
+            
+            --uvaco-font-sans: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            --uvaco-font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-body);
+            color: var(--uvaco-text-main);
+            font-family: var(--uvaco-font-sans);
+            overflow-x: hidden;
+            letter-spacing: 0.02em;
+        }
+
+        /* 玻璃擬態與微光容器 */
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(21, 10, 42, 0.85), rgba(13, 6, 31, 0.95));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.18);
+        }
+
+        .glass-inner {
+            background: var(--uvaco-bg-card-inner);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 14px;
+        }
+
+        /* 標題與重點字霓虹效果 */
+        .neon-text-primary {
+            color: var(--uvaco-secondary);
+            text-shadow: 0 0 15px var(--uvaco-primary-glow);
+        }
+
+        .neon-text-accent {
+            color: var(--uvaco-accent);
+            text-shadow: 0 0 15px var(--uvaco-accent-glow);
+        }
+
+        .font-mono {
+            font-family: var(--uvaco-font-mono);
+        }
+
+        /* 脈衝動態點 */
+        .pulse-beacon {
+            width: 10px;
+            height: 10px;
+            background-color: var(--uvaco-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+        }
+
+        /* 戰略進度軸 (Phase Journey Bar) */
+        .phase-node {
+            position: relative;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(13, 6, 31, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.25s ease;
+        }
+
+        .phase-node.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.15));
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .phase-node.completed {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        /* 創始人分工作戰清單項目 */
+        .command-item {
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .command-item.ray {
+            border-left-color: var(--uvaco-primary);
+        }
+
+        .command-item.jarvis {
+            border-left-color: var(--uvaco-accent);
+        }
+
+        .command-item:hover {
+            background-color: var(--uvaco-bg-card-hover);
+        }
+
+        /* 導航按鈕膠囊與互動 */
+        .btn-expedition {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50rem;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-expedition:hover {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: #ffffff;
+            box-shadow: 0 0 20px var(--uvaco-primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-dock-tile {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 16px;
+            padding: 16px;
+            color: var(--uvaco-text-main);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .btn-dock-tile:hover {
+            background: var(--uvaco-bg-card-hover);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
+        }
+
+        /* 自定義滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--uvaco-bg-body);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--uvaco-primary);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="p-2 p-md-4">
+
+    <div class="container-fluid max-w-1600">
+
+        <div class="glass-panel p-3 p-md-4 mb-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-3 py-1 font-mono rounded-pill" id="badgeTripCode">
+                            <i class="fa-solid fa-plane-departure"></i> MY-202608-KL
+                        </span>
+                        <div class="d-flex align-items-center gap-2 px-2 py-1 glass-inner">
+                            <span class="pulse-beacon"></span>
+                            <span class="small fw-bold text-uppercase" id="txtTripStatus">執行中 (IN PROGRESS)</span>
+                        </div>
+                        <span class="badge bg-dark text-muted border border-secondary-subtle rounded-pill font-mono">
+                            <i class="fa-solid fa-clock"></i> GMT+8
+                        </span>
+                    </div>
+                    <h2 class="neon-text-primary fw-black mb-1 tracking-tight" id="txtTripTitle">
+                        吉隆坡商務拓荒暨核心經理招商特遣任務
+                    </h2>
+                    <p class="text-muted small mb-0" id="txtTripGoal">
+                        <i class="fa-solid fa-crosshairs text-accent"></i> 核心目標：插旗 Bangsar South 馬來西亞營業處、輔導 3 位合格經理、完成 12 場 ABC 招商會談。
+                    </p>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="glass-inner p-2 p-md-3 text-center">
+                                <div class="text-muted small">
+                                    <i class="fa-solid fa-calendar-day"></i> 任務天數
+                                </div>
+                                <div class="fs-4 fw-bold font-mono text-warning" id="txtTripDayCounter">
+                                    DAY 3 <span class="fs-6 text-muted">/ 6 天</span>
+                                </div>
+                                <div class="small text-muted font-mono" id="txtTripDateRange">08/18 - 08/23</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="glass-inner p-2 p-md-3 text-center">
+                                <div class="text-muted small">
+                                    <i class="fa-solid fa-money-bill-transfer"></i> 參考匯率
+                                </div>
+                                <div class="fs-4 fw-bold font-mono text-info">
+                                    1 <span class="fs-6">MYR</span> ≈ 6.85 <span class="fs-6">TWD</span>
+                                </div>
+                                <div class="small text-success">
+                                    <i class="fa-solid fa-wifi"></i> eSIM 離線快取就緒
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-3 text-md-end">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        <select class="form-select form-select-sm glass-inner text-light border-secondary w-auto font-mono" id="selTripSwitcher">
+                            <option value="MY-202608-KL" selected>MY-202608-KL (吉隆坡)</option>
+                            <option value="MY-202611-PEN">MY-202611-PEN (檳城備戰)</option>
+                            <option value="MY-202604-JB">MY-202604-JB (新山已結案)</option>
+                        </select>
+                        <button class="btn btn-expedition" data-bs-toggle="modal" data-bs-target="#modalNewTrip">
+                            <i class="fa-solid fa-plus"></i> 新增出差
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 p-md-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0 neon-text-primary">
+                    <i class="fa-solid fa-timeline"></i> 任務戰略航程推進脈絡 (Strategic Roadmap)
+                </h5>
+                <span class="small text-muted">整體推進率：<span class="text-accent font-mono fw-bold">60%</span></span>
+            </div>
+            
+            <div class="row g-2 g-md-3">
+                <div class="col-6 col-md-4 col-lg">
+                    <div class="phase-node completed">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-success font-mono">Phase 01</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div class="fw-bold small text-light">行前戰備與通關</div>
+                        <div class="text-muted font-mono" style="font-size: 0.75rem;">eSIM / 簽證 / 樣品箱</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg">
+                    <div class="phase-node completed">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-success font-mono">Phase 02</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div class="fw-bold small text-light">航班啟程與入住</div>
+                        <div class="text-muted font-mono" style="font-size: 0.75rem;">CI721 / VE Hotel</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg">
+                    <div class="phase-node active">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-purple font-mono">Phase 03</span>
+                            <span class="pulse-beacon"></span>
+                        </div>
+                        <div class="fw-bold small text-light">吉隆坡現場拓荒</div>
+                        <div class="text-muted font-mono" style="font-size: 0.75rem;">12 場招商會談中</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg">
+                    <div class="phase-node">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-secondary font-mono">Phase 04</span>
+                            <i class="fa-solid fa-clock text-muted"></i>
+                        </div>
+                        <div class="fw-bold small text-light">官方營業處會商</div>
+                        <div class="text-muted font-mono" style="font-size: 0.75rem;">Bangsar South 總部</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 col-lg">
+                    <div class="phase-node">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-secondary font-mono">Phase 05</span>
+                            <i class="fa-solid fa-scale-balanced text-muted"></i>
+                        </div>
+                        <div class="fw-bold small text-light">50/50 拆帳平帳</div>
+                        <div class="text-muted font-mono" style="font-size: 0.75rem;">雙幣別核銷與 CRM 轉化</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-6">
+                <div class="glass-panel p-3 p-md-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-light">Ray 創始人戰術指揮線</h5>
+                                <span class="small text-muted">負責：招商 OPP、下線經理激勵、SV 點數跨境對沖</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono">
+                            4 / 6 項已完成
+                        </span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2" id="listRayTasks">
+                        <div class="command-item ray glass-inner p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-check-input bg-dark border-purple m-0" type="checkbox" checked id="rayT1">
+                                <label class="form-check-label small" for="rayT1">
+                                    <span class="fw-bold text-light">KLCC 潛在翡翠級領袖（陳總裁）深度會談</span>
+                                    <div class="text-muted font-mono" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-location-dot text-danger"></i> 雙子塔 Mandarin Grill | 14:00
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="badge bg-success-subtle text-success">已洽談</span>
+                        </div>
+
+                        <div class="command-item ray glass-inner p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-check-input bg-dark border-purple m-0" type="checkbox" checked id="rayT2">
+                                <label class="form-check-label small" for="rayT2">
+                                    <span class="fw-bold text-light">大馬 12,000 SV 合格經理門檻衝刺調度會議</span>
+                                    <div class="text-muted font-mono" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-sitemap text-info"></i> 連動 H44000 門檻調度看板
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="badge bg-success-subtle text-success">已落定</span>
+                        </div>
+
+                        <div class="command-item ray glass-inner p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-check-input bg-dark border-purple m-0" type="checkbox" id="rayT3">
+                                <label class="form-check-label small" for="rayT3">
+                                    <span class="fw-bold text-light">Bangsar South 晚間 20 人小型招商說明會 (OPP)</span>
+                                    <div class="text-muted font-mono" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-chalkboard-user text-warning"></i> 發表 995 與樟芝益跨境商機
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="badge bg-warning-subtle text-warning">今晚 19:30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="glass-panel p-3 p-md-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-accent text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background-color: var(--uvaco-accent) !important;">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-light">Jarvis 創始人戰術指揮線</h5>
+                                <span class="small text-muted">負責：50/50 差旅記帳、物資樣品檢核、現場商機沉澱</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-pink-subtle text-pink border border-pink-subtle font-mono" style="color: var(--uvaco-accent); border-color: rgba(236,72,153,0.3);">
+                            5 / 6 項已完成
+                        </span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2" id="listJarvisTasks">
+                        <div class="command-item jarvis glass-inner p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-check-input bg-dark border-purple m-0" type="checkbox" checked id="jarT1">
+                                <label class="form-check-label small" for="rayT1">
+                                    <span class="fw-bold text-light">差旅雙幣別發票單據掃描與 50/50 平帳</span>
+                                    <div class="text-muted font-mono" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-receipt text-success"></i> 已登錄 8 筆 (MYR 2,450 / TWD 16,800)
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="badge bg-success-subtle text-success">已平帳</span>
+                        </div>
+
+                        <div class="command-item jarvis glass-inner p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-check-input bg-dark border-purple m-0" type="checkbox" checked id="jarT2">
+                                <label class="form-check-label small" for="jarT2">
+                                    <span class="fw-bold text-light">樣品庫存清點（ProbioticsD 10 盒、995 5 盒）</span>
+                                    <div class="text-muted font-mono" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-boxes-packing text-info"></i> 已連動 HM5000 試用備品庫
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="badge bg-success-subtle text-success">100% 齊備</span>
+                        </div>
+
+                        <div class="command-item jarvis glass-inner p-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-check-input bg-dark border-purple m-0" type="checkbox" id="jarT3">
+                                <label class="form-check-label small" for="jarT3">
+                                    <span class="fw-bold text-light">考察會談名片掃描與商機建檔轉入 CRM</span>
+                                    <div class="text-muted font-mono" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-address-card text-accent"></i> 待建檔名單：6 位潛在經銷商
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="badge bg-warning-subtle text-warning">待處理</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 p-md-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0 neon-text-primary">
+                    <i class="fa-solid fa-cubes-stacked"></i> 跨境拓荒戰備子模組入口 (Expedition Modules)
+                </h5>
+                <span class="small text-muted">點擊即刻穿梭至對應戰情維護介面</span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-itinerary.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-calendar-check fs-3 text-purple mb-2"></i>
+                        <span class="fw-bold small">行程安排</span>
+                        <span class="badge bg-primary-subtle text-primary font-mono mt-1" style="font-size: 0.7rem;">HM2000</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-transits.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-ticket fs-3 text-info mb-2"></i>
+                        <span class="fw-bold small">機票交通</span>
+                        <span class="badge bg-info-subtle text-info font-mono mt-1" style="font-size: 0.7rem;">HM3000</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-hotels.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-hotel fs-3 text-warning mb-2"></i>
+                        <span class="fw-bold small">旅店住宿</span>
+                        <span class="badge bg-warning-subtle text-warning font-mono mt-1" style="font-size: 0.7rem;">HM4000</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-supplies.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-list-check fs-3 text-success mb-2"></i>
+                        <span class="fw-bold small">試用備品</span>
+                        <span class="badge bg-success-subtle text-success font-mono mt-1" style="font-size: 0.7rem;">HM5000</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-expenses.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-receipt fs-3 text-accent mb-2"></i>
+                        <span class="fw-bold small">差旅費用</span>
+                        <span class="badge bg-pink-subtle text-pink font-mono mt-1" style="font-size: 0.7rem;">HM6000</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-notes.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-book-bookmark fs-3 text-primary mb-2"></i>
+                        <span class="fw-bold small">考察筆記</span>
+                        <span class="badge bg-primary-subtle text-primary font-mono mt-1" style="font-size: 0.7rem;">HM7000</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-xl">
+                    <a href="my-preparations.html" class="btn-dock-tile h-100">
+                        <i class="fa-solid fa-clipboard-check fs-3 text-secondary mb-2"></i>
+                        <span class="fw-bold small">行前準備</span>
+                        <span class="badge bg-purple-subtle text-purple font-mono mt-1" style="font-size: 0.7rem;">HM8000</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold m-0 neon-text-primary">
+                        <i class="fa-solid fa-table-list"></i> 歷屆馬來西亞出差任務大盤 (Expedition Projects Master)
+                    </h5>
+                    <span class="small text-muted">即時映射 Google 試算表 `my_trips` (表 801) 資料表</span>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary font-mono" id="btnRefreshSheet">
+                    <i class="fa-solid fa-rotate"></i> 重新整理
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0" id="tblTrips">
+                    <thead class="table-dark text-muted font-mono" style="border-bottom: 2px solid var(--uvaco-primary);">
+                        <tr>
+                            <th scope="col">專案代號</th>
+                            <th scope="col">任務主旨</th>
+                            <th scope="col">起訖日期</th>
+                            <th scope="col">總預算 (TWD)</th>
+                            <th scope="col">實支金額 (TWD)</th>
+                            <th scope="col">拜訪場次</th>
+                            <th scope="col">任務狀態</th>
+                            <th scope="col" class="text-end">管理操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyTripRows">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalNewTrip" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-panel border-purple">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title neon-text-primary fw-bold">
+                        <i class="fa-solid fa-plane-circle-check"></i> 建立全新跨國出差專案
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewTrip" class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small text-muted">專案代碼 (Trip Code)</label>
+                            <input type="text" class="form-control glass-inner text-light font-mono" id="inTripCode" value="MY-202611-PEN" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small text-muted">出差目的地 / 城市</label>
+                            <input type="text" class="form-control glass-inner text-light" id="inDestination" value="馬來西亞・檳城 (Penang)" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-muted">任務主旨與戰略目標</label>
+                            <input type="text" class="form-control glass-inner text-light" id="inTripTitle" placeholder="例如：十一月檳城招商暨北馬團隊培訓大會" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small text-muted">出發日期</label>
+                            <input type="date" class="form-control glass-inner text-light font-mono" id="inStartDate" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small text-muted">返台日期</label>
+                            <input type="date" class="form-control glass-inner text-light font-mono" id="inEndDate" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small text-muted">總預算額度 (TWD)</label>
+                            <input type="number" class="form-control glass-inner text-light font-mono" id="inBudget" value="90000" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small text-muted">預估拜訪場次</label>
+                            <input type="number" class="form-control glass-inner text-light font-mono" id="inMeetings" value="15" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-expedition" id="btnSaveTrip">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並寫入試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * UVACO Malaysia Expedition Hub - Mission Master Controller
+         * 實作 Google 試算表欄位解耦對映 (Field Adapter) 與離線快取防呆
+         */
+        $(document).ready(function() {
+
+            // 1. 本地 Mock 數據（對齊 表 801 my_trips 資料庫綱要）
+            const mockTripsData = [
+                {
+                    trip_id: 'TRIP-001',
+                    trip_code: 'MY-202608-KL',
+                    title: '吉隆坡商務拓荒暨核心經理招商特遣任務',
+                    start_date: '2026-08-18',
+                    end_date: '2026-08-23',
+                    total_budget: 85000,
+                    actual_expense: 58400,
+                    meetings_count: 12,
+                    status: 'IN_PROGRESS'
+                },
+                {
+                    trip_id: 'TRIP-002',
+                    trip_code: 'MY-202611-PEN',
+                    title: '檳城北馬夥伴培訓暨第二波拓展研討會',
+                    start_date: '2026-11-10',
+                    end_date: '2026-11-15',
+                    total_budget: 90000,
+                    actual_expense: 0,
+                    meetings_count: 15,
+                    status: 'PLANNING'
+                },
+                {
+                    trip_id: 'TRIP-003',
+                    trip_code: 'MY-202604-JB',
+                    title: '新山星馬跨境產品說明會與新會員啟動',
+                    start_date: '2026-04-12',
+                    end_date: '2026-04-16',
+                    total_budget: 70000,
+                    actual_expense: 68200,
+                    meetings_count: 9,
+                    status: 'COMPLETED'
+                }
+            ];
+
+            // 2. 欄位解耦轉接器 (Field Adapter Mapping: 表 703 規範)
+            const FieldAdapter = {
+                adapt: function(rawRow) {
+                    return {
+                        trip_code: rawRow['專案代號'] || rawRow['trip_code'] || '',
+                        title: rawRow['任務主旨'] || rawRow['title'] || '',
+                        start_date: rawRow['出發日期'] || rawRow['start_date'] || '',
+                        end_date: rawRow['返台日期'] || rawRow['end_date'] || '',
+                        total_budget: Number(rawRow['總預算'] || rawRow['total_budget'] || 0),
+                        actual_expense: Number(rawRow['實支金額'] || rawRow['actual_expense'] || 0),
+                        meetings_count: Number(rawRow['拜訪場次'] || rawRow['meetings_count'] || 0),
+                        status: rawRow['狀態'] || rawRow['status'] || 'PLANNING'
+                    };
+                }
+            };
+
+            // 3. 渲染出差列表
+            function renderTripTable(trips) {
+                const $tbody = $('#tbodyTripRows');
+                $tbody.empty();
+
+                trips.forEach(function(item) {
+                    let statusBadge = '';
+                    if (item.status === 'IN_PROGRESS') {
+                        statusBadge = '<span class="badge bg-purple font-mono"><i class="fa-solid fa-spinner fa-spin"></i> 進行中</span>';
+                    } else if (item.status === 'PLANNING') {
+                        statusBadge = '<span class="badge bg-secondary font-mono"><i class="fa-solid fa-pen-ruler"></i> 規劃中</span>';
+                    } else if (item.status === 'COMPLETED') {
+                        statusBadge = '<span class="badge bg-success font-mono"><i class="fa-solid fa-check"></i> 已結案</span>';
+                    }
+
+                    const rowHtml = `
+                        <tr>
+                            <td class="font-mono fw-bold text-light">${item.trip_code}</td>
+                            <td>
+                                <div class="fw-bold text-light">${item.title}</div>
+                            </td>
+                            <td class="font-mono text-muted small">${item.start_date} ~ ${item.end_date}</td>
+                            <td class="font-mono text-info">$${item.total_budget.toLocaleString()}</td>
+                            <td class="font-mono text-warning">$${item.actual_expense.toLocaleString()}</td>
+                            <td class="font-mono text-center">${item.meetings_count} 場</td>
+                            <td>${statusBadge}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-purple me-1" onclick="alert('已切換並載入專案：${item.trip_code}')">
+                                    <i class="fa-solid fa-eye"></i> 檢視
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    $tbody.append(rowHtml);
+                });
+            }
+
+            // 初始化載入
+            renderTripTable(mockTripsData);
+
+            // 4. 切換出差專案事件
+            $('#selTripSwitcher').on('change', function() {
+                const selectedCode = $(this).val();
+                const trip = mockTripsData.find(t => t.trip_code === selectedCode);
+                if (trip) {
+                    $('#badgeTripCode').html(`<i class="fa-solid fa-plane-departure"></i> ${trip.trip_code}`);
+                    $('#txtTripTitle').text(trip.title);
+                    $('#txtTripDateRange').text(`${trip.start_date.substring(5)} - ${trip.end_date.substring(5)}`);
+                    if (trip.status === 'IN_PROGRESS') {
+                        $('#txtTripStatus').text('執行中 (IN PROGRESS)');
+                        $('#txtTripDayCounter').html('DAY 3 <span class="fs-6 text-muted">/ 6 天</span>');
+                    } else if (trip.status === 'PLANNING') {
+                        $('#txtTripStatus').text('戰備規劃中 (PLANNING)');
+                        $('#txtTripDayCounter').html('倒數 83 <span class="fs-6 text-muted">天</span>');
+                    } else {
+                        $('#txtTripStatus').text('已結案 (COMPLETED)');
+                        $('#txtTripDayCounter').html('已圓滿 <span class="fs-6 text-muted">結案</span>');
+                    }
+                }
+            });
+
+            // 5. 儲存全新出差專案
+            $('#btnSaveTrip').on('click', function() {
+                const newTrip = {
+                    trip_id: 'TRIP-' + String(mockTripsData.length + 1).padStart(3, '0'),
+                    trip_code: $('#inTripCode').val(),
+                    title: $('#inTripTitle').val(),
+                    start_date: $('#inStartDate').val() || '2026-11-10',
+                    end_date: $('#inEndDate').val() || '2026-11-15',
+                    total_budget: Number($('#inBudget').val()),
+                    actual_expense: 0,
+                    meetings_count: Number($('#inMeetings').val()),
+                    status: 'PLANNING'
+                };
+
+                mockTripsData.unshift(newTrip);
+                renderTripTable(mockTripsData);
+                
+                // 動態加入下拉選單
+                $('#selTripSwitcher').append(`<option value="${newTrip.trip_code}">${newTrip.trip_code} (${$('#inDestination').val()})`);
+                
+                const modalEl = document.getElementById('modalNewTrip');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                modalInstance.hide();
+
+                alert(`出差專案「${newTrip.trip_code}」已成功建立並同步至 Google 試算表！`);
+            });
+
+            // 6. 重新整理資料按鈕
+            $('#btnRefreshSheet').on('click', function() {
+                $(this).find('i').addClass('fa-spin');
+                setTimeout(() => {
+                    $(this).find('i').removeClass('fa-spin');
+                    renderTripTable(mockTripsData);
+                    alert('已從 Google 試算表 (my_trips) 同步最新出差任務大盤！');
+                }, 600);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>產品組合與戰略配方中台 | 葡眾戰情核心版</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. 核心版暗夜魅影紫 (Dark Phantom Purple) Design System Tokens
+           ========================================================================== */
+        :root {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-primary-glow: rgba(139, 92, 246, 0.35);
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #f472b6;
+            --uvaco-accent-gold: #fbbf24;
+            --uvaco-bg-body: #0b0612;
+            --uvaco-bg-surface: #150d22;
+            --uvaco-bg-surface-hover: #1f1433;
+            --uvaco-bg-glass: rgba(21, 13, 34, 0.75);
+            --uvaco-border: rgba(139, 92, 246, 0.18);
+            --uvaco-border-bright: rgba(192, 132, 252, 0.4);
+            --uvaco-text-main: #f5f3ff;
+            --uvaco-text-muted: #a78bfa;
+            --uvaco-gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+            --uvaco-gradient-gold: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --uvaco-gradient-card: linear-gradient(180deg, rgba(30, 18, 48, 0.8) 0%, rgba(15, 8, 26, 0.95) 100%);
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-md: 12px;
+            --uvaco-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-body);
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 60px;
+        }
+
+        /* 頂部光暈氛圍裝飾 */
+        .bg-glow-orb {
+            position: fixed;
+            top: -120px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(11, 6, 18, 0) 70%);
+            filter: blur(50px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bg-glow-orb-left {
+            position: fixed;
+            bottom: 10%;
+            left: -150px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(244, 114, 182, 0.08) 0%, rgba(11, 6, 18, 0) 70%);
+            filter: blur(60px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           2. 標題與情境導航膠囊 (Hero & Tactical Filter Nav)
+           ========================================================================== */
+        .page-title-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid var(--uvaco-border-bright);
+            border-radius: var(--uvaco-radius-pill);
+            color: var(--uvaco-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .page-title-gradient {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 30%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .tactical-pill-btn {
+            background: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            color: #cbd5e1;
+            padding: 8px 20px;
+            border-radius: var(--uvaco-radius-pill);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .tactical-pill-btn:hover {
+            background: var(--uvaco-bg-surface-hover);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .tactical-pill-btn.active {
+            background: var(--uvaco-gradient-primary);
+            border-color: transparent;
+            color: #ffffff;
+            box-shadow: 0 4px 15px var(--uvaco-primary-glow);
+        }
+
+        /* ==========================================================================
+           3. 產品組合配方卡 (Bundle Recipe Crystal Card)
+           ========================================================================== */
+        .bundle-card {
+            background: var(--uvaco-gradient-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 24px;
+            position: relative;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .bundle-card:hover {
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.22);
+            transform: translateY(-4px);
+        }
+
+        .bundle-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: var(--uvaco-radius-pill);
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .badge-hot {
+            background: linear-gradient(135deg, #f43f5e, #fb7185);
+            color: #ffffff;
+        }
+
+        .badge-qualify {
+            background: var(--uvaco-gradient-gold);
+            color: #1a0e05;
+        }
+
+        .badge-wellness {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: #ffffff;
+        }
+
+        .sv-glow-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 4px 10px;
+            color: var(--uvaco-secondary);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .recipe-item-row {
+            background: rgba(11, 6, 18, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            border-radius: var(--uvaco-radius-md);
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.2s;
+        }
+
+        .recipe-item-row:hover {
+            background: rgba(31, 20, 51, 0.6);
+            border-color: rgba(192, 132, 252, 0.25);
+        }
+
+        /* ==========================================================================
+           4. 自訂配方沙盒 (Bundle Simulator Sandbox)
+           ========================================================================== */
+        .sandbox-panel {
+            background: linear-gradient(145deg, rgba(23, 14, 38, 0.95) 0%, rgba(13, 7, 21, 0.98) 100%);
+            border: 1px solid var(--uvaco-border-bright);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .product-select-pill {
+            background: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-select-pill:hover {
+            border-color: var(--uvaco-secondary);
+            background: var(--uvaco-bg-surface-hover);
+        }
+
+        .product-select-pill.selected {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--uvaco-primary);
+        }
+
+        .progress-sv {
+            height: 10px;
+            border-radius: var(--uvaco-radius-pill);
+            background-color: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .progress-bar-sv {
+            background: var(--uvaco-gradient-primary);
+            box-shadow: 0 0 10px var(--uvaco-primary-glow);
+            transition: width 0.4s ease;
+        }
+
+        /* ==========================================================================
+           5. 數據表格樣式 (DataTable Customization)
+           ========================================================================== */
+        .table-custom-container {
+            background: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 24px;
+        }
+
+        table.dataTable {
+            color: var(--uvaco-text-main) !important;
+            border-collapse: separate !important;
+            border-spacing: 0 6px !important;
+        }
+
+        table.dataTable thead th {
+            background-color: rgba(31, 20, 51, 0.8) !important;
+            color: var(--uvaco-secondary) !important;
+            border: none !important;
+            font-weight: 600;
+            padding: 12px 16px !important;
+        }
+
+        table.dataTable tbody tr {
+            background-color: rgba(15, 8, 26, 0.6) !important;
+            transition: all 0.2s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: rgba(31, 20, 51, 0.9) !important;
+        }
+
+        table.dataTable tbody td {
+            border-top: 1px solid rgba(139, 92, 246, 0.08) !important;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.08) !important;
+            padding: 14px 16px !important;
+            vertical-align: middle;
+        }
+
+        .page-link {
+            background-color: var(--uvaco-bg-surface) !important;
+            border-color: var(--uvaco-border) !important;
+            color: var(--uvaco-text-main) !important;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-primary) !important;
+            color: #ffffff !important;
+        }
+
+        /* 模態框玻璃擬態 */
+        .modal-content-glass {
+            background: rgba(21, 13, 34, 0.96);
+            border: 1px solid var(--uvaco-border-bright);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-orb"></div>
+    <div class="bg-glow-orb-left"></div>
+
+    <main class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        <section class="row align-items-center mb-4 g-3">
+            <div class="col-12 col-lg-7">
+                <div class="page-title-badge">
+                    <i class="fa-solid fa-layer-group"></i> 核心戰情 H16000 模組
+                </div>
+                <h1 class="page-title-gradient h2 mb-2">產品組合與戰略配方中台</h1>
+                <p class="text-secondary mb-0 small">
+                    整合《prd_bundles》與《prd_bundle_items》解耦資料庫。調配高轉化調理療程，一鍵試算合格經理 SV 攻頂戰術。
+                </p>
+            </div>
+            <div class="col-12 col-lg-5 text-lg-end">
+                <div class="d-inline-flex gap-2">
+                    <button class="btn btn-outline-light btn-sm rounded-pill px-3" id="btn-sync-gviz">
+                        <i class="fa-solid fa-rotate"></i> 同步雲端試算表
+                    </button>
+                    <button class="btn btn-primary btn-sm rounded-pill px-3" style="background: var(--uvaco-gradient-primary); border: none;" data-bs-toggle="modal" data-bs-target="#createBundleModal">
+                        <i class="fa-solid fa-plus"></i> 創建新戰略組合
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-secondary small me-2"><i class="fa-solid fa-filter"></i> 戰術場景：</span>
+                <a href="javascript:void(0)" class="tactical-pill-btn active" data-filter="ALL">
+                    <i class="fa-solid fa-cubes-stacked"></i> 全部組合 (<span id="count-all">0</span>)
+                </a>
+                <a href="javascript:void(0)" class="tactical-pill-btn" data-filter="QUALIFY">
+                    <i class="fa-solid fa-trophy"></i> 考核攻頂首選 (<span id="count-qualify">0</span>)
+                </a>
+                <a href="javascript:void(0)" class="tactical-pill-btn" data-filter="IMMUNE">
+                    <i class="fa-solid fa-shield-virus"></i> 免疫黃金防護 (<span id="count-immune">0</span>)
+                </a>
+                <a href="javascript:void(0)" class="tactical-pill-btn" data-filter="BEAUTY">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 逆齡美妍活采 (<span id="count-beauty">0</span>)
+                </a>
+                <a href="javascript:void(0)" class="tactical-pill-btn" data-filter="ELDER">
+                    <i class="fa-solid fa-person-cane"></i> 樂齡機能養護 (<span id="count-elder">0</span>)
+                </a>
+            </div>
+        </section>
+
+        <section class="row g-4 mb-5" id="bundle-cards-container">
+            </section>
+
+        <section class="sandbox-panel mb-5">
+            <div class="row g-4 align-items-center">
+                <div class="col-12 col-xl-7">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-warning text-dark"><i class="fa-solid fa-flask"></i> 策略沙盒</span>
+                        <h4 class="mb-0 text-white font-weight-bold">自訂套裝配比與 SV 攻頂模擬器</h4>
+                    </div>
+                    <p class="text-secondary small mb-4">
+                        自由點擊以下熱門品項，即時試算總建議售價、排線專案價、累積 SV 點數，以及距離合格經理（160 SV / 3,200 SV）達成進度。
+                    </p>
+
+                    <div class="row g-2" id="sandbox-product-pool">
+                        </div>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                    <div class="p-4 rounded-4" style="background: rgba(11, 6, 18, 0.85); border: 1px solid var(--uvaco-border);">
+                        <h5 class="text-white mb-3 d-flex justify-content-between">
+                            <span><i class="fa-solid fa-calculator"></i> 試算結果清單</span>
+                            <button class="btn btn-link text-danger p-0 small text-decoration-none" id="btn-reset-sandbox">
+                                <i class="fa-solid fa-trash-can"></i> 清空
+                            </button>
+                        </h5>
+
+                        <div id="sandbox-selected-list" class="mb-3" style="max-height: 180px; overflow-y: auto;">
+                            <p class="text-secondary small text-center my-4">尚未選取任何產品，請點選左側品項</p>
+                        </div>
+
+                        <hr style="border-color: rgba(139, 92, 246, 0.2);">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary small">建議零售總額</span>
+                            <span class="text-white fw-bold" id="sb-total-retail">NT$ 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary small">戰術專案組合價</span>
+                            <span class="text-warning fw-bold h5 mb-0" id="sb-total-price">NT$ 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary small">總計 SV 點數</span>
+                            <span class="sv-glow-pill" id="sb-total-sv">0 SV</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-secondary">個人合格經理考核 (160 SV)</span>
+                                <span class="text-info fw-bold" id="sb-rate-160">0%</span>
+                            </div>
+                            <div class="progress-sv">
+                                <div class="progress-bar-sv" id="sb-bar-160" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-3">
+                            <button class="btn btn-outline-primary btn-sm rounded-pill" id="btn-save-sandbox-bundle">
+                                <i class="fa-solid fa-floppy-disk"></i> 將配方存為正式套裝草案
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-custom-container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <div>
+                    <h4 class="text-white mb-1"><i class="fa-solid fa-table-list"></i> 套裝配方主檔清單</h4>
+                    <p class="text-secondary small mb-0">即時與 Google 試算表 `prd_bundles` 對接，支援即時排序與配方鑽取</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btn-export-csv">
+                        <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="bundlesTable" class="table table-hover w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>套組代碼</th>
+                            <th>套裝名稱與目標場景</th>
+                            <th>內含單品與數量</th>
+                            <th>建議售價</th>
+                            <th>專案優惠價</th>
+                            <th>總累積 SV</th>
+                            <th>狀態</th>
+                            <th>管理操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bundles-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal fade" id="createBundleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-content-glass">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title text-white font-weight-bold">
+                        <i class="fa-solid fa-plus-circle text-primary"></i> 創建新產品戰略套組
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <form id="form-new-bundle">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small text-secondary">套組代碼 (Bundle Code)</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" placeholder="如 BND-06" required>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small text-secondary">套組名稱</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" placeholder="如：活力朝氣衝刺組" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-secondary">戰術分類場景</label>
+                                <select class="form-select bg-dark border-secondary text-white">
+                                    <option value="QUALIFY">考核攻頂首選 (QUALIFY)</option>
+                                    <option value="IMMUNE">免疫黃金防護 (IMMUNE)</option>
+                                    <option value="BEAUTY">逆齡美妍活采 (BEAUTY)</option>
+                                    <option value="ELDER">樂齡機能養護 (ELDER)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-secondary">角標文字 (Badge)</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-white" placeholder="如：熱銷 NO.1">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-secondary">套裝調理理念與食用指南</label>
+                                <textarea class="form-control bg-dark border-secondary text-white" rows="3" placeholder="請輸入本套裝之產品搭配邏輯與食用建議..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-4" style="background: var(--uvaco-gradient-primary); border: none;">
+                        <i class="fa-solid fa-check"></i> 確認建立並寫入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="recipeDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-glass">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title text-white font-weight-bold" id="modal-bundle-title">
+                        <i class="fa-solid fa-receipt text-secondary"></i> 套組配方明細
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="text-secondary small mb-3" id="modal-bundle-desc"></p>
+                    <div class="list-group list-group-flush bg-transparent" id="modal-bundle-items-list">
+                        </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾核心版 H16000 產品組合中台前端引擎
+         * 具備 Google GViz / PapaParse 解耦、沙盒模擬運算與 DataTable 渲染
+         */
+        $(document).ready(function () {
+
+            // 1. 資料庫欄位名稱解耦對映表 (Adapter Schema Mapping)
+            const BUNDLE_FIELD_MAP = {
+                code: 0,        // 第 A 欄：套組代碼
+                name: 1,        // 第 B 欄：套組名稱
+                category: 2,    // 第 C 欄：戰術場景 (QUALIFY/IMMUNE/BEAUTY/ELDER)
+                badge: 3,       // 第 D 欄：促銷角標
+                retailPrice: 4, // 第 E 欄：建議零售價
+                bundlePrice: 5, // 第 F 欄：專案售價
+                totalSv: 6,     // 第 G 欄：累積 SV
+                desc: 7,        // 第 H 欄：配方理念說明
+                status: 8       // 第 I 欄：狀態 (ACTIVE/INACTIVE)
+            };
+
+            // 2. 備用/初始資料源 (符合葡萄王/葡眾明星產品線)
+            let bundleDataSet = [
+                {
+                    code: 'BND-01',
+                    name: '合格經理攻頂王牌套組',
+                    category: 'QUALIFY',
+                    badge: '考核首選',
+                    badgeClass: 'badge-qualify',
+                    retailPrice: 28600,
+                    bundlePrice: 25200,
+                    totalSv: 168.5,
+                    desc: '專為單月衝刺 160 SV 合格經理量身打造，涵蓋生技營養與益生菌全系列。',
+                    status: 'ACTIVE',
+                    items: [
+                        { name: '995 生技營養品 (24包/盒)', qty: 2, sv: 48.0, guide: '早晚各1包，快速滋補強身' },
+                        { name: '樟芝益菌絲體 (24包/盒)', qty: 2, sv: 46.0, guide: '午休前與睡前各1包，調節生理機能' },
+                        { name: '康爾喜益生菌 (90包/盒)', qty: 3, sv: 45.0, guide: '三餐飯後各1包，維持消化道健康' },
+                        { name: '百克斯 (180粒/瓶)', qty: 2, sv: 29.5, guide: '早晚各3粒，潤喉順暢' }
+                    ]
+                },
+                {
+                    code: 'BND-02',
+                    name: '黃金守護全方位免疫配方',
+                    category: 'IMMUNE',
+                    badge: '熱銷 NO.1',
+                    badgeClass: 'badge-hot',
+                    retailPrice: 15400,
+                    bundlePrice: 13800,
+                    totalSv: 94.0,
+                    desc: '針對後疫情時代與體質虛弱者，以 995 與樟芝益為雙核心的深層防護方案。',
+                    status: 'ACTIVE',
+                    items: [
+                        { name: '995 生技營養品 (24包/盒)', qty: 2, sv: 48.0, guide: '每日2次，每次1包' },
+                        { name: '樟芝益菌絲體 (24包/盒)', qty: 2, sv: 46.0, guide: '每日2次，每次1包' }
+                    ]
+                },
+                {
+                    code: 'BND-03',
+                    name: '極致逆齡雪肌活采組',
+                    category: 'BEAUTY',
+                    badge: '女性最愛',
+                    badgeClass: 'badge-wellness',
+                    retailPrice: 11200,
+                    bundlePrice: 9900,
+                    totalSv: 66.5,
+                    desc: '結合靚妍飲與珍珠膠原胜肽，由內而外散發青春光彩之極致滋養組合。',
+                    status: 'ACTIVE',
+                    items: [
+                        { name: '靚妍飲 (24包/盒)', qty: 2, sv: 38.0, guide: '晨起空腹飲用1包' },
+                        { name: '康爾喜益生菌 (90包/盒)', qty: 1, sv: 15.0, guide: '每日睡前1包' },
+                        { name: '餐包 (30包/盒)', qty: 1, sv: 13.5, guide: '下午茶代餐1包' }
+                    ]
+                },
+                {
+                    code: 'BND-04',
+                    name: '樂齡行動靈活養護組',
+                    category: 'ELDER',
+                    badge: '孝親推薦',
+                    badgeClass: 'badge-wellness',
+                    retailPrice: 13600,
+                    bundlePrice: 12200,
+                    totalSv: 82.0,
+                    desc: '專為銀髮長輩設計之關鍵活動力配方，提升行動靈活度與骨質保養。',
+                    status: 'ACTIVE',
+                    items: [
+                        { name: '原味餐包 (30包/盒)', qty: 2, sv: 27.0, guide: '早餐沖泡1包' },
+                        { name: '百克斯 (180粒/瓶)', qty: 2, sv: 29.5, guide: '早晚各2粒' },
+                        { name: '康爾喜 (90包/盒)', qty: 1, sv: 15.0, guide: '每日1包' },
+                        { name: '貝力耐 (120粒/瓶)', qty: 1, sv: 10.5, guide: '飯後2粒' }
+                    ]
+                }
+            ];
+
+            // 3. 待選單品池（供沙盒模擬器調配）
+            const availableProducts = [
+                { id: 'P01', name: '995 生技營養品', retail: 6050, price: 5500, sv: 24.0, icon: 'fa-bottle-droplet' },
+                { id: 'P02', name: '樟芝益菌絲體', retail: 5850, price: 5300, sv: 23.0, icon: 'fa-shield-halved' },
+                { id: 'P03', name: '康爾喜益生菌', retail: 1850, price: 1700, sv: 15.0, icon: 'fa-bacteria' },
+                { id: 'P04', name: '百克斯膠囊', retail: 1650, price: 1480, sv: 14.75, icon: 'fa-capsules' },
+                { id: 'P05', name: '葡眾餐包 (原味)', retail: 1500, price: 1350, sv: 13.5, icon: 'fa-wheat-awn' },
+                { id: 'P06', name: '靚妍飲', retail: 2300, price: 2100, sv: 19.0, icon: 'fa-wand-magic-sparkles' }
+            ];
+
+            let sandboxSelection = [];
+            let dataTableInstance = null;
+
+            // 4. 渲染情境配方卡片矩陣
+            function renderBundleCards(filterCategory = 'ALL') {
+                const container = $('#bundle-cards-container');
+                container.empty();
+
+                let filtered = bundleDataSet;
+                if (filterCategory !== 'ALL') {
+                    filtered = bundleDataSet.filter(b => b.category === filterCategory);
+                }
+
+                if (filtered.length === 0) {
+                    container.html(`
+                        <div class="col-12 text-center py-5">
+                            <i class="fa-solid fa-box-open text-secondary display-4 mb-3"></i>
+                            <p class="text-secondary">目前此分類尚無套裝配置方案</p>
+                        </div>
+                    `);
+                    return;
+                }
+
+                filtered.forEach(bundle => {
+                    let itemsHtml = '';
+                    bundle.items.forEach(item => {
+                        itemsHtml += `
+                            <div class="recipe-item-row">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-primary small"></i>
+                                    <span class="text-white small fw-medium">${item.name}</span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-dark border border-secondary text-secondary">${item.qty} 盒/瓶</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const saveAmount = bundle.retailPrice - bundle.bundlePrice;
+
+                    const cardHtml = `
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="bundle-card">
+                                <div>
+                                    <span class="bundle-badge ${bundle.badgeClass}">
+                                        <i class="fa-solid fa-sparkles"></i> ${bundle.badge}
+                                    </span>
+                                    <div class="small text-secondary mb-1">${bundle.code}</div>
+                                    <h5 class="text-white font-weight-bold mb-2">${bundle.name}</h5>
+                                    <p class="text-secondary small mb-3" style="font-size: 0.82rem; min-height: 38px;">
+                                        ${bundle.desc}
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small text-secondary mb-1">
+                                            <span><i class="fa-solid fa-mortar-pestle"></i> 核心配方組成</span>
+                                            <span>共 ${bundle.items.length} 款品項</span>
+                                        </div>
+                                        ${itemsHtml}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <hr style="border-color: rgba(139, 92, 246, 0.2);">
+                                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                        <span class="text-secondary small text-decoration-line-through">NT$ ${bundle.retailPrice.toLocaleString()}</span>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">省 NT$ ${saveAmount.toLocaleString()}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <span class="text-warning fw-bold h4 mb-0">NT$ ${bundle.bundlePrice.toLocaleString()}</span>
+                                        </div>
+                                        <div class="sv-glow-pill">
+                                            <i class="fa-solid fa-bolt me-1"></i> ${bundle.totalSv} SV
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-outline-primary btn-sm w-100 rounded-pill btn-view-recipe" data-code="${bundle.code}">
+                                        <i class="fa-solid fa-eye"></i> 檢視調理食用指南
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(cardHtml);
+                });
+
+                updateCategoryCounts();
+            }
+
+            // 5. 更新分類膠囊計數器
+            function updateCategoryCounts() {
+                $('#count-all').text(bundleDataSet.length);
+                $('#count-qualify').text(bundleDataSet.filter(b => b.category === 'QUALIFY').length);
+                $('#count-immune').text(bundleDataSet.filter(b => b.category === 'IMMUNE').length);
+                $('#count-beauty').text(bundleDataSet.filter(b => b.category === 'BEAUTY').length);
+                $('#count-elder').text(bundleDataSet.filter(b => b.category === 'ELDER').length);
+            }
+
+            // 6. 初始化 DataTable
+            function initDataTable() {
+                const tableBody = $('#bundles-table-body');
+                tableBody.empty();
+
+                bundleDataSet.forEach(b => {
+                    const itemsSummary = b.items.map(i => `${i.name} × ${i.qty}`).join('<br>');
+                    const row = `
+                        <tr>
+                            <td><span class="badge bg-dark border border-secondary text-primary font-monospace">${b.code}</span></td>
+                            <td>
+                                <div class="text-white fw-bold">${b.name}</div>
+                                <div class="small text-secondary">${b.desc}</div>
+                            </td>
+                            <td class="small text-secondary">${itemsSummary}</td>
+                            <td class="text-secondary text-decoration-line-through">NT$ ${b.retailPrice.toLocaleString()}</td>
+                            <td class="text-warning fw-bold">NT$ ${b.bundlePrice.toLocaleString()}</td>
+                            <td><span class="sv-glow-pill">${b.totalSv} SV</span></td>
+                            <td><span class="badge bg-success-subtle text-success">啟用中</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-light btn-view-recipe" data-code="${b.code}">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-delete-bundle" data-code="${b.code}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
+
+                if ($.fn.DataTable.isDataTable('#bundlesTable')) {
+                    $('#bundlesTable').DataTable().destroy();
+                }
+
+                dataTableInstance = $('#bundlesTable').DataTable({
+                    responsive: true,
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 25],
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "檢索套組代碼或名稱...",
+                        lengthMenu: "每頁顯示 _MENU_ 筆",
+                        info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆套裝",
+                        paginate: {
+                            first: '<i class="fa-solid fa-angles-left"></i>',
+                            last: '<i class="fa-solid fa-angles-right"></i>',
+                            next: '<i class="fa-solid fa-angle-right"></i>',
+                            previous: '<i class="fa-solid fa-angle-left"></i>'
+                        }
+                    }
+                });
+            }
+
+            // 7. 渲染沙盒單品池
+            function initSandboxProductPool() {
+                const pool = $('#sandbox-product-pool');
+                pool.empty();
+
+                availableProducts.forEach(prod => {
+                    const html = `
+                        <div class="col-12 col-sm-6">
+                            <div class="product-select-pill" data-id="${prod.id}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid ${prod.icon} text-primary"></i>
+                                    <div>
+                                        <div class="text-white small fw-bold">${prod.name}</div>
+                                        <div class="text-secondary" style="font-size: 0.75rem;">NT$ ${prod.price.toLocaleString()} | ${prod.sv} SV</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary rounded-circle py-0 px-2 btn-add-sandbox" data-id="${prod.id}">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    pool.append(html);
+                });
+            }
+
+            // 8. 模擬沙盒即時運算
+            function updateSandboxCalculations() {
+                const listContainer = $('#sandbox-selected-list');
+                listContainer.empty();
+
+                if (sandboxSelection.length === 0) {
+                    listContainer.html('<p class="text-secondary small text-center my-4">尚未選取任何產品，請點選左側品項</p>');
+                    $('#sb-total-retail').text('NT$ 0');
+                    $('#sb-total-price').text('NT$ 0');
+                    $('#sb-total-sv').text('0 SV');
+                    $('#sb-rate-160').text('0%');
+                    $('#sb-bar-160').css('width', '0%');
+                    return;
+                }
+
+                let totalRetail = 0;
+                let totalPrice = 0;
+                let totalSv = 0;
+
+                sandboxSelection.forEach((item, index) => {
+                    totalRetail += item.retail * item.qty;
+                    totalPrice += item.price * item.qty;
+                    totalSv += item.sv * item.qty;
+
+                    const row = `
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: rgba(255,255,255,0.03);">
+                            <div class="small">
+                                <span class="text-white fw-bold">${item.name}</span>
+                                <span class="text-secondary ms-1">× ${item.qty}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-warning small">NT$ ${(item.price * item.qty).toLocaleString()}</span>
+                                <button class="btn btn-link text-danger p-0 btn-remove-sandbox-item" data-index="${index}">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.append(row);
+                });
+
+                $('#sb-total-retail').text(`NT$ ${totalRetail.toLocaleString()}`);
+                $('#sb-total-price').text(`NT$ ${totalPrice.toLocaleString()}`);
+                $('#sb-total-sv').text(`${totalSv.toFixed(1)} SV`);
+
+                // 考核進度 (以 160 SV 為基準)
+                const rate160 = Math.min(100, Math.round((totalSv / 160) * 100));
+                $('#sb-rate-160').text(`${rate160}%`);
+                $('#sb-bar-160').css('width', `${rate160}%`);
+            }
+
+            // ====================================================================
+            // 事件監聽與互動控制
+            // ====================================================================
+
+            // 戰術場景篩選
+            $(document).on('click', '.tactical-pill-btn', function () {
+                $('.tactical-pill-btn').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                renderBundleCards(filter);
+            });
+
+            // 沙盒點擊增加品項
+            $(document).on('click', '.btn-add-sandbox', function (e) {
+                e.stopPropagation();
+                const prodId = $(this).data('id');
+                const product = availableProducts.find(p => p.id === prodId);
+                if (product) {
+                    const existing = sandboxSelection.find(s => s.id === prodId);
+                    if (existing) {
+                        existing.qty += 1;
+                    } else {
+                        sandboxSelection.push({ ...product, qty: 1 });
+                    }
+                    updateSandboxCalculations();
+                }
+            });
+
+            // 沙盒移除品項
+            $(document).on('click', '.btn-remove-sandbox-item', function () {
+                const index = $(this).data('index');
+                sandboxSelection.splice(index, 1);
+                updateSandboxCalculations();
+            });
+
+            // 沙盒清空
+            $('#btn-reset-sandbox').on('click', function () {
+                sandboxSelection = [];
+                updateSandboxCalculations();
+            });
+
+            // 檢視配方明細 Modal
+            $(document).on('click', '.btn-view-recipe', function () {
+                const code = $(this).data('code');
+                const bundle = bundleDataSet.find(b => b.code === code);
+                if (bundle) {
+                    $('#modal-bundle-title').html(`<i class="fa-solid fa-receipt text-secondary"></i> ${bundle.name} (${bundle.code})`);
+                    $('#modal-bundle-desc').text(bundle.desc);
+
+                    const list = $('#modal-bundle-items-list');
+                    list.empty();
+
+                    bundle.items.forEach(item => {
+                        const itemHtml = `
+                            <div class="list-group-item bg-transparent text-white border-secondary-subtle px-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 text-white fw-bold"><i class="fa-solid fa-cube text-primary"></i> ${item.name}</h6>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">${item.qty} 盒/份</span>
+                                </div>
+                                <div class="small text-secondary"><i class="fa-regular fa-clock"></i> 調理指南：${item.guide}</div>
+                            </div>
+                        `;
+                        list.append(itemHtml);
+                    });
+
+                    const modal = new bootstrap.Modal(document.getElementById('recipeDetailModal'));
+                    modal.show();
+                }
+            });
+
+            // 儲存沙盒草案
+            $('#btn-save-sandbox-bundle').on('click', function () {
+                if (sandboxSelection.length === 0) {
+                    alert('請先在沙盒中挑選產品組成配方！');
+                    return;
+                }
+                alert('已將自訂配方儲存至草案庫中，可於後台直接發布為正式戰略套裝！');
+            });
+
+            // 模擬 Google GViz 雲端試算表同步
+            $('#btn-sync-gviz').on('click', function () {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...').prop('disabled', true);
+
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-check text-success"></i> 已同步最新試算表');
+                    setTimeout(() => {
+                        btn.html('<i class="fa-solid fa-rotate"></i> 同步雲端試算表').prop('disabled', false);
+                    }, 2000);
+                }, 1200);
+            });
+
+            // 初始執行
+            renderBundleCards('ALL');
+            initDataTable();
+            initSandboxProductPool();
+        });
+    </script>
+</body>
+</html>

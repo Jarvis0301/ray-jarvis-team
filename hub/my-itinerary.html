@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行程安排 | 馬來西亞專區 - 葡眾三軌戰情系統</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+
+    <style>
+        :root {
+            --core-bg: #090314;
+            --core-card-bg: rgba(22, 11, 44, 0.75);
+            --core-card-border: rgba(157, 78, 221, 0.25);
+            --core-purple-main: #9d4edd;
+            --core-purple-glow: #c77dff;
+            --core-purple-deep: #240046;
+            --core-purple-hover: #7b2cbf;
+            --accent-cyan: #06b6d4;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-sans: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--core-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(123, 44, 191, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(36, 0, 70, 0.3) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 1.25rem 0.75rem 3rem;
+        }
+
+        /* 頂部戰情 HUD 膠囊 */
+        .hud-glass {
+            background: var(--core-card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--core-card-border);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .pulse-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .pulse-badge.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: currentColor;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* 日期快速切換導航軌道 */
+        .date-scrubber {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding: 0.5rem 0.25rem;
+            scrollbar-width: none;
+        }
+
+        .date-scrubber::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-pill {
+            flex: 0 0 auto;
+            min-width: 90px;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            background: rgba(36, 0, 70, 0.4);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            color: var(--text-muted);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .date-pill:hover {
+            border-color: var(--core-purple-glow);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .date-pill.active {
+            background: linear-gradient(135deg, var(--core-purple-deep), var(--core-purple-hover));
+            border-color: var(--core-purple-glow);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.45);
+        }
+
+        /* 動態拓荒時間軸架構 (Break-the-Grid Timeline) */
+        .timeline-stream {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .timeline-stream::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 15px;
+            bottom: 15px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--core-purple-glow), rgba(157, 78, 221, 0.1));
+        }
+
+        .timeline-node {
+            position: relative;
+            margin-bottom: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -2rem;
+            top: 1.25rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--core-bg);
+            border: 3px solid var(--core-purple-glow);
+            box-shadow: 0 0 10px var(--core-purple-glow);
+            z-index: 2;
+        }
+
+        .timeline-node.completed .timeline-marker {
+            border-color: var(--accent-emerald);
+            box-shadow: 0 0 10px var(--accent-emerald);
+        }
+
+        .timeline-node.in-progress .timeline-marker {
+            border-color: var(--accent-amber);
+            box-shadow: 0 0 12px var(--accent-amber);
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        /* 任務卡片本體 */
+        .mission-card {
+            background: var(--core-card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--core-card-border);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--core-purple-main);
+        }
+
+        .mission-card.type-biz::before { background: var(--accent-cyan); }
+        .mission-card.type-org::before { background: var(--core-purple-glow); }
+        .mission-card.type-meeting::before { background: var(--accent-amber); }
+        .mission-card.type-field::before { background: var(--accent-emerald); }
+
+        .mission-card:hover {
+            border-color: var(--core-purple-glow);
+            transform: translateX(4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 任務標籤與按鈕 */
+        .tag-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .tag-biz { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+        .tag-org { background: rgba(199, 125, 255, 0.15); color: var(--core-purple-glow); border: 1px solid rgba(199, 125, 255, 0.3); }
+        .tag-meeting { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .tag-field { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* Grab 一鍵導航按鈕 */
+        .btn-grab {
+            background: linear-gradient(135deg, #00b14f, #008a3e);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.45rem 0.9rem;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-grab:hover {
+            background: linear-gradient(135deg, #00c85a, #009e47);
+            color: #fff;
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(0, 177, 79, 0.4);
+        }
+
+        /* 核心版操作按鈕 */
+        .btn-core {
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--text-primary);
+            border: 1px solid var(--core-purple-glow);
+            border-radius: 0.75rem;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-core:hover {
+            background: var(--core-purple-main);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.4);
+        }
+
+        /* 跳點路線速覽側欄 (Transit Deck) */
+        .transit-deck {
+            background: rgba(22, 11, 44, 0.5);
+            border: 1px dashed rgba(157, 78, 221, 0.3);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+        }
+
+        .transit-step {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+        }
+
+        .transit-step:last-child {
+            border-bottom: none;
+        }
+
+        /* 模態框客製 (Dark Purple Modal) */
+        .modal-content.core-modal {
+            background: #140727;
+            border: 1px solid var(--core-purple-glow);
+            border-radius: 1.5rem;
+            color: var(--text-primary);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-control-core, .form-select-core {
+            background: rgba(36, 0, 70, 0.6);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            color: #fff;
+            border-radius: 0.75rem;
+            padding: 0.6rem 0.9rem;
+        }
+
+        .form-control-core:focus, .form-select-core:focus {
+            background: rgba(45, 0, 90, 0.8);
+            border-color: var(--core-purple-glow);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(199, 125, 255, 0.3);
+        }
+
+        /* RWD 微調 */
+        @media (max-width: 768px) {
+            .timeline-stream {
+                padding-left: 1.5rem;
+            }
+            .timeline-marker {
+                left: -1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid px-md-4">
+    
+    <div class="hud-glass p-3 p-md-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-lg-7">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <span class="pulse-badge active">
+                        <span class="pulse-dot"></span><i class="fa-solid fa-plane-departure"></i> 吉隆坡拓荒專案進行中
+                    </span>
+                    <span class="badge" style="background: rgba(157,78,221,0.25); border: 1px solid var(--core-purple-glow);">
+                        <i class="fa-solid fa-passport"></i> 梯次代號：MY-2026-Q3
+                    </span>
+                    <span class="text-muted small ms-md-2" id="syncStatus">
+                        <i class="fa-solid fa-arrows-rotate fa-spin"></i> 試算表連線中
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-purple" style="color: var(--core-purple-glow);"></i> 行程安排與跳點規劃
+                </h3>
+                <p class="text-muted small mb-0">
+                    精確掌握創始人每日拜訪排程、經理對接、組織招商演練與 Grab 高效跳點路徑。
+                </p>
+            </div>
+            
+            <div class="col-12 col-lg-5 text-lg-end">
+                <div class="d-inline-flex flex-wrap align-items-center gap-2">
+                    <div class="px-3 py-2 rounded-3 text-start" style="background: rgba(36, 0, 70, 0.5); border: 1px solid rgba(157, 78, 221, 0.2);">
+                        <div class="text-muted" style="font-size: 0.68rem; letter-spacing: 0.05em;">吉隆坡 (MYT) / 台北 (TST)</div>
+                        <div class="fw-bold" style="font-size: 1.05rem; color: var(--accent-cyan);" id="liveClock">00:00:00</div>
+                    </div>
+                    <button class="btn btn-core" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                        <i class="fa-solid fa-plus"></i> 新增排程
+                    </button>
+                    <button class="btn btn-core" onclick="fetchItineraryData()">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+            <div class="text-muted small mb-2 d-flex justify-content-between">
+                <span><i class="fa-solid fa-clock"></i> 選擇出差作戰日：</span>
+                <span class="text-purple" style="color: var(--core-purple-glow);" id="currentDateSummary">顯示全部日程 (共 5 天)</span>
+            </div>
+            <div class="date-scrubber" id="dateFilterScrubber">
+                <div class="date-pill active" onclick="filterByDate('ALL', this)">
+                    <div class="small fw-bold">ALL</div>
+                    <div style="font-size: 0.72rem;">全部任務</div>
+                </div>
+                <div class="date-pill" onclick="filterByDate('2026-08-18', this)">
+                    <div class="small fw-bold">DAY 1</div>
+                    <div style="font-size: 0.72rem;">08/18 (二)</div>
+                </div>
+                <div class="date-pill" onclick="filterByDate('2026-08-19', this)">
+                    <div class="small fw-bold">DAY 2</div>
+                    <div style="font-size: 0.72rem;">08/19 (三)</div>
+                </div>
+                <div class="date-pill" onclick="filterByDate('2026-08-20', this)">
+                    <div class="small fw-bold">DAY 3</div>
+                    <div style="font-size: 0.72rem;">08/20 (四)</div>
+                </div>
+                <div class="date-pill" onclick="filterByDate('2026-08-21', this)">
+                    <div class="small fw-bold">DAY 4</div>
+                    <div style="font-size: 0.72rem;">08/21 (五)</div>
+                </div>
+                <div class="date-pill" onclick="filterByDate('2026-08-22', this)">
+                    <div class="small fw-bold">DAY 5</div>
+                    <div style="font-size: 0.72rem;">08/22 (六)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-12 col-xl-8">
+            
+            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+                <span class="text-muted small me-2"><i class="fa-solid fa-filter"></i> 任務屬性：</span>
+                <button class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 active" style="font-size: 0.78rem;" onclick="filterByType('ALL', this)">
+                    全部
+                </button>
+                <button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" style="font-size: 0.78rem;" onclick="filterByType('BIZ', this)">
+                    <i class="fa-solid fa-briefcase"></i> 招商洽談
+                </button>
+                <button class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1" style="font-size: 0.78rem;" onclick="filterByType('ORG', this)">
+                    <i class="fa-solid fa-users"></i> 組織輔導
+                </button>
+                <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 0.78rem;" onclick="filterByType('FIELD', this)">
+                    <i class="fa-solid fa-magnifying-glass-location"></i> 市場考察
+                </button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" style="font-size: 0.78rem;" onclick="filterByType('MEETING', this)">
+                    <i class="fa-solid fa-handshake"></i> 高層對策
+                </button>
+            </div>
+
+            <div class="timeline-stream" id="itineraryTimeline">
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-circle-notch fa-spin fa-2x text-purple mb-3" style="color: var(--core-purple-glow);"></i>
+                    <p class="text-muted">正在透過解耦字典載入 my_itineraries 排程資料庫...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            
+            <div class="transit-deck mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-purple d-flex align-items-center gap-2" style="color: var(--core-purple-glow);">
+                        <i class="fa-solid fa-route"></i> 今日 Grab 跳點路徑
+                    </h6>
+                    <span class="badge bg-dark border border-secondary" style="font-size: 0.7rem;">預估車程：85 min</span>
+                </div>
+                
+                <div id="transitRouteList">
+                    <div class="transit-step">
+                        <span class="badge rounded-circle bg-purple p-2" style="background: var(--core-purple-deep); border: 1px solid var(--core-purple-glow);">01</span>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Pavilion Hotel Kuala Lumpur</div>
+                            <div class="text-muted small">09:00 出發基地 (Bukit Bintang)</div>
+                        </div>
+                    </div>
+                    <div class="transit-step">
+                        <span class="badge rounded-circle bg-purple p-2" style="background: var(--core-purple-deep); border: 1px solid var(--core-purple-glow);">02</span>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">The Gardens Mall, Mid Valley</div>
+                            <div class="text-muted small">10:30 拜訪拿督級代理人 (車程約 25m)</div>
+                        </div>
+                    </div>
+                    <div class="transit-step">
+                        <span class="badge rounded-circle bg-purple p-2" style="background: var(--core-purple-deep); border: 1px solid var(--core-purple-glow);">03</span>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">葡眾馬來西亞吉隆坡營業處</div>
+                            <div class="text-muted small">14:00 領取現貨/制度對帳 (車程約 30m)</div>
+                        </div>
+                    </div>
+                    <div class="transit-step">
+                        <span class="badge rounded-circle bg-purple p-2" style="background: var(--core-purple-deep); border: 1px solid var(--core-purple-glow);">04</span>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Sunway Velocity Designer Suite</div>
+                            <div class="text-muted small">17:00 團隊核心聚會 (車程約 30m)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <a href="https://www.google.com/maps/dir/Pavilion+Hotel+Kuala+Lumpur/The+Gardens+Mall/Sunway+Velocity+Mall" target="_blank" class="btn btn-outline-light w-100 btn-sm rounded-3">
+                        <i class="fa-solid fa-map-location-dot"></i> 一鍵開啟 Google 總路線導航
+                    </a>
+                </div>
+            </div>
+
+            <div class="hud-glass p-3">
+                <h6 class="fw-bold mb-2 text-warning d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 拓荒注意要點 (Ray & Jarvis)
+                </h6>
+                <ul class="text-muted small ps-3 mb-0" style="line-height: 1.8;">
+                    <li>大馬午後常有暴雨，15:00~17:00 Grab 易加價或塞車，建議預留 20 分鐘緩衝。</li>
+                    <li>隨身攜帶 995/樟芝益樣品條與雙國 SV 對照表，備妥台灣名片與大馬聯絡電話。</li>
+                    <li>每次會談結束請立即點擊「記錄筆記」，無縫拋轉至 <span class="text-purple" style="color: var(--core-purple-glow);">HM7000 考察筆記</span>。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content core-modal">
+            <div class="modal-header border-secondary border-opacity-25">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-calendar-plus text-purple" style="color: var(--core-purple-glow);"></i> 新增 / 編輯拓荒排程
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="scheduleForm">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-calendar-day"></i> 日期</label>
+                            <input type="date" class="form-control form-control-core" id="formDate" value="2026-08-19" required>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-clock"></i> 起始時間</label>
+                            <input type="time" class="form-control form-control-core" id="formStartTime" value="10:30" required>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-tags"></i> 任務屬性</label>
+                            <select class="form-select form-select-core" id="formType">
+                                <option value="BIZ">招商洽談 (BIZ)</option>
+                                <option value="ORG">組織輔導 (ORG)</option>
+                                <option value="FIELD">市場考察 (FIELD)</option>
+                                <option value="MEETING">高層對策 (MEETING)</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-heading"></i> 行程主旨 / 任務名稱</label>
+                            <input type="text" class="form-control form-control-core" id="formTitle" placeholder="例如：拜訪吉隆坡新體系核心夥伴" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-user-tie"></i> 洽談對象 (關聯 org_partners / crm_customers)</label>
+                            <input type="text" class="form-control form-control-core" id="formTarget" placeholder="姓名 / 職級 / 電話">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-location-dot"></i> 會面地點 (Grab 導航關鍵字)</label>
+                            <input type="text" class="form-control form-control-core" id="formLocation" placeholder="完整地名或建築物名稱" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-clipboard-list"></i> 戰術要點與攜帶備品</label>
+                            <textarea class="form-control form-control-core" id="formNotes" rows="3" placeholder="討論重點、帶貨樣品、預計達成 SV 點數..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary border-opacity-25">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-core px-4" onclick="saveScheduleItem()">
+                    <i class="fa-solid fa-floppy-disk"></i> 儲存排程
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    /**
+     * 葡眾三軌數位戰情系統 - 資料庫解耦字典 (sys_api_configs -> my_itineraries)
+     */
+    const ITINERARY_SCHEMA_MAP = {
+        "schedule_id": "id",
+        "trip_id": "trip_id",
+        "schedule_date": "date",
+        "start_time": "time",
+        "task_type": "type",
+        "task_title": "title",
+        "target_person": "target",
+        "target_role": "role",
+        "location_name": "location",
+        "grab_keyword": "grab_query",
+        "strategic_notes": "notes",
+        "execution_status": "status"
+    };
+
+    // 模擬 Google 試算表原始數據 (實戰時以 GViz / PapaParse 動態拉取並由 SCHEMA_MAP 轉譯)
+    let rawSheetData = [
+        {
+            "schedule_id": "SCH-0818-01",
+            "trip_id": "MY-2026-Q3",
+            "schedule_date": "2026-08-18",
+            "start_time": "15:30",
+            "task_type": "FIELD",
+            "task_title": "吉隆坡國際機場 (KLIA) 落地與漫遊通訊驗收",
+            "target_person": "Ray & Jarvis",
+            "target_role": "雙創始人",
+            "location_name": "KLIA Terminal 1",
+            "grab_keyword": "KLIA Terminal 1 Arrivals",
+            "strategic_notes": "開通大馬 Celcom/Digi eSIM，提領現鈔馬幣，確認 MDAC 入境核銷完畢。",
+            "execution_status": "COMPLETED"
+        },
+        {
+            "schedule_id": "SCH-0819-01",
+            "trip_id": "MY-2026-Q3",
+            "schedule_date": "2026-08-19",
+            "start_time": "10:30",
+            "task_type": "BIZ",
+            "task_title": "頂級潛在團隊領袖洽談 (拿督級代理)",
+            "target_person": "陳總裁 (Dato Tan)",
+            "target_role": "傳統保健通路大盤商",
+            "location_name": "The Gardens Mall, Mid Valley",
+            "grab_keyword": "The Gardens Mall South Entrance",
+            "strategic_notes": "介紹葡萄王母公司生物研發專利與 160/12,000 SV 制度，展示 995 及樟芝益現貨。",
+            "execution_status": "IN_PROGRESS"
+        },
+        {
+            "schedule_id": "SCH-0819-02",
+            "trip_id": "MY-2026-Q3",
+            "schedule_date": "2026-08-19",
+            "start_time": "14:00",
+            "task_type": "MEETING",
+            "task_title": "葡眾大馬吉隆坡營業處對帳與代領現貨",
+            "target_person": "大馬營運經理 Kevin",
+            "target_role": "官方營運行政主管",
+            "location_name": "葡眾馬來西亞分公司",
+            "grab_keyword": "UVACO Malaysia Sdn Bhd Kuala Lumpur",
+            "strategic_notes": "核算台灣帶貨對沖點數 (psi_cross_border_swaps)，確認下月 20 日 107D 稅務撥款路徑。",
+            "execution_status": "UPCOMING"
+        },
+        {
+            "schedule_id": "SCH-0819-03",
+            "trip_id": "MY-2026-Q3",
+            "schedule_date": "2026-08-19",
+            "start_time": "17:30",
+            "task_type": "ORG",
+            "task_title": "吉隆坡先遣團隊作戰工作坊",
+            "target_person": "Siti & Alex 組織",
+            "target_role": "合格經理梯隊 (12,000 SV 衝刺線)",
+            "location_name": "Sunway Velocity Designer Suite",
+            "grab_keyword": "Sunway Velocity Designer Suite Entrance",
+            "strategic_notes": "演練健康問卷（crm_health_assessments）促單話術，派發 8 月份門檻達標激勵方案。",
+            "execution_status": "UPCOMING"
+        },
+        {
+            "schedule_id": "SCH-0820-01",
+            "trip_id": "MY-2026-Q3",
+            "schedule_date": "2026-08-20",
+            "start_time": "11:00",
+            "task_type": "BIZ",
+            "task_title": "巴生 (Klang) 華人商會健康講座與招商說明",
+            "target_person": "黃會長",
+            "target_role": "跨國貿易商會代表",
+            "location_name": "Klang Executive Club",
+            "grab_keyword": "Klang Executive Club",
+            "strategic_notes": "針對海外華人退休體質調理切入，示範乳酸菌奈米包埋專利技術。",
+            "execution_status": "UPCOMING"
+        }
+    ];
+
+    let currentFilterDate = 'ALL';
+    let currentFilterType = 'ALL';
+
+    $(document).ready(function() {
+        initClock();
+        fetchItineraryData();
+    });
+
+    /**
+     * 即時雙時區時鐘 (吉隆坡與台北皆為 UTC+8)
+     */
+    function initClock() {
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { hour12: false });
+            $('#liveClock').text(timeString + ' (UTC+8)');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    }
+
+    /**
+     * 讀取並解耦 Google 試算表資料
+     */
+    function fetchItineraryData() {
+        $('#syncStatus').html('<i class="fa-solid fa-arrows-rotate fa-spin"></i> 試算表連線中');
+        
+        // 模擬異步拉取延遲 (使用解耦字典轉譯)
+        setTimeout(() => {
+            renderTimeline();
+            $('#syncStatus').html('<i class="fa-solid fa-check text-success"></i> 已同步表 804');
+        }, 300);
+    }
+
+    /**
+     * 動態渲染時間軸
+     */
+    function renderTimeline() {
+        const container = $('#itineraryTimeline');
+        container.empty();
+
+        let filtered = rawSheetData.filter(item => {
+            const matchDate = (currentFilterDate === 'ALL' || item.schedule_date === currentFilterDate);
+            const matchType = (currentFilterType === 'ALL' || item.task_type === currentFilterType);
+            return matchDate && matchType;
+        });
+
+        if (filtered.length === 0) {
+            container.html(`
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-calendar-xmark fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">該篩選條件下目前無排定行程。</p>
+                </div>
+            `);
+            return;
+        }
+
+        filtered.forEach(item => {
+            // 任務類別 UI 映射
+            let typeBadgeClass = 'tag-biz';
+            let typeLabel = '招商洽談';
+            let cardTypeClass = 'type-biz';
+
+            if (item.task_type === 'ORG') {
+                typeBadgeClass = 'tag-org';
+                typeLabel = '組織輔導';
+                cardTypeClass = 'type-org';
+            } else if (item.task_type === 'MEETING') {
+                typeBadgeClass = 'tag-meeting';
+                typeLabel = '高層對策';
+                cardTypeClass = 'type-meeting';
+            } else if (item.task_type === 'FIELD') {
+                typeBadgeClass = 'tag-field';
+                typeLabel = '市場考察';
+                cardTypeClass = 'type-field';
+            }
+
+            // 執行狀態標籤
+            let statusHtml = '';
+            let nodeClass = '';
+            if (item.execution_status === 'COMPLETED') {
+                nodeClass = 'completed';
+                statusHtml = '<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 small"><i class="fa-solid fa-check"></i> 已完成</span>';
+            } else if (item.execution_status === 'IN_PROGRESS') {
+                nodeClass = 'in-progress';
+                statusHtml = '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 small"><i class="fa-solid fa-spinner fa-spin"></i> 進行中</span>';
+            } else {
+                statusHtml = '<span class="badge bg-secondary bg-opacity-25 text-muted border border-secondary border-opacity-25 small"><i class="fa-regular fa-clock"></i> 待執行</span>';
+            }
+
+            // Grab 深度連結與地圖編碼
+            const encodedGrab = encodeURIComponent(item.grab_keyword || item.location_name);
+            const grabLink = `https://www.google.com/maps/search/?api=1&query=${encodedGrab}`;
+
+            const nodeHtml = `
+                <div class="timeline-node ${nodeClass}">
+                    <div class="timeline-marker"></div>
+                    <div class="mission-card ${cardTypeClass}">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="tag-pill ${typeBadgeClass}">${typeLabel}</span>
+                                <span class="text-purple fw-bold" style="color: var(--core-purple-glow); font-size: 0.95rem;">
+                                    <i class="fa-regular fa-clock"></i> ${item.schedule_date.substring(5)} ${item.start_time}
+                                </span>
+                            </div>
+                            <div>${statusHtml}</div>
+                        </div>
+
+                        <h5 class="fw-bold text-white mb-2">${item.task_title}</h5>
+
+                        <div class="row g-2 mb-3 text-muted small">
+                            <div class="col-12 col-md-6">
+                                <i class="fa-solid fa-user-check text-purple" style="color: var(--core-purple-glow);"></i> 
+                                <strong>對象：</strong>${item.target_person} <span class="badge bg-dark border border-secondary ms-1">${item.target_role}</span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <i class="fa-solid fa-location-dot text-danger"></i> 
+                                <strong>地點：</strong>${item.location_name}
+                            </div>
+                        </div>
+
+                        <div class="p-2 rounded-3 mb-3" style="background: rgba(0, 0, 0, 0.25); border-left: 2px solid var(--core-purple-main); font-size: 0.82rem; color: #cbd5e1;">
+                            <i class="fa-solid fa-bullseye text-warning me-1"></i> <strong>戰術備忘：</strong>${item.strategic_notes}
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top border-secondary border-opacity-25">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-light" onclick="toggleStatus('${item.schedule_id}')" title="切換狀態">
+                                    <i class="fa-solid fa-check-double"></i> 狀態
+                                </button>
+                                <button class="btn btn-outline-light" onclick="editSchedule('${item.schedule_id}')" title="編輯明細">
+                                    <i class="fa-solid fa-pen-to-square"></i> 編輯
+                                </button>
+                            </div>
+                            <a href="${grabLink}" target="_blank" class="btn btn-grab">
+                                <i class="fa-solid fa-car-side me-1"></i> Grab / Maps 導航
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.append(nodeHtml);
+        });
+    }
+
+    /**
+     * 日期過濾切換
+     */
+    function filterByDate(dateStr, element) {
+        currentFilterDate = dateStr;
+        $('#dateFilterScrubber .date-pill').removeClass('active');
+        $(element).addClass('active');
+
+        if (dateStr === 'ALL') {
+            $('#currentDateSummary').text('顯示全部日程 (共 5 天)');
+        } else {
+            $('#currentDateSummary').text(`已鎖定：${dateStr} 戰備行程`);
+        }
+        renderTimeline();
+    }
+
+    /**
+     * 任務類型過濾切換
+     */
+    function filterByType(typeStr, element) {
+        currentFilterType = typeStr;
+        $(element).parent().find('button').removeClass('active');
+        $(element).addClass('active');
+        renderTimeline();
+    }
+
+    /**
+     * 快速切換狀態 (待執行 -> 進行中 -> 已完成)
+     */
+    function toggleStatus(scheduleId) {
+        const item = rawSheetData.find(d => d.schedule_id === scheduleId);
+        if (item) {
+            if (item.execution_status === 'UPCOMING') item.execution_status = 'IN_PROGRESS';
+            else if (item.execution_status === 'IN_PROGRESS') item.execution_status = 'COMPLETED';
+            else item.execution_status = 'UPCOMING';
+            renderTimeline();
+        }
+    }
+
+    /**
+     * 儲存新增排程
+     */
+    function saveScheduleItem() {
+        const newItem = {
+            "schedule_id": "SCH-" + Date.now().toString().slice(-4),
+            "trip_id": "MY-2026-Q3",
+            "schedule_date": $('#formDate').val(),
+            "start_time": $('#formStartTime').val(),
+            "task_type": $('#formType').val(),
+            "task_title": $('#formTitle').val(),
+            "target_person": $('#formTarget').val() || "待定對象",
+            "target_role": "重點對象",
+            "location_name": $('#formLocation').val(),
+            "grab_keyword": $('#formLocation').val(),
+            "strategic_notes": $('#formNotes').val() || "無特殊備忘",
+            "execution_status": "UPCOMING"
+        };
+
+        rawSheetData.push(newItem);
+        renderTimeline();
+        
+        // 關閉 Modal 並重置
+        const modalEl = document.getElementById('scheduleModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+        $('#scheduleForm')[0].reset();
+    }
+
+    function editSchedule(scheduleId) {
+        const item = rawSheetData.find(d => d.schedule_id === scheduleId);
+        if (item) {
+            $('#formDate').val(item.schedule_date);
+            $('#formStartTime').val(item.start_time);
+            $('#formType').val(item.task_type);
+            $('#formTitle').val(item.task_title);
+            $('#formTarget').val(item.target_person);
+            $('#formLocation').val(item.location_name);
+            $('#formNotes').val(item.strategic_notes);
+            
+            const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+            modal.show();
+        }
+    }
+</script>
+</body>
+</html>

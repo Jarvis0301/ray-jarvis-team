@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考察筆記與人脈商機手札 - 葡眾三軌戰情系統</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* ==========================================================================
+           核心版極密魅影紫 (Phantom Purple) Design System Tokens
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --uv-bg-base: #0a0518;
+            --uv-bg-surface: #120924;
+            --uv-bg-card: rgba(23, 12, 44, 0.75);
+            --uv-bg-card-hover: rgba(36, 18, 68, 0.85);
+            --uv-border-subtle: rgba(139, 92, 246, 0.2);
+            --uv-border-active: rgba(167, 139, 250, 0.5);
+            
+            --uv-primary: #8b5cf6;
+            --uv-primary-light: #a78bfa;
+            --uv-secondary: #c084fc;
+            --uv-accent-pink: #ec4899;
+            --uv-accent-cyan: #06b6d4;
+            --uv-accent-amber: #f59e0b;
+            --uv-accent-emerald: #10b981;
+            
+            --uv-text-main: #f8fafc;
+            --uv-text-muted: #94a3b8;
+            --uv-glow-purple: 0 0 25px rgba(139, 92, 246, 0.25);
+            --uv-glow-pink: 0 0 20px rgba(236, 72, 153, 0.3);
+        }
+
+        body {
+            background-color: var(--uv-bg-base);
+            color: var(--uv-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        /* 玻璃擬態戰術容器 */
+        .glass-panel {
+            background: var(--uv-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uv-border-subtle);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--uv-border-active);
+        }
+
+        /* 頂部戰略抬頭資訊 HUD */
+        .hud-header {
+            border-bottom: 1px solid var(--uv-border-subtle);
+            padding: 1.5rem 0 1.25rem 0;
+            margin-bottom: 2rem;
+        }
+
+        /* 商機意向階梯徽章 */
+        .stage-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 50rem;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .stage-S { background: linear-gradient(135deg, #ec4899, #be185d); color: #fff; box-shadow: var(--uv-glow-pink); }
+        .stage-A { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; box-shadow: var(--uv-glow-purple); }
+        .stage-B { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .stage-C { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        /* 人脈情報檔案卡 (Dossier Card) */
+        .dossier-card {
+            border-radius: 16px;
+            background: var(--uv-bg-surface);
+            border: 1px solid var(--uv-border-subtle);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .dossier-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), var(--uv-glow-purple);
+            border-color: var(--uv-primary-light);
+        }
+        .dossier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--uv-primary);
+            transition: width 0.2s ease;
+        }
+        .dossier-card.priority-S::before { background: var(--uv-accent-pink); }
+        .dossier-card.priority-A::before { background: var(--uv-primary); }
+        .dossier-card.priority-B::before { background: var(--uv-accent-cyan); }
+        .dossier-card:hover::before { width: 6px; }
+
+        /* 雙面名片視窗 (Flip Business Card) */
+        .card-flip-container {
+            perspective: 1000px;
+            cursor: pointer;
+            height: 130px;
+        }
+        .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .card-flip-container.flipped .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        .card-front {
+            background: linear-gradient(135deg, rgba(35, 17, 65, 0.9), rgba(18, 9, 36, 0.95));
+            border: 1px dashed rgba(167, 139, 250, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-back {
+            background: linear-gradient(135deg, #1e1136, #0d0618);
+            border: 1px solid var(--uv-primary);
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 標籤雲 Tag Pill */
+        .tag-badge {
+            background: rgba(139, 92, 246, 0.12);
+            color: #ddd6fe;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            font-size: 0.75rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin: 0.15rem;
+            transition: all 0.2s ease;
+        }
+        .tag-badge:hover {
+            background: var(--uv-primary);
+            color: #fff;
+        }
+
+        /* 語音備忘播放器模擬 */
+        .voice-memo-bar {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--uv-border-subtle);
+            border-radius: 100px;
+            padding: 0.35rem 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .wave-anim {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 16px;
+            flex-grow: 1;
+        }
+        .wave-bar {
+            width: 3px;
+            background: var(--uv-primary-light);
+            border-radius: 2px;
+            animation: pulseWave 1.2s infinite ease-in-out;
+        }
+        .wave-bar:nth-child(2) { height: 12px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { height: 16px; animation-delay: 0.4s; }
+        .wave-bar:nth-child(4) { height: 8px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(5) { height: 14px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(6) { height: 10px; animation-delay: 0.5s; }
+        @keyframes pulseWave {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        /* 時空流歷程線條 (Timeline Mode) */
+        .timeline-stream {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-stream::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--uv-primary), var(--uv-accent-pink), rgba(139, 92, 246, 0.1));
+        }
+        .timeline-node {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--uv-bg-base);
+            border: 3px solid var(--uv-primary);
+            box-shadow: 0 0 10px var(--uv-primary);
+        }
+        .timeline-node.node-S::before {
+            border-color: var(--uv-accent-pink);
+            box-shadow: 0 0 10px var(--uv-accent-pink);
+        }
+
+        /* 按鈕自定義美化 */
+        .btn-glow-primary {
+            background: linear-gradient(135deg, var(--uv-primary), #6d28d9);
+            color: #fff;
+            border: none;
+            box-shadow: var(--uv-glow-purple);
+            transition: all 0.25s ease;
+        }
+        .btn-glow-primary:hover {
+            background: linear-gradient(135deg, #9d4edd, #5b21b6);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(167, 139, 250, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-glow-pink {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: #fff;
+            border: none;
+            box-shadow: var(--uv-glow-pink);
+        }
+        .btn-glow-pink:hover {
+            background: linear-gradient(135deg, #f472b6, #9d174d);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.5);
+        }
+
+        /* 表單控制元件優化 */
+        .form-control, .form-select {
+            background-color: rgba(18, 9, 36, 0.8) !important;
+            border: 1px solid var(--uv-border-subtle) !important;
+            color: var(--uv-text-main) !important;
+            border-radius: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--uv-primary) !important;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.3) !important;
+        }
+        .form-control::placeholder {
+            color: #64748b;
+        }
+
+        /* DataTable 深色主題無縫適配 */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--uv-text-muted) !important;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+        table.dataTable {
+            border-collapse: collapse !important;
+            border-color: var(--uv-border-subtle) !important;
+        }
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: rgba(139, 92, 246, 0.08) !important;
+        }
+        table.dataTable td, table.dataTable th {
+            border-bottom: 1px solid var(--uv-border-subtle) !important;
+            padding: 12px 14px !important;
+        }
+    </style>
+</head>
+<body class="p-3 p-md-4 p-xl-5">
+
+    <div class="container-fluid max-w-1600">
+        
+        <header class="hud-header">
+            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-dark border border-purple text-purple px-2 py-1" style="color: var(--uv-primary-light); border-color: var(--uv-primary) !important;">
+                            <i class="fa-solid fa-plane-departure"></i> 馬來西亞跨境考察專案
+                        </span>
+                        <span class="badge bg-dark border border-secondary text-muted px-2 py-1">
+                            <i class="fa-solid fa-database"></i> 表 807 my_field_notes 連動中
+                        </span>
+                    </div>
+                    <h1 class="h3 fw-bold mb-0 text-white d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-book-bookmark text-primary" style="color: var(--uv-primary) !important;"></i> 考察筆記與商機情報手札
+                        <small class="fs-6 text-muted fw-normal d-none d-md-inline">Field Notes & Lead Intelligence Dossier</small>
+                    </h1>
+                </div>
+                
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="btnSyncSheet">
+                        <i class="fa-solid fa-rotate"></i> 重新載入試算表
+                    </button>
+                    <div class="btn-group p-1 bg-dark rounded-3 border border-secondary border-opacity-25" role="group">
+                        <button type="button" class="btn btn-sm btn-dark active" id="viewModeCard" title="卡片透視模式">
+                            <i class="fa-solid fa-grip"></i> 卡片視圖
+                        </button>
+                        <button type="button" class="btn btn-sm btn-dark" id="viewModeTimeline" title="時間軸模式">
+                            <i class="fa-solid fa-timeline"></i> 時空流
+                        </button>
+                        <button type="button" class="btn btn-sm btn-dark" id="viewModeTable" title="審計報表模式">
+                            <i class="fa-solid fa-table-list"></i> 報表
+                        </button>
+                    </div>
+                    <button class="btn btn-glow-pink btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalAddNote">
+                        <i class="fa-solid fa-plus"></i> 新增考察情報
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row g-3 mt-3">
+                <div class="col-6 col-md-3">
+                    <div class="glass-panel p-3 d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(236, 72, 153, 0.15); color: var(--uv-accent-pink);">
+                            <i class="fa-solid fa-fire fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">S / A 級高意向商機</div>
+                            <div class="fs-4 fw-bold text-white" id="statHotLeads">7 <small class="fs-6 text-pink fw-normal" style="color: var(--uv-accent-pink);">/ 18 人</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-panel p-3 d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(139, 92, 246, 0.15); color: var(--uv-primary-light);">
+                            <i class="fa-solid fa-user-check fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">已轉入 CRM 客戶檔</div>
+                            <div class="fs-4 fw-bold text-white" id="statConvertedCrm">5 <small class="fs-6 text-muted fw-normal">筆</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-panel p-3 d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(6, 182, 212, 0.15); color: var(--uv-accent-cyan);">
+                            <i class="fa-solid fa-microphone-lines fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">錄音語音備忘錄</div>
+                            <div class="fs-4 fw-bold text-white" id="statAudioCount">12 <small class="fs-6 text-muted fw-normal">段音軌</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-panel p-3 d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(245, 158, 11, 0.15); color: var(--uv-accent-amber);">
+                            <i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">待跟進任務 (72hr)</div>
+                            <div class="fs-4 fw-bold text-warning" id="statPendingTodos">4 <small class="fs-6 text-muted fw-normal">項急迫</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="glass-panel p-3 mb-4">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-4 col-xl-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="inputSearch" class="form-control" placeholder="搜尋人脈姓名、公司、痛點或標籤...">
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <select id="filterStage" class="form-select form-select-sm">
+                        <option value="ALL">全部商機等級 (All Stages)</option>
+                        <option value="S">S 級 - 核心戰略夥伴 / 即刻簽單</option>
+                        <option value="A">A 級 - 高度興趣 / 評估制度</option>
+                        <option value="B">B 級 - 一般潛在 / 產品體驗</option>
+                        <option value="C">C 級 - 觀望名單 / 長期跟進</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <select id="filterAuthor" class="form-select form-select-sm">
+                        <option value="ALL">全部記錄人 (Ray / Jarvis)</option>
+                        <option value="Ray">Ray (招商與體系對接)</option>
+                        <option value="Jarvis">Jarvis (制度精算與系統)</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 col-xl-5 text-md-end">
+                    <div class="d-inline-flex flex-wrap gap-1 align-items-center">
+                        <span class="small text-muted me-1"><i class="fa-solid fa-tags"></i> 熱門標籤:</span>
+                        <a href="javascript:void(0)" class="tag-badge text-decoration-none" onclick="filterByTag('吉隆坡OPP')">#吉隆坡OPP</a>
+                        <a href="javascript:void(0)" class="tag-badge text-decoration-none" onclick="filterByTag('清真認證')">#清真認證</a>
+                        <a href="javascript:void(0)" class="tag-badge text-decoration-none" onclick="filterByTag('雙軌加盟')">#雙軌加盟</a>
+                        <a href="javascript:void(0)" class="tag-badge text-decoration-none" onclick="filterByTag('大馬領袖')">#大馬領袖</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main id="containerCardView" class="row g-4">
+            </main>
+
+        <main id="containerTimelineView" class="timeline-stream d-none">
+            </main>
+
+        <main id="containerTableView" class="glass-panel p-3 d-none">
+            <div class="table-responsive">
+                <table id="tableNotes" class="table table-dark table-hover w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>單號</th>
+                            <th>洽談對象 / 背景</th>
+                            <th>商機意向</th>
+                            <th>洽談要點與訴求</th>
+                            <th>下一步行動與時限</th>
+                            <th>責任人</th>
+                            <th>轉入CRM</th>
+                            <th class="text-end">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </main>
+
+    </div>
+
+    <div class="modal fade" id="modalAddNote" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-panel border-purple" style="background: #140a28;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-primary"></i> 記錄實地考察情報與潛在商機
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formNoteMaster">
+                        <input type="hidden" id="fieldNoteId">
+                        
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user"></i> 洽談對象姓名 *</label>
+                                <input type="text" id="inputContactName" class="form-control" placeholder="例：Dato' Sri Tan / 陳總經理" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-building"></i> 所屬機構 / 公司背景</label>
+                                <input type="text" id="inputOrganization" class="form-control" placeholder="例：大馬某雙軌團隊高階 / 綠色生技通路">
+                            </div>
+                            
+                            <div class="col-6 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-bullseye"></i> 商機意向等級 *</label>
+                                <select id="selectLeadStage" class="form-select">
+                                    <option value="S">S 級 - 極高意向 (預備結盟/直接簽約)</option>
+                                    <option value="A" selected>A 級 - 高意向 (深入評估制度/排定二次會)</option>
+                                    <option value="B">B 級 - 中度意向 (索取樣品/體驗產品)</option>
+                                    <option value="C">C 級 - 一般人脈 (保持社群聯繫)</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user-tag"></i> 身份角色分類</label>
+                                <select id="selectTargetRole" class="form-select">
+                                    <option value="直銷領袖">同業/直銷體系領袖</option>
+                                    <option value="傳統通路商">傳統實體通路商/藥局</option>
+                                    <option value="投資人/KOL">商業投資人 / 網紅KOL</option>
+                                    <option value="專業經理人">專業經理人 / 研發人員</option>
+                                    <option value="一般消費者">熱心消費者 / 親友介紹</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user-pen"></i> 情報記錄人</label>
+                                <select id="selectAuthor" class="form-select">
+                                    <option value="Ray">Ray (榮祥)</option>
+                                    <option value="Jarvis">Jarvis</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-phone"></i> 聯絡電話 / WhatsApp</label>
+                                <input type="text" id="inputPhone" class="form-control" placeholder="+60 12-345 6789">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-brands fa-line"></i> LINE ID / 微信</label>
+                                <input type="text" id="inputLine" class="form-control" placeholder="WeChat or LINE ID">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-day"></i> 會面日期與時間</label>
+                                <input type="datetime-local" id="inputMeetingTime" class="form-control">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-location-dot"></i> 會面地點</label>
+                                <input type="text" id="inputLocation" class="form-control" placeholder="例：吉隆坡 JW Marriott Executive Lounge">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-file-lines"></i> 核心洽談要點、關注痛點與承諾事項 *</label>
+                                <textarea id="inputKeyPoints" rows="3" class="form-control" placeholder="詳述客戶最關心的制度斷代、馬幣換算、清真認證、995/樟芝大馬進口時程..." required></textarea>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-list-check"></i> 下一步跟進行動 (Next Action)</label>
+                                <input type="text" id="inputNextAction" class="form-control" placeholder="例：寄送海外發包手冊與樟芝臨床簡報">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-xmark"></i> 跟進時限</label>
+                                <input type="date" id="inputDeadline" class="form-control">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user-shield"></i> 責任指派</label>
+                                <select id="selectAssignee" class="form-select">
+                                    <option value="Ray">Ray (親自對接)</option>
+                                    <option value="Jarvis">Jarvis (系統支援)</option>
+                                    <option value="共同推進">雙創始人共同推進</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-tags"></i> 分類標籤 (以逗號分隔)</label>
+                                <input type="text" id="inputTags" class="form-control" placeholder="例：吉隆坡OPP, 清真認證, 雙軌加盟">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-image"></i> 名片照片 URL (或上傳圖檔)</label>
+                                <input type="text" id="inputCardUrl" class="form-control" placeholder="https://drive.google.com/...">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-microphone"></i> 語音備忘錄 URL (Google Drive / S3)</label>
+                                <input type="text" id="inputVoiceUrl" class="form-control" placeholder="https://drive.google.com/.../voice.mp3">
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch p-2 bg-dark rounded-3 border border-secondary border-opacity-25">
+                                    <input class="form-check-input ms-0 me-2" type="checkbox" id="chkAutoConvertCrm" checked>
+                                    <label class="form-check-label text-white small" for="chkAutoConvertCrm">
+                                        <i class="fa-solid fa-share-nodes text-primary"></i> 同步建立並關聯至《CRM 客戶主檔》（表 37 crm_customers）
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-secondary border-opacity-25">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-glow-primary px-4">
+                                <i class="fa-solid fa-floppy-disk"></i> 儲存情報手札
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCardPreview" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-purple" style="background: #140a28;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title text-white small" id="previewCardTitle"><i class="fa-solid fa-address-card"></i> 實體名片存檔掃描</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img id="previewCardImage" src="" alt="名片掃描檔" class="img-fluid rounded-3 border border-secondary border-opacity-50 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Google 試算表欄位解耦適配器 (Decoupling Schema Mapping)
+        const DATA_SCHEMA_MAP = {
+            my_field_notes: {
+                note_id: ['筆記單號', '情報編號', 'ID', 'NoteID', 'note_id'],
+                trip_id: ['出差代碼', '行程編號', 'TripID', 'trip_id'],
+                author: ['記錄人', '填表人', 'Author', 'author'],
+                contact_name: ['對象姓名', '聯絡人', '商機姓名', 'ContactName', 'contact_name'],
+                target_role: ['身份屬性', '角色分類', 'TargetRole', 'target_role'],
+                lead_stage: ['商機意向', '意向等級', '階段', 'LeadStage', 'lead_stage'],
+                organization: ['所屬單位', '背景公司', 'Organization', 'organization'],
+                phone: ['聯絡電話', '電話', 'Phone', 'phone'],
+                line_whatsapp: ['通訊軟體', 'LINE_WA', 'WhatsApp', 'line_whatsapp'],
+                meeting_time: ['會面時間', '洽談日期', 'MeetingTime', 'meeting_time'],
+                location: ['會面地點', '洽談場所', 'Location', 'location'],
+                key_points: ['洽談要點', '痛點訴求', 'KeyPoints', 'key_points'],
+                next_action: ['下一步行動', '待辦追蹤', 'NextAction', 'next_action'],
+                action_deadline: ['跟進截止日', 'Deadline', 'action_deadline'],
+                assignee: ['跟進責任人', '指派人', 'Assignee', 'assignee'],
+                tags: ['標籤', '分類標籤', 'Tags', 'tags'],
+                card_img_url: ['名片照片URL', '名片圖檔', 'CardImage', 'card_img_url'],
+                voice_memo_url: ['語音備忘URL', '錄音檔', 'VoiceMemo', 'voice_memo_url'],
+                is_converted_crm: ['已轉CRM', 'IsCRM', 'is_converted_crm'],
+                status: ['跟進狀態', '狀態', 'Status', 'status']
+            }
+        };
+
+        // 2. 模擬與 Google 試算表同步之初始資料庫
+        let fieldNotesData = [
+            {
+                note_id: "NOTE-202608-001",
+                trip_id: "MY-202608-KL",
+                author: "Ray",
+                contact_name: "Dato' Sri Bryan Lim",
+                target_role: "直銷領袖",
+                lead_stage: "S",
+                organization: "大馬某知名雙軌體系皇冠大使 (直推團隊破萬人)",
+                phone: "+60 12-888 9922",
+                line_whatsapp: "+60128889922",
+                meeting_time: "2026-08-16 15:30",
+                location: "吉隆坡 Pavilion Hotel 貴賓廳",
+                key_points: "極度認同葡眾 995 與樟芝液之研發護城河，關注大馬清真認證核發進度。對於 160/3200 SV 門檻與經理緊縮斷代機制感到驚艷，計畫引進核心 50 位骨幹跳槽加盟。",
+                next_action: "提供大馬雙軌跨境獎金實測推演表，並排定 8/20 台北視訊二會",
+                action_deadline: "2026-08-20",
+                assignee: "Ray",
+                tags: ["吉隆坡OPP", "雙軌加盟", "大馬領袖", "S級戰略"],
+                card_img_url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80",
+                voice_memo_url: "https://example.com/audio/memo1.mp3",
+                is_converted_crm: true,
+                status: "FOLLOWING"
+            },
+            {
+                note_id: "NOTE-202608-002",
+                trip_id: "MY-202608-KL",
+                author: "Jarvis",
+                contact_name: "Dr. Farah Amani",
+                target_role: "傳統通路商",
+                lead_stage: "A",
+                organization: "雪蘭莪連鎖藥局聯盟 (共 18 間門市負責人)",
+                phone: "+60 16-234 5678",
+                line_whatsapp: "farah_rx",
+                meeting_time: "2026-08-17 11:00",
+                location: "Mid Valley Megamall 咖啡館",
+                key_points: "對康貝兒益生菌與衛傑配方高度感興趣。希望了解門市陳列合作模式與直銷零售利潤比率。需確保供貨穩定度與專利檢驗報告掃描檔。",
+                next_action: "寄發專利認證中英文背書資料庫（表 11 prd_patents）及展示樣品箱",
+                action_deadline: "2026-08-19",
+                assignee: "Jarvis",
+                tags: ["清真認證", "連鎖藥局", "產品體驗"],
+                card_img_url: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80",
+                voice_memo_url: "https://example.com/audio/memo2.mp3",
+                is_converted_crm: true,
+                status: "FOLLOWING"
+            },
+            {
+                note_id: "NOTE-202608-003",
+                trip_id: "MY-202608-KL",
+                author: "Ray",
+                contact_name: "Kenji Wong (黃總監)",
+                target_role: "投資人/KOL",
+                lead_stage: "B",
+                organization: "吉隆坡數位生技創投 / 跨境電商操盤手",
+                phone: "+60 17-901 2345",
+                line_whatsapp: "kenji_invest",
+                meeting_time: "2026-08-18 18:00",
+                location: "Suria KLCC Marini's on 57",
+                key_points: "探討線上自媒體引流與短影音導購分銷可行性，評估團隊版系統（Blue Theme）與自動化進人漏斗的整合度。目前持觀望態度，待大馬總部正式開幕後再做大規模投放。",
+                next_action: "邀請加入 WhatsApp 戰情社群，每週推播台灣成功見證影音",
+                action_deadline: "2026-08-25",
+                assignee: "Ray",
+                tags: ["自媒體引流", "投資人", "長期培育"],
+                card_img_url: "",
+                voice_memo_url: "",
+                is_converted_crm: false,
+                status: "FOLLOWING"
+            }
+        ];
+
+        let dataTableInstance = null;
+
+        // 3. 頁面初始化與事件綁定
+        $(document).ready(function() {
+            renderDossierCards(fieldNotesData);
+            renderTimeline(fieldNotesData);
+            initDataTable(fieldNotesData);
+            updateDashboardStats();
+
+            // 搜尋與篩選事件
+            $('#inputSearch, #filterStage, #filterAuthor').on('input change', function() {
+                applyFilters();
+            });
+
+            // 視圖切換
+            $('#viewModeCard').on('click', function() {
+                $(this).addClass('active').siblings().removeClass('active');
+                $('#containerCardView').removeClass('d-none');
+                $('#containerTimelineView, #containerTableView').addClass('d-none');
+            });
+            $('#viewModeTimeline').on('click', function() {
+                $(this).addClass('active').siblings().removeClass('active');
+                $('#containerTimelineView').removeClass('d-none');
+                $('#containerCardView, #containerTableView').addClass('d-none');
+            });
+            $('#viewModeTable').on('click', function() {
+                $(this).addClass('active').siblings().removeClass('active');
+                $('#containerTableView').removeClass('d-none');
+                $('#containerCardView, #containerTimelineView').addClass('d-none');
+                if (dataTableInstance) dataTableInstance.columns.adjust().draw();
+            });
+
+            // 表單提交事件
+            $('#formNoteMaster').on('submit', function(e) {
+                e.preventDefault();
+                submitNoteForm();
+            });
+
+            // 試算表同步按鈕模擬
+            $('#btnSyncSheet').on('click', function() {
+                const $icon = $(this).find('i');
+                $icon.addClass('fa-spin');
+                setTimeout(() => {
+                    $icon.removeClass('fa-spin');
+                    renderDossierCards(fieldNotesData);
+                    renderTimeline(fieldNotesData);
+                    initDataTable(fieldNotesData);
+                    updateDashboardStats();
+                    alert("已成功自 Google 試算表 (表 807 my_field_notes) 同步最新數據！");
+                }, 600);
+            });
+        });
+
+        // 4. 渲染卡片透視視圖 (Dossier Cards)
+        function renderDossierCards(data) {
+            const $container = $('#containerCardView');
+            $container.empty();
+
+            if (data.length === 0) {
+                $container.html(`
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fa-solid fa-magnifying-glass fa-3x mb-3 opacity-25"></i>
+                        <p class="mb-0">查無符合條件的考察筆記情報</p>
+                    </div>
+                `);
+                return;
+            }
+
+            data.forEach(item => {
+                const stageClass = `stage-${item.lead_stage}`;
+                const priorityClass = `priority-${item.lead_stage}`;
+                const hasCardImg = !!item.card_img_url;
+                const hasVoice = !!item.voice_memo_url;
+
+                // 標籤渲染
+                const tagsHtml = item.tags.map(t => `<span class="tag-badge">#${t}</span>`).join(' ');
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="dossier-card ${priorityClass} p-3 p-xl-4 h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="stage-pill ${stageClass}">${item.lead_stage} 級商機</span>
+                                            <span class="badge bg-dark border border-secondary border-opacity-50 text-muted">${item.target_role}</span>
+                                        </div>
+                                        <h2 class="h5 fw-bold text-white mb-0">${item.contact_name}</h2>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="small text-muted d-block">${item.meeting_time.split(' ')[0]}</span>
+                                        <span class="badge bg-purple-subtle text-purple" style="color: var(--uv-primary-light);">${item.author} 記</span>
+                                    </div>
+                                </div>
+
+                                <p class="small text-muted mb-3"><i class="fa-solid fa-building text-secondary"></i> ${item.organization || '個人獨立加盟'}</p>
+
+                                <div class="card-flip-container mb-3" onclick="this.classList.toggle('flipped')">
+                                    <div class="card-flip-inner">
+                                        <div class="card-front">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="rounded-circle p-2 bg-dark border border-secondary border-opacity-25 text-primary" style="color: var(--uv-primary-light) !important;">
+                                                    <i class="fa-solid fa-address-card fa-2x"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="small fw-bold text-white">${item.contact_name}</div>
+                                                    <div class="text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-phone"></i> ${item.phone || '未登記電話'}</div>
+                                                    <div class="text-muted" style="font-size: 0.75rem;"><i class="fa-brands fa-line"></i> ${item.line_whatsapp || '未登記通訊'}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-dark border border-secondary text-muted" style="font-size: 0.7rem;"><i class="fa-solid fa-arrows-rotate"></i> 翻轉名片</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-back text-center">
+                                            <div class="small text-muted mb-1"><i class="fa-solid fa-location-dot"></i> 會面場所</div>
+                                            <div class="small text-white fw-bold mb-2">${item.location}</div>
+                                            ${hasCardImg ? `
+                                                <button class="btn btn-sm btn-outline-info py-0" style="font-size: 0.75rem;" onclick="event.stopPropagation(); previewCard('${item.card_img_url}', '${item.contact_name}')">
+                                                    <i class="fa-solid fa-expand"></i> 檢視名片高清圖檔
+                                                </button>
+                                            ` : '<span class="text-muted small">無實體名片圖檔</span>'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-10 mb-3">
+                                    <div class="small fw-bold text-light mb-1"><i class="fa-solid fa-comment-dots text-primary"></i> 核心訴求與反饋：</div>
+                                    <div class="small text-muted text-truncate-3" style="line-height: 1.5;">${item.key_points}</div>
+                                </div>
+
+                                ${hasVoice ? `
+                                    <div class="voice-memo-bar mb-3">
+                                        <button class="btn btn-sm btn-dark rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; color: var(--uv-accent-cyan);" onclick="toggleVoicePlay(this)">
+                                            <i class="fa-solid fa-play"></i>
+                                        </button>
+                                        <div class="wave-anim">
+                                            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                                            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                                        </div>
+                                        <span class="small text-muted" style="font-size: 0.7rem;">01:45 語音速記</span>
+                                    </div>
+                                ` : ''}
+
+                                <div class="mb-3">
+                                    ${tagsHtml}
+                                </div>
+                            </div>
+
+                            <div class="pt-3 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between gap-2">
+                                <div class="small">
+                                    <div class="text-muted" style="font-size: 0.75rem;">跟進時限: <span class="text-warning">${item.action_deadline}</span> (${item.assignee})</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    ${item.is_converted_crm ? 
+                                        `<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" title="已建檔至 CRM 主檔"><i class="fa-solid fa-check"></i> CRM</span>` :
+                                        `<button class="btn btn-sm btn-outline-warning py-0 px-2" style="font-size: 0.75rem;" onclick="convertToCrm('${item.note_id}')"><i class="fa-solid fa-share-from-square"></i> 轉CRM</button>`
+                                    }
+                                    <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.75rem;" onclick="editNote('${item.note_id}')">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $container.append(cardHtml);
+            });
+        }
+
+        // 5. 渲染時空流歷程視圖 (Timeline View)
+        function renderTimeline(data) {
+            const $timeline = $('#containerTimelineView');
+            $timeline.empty();
+
+            // 按時間排序
+            const sorted = [...data].sort((a, b) => new Date(b.meeting_time) - new Date(a.meeting_time));
+
+            sorted.forEach(item => {
+                const nodeClass = `node-${item.lead_stage}`;
+                const nodeHtml = `
+                    <div class="timeline-node ${nodeClass}">
+                        <div class="glass-panel p-3 p-md-4">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="stage-pill stage-${item.lead_stage}">${item.lead_stage} 級</span>
+                                    <h3 class="h6 fw-bold text-white mb-0">${item.contact_name} (${item.organization || '獨立經營'})</h3>
+                                </div>
+                                <div class="small text-muted">
+                                    <i class="fa-regular fa-clock"></i> ${item.meeting_time} ｜ <i class="fa-solid fa-location-dot"></i> ${item.location}
+                                </div>
+                            </div>
+                            <p class="small text-light mb-2">${item.key_points}</p>
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-10 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                <span class="small text-warning"><i class="fa-solid fa-arrow-right"></i> 下一步: ${item.next_action}</span>
+                                <span class="small text-muted">指派責任人: <strong class="text-white">${item.assignee}</strong> (限期 ${item.action_deadline})</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $timeline.append(nodeHtml);
+            });
+        }
+
+        // 6. 初始化 DataTable 審計表格
+        function initDataTable(data) {
+            if (dataTableInstance) {
+                dataTableInstance.destroy();
+            }
+
+            const tableData = data.map(item => [
+                `<span class="badge bg-dark border border-secondary">${item.note_id}</span>`,
+                `<strong>${item.contact_name}</strong><br><small class="text-muted">${item.organization}</small>`,
+                `<span class="stage-pill stage-${item.lead_stage}">${item.lead_stage} 級</span>`,
+                `<div class="small text-truncate" style="max-width: 250px;" title="${item.key_points}">${item.key_points}</div>`,
+                `<small class="text-warning">${item.next_action}</small><br><span class="text-muted" style="font-size: 0.75rem;">截止: ${item.action_deadline}</span>`,
+                `<span class="badge bg-purple-subtle text-purple">${item.assignee}</span>`,
+                item.is_converted_crm ? `<span class="badge bg-success">已轉入</span>` : `<span class="badge bg-secondary">未建檔</span>`,
+                `<div class="text-end">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editNote('${item.note_id}')"><i class="fa-solid fa-pen"></i></button>
+                 </div>`
+            ]);
+
+            dataTableInstance = $('#tableNotes').DataTable({
+                data: tableData,
+                pageLength: 10,
+                ordering: true,
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "過濾表格資料...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        first: "首頁",
+                        last: "末頁",
+                        next: "下一頁",
+                        previous: "上一頁"
+                    }
+                }
+            });
+        }
+
+        // 7. 多維度動態篩選引擎
+        function applyFilters() {
+            const keyword = $('#inputSearch').val().toLowerCase().trim();
+            const stage = $('#filterStage').val();
+            const author = $('#filterAuthor').val();
+
+            const filtered = fieldNotesData.filter(item => {
+                const matchKeyword = !keyword || 
+                    item.contact_name.toLowerCase().includes(keyword) ||
+                    item.organization.toLowerCase().includes(keyword) ||
+                    item.key_points.toLowerCase().includes(keyword) ||
+                    item.tags.some(t => t.toLowerCase().includes(keyword));
+
+                const matchStage = (stage === 'ALL') || (item.lead_stage === stage);
+                const matchAuthor = (author === 'ALL') || (item.author === author);
+
+                return matchKeyword && matchStage && matchAuthor;
+            });
+
+            renderDossierCards(filtered);
+            renderTimeline(filtered);
+            initDataTable(filtered);
+        }
+
+        function filterByTag(tag) {
+            $('#inputSearch').val(tag);
+            applyFilters();
+        }
+
+        // 8. 戰情微型指標更新
+        function updateDashboardStats() {
+            const hotCount = fieldNotesData.filter(d => d.lead_stage === 'S' || d.lead_stage === 'A').length;
+            const convertedCount = fieldNotesData.filter(d => d.is_converted_crm).length;
+            const audioCount = fieldNotesData.filter(d => !!d.voice_memo_url).length;
+
+            $('#statHotLeads').html(`${hotCount} <small class="fs-6 text-pink fw-normal" style="color: var(--uv-accent-pink);">/ ${fieldNotesData.length} 人</small>`);
+            $('#statConvertedCrm').text(convertedCount);
+            $('#statAudioCount').text(audioCount);
+        }
+
+        // 9. 提交新增 / 編輯表單
+        function submitNoteForm() {
+            const noteId = $('#fieldNoteId').val() || `NOTE-202608-00${fieldNotesData.length + 1}`;
+            const tagsArray = $('#inputTags').val().split(/[,，]/).map(t => t.trim()).filter(Boolean);
+
+            const newNote = {
+                note_id: noteId,
+                trip_id: "MY-202608-KL",
+                author: $('#selectAuthor').val(),
+                contact_name: $('#inputContactName').val().trim(),
+                target_role: $('#selectTargetRole').val(),
+                lead_stage: $('#selectLeadStage').val(),
+                organization: $('#inputOrganization').val().trim(),
+                phone: $('#inputPhone').val().trim(),
+                line_whatsapp: $('#inputLine').val().trim(),
+                meeting_time: $('#inputMeetingTime').val() || new Date().toISOString().slice(0, 16).replace('T', ' '),
+                location: $('#inputLocation').val().trim() || '吉隆坡出差行程',
+                key_points: $('#inputKeyPoints').val().trim(),
+                next_action: $('#inputNextAction').val().trim(),
+                action_deadline: $('#inputDeadline').val() || '2026-08-30',
+                assignee: $('#selectAssignee').val(),
+                tags: tagsArray.length ? tagsArray : ['大馬考察'],
+                card_img_url: $('#inputCardUrl').val().trim(),
+                voice_memo_url: $('#inputVoiceUrl').val().trim(),
+                is_converted_crm: $('#chkAutoConvertCrm').is(':checked'),
+                status: "FOLLOWING"
+            };
+
+            const existingIndex = fieldNotesData.findIndex(d => d.note_id === noteId);
+            if (existingIndex > -1) {
+                fieldNotesData[existingIndex] = newNote;
+            } else {
+                fieldNotesData.unshift(newNote);
+            }
+
+            // 關閉 Modal 並重設
+            const modalEl = document.getElementById('modalAddNote');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+            $('#formNoteMaster')[0].reset();
+            $('#fieldNoteId').val('');
+
+            // 重新渲染
+            applyFilters();
+            updateDashboardStats();
+
+            alert(`情報手札「${newNote.contact_name} (${newNote.lead_stage}級)」已成功登記，並同步更新至資料庫與 CRM 中樞！`);
+        }
+
+        // 10. 編輯筆記
+        function editNote(noteId) {
+            const item = fieldNotesData.find(d => d.note_id === noteId);
+            if (!item) return;
+
+            $('#fieldNoteId').val(item.note_id);
+            $('#inputContactName').val(item.contact_name);
+            $('#inputOrganization').val(item.organization);
+            $('#selectLeadStage').val(item.lead_stage);
+            $('#selectTargetRole').val(item.target_role);
+            $('#selectAuthor').val(item.author);
+            $('#inputPhone').val(item.phone);
+            $('#inputLine').val(item.line_whatsapp);
+            $('#inputMeetingTime').val(item.meeting_time.replace(' ', 'T'));
+            $('#inputLocation').val(item.location);
+            $('#inputKeyPoints').val(item.key_points);
+            $('#inputNextAction').val(item.next_action);
+            $('#inputDeadline').val(item.action_deadline);
+            $('#selectAssignee').val(item.assignee);
+            $('#inputTags').val(item.tags.join(', '));
+            $('#inputCardUrl').val(item.card_img_url);
+            $('#inputVoiceUrl').val(item.voice_memo_url);
+            $('#chkAutoConvertCrm').prop('checked', item.is_converted_crm);
+
+            const modal = new bootstrap.Modal(document.getElementById('modalAddNote'));
+            modal.show();
+        }
+
+        // 11. 一鍵轉入 CRM 主檔 (表 37 crm_customers)
+        function convertToCrm(noteId) {
+            const item = fieldNotesData.find(d => d.note_id === noteId);
+            if (!item) return;
+
+            item.is_converted_crm = true;
+            applyFilters();
+            updateDashboardStats();
+            alert(`已成功將商機「${item.contact_name}」指派轉換為《CRM 客戶主檔》（CUST-${Date.now().toString().slice(-4)}），後續跟進自動納入團隊追蹤佇列！`);
+        }
+
+        // 12. 名片高清檢視 Lightbox
+        function previewCard(url, title) {
+            $('#previewCardTitle').html(`<i class="fa-solid fa-address-card"></i> ${title} - 實體名片掃描存檔`);
+            $('#previewCardImage').attr('src', url);
+            const modal = new bootstrap.Modal(document.getElementById('modalCardPreview'));
+            modal.show();
+        }
+
+        // 13. 語音撥放器動畫模擬
+        function toggleVoicePlay(btn) {
+            const $icon = $(btn).find('i');
+            if ($icon.hasClass('fa-play')) {
+                $icon.removeClass('fa-play').addClass('fa-pause');
+                $(btn).closest('.voice-memo-bar').find('.wave-bar').css('animation-play-state', 'running');
+            } else {
+                $icon.removeClass('fa-pause').addClass('fa-play');
+                $(btn).closest('.voice-memo-bar').find('.wave-bar').css('animation-play-state', 'paused');
+            }
+        }
+    </script>
+</body>
+</html>

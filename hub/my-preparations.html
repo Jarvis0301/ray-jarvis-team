@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HM8000 行前準備｜馬來西亞專區 - 葡眾戰情中台</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* 魅影紫核心版 (Dark Phantom Purple) 專屬色票體系 */
+            --bg-canvas: #090314;
+            --bg-surface: #120726;
+            --bg-surface-elevated: #1a0b36;
+            --bg-surface-overlay: #240e49;
+            --bg-glass: rgba(26, 11, 54, 0.75);
+            --bg-glass-hover: rgba(43, 17, 86, 0.85);
+            
+            --border-subtle: rgba(199, 125, 255, 0.15);
+            --border-primary: rgba(199, 125, 255, 0.35);
+            --border-focus: #c77dff;
+            
+            --color-primary: #c77dff;
+            --color-primary-glow: rgba(199, 125, 255, 0.4);
+            --color-secondary: #9d4edd;
+            --color-accent: #fde047;
+            --color-accent-subtle: rgba(253, 224, 71, 0.15);
+            
+            --color-success: #34d399;
+            --color-success-bg: rgba(52, 211, 153, 0.12);
+            --color-warning: #fbbf24;
+            --color-warning-bg: rgba(251, 191, 36, 0.12);
+            --color-danger: #fb7185;
+            --color-danger-bg: rgba(251, 113, 133, 0.12);
+            --color-info: #38bdf8;
+            --color-info-bg: rgba(56, 189, 248, 0.12);
+            
+            --text-main: #f8fafc;
+            --text-muted: #a78bfa;
+            --text-subtle: #7c68a4;
+            
+            --font-family-sans: 'Inter', 'Noto Sans TC', sans-serif;
+            --font-family-mono: 'JetBrains Mono', monospace;
+            
+            --shadow-purple-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-purple-glow: 0 0 20px rgba(157, 78, 221, 0.25);
+            --shadow-critical-pulse: 0 0 15px rgba(251, 113, 133, 0.4);
+            
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-pill: 9999px;
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(123, 44, 191, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(60, 9, 108, 0.35) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(15, 5, 29, 0.9) 0%, var(--bg-canvas) 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-family-sans);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mono-text {
+            font-family: var(--font-family-mono);
+        }
+
+        /* 頂部戰備指揮 HUD (Head-Up Display) */
+        .readiness-hud-container {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-purple-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .readiness-hud-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #c77dff, #fde047, #34d399, #c77dff);
+            background-size: 300% 100%;
+            animation: gradientBorder 6s ease infinite;
+        }
+
+        @keyframes gradientBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hud-metric-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            height: 100%;
+            transition: var(--transition-smooth);
+        }
+
+        .hud-metric-card:hover {
+            border-color: var(--border-primary);
+            transform: translateY(-2px);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* 時序戰備階段標籤軌道 (Time-phased Capsule Track) */
+        .phase-nav-scroller {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-primary) transparent;
+        }
+
+        .phase-nav-scroller::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .phase-nav-scroller::-webkit-scrollbar-thumb {
+            background: var(--border-primary);
+            border-radius: 10px;
+        }
+
+        .phase-capsule-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.25rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-pill);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-right: 0.75rem;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .phase-capsule-btn:hover {
+            background: var(--bg-surface-overlay);
+            color: var(--text-main);
+            border-color: var(--border-primary);
+        }
+
+        .phase-capsule-btn.active {
+            background: linear-gradient(135deg, #7b2cbf 0%, #3c096c 100%);
+            color: #ffffff;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 15px rgba(199, 125, 255, 0.4);
+        }
+
+        .phase-capsule-btn .badge-count {
+            margin-left: 0.5rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.75rem;
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        /* 戰備維度與篩選控制器 */
+        .filter-control-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .founder-pill-toggle .btn {
+            border-radius: var(--radius-pill);
+            padding: 0.35rem 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            background: transparent;
+        }
+
+        .founder-pill-toggle .btn.active {
+            background: var(--color-primary);
+            color: #090314;
+            border-color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        /* 戰備項目卡片 (Matrix Checklist Item Card) */
+        .prep-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 576px) {
+            .prep-card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .prep-item-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            position: relative;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .prep-item-card:hover {
+            border-color: var(--border-primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-purple-glow);
+        }
+
+        .prep-item-card.is-completed {
+            border-color: rgba(52, 211, 153, 0.4);
+            background: rgba(18, 7, 38, 0.65);
+        }
+
+        .prep-item-card.is-critical {
+            border-left: 4px solid var(--color-danger);
+        }
+
+        .prep-item-card.is-critical.is-pending {
+            box-shadow: var(--shadow-critical-pulse);
+        }
+
+        .category-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cat-entry { background: rgba(199, 125, 255, 0.15); color: #c77dff; border: 1px solid rgba(199, 125, 255, 0.3); }
+        .cat-comm { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .cat-fin { background: rgba(253, 224, 71, 0.15); color: #fde047; border: 1px solid rgba(253, 224, 71, 0.3); }
+        .cat-elec { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+        .cat-doc { background: rgba(167, 139, 250, 0.15); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.3); }
+        .cat-med { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+
+        .priority-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+        }
+
+        .priority-critical { background: var(--color-danger-bg); color: var(--color-danger); border: 1px solid rgba(251, 113, 133, 0.3); }
+        .priority-high { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .priority-normal { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+        /* 互動勾選與狀態按鈕組 */
+        .check-status-trigger {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-pill);
+            border: 2px solid var(--border-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            background: transparent;
+            color: transparent;
+            flex-shrink: 0;
+        }
+
+        .check-status-trigger:hover {
+            border-color: var(--color-primary);
+            background: rgba(199, 125, 255, 0.15);
+            color: var(--color-primary);
+        }
+
+        .check-status-trigger.active-completed {
+            background: var(--color-success);
+            border-color: var(--color-success);
+            color: #090314;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+        }
+
+        .assignee-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-pill);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-right: 0.4rem;
+        }
+
+        .avatar-ray { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+        .avatar-jarvis { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+        .avatar-both { background: linear-gradient(135deg, #f59e0b, #10b981); }
+
+        /* 行前戰備指引懸浮 Modal 與表單 */
+        .modal-content-purple {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), var(--shadow-purple-glow);
+            color: var(--text-main);
+        }
+
+        .modal-header-purple {
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .modal-footer-purple {
+            border-top: 1px solid var(--border-subtle);
+            padding: 1rem 1.5rem;
+        }
+
+        .form-control-purple, .form-select-purple {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.9rem;
+        }
+
+        .form-control-purple:focus, .form-select-purple:focus {
+            background-color: var(--bg-surface-overlay);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 0.25rem rgba(199, 125, 255, 0.25);
+            color: var(--text-main);
+        }
+
+        /* 快速連結卡 (Quick Utility Drawer) */
+        .utility-link-btn {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: var(--transition-smooth);
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .utility-link-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: var(--bg-surface-overlay);
+        }
+
+        /* 動畫效果 */
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-md-4 py-4 max-width-xxl">
+        
+        <div class="readiness-hud-container">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-lg-4">
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative me-3" style="width: 84px; height: 84px;">
+                            <svg width="84" height="84" viewBox="0 0 84 84">
+                                <circle cx="42" cy="42" r="36" stroke="rgba(199, 125, 255, 0.15)" stroke-width="7" fill="none"/>
+                                <circle id="hudProgressRing" class="progress-ring-circle" cx="42" cy="42" r="36" stroke="#c77dff" stroke-width="7" stroke-dasharray="226.19" stroke-dashoffset="67.85" stroke-linecap="round" fill="none"/>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                <span id="hudPercentageText" class="mono-text fw-bold text-white fs-4">70%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-purple-subtle text-primary border border-purple-subtle px-2 py-1 fs-7">
+                                    <i class="fa-solid fa-plane-departure"></i> MY-202608-KL
+                                </span>
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 fs-7">
+                                    <i class="fa-solid fa-clock"></i> 倒數 3 天
+                                </span>
+                            </div>
+                            <h4 class="mb-0 fw-bold text-white tracking-wide">吉隆坡拓荒行前戰備艙</h4>
+                            <small class="text-muted">雙創始人跨國通訊、通關、金流與商務備份總控</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="hud-metric-card">
+                                <div class="text-subtle fs-7 fw-semibold">
+                                    <i class="fa-solid fa-triangle-exclamation text-danger"></i> 關鍵阻斷項 (Blocker)
+                                </div>
+                                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                    <span id="statCriticalPending" class="mono-text fs-3 fw-bold text-danger">1</span>
+                                    <span class="fs-8 text-muted">項尚未申報</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="hud-metric-card">
+                                <div class="text-subtle fs-7 fw-semibold">
+                                    <i class="fa-solid fa-check-double text-success"></i> 已就緒項目
+                                </div>
+                                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                    <span id="statCompletedCount" class="mono-text fs-3 fw-bold text-success">14</span>
+                                    <span id="statTotalCount" class="fs-8 text-muted">/ 20 項總計</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="hud-metric-card d-flex flex-column justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fs-7 fw-semibold text-subtle">
+                                <i class="fa-solid fa-user-group"></i> 創始人分工就緒度
+                            </span>
+                            <span class="badge bg-secondary-subtle text-muted fs-8">即時對齊</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="d-flex align-items-center justify-content-between fs-8 mb-1">
+                                <span><span class="assignee-avatar avatar-ray" style="width: 18px; height: 18px; font-size: 0.65rem;">R</span> Ray (通訊/法規/招商)</span>
+                                <span id="rayProgressText" class="mono-text fw-bold text-info">8/10 (80%)</span>
+                            </div>
+                            <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.08);">
+                                <div id="rayProgressBar" class="progress-bar bg-info" style="width: 80%"></div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center justify-content-between fs-8 mt-2 mb-1">
+                                <span><span class="assignee-avatar avatar-jarvis" style="width: 18px; height: 18px; font-size: 0.65rem;">J</span> Jarvis (金流/行政/物資)</span>
+                                <span id="jarvisProgressText" class="mono-text fw-bold text-accent">6/10 (60%)</span>
+                            </div>
+                            <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.08);">
+                                <div id="jarvisProgressBar" class="progress-bar bg-warning" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="phase-nav-scroller">
+            <button class="phase-capsule-btn active" data-phase="ALL">
+                <i class="fa-solid fa-layer-group"></i> 全域戰備視圖
+                <span class="badge-count" id="countPhaseAll">20</span>
+            </button>
+            <button class="phase-capsule-btn" data-phase="T-14D">
+                <i class="fa-solid fa-passport"></i> T-14D 護照與資格
+                <span class="badge-count" id="countPhaseT14">3</span>
+            </button>
+            <button class="phase-capsule-btn" data-phase="T-7D">
+                <i class="fa-solid fa-credit-card"></i> T-7D 金流與通訊
+                <span class="badge-count" id="countPhaseT7">5</span>
+            </button>
+            <button class="phase-capsule-btn" data-phase="T-3D">
+                <i class="fa-solid fa-file-signature"></i> T-3D MDAC與交通
+                <span class="badge-count" id="countPhaseT3">5</span>
+            </button>
+            <button class="phase-capsule-btn" data-phase="T-1D">
+                <i class="fa-solid fa-briefcase"></i> T-1D 離線與打包
+                <span class="badge-count" id="countPhaseT1">4</span>
+            </button>
+            <button class="phase-capsule-btn" data-phase="D-DAY">
+                <i class="fa-solid fa-plane-up"></i> D-Day 出發通關
+                <span class="badge-count" id="countPhaseDday">3</span>
+            </button>
+        </div>
+
+        <div class="filter-control-panel mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-5">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="fs-8 fw-bold text-subtle text-uppercase tracking-wider">責任人篩選：</span>
+                        <div class="btn-group founder-pill-toggle" role="group">
+                            <button type="button" class="btn active" data-assignee="ALL">
+                                <i class="fa-solid fa-users"></i> 全體
+                            </button>
+                            <button type="button" class="btn" data-assignee="RAY">
+                                <i class="fa-solid fa-user-astronaut"></i> Ray
+                            </button>
+                            <button type="button" class="btn" data-assignee="JARVIS">
+                                <i class="fa-solid fa-user-tie"></i> Jarvis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-8 fw-bold text-subtle text-uppercase tracking-wider">類別：</span>
+                        <select id="selectCategoryFilter" class="form-select form-select-sm form-select-purple">
+                            <option value="ALL">全維度戰備分類 (全部)</option>
+                            <option value="ENTRY">🛂 跨境入境與簽證 (MDAC)</option>
+                            <option value="COMM">📶 跨國通訊與網路 (eSIM)</option>
+                            <option value="FIN">💳 雙幣金流與支付 (Grab/換匯)</option>
+                            <option value="ELEC">⚡ 電力規格與轉接 (英規 Type G)</option>
+                            <option value="DOC">📂 商務資料與離線備份</option>
+                            <option value="MED">💊 醫藥照護與個人常備</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3 text-md-end">
+                    <button class="btn btn-sm btn-outline-primary me-2" id="btnSyncGoogleSheet">
+                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                    </button>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddPreparation">
+                        <i class="fa-solid fa-plus"></i> 新增準備項
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="preparationGrid" class="prep-card-grid">
+            </div>
+
+        <div class="mt-4 p-3 rounded-4" style="background: rgba(18, 7, 38, 0.45); border: 1px dashed var(--border-subtle);">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-bolt text-accent"></i>
+                    <span class="fs-7 fw-bold text-white">官方快捷申報與實用工具直通車：</span>
+                </div>
+                <div class="d-flex flex-wrap align-items-center">
+                    <a href="https://imigresen-online.imi.gov.my/mdac/main" target="_blank" class="utility-link-btn">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-accent"></i> 馬來西亞 MDAC 官方申報
+                    </a>
+                    <a href="https://www.grab.com/my/" target="_blank" class="utility-link-btn">
+                        <i class="fa-solid fa-car-side text-success"></i> Grab Pay 跨境綁卡指引
+                    </a>
+                    <a href="https://www.xe.com/currencyconverter/convert/?Amount=1&From=MYR&To=TWD" target="_blank" class="utility-link-btn">
+                        <i class="fa-solid fa-coins text-warning"></i> XE 即時 MYR/TWD 匯率
+                    </a>
+                    <a href="https://www.klia.com.my/" target="_blank" class="utility-link-btn">
+                        <i class="fa-solid fa-plane text-info"></i> KLIA 吉隆坡國際機場資訊
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalAddPreparation" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-purple">
+                <div class="modal-header modal-header-purple">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-clipboard-list text-primary"></i> 登錄行前商務準備項目
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formPreparationMaster">
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold text-subtle">檢核項目名稱</label>
+                            <input type="text" id="inItemName" class="form-control form-control-purple" placeholder="例：申報 MDAC 馬來西亞入境卡" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fs-7 fw-bold text-subtle">戰備時序階段</label>
+                                <select id="inPhase" class="form-select form-select-purple">
+                                    <option value="T-14D">T-14D 護照與資格</option>
+                                    <option value="T-7D">T-7D 金流與通訊</option>
+                                    <option value="T-3D" selected>T-3D MDAC與交通</option>
+                                    <option value="T-1D">T-1D 離線與打包</option>
+                                    <option value="D-DAY">D-Day 出發通關</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-7 fw-bold text-subtle">戰備維度類別</label>
+                                <select id="inCategory" class="form-select form-select-purple">
+                                    <option value="ENTRY">🛂 跨境入境/簽證</option>
+                                    <option value="COMM">📶 跨國通訊/eSIM</option>
+                                    <option value="FIN">💳 雙幣金流/換匯</option>
+                                    <option value="ELEC">⚡ 電力轉接/行動電源</option>
+                                    <option value="DOC">📂 商務資料/離線</option>
+                                    <option value="MED">💊 醫藥照護/常備</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fs-7 fw-bold text-subtle">責任指派</label>
+                                <select id="inAssignee" class="form-select form-select-purple">
+                                    <option value="RAY">Ray (通訊/法規/招商)</option>
+                                    <option value="JARVIS">Jarvis (金流/行政/物資)</option>
+                                    <option value="ALL">共同雙簽確認</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-7 fw-bold text-subtle">重要級別</label>
+                                <select id="inPriority" class="form-select form-select-purple">
+                                    <option value="CRITICAL">🚨 關鍵阻斷項 (Blocker)</option>
+                                    <option value="HIGH">⚠️ 高優先級 (High)</option>
+                                    <option value="NORMAL" selected>📝 一般清單 (Normal)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold text-subtle">官方申報/工具連結 (選填)</label>
+                            <input type="url" id="inExternalUrl" class="form-control form-control-purple" placeholder="https://...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-bold text-subtle">執行備註與防呆指引</label>
+                            <textarea id="inDescription" rows="2" class="form-control form-control-purple" placeholder="輸入作業細節或注意事項..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer modal-footer-purple">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitPrep">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並同步試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        // ==========================================================================
+        // 核心資料庫模擬與反腐化適配中介層 (表 808 my_preparations)
+        // ==========================================================================
+        
+        let rawPreparationsData = [
+            {
+                prep_id: "PREP-001",
+                trip_id: "MY-202608-KL",
+                phase: "T-14D",
+                category: "ENTRY",
+                item_name: "護照有效期限檢核 (> 6 個月)",
+                description: "確認 Ray 與 Jarvis 護照有效期限均至 2027 年以上，並拍照存檔於團隊極密雲端。",
+                assignee: "ALL",
+                priority: "CRITICAL",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-10 14:20"
+            },
+            {
+                prep_id: "PREP-002",
+                trip_id: "MY-202608-KL",
+                phase: "T-14D",
+                category: "DOC",
+                item_name: "海外商務突發狀況投保 (旅行平安與醫療險)",
+                description: "加保海外突發疾病醫療、海外緊急救援與行李延誤險。",
+                assignee: "JARVIS",
+                priority: "HIGH",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-11 09:30"
+            },
+            {
+                prep_id: "PREP-003",
+                trip_id: "MY-202608-KL",
+                phase: "T-14D",
+                category: "ENTRY",
+                item_name: "確認免簽證入境資格 (台灣護照 30 天免簽)",
+                description: "核對馬來西亞最新移民局入境規範，準備好回程電子機票行程單。",
+                assignee: "RAY",
+                priority: "NORMAL",
+                status: "COMPLETED",
+                external_url: "https://www.kln.gov.my/",
+                last_updated: "2026-08-12 11:00"
+            },
+            {
+                prep_id: "PREP-004",
+                trip_id: "MY-202608-KL",
+                phase: "T-7D",
+                category: "COMM",
+                item_name: "大馬漫遊 eSIM 流量包採購與 QR Code 備份",
+                description: "購買 Celcom/Digi 雙網 10GB 高速方案，並列印實體 QR Code 防呆。",
+                assignee: "RAY",
+                priority: "CRITICAL",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-13 16:45"
+            },
+            {
+                prep_id: "PREP-005",
+                trip_id: "MY-202608-KL",
+                phase: "T-7D",
+                category: "FIN",
+                item_name: "馬幣現鈔儲備 (換匯 RM 3,000 公款)",
+                description: "前往台灣銀行提取馬幣現鈔，主要用於吉隆坡路邊攤、小額採購與應急。",
+                assignee: "JARVIS",
+                priority: "HIGH",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-14 10:15"
+            },
+            {
+                prep_id: "PREP-006",
+                trip_id: "MY-202608-KL",
+                phase: "T-7D",
+                category: "FIN",
+                item_name: "海外雙幣信用卡開通與國外交易密碼 (PIN)",
+                description: "致電銀行確認開通海外刷卡通知，並索取 4 位數交易 PIN 碼（防海外加油或購票機器卡關）。",
+                assignee: "ALL",
+                priority: "HIGH",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-14 14:00"
+            },
+            {
+                prep_id: "PREP-007",
+                trip_id: "MY-202608-KL",
+                phase: "T-7D",
+                category: "ELEC",
+                item_name: "英規 Type G 轉接插頭 (3 扁腳 240V) 準備",
+                description: "準備 4 組英規轉接頭與 1 組多孔 Type-C 氮化鎵 65W 快充排插。",
+                assignee: "JARVIS",
+                priority: "HIGH",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-15 17:30"
+            },
+            {
+                prep_id: "PREP-008",
+                trip_id: "MY-202608-KL",
+                phase: "T-7D",
+                category: "MED",
+                item_name: "個人常備藥品與水土不服急救包",
+                description: "攜帶止瀉藥、腸胃藥、普拿疼、防蚊液（東南亞登革熱防護）與維他命 C。",
+                assignee: "JARVIS",
+                priority: "NORMAL",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-15 19:10"
+            },
+            {
+                prep_id: "PREP-009",
+                trip_id: "MY-202608-KL",
+                phase: "T-3D",
+                category: "ENTRY",
+                item_name: "MDAC 馬來西亞數位入境卡線上申報 (入境前 3 天)",
+                description: "🚨 抵達吉隆坡前 3 天內必須至官方網站填寫並產出 PDF 確認信（包含班機號、住宿飯店地址）。",
+                assignee: "RAY",
+                priority: "CRITICAL",
+                status: "PENDING",
+                external_url: "https://imigresen-online.imi.gov.my/mdac/main",
+                last_updated: "2026-08-16 09:00"
+            },
+            {
+                prep_id: "PREP-010",
+                trip_id: "MY-202608-KL",
+                phase: "T-3D",
+                category: "FIN",
+                item_name: "Grab App 跨境綁卡與電子錢包 (GrabPay) 設定",
+                description: "在台灣預先綁定海外高回饋信用卡並通過 3D 簡訊驗證，避免落地吉隆坡無法叫車。",
+                assignee: "ALL",
+                priority: "HIGH",
+                status: "COMPLETED",
+                external_url: "https://www.grab.com/my/",
+                last_updated: "2026-08-16 11:30"
+            },
+            {
+                prep_id: "PREP-011",
+                trip_id: "MY-202608-KL",
+                phase: "T-3D",
+                category: "COMM",
+                item_name: "Touch 'n Go (TnG) eWallet 實名認證與護照綁定",
+                description: "開通馬來西亞國民級電子錢包，方便於超商、地鐵與搭乘輕軌支付。",
+                assignee: "JARVIS",
+                priority: "NORMAL",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-16 15:40"
+            },
+            {
+                prep_id: "PREP-012",
+                trip_id: "MY-202608-KL",
+                phase: "T-3D",
+                category: "DOC",
+                item_name: "吉隆坡招商簡報 PPT 與見證影音離線載入 iPad",
+                description: "將「995/樟芝生技專利」與「制度拆解 Keynote」存至離線資料夾，以防線下會談網路延遲。",
+                assignee: "RAY",
+                priority: "HIGH",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-16 18:20"
+            },
+            {
+                prep_id: "PREP-013",
+                trip_id: "MY-202608-KL",
+                phase: "T-3D",
+                category: "ENTRY",
+                item_name: "預先下載吉隆坡離線 Google Maps 區域圖",
+                description: "預載 Bukit Bintang、KL Sentral、Mid Valley 等重點拜訪區域圖資。",
+                assignee: "RAY",
+                priority: "NORMAL",
+                status: "COMPLETED",
+                external_url: "",
+                last_updated: "2026-08-17 10:00"
+            },
+            {
+                prep_id: "PREP-014",
+                trip_id: "MY-202608-KL",
+                phase: "T-1D",
+                category: "DOC",
+                item_name: "機票 PNR、登機證與飯店確認函 PDF 列印與離線備份",
+                description: "長榮航空機票行程單與五星級住宿憑證存至手機錢包並列印紙本一份防海關抽查。",
+                assignee: "JARVIS",
+                priority: "HIGH",
+                status: "IN_PROGRESS",
+                external_url: "",
+                last_updated: "2026-08-17 16:00"
+            },
+            {
+                prep_id: "PREP-015",
+                trip_id: "MY-202608-KL",
+                phase: "T-1D",
+                category: "DOC",
+                item_name: "葡眾樣品與展示品合規說明書 (防大馬海關抽驗)",
+                description: "列印葡眾官方正式檢驗報告、成份明細英文版，註明為「Personal Use & Samples」。",
+                assignee: "RAY",
+                priority: "HIGH",
+                status: "IN_PROGRESS",
+                external_url: "",
+                last_updated: "2026-08-17 19:30"
+            },
+            {
+                prep_id: "PREP-016",
+                trip_id: "MY-202608-KL",
+                phase: "T-1D",
+                category: "ELEC",
+                item_name: "托運與隨身行李電子設備合規檢核 (行動電源 < 100Wh)",
+                description: "所有行動電源、鋰電池、筆電嚴禁托運，一律放入隨身背包，並確認標示清晰。",
+                assignee: "ALL",
+                priority: "CRITICAL",
+                status: "PENDING",
+                external_url: "",
+                last_updated: "2026-08-17 21:00"
+            },
+            {
+                prep_id: "PREP-017",
+                trip_id: "MY-202608-KL",
+                phase: "T-1D",
+                category: "MED",
+                item_name: "隨身展業試用品密封防漏包裝",
+                description: "益生菌粉包、樟芝液體瓶口加裝封口夾與氣泡防撞袋，隨身行李液體 < 100ml 規範確認。",
+                assignee: "JARVIS",
+                priority: "NORMAL",
+                status: "PENDING",
+                external_url: "",
+                last_updated: "2026-08-17 22:15"
+            },
+            {
+                prep_id: "PREP-018",
+                trip_id: "MY-202608-KL",
+                phase: "D-DAY",
+                category: "ENTRY",
+                item_name: "實體護照正本、身分證件隨身攜帶確認",
+                description: "出門前最後拍胸確認護照已放置於隨身防盜胸包內。",
+                assignee: "ALL",
+                priority: "CRITICAL",
+                status: "PENDING",
+                external_url: "",
+                last_updated: "2026-08-18 06:00"
+            },
+            {
+                prep_id: "PREP-019",
+                trip_id: "MY-202608-KL",
+                phase: "D-DAY",
+                category: "COMM",
+                item_name: "登機前關閉台灣 SIM 卡行動數據漫遊 (防天價漫遊費)",
+                description: "僅保留通話簡訊接收 OTP，數據漫遊切換至大馬 eSIM 卡槽。",
+                assignee: "ALL",
+                priority: "HIGH",
+                status: "PENDING",
+                external_url: "",
+                last_updated: "2026-08-18 07:00"
+            },
+            {
+                prep_id: "PREP-020",
+                trip_id: "MY-202608-KL",
+                phase: "D-DAY",
+                category: "ENTRY",
+                item_name: "KLIA 航廈入境自動通關閘門 (Autogate) 流程備忘",
+                description: "持台灣護照已申報 MDAC 者，可直接走吉隆坡機場外籍自動通關閘道，快速入境。",
+                assignee: "RAY",
+                priority: "NORMAL",
+                status: "PENDING",
+                external_url: "",
+                last_updated: "2026-08-18 08:00"
+            }
+        ];
+
+        // 篩選與狀態控制變數
+        let currentPhaseFilter = "ALL";
+        let currentAssigneeFilter = "ALL";
+        let currentCategoryFilter = "ALL";
+
+        $(document).ready(function() {
+            renderPreparationGrid();
+            updateExecutiveHUD();
+
+            // 1. 時序戰備階段標籤切換
+            $('.phase-capsule-btn').on('click', function() {
+                $('.phase-capsule-btn').removeClass('active');
+                $(this).addClass('active');
+                currentPhaseFilter = $(this).data('phase');
+                renderPreparationGrid();
+            });
+
+            // 2. 責任人按鈕組切換
+            $('.founder-pill-toggle .btn').on('click', function() {
+                $('.founder-pill-toggle .btn').removeClass('active');
+                $(this).addClass('active');
+                currentAssigneeFilter = $(this).data('assignee');
+                renderPreparationGrid();
+            });
+
+            // 3. 維度類別下拉過濾
+            $('#selectCategoryFilter').on('change', function() {
+                currentCategoryFilter = $(this).val();
+                renderPreparationGrid();
+            });
+
+            // 4. 新增準備項目送出
+            $('#btnSubmitPrep').on('click', function() {
+                submitNewPreparation();
+            });
+
+            // 5. 試算表同步按鈕
+            $('#btnSyncGoogleSheet').on('click', function() {
+                const $btn = $(this);
+                const $icon = $btn.find('i');
+                $icon.addClass('fa-spin');
+                
+                setTimeout(() => {
+                    $icon.removeClass('fa-spin');
+                    updateExecutiveHUD();
+                    renderPreparationGrid();
+                    alert('已自 Google 試算表 (my_preparations) 同步最新行前戰備清單！');
+                }, 600);
+            });
+        });
+
+        // 渲染戰備卡片矩陣
+        function renderPreparationGrid() {
+            const $grid = $('#preparationGrid');
+            $grid.empty();
+
+            let filtered = rawPreparationsData.filter(item => {
+                const matchPhase = (currentPhaseFilter === "ALL" || item.phase === currentPhaseFilter);
+                const matchAssignee = (currentAssigneeFilter === "ALL" || item.assignee === currentAssigneeFilter || item.assignee === "ALL");
+                const matchCategory = (currentCategoryFilter === "ALL" || item.category === currentCategoryFilter);
+                return matchPhase && matchAssignee && matchCategory;
+            });
+
+            if (filtered.length === 0) {
+                $grid.html(`
+                    <div class="col-12 text-center py-5" style="grid-column: 1 / -1;">
+                        <i class="fa-solid fa-clipboard-check text-muted fs-1 mb-3"></i>
+                        <p class="text-subtle">目前篩選條件下無待辦戰備項目</p>
+                    </div>
+                `);
+                return;
+            }
+
+            filtered.forEach(item => {
+                const isCompleted = (item.status === "COMPLETED");
+                const isCritical = (item.priority === "CRITICAL");
+                const isPending = (item.status === "PENDING");
+
+                // 類別標籤設定
+                let catClass = "cat-doc";
+                let catName = "商務文件";
+                let catIcon = "fa-folder";
+                
+                if (item.category === "ENTRY") { catClass = "cat-entry"; catName = "通關入境"; catIcon = "fa-passport"; }
+                else if (item.category === "COMM") { catClass = "cat-comm"; catName = "通訊網路"; catIcon = "fa-wifi"; }
+                else if (item.category === "FIN") { catClass = "cat-fin"; catName = "雙幣金流"; catIcon = "fa-credit-card"; }
+                else if (item.category === "ELEC") { catClass = "cat-elec"; catName = "電力規格"; catIcon = "fa-bolt"; }
+                else if (item.category === "MED") { catClass = "cat-med"; catName = "常備醫藥"; catIcon = "fa-briefcase-medical"; }
+
+                // 重要度標籤
+                let priBadge = `<span class="priority-badge priority-normal">一般</span>`;
+                if (item.priority === "CRITICAL") {
+                    priBadge = `<span class="priority-badge priority-critical"><i class="fa-solid fa-triangle-exclamation"></i> 阻斷項</span>`;
+                } else if (item.priority === "HIGH") {
+                    priBadge = `<span class="priority-badge priority-high"><i class="fa-solid fa-circle-exclamation"></i> 高優先</span>`;
+                }
+
+                // 責任人 Avatar
+                let avatarHtml = "";
+                if (item.assignee === "RAY") {
+                    avatarHtml = `<span class="assignee-avatar avatar-ray" title="Ray 負責">R</span><span class="fs-8 text-subtle">Ray 負責</span>`;
+                } else if (item.assignee === "JARVIS") {
+                    avatarHtml = `<span class="assignee-avatar avatar-jarvis" title="Jarvis 負責">J</span><span class="fs-8 text-subtle">Jarvis 負責</span>`;
+                } else {
+                    avatarHtml = `<span class="assignee-avatar avatar-both" title="雙人共同確認">雙</span><span class="fs-8 text-subtle">雙人共同確認</span>`;
+                }
+
+                // 狀態按鈕
+                let checkBtnHtml = `
+                    <button class="check-status-trigger ${isCompleted ? 'active-completed' : ''}" 
+                            onclick="togglePrepStatus('${item.prep_id}')" 
+                            title="${isCompleted ? '點擊切換為未完成' : '點擊標記已就緒'}">
+                        <i class="fa-solid fa-check"></i>
+                    </button>
+                `;
+
+                // 外部連結按鈕
+                let linkHtml = "";
+                if (item.external_url) {
+                    linkHtml = `
+                        <a href="${item.external_url}" target="_blank" class="text-primary text-decoration-none fs-8 ms-2" title="開啟官方網頁">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> 線上申報
+                        </a>
+                    `;
+                }
+
+                // 卡片 HTML
+                const cardHtml = `
+                    <div class="prep-item-card ${isCompleted ? 'is-completed' : ''} ${isCritical ? 'is-critical' : ''} ${isPending && isCritical ? 'is-pending' : ''}">
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="category-tag ${catClass}">
+                                        <i class="fa-solid ${catIcon}"></i> ${catName}
+                                    </span>
+                                    <span class="badge bg-dark-subtle text-muted fs-8 mono-text">${item.phase}</span>
+                                </div>
+                                <div>
+                                    ${priBadge}
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-start justify-content-between gap-2 mt-2">
+                                <h6 class="fw-bold mb-1 ${isCompleted ? 'text-decoration-line-through text-muted' : 'text-white'}">
+                                    ${item.item_name}
+                                </h6>
+                                ${checkBtnHtml}
+                            </div>
+                            
+                            <p class="fs-8 text-muted mt-2 mb-3" style="line-height: 1.5;">
+                                ${item.description}
+                            </p>
+                        </div>
+
+                        <div class="pt-2 border-top border-subtle d-flex align-items-center justify-content-between mt-2">
+                            <div class="d-flex align-items-center">
+                                ${avatarHtml}
+                                ${linkHtml}
+                            </div>
+                            <span class="fs-8 mono-text text-subtle">
+                                <i class="fa-regular fa-clock"></i> ${item.last_updated.slice(5)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                $grid.append(cardHtml);
+            });
+        }
+
+        // 切換戰備狀態
+        function togglePrepStatus(prepId) {
+            const item = rawPreparationsData.find(d => d.prep_id === prepId);
+            if (item) {
+                item.status = (item.status === "COMPLETED") ? "PENDING" : "COMPLETED";
+                item.last_updated = new Date().toISOString().replace('T', ' ').slice(0, 16);
+                
+                renderPreparationGrid();
+                updateExecutiveHUD();
+            }
+        }
+
+        // 更新頂部 HUD 與統計數值
+        function updateExecutiveHUD() {
+            const total = rawPreparationsData.length;
+            const completed = rawPreparationsData.filter(d => d.status === "COMPLETED").length;
+            const criticalPending = rawPreparationsData.filter(d => d.priority === "CRITICAL" && d.status !== "COMPLETED").length;
+            
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            // HUD 圓環更新 (Dasharray: 226.19)
+            const circumference = 2 * Math.PI * 36;
+            const offset = circumference - (percent / 100) * circumference;
+            $('#hudProgressRing').css('stroke-dashoffset', offset);
+            $('#hudPercentageText').text(`${percent}%`);
+
+            // 數值卡片
+            $('#statCriticalPending').text(criticalPending);
+            $('#statCompletedCount').text(completed);
+            $('#statTotalCount').text(`/ ${total} 項總計`);
+
+            // 創始人分工進度
+            const rayTotal = rawPreparationsData.filter(d => d.assignee === "RAY" || d.assignee === "ALL").length;
+            const rayDone = rawPreparationsData.filter(d => (d.assignee === "RAY" || d.assignee === "ALL") && d.status === "COMPLETED").length;
+            const rayPct = rayTotal > 0 ? Math.round((rayDone / rayTotal) * 100) : 0;
+            $('#rayProgressText').text(`${rayDone}/${rayTotal} (${rayPct}%)`);
+            $('#rayProgressBar').css('width', `${rayPct}%`);
+
+            const jarvisTotal = rawPreparationsData.filter(d => d.assignee === "JARVIS" || d.assignee === "ALL").length;
+            const jarvisDone = rawPreparationsData.filter(d => (d.assignee === "JARVIS" || d.assignee === "ALL") && d.status === "COMPLETED").length;
+            const jarvisPct = jarvisTotal > 0 ? Math.round((jarvisDone / jarvisTotal) * 100) : 0;
+            $('#jarvisProgressText').text(`${jarvisDone}/${jarvisTotal} (${jarvisPct}%)`);
+            $('#jarvisProgressBar').css('width', `${jarvisPct}%`);
+
+            // 更新各階段徽章計數
+            $('#countPhaseAll').text(total);
+            $('#countPhaseT14').text(rawPreparationsData.filter(d => d.phase === "T-14D").length);
+            $('#countPhaseT7').text(rawPreparationsData.filter(d => d.phase === "T-7D").length);
+            $('#countPhaseT3').text(rawPreparationsData.filter(d => d.phase === "T-3D").length);
+            $('#countPhaseT1').text(rawPreparationsData.filter(d => d.phase === "T-1D").length);
+            $('#countPhaseDday').text(rawPreparationsData.filter(d => d.phase === "D-DAY").length);
+        }
+
+        // 新增項目提交
+        function submitNewPreparation() {
+            const name = $('#inItemName').val().trim();
+            if (!name) {
+                alert('請輸入檢核項目名稱');
+                return;
+            }
+
+            const newPrep = {
+                prep_id: `PREP-0${rawPreparationsData.length + 1}`,
+                trip_id: "MY-202608-KL",
+                phase: $('#inPhase').val(),
+                category: $('#inCategory').val(),
+                item_name: name,
+                description: $('#inDescription').val().trim() || "手動新增之戰備項目",
+                assignee: $('#inAssignee').val(),
+                priority: $('#inPriority').val(),
+                status: "PENDING",
+                external_url: $('#inExternalUrl').val().trim(),
+                last_updated: new Date().toISOString().replace('T', ' ').slice(0, 16)
+            };
+
+            rawPreparationsData.unshift(newPrep);
+            
+            const modalEl = document.getElementById('modalAddPreparation');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+            $('#formPreparationMaster')[0].reset();
+
+            updateExecutiveHUD();
+            renderPreparationGrid();
+            alert(`已成功建立行前準備項「${newPrep.item_name}」並同步排入戰備庫！`);
+        }
+    </script>
+</body>
+</html>

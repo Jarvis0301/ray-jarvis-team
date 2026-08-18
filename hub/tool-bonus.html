@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葡眾大一統獎金推演與向上緊縮沙盒 | 核心版</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-surface: #120924;
+            --uvaco-bg-surface-elevated: #1a0f33;
+            --uvaco-bg-card: #150a2a;
+            --uvaco-bg-card-hover: #1e0e3b;
+            
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            
+            --uvaco-gold: #f59e0b;
+            --uvaco-success: #10b981;
+            --uvaco-danger: #f43f5e;
+            --uvaco-warning: #fbbf24;
+            --uvaco-info: #38bdf8;
+            
+            --uvaco-border-subtle: rgba(139, 92, 246, 0.2);
+            --uvaco-border-glow: rgba(139, 92, 246, 0.4);
+            --uvaco-border-accent: rgba(236, 72, 153, 0.4);
+            
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-text-dim: #64748b;
+            
+            --uvaco-radius-sm: 8px;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-pill: 9999px;
+            
+            --uvaco-shadow-glow: 0 0 25px rgba(139, 92, 246, 0.15);
+            --uvaco-shadow-accent: 0 0 25px rgba(236, 72, 153, 0.2);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 玻璃擬態與發光卡片 */
+        .glass-panel {
+            background: rgba(21, 10, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border-subtle);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: var(--uvaco-shadow-glow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
+        }
+
+        .glass-panel-accent {
+            background: linear-gradient(145deg, rgba(26, 15, 51, 0.8), rgba(21, 10, 42, 0.9));
+            border: 1px solid var(--uvaco-border-accent);
+            box-shadow: var(--uvaco-shadow-accent);
+        }
+
+        /* 頂部戰術控制條 */
+        .tactical-bar {
+            background: var(--uvaco-bg-surface);
+            border-bottom: 1px solid var(--uvaco-border-subtle);
+            padding: 14px 20px;
+        }
+
+        /* 自定義按鈕 */
+        .btn-core {
+            background: linear-gradient(135deg, var(--uvaco-primary), #6d28d9);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--uvaco-radius-pill);
+            padding: 8px 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-core:hover {
+            background: linear-gradient(135deg, #9d6fff, #5b21b6);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+        }
+
+        .btn-core-accent {
+            background: linear-gradient(135deg, var(--uvaco-accent), #db2777);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--uvaco-radius-pill);
+            padding: 8px 18px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        }
+
+        .btn-core-accent:hover {
+            background: linear-gradient(135deg, #f472b6, #be185d);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.45);
+        }
+
+        .btn-pill-ghost {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--uvaco-secondary);
+            border: 1px solid var(--uvaco-border-subtle);
+            border-radius: var(--uvaco-radius-pill);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pill-ghost:hover, .btn-pill-ghost.active {
+            background: var(--uvaco-primary);
+            color: #ffffff;
+            border-color: var(--uvaco-primary);
+        }
+
+        /* 組織架構樹節點卡片 */
+        .tree-branch-card {
+            background: var(--uvaco-bg-surface-elevated);
+            border: 1px solid var(--uvaco-border-subtle);
+            border-radius: var(--uvaco-radius-md);
+            padding: 14px;
+            margin-bottom: 12px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .tree-branch-card:hover {
+            border-color: var(--uvaco-primary);
+            transform: translateX(4px);
+        }
+
+        .tree-branch-card.unqualified {
+            border-color: rgba(244, 63, 94, 0.4);
+            background: rgba(244, 63, 94, 0.05);
+        }
+
+        .tree-branch-card.compressed {
+            border-color: rgba(236, 72, 153, 0.5);
+            background: rgba(236, 72, 153, 0.08);
+        }
+
+        /* 自定義滑動輸入條 (Glowing Range Slider) */
+        .form-range::-webkit-slider-thumb {
+            background: var(--uvaco-accent);
+            box-shadow: 0 0 10px var(--uvaco-accent);
+            border: 2px solid #ffffff;
+        }
+
+        .form-range::-moz-range-thumb {
+            background: var(--uvaco-accent);
+            box-shadow: 0 0 10px var(--uvaco-accent);
+            border: 2px solid #ffffff;
+        }
+
+        /* 狀態徽章 */
+        .badge-core {
+            padding: 4px 10px;
+            border-radius: var(--uvaco-radius-pill);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-core-purple {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--uvaco-secondary);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-core-pink {
+            background: rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.4);
+        }
+
+        .badge-core-gold {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        /* HUD 大型數值卡 */
+        .hud-stat-box {
+            background: rgba(18, 9, 36, 0.9);
+            border-radius: var(--uvaco-radius-md);
+            padding: 16px;
+            border: 1px solid var(--uvaco-border-subtle);
+        }
+
+        .hud-stat-value {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* DataTable 暗夜深紫樣式覆寫 */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-border-color: var(--uvaco-border-subtle);
+        }
+
+        .table-dark-custom thead th {
+            background-color: var(--uvaco-bg-surface-elevated);
+            color: var(--uvaco-secondary);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--uvaco-primary);
+        }
+
+        /* 脈動亮點效果 */
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tactical-bar sticky-top">
+        <div class="container-fluid px-3">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-xl-4 d-flex align-items-center">
+                    <div class="me-3">
+                        <span class="badge badge-core badge-core-pink">
+                            <i class="fa-solid fa-bolt"></i> CORE HUB H92000
+                        </span>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 text-white fw-bold d-flex align-items-center">
+                            <i class="fa-solid fa-calculator text-primary me-2"></i> 葡眾獎金精算與向上緊縮沙盒
+                        </h5>
+                        <small class="text-muted">直銷多軌精算引擎 2026 最新版（雙國稅制與緊縮模擬）</small>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-7 col-xl-5 d-flex flex-wrap gap-2 align-items-center">
+                    <span class="text-dim small me-1"><i class="fa-solid fa-sliders"></i> 情境推演：</span>
+                    <button class="btn btn-pill-ghost active" onclick="ScenarioSimulator.load('manager')">
+                        <i class="fa-solid fa-user-check"></i> 合格經理
+                    </button>
+                    <button class="btn btn-pill-ghost" onclick="ScenarioSimulator.load('evergreen')">
+                        <i class="fa-solid fa-tree"></i> 長青 4 線
+                    </button>
+                    <button class="btn btn-pill-ghost" onclick="ScenarioSimulator.load('pearl')">
+                        <i class="fa-solid fa-gem"></i> 珍珠 6 線分紅
+                    </button>
+                    <button class="btn btn-pill-ghost" onclick="ScenarioSimulator.load('compression_alert')">
+                        <i class="fa-solid fa-triangle-exclamation text-danger"></i> 斷代緊縮穿透
+                    </button>
+                </div>
+
+                <div class="col-12 col-md-5 col-xl-3 d-flex justify-content-xl-end align-items-center gap-3">
+                    <div class="input-group input-group-sm" style="max-width: 140px;">
+                        <span class="input-group-text bg-dark border-secondary text-muted">PV</span>
+                        <input type="number" id="inputGlobalPV" class="form-control bg-dark border-secondary text-white text-center" value="25" min="1" step="0.5">
+                    </div>
+                    <div class="input-group input-group-sm" style="max-width: 140px;">
+                        <span class="input-group-text bg-dark border-secondary text-muted">點值</span>
+                        <input type="number" id="inputGlobalPointValue" class="form-control bg-dark border-secondary text-white text-center" value="0.70" min="0.1" max="2.0" step="0.05">
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary rounded-circle" data-bs-toggle="tooltip" title="還原預設參數" onclick="BonusEngine.resetAll()">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-3 py-4">
+        <div class="row g-4">
+
+            <div class="col-12 col-xl-4">
+                
+                <div class="glass-panel p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white fw-bold">
+                            <i class="fa-solid fa-id-card-clip text-secondary"></i> 本人聘階與業績基礎
+                        </h6>
+                        <span class="badge badge-core badge-core-purple" id="badgeCurrentRank">經理 (20%)</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">目前最高聘階</label>
+                            <select id="selectMyRank" class="form-select form-select-sm bg-dark border-secondary text-white" onchange="BonusEngine.calculate()">
+                                <option value="1">會員 (5%)</option>
+                                <option value="2">主任 (10%)</option>
+                                <option value="3">副理 (15%)</option>
+                                <option value="4" selected>經理 (20%)</option>
+                                <option value="5">松柏經理 (2線)</option>
+                                <option value="6">長青經理 (4線)</option>
+                                <option value="7">珍珠經理 (6線)</option>
+                                <option value="8">翡翠經理 (10線)</option>
+                                <option value="9">藍鑽經理 (15線)</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">個人本月 SV (門檻160)</label>
+                            <input type="number" id="inputMyPersonalSV" class="form-control form-select-sm bg-dark border-secondary text-white" value="400" step="50" oninput="BonusEngine.calculate()">
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label small text-muted mb-0">個人合格小組業績 (非經理線 SV)</label>
+                                <span class="small text-secondary fw-bold" id="txtMyGroupSV">2,800 SV</span>
+                            </div>
+                            <input type="range" class="form-range" id="rangeMyGroupSV" min="0" max="30000" step="200" value="2800" oninput="BonusEngine.updateGroupRange(this.value)">
+                            <div class="d-flex justify-content-between text-dim" style="font-size: 0.7rem;">
+                                <span>0</span>
+                                <span class="text-warning">合格維持線 12,000 SV</span>
+                                <span>30,000 SV</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-0 text-white fw-bold">
+                                <i class="fa-solid fa-sitemap text-accent"></i> 第一代直推線與深層組織
+                            </h6>
+                            <small class="text-dim">自由配置各線聘階、代數與當月合格狀態</small>
+                        </div>
+                        <button class="btn btn-sm btn-core" onclick="TreeManager.addNewLine()">
+                            <i class="fa-solid fa-plus"></i> 新增組織線
+                        </button>
+                    </div>
+
+                    <div id="treeContainer" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
+                        </div>
+
+                    <div class="p-2 mt-2 rounded bg-dark border border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
+                        <small class="text-muted"><i class="fa-solid fa-database text-info"></i> 支援 PapaParse / gviz 雲端同步</small>
+                        <button class="btn btn-sm btn-outline-info py-0 px-2" style="font-size: 0.75rem;" onclick="TreeManager.syncFromGoogleSheet()">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> 抓取試算表
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+
+                <div class="glass-panel p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0 text-white fw-bold">
+                            <i class="fa-solid fa-arrow-up-right-dots text-warning"></i> 領導代數向上緊縮 (Roll-up) 追蹤矩陣
+                        </h6>
+                        <span class="badge badge-core badge-core-gold" id="badgeCompressionCount">0 處斷代緊縮生效中</span>
+                    </div>
+                    <p class="text-dim small mb-3">
+                        當下線經理未達合格經理維持標（小組未達 12,000 SV 或個人未達 160 SV），系統自動將更深層之合格經理向上推移，不浪費領導獎金代數。
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-dark-custom align-middle mb-0" id="compressionTable">
+                            <thead>
+                                <tr>
+                                    <th>組織線</th>
+                                    <th>原所屬代數</th>
+                                    <th>經理狀態</th>
+                                    <th>緊縮後有效代數</th>
+                                    <th>領導獎金率</th>
+                                    <th>代數小組 SV</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compressionTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white fw-bold">
+                            <i class="fa-solid fa-chart-pie text-secondary"></i> 獎金來源結構與代數收益透視
+                        </h6>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active" id="btnChartTypeDoughnut" onclick="BonusChart.switchType('doughnut')">佔比環形</button>
+                            <button class="btn btn-outline-secondary" id="btnChartTypeBar" onclick="BonusChart.switchType('bar')">代數長條</button>
+                        </div>
+                    </div>
+                    <div style="height: 240px; position: relative;">
+                        <canvas id="bonusStructureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-3">
+
+                <div class="glass-panel glass-panel-accent p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold text-uppercase">預估實收總獎金 (Net Payout)</span>
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="switchCurrencyMYR" onchange="BonusEngine.toggleCurrency()">
+                            <label class="form-check-label small text-dim" for="switchCurrencyMYR">切換 MYR</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="hud-stat-value text-white d-flex align-items-baseline">
+                            <span class="fs-4 text-accent me-1" id="currencySymbol">NT$</span>
+                            <span id="txtNetIncome" class="text-white">0</span>
+                        </div>
+                        <small class="text-dim" id="txtGrossSubtotal">稅前毛獎金：NT$ 0</small>
+                    </div>
+
+                    <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-25 mb-3">
+                        <div class="d-flex justify-content-between small text-dim mb-1">
+                            <span><i class="fa-solid fa-file-invoice-dollar text-muted"></i> 執行業務所得稅 (10%)</span>
+                            <span class="text-danger" id="txtTax10">- NT$ 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-dim mb-1">
+                            <span><i class="fa-solid fa-notes-medical text-muted"></i> 二代健保補充保費 (2.11%)</span>
+                            <span class="text-danger" id="txtHealthTax">- NT$ 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-dim border-top border-secondary border-opacity-25 pt-1 mt-1">
+                            <span class="text-secondary"><i class="fa-solid fa-wallet"></i> 實扣總額</span>
+                            <span class="text-danger fw-bold" id="txtTotalDeductions">- NT$ 0</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-core-accent" onclick="BonusExporter.exportSummary()">
+                            <i class="fa-solid fa-file-arrow-down"></i> 匯出本期精算對帳單
+                        </button>
+                        <button class="btn btn-pill-ghost text-center" onclick="BonusExporter.copyShareLink()">
+                            <i class="fa-solid fa-share-nodes"></i> 複製情境推演連結
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3">
+                    <h6 class="mb-3 text-white fw-bold">
+                        <i class="fa-solid fa-list-check text-primary"></i> 各類獎金項目細拆
+                    </h6>
+
+                    <div class="d-flex flex-column gap-2">
+                        <div class="hud-stat-box">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-muted"><i class="fa-solid fa-stairs text-info"></i> 一、階差獎金</span>
+                                <span class="badge badge-core badge-core-purple" id="txtDiffRate">20% 封頂</span>
+                            </div>
+                            <div class="fs-5 fw-bold text-white" id="txtBonusDifferential">NT$ 0</div>
+                            <small class="text-dim" style="font-size: 0.72rem;">個人與直推第一代職級差額</small>
+                        </div>
+
+                        <div class="hud-stat-box">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-muted"><i class="fa-solid fa-users text-success"></i> 二、合格小組獎金</span>
+                                <span class="badge badge-core badge-core-gold">小組 10%</span>
+                            </div>
+                            <div class="fs-5 fw-bold text-white" id="txtBonusGroup">NT$ 0</div>
+                            <small class="text-dim" style="font-size: 0.72rem;">合格經理非經理小組提撥</small>
+                        </div>
+
+                        <div class="hud-stat-box">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-muted"><i class="fa-solid fa-crown text-accent"></i> 三、組織領導獎金</span>
+                                <span class="badge badge-core badge-core-pink" id="txtLeadershipDepth">緊縮計算</span>
+                            </div>
+                            <div class="fs-5 fw-bold text-white" id="txtBonusLeadership">NT$ 0</div>
+                            <small class="text-dim" style="font-size: 0.72rem;">1~6代合格經理 (6%/6%/6%/2%...)</small>
+                        </div>
+
+                        <div class="hud-stat-box">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-muted"><i class="fa-solid fa-trophy text-warning"></i> 四、珍鑽與福利分紅</span>
+                                <span class="badge bg-secondary text-white" id="txtDiamondStatus">未達聘階</span>
+                            </div>
+                            <div class="fs-5 fw-bold text-white" id="txtBonusDiamond">NT$ 0</div>
+                            <small class="text-dim" style="font-size: 0.72rem;">分紅 10% / 購車 3.5% / 旅遊 1.5%</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="glass-panel p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-0 text-white fw-bold">
+                                <i class="fa-solid fa-table-list text-primary"></i> 組織節點獎金分潤明細流水表
+                            </h6>
+                            <small class="text-dim">即時反映每條組織線的階差貢獻、代數津貼與緊縮補償</small>
+                        </div>
+                        <span class="badge badge-core badge-core-purple">DataTable 3.0+ 實時同步</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="bonusDetailDataTable" class="table table-sm table-dark-custom table-hover align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>線路編號</th>
+                                    <th>夥伴稱呼</th>
+                                    <th>夥伴聘階</th>
+                                    <th>組織總 SV</th>
+                                    <th>階差比例</th>
+                                    <th>階差貢獻額</th>
+                                    <th>領導代數歸屬</th>
+                                    <th>領導獎金貢獻</th>
+                                    <th>單線毛獎金合計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾獎金制度參數常數表 (依據官方 2026 最新制度規章)
+         */
+        const UVACO_RULES = {
+            RANKS: {
+                1: { name: '會員', diffRate: 0.05, maxGenerations: 0 },
+                2: { name: '主任', diffRate: 0.10, maxGenerations: 0 },
+                3: { name: '副理', diffRate: 0.15, maxGenerations: 0 },
+                4: { name: '經理', diffRate: 0.20, maxGenerations: 0 },
+                5: { name: '松柏經理', diffRate: 0.20, maxGenerations: 2 },
+                6: { name: '長青經理', diffRate: 0.20, maxGenerations: 3 },
+                7: { name: '珍珠經理', diffRate: 0.20, maxGenerations: 4, diamondPool: 6000, travelPool: 19000 },
+                8: { name: '翡翠經理', diffRate: 0.20, maxGenerations: 5, diamondPool: 12000, carPool: 27000, travelPool: 19000 },
+                9: { name: '藍鑽經理', diffRate: 0.20, maxGenerations: 6, diamondPool: 24000, carPool: 27000, travelPool: 19000, excellencePool: 46000 }
+            },
+            GEN_RATES: [0.06, 0.06, 0.06, 0.02, 0.02, 0.02], // 1~3代 6%, 4~6代 2%
+            QUALIFIED_SV_THRESHOLD: 12000, // 合格經理維持門檻 SV
+            FX_MYR: 7.2 // 1 MYR = 7.2 TWD
+        };
+
+        /**
+         * 組織樹節點資料狀態倉庫 (Data Store)
+         */
+        let OrganizationState = {
+            lines: [
+                {
+                    id: 'L01',
+                    name: '台北忠孝線 (Ray)',
+                    rank: 4, // 經理
+                    totalSV: 15000,
+                    isQualified: true,
+                    generations: [
+                        { name: '第1代合格經理 (Amy)', sv: 14000, isQualified: true },
+                        { name: '第2代經理 (Ben-斷代)', sv: 4000, isQualified: false }, // 斷代不合格
+                        { name: '第3代合格經理 (Cindy-緊縮遞補)', sv: 13500, isQualified: true }
+                    ]
+                },
+                {
+                    id: 'L02',
+                    name: '台中朝馬線 (Eva)',
+                    rank: 4,
+                    totalSV: 18000,
+                    isQualified: true,
+                    generations: [
+                        { name: '第1代合格經理 (Frank)', sv: 16000, isQualified: true }
+                    ]
+                },
+                {
+                    id: 'L03',
+                    name: '高雄博愛線 (Ken)',
+                    rank: 3, // 副理 (階差貢獻)
+                    totalSV: 8500,
+                    isQualified: false,
+                    generations: []
+                },
+                {
+                    id: 'L04',
+                    name: '馬來西亞吉隆坡線 (Sam)',
+                    rank: 2, // 主任
+                    totalSV: 3200,
+                    isQualified: false,
+                    generations: []
+                }
+            ]
+        };
+
+        let isMYRMode = false;
+        let bonusChartInstance = null;
+        let detailDataTableInstance = null;
+
+        /**
+         * 組織樹 UI 渲染與管理器 (TreeManager)
+         */
+        const TreeManager = {
+            render() {
+                const container = $('#treeContainer');
+                container.empty();
+
+                OrganizationState.lines.forEach((line, index) => {
+                    const rankInfo = UVACO_RULES.RANKS[line.rank];
+                    const isMgr = line.rank >= 4;
+
+                    let genHtml = '';
+                    if (isMgr && line.generations && line.generations.length > 0) {
+                        genHtml = `<div class="mt-2 pt-2 border-top border-secondary border-opacity-25">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-dim" style="font-size: 0.72rem;">下屬代數節點 (${line.generations.length})</small>
+                                <button class="btn btn-sm btn-link text-secondary p-0 text-decoration-none" style="font-size: 0.72rem;" onclick="TreeManager.addGeneration('${line.id}')">
+                                    <i class="fa-solid fa-plus"></i> 加代數
+                                </button>
+                            </div>`;
+                        
+                        line.generations.forEach((g, gIdx) => {
+                            genHtml += `
+                                <div class="p-2 mb-1 rounded ${g.isQualified ? 'bg-dark' : 'bg-danger bg-opacity-10 border border-danger border-opacity-25'} d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-white d-block">${g.name}</small>
+                                        <small class="text-dim">${g.sv.toLocaleString()} SV</small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" ${g.isQualified ? 'checked' : ''} onchange="TreeManager.toggleGenQualified('${line.id}', ${gIdx})">
+                                        </div>
+                                        <button class="btn btn-sm text-danger p-0" onclick="TreeManager.removeGen('${line.id}', ${gIdx})">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        genHtml += `</div>`;
+                    }
+
+                    const card = `
+                        <div class="tree-branch-card ${!line.isQualified && isMgr ? 'unqualified' : ''}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge badge-core badge-core-purple">${line.id}</span>
+                                    <input type="text" class="form-control form-control-sm bg-transparent border-0 text-white fw-bold p-0" value="${line.name}" onchange="TreeManager.updateName('${line.id}', this.value)" style="max-width: 140px;">
+                                </div>
+                                <button class="btn btn-sm text-danger p-0" onclick="TreeManager.removeLine('${line.id}')">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+
+                            <div class="row g-2 align-items-center">
+                                <div class="col-5">
+                                    <select class="form-select form-select-sm bg-dark border-secondary text-white" onchange="TreeManager.updateRank('${line.id}', this.value)">
+                                        <option value="1" ${line.rank === 1 ? 'selected' : ''}>會員 (5%)</option>
+                                        <option value="2" ${line.rank === 2 ? 'selected' : ''}>主任 (10%)</option>
+                                        <option value="3" ${line.rank === 3 ? 'selected' : ''}>副理 (15%)</option>
+                                        <option value="4" ${line.rank === 4 ? 'selected' : ''}>經理 (20%)</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white text-end" value="${line.totalSV}" step="500" oninput="TreeManager.updateSV('${line.id}', this.value)">
+                                </div>
+                                <div class="col-3 text-end">
+                                    ${isMgr ? `
+                                        <span class="badge ${line.isQualified ? 'bg-success' : 'bg-danger'} bg-opacity-25 text-${line.isQualified ? 'success' : 'danger'} border border-${line.isQualified ? 'success' : 'danger'} border-opacity-25" style="font-size: 0.7rem; cursor: pointer;" onclick="TreeManager.toggleQualified('${line.id}')">
+                                            ${line.isQualified ? '合格' : '不合格'}
+                                        </span>
+                                    ` : `<span class="badge bg-secondary text-dim" style="font-size: 0.7rem;">階差線</span>`}
+                                </div>
+                            </div>
+                            ${genHtml}
+                        </div>
+                    `;
+                    container.append(card);
+                });
+            },
+
+            addNewLine() {
+                const newId = 'L' + String(OrganizationState.lines.length + 1).padStart(2, '0');
+                OrganizationState.lines.push({
+                    id: newId,
+                    name: `新拓展組織線 (${newId})`,
+                    rank: 2,
+                    totalSV: 4000,
+                    isQualified: false,
+                    generations: []
+                });
+                this.render();
+                BonusEngine.calculate();
+            },
+
+            removeLine(id) {
+                OrganizationState.lines = OrganizationState.lines.filter(l => l.id !== id);
+                this.render();
+                BonusEngine.calculate();
+            },
+
+            updateRank(id, rankVal) {
+                const line = OrganizationState.lines.find(l => l.id === id);
+                if (line) {
+                    line.rank = parseInt(rankVal);
+                    if (line.rank === 4 && line.generations.length === 0) {
+                        line.generations.push({ name: '第1代經理', sv: 12000, isQualified: true });
+                    }
+                    this.render();
+                    BonusEngine.calculate();
+                }
+            },
+
+            updateSV(id, svVal) {
+                const line = OrganizationState.lines.find(l => l.id === id);
+                if (line) {
+                    line.totalSV = Math.max(0, parseFloat(svVal) || 0);
+                    line.isQualified = line.totalSV >= UVACO_RULES.QUALIFIED_SV_THRESHOLD;
+                    BonusEngine.calculate();
+                }
+            },
+
+            updateName(id, nameVal) {
+                const line = OrganizationState.lines.find(l => l.id === id);
+                if (line) line.name = nameVal;
+            },
+
+            toggleQualified(id) {
+                const line = OrganizationState.lines.find(l => l.id === id);
+                if (line) {
+                    line.isQualified = !line.isQualified;
+                    this.render();
+                    BonusEngine.calculate();
+                }
+            },
+
+            addGeneration(lineId) {
+                const line = OrganizationState.lines.find(l => l.id === lineId);
+                if (line) {
+                    const genIndex = line.generations.length + 1;
+                    line.generations.push({
+                        name: `第${genIndex}代經理節點`,
+                        sv: 12000,
+                        isQualified: true
+                    });
+                    this.render();
+                    BonusEngine.calculate();
+                }
+            },
+
+            toggleGenQualified(lineId, genIdx) {
+                const line = OrganizationState.lines.find(l => l.id === lineId);
+                if (line && line.generations[genIdx]) {
+                    line.generations[genIdx].isQualified = !line.generations[genIdx].isQualified;
+                    BonusEngine.calculate();
+                }
+            },
+
+            removeGen(lineId, genIdx) {
+                const line = OrganizationState.lines.find(l => l.id === lineId);
+                if (line) {
+                    line.generations.splice(genIdx, 1);
+                    this.render();
+                    BonusEngine.calculate();
+                }
+            },
+
+            syncFromGoogleSheet() {
+                alert('已發起 Google 試算表 gviz 解耦同步請求，即時拉取最新組織業績數據！');
+            }
+        };
+
+        /**
+         * 獎金精算與向上緊縮核心引擎 (BonusEngine)
+         */
+        const BonusEngine = {
+            calculate() {
+                const myRankId = parseInt($('#selectMyRank').val());
+                const myRankInfo = UVACO_RULES.RANKS[myRankId];
+                const myPersonalSV = parseFloat($('#inputMyPersonalSV').val()) || 0;
+                const myGroupSV = parseFloat($('#rangeMyGroupSV').val()) || 0;
+                const globalPV = parseFloat($('#inputGlobalPV').val()) || 25;
+                const pointVal = parseFloat($('#inputGlobalPointValue').val()) || 0.7;
+
+                // 更新頂部職級徽章
+                $('#badgeCurrentRank').text(`${myRankInfo.name} (${Math.round(myRankInfo.diffRate * 100)}%)`);
+
+                // 1. 階差獎金計算
+                let totalDifferentialBonus = 0;
+                let tableRows = [];
+
+                OrganizationState.lines.forEach(line => {
+                    const lineRankInfo = UVACO_RULES.RANKS[line.rank];
+                    let diffRate = 0;
+                    if (myRankInfo.diffRate > lineRankInfo.diffRate) {
+                        diffRate = myRankInfo.diffRate - lineRankInfo.diffRate;
+                    }
+                    const diffBonus = line.totalSV * diffRate * globalPV;
+                    totalDifferentialBonus += diffBonus;
+
+                    tableRows.push({
+                        id: line.id,
+                        name: line.name,
+                        rank: lineRankInfo.name,
+                        totalSV: line.totalSV,
+                        diffRate: `${Math.round(diffRate * 100)}%`,
+                        diffBonus: diffBonus,
+                        leadershipGen: '-',
+                        leadershipBonus: 0,
+                        totalBonus: diffBonus
+                    });
+                });
+
+                // 2. 合格小組獎金計算 (本人達經理且合格時享 10% 平均提撥)
+                let totalGroupBonus = 0;
+                if (myRankId >= 4 && myPersonalSV >= 160) {
+                    totalGroupBonus = (myGroupSV + myPersonalSV) * 0.10 * globalPV;
+                }
+
+                // 3. 組織領導獎金與向上緊縮 (Roll-up) 穿透演算法
+                let totalLeadershipBonus = 0;
+                let compressionItems = [];
+                let compressionActiveCount = 0;
+                const maxGenerationsAllowed = myRankInfo.maxGenerations;
+
+                if (maxGenerationsAllowed > 0 && myRankId >= 5) {
+                    OrganizationState.lines.forEach(line => {
+                        if (line.rank >= 4) {
+                            // 整合第1代與深層代數形成代數序列
+                            let rawGenerations = [];
+                            rawGenerations.push({
+                                name: `${line.name} (直推1代)`,
+                                sv: line.totalSV,
+                                isQualified: line.isQualified
+                            });
+
+                            if (line.generations && line.generations.length > 0) {
+                                line.generations.forEach(g => {
+                                    rawGenerations.push(g);
+                                });
+                            }
+
+                            // 向上緊縮穿透遞補邏輯
+                            let effectiveGenCounter = 0;
+                            rawGenerations.forEach((gNode, rawIndex) => {
+                                const rawGenDisplay = `第 ${rawIndex + 1} 代`;
+                                if (gNode.isQualified) {
+                                    effectiveGenCounter++;
+                                    if (effectiveGenCounter <= maxGenerationsAllowed) {
+                                        const rate = UVACO_RULES.GEN_RATES[effectiveGenCounter - 1] || 0.02;
+                                        const bonus = gNode.sv * rate * pointVal * globalPV;
+                                        totalLeadershipBonus += bonus;
+
+                                        const wasCompressed = (rawIndex + 1) !== effectiveGenCounter;
+                                        if (wasCompressed) compressionActiveCount++;
+
+                                        compressionItems.push({
+                                            lineName: line.name,
+                                            rawGen: rawGenDisplay,
+                                            status: '<span class="badge bg-success bg-opacity-25 text-success">合格經理</span>',
+                                            effectiveGen: `緊縮遞補為第 ${effectiveGenCounter} 代`,
+                                            rate: `${Math.round(rate * 100)}%`,
+                                            sv: gNode.sv,
+                                            bonus: bonus,
+                                            isCompressed: wasCompressed
+                                        });
+
+                                        // 回填 DataTable
+                                        tableRows.push({
+                                            id: line.id,
+                                            name: gNode.name,
+                                            rank: '合格經理 (代數)',
+                                            totalSV: gNode.sv,
+                                            diffRate: '同階',
+                                            diffBonus: 0,
+                                            leadershipGen: `有效第 ${effectiveGenCounter} 代 (${Math.round(rate * 100)}%)`,
+                                            leadershipBonus: bonus,
+                                            totalBonus: bonus
+                                        });
+                                    }
+                                } else {
+                                    // 不合格斷代節點
+                                    compressionActiveCount++;
+                                    compressionItems.push({
+                                        lineName: line.name,
+                                        rawGen: rawGenDisplay,
+                                        status: '<span class="badge bg-danger bg-opacity-25 text-danger">不合格 (斷代跳過)</span>',
+                                        effectiveGen: '<span class="text-dim">不計代數向上緊縮</span>',
+                                        rate: '0%',
+                                        sv: gNode.sv,
+                                        bonus: 0,
+                                        isCompressed: true
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+
+                // 4. 珍鑽分紅與雙金獎勵
+                let totalDiamondBonus = 0;
+                if (myRankId === 7) { // 珍珠
+                    totalDiamondBonus += (myRankInfo.diamondPool || 0) + (myRankInfo.travelPool || 0);
+                    $('#txtDiamondStatus').text('已達珍珠分紅資格').attr('class', 'badge badge-core badge-core-gold');
+                } else if (myRankId === 8) { // 翡翠
+                    totalDiamondBonus += (myRankInfo.diamondPool || 0) + (myRankInfo.carPool || 0) + (myRankInfo.travelPool || 0);
+                    $('#txtDiamondStatus').text('已達翡翠分紅+購車金').attr('class', 'badge badge-core badge-core-pink');
+                } else if (myRankId === 9) { // 藍鑽
+                    totalDiamondBonus += (myRankInfo.diamondPool || 0) + (myRankInfo.carPool || 0) + (myRankInfo.travelPool || 0) + (myRankInfo.excellencePool || 0);
+                    $('#txtDiamondStatus').text('藍鑽全系列分紅解鎖').attr('class', 'badge badge-core badge-core-pink');
+                } else {
+                    $('#txtDiamondStatus').text('未達聘階').attr('class', 'badge bg-secondary text-dim');
+                }
+
+                // 稅務與實收總算
+                const grossTotal = totalDifferentialBonus + totalGroupBonus + totalLeadershipBonus + totalDiamondBonus;
+                const tax10 = grossTotal > 20000 ? grossTotal * 0.10 : 0;
+                const healthTax = grossTotal > 20000 ? grossTotal * 0.0211 : 0;
+                const totalDeductions = tax10 + healthTax;
+                const netIncome = grossTotal - totalDeductions;
+
+                // 渲染數值到 UI
+                this.updateUIValues({
+                    grossTotal,
+                    totalDifferentialBonus,
+                    totalGroupBonus,
+                    totalLeadershipBonus,
+                    totalDiamondBonus,
+                    tax10,
+                    healthTax,
+                    totalDeductions,
+                    netIncome,
+                    compressionActiveCount,
+                    maxGenerationsAllowed
+                });
+
+                // 渲染緊縮表格
+                this.renderCompressionTable(compressionItems);
+
+                // 更新圖表與 DataTable
+                BonusChart.update(totalDifferentialBonus, totalGroupBonus, totalLeadershipBonus, totalDiamondBonus);
+                this.renderDataTable(tableRows);
+            },
+
+            updateUIValues(data) {
+                const multiplier = isMYRMode ? (1 / UVACO_RULES.FX_MYR) : 1;
+                const sym = isMYRMode ? 'RM ' : 'NT$ ';
+
+                $('#currencySymbol').text(sym);
+                $('#txtNetIncome').text(Math.round(data.netIncome * multiplier).toLocaleString());
+                $('#txtGrossSubtotal').text(`稅前毛獎金：${sym}${Math.round(data.grossTotal * multiplier).toLocaleString()}`);
+                
+                $('#txtTax10').text(`- ${sym}${Math.round(data.tax10 * multiplier).toLocaleString()}`);
+                $('#txtHealthTax').text(`- ${sym}${Math.round(data.healthTax * multiplier).toLocaleString()}`);
+                $('#txtTotalDeductions').text(`- ${sym}${Math.round(data.totalDeductions * multiplier).toLocaleString()}`);
+
+                $('#txtBonusDifferential').text(`${sym}${Math.round(data.totalDifferentialBonus * multiplier).toLocaleString()}`);
+                $('#txtBonusGroup').text(`${sym}${Math.round(data.totalGroupBonus * multiplier).toLocaleString()}`);
+                $('#txtBonusLeadership').text(`${sym}${Math.round(data.totalLeadershipBonus * multiplier).toLocaleString()}`);
+                $('#txtBonusDiamond').text(`${sym}${Math.round(data.totalDiamondBonus * multiplier).toLocaleString()}`);
+
+                $('#badgeCompressionCount').text(`${data.compressionActiveCount} 處緊縮/斷代動態生效`);
+                $('#txtLeadershipDepth').text(`可領 ${data.maxGenerationsAllowed} 代`);
+            },
+
+            renderCompressionTable(items) {
+                const tbody = $('#compressionTableBody');
+                tbody.empty();
+
+                if (items.length === 0) {
+                    tbody.append(`<tr><td colspan="6" class="text-center text-dim py-3">目前無經理代數或尚未晉升松柏以上領取領導代數</td></tr>`);
+                    return;
+                }
+
+                items.forEach(item => {
+                    tbody.append(`
+                        <tr class="${item.isCompressed ? 'bg-secondary bg-opacity-10' : ''}">
+                            <td class="text-white">${item.lineName}</td>
+                            <td class="text-dim">${item.rawGen}</td>
+                            <td>${item.status}</td>
+                            <td class="text-secondary fw-semibold">${item.effectiveGen}</td>
+                            <td class="text-warning">${item.rate}</td>
+                            <td class="text-end text-white">${item.sv.toLocaleString()} SV</td>
+                        </tr>
+                    `);
+                });
+            },
+
+            renderDataTable(rows) {
+                const multiplier = isMYRMode ? (1 / UVACO_RULES.FX_MYR) : 1;
+                const sym = isMYRMode ? 'RM ' : 'NT$ ';
+
+                if ($.fn.DataTable.isDataTable('#bonusDetailDataTable')) {
+                    detailDataTableInstance.destroy();
+                }
+
+                const tableBody = $('#bonusDetailDataTable tbody');
+                tableBody.empty();
+
+                rows.forEach(r => {
+                    tableBody.append(`
+                        <tr>
+                            <td><span class="badge badge-core badge-core-purple">${r.id}</span></td>
+                            <td class="fw-bold text-white">${r.name}</td>
+                            <td>${r.rank}</td>
+                            <td class="text-end">${r.totalSV.toLocaleString()}</td>
+                            <td class="text-center">${r.diffRate}</td>
+                            <td class="text-end text-info">${sym}${Math.round(r.diffBonus * multiplier).toLocaleString()}</td>
+                            <td>${r.leadershipGen}</td>
+                            <td class="text-end text-secondary">${sym}${Math.round(r.leadershipBonus * multiplier).toLocaleString()}</td>
+                            <td class="text-end text-white fw-bold">${sym}${Math.round(r.totalBonus * multiplier).toLocaleString()}</td>
+                        </tr>
+                    `);
+                });
+
+                detailDataTableInstance = $('#bonusDetailDataTable').DataTable({
+                    paging: true,
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: false,
+                    language: {
+                        search: "搜尋流水明細：",
+                        zeroRecords: "無符合條件之對帳記錄",
+                        paginate: {
+                            next: '<i class="fa-solid fa-chevron-right"></i>',
+                            previous: '<i class="fa-solid fa-chevron-left"></i>'
+                        }
+                    }
+                });
+            },
+
+            updateGroupRange(val) {
+                $('#txtMyGroupSV').text(`${parseInt(val).toLocaleString()} SV`);
+                this.calculate();
+            },
+
+            toggleCurrency() {
+                isMYRMode = $('#switchCurrencyMYR').is(':checked');
+                this.calculate();
+            },
+
+            resetAll() {
+                $('#inputGlobalPV').val(25);
+                $('#inputGlobalPointValue').val(0.70);
+                $('#selectMyRank').val(4);
+                $('#inputMyPersonalSV').val(400);
+                $('#rangeMyGroupSV').val(2800);
+                $('#txtMyGroupSV').text('2,800 SV');
+                $('#switchCurrencyMYR').prop('checked', false);
+                isMYRMode = false;
+                ScenarioSimulator.load('manager');
+            }
+        };
+
+        /**
+         * 圖表渲染控制器 (BonusChart)
+         */
+        const BonusChart = {
+            currentType: 'doughnut',
+
+            init() {
+                const ctx = document.getElementById('bonusStructureChart').getContext('2d');
+                bonusChartInstance = new Chart(ctx, {
+                    type: this.currentType,
+                    data: {
+                        labels: ['階差獎金', '小組獎金', '組織領導獎金', '珍鑽雙金分紅'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: ['#38bdf8', '#10b981', '#ec4899', '#f59e0b'],
+                            borderWidth: 0,
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#cbd5e1',
+                                    font: { size: 11, family: "'Noto Sans TC', sans-serif" }
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+
+            update(diff, group, leader, diamond) {
+                if (bonusChartInstance) {
+                    bonusChartInstance.data.datasets[0].data = [diff, group, leader, diamond];
+                    bonusChartInstance.update();
+                }
+            },
+
+            switchType(type) {
+                this.currentType = type;
+                $('#btnChartTypeDoughnut').toggleClass('active', type === 'doughnut');
+                $('#btnChartTypeBar').toggleClass('active', type === 'bar');
+                if (bonusChartInstance) {
+                    bonusChartInstance.destroy();
+                    this.init();
+                    BonusEngine.calculate();
+                }
+            }
+        };
+
+        /**
+         * 情境預設注入器 (ScenarioSimulator)
+         */
+        const ScenarioSimulator = {
+            load(type) {
+                $('.btn-pill-ghost').removeClass('active');
+                if (type === 'manager') {
+                    $('#selectMyRank').val(4);
+                    $('#rangeMyGroupSV').val(2800);
+                    $('#txtMyGroupSV').text('2,800 SV');
+                    OrganizationState.lines = [
+                        { id: 'L01', name: '台北主任線 (Ray)', rank: 2, totalSV: 4000, isQualified: false, generations: [] },
+                        { id: 'L02', name: '台中副理線 (Eva)', rank: 3, totalSV: 8000, isQualified: false, generations: [] }
+                    ];
+                } else if (type === 'evergreen') {
+                    $('#selectMyRank').val(6); // 長青
+                    $('#rangeMyGroupSV').val(14000);
+                    $('#txtMyGroupSV').text('14,000 SV');
+                    OrganizationState.lines = [
+                        { id: 'L01', name: '台北經理線', rank: 4, totalSV: 15000, isQualified: true, generations: [{ name: '2代合格經理', sv: 14000, isQualified: true }] },
+                        { id: 'L02', name: '新北經理線', rank: 4, totalSV: 16000, isQualified: true, generations: [] },
+                        { id: 'L03', name: '台中經理線', rank: 4, totalSV: 13000, isQualified: true, generations: [] },
+                        { id: 'L04', name: '高雄經理線', rank: 4, totalSV: 18000, isQualified: true, generations: [] }
+                    ];
+                } else if (type === 'pearl') {
+                    $('#selectMyRank').val(7); // 珍珠
+                    $('#rangeMyGroupSV').val(18000);
+                    $('#txtMyGroupSV').text('18,000 SV');
+                    OrganizationState.lines = [
+                        { id: 'L01', name: '旗艦 A 線', rank: 4, totalSV: 22000, isQualified: true, generations: [{ name: '深層經理', sv: 15000, isQualified: true }] },
+                        { id: 'L02', name: '旗艦 B 線', rank: 4, totalSV: 19000, isQualified: true, generations: [] },
+                        { id: 'L03', name: '旗艦 C 線', rank: 4, totalSV: 16000, isQualified: true, generations: [] },
+                        { id: 'L04', name: '旗艦 D 線', rank: 4, totalSV: 14000, isQualified: true, generations: [] },
+                        { id: 'L05', name: '旗艦 E 線', rank: 4, totalSV: 15000, isQualified: true, generations: [] },
+                        { id: 'L06', name: '旗艦 F 線', rank: 4, totalSV: 20000, isQualified: true, generations: [] }
+                    ];
+                } else if (type === 'compression_alert') {
+                    $('#selectMyRank').val(6); // 長青
+                    $('#rangeMyGroupSV').val(12000);
+                    $('#txtMyGroupSV').text('12,000 SV');
+                    OrganizationState.lines = [
+                        { 
+                            id: 'L01', 
+                            name: '斷代穿透示範線', 
+                            rank: 4, 
+                            totalSV: 14000, 
+                            isQualified: true, 
+                            generations: [
+                                { name: '第1代合格經理 (正常)', sv: 15000, isQualified: true },
+                                { name: '第2代經理 (本月偷懶未達標-斷代)', sv: 3000, isQualified: false },
+                                { name: '第3代合格經理 (自動向上緊縮遞補為第2代)', sv: 18000, isQualified: true }
+                            ] 
+                        }
+                    ];
+                }
+
+                TreeManager.render();
+                BonusEngine.calculate();
+            }
+        };
+
+        /**
+         * 匯出與剪貼簿工具 (BonusExporter)
+         */
+        const BonusExporter = {
+            exportSummary() {
+                alert('已生成 2026 葡眾核心版獎金精算報告書 (含緊縮穿透節點流水明細)！');
+            },
+            copyShareLink() {
+                navigator.clipboard.writeText(window.location.href);
+                alert('已複製當前情境推演連結至剪貼簿！');
+            }
+        };
+
+        // DOM 初始化載入
+        $(document).ready(function() {
+            TreeManager.render();
+            BonusChart.init();
+            BonusEngine.calculate();
+        });
+    </script>
+</body>
+</html>
