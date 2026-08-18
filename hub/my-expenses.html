@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>差旅費用與 50/50 平帳中樞 - 榮祥團隊核心戰情室</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --bs-body-bg: #0b0314;
+            --bs-body-color: #f1f5f9;
+            --uvaco-purple-base: #150827;
+            --uvaco-purple-card: rgba(26, 11, 46, 0.75);
+            --uvaco-purple-card-hover: rgba(38, 16, 67, 0.85);
+            --uvaco-purple-border: rgba(168, 85, 247, 0.28);
+            --uvaco-purple-glow: rgba(192, 132, 252, 0.35);
+            --uvaco-primary: #c084fc;
+            --uvaco-primary-dark: #9333ea;
+            --uvaco-accent-gold: #fbbf24;
+            --uvaco-accent-emerald: #34d399;
+            --uvaco-accent-rose: #fb7185;
+            --uvaco-accent-cyan: #38bdf8;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #200a3e 0%, #0b0314 75%);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", sans-serif;
+            min-height: 100vh;
+            color: var(--bs-body-color);
+        }
+
+        /* 玻璃擬態與發光邊框 */
+        .glass-panel {
+            background: var(--uvaco-purple-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--uvaco-purple-border);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 1px 1px var(--uvaco-purple-border);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.5);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 15px var(--uvaco-purple-glow);
+        }
+
+        /* 標題與光暈徽章 */
+        .page-badge {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            color: #f3e8ff;
+            font-weight: 600;
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* 雙創始人 50/50 資金平衡天平 */
+        .balance-hub {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(30, 12, 54, 0.9), rgba(15, 6, 28, 0.95));
+            border: 1px solid rgba(192, 132, 252, 0.35);
+        }
+
+        .balance-bar-container {
+            height: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 9999px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+        }
+
+        .balance-bar-ray {
+            background: linear-gradient(90deg, #9333ea, #c084fc);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .balance-bar-jarvis {
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 創始人卡片頭像與數值 */
+        .founder-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1rem;
+            transition: transform 0.2s ease;
+        }
+        .founder-pill:hover {
+            transform: translateY(-2px);
+        }
+        .founder-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .avatar-ray {
+            background: linear-gradient(135deg, #7e22ce, #c084fc);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.5);
+        }
+        .avatar-jarvis {
+            background: linear-gradient(135deg, #0369a1, #38bdf8);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+        }
+
+        /* 類別快速篩選膠囊 */
+        .category-chip {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .category-chip:hover, .category-chip.active {
+            background: var(--uvaco-primary);
+            color: #0f051d;
+            border-color: var(--uvaco-primary);
+            font-weight: 600;
+            box-shadow: 0 0 12px var(--uvaco-purple-glow);
+        }
+
+        /* 憑證卡片流 (Stream View) */
+        .expense-card {
+            background: var(--uvaco-purple-card);
+            border: 1px solid var(--uvaco-purple-border);
+            border-radius: 1rem;
+            padding: 1.15rem;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .expense-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        .expense-card.reconciled {
+            border-left: 4px solid var(--uvaco-accent-emerald);
+        }
+        .expense-card.pending {
+            border-left: 4px solid var(--uvaco-accent-gold);
+        }
+
+        /* 單據縮圖 */
+        .receipt-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .receipt-thumb:hover {
+            transform: scale(1.08);
+            border-color: var(--uvaco-primary);
+        }
+
+        /* 自定義按鈕 */
+        .btn-purple {
+            background: linear-gradient(135deg, #9333ea 0%, #c084fc 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-purple:hover {
+            background: linear-gradient(135deg, #a855f7 0%, #d8b4fe 100%);
+            color: #0f051d;
+            box-shadow: 0 6px 20px rgba(192, 132, 252, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-purple {
+            border: 1px solid rgba(192, 132, 252, 0.5);
+            color: #e9d5ff;
+            background: rgba(147, 51, 234, 0.1);
+        }
+        .btn-outline-purple:hover {
+            background: rgba(147, 51, 234, 0.3);
+            border-color: #c084fc;
+            color: #ffffff;
+        }
+
+        /* DataTable 深度客製化樣式 */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: #f1f5f9;
+            --bs-table-border-color: rgba(168, 85, 247, 0.15);
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #9333ea !important;
+            border-color: #a855f7 !important;
+            color: #ffffff !important;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+            color: #ffffff !important;
+            border-radius: 0.5rem;
+            padding: 0.35rem 0.75rem;
+        }
+    </style>
+</head>
+<body class="p-2 p-md-4">
+
+    <div class="container-fluid max-w-7xl">
+        
+        <div class="glass-panel p-3 p-md-4 mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <div class="page-badge mb-2">
+                        <i class="fa-solid fa-plane-departure"></i> MY-202608-KL 吉隆坡招商暨拓荒任務
+                    </div>
+                    <h2 class="h4 mb-1 fw-bold text-white d-flex align-items-center">
+                        <i class="fa-solid fa-receipt text-warning me-2"></i> 差旅費用與 50/50 自動平帳指揮台
+                    </h2>
+                    <p class="text-secondary small mb-0">
+                        <i class="fa-solid fa-shield-halved"></i> 支援台馬多幣別即時記帳、憑證上傳、雙創始人對等代墊分攤與月結沖銷連動
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-purple btn-sm rounded-pill px-3" id="btnSyncSheet">
+                        <i class="fa-solid fa-rotate"></i> 同步 Google 試算表
+                    </button>
+                    <button class="btn btn-purple btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalAddExpense">
+                        <i class="fa-solid fa-plus"></i> 快速登錄費用
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel balance-hub p-3 p-md-4 mb-4">
+            <div class="d-flex flex-column flex-lg-row align-items-stretch gap-4">
+                
+                <div class="founder-pill flex-fill">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="founder-avatar avatar-ray">R</div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-white">Ray（創始人）</h6>
+                                <span class="badge bg-purple-subtle text-info border border-info-subtle small">代墊方 A</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-wallet fa-lg text-secondary"></i>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-secondary small">累計代墊金額 (折合 TWD)</span>
+                        <h3 class="fw-bold text-white mb-0 mt-1" id="statRayPaid">NT$ 0</h3>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 pt-2 border-top border-secondary border-opacity-25 small text-secondary">
+                        <span>馬幣支出: <b class="text-white" id="statRayMyr">RM 0</b></span>
+                        <span>筆數: <b class="text-white" id="statRayCount">0 筆</b></span>
+                    </div>
+                </div>
+
+                <div class="flex-fill d-flex flex-column justify-content-center px-lg-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small fw-semibold text-purple" style="color: #c084fc;">
+                            <i class="fa-solid fa-scale-balanced"></i> 50/50 責任額平衡天平
+                        </span>
+                        <span class="badge bg-dark border border-secondary text-secondary small" id="statExchangeRateTag">
+                            基準匯率: 1 MYR = 7.15 TWD
+                        </span>
+                    </div>
+
+                    <div class="balance-bar-container mb-2">
+                        <div class="balance-bar-ray" id="barRay" style="width: 50%;"></div>
+                        <div class="balance-bar-jarvis" id="barJarvis" style="width: 50%;"></div>
+                    </div>
+
+                    <div class="text-center p-2 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px dashed rgba(168,85,247,0.3);">
+                        <div class="small text-secondary mb-1" id="balanceStatusText">計算中...</div>
+                        <div class="h5 fw-bold mb-0 text-warning" id="settlementActionText">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i> 雙方平帳結清中
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1" id="btnOneClickReconcile">
+                            <i class="fa-solid fa-handshake"></i> 一鍵平帳並鎖定對帳單
+                        </button>
+                    </div>
+                </div>
+
+                <div class="founder-pill flex-fill">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="founder-avatar avatar-jarvis">J</div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-white">Jarvis（創始人）</h6>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle small">代墊方 B</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-credit-card fa-lg text-secondary"></i>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-secondary small">累計代墊金額 (折合 TWD)</span>
+                        <h3 class="fw-bold text-white mb-0 mt-1" id="statJarvisPaid">NT$ 0</h3>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 pt-2 border-top border-secondary border-opacity-25 small text-secondary">
+                        <span>馬幣支出: <b class="text-white" id="statJarvisMyr">RM 0</b></span>
+                        <span>筆數: <b class="text-white" id="statJarvisCount">0 筆</b></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-4 pt-3 border-top border-secondary border-opacity-25 align-items-center">
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between small text-secondary mb-1">
+                        <span>出差總預算: <b>NT$ 150,000</b></span>
+                        <span id="statBudgetUsedPercent">已支用 0%</span>
+                    </div>
+                    <div class="progress" style="height: 6px; background: rgba(0,0,0,0.5);">
+                        <div class="progress-bar bg-warning" id="barBudgetProgress" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="col-md-8 text-md-end mt-2 mt-md-0">
+                    <span class="text-secondary small me-3">出差總支出: <b class="text-white fs-6" id="statTotalExpenseTwd">NT$ 0</b></span>
+                    <span class="text-secondary small me-3">折合馬幣: <b class="text-emerald fs-6" style="color: #34d399;" id="statTotalExpenseMyr">RM 0</b></span>
+                    <span class="text-secondary small">每人 50% 應攤額: <b class="text-info fs-6" id="statHalfShare">NT$ 0</b></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+            <div class="d-flex flex-wrap gap-2" id="categoryChips">
+                <span class="category-chip active" data-category="ALL"><i class="fa-solid fa-layer-group"></i> 全部項目</span>
+                <span class="category-chip" data-category="FLIGHT_HOTEL"><i class="fa-solid fa-hotel"></i> 機加酒</span>
+                <span class="category-chip" data-category="TRANSIT"><i class="fa-solid fa-car-side"></i> 交通 (Grab)</span>
+                <span class="category-chip" data-category="MEALS"><i class="fa-solid fa-utensils"></i> 公關餐飲</span>
+                <span class="category-chip" data-category="VENUE"><i class="fa-solid fa-building"></i> 會場租金</span>
+                <span class="category-chip" data-category="SAMPLES"><i class="fa-solid fa-boxes-stacked"></i> 樣品物資</span>
+                <span class="category-chip" data-category="MISC"><i class="fa-solid fa-ellipsis"></i> 雜支/網卡</span>
+            </div>
+
+            <div class="btn-group btn-group-sm p-1 rounded-pill" style="background: rgba(0,0,0,0.4); border: 1px solid var(--uvaco-purple-border);">
+                <button type="button" class="btn btn-purple rounded-pill px-3 active" id="btnViewCards">
+                    <i class="fa-solid fa-grip"></i> 憑證卡片流
+                </button>
+                <button type="button" class="btn btn-outline-purple rounded-pill px-3" id="btnViewTable">
+                    <i class="fa-solid fa-table-list"></i> 審計表格
+                </button>
+            </div>
+        </div>
+
+        <div id="viewCardsContainer" class="row g-3">
+            </div>
+
+        <div id="viewTableContainer" class="glass-panel p-3 p-md-4 d-none">
+            <div class="table-responsive">
+                <table id="expenseDataTable" class="table table-dark table-hover table-dark-custom align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>單號</th>
+                            <th>日期</th>
+                            <th>科目類別</th>
+                            <th>品項名稱</th>
+                            <th>原幣金額</th>
+                            <th>折算 TWD</th>
+                            <th>代墊人</th>
+                            <th>憑證</th>
+                            <th>平帳狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalAddExpense" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-panel" style="background: #17082e; border: 1px solid #c084fc;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-file-invoice-dollar text-warning me-2"></i> 登錄海外差旅開銷流水
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formExpense">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">消費日期 <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control bg-dark text-white border-secondary" id="inputExpDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">科目類別 <span class="text-danger">*</span></label>
+                                <select class="form-select bg-dark text-white border-secondary" id="selectExpCategory" required>
+                                    <option value="TRANSIT">交通 (Grab / 機場快線)</option>
+                                    <option value="MEALS">公關餐飲 (商務招商餐敘)</option>
+                                    <option value="FLIGHT_HOTEL">機加酒 (機票與飯店)</option>
+                                    <option value="VENUE">會場租金 (OPP 會議室借用)</option>
+                                    <option value="SAMPLES">樣品物資 (展示品補給)</option>
+                                    <option value="MISC">通訊雜支 (eSIM / 辦公雜支)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">品項名稱與用途摘要 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="inputExpTitle" placeholder="例如：KLCC 雙子星希爾頓商務晚餐 (4位潛在領袖)" required>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label text-secondary small">幣別 <span class="text-danger">*</span></label>
+                                <select class="form-select bg-dark text-white border-secondary" id="selectExpCurrency">
+                                    <option value="MYR" selected>MYR (馬來西亞令吉)</option>
+                                    <option value="TWD">TWD (新台幣)</option>
+                                    <option value="USD">USD (美元)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-secondary small">原幣金額 <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control bg-dark text-white border-secondary" id="inputExpOriginalAmount" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-secondary small">折合台幣 (TWD 自動換算)</label>
+                                <input type="number" class="form-control bg-dark text-warning fw-bold border-secondary" id="inputExpTwdAmount" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">實際代墊人 <span class="text-danger">*</span></label>
+                                <select class="form-select bg-dark text-white border-secondary" id="selectExpPaidBy" required>
+                                    <option value="Ray">Ray (個人信用卡/現金代墊)</option>
+                                    <option value="Jarvis">Jarvis (個人信用卡/現金代墊)</option>
+                                    <option value="TeamFund">團隊公款蓄水池 (免對拆)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">發票收據照片 URL</label>
+                                <div class="input-group">
+                                    <input type="url" class="form-control bg-dark text-white border-secondary" id="inputExpReceiptUrl" placeholder="https://drive.google.com/...">
+                                    <button class="btn btn-outline-purple" type="button" id="btnMockCamera">
+                                        <i class="fa-solid fa-camera"></i> 拍照
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">備註 (統編/匯率說明/與會名單)</label>
+                                <textarea class="form-control bg-dark text-white border-secondary" id="inputExpNotes" rows="2" placeholder="備註商務目標或特殊匯率"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-end">
+                            <button type="button" class="btn btn-secondary rounded-pill px-4 me-2" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-purple rounded-pill px-4">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> 儲存寫入試算表
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalReceiptView" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel" style="background: #120524;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h6 class="modal-title text-white fw-bold" id="receiptModalTitle">
+                        <i class="fa-solid fa-image me-2"></i> 發票與收據憑證預覽
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img id="imgReceiptPreview" src="" class="img-fluid rounded-3 border border-secondary" alt="單據預覽" style="max-height: 70vh;">
+                    <div class="mt-3 text-secondary small" id="receiptModalDesc"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        // 1. Google 試算表欄位解耦對映字典 (sys_api_configs / 表 703 規範)
+        const EXPENSE_FIELD_MAP = {
+            expense_id: ['費用單號', '流水號', 'ExpenseID', 'expense_id'],
+            trip_id: ['出差專案', '任務單號', 'TripID', 'trip_id'],
+            expense_date: ['消費日期', '日期', 'Date', 'expense_date'],
+            category: ['費用類別', '科目', 'Category', 'category'],
+            item_title: ['品項說明', '費用名稱', 'Title', 'item_title'],
+            currency: ['幣別', '幣種', 'Currency', 'currency'],
+            original_amount: ['原幣金額', '金額', 'OriginalAmount', 'original_amount'],
+            exchange_rate: ['折算匯率', '匯率', 'ExchangeRate', 'exchange_rate'],
+            twd_amount: ['折合台幣', '台幣金額', 'TwdAmount', 'twd_amount'],
+            paid_by: ['代墊人', '付款人', 'PaidBy', 'paid_by'],
+            receipt_url: ['發票憑證', '單據圖檔', 'ReceiptUrl', 'receipt_url'],
+            is_reconciled: ['平帳狀態', '已對帳', 'Reconciled', 'is_reconciled'],
+            notes: ['備註說明', '商務備註', 'Notes', 'notes']
+        };
+
+        // 基準固定匯率常數
+        const RATES = {
+            MYR: 7.15,
+            USD: 32.2,
+            TWD: 1.0
+        };
+
+        // 初始模擬/試算表載入數據源 (符合 表 805 my_expenses 規範)
+        let expensesData = [
+            {
+                expense_id: "EXP-202608-001",
+                trip_id: "MY-202608-KL",
+                expense_date: "2026-08-10",
+                category: "FLIGHT_HOTEL",
+                item_title: "華航 CI721 / CI722 雙人商務艙機票",
+                currency: "TWD",
+                original_amount: 48000,
+                exchange_rate: 1.0,
+                twd_amount: 48000,
+                paid_by: "Ray",
+                receipt_url: "https://images.unsplash.com/photo-1554415707-9e49017aed81?w=600",
+                is_reconciled: true,
+                notes: "Ray 雙幣卡線上刷卡結帳"
+            },
+            {
+                expense_id: "EXP-202608-002",
+                trip_id: "MY-202608-KL",
+                expense_date: "2026-08-11",
+                category: "FLIGHT_HOTEL",
+                item_title: "VE Hotel & Residence 豪華套房 (5晚)",
+                currency: "MYR",
+                original_amount: 2850,
+                exchange_rate: 7.15,
+                twd_amount: 20378,
+                paid_by: "Jarvis",
+                receipt_url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600",
+                is_reconciled: true,
+                notes: "Jarvis 信用卡預付含早"
+            },
+            {
+                expense_id: "EXP-202608-003",
+                trip_id: "MY-202608-KL",
+                expense_date: "2026-08-12",
+                category: "VENUE",
+                item_title: "吉隆坡 Connexion 會議中心 OPP 場租",
+                currency: "MYR",
+                original_amount: 1200,
+                exchange_rate: 7.15,
+                twd_amount: 8580,
+                paid_by: "Ray",
+                receipt_url: "https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=600",
+                is_reconciled: false,
+                notes: "含投影音響與 40 人茶水"
+            },
+            {
+                expense_id: "EXP-202608-004",
+                trip_id: "MY-202608-KL",
+                expense_date: "2026-08-12",
+                category: "TRANSIT",
+                item_title: "KLIA 機場快線至 KL Sentral 雙人票",
+                currency: "MYR",
+                original_amount: 110,
+                exchange_rate: 7.15,
+                twd_amount: 787,
+                paid_by: "Jarvis",
+                receipt_url: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600",
+                is_reconciled: false,
+                notes: "現場售票機購票"
+            },
+            {
+                expense_id: "EXP-202608-005",
+                trip_id: "MY-202608-KL",
+                expense_date: "2026-08-13",
+                category: "MEALS",
+                item_title: "KLCC 雙子星商務招商晚宴 (大馬核心 6 人)",
+                currency: "MYR",
+                original_amount: 880,
+                exchange_rate: 7.15,
+                twd_amount: 6292,
+                paid_by: "Jarvis",
+                receipt_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+                is_reconciled: false,
+                notes: "敲定 3 位珍珠級經理簽約意向"
+            },
+            {
+                expense_id: "EXP-202608-006",
+                trip_id: "MY-202608-KL",
+                expense_date: "2026-08-14",
+                category: "MISC",
+                item_title: "大馬 5G eSIM 高速網卡 (2張)",
+                currency: "TWD",
+                original_amount: 1100,
+                exchange_rate: 1.0,
+                twd_amount: 1100,
+                paid_by: "Ray",
+                receipt_url: "https://images.unsplash.com/photo-1563770660941-20978e870e26?w=600",
+                is_reconciled: false,
+                notes: "台灣機場出發前取卡"
+            }
+        ];
+
+        let currentFilterCategory = "ALL";
+        let expenseDataTableInstance = null;
+
+        // 2. 頁面初始化
+        $(document).ready(function() {
+            // 設定今日日期預設值
+            $('#inputExpDate').val(new Date().toISOString().split('T')[0]);
+
+            // 計算與渲染主介面
+            refreshDashboard();
+
+            // 金額輸入動態換算事件
+            $('#inputExpOriginalAmount, #selectExpCurrency').on('input change', calculateTwdConversion);
+
+            // 類別膠囊點擊篩選
+            $('#categoryChips').on('click', '.category-chip', function() {
+                $('#categoryChips .category-chip').removeClass('active');
+                $(this).addClass('active');
+                currentFilterCategory = $(this).data('category');
+                renderExpenseCards();
+            });
+
+            // 視圖切換事件
+            $('#btnViewCards').on('click', function() {
+                $(this).addClass('active btn-purple').removeClass('btn-outline-purple');
+                $('#btnViewTable').removeClass('active btn-purple').addClass('btn-outline-purple');
+                $('#viewCardsContainer').removeClass('d-none');
+                $('#viewTableContainer').addClass('d-none');
+            });
+
+            $('#btnViewTable').on('click', function() {
+                $(this).addClass('active btn-purple').removeClass('btn-outline-purple');
+                $('#btnViewCards').removeClass('active btn-purple').addClass('btn-outline-purple');
+                $('#viewCardsContainer').addClass('d-none');
+                $('#viewTableContainer').removeClass('d-none');
+                renderExpenseDataTable();
+            });
+
+            // 表單提交事件
+            $('#formExpense').on('submit', handleExpenseSubmit);
+
+            // 一鍵平帳按鈕
+            $('#btnOneClickReconcile').on('click', handleOneClickReconcile);
+
+            // 試算表同步按鈕
+            $('#btnSyncSheet').on('click', handleSheetSync);
+
+            // 擬真相機拍照上傳
+            $('#btnMockCamera').on('click', function() {
+                const sampleUrls = [
+                    "https://images.unsplash.com/photo-1554415707-9e49017aed81?w=600",
+                    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+                    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600"
+                ];
+                const randomUrl = sampleUrls[Math.floor(Math.random() * sampleUrls.length)];
+                $('#inputExpReceiptUrl').val(randomUrl);
+                alert("已模擬啟動相機並自動上傳清晰發票至雲端！");
+            });
+        });
+
+        // 3. 原幣折合台幣即時換算
+        function calculateTwdConversion() {
+            const curr = $('#selectExpCurrency').val();
+            const orig = parseFloat($('#inputExpOriginalAmount').val()) || 0;
+            const rate = RATES[curr] || 1.0;
+            const twd = Math.round(orig * rate);
+            $('#inputExpTwdAmount').val(twd);
+        }
+
+        // 4. 儀表板總匯、雙人天平與 50/50 演算核心
+        function refreshDashboard() {
+            let rayTwd = 0, rayMyr = 0, rayCount = 0;
+            let jarvisTwd = 0, jarvisMyr = 0, jarvisCount = 0;
+            let totalTwd = 0, totalMyr = 0;
+
+            expensesData.forEach(item => {
+                const twd = parseFloat(item.twd_amount) || 0;
+                const orig = parseFloat(item.original_amount) || 0;
+                totalTwd += twd;
+                if (item.currency === 'MYR') totalMyr += orig;
+
+                if (item.paid_by === 'Ray') {
+                    rayTwd += twd;
+                    if (item.currency === 'MYR') rayMyr += orig;
+                    rayCount++;
+                } else if (item.paid_by === 'Jarvis') {
+                    jarvisTwd += twd;
+                    if (item.currency === 'MYR') jarvisMyr += orig;
+                    jarvisCount++;
+                }
+            });
+
+            // 更新 Ray / Jarvis 統計卡片
+            $('#statRayPaid').text(`NT$ ${rayTwd.toLocaleString()}`);
+            $('#statRayMyr').text(`RM ${rayMyr.toLocaleString()}`);
+            $('#statRayCount').text(`${rayCount} 筆`);
+
+            $('#statJarvisPaid').text(`NT$ ${jarvisTwd.toLocaleString()}`);
+            $('#statJarvisMyr').text(`RM ${jarvisMyr.toLocaleString()}`);
+            $('#statJarvisCount').text(`${jarvisCount} 筆`);
+
+            // 更新出差總額與 50% 責任額
+            $('#statTotalExpenseTwd').text(`NT$ ${totalTwd.toLocaleString()}`);
+            $('#statTotalExpenseMyr').text(`RM ${Math.round(totalTwd / RATES.MYR).toLocaleString()}`);
+            const halfShare = Math.round(totalTwd / 2);
+            $('#statHalfShare').text(`NT$ ${halfShare.toLocaleString()}`);
+
+            // 預算達成率 (以 NT$ 150,000 為預算基準)
+            const budgetTotal = 150000;
+            const usedPct = Math.min(100, Math.round((totalTwd / budgetTotal) * 100));
+            $('#statBudgetUsedPercent').text(`已支用 ${usedPct}%`);
+            $('#barBudgetProgress').css('width', `${usedPct}%`);
+
+            // 50/50 資金天平比例計算
+            const combinedPaid = rayTwd + jarvisTwd;
+            let rayPercent = 50;
+            let jarvisPercent = 50;
+
+            if (combinedPaid > 0) {
+                rayPercent = (rayTwd / combinedPaid) * 100;
+                jarvisPercent = (jarvisTwd / combinedPaid) * 100;
+            }
+
+            $('#barRay').css('width', `${rayPercent}%`);
+            $('#barJarvis').css('width', `${jarvisPercent}%`);
+
+            // 淨差額與平帳動作判定 ($rayTwd vs $jarvisTwd)
+            const diff = Math.abs(rayTwd - jarvisTwd);
+            const transferAmount = Math.round(diff / 2);
+
+            if (diff === 0) {
+                $('#balanceStatusText').html('<span class="text-success"><i class="fa-solid fa-check"></i> 雙方代墊金額完全平衡</span>');
+                $('#settlementActionText').html('<span class="text-white">50/50 完美平帳 (無需相互轉帳)</span>');
+            } else if (rayTwd > jarvisTwd) {
+                $('#balanceStatusText').text(`Ray 累計代墊較多 (超出 NT$ ${diff.toLocaleString()})`);
+                $('#settlementActionText').html(`Jarvis 應給付 Ray <b class="text-warning fs-5">NT$ ${transferAmount.toLocaleString()}</b> (RM ${Math.round(transferAmount / RATES.MYR)})`);
+            } else {
+                $('#balanceStatusText').text(`Jarvis 累計代墊較多 (超出 NT$ ${diff.toLocaleString()})`);
+                $('#settlementActionText').html(`Ray 應給付 Jarvis <b class="text-warning fs-5">NT$ ${transferAmount.toLocaleString()}</b> (RM ${Math.round(transferAmount / RATES.MYR)})`);
+            }
+
+            // 渲染卡片與表格
+            renderExpenseCards();
+            if ($('#viewTableContainer').is(':visible')) {
+                renderExpenseDataTable();
+            }
+        }
+
+        // 5. 渲染憑證卡片流 (Stream Cards View)
+        function renderExpenseCards() {
+            const $container = $('#viewCardsContainer');
+            $container.empty();
+
+            const filtered = expensesData.filter(item => {
+                if (currentFilterCategory === "ALL") return true;
+                return item.category === currentFilterCategory;
+            });
+
+            if (filtered.length === 0) {
+                $container.html(`
+                    <div class="col-12 text-center py-5 text-secondary">
+                        <i class="fa-solid fa-receipt fa-3x mb-3 opacity-50"></i>
+                        <p>此類別尚無費用紀錄</p>
+                    </div>
+                `);
+                return;
+            }
+
+            filtered.forEach((item, index) => {
+                const categoryIcon = getCategoryIcon(item.category);
+                const categoryLabel = getCategoryLabel(item.category);
+                const statusBadge = item.is_reconciled
+                    ? `<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fa-solid fa-check"></i> 已平帳</span>`
+                    : `<span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="fa-solid fa-clock"></i> 待平帳</span>`;
+
+                const payerAvatar = item.paid_by === 'Ray'
+                    ? `<span class="badge bg-purple-subtle text-purple border border-purple small" style="color:#c084fc;">Ray 代墊</span>`
+                    : (item.paid_by === 'Jarvis' ? `<span class="badge bg-info-subtle text-info border border-info small">Jarvis 代墊</span>` : `<span class="badge bg-secondary small">團隊公款</span>`);
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="expense-card ${item.is_reconciled ? 'reconciled' : 'pending'} h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-dark text-secondary border border-secondary border-opacity-25 small">
+                                        <i class="${categoryIcon}"></i> ${categoryLabel}
+                                    </span>
+                                    <div class="d-flex align-items-center gap-1">
+                                        ${payerAvatar}
+                                        ${statusBadge}
+                                    </div>
+                                </div>
+                                <h5 class="fw-bold text-white mb-2 fs-6">${item.item_title}</h5>
+                                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                    <span class="text-secondary small">${item.expense_date}</span>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-warning fs-5">NT$ ${item.twd_amount.toLocaleString()}</div>
+                                        <div class="text-secondary small">${item.currency} ${item.original_amount.toLocaleString()} (匯率 ${item.exchange_rate})</div>
+                                    </div>
+                                </div>
+                                ${item.notes ? `<p class="text-secondary small mb-2 bg-dark bg-opacity-50 p-2 rounded">${item.notes}</p>` : ''}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 mt-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="${item.receipt_url}" class="receipt-thumb" onclick="openReceiptModal('${item.item_title}', '${item.receipt_url}', '${item.paid_by} 代墊 NT$ ${item.twd_amount.toLocaleString()}')" alt="憑證">
+                                    <span class="text-secondary small" style="font-size: 0.75rem;">點擊縮圖<br>預覽單據</span>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleReconcileStatus('${item.expense_id}')">
+                                        <i class="fa-solid fa-repeat"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteExpense('${item.expense_id}')">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $container.append(cardHtml);
+            });
+        }
+
+        // 6. 渲染 DataTable 審計表格
+        function renderExpenseDataTable() {
+            if ($.fn.DataTable.isDataTable('#expenseDataTable')) {
+                $('#expenseDataTable').DataTable().destroy();
+            }
+
+            const $tbody = $('#expenseDataTable tbody');
+            $tbody.empty();
+
+            expensesData.forEach(item => {
+                const tr = `
+                    <tr>
+                        <td class="font-monospace small">${item.expense_id}</td>
+                        <td>${item.expense_date}</td>
+                        <td><span class="badge bg-dark border border-secondary">${getCategoryLabel(item.category)}</span></td>
+                        <td class="fw-semibold">${item.item_title}</td>
+                        <td>${item.currency} ${item.original_amount.toLocaleString()}</td>
+                        <td class="text-warning fw-bold">NT$ ${item.twd_amount.toLocaleString()}</td>
+                        <td><span class="badge ${item.paid_by === 'Ray' ? 'bg-purple-subtle text-info' : 'bg-info-subtle text-info'}">${item.paid_by}</span></td>
+                        <td>
+                            <img src="${item.receipt_url}" class="receipt-thumb" style="width:36px;height:36px;" onclick="openReceiptModal('${item.item_title}', '${item.receipt_url}', '${item.paid_by}')" alt="憑證">
+                        </td>
+                        <td>
+                            ${item.is_reconciled ? '<span class="badge bg-success">已平帳</span>' : '<span class="badge bg-warning text-dark">待平帳</span>'}
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-danger btn-sm py-0 px-2" onclick="deleteExpense('${item.expense_id}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $tbody.append(tr);
+            });
+
+            expenseDataTableInstance = $('#expenseDataTable').DataTable({
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/zh-HANT.json"
+                },
+                order: [[1, 'desc']],
+                pageLength: 10,
+                responsive: true
+            });
+        }
+
+        // 7. 新增費用提交處理
+        function handleExpenseSubmit(e) {
+            e.preventDefault();
+
+            const date = $('#inputExpDate').val();
+            const category = $('#selectExpCategory').val();
+            const title = $('#inputExpTitle').val().trim();
+            const currency = $('#selectExpCurrency').val();
+            const originalAmount = parseFloat($('#inputExpOriginalAmount').val()) || 0;
+            const twdAmount = parseFloat($('#inputExpTwdAmount').val()) || 0;
+            const paidBy = $('#selectExpPaidBy').val();
+            const receiptUrl = $('#inputExpReceiptUrl').val().trim() || "https://images.unsplash.com/photo-1554415707-9e49017aed81?w=600";
+            const notes = $('#inputExpNotes').val().trim();
+
+            const newExpense = {
+                expense_id: `EXP-202608-${String(expensesData.length + 1).padStart(3, '0')}`,
+                trip_id: "MY-202608-KL",
+                expense_date: date,
+                category: category,
+                item_title: title,
+                currency: currency,
+                original_amount: originalAmount,
+                exchange_rate: RATES[currency],
+                twd_amount: twdAmount,
+                paid_by: paidBy,
+                receipt_url: receiptUrl,
+                is_reconciled: false,
+                notes: notes
+            };
+
+            expensesData.unshift(newExpense);
+            $('#modalAddExpense').modal('hide');
+            $('#formExpense')[0].reset();
+            $('#inputExpDate').val(new Date().toISOString().split('T')[0]);
+
+            refreshDashboard();
+            alert(`已成功登錄單據「${title}」(NT$ ${twdAmount.toLocaleString()})，並自動更新 50/50 資金平衡天平！`);
+        }
+
+        // 8. 一鍵平帳並生成對帳鎖定
+        function handleOneClickReconcile() {
+            if (confirm("確認將本次出差所有未平帳項目進行 50/50 自動清算，並連動至月底損益對帳單 (fin_reconciliations) 嗎？")) {
+                expensesData.forEach(item => item.is_reconciled = true);
+                refreshDashboard();
+                alert("恭喜！已完成雙創始人出差費用 50/50 平帳鎖定，並自動寫入對帳單號 REC-202608！");
+            }
+        }
+
+        // 9. 狀態反轉與刪除
+        function toggleReconcileStatus(id) {
+            const item = expensesData.find(d => d.expense_id === id);
+            if (item) {
+                item.is_reconciled = !item.is_reconciled;
+                refreshDashboard();
+            }
+        }
+
+        function deleteExpense(id) {
+            if (confirm(`確定要刪除單號 ${id} 之開銷流水嗎？`)) {
+                expensesData = expensesData.filter(d => d.expense_id !== id);
+                refreshDashboard();
+            }
+        }
+
+        // 10. 開啟憑證預覽 Modal
+        function openReceiptModal(title, url, desc) {
+            $('#receiptModalTitle').html(`<i class="fa-solid fa-receipt me-2"></i> ${title}`);
+            $('#imgReceiptPreview').attr('src', url);
+            $('#receiptModalDesc').text(desc);
+            new bootstrap.Modal(document.getElementById('modalReceiptView')).show();
+        }
+
+        // 11. Google 試算表欄位解耦同步 (PapaParse / GViz 核心)
+        function handleSheetSync() {
+            const $btn = $('#btnSyncSheet');
+            const originalHtml = $btn.html();
+            $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+
+            // 模擬 PapaParse 自 Google 試算表 CSV 解析與欄位反向解耦字典適配
+            setTimeout(() => {
+                $btn.html(originalHtml);
+                refreshDashboard();
+                alert("已成功透過 sys_api_configs 欄位字典自 Google 試算表 (my_expenses) 同步最新匯率與流水！");
+            }, 800);
+        }
+
+        // 輔助工具函式
+        function getCategoryIcon(cat) {
+            switch(cat) {
+                case 'FLIGHT_HOTEL': return 'fa-solid fa-hotel';
+                case 'TRANSIT': return 'fa-solid fa-car-side';
+                case 'MEALS': return 'fa-solid fa-utensils';
+                case 'VENUE': return 'fa-solid fa-building';
+                case 'SAMPLES': return 'fa-solid fa-boxes-stacked';
+                default: return 'fa-solid fa-ellipsis';
+            }
+        }
+
+        function getCategoryLabel(cat) {
+            switch(cat) {
+                case 'FLIGHT_HOTEL': return '機加酒';
+                case 'TRANSIT': return '交通/Grab';
+                case 'MEALS': return '公關餐飲';
+                case 'VENUE': return '會場租金';
+                case 'SAMPLES': return '樣品物資';
+                default: return '通訊雜支';
+            }
+        }
+    </script>
+</body>
+</html>

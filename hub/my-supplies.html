@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>試用備品 - 馬來西亞拓荒專區 | 葡眾核心版</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0a0714;
+            --bg-surface: #130e24;
+            --bg-surface-elevated: #1d1636;
+            --bg-surface-card: rgba(29, 22, 54, 0.75);
+            --border-glow: rgba(168, 85, 247, 0.25);
+            --border-glow-active: rgba(192, 132, 252, 0.6);
+            --purple-500: #a855f7;
+            --purple-600: #9333ea;
+            --purple-700: #7e22ce;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(147, 51, 234, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(6, 182, 212, 0.1) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        /* 玻璃擬態與核心卡片 */
+        .glass-panel {
+            background: var(--bg-surface-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-glow-active);
+            box-shadow: 0 8px 32px -8px rgba(168, 85, 247, 0.3);
+        }
+
+        /* 任務 HUD Banner */
+        .hud-banner {
+            background: linear-gradient(135deg, rgba(30, 18, 59, 0.9) 0%, rgba(19, 14, 36, 0.95) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hud-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--purple-500), var(--accent-amber));
+        }
+
+        /* 類別膠囊切換 */
+        .category-chip {
+            background: rgba(29, 22, 54, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .category-chip:hover {
+            color: var(--text-primary);
+            border-color: var(--purple-500);
+            transform: translateY(-2px);
+        }
+
+        .category-chip.active {
+            background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+            color: #ffffff;
+            border-color: var(--purple-500);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+
+        /* 備品物資卡片 */
+        .supply-item-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid rgba(168, 85, 247, 0.18);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .supply-item-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--purple-500);
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+        }
+
+        .supply-item-card.packed {
+            background: rgba(19, 14, 36, 0.6);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .supply-item-card.packed .item-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* 負責人徽章標籤 */
+        .assignee-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .assignee-ray {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .assignee-jarvis {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .assignee-both {
+            background: rgba(6, 182, 212, 0.15);
+            color: #22d3ee;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        /* 自訂核取方塊 Checkbox */
+        .custom-check {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 0.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .custom-check.checked {
+            background: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        }
+
+        /* 數值步進按鈕 */
+        .stepper-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stepper-btn:hover {
+            background: var(--purple-600);
+            border-color: var(--purple-500);
+        }
+
+        /* 進度條自訂 */
+        .hud-progress-bar {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            height: 0.65rem;
+            overflow: hidden;
+        }
+
+        .hud-progress-fill {
+            background: linear-gradient(90deg, var(--purple-500), var(--accent-cyan));
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 搜尋與表單元件 */
+        .cyber-input {
+            background: rgba(19, 14, 36, 0.8) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+            color: var(--text-primary) !important;
+            border-radius: 0.75rem !important;
+            padding: 0.65rem 1rem !important;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--purple-500) !important;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.35) !important;
+        }
+
+        /* 狀態指示點 */
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.active {
+            background: var(--accent-emerald);
+            box-shadow: 0 0 8px var(--accent-emerald);
+        }
+
+        .status-dot.pending {
+            background: var(--accent-amber);
+            box-shadow: 0 0 8px var(--accent-amber);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel hud-banner p-4 mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-5">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="badge bg-purple-subtle text-purple px-3 py-2 rounded-3" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">
+                        <i class="fa-solid fa-plane-departure"></i> 拓荒專案 MY-202608-KL
+                    </span>
+                    <span class="text-secondary small">
+                        <i class="fa-solid fa-clock"></i> 出發倒數：<strong class="text-white">5 天</strong>
+                    </span>
+                </div>
+                <h2 class="fw-black mb-1 tracking-tight text-white d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-boxes-packing text-purple-500"></i> 試用備品與出差物資檢核
+                </h2>
+                <p class="text-secondary small mb-0">
+                    整合馬來西亞實體樣品出庫、招商設備配額與雙創始人行李裝箱即時管控
+                </p>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="row g-3 text-center">
+                    <div class="col-4 col-md-4">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+                            <div class="text-secondary small mb-1">
+                                <i class="fa-solid fa-clipboard-check text-success"></i> 裝箱進度
+                            </div>
+                            <div class="h3 fw-bold mb-1 text-white" id="stat-pack-progress">0%</div>
+                            <div class="hud-progress-bar">
+                                <div class="hud-progress-fill" id="stat-progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-4">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+                            <div class="text-secondary small mb-1">
+                                <i class="fa-solid fa-weight-hanging text-info"></i> 預估總重
+                            </div>
+                            <div class="h3 fw-bold mb-1 text-info" id="stat-total-weight">0.0 <span class="fs-6 text-secondary">kg</span></div>
+                            <div class="small text-secondary">託運上限 46 kg (23x2)</div>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-4">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+                            <div class="text-secondary small mb-1">
+                                <i class="fa-solid fa-gem text-warning"></i> 樣品點數
+                            </div>
+                            <div class="h3 fw-bold mb-1 text-warning" id="stat-sample-sv">0 <span class="fs-6 text-secondary">SV</span></div>
+                            <div class="small text-secondary">庫存連動扣庫中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 align-items-center">
+        <div class="col-12 col-xl-7">
+            <div class="d-flex flex-wrap gap-2" id="categoryFilterContainer">
+                <div class="category-chip active" data-category="ALL">
+                    <i class="fa-solid fa-layer-group"></i> 全部物資 (<span id="count-all">0</span>)
+                </div>
+                <div class="category-chip" data-category="樣品">
+                    <i class="fa-solid fa-box-open"></i> 產品樣品 (<span id="count-sample">0</span>)
+                </div>
+                <div class="category-chip" data-category="設備">
+                    <i class="fa-solid fa-laptop"></i> 招商硬體 (<span id="count-device">0</span>)
+                </div>
+                <div class="category-chip" data-category="文宣">
+                    <i class="fa-solid fa-file-lines"></i> 表單文宣 (<span id="count-doc">0</span>)
+                </div>
+                <div class="category-chip" data-category="證件">
+                    <i class="fa-solid fa-id-card"></i> 必備證照 (<span id="count-id">0</span>)
+                </div>
+                <div class="category-chip" data-category="藥品">
+                    <i class="fa-solid fa-kit-medical"></i> 常備防護 (<span id="count-med">0</span>)
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text cyber-input border-end-0">
+                        <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control cyber-input border-start-0 ps-0" placeholder="搜尋品項名稱、SKU 或用途...">
+                </div>
+                <select id="assigneeFilter" class="form-select cyber-input" style="max-width: 140px;">
+                    <option value="ALL">全部成員</option>
+                    <option value="Ray">Ray 負責</option>
+                    <option value="Jarvis">Jarvis 負責</option>
+                    <option value="共同">雙人共同</option>
+                </select>
+                <button class="btn btn-primary d-flex align-items-center gap-2 px-3 flex-shrink-0" style="background: var(--purple-600); border-color: var(--purple-500);" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    <i class="fa-solid fa-plus"></i> 新增備品
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3" id="suppliesGrid">
+        </div>
+
+    <div id="emptyState" class="text-center py-5 d-none">
+        <div class="p-4 glass-panel d-inline-block">
+            <i class="fa-solid fa-box-archive fa-3x text-muted mb-3"></i>
+            <h5 class="text-secondary">查無符合條件的備品項目</h5>
+            <p class="small text-muted mb-0">請嘗試更換篩選類別或清除搜尋關鍵字</p>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 start-50 translate-middle-x mb-4 z-3 d-flex gap-2 p-2 glass-panel shadow-lg" style="border-radius: 9999px; background: rgba(19, 14, 36, 0.9);">
+        <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="refreshData()">
+            <i class="fa-solid fa-arrows-rotate"></i> 重新載入
+        </button>
+        <button class="btn btn-sm btn-outline-warning rounded-pill px-3" onclick="filterUnpacked()">
+            <i class="fa-solid fa-circle-exclamation"></i> 僅看未備 (<span id="unpacked-count">0</span>)
+        </button>
+        <button class="btn btn-sm btn-success rounded-pill px-3" onclick="syncStockDeduction()">
+            <i class="fa-solid fa-warehouse"></i> 執行庫存沖銷
+        </button>
+    </div>
+
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel" style="background: var(--bg-surface-elevated); border: 1px solid var(--purple-500);">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-folder-plus text-purple-500"></i> 新增戰備物資項目
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-target="#addItemModal" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addSupplyForm">
+                        <div class="mb-3">
+                            <label class="form-label small text-secondary">物資類別</label>
+                            <select class="form-select cyber-input" id="newCategory" required>
+                                <option value="樣品">產品樣品 (關聯庫存)</option>
+                                <option value="設備">招商硬體設備</option>
+                                <option value="文宣">表單與事業資料</option>
+                                <option value="證件">必備證件與機票</option>
+                                <option value="藥品">常備保健與藥品</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-secondary">品項名稱 / 規格</label>
+                            <input type="text" class="form-control cyber-input" id="newItemName" placeholder="例如：康爾喜膠囊試用包 (20條/袋)" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small text-secondary">應帶數量</label>
+                                <input type="number" class="form-control cyber-input" id="newTargetQty" min="1" value="1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-secondary">單位</label>
+                                <input type="text" class="form-control cyber-input" id="newUnit" value="份" required>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small text-secondary">攜帶負責人</label>
+                                <select class="form-select cyber-input" id="newAssignee" required>
+                                    <option value="Ray">Ray</option>
+                                    <option value="Jarvis">Jarvis</option>
+                                    <option value="共同">共同攜帶</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-secondary">預估重量 (kg)</label>
+                                <input type="number" step="0.1" class="form-control cyber-input" id="newWeight" value="0.5">
+                            </div>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="newDeductStock" checked>
+                            <label class="form-check-label small text-secondary" for="newDeductStock">
+                                同步連動自用中繼倉庫存沖銷 (扣減 FIFO 批號)
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn-sm px-3" onclick="submitNewItem()" style="background: var(--purple-600); border-color: var(--purple-500);">
+                        <i class="fa-solid fa-check"></i> 確認建立
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾跨國營運系統 - HM5000 試用備品清單模組
+         * 架構設計：採用資料轉接字典 (Adapter Mapping) 徹底解耦 Google 試算表欄位名稱
+         */
+
+        // 1. 欄位解耦對映字典 (依據 703 sys_api_configs)
+        const FIELD_MAP = {
+            id: ['item_id', '備品編號', '編號', 'ID'],
+            tripId: ['trip_id', '出差任務號', '任務代碼'],
+            category: ['category', '物資類別', '分類', '類別'],
+            name: ['item_name', '品項名稱', '備品名稱', '名稱'],
+            sku: ['product_id', '關聯產品SKU', 'SKU'],
+            targetQty: ['target_qty', '應帶數量', '目標數量', '應帶'],
+            actualQty: ['actual_qty', '實帶數量', '已備數量', '實帶'],
+            unit: ['unit', '單位'],
+            assignee: ['assignee', '攜帶負責人', '負責人'],
+            status: ['pack_status', '裝箱狀態', '狀態'],
+            isDeducted: ['deduct_stock', '是否扣庫', '扣庫狀態'],
+            weight: ['est_weight_kg', '預估重量', '重量(kg)', '單重'],
+            sv: ['sample_sv', '樣品SV', '點數', 'SV']
+        };
+
+        // 2. 本地預設戰備物資種子資料 (符合拓荒業務場景)
+        let suppliesData = [
+            { id: "SPL-001", tripId: "MY-202608-KL", category: "樣品", name: "康爾喜乳酸菌 (便攜體驗條)", sku: "PRD-TW-001", targetQty: 60, actualQty: 60, unit: "條", assignee: "Ray", status: "已裝箱", isDeducted: true, weight: 0.8, sv: 120 },
+            { id: "SPL-002", tripId: "MY-202608-KL", category: "樣品", name: "995 超級營養液 (展示樣品組)", sku: "PRD-TW-002", targetQty: 6, actualQty: 6, unit: "瓶", assignee: "Ray", status: "已裝箱", isDeducted: true, weight: 1.5, sv: 240 },
+            { id: "SPL-003", tripId: "MY-202608-KL", category: "樣品", name: "百克斯膠囊 (樣品分裝瓶)", sku: "PRD-TW-003", targetQty: 4, actualQty: 2, unit: "瓶", assignee: "Jarvis", status: "整備中", isDeducted: false, weight: 0.4, sv: 160 },
+            { id: "SPL-004", tripId: "MY-202608-KL", category: "設備", name: "微型高畫質無線投影機 & 簡報筆", sku: "", targetQty: 1, actualQty: 1, unit: "組", assignee: "Jarvis", status: "已裝箱", isDeducted: false, weight: 1.2, sv: 0 },
+            { id: "SPL-005", tripId: "MY-202608-KL", category: "設備", name: "萬國轉接頭 (含英規三腳) & 大功率多孔充", sku: "", targetQty: 2, actualQty: 2, unit: "組", assignee: "Jarvis", status: "已裝箱", isDeducted: false, weight: 0.6, sv: 0 },
+            { id: "SPL-006", tripId: "MY-202608-KL", category: "文宣", name: "2026 大馬創業說明招商手冊 (精裝版)", sku: "", targetQty: 30, actualQty: 30, unit: "本", assignee: "Ray", status: "已裝箱", isDeducted: false, weight: 3.5, sv: 0 },
+            { id: "SPL-007", tripId: "MY-202608-KL", category: "文宣", name: "葡眾經銷商入會申請單 (紙本備用備查)", sku: "", targetQty: 50, actualQty: 10, unit: "份", assignee: "Ray", status: "未備", isDeducted: false, weight: 0.5, sv: 0 },
+            { id: "SPL-008", tripId: "MY-202608-KL", category: "證件", name: "護照、MDAC 馬來西亞數位入境卡憑證", sku: "", targetQty: 2, actualQty: 2, unit: "份", assignee: "共同", status: "已裝箱", isDeducted: false, weight: 0.1, sv: 0 },
+            { id: "SPL-009", tripId: "MY-202608-KL", category: "藥品", name: "常備隨身急救包 (胃腸藥、退燒、防蚊液)", sku: "", targetQty: 1, actualQty: 1, unit: "袋", assignee: "Jarvis", status: "已裝箱", isDeducted: false, weight: 0.5, sv: 0 }
+        ];
+
+        let activeCategory = "ALL";
+        let onlyUnpacked = false;
+
+        // 3. 初始化載入
+        $(document).ready(function() {
+            renderSupplies();
+            bindEvents();
+        });
+
+        // 4. 事件綁定
+        function bindEvents() {
+            // 類別標籤篩選
+            $('#categoryFilterContainer').on('click', '.category-chip', function() {
+                $('.category-chip').removeClass('active');
+                $(this).addClass('active');
+                activeCategory = $(this).data('category');
+                onlyUnpacked = false;
+                renderSupplies();
+            });
+
+            // 即時文字搜尋
+            $('#searchInput').on('input', function() {
+                renderSupplies();
+            });
+
+            // 負責人過濾
+            $('#assigneeFilter').on('change', function() {
+                renderSupplies();
+            });
+        }
+
+        // 5. 渲染物資卡片與計算統計數據
+        function renderSupplies() {
+            const container = $('#suppliesGrid');
+            const searchKeyword = $('#searchInput').val().toLowerCase().trim();
+            const assigneeFilter = $('#assigneeFilter').val();
+
+            container.empty();
+
+            let totalItems = suppliesData.length;
+            let packedItems = 0;
+            let totalWeight = 0;
+            let totalSampleSV = 0;
+            let unpackedCount = 0;
+
+            // 分類計數器
+            let counts = { '樣品': 0, '設備': 0, '文宣': 0, '證件': 0, '藥品': 0 };
+
+            // 篩選資料
+            const filteredData = suppliesData.filter(item => {
+                // 累計類別總數
+                if (counts[item.category] !== undefined) counts[item.category]++;
+
+                const isPacked = item.status === '已裝箱';
+                if (isPacked) packedItems++;
+                else unpackedCount++;
+
+                totalWeight += (item.weight || 0);
+                if (item.category === '樣品') totalSampleSV += (item.sv || 0);
+
+                // 篩選條件匹配
+                const matchCategory = (activeCategory === 'ALL' || item.category === activeCategory);
+                const matchAssignee = (assigneeFilter === 'ALL' || item.assignee === assigneeFilter);
+                const matchKeyword = (item.name.toLowerCase().includes(searchKeyword) || 
+                                      item.sku.toLowerCase().includes(searchKeyword) || 
+                                      item.id.toLowerCase().includes(searchKeyword));
+                const matchUnpacked = onlyUnpacked ? !isPacked : true;
+
+                return matchCategory && matchAssignee && matchKeyword && matchUnpacked;
+            });
+
+            // 更新 HUD 統計數據
+            const progressPercent = totalItems > 0 ? Math.round((packedItems / totalItems) * 100) : 0;
+            $('#stat-pack-progress').text(`${progressPercent}%`);
+            $('#stat-progress-bar').css('width', `${progressPercent}%`);
+            $('#stat-total-weight').html(`${totalWeight.toFixed(1)} <span class="fs-6 text-secondary">kg</span>`);
+            $('#stat-sample-sv').html(`${totalSampleSV} <span class="fs-6 text-secondary">SV</span>`);
+            $('#unpacked-count').text(unpackedCount);
+
+            // 更新按鈕標籤計數
+            $('#count-all').text(totalItems);
+            $('#count-sample').text(counts['樣品']);
+            $('#count-device').text(counts['設備']);
+            $('#count-doc').text(counts['文宣']);
+            $('#count-id').text(counts['證件']);
+            $('#count-med').text(counts['藥品']);
+
+            // 空狀態切換
+            if (filteredData.length === 0) {
+                $('#emptyState').removeClass('d-none');
+            } else {
+                $('#emptyState').addClass('d-none');
+            }
+
+            // 動態產生物資卡片
+            filteredData.forEach(item => {
+                const isPacked = item.status === '已裝箱';
+                const assigneeClass = item.assignee === 'Ray' ? 'assignee-ray' : 
+                                     item.assignee === 'Jarvis' ? 'assignee-jarvis' : 'assignee-both';
+
+                const categoryIcon = item.category === '樣品' ? 'fa-box-open text-purple-500' :
+                                     item.category === '設備' ? 'fa-laptop text-info' :
+                                     item.category === '文宣' ? 'fa-file-lines text-warning' :
+                                     item.category === '證件' ? 'fa-id-card text-success' : 'fa-kit-medical text-danger';
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="supply-item-card ${isPacked ? 'packed' : ''}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid ${categoryIcon}"></i>
+                                    <span class="badge" style="background: rgba(255,255,255,0.06); font-size: 0.75rem;">${item.category}</span>
+                                    ${item.sku ? `<span class="badge bg-dark text-secondary border border-secondary border-opacity-25">${item.sku}</span>` : ''}
+                                </div>
+                                <div class="custom-check ${isPacked ? 'checked' : ''}" onclick="togglePackStatus('${item.id}')" title="切換裝箱完成狀態">
+                                    ${isPacked ? '<i class="fa-solid fa-check fa-sm"></i>' : ''}
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold mb-2 item-title text-white">${item.name}</h6>
+
+                            <div class="d-flex align-items-center justify-content-between text-secondary small mb-3">
+                                <div>
+                                    <i class="fa-solid fa-weight-scale"></i> ${item.weight} kg
+                                    ${item.sv > 0 ? ` · <i class="fa-solid fa-gem text-warning"></i> ${item.sv} SV` : ''}
+                                </div>
+                                <span class="assignee-badge ${assigneeClass}">
+                                    <i class="fa-solid fa-user-tag me-1"></i> ${item.assignee}
+                                </span>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-secondary border-opacity-25">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-dot ${isPacked ? 'active' : 'pending'}"></span>
+                                    <span class="small ${isPacked ? 'text-success' : 'text-warning'}">${item.status}</span>
+                                    ${item.isDeducted ? '<span class="badge bg-success-subtle text-success border border-success border-opacity-25" style="font-size: 0.65rem;">已扣庫</span>' : ''}
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="small text-secondary">實帶/應帶：</span>
+                                    <button class="stepper-btn" onclick="updateQty('${item.id}', -1)"><i class="fa-solid fa-minus fa-xs"></i></button>
+                                    <span class="fw-bold text-white">${item.actualQty}</span>
+                                    <span class="text-secondary small">/ ${item.targetQty} ${item.unit}</span>
+                                    <button class="stepper-btn" onclick="updateQty('${item.id}', 1)"><i class="fa-solid fa-plus fa-xs"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        // 6. 切換裝箱狀態
+        function togglePackStatus(itemId) {
+            const item = suppliesData.find(d => d.id === itemId);
+            if (item) {
+                if (item.status === '已裝箱') {
+                    item.status = '整備中';
+                } else {
+                    item.status = '已裝箱';
+                    item.actualQty = item.targetQty; // 自動標註足額
+                }
+                renderSupplies();
+            }
+        }
+
+        // 7. 更新數量
+        function updateQty(itemId, delta) {
+            const item = suppliesData.find(d => d.id === itemId);
+            if (item) {
+                const newQty = item.actualQty + delta;
+                if (newQty >= 0) {
+                    item.actualQty = newQty;
+                    if (item.actualQty >= item.targetQty) {
+                        item.status = '已裝箱';
+                    } else if (item.actualQty === 0) {
+                        item.status = '未備';
+                    } else {
+                        item.status = '整備中';
+                    }
+                    renderSupplies();
+                }
+            }
+        }
+
+        // 8. 僅看未備切換
+        function filterUnpacked() {
+            onlyUnpacked = !onlyUnpacked;
+            renderSupplies();
+        }
+
+        // 9. 模擬從 Google 試算表解耦抓取 (GViz / PapaParse Adapter)
+        function refreshData() {
+            // 透過 Mapping Adapter 解耦模擬
+            console.log("[DataAdapter] 正在透過 sys_api_configs 解耦載入試算表資料...");
+            renderSupplies();
+        }
+
+        // 10. 庫存沖銷模擬
+        function syncStockDeduction() {
+            let count = 0;
+            suppliesData.forEach(item => {
+                if (item.category === '樣品' && !item.isDeducted && item.status === '已裝箱') {
+                    item.isDeducted = true;
+                    count++;
+                }
+            });
+            alert(`已成功連動自用中繼倉！完成 ${count} 項樣品之庫存扣除與 FIFO 批號登記。`);
+            renderSupplies();
+        }
+
+        // 11. 建立新備品
+        function submitNewItem() {
+            const category = $('#newCategory').val();
+            const name = $('#newItemName').val().trim();
+            const targetQty = parseInt($('#newTargetQty').val()) || 1;
+            const unit = $('#newUnit').val().trim() || '份';
+            const assignee = $('#newAssignee').val();
+            const weight = parseFloat($('#newWeight').val()) || 0.1;
+            const isDeducted = $('#newDeductStock').is(':checked');
+
+            if (!name) {
+                alert("請填寫品項名稱");
+                return;
+            }
+
+            const newItem = {
+                id: `SPL-00${suppliesData.length + 1}`,
+                tripId: "MY-202608-KL",
+                category: category,
+                name: name,
+                sku: category === '樣品' ? 'PRD-NEW' : '',
+                targetQty: targetQty,
+                actualQty: 0,
+                unit: unit,
+                assignee: assignee,
+                status: "未備",
+                isDeducted: false,
+                weight: weight,
+                sv: category === '樣品' ? 50 : 0
+            };
+
+            suppliesData.push(newItem);
+            $('#addItemModal').modal('hide');
+            $('#addSupplyForm')[0].reset();
+            renderSupplies();
+        }
+    </script>
+</body>
+</html>

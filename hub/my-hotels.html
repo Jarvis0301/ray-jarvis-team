@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅店住宿 - 核心戰情室</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0a0518;
+            --bg-surface: rgba(18, 9, 36, 0.75);
+            --bg-surface-elevated: rgba(30, 15, 61, 0.85);
+            --border-subtle: rgba(139, 92, 246, 0.2);
+            --border-glow: rgba(192, 132, 252, 0.45);
+            --primary-purple: #8b5cf6;
+            --neon-purple: #c084fc;
+            --neon-pink: #ec4899;
+            --cyan-accent: #38bdf8;
+            --emerald-accent: #10b981;
+            --amber-accent: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(10, 5, 24, 0.95) 0px, transparent 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+        }
+
+        /* 頂部戰情控制台 HUD 導航條 */
+        .hotel-hud-bar {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1.25rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .brand-badge-glow {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.2));
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.3);
+            color: #fff;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* 擬真智慧房卡 (Cyber Smart Keycard) */
+        .smart-keycard {
+            background: linear-gradient(145deg, rgba(30, 15, 61, 0.9) 0%, rgba(15, 7, 32, 0.95) 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 1.5rem;
+            padding: 1.75rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .smart-keycard:hover {
+            transform: translateY(-4px);
+            border-color: var(--neon-pink);
+            box-shadow: 0 16px 48px rgba(192, 132, 252, 0.25);
+        }
+
+        .smart-keycard::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(192, 132, 252, 0.15) 0%, transparent 70%);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .smart-keycard .chip-icon {
+            width: 48px;
+            height: 36px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            border-radius: 6px;
+            position: relative;
+            display: inline-block;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 2px 5px rgba(0, 0, 0, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        .smart-keycard .chip-icon::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 1px dashed rgba(0, 0, 0, 0.4);
+            border-radius: 3px;
+        }
+
+        .keycard-nfc-icon {
+            font-size: 1.75rem;
+            color: var(--neon-purple);
+            opacity: 0.8;
+        }
+
+        .keycard-number {
+            font-family: var(--font-code);
+            font-size: 1.25rem;
+            letter-spacing: 0.15em;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+            margin: 0.75rem 0;
+        }
+
+        /* 玻璃擬態卡片容器 */
+        .glass-panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            height: 100%;
+        }
+
+        /* 快速複製按鈕與小晶片標籤 */
+        .copy-pill {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--neon-purple);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-family: var(--font-code);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .copy-pill:hover {
+            background: rgba(139, 92, 246, 0.35);
+            color: #fff;
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+        }
+
+        /* 入住倒數時序膠囊 */
+        .stay-timeline-tracker {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin: 1.5rem 0;
+            padding: 0 1rem;
+        }
+
+        .stay-timeline-tracker::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 2.5rem;
+            right: 2.5rem;
+            height: 3px;
+            background: linear-gradient(90deg, var(--emerald-accent) 0%, var(--neon-purple) 50%, var(--neon-pink) 100%);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .timeline-node {
+            position: relative;
+            z-index: 2;
+            background: var(--bg-base);
+            border: 2px solid var(--neon-purple);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-purple);
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
+        }
+
+        .timeline-node.active {
+            background: var(--neon-purple);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        /* 戰略跳點地圖清單 */
+        .amenity-radar-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .amenity-radar-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--border-subtle);
+            transform: translateX(4px);
+        }
+
+        /* DataTables 深色紫色系客製化 */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--text-muted) !important;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid var(--border-subtle) !important;
+            color: #fff !important;
+            border-radius: 0.5rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 0.4rem !important;
+            margin-top: 0.5rem !important;
+        }
+
+        table.dataTable tbody tr {
+            background-color: rgba(30, 15, 61, 0.4) !important;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: rgba(139, 92, 246, 0.18) !important;
+        }
+
+        table.dataTable tbody td {
+            border-top: 1px solid var(--border-subtle) !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            padding: 0.85rem 1rem !important;
+            vertical-align: middle;
+        }
+
+        table.dataTable tbody tr td:first-child {
+            border-left: 1px solid var(--border-subtle) !important;
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        table.dataTable tbody tr td:last-child {
+            border-right: 1px solid var(--border-subtle) !important;
+            border-top-right-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        /* Modal 深色主題 */
+        .modal-content {
+            background-color: #120924;
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-subtle);
+            color: #fff;
+            border-radius: 0.5rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+            color: #fff;
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-purple);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-md-4">
+        
+        <div class="hotel-hud-bar d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="brand-badge-glow">
+                        <i class="fa-solid fa-hotel"></i> HM4000
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-light">
+                        <i class="fa-solid fa-satellite-dish text-info"></i> 馬來西亞專區
+                    </span>
+                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle" id="badgeCurrentTrip">
+                        <i class="fa-solid fa-plane-departure"></i> MY-202608-KL
+                    </span>
+                </div>
+                <h2 class="h4 mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                    旅店住宿與海外指揮中繼站
+                    <span class="fs-6 fw-normal text-muted">| Hotel & Lodging Tactical Hub</span>
+                </h2>
+            </div>
+            
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <select class="form-select form-select-sm w-auto" id="selTripFilter" style="min-width: 180px;">
+                    <option value="MY-202608-KL" selected>MY-202608-KL (吉隆坡)</option>
+                    <option value="MY-202611-PG">MY-202611-PG (檳城考察)</option>
+                    <option value="ALL">全部出差專案</option>
+                </select>
+
+                <button class="btn btn-outline-light btn-sm" id="btnSyncGviz">
+                    <i class="fa-solid fa-rotate"></i> 試算表同步
+                </button>
+                
+                <button class="btn btn-primary btn-sm px-3 shadow" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;" data-bs-toggle="modal" data-bs-target="#modalAddHotel">
+                    <i class="fa-solid fa-plus"></i> 新增預訂
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            
+            <div class="col-12 col-xl-5">
+                <div class="smart-keycard" id="primaryKeycard">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="chip-icon"></div>
+                            <div class="text-uppercase text-muted small fw-bold">Tactical Lodging Pass</div>
+                        </div>
+                        <div class="text-end">
+                            <i class="fa-solid fa-wifi keycard-nfc-icon"></i>
+                            <div class="badge bg-success-subtle text-success border border-success-subtle mt-1 d-block">
+                                <i class="fa-solid fa-circle-check"></i> 已確認入住房源
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="my-3">
+                        <div class="text-muted small">HOTEL & SUITE NAME</div>
+                        <h3 class="h4 text-white fw-bold mb-0" id="cardHotelZh">吉隆坡威斯汀酒店</h3>
+                        <div class="text-light opacity-75 small" id="cardHotelEn">The Westin Kuala Lumpur</div>
+                    </div>
+
+                    <div class="keycard-number" id="cardBookingRef">
+                        BK-9482 • 8839 • 2019
+                    </div>
+
+                    <div class="row g-2 pt-2 border-top border-secondary border-opacity-25 mt-2">
+                        <div class="col-6">
+                            <div class="text-muted small">房型配置 (ROOM TYPE)</div>
+                            <div class="fw-bold text-light text-truncate" id="cardRoomType">行政雙床房 (Executive Twin)</div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <div class="text-muted small">房號 / 樓層 (ROOM NO)</div>
+                            <div class="fw-bold text-warning" id="cardRoomNo">Room 2308 (23F)</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="copy-pill" onclick="copyText('Westin-Guest-5G', 'Wi-Fi 名稱')">
+                                <i class="fa-solid fa-wifi"></i> Westin-5G
+                            </span>
+                            <span class="copy-pill" onclick="copyText('westin2026vip', 'Wi-Fi 密碼')">
+                                <i class="fa-solid fa-key"></i> 複製密碼
+                            </span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-info" onclick="showVoucherModal()">
+                            <i class="fa-solid fa-qrcode"></i> 入住憑證 QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-7">
+                <div class="glass-panel d-flex flex-column justify-content-between">
+                    
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
+                                <i class="fa-solid fa-clock-rotate-left text-primary"></i> 行程入住時序檢視 (STAY TIMELINE)
+                            </h5>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="stayDurationBadge">
+                                共 5 晚 (2026/08/20 - 08/25)
+                            </span>
+                        </div>
+
+                        <div class="stay-timeline-tracker">
+                            <div class="text-center">
+                                <div class="timeline-node active">
+                                    <i class="fa-solid fa-plane-arrival"></i>
+                                </div>
+                                <div class="small fw-bold text-white mt-1">抵達入住</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">08/20 15:00</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="timeline-node">
+                                    <i class="fa-solid fa-mug-hot"></i>
+                                </div>
+                                <div class="small fw-bold text-light mt-1">商務考察期</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">08/21 - 08/24</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="timeline-node">
+                                    <i class="fa-solid fa-door-open"></i>
+                                </div>
+                                <div class="small fw-bold text-light mt-1">退房賦歸</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">08/25 12:00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <div class="text-muted small mb-1">
+                                    <i class="fa-solid fa-money-bill-wave text-success"></i> 總房費 (MYR / TWD)
+                                </div>
+                                <div class="h5 fw-bold text-white mb-0" id="statTotalPrice">RM 2,850</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;" id="statTotalPriceTwd">折合 NT$ 19,950</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <div class="text-muted small mb-1">
+                                    <i class="fa-solid fa-user-shield text-info"></i> 代墊付款人 (50/50)
+                                </div>
+                                <div class="h5 fw-bold text-info mb-0" id="statPayer">Ray 代墊 (待平帳)</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">每人分攤 RM 1,425</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <div class="text-muted small mb-1">
+                                    <i class="fa-solid fa-receipt text-warning"></i> 現場押金 (Deposit)
+                                </div>
+                                <div class="h5 fw-bold text-warning mb-0" id="statDeposit">RM 500 (刷卡預授權)</div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">退房時自動解除扣額</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row g-4 mb-4">
+            
+            <div class="col-12 col-lg-7">
+                <div class="glass-panel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
+                                <i class="fa-solid fa-location-crosshairs text-danger"></i> 戰略半徑與 Grab 跳點導航
+                            </h5>
+                            <span class="text-muted small">以當前住宿為核心之通勤與公關拜訪距離</span>
+                        </div>
+                        <a href="https://maps.google.com" target="_blank" class="btn btn-sm btn-outline-light" id="btnGoogleMapLink">
+                            <i class="fa-solid fa-map-location-dot"></i> 開啟地圖導航
+                        </a>
+                    </div>
+
+                    <div class="amenity-radar-list" id="amenityList">
+                        <div class="amenity-radar-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 rounded-circle bg-primary-subtle text-primary">
+                                    <i class="fa-solid fa-building-flag"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-white">葡眾馬來西亞旗艦展示中心 (KL Branch)</div>
+                                    <div class="text-muted small">商務會議 / 產品提貨 / 夥伴引流總部</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-success-subtle text-success">Grab ~6 mins</div>
+                                <div class="text-muted small mt-1">1.2 km • 約 RM 8~12</div>
+                            </div>
+                        </div>
+
+                        <div class="amenity-radar-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 rounded-circle bg-warning-subtle text-warning">
+                                    <i class="fa-solid fa-train-subway"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-white">武吉免登單軌與捷運站 (Bukit Bintang MRT)</div>
+                                    <div class="text-muted small">市區大眾運輸 / 雙子塔與 TRX 金融中心連通</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-info-subtle text-info">步行 ~3 mins</div>
+                                <div class="text-muted small mt-1">250 m • 直通 Pavilion 商場</div>
+                            </div>
+                        </div>
+
+                        <div class="amenity-radar-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 rounded-circle bg-danger-subtle text-danger">
+                                    <i class="fa-solid fa-plane-departure"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-white">吉隆坡國際機場 (KLIA 1 / KLIA 2)</div>
+                                    <div class="text-muted small">國際航線進出 / 託運樣品與大型物資</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-secondary-subtle text-light">Grab ~48 mins</div>
+                                <div class="text-muted small mt-1">56 km • 約 RM 65~75</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <div class="glass-panel">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
+                            <i class="fa-solid fa-chart-pie text-neon-pink"></i> 差旅住宿成本配置結構
+                        </h5>
+                        <span class="text-muted small">MYR 幣別佔比</span>
+                    </div>
+                    <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas id="chartHotelExpenses"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="glass-panel mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
+                    <i class="fa-solid fa-list-ul text-primary"></i> 跨國差旅住宿資料庫明細 (my_accommodations)
+                </h5>
+                <span class="text-muted small">支援排序、關鍵字搜尋與即時編輯</span>
+            </div>
+
+            <div class="table-responsive">
+                <table id="tableAccommodations" class="table table-borderless w-100">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>住宿代碼</th>
+                            <th>專案</th>
+                            <th>飯店名稱</th>
+                            <th>入住 / 退房</th>
+                            <th>天數</th>
+                            <th>房型規格</th>
+                            <th>總費用 (MYR)</th>
+                            <th>代墊付款人</th>
+                            <th>憑證狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyHotels">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalAddHotel" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-hotel text-primary"></i> 新增 / 登記旅店預訂資料
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formHotel">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">出差專案代碼</label>
+                                <select class="form-select form-select-sm" id="inTripId" required>
+                                    <option value="MY-202608-KL">MY-202608-KL (吉隆坡)</option>
+                                    <option value="MY-202611-PG">MY-202611-PG (檳城考察)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">訂房平台</label>
+                                <select class="form-select form-select-sm" id="inPlatform">
+                                    <option value="Agoda">Agoda</option>
+                                    <option value="Booking.com">Booking.com</option>
+                                    <option value="Marriott">Marriott Direct</option>
+                                    <option value="Trip.com">Trip.com</option>
+                                    <option value="Official">飯店官網直訂</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">訂房確認編號 (Booking Ref)</label>
+                                <input type="text" class="form-control form-control-sm" id="inBookingRef" placeholder="例：AG-88392019" required>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">飯店中文名稱</label>
+                                <input type="text" class="form-control form-control-sm" id="inHotelZh" placeholder="例：吉隆坡威斯汀酒店" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">飯店英文名稱</label>
+                                <input type="text" class="form-control form-control-sm" id="inHotelEn" placeholder="例：The Westin Kuala Lumpur">
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">入住日期</label>
+                                <input type="date" class="form-control form-control-sm" id="inCheckIn" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">退房日期</label>
+                                <input type="date" class="form-control form-control-sm" id="inCheckOut" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">房型與床型</label>
+                                <input type="text" class="form-control form-control-sm" id="inRoomType" placeholder="例：行政雙床房 (兩小床)">
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">總房費 (MYR)</label>
+                                <input type="number" step="0.01" class="form-control form-control-sm" id="inPriceMyr" placeholder="例：2850.00" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">代墊付款人 (50/50)</label>
+                                <select class="form-select form-select-sm" id="inPayer">
+                                    <option value="Ray">Ray 代墊</option>
+                                    <option value="Jarvis">Jarvis 代墊</option>
+                                    <option value="Company">公款公積金支出</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">現場押金狀態</label>
+                                <input type="text" class="form-control form-control-sm" id="inDeposit" placeholder="例：RM 500 (信用卡)">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">Wi-Fi 名稱 / 密碼</label>
+                                <input type="text" class="form-control form-control-sm" id="inWifi" placeholder="例：Westin-5G / westin2026vip">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">Google Maps 導航連結</label>
+                                <input type="url" class="form-control form-control-sm" id="inMapUrl" placeholder="https://maps.google.com/...">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">實體地址與周邊備忘</label>
+                                <input type="text" class="form-control form-control-sm" id="inAddress" placeholder="例：199, Bukit Bintang St, Kuala Lumpur (近捷運站)">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn-sm px-3" id="btnSaveHotel" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存預訂
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalVoucherQr" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center p-3">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="p-3 bg-white rounded-3 d-inline-block my-2 shadow">
+                        <img id="imgQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=WESTIN-KL-AGODA-88392019" alt="QR Code" class="img-fluid" style="width: 170px; height: 170px;">
+                    </div>
+                    <h6 class="text-white fw-bold mt-2 mb-1" id="modalQrHotelTitle">吉隆坡威斯汀酒店</h6>
+                    <div class="text-muted small font-monospace" id="modalQrBookingCode">AGODA-88392019</div>
+                    <div class="text-secondary small mt-2" style="font-size: 0.75rem;">
+                        <i class="fa-solid fa-circle-info"></i> 前台辦理入住請出示本二維碼與護照
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        // ==========================================================================
+        // 核心業務數據與欄位解耦適配層 (Data Decoupling Layer)
+        // ==========================================================================
+        
+        // 模擬 Google 試算表原始數據源 (表 804 my_accommodations)
+        let rawAccommodationsData = [
+            {
+                hotel_id: "HTL-202608-01",
+                trip_id: "MY-202608-KL",
+                hotel_name_zh: "吉隆坡威斯汀酒店",
+                hotel_name_en: "The Westin Kuala Lumpur",
+                platform: "Agoda",
+                booking_ref: "AGODA-88392019",
+                check_in_date: "2026-08-20",
+                check_out_date: "2026-08-25",
+                stay_nights: 5,
+                room_type: "行政雙床房 (Executive Twin)",
+                room_no: "Room 2308 (23F)",
+                price_myr: 2850.00,
+                price_twd: 19950.00,
+                payer: "Ray",
+                deposit: "RM 500 (刷卡預授權)",
+                wifi_ssid: "Westin-Guest-5G",
+                wifi_pass: "westin2026vip",
+                address: "199, Jalan Bukit Bintang, Kuala Lumpur, 55100",
+                map_url: "https://maps.google.com/?q=The+Westin+Kuala+Lumpur",
+                status: "CONFIRMED"
+            },
+            {
+                hotel_id: "HTL-202608-02",
+                trip_id: "MY-202608-KL",
+                hotel_name_zh: "吉隆坡柏悅酒店",
+                hotel_name_en: "Park Hyatt Kuala Lumpur",
+                platform: "Marriott Direct",
+                booking_ref: "MAR-99410294",
+                check_in_date: "2026-08-25",
+                check_out_date: "2026-08-27",
+                stay_nights: 2,
+                room_type: "高空尊榮套房 (Sky Suite)",
+                room_no: "待現場分配",
+                price_myr: 1600.00,
+                price_twd: 11200.00,
+                payer: "Jarvis",
+                deposit: "RM 400 (現金)",
+                wifi_ssid: "ParkHyatt-HighSpeed",
+                wifi_pass: "kl2026ph",
+                address: "Merdeka 118, Kuala Lumpur",
+                map_url: "https://maps.google.com/?q=Merdeka+118",
+                status: "CONFIRMED"
+            },
+            {
+                hotel_id: "HTL-202611-01",
+                trip_id: "MY-202611-PG",
+                hotel_name_zh: "檳城東家酒店",
+                hotel_name_en: "Eastern & Oriental Hotel",
+                platform: "Booking.com",
+                booking_ref: "BKG-44109283",
+                check_in_date: "2026-11-12",
+                check_out_date: "2026-11-15",
+                stay_nights: 3,
+                room_type: "遺產翼海景套房",
+                room_no: "待現場分配",
+                price_myr: 1950.00,
+                price_twd: 13650.00,
+                payer: "Ray",
+                deposit: "RM 300 (刷卡)",
+                wifi_ssid: "EO-Heritage-WiFi",
+                wifi_pass: "eopenang2026",
+                address: "10, Farquhar Street, George Town, Penang",
+                map_url: "https://maps.google.com/?q=Eastern+and+Oriental+Hotel",
+                status: "CONFIRMED"
+            }
+        ];
+
+        let dataTableInstance = null;
+        let expenseChartInstance = null;
+
+        // ==========================================================================
+        // 頁面生命週期初始化
+        // ==========================================================================
+        $(document).ready(function () {
+            initDataTable();
+            initExpenseChart();
+            renderActiveHotelKeycard(rawAccommodationsData[0]);
+            bindEventListeners();
+        });
+
+        // 1. 初始化 DataTable.js
+        function initDataTable() {
+            dataTableInstance = $('#tableAccommodations').DataTable({
+                data: rawAccommodationsData,
+                responsive: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 20],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋飯店、訂房序號、代墊人...",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆預訂",
+                    paginate: {
+                        first: "首頁",
+                        last: "末頁",
+                        next: "下一頁",
+                        previous: "上一頁"
+                    },
+                    zeroRecords: "未找到相符的住宿資料"
+                },
+                columns: [
+                    { 
+                        data: 'hotel_id',
+                        render: function(data) {
+                            return `<span class="badge bg-dark border border-secondary font-monospace text-light">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'trip_id',
+                        render: function(data) {
+                            return `<span class="badge bg-purple-subtle text-primary border border-purple-subtle">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: null,
+                        render: function(data) {
+                            return `
+                                <div>
+                                    <div class="fw-bold text-white">${data.hotel_name_zh}</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">${data.hotel_name_en}</div>
+                                </div>
+                            `;
+                        }
+                    },
+                    { 
+                        data: null,
+                        render: function(data) {
+                            return `<span class="font-monospace small text-light">${data.check_in_date.slice(5)} ~ ${data.check_out_date.slice(5)}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'stay_nights',
+                        render: function(data) {
+                            return `<span class="badge bg-info-subtle text-info">${data} 晚</span>`;
+                        }
+                    },
