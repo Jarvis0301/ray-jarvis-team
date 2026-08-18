@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獎金試算戰情小工具 - 榮祥葡眾團隊私域內部版</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0b132b;
+            --bg-card: #1c2541;
+            --bg-card-hover: #232f54;
+            --bg-input: #0f172a;
+            --border-color: rgba(56, 189, 248, 0.22);
+            --border-focus: #38bdf8;
+            --accent-blue: #38bdf8;
+            --accent-cyan: #7dd3fc;
+            --accent-gold: #facc15;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding-bottom: 50px;
+        }
+
+        /* 頂部 Header 戰情列 */
+        .war-room-header {
+            background: linear-gradient(135deg, #0c2340 0%, #1c2541 100%);
+            border-bottom: 2px solid var(--accent-blue);
+            padding: 24px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-title {
+            color: var(--accent-blue);
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        /* 模組卡片樣式 */
+        .calc-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            height: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease;
+        }
+
+        .calc-card:hover {
+            border-color: rgba(56, 189, 248, 0.45);
+        }
+
+        .card-header-title {
+            color: var(--accent-cyan);
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* 表單控制項自訂 */
+        .form-label {
+            color: var(--accent-cyan);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-control, .form-select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #0d1527;
+            border-color: var(--border-focus);
+            color: #ffffff;
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+        }
+
+        .input-group-text {
+            background-color: #132238;
+            border: 1px solid var(--border-color);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* 數據高亮面板 */
+        .stat-box {
+            background: linear-gradient(180deg, #132238 0%, #0d1728 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-value-gold {
+            color: var(--accent-gold);
+            font-size: 1.85rem;
+            font-weight: 900;
+            text-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+        }
+
+        /* Nav Tabs 戰情頁籤 */
+        .nav-pills .nav-link {
+            color: var(--text-muted);
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-pills .nav-link:hover {
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #1e3a5f;
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        /* 產品選擇列表表格 */
+        .table-custom {
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .table-custom th {
+            background-color: #132238;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .table-custom td {
+            background-color: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* 按鈕自訂 */
+        .btn-action-blue {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: none;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action-blue:hover {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-outline-cyan {
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            background: transparent;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .btn-outline-cyan:hover {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: #ffffff;
+        }
+
+        /* 階梯圖表 Badge */
+        .rank-badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .rank-0 { background-color: #475569; color: #ffffff; }
+        .rank-5 { background-color: #0284c7; color: #ffffff; }
+        .rank-10 { background-color: #0d9488; color: #ffffff; }
+        .rank-15 { background-color: #d97706; color: #ffffff; }
+        .rank-20 { background-color: #dc2626; color: #ffffff; }
+
+        /* 免責警示區 */
+        .disclaimer-box {
+            background-color: #0f172a;
+            border-left: 4px solid var(--accent-gold);
+            padding: 14px 18px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="war-room-header">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <span class="badge bg-primary text-white mb-2"><i class="fa-solid fa-user-shield"></i> 榮祥葡眾團隊私域專用</span>
+                    <h1 class="h3 header-title mb-0"><i class="fa-solid fa-calculator"></i> 獎金試算戰情小工具</h1>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="text-muted small"><i class="fa-solid fa-sliders"></i> PV換算比率：</span>
+                    <input type="number" id="pvRatioInput" class="form-control form-control-sm text-center" style="width: 80px;" value="1.51" step="0.01" min="1">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container-fluid p-3 p-md-4">
+        
+        <div class="disclaimer-box mb-4">
+            <i class="fa-solid fa-triangle-exclamation text-warning"></i> 內部戰略提示：本工具僅提供《榮祥葡眾團隊》夥伴作為事業規劃與業績推演之模擬試算，實際發放金額與晉升資格請以葡眾企業官方月結對帳單為準。
+        </div>
+
+        <ul class="nav nav-pills mb-4" id="calcTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-products-tab" data-bs-toggle="pill" data-bs-target="#tab-products" type="button" role="tab">
+                    <i class="fa-solid fa-cart-flatbed"></i> 熱銷產品組合試算
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-custom-tab" data-bs-toggle="pill" data-bs-target="#tab-custom" type="button" role="tab">
+                    <i class="fa-solid fa-sliders"></i> 個人與組織差額試算
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-matrix-tab" data-bs-toggle="pill" data-bs-target="#tab-matrix" type="button" role="tab">
+                    <i class="fa-solid fa-sitemap"></i> 職級與提撥階梯對照
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="calcTabsContent">
+            
+            <div class="tab-pane fade show active" id="tab-products" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="calc-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="card-header-title mb-0 border-0 pb-0">
+                                    <i class="fa-solid fa-boxes-packing"></i> 選擇擬採購產品與數量
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-cyan" id="resetProductsBtn">
+                                    <i class="fa-solid fa-rotate-left"></i> 清空數量
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-custom">
+                                    <thead>
+                                        <tr>
+                                            <th>產品名稱</th>
+                                            <th class="text-end">單價 (NT$)</th>
+                                            <th class="text-end">積分 (SV)</th>
+                                            <th class="text-center" style="width: 140px;">採購數量</th>
+                                            <th class="text-end">小計 (SV)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productListTable">
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="calc-card">
+                            <div class="card-header-title">
+                                <i class="fa-solid fa-chart-pie"></i> 個人購買回饋試算
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fa-solid fa-clock-rotate-left"></i> 原有累積總積分 (SV)</label>
+                                <input type="number" id="existingSvInput" class="form-control" value="0" min="0" step="100" placeholder="請輸入過往累積SV">
+                                <div class="form-text text-muted">包含本次採購前的歷史總 SV。</div>
+                            </div>
+
+                            <hr class="border-secondary my-4">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <div class="stat-box">
+                                        <div class="stat-label"><i class="fa-solid fa-receipt"></i> 本次消費金額</div>
+                                        <div class="stat-value" id="prodTotalNT">NT$ 0</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="stat-box">
+                                        <div class="stat-label"><i class="fa-solid fa-star"></i> 本次獲得 SV</div>
+                                        <div class="stat-value" id="prodTotalSV">0 SV</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-box mb-3">
+                                <div class="stat-label"><i class="fa-solid fa-layer-group"></i> 採購後總累積 SV / 對應職級</div>
+                                <div class="stat-value" id="prodCombinedSV">0 SV</div>
+                                <div class="mt-2" id="prodRankBadge">
+                                    <span class="rank-badge rank-0">未達資格 (0%)</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-box mb-4">
+                                <div class="stat-label"><i class="fa-solid fa-hand-holding-dollar"></i> 本次預估現金回饋</div>
+                                <div class="stat-value-gold" id="prodBonusCash">NT$ 0</div>
+                                <div class="small text-muted mt-1" id="prodFormulaDetail">計算式：0 SV × 0% × 1.51</div>
+                            </div>
+
+                            <div class="alert alert-info bg-dark text-info border-info small mb-0">
+                                <i class="fa-solid fa-lightbulb"></i> 戰略提示：葡眾制度具備「越吃越便宜、累積不歸零」特點，達到高職級後將永久享有較高回饋%！
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-custom" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="calc-card">
+                            <div class="card-header-title">
+                                <i class="fa-solid fa-network-wired"></i> 組織架構與當月點數設定
+                            </div>
+
+                            <div class="p-3 mb-4 rounded" style="background-color: #132238; border: 1px solid var(--border-color);">
+                                <h6 class="text-info font-weight-bold mb-3"><i class="fa-solid fa-user-gear"></i> 我的當月經營數據</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label"><i class="fa-solid fa-user"></i> 我的當月職級</label>
+                                        <select id="myRankSelect" class="form-select">
+                                            <option value="5">會員 (5%)</option>
+                                            <option value="10">專員 (10%)</option>
+                                            <option value="15">主任 (15%)</option>
+                                            <option value="20" selected>經理 (20%)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label"><i class="fa-solid fa-box"></i> 我的當月個人 SV</label>
+                                        <input type="number" id="myPersonalSv" class="form-control" value="1500" min="0" step="100">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-cyan font-weight-bold mb-0"><i class="fa-solid fa-users"></i> 第一代（直育）組織成員業績</h6>
+                                <button type="button" class="btn btn-sm btn-outline-cyan" id="addDownlineBtn">
+                                    <i class="fa-solid fa-user-plus"></i> 新增下線夥伴
+                                </button>
+                            </div>
+
+                            <div id="downlineList" class="d-flex flex-column gap-3 mb-3">
+                                </div>
+
+                            <p class="small text-muted mb-0">
+                                <i class="fa-solid fa-circle-info"></i> 提示：當上線職級高於下線職級時，上線可領取兩者職級之「差額獎金」。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="calc-card">
+                            <div class="card-header-title">
+                                <i class="fa-solid fa-file-invoice-dollar"></i> 組織月總獎金試算結果
+                            </div>
+
+                            <div class="stat-box mb-3">
+                                <div class="stat-label"><i class="fa-solid fa-users-viewfinder"></i> 當月組織小組總 SV</div>
+                                <div class="stat-value" id="orgTotalGroupSV">0 SV</div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <div class="stat-box">
+                                        <div class="stat-label"><i class="fa-solid fa-user-check"></i> 個人銷售回饋</div>
+                                        <div class="stat-value" id="orgPersonalBonus">NT$ 0</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="stat-box">
+                                        <div class="stat-label"><i class="fa-solid fa-diagram-next"></i> 組織差額獎金</div>
+                                        <div class="stat-value" id="orgDiffBonus">NT$ 0</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-box mb-4">
+                                <div class="stat-label"><i class="fa-solid fa-sack-dollar"></i> 當月預估總獎金 (個人 + 差額)</div>
+                                <div class="stat-value-gold" id="orgGrandTotalBonus">NT$ 0</div>
+                                <div class="small text-muted mt-1">含 PV 轉換係數估算</div>
+                            </div>
+
+                            <div class="p-3 rounded" style="background-color: #0f172a; border: 1px solid var(--border-color);">
+                                <div class="small text-info mb-2 font-weight-bold"><i class="fa-solid fa-list-check"></i> 組織差額獎金拆解說明：</div>
+                                <div id="orgBreakdownList" class="small text-muted d-flex flex-column gap-2">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-matrix" role="tabpanel">
+                <div class="calc-card">
+                    <div class="card-header-title">
+                        <i class="fa-solid fa-stairs"></i> 葡眾職級晉升門檻與銷售獎金提撥對照表
+                    </div>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-custom text-center">
+                            <thead>
+                                <tr>
+                                    <th>職級名稱</th>
+                                    <th>累積 SV 門檻</th>
+                                    <th>提撥比率 (%)</th>
+                                    <th>續約條件</th>
+                                    <th>制度特點</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="rank-badge rank-5"><i class="fa-solid fa-user"></i> 會員</span></td>
+                                    <td>1,000 ~ 29,999 SV</td>
+                                    <td class="text-info font-weight-bold">5%</td>
+                                    <td>每年 160 SV</td>
+                                    <td>入門消費，享受現金回饋</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge rank-10"><i class="fa-solid fa-user-tag"></i> 專員</span></td>
+                                    <td>30,000 ~ 149,999 SV</td>
+                                    <td class="text-info font-weight-bold">10%</td>
+                                    <td>每年 160 SV</td>
+                                    <td>累積不歸零，職級不下聘</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge rank-15"><i class="fa-solid fa-user-tie"></i> 主任</span></td>
+                                    <td>150,000 ~ 299,999 SV</td>
+                                    <td class="text-info font-weight-bold">15%</td>
+                                    <td>每年 160 SV</td>
+                                    <td>團隊消費額可共同採計</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge rank-20"><i class="fa-solid fa-crown"></i> 經理</span></td>
+                                    <td>300,000 SV 以上</td>
+                                    <td class="text-gold font-weight-bold">20%</td>
+                                    <td>每年 160 SV + 小組合格</td>
+                                    <td>享有領取高階組織與分紅資格</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="stat-box text-start">
+                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-shield-halved"></i> 1. 累積不歸零</div>
+                                <div class="small text-muted">所有購買的產品點數永久累計，沒有月底歸零的業績歸零壓力，時間是夥伴最好的朋友。</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box text-start">
+                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-lock-open"></i> 2. 職級不下聘</div>
+                                <div class="small text-muted">一旦晉升至專員、主任或經理，職級永久維持，不會因為單月沒做業績而遭降階。</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box text-start">
+                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-infinity"></i> 3. 無每月低銷壓力</div>
+                                <div class="small text-muted">只要每年維持 160 SV（約數千元），即可保有一整年的會員資格與領獎權益。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // 葡眾熱銷預設產品資料庫
+        const PRODUCT_DATABASE = [
+            { id: "p1", name: "康爾喜乳酸菌 (顆粒)", price: 2040, sv: 1520 },
+            { id: "p2", name: "995 營養液 (複方)", price: 5880, sv: 4380 },
+            { id: "p3", name: "樟芝益 (菌絲體)", price: 5880, sv: 4380 },
+            { id: "p4", name: "百克斯 (呼吸養護)", price: 2260, sv: 1660 },
+            { id: "p5", name: "迪康 (代謝順暢)", price: 2260, sv: 1660 },
+            { id: "p6", name: "力沛 (精力充沛)", price: 2260, sv: 1660 },
+            { id: "p7", name: "衛傑 (消化道護理)", price: 2260, sv: 1660 },
+            { id: "p8", name: "愛益 (營養補給)", price: 2260, sv: 1660 }
+        ];
+
+        // 預設下線資料
+        let downlineData = [
+            { id: 1, name: "夥伴 A (小明)", rank: 5, sv: 12000 },
+            { id: 2, name: "夥伴 B (小華)", rank: 10, sv: 45000 },
+            { id: 3, name: "夥伴 C (阿強)", rank: 15, sv: 160000 }
+        ];
+
+        $(document).ready(function () {
+            
+            // 初始化產品列表渲染
+            renderProductTable();
+            
+            // 初始化下線成員列表渲染
+            renderDownlineList();
+
+            // 事件監聽：PV 比率變更
+            $("#pvRatioInput").on("input change", function () {
+                calculateProductBonus();
+                calculateOrgBonus();
+            });
+
+            // 事件監聽：過往累積 SV 變更
+            $("#existingSvInput").on("input change", function () {
+                calculateProductBonus();
+            });
+
+            // 清空產品數量按鈕
+            $("#resetProductsBtn").on("click", function () {
+                $(".product-qty-input").val(0);
+                calculateProductBonus();
+            });
+
+            // 事件監聽：組織試算輸入變更
+            $("#myRankSelect, #myPersonalSv").on("input change", function () {
+                calculateOrgBonus();
+            });
+
+            // 新增下線夥伴按鈕
+            $("#addDownlineBtn").on("click", function () {
+                const newId = Date.now();
+                downlineData.push({
+                    id: newId,
+                    name: `夥伴 ${downlineData.length + 1}`,
+                    rank: 5,
+                    sv: 10000
+                });
+                renderDownlineList();
+                calculateOrgBonus();
+            });
+
+        });
+
+        /* 渲染產品表格 */
+        function renderProductTable() {
+            const $tbody = $("#productListTable");
+            $tbody.empty();
+
+            PRODUCT_DATABASE.forEach(prod => {
+                const rowHtml = `
+                    <tr>
+                        <td class="font-weight-bold">${prod.name}</td>
+                        <td class="text-end text-muted">NT$ ${prod.price.toLocaleString()}</td>
+                        <td class="text-end text-cyan">${prod.sv.toLocaleString()} SV</td>
+                        <td class="text-center">
+                            <input type="number" class="form-control form-control-sm text-center product-qty-input" 
+                                data-id="${prod.id}" value="0" min="0" max="999">
+                        </td>
+                        <td class="text-end font-weight-bold text-info" id="subtotal_sv_${prod.id}">0 SV</td>
+                    </tr>
+                `;
+                $tbody.append(rowHtml);
+            });
+
+            // 監聽數量變更
+            $(".product-qty-input").on("input change", function () {
+                calculateProductBonus();
+            });
+        }
+
+        /* 計算產品組合獎金 */
+        function calculateProductBonus() {
+            const pvRatio = parseFloat($("#pvRatioInput").val()) || 1.51;
+            const existingSV = parseInt($("#existingSvInput").val()) || 0;
+
+            let totalNT = 0;
+            let currentPurchaseSV = 0;
+
+            PRODUCT_DATABASE.forEach(prod => {
+                const qty = parseInt($(`.product-qty-input[data-id="${prod.id}"]`).val()) || 0;
+                const subtotalSV = qty * prod.sv;
+                const subtotalNT = qty * prod.price;
+
+                $(`#subtotal_sv_${prod.id}`).text(`${subtotalSV.toLocaleString()} SV`);
+
+                currentPurchaseSV += subtotalSV;
+                totalNT += subtotalNT;
+            });
+
+            const combinedSV = existingSV + currentPurchaseSV;
+            const rankInfo = getRankBySV(combinedSV);
+
+            // 計算回饋金額 = 本次購買SV * 職級提撥率 * PV比率
+            const estimatedCash = Math.round(currentPurchaseSV * (rankInfo.rate / 100) * pvRatio);
+
+            // 渲染 UI
+            $("#prodTotalNT").text(`NT$ ${totalNT.toLocaleString()}`);
+            $("#prodTotalSV").text(`${currentPurchaseSV.toLocaleString()} SV`);
+            $("#prodCombinedSV").text(`${combinedSV.toLocaleString()} SV`);
+
+            $("#prodRankBadge").html(`
+                <span class="rank-badge rank-${rankInfo.rate}">
+                    <i class="fa-solid fa-award"></i> ${rankInfo.title} (${rankInfo.rate}%)
+                </span>
+            `);
+
+            $("#prodBonusCash").text(`NT$ ${estimatedCash.toLocaleString()}`);
+            $("#prodFormulaDetail").text(`公式：${currentPurchaseSV.toLocaleString()} SV × ${rankInfo.rate}% × ${pvRatio}`);
+        }
+
+        /* 渲染下線成員列表 */
+        function renderDownlineList() {
+            const $container = $("#downlineList");
+            $container.empty();
+
+            downlineData.forEach((item, index) => {
+                const cardHtml = `
+                    <div class="p-3 rounded border" style="background-color: #0f172a; border-color: var(--border-color) !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <input type="text" class="form-control form-control-sm border-0 bg-transparent text-cyan font-weight-bold p-0 downline-name-input" 
+                                data-index="${index}" value="${item.name}" style="width: 160px;">
+                            <button type="button" class="btn btn-sm text-danger remove-downline-btn" data-index="${index}">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="small text-muted mb-1">職級</label>
+                                <select class="form-select form-select-sm downline-rank-select" data-index="${index}">
+                                    <option value="5" ${item.rank === 5 ? 'selected' : ''}>會員 (5%)</option>
+                                    <option value="10" ${item.rank === 10 ? 'selected' : ''}>專員 (10%)</option>
+                                    <option value="15" ${item.rank === 15 ? 'selected' : ''}>主任 (15%)</option>
+                                    <option value="20" ${item.rank === 20 ? 'selected' : ''}>經理 (20%)</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="small text-muted mb-1">當月小組 SV</label>
+                                <input type="number" class="form-control form-control-sm downline-sv-input" 
+                                    data-index="${index}" value="${item.sv}" step="500" min="0">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $container.append(cardHtml);
+            });
+
+            // 綁定事件
+            $(".downline-name-input").on("change", function () {
+                const idx = $(this).data("index");
+                downlineData[idx].name = $(this).val();
+                calculateOrgBonus();
+            });
+
+            $(".downline-rank-select").on("change", function () {
+                const idx = $(this).data("index");
+                downlineData[idx].rank = parseInt($(this).val());
+                calculateOrgBonus();
+            });
+
+            $(".downline-sv-input").on("input change", function () {
+                const idx = $(this).data("index");
+                downlineData[idx].sv = parseInt($(this).val()) || 0;
+                calculateOrgBonus();
+            });
+
+            $(".remove-downline-btn").on("click", function () {
+                const idx = $(this).data("index");
+                downlineData.splice(idx, 1);
+                renderDownlineList();
+                calculateOrgBonus();
+            });
+
+            calculateOrgBonus();
+        }
+
+        /* 計算組織差額獎金 */
+        function calculateOrgBonus() {
+            const pvRatio = parseFloat($("#pvRatioInput").val()) || 1.51;
+            const myRankRate = parseInt($("#myRankSelect").val()) || 20;
+            const myPersonalSV = parseInt($("#myPersonalSv").val()) || 0;
+
+            // 個人銷售回饋 = 個人SV * 我的職級% * PV
+            const myPersonalBonus = Math.round(myPersonalSV * (myRankRate / 100) * pvRatio);
+
+            let groupTotalSV = myPersonalSV;
+            let totalDiffBonus = 0;
+
+            const $breakdownList = $("#orgBreakdownList");
+            $breakdownList.empty();
+
+            downlineData.forEach(item => {
+                groupTotalSV += item.sv;
+
+                // 差額比率 = 上線% - 下線%
+                const diffRate = Math.max(0, myRankRate - item.rank);
+                const diffBonus = Math.round(item.sv * (diffRate / 100) * pvRatio);
+                totalDiffBonus += diffBonus;
+
+                const detailLine = `
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-1">
+                        <span>${item.name} (${item.rank}%) - ${item.sv.toLocaleString()} SV</span>
+                        <span class="text-info font-weight-bold">差額 ${diffRate}% ➔ NT$ ${diffBonus.toLocaleString()}</span>
+                    </div>
+                `;
+                $breakdownList.append(detailLine);
+            });
+
+            const grandTotalBonus = myPersonalBonus + totalDiffBonus;
+
+            // 渲染畫面
+            $("#orgTotalGroupSV").text(`${groupTotalSV.toLocaleString()} SV`);
+            $("#orgPersonalBonus").text(`NT$ ${myPersonalBonus.toLocaleString()}`);
+            $("#orgDiffBonus").text(`NT$ ${totalDiffBonus.toLocaleString()}`);
+            $("#orgGrandTotalBonus").text(`NT$ ${grandTotalBonus.toLocaleString()}`);
+        }
+
+        /* 依 SV 判定職級輔助函式 */
+        function getRankBySV(sv) {
+            if (sv >= 300000) {
+                return { title: "經理", rate: 20 };
+            } else if (sv >= 150000) {
+                return { title: "主任", rate: 15 };
+            } else if (sv >= 30000) {
+                return { title: "專員", rate: 10 };
+            } else if (sv >= 1000) {
+                return { title: "會員", rate: 5 };
+            } else {
+                return { title: "未達資格", rate: 0 };
+            }
+        }
+    </script>
+</body>
+</html>

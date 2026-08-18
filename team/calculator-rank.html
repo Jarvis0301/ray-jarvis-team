@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-blue">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>職級試算小工具 - 榮祥葡眾團隊私域戰情室</title>
+
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <script src="../assets/js/vendor-loader.js"></script>
+
+        <script src="../assets/js/common.js"></script>
+
+        <link rel="stylesheet" href="../assets/css/common.css">
+
+        <script src="./js/calculator-rank.js" defer></script>
+
+        <link rel="stylesheet" href="./css/calculator-rank.css">
+    </head>
+
+    <body>
+
+        <main class="container-fluid p-3 p-md-4">
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fa-solid fa-user-check"></i> 目前判定職級
+                        </div>
+                        <div class="stat-value" id="dispCurrentRank">會員</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fa-solid fa-percent"></i> 個人階差回饋率
+                        </div>
+                        <div class="stat-value green" id="dispCurrentRebate">5%</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fa-solid fa-crosshairs"></i> 目標衝刺職級
+                        </div>
+                        <div class="stat-value gold" id="dispTargetRank">經理</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fa-solid fa-chart-line"></i> 總體目標達成度
+                        </div>
+                        <div class="stat-value" id="dispOverallProgress">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="card-custom">
+                        <h2 class="h5 section-title">
+                            <i class="fa-solid fa-sliders"></i> 個人與組織現況輸入
+                        </h2>
+                        <form id="calculatorForm">
+                            <div class="mb-3">
+                                <label for="cumSvInput" class="form-label">
+                                    <i class="fa-solid fa-boxes-stacked"></i> 個人當前累計業績 (SV)
+                                </label>
+                                <input type="number" class="form-control" id="cumSvInput" value="3500" min="0" step="100">
+                                <input type="range" class="form-range mt-2" id="cumSvSlider" min="0" max="50000" step="100" value="3500">
+                                <div class="form-text text-muted">提示：主任門檻 1,000 SV，副理門檻 10,000 SV，經理門檻 30,000 SV。</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="monthPersonalSvInput" class="form-label">
+                                    <i class="fa-solid fa-cart-shopping"></i> 當月個人消費業績 (SV)
+                                </label>
+                                <input type="number" class="form-control" id="monthPersonalSvInput" value="160" min="0" step="10">
+                                <div class="form-text text-muted">合格基本盤：當月個人業績需達 160 SV。</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="monthGroupSvInput" class="form-label">
+                                    <i class="fa-solid fa-users-viewfinder"></i> 當月小組累積業績 (SV)
+                                </label>
+                                <input type="number" class="form-control" id="monthGroupSvInput" value="3200" min="0" step="100">
+                                <div class="form-text text-muted">合格小組基本盤：經理及升經理當月需達 3,200 SV。</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="managerLinesInput" class="form-label">
+                                    <i class="fa-solid fa-sitemap"></i> 直系合格經理線數量 (條)
+                                </label>
+                                <input type="number" class="form-control" id="managerLinesInput" value="0" min="0" max="20" step="1">
+                                <div class="form-text text-muted">珍珠(2條)、翡翠(4條)、藍鑽(6條)、雙藍鑽(8條)、皇冠(10條)、雙皇冠(12條)。</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="targetRankSelect" class="form-label">
+                                    <i class="fa-solid fa-bullseye"></i> 設定目標衝刺職級
+                                </label>
+                                <select class="form-select" id="targetRankSelect">
+                                    <option value="主任">主任 (10% 回饋)</option>
+                                    <option value="副理">副理 (15% 回饋)</option>
+                                    <option value="經理" selected>經理 (20% 回饋)</option>
+                                    <option value="珍珠">珍珠 (2 條合格經理線)</option>
+                                    <option value="翡翠">翡翠 (4 條合格經理線)</option>
+                                    <option value="藍鑽">藍鑽 (6 條合格經理線)</option>
+                                    <option value="雙藍鑽">雙藍鑽 (8 條合格經理線)</option>
+                                    <option value="皇冠">皇冠 (10 條合格經理線)</option>
+                                    <option value="雙皇冠">雙皇冠 (12 條合格經理線)</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="card-custom">
+                        <h2 class="h5 section-title">
+                            <i class="fa-solid fa-list-check"></i> 晉升目標差距解鎖分析
+                        </h2>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-white"><i class="fa-solid fa-bars-progress"></i> 目標達成進度條</span>
+                                <span class="text-info fw-bold" id="progressPercentText">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="gap-box" id="gapAnalysisBox">
+                            <h3 class="h6 fw-bold mb-2 text-warning" id="gapTitle">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 尚未解鎖目標職級
+                            </h3>
+                            <ul class="mb-0 ps-3 text-muted" id="gapList">
+                                <li>計算中...</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="h6 fw-bold mb-3 text-white">
+                                <i class="fa-solid fa-chart-column"></i> 業績與經理線戰力對比圖
+                            </h3>
+                            <div style="position: relative; height:240px;">
+                                <canvas id="rankGapChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card-custom">
+                        <h2 class="h5 section-title">
+                            <i class="fa-solid fa-table"></i> 葡眾 10 大職級晉升條件與階差對照表
+                        </h2>
+                        <div class="table-responsive">
+                            <table id="rankDetailTable" class="table table-dark table-hover w-100">
+                                <thead>
+                                    <tr>
+                                        <th>職級代號</th>
+                                        <th>職級名稱</th>
+                                        <th>累計 SV 門檻</th>
+                                        <th>當月小組 SV</th>
+                                        <th>合格經理線</th>
+                                        <th>階差回饋率</th>
+                                        <th>制度特點與分紅說明</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rankTableBody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </body>
+</html>
