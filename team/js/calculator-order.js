@@ -108,10 +108,10 @@ async function fetchGoogleSheetsData() {
         };
 
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
-            fetchSheet('產品主表'),
-            fetchSheet('產品主系列表'),
-            fetchSheet('產品次系列表'),
-            fetchSheet('產品型態表')
+            fetchSheet('產品主檔'),
+            fetchSheet('產品主系列'),
+            fetchSheet('產品次系列表」'),
+            fetchSheet('產品型態')
         ]);
 
         let hasData = false;
