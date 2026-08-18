@@ -12,7 +12,7 @@ function closeOrReturn() {
         window.close();
     }
     setTimeout(() => {
-        window.location.href = './products.html';
+        window.location.href = './prd-products.html';
     }, 100);
 }
 
@@ -116,14 +116,14 @@ async function fetchAndRenderProductDetail() {
             subcategoriesData, 
             typesData
         ] = await Promise.all([
-            fetchSheet('產品主表'),
-            fetchSheet('產品詳細資料表'),
-            fetchSheet('產品常見問題表'),
-            fetchSheet('產品多文案表'),
-            fetchSheet('見證主表'),
-            fetchSheet('產品見證樞紐表'),
-            fetchSheet('產品次系列表'),
-            fetchSheet('產品型態表')
+            fetchSheet('產品主檔'),
+            fetchSheet('產品詳細資料'),
+            fetchSheet('產品常見問題'),
+            fetchSheet('產品行銷文案'),
+            fetchSheet('產品見證主檔'),
+            fetchSheet('產品見證關連表'),
+            fetchSheet('產品次系列'),
+            fetchSheet('產品型態')
         ]);
 
         // 1. 比對產品主表
