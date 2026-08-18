@@ -453,7 +453,7 @@ function renderProducts() {
         });
 
         // 精準生成指定格式之轉址：./product-detail.html?id=${id}&region=${region_id}
-        const detailUrl = `./product-detail.html?id=${encodeURIComponent(item.id)}&region=${encodeURIComponent(item.region_code)}`;
+        const detailUrl = `./prd-detail.html?id=${encodeURIComponent(item.id)}&region=${encodeURIComponent(item.region_code)}`;
         const priceNum = Number(item.price);
         const formattedPrice = item.currency === 'MYR' ? `RM ${priceNum.toLocaleString()}` : `NT$ ${priceNum.toLocaleString()}`;
 
