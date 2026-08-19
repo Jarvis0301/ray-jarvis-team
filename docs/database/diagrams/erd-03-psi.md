@@ -1,24 +1,125 @@
 ```mermaid
 erDiagram
-    %% 核心實體
-    org_partners ||--o{ psi_inbound_orders : "出資人 / 代訂掛點夥伴"
-    org_partners ||--o{ psi_outbound_orders : "提貨夥伴 / 歸戶人"
-    org_partners ||--o{ fin_sv_assistances : "出資贊助人 / 受扶持下線"
-    org_partners ||--o{ psi_cross_border_swaps : "台馬對沖經辦夥伴"
-    crm_customers ||--o{ psi_outbound_orders : "零售收件顧客 (誰要的)"
-    prd_items ||--o{ psi_inbound_items : "進貨品項"
-    prd_items ||--o{ psi_outbound_items : "交付品項"
+    %% 外部關聯表
+    PRD_ITEMS ||--o{ PSI_STOCKS : "在庫品項"
+    PRD_ITEMS ||--o{ PSI_INBOUND_ITEMS : "進貨品項"
+    PRD_ITEMS ||--o{ PSI_OUTBOUND_ITEMS : "銷貨品項"
+    PRD_ITEMS ||--o{ PSI_ADJUSTMENTS : "調撥品項"
+    PRD_ITEMS ||--o{ PSI_ALERTS : "預警品項"
+    PRD_ITEMS ||--o{ PSI_CROSS_BORDER_SWAPS : "對沖品項"
 
-    %% 進銷存內部流向
-    psi_warehouses ||--o{ psi_stocks : "存放據點 (含居家倉)"
-    psi_warehouses ||--o{ psi_inbound_orders : "官方入庫倉"
-    psi_warehouses ||--o{ psi_outbound_orders : "出貨扣減倉"
+    ORG_PARTNERS ||--o{ PSI_OUTBOUND_ORDERS : "領貨夥伴"
+    ORG_PARTNERS ||--o{ PSI_CROSS_BORDER_SWAPS : "台馬對沖人"
+    CRM_CUSTOMERS ||--o{ PSI_OUTBOUND_ORDERS : "購買客戶"
 
-    psi_inbound_orders ||--|{ psi_inbound_items : "包含官方明細"
-    psi_inbound_orders ||--o{ psi_outbound_orders : "大單湊單拆解為交付單"
-    psi_inbound_orders ||--o{ fin_sv_assistances : "觸發湊單保級借點"
+    %% 進銷存核心表
+    PSI_WAREHOUSES ||--o{ PSI_STOCKS : "存放庫存"
+    PSI_WAREHOUSES ||--o{ PSI_INBOUND_ORDERS : "入庫據點"
+    PSI_WAREHOUSES ||--o{ PSI_OUTBOUND_ORDERS : "出貨據點"
+    PSI_WAREHOUSES ||--o{ PSI_ADJUSTMENTS : "調出/調入倉"
+    PSI_WAREHOUSES ||--o{ PSI_ALERTS : "據點預警"
 
-    psi_stocks ||--o{ psi_outbound_items : "FIFO 批號扣減 (預留/現貨)"
-    psi_outbound_orders ||--|{ psi_outbound_items : "包含交付子項目"
-    psi_outbound_orders ||--o{ psi_cross_border_swaps : "關聯跨境交付"
+    PSI_INBOUND_ORDERS ||--|{ PSI_INBOUND_ITEMS : "包含明細"
+    PSI_OUTBOUND_ORDERS ||--|{ PSI_OUTBOUND_ITEMS : "包含明細"
+
+    PSI_OUTBOUND_ORDERS ||--o| PSI_CROSS_BORDER_SWAPS : "台灣出庫單引用"
+
+    PSI_WAREHOUSES {
+        string warehouse_id PK
+        string warehouse_code UK
+        string warehouse_name
+        string country_code
+        string warehouse_type
+        boolean is_active
+    }
+
+    PSI_STOCKS {
+        string stock_id PK
+        string warehouse_id FK
+        string product_id FK
+        string batch_no
+        date expiry_date
+        int quantity
+        int reserved_qty
+    }
+
+    PSI_INBOUND_ORDERS {
+        string inbound_id PK
+        string inbound_no UK
+        string warehouse_id FK
+        string invoice_no
+        date inbound_date
+        decimal total_amount
+        int total_pv
+        int total_sv
+        string status
+    }
+
+    PSI_INBOUND_ITEMS {
+        string item_id PK
+        string inbound_id FK
+        string product_id FK
+        string batch_no
+        date expiry_date
+        int quantity
+        decimal unit_cost
+        int unit_sv
+    }
+
+    PSI_OUTBOUND_ORDERS {
+        string outbound_id PK
+        string outbound_no UK
+        string warehouse_id FK
+        string customer_id FK
+        string partner_id FK
+        date outbound_date
+        string delivery_type
+        boolean is_pre_deduct
+        decimal total_amount
+        int total_pv
+        int total_sv
+        string order_status
+    }
+
+    PSI_OUTBOUND_ITEMS {
+        string item_id PK
+        string outbound_id FK
+        string product_id FK
+        string batch_no
+        int quantity
+        decimal unit_price
+        int unit_sv
+    }
+
+    PSI_ADJUSTMENTS {
+        string adj_id PK
+        string adj_no UK
+        string adj_type
+        string from_warehouse_id FK
+        string to_warehouse_id FK
+        string product_id FK
+        string batch_no
+        int quantity
+    }
+
+    PSI_ALERTS {
+        string alert_id PK
+        string alert_type
+        string warehouse_id FK
+        string product_id FK
+        string batch_no
+        int current_qty
+        boolean is_resolved
+    }
+
+    PSI_CROSS_BORDER_SWAPS {
+        string swap_id PK
+        string swap_no UK
+        string tw_partner_id FK
+        string my_partner_id FK
+        string tw_product_id FK
+        string tw_outbound_id FK
+        string stage_status
+        boolean is_settled
+    }
 ```
