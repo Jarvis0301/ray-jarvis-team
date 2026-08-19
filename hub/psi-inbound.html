@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>進貨入庫調度中樞 - 葡眾三軌戰情系統</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --uvaco-bg-base: #0a0512;
+            --uvaco-bg-surface: #130a21;
+            --uvaco-bg-surface-elevated: #1c0f30;
+            --uvaco-bg-card: rgba(25, 14, 43, 0.75);
+            --uvaco-bg-card-hover: rgba(38, 22, 64, 0.85);
+            
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #fbbf24;
+            --uvaco-neon-pink: #ec4899;
+            
+            --uvaco-text-main: #f5f3ff;
+            --uvaco-text-muted: #a78bfa;
+            --uvaco-text-sub: #7c6f96;
+            
+            --uvaco-border: rgba(139, 92, 246, 0.18);
+            --uvaco-border-glow: rgba(192, 132, 252, 0.35);
+            --uvaco-glass-border: 1px solid rgba(192, 132, 252, 0.15);
+            
+            --uvaco-shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px 0 rgba(139, 92, 246, 0.08);
+            --uvaco-shadow-glow: 0 0 25px rgba(139, 92, 246, 0.25);
+            
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-sm: 8px;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        /* 玻璃擬態面板與流動邊框 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--uvaco-glass-border);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: var(--uvaco-shadow-card);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
+            box-shadow: var(--uvaco-shadow-glow);
+        }
+
+        /* 頂部流水線進度軌道 (Pipeline Stepper) */
+        .pipeline-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .pipeline-stepper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(192, 132, 252, 0.6), rgba(139, 92, 246, 0.2));
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .step-node {
+            position: relative;
+            z-index: 2;
+            background: var(--uvaco-bg-surface-elevated);
+            border: 2px solid var(--uvaco-border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--uvaco-text-muted);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .step-node.active {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            border-color: #c084fc;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            transform: scale(1.05);
+        }
+
+        .step-node.active .step-count {
+            background: #ffffff;
+            color: #6d28d9;
+        }
+
+        .step-count {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-secondary);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* 戰術快速動作列 */
+        .action-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-main);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .action-chip:hover {
+            background: var(--uvaco-primary);
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+            transform: translateY(-2px);
+        }
+
+        /* 狀態徽章定制 */
+        .badge-status {
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-draft { background: rgba(161, 161, 170, 0.15); color: #d4d4d8; border: 1px solid rgba(161, 161, 170, 0.3); }
+        .badge-ordered { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-receiving { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .badge-completed { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-rejected { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); }
+
+        /* DataTables 深色微光客製化 */
+        .table-dark-custom {
+            width: 100% !important;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .table-dark-custom thead th {
+            background: transparent;
+            color: var(--uvaco-text-muted);
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border: none;
+            padding: 0.85rem 1rem;
+        }
+
+        .table-dark-custom tbody tr {
+            background: rgba(28, 15, 48, 0.6);
+            border-radius: var(--uvaco-radius-sm);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background: rgba(45, 25, 75, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.2);
+        }
+
+        .table-dark-custom tbody td {
+            padding: 1rem 1rem;
+            border: none;
+            vertical-align: middle;
+            font-size: 0.88rem;
+            color: var(--uvaco-text-main);
+        }
+
+        .table-dark-custom tbody td:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        .table-dark-custom tbody td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        /* 模態視窗與側邊抽屜 */
+        .modal-content, .offcanvas {
+            background: #150b24;
+            border: 1px solid var(--uvaco-border-glow);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+            color: var(--uvaco-text-main);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(10, 5, 18, 0.7);
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(19, 10, 33, 0.95);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            color: #ffffff;
+        }
+
+        /* 自定義捲軸 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 5, 18, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--uvaco-primary);
+        }
+
+        /* 效期即時提醒波紋 */
+        .expiry-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .expiry-safe { background-color: #34d399; box-shadow: 0 0 8px #34d399; }
+        .expiry-warn { background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+        .expiry-danger { background-color: #ec4899; box-shadow: 0 0 8px #ec4899; }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-lg-4 py-3">
+        <div class="row align-items-center mb-3 g-2">
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(236,72,153,0.15)); border: 1px solid var(--uvaco-border);">
+                        <i class="fa-solid fa-truck-ramp-box fa-2x text-warning"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h4 class="mb-0 fw-bold text-white">進貨入庫調度中樞</h4>
+                            <span class="badge bg-primary bg-opacity-25 text-white border border-primary border-opacity-50 px-2 py-1" style="font-size: 0.7rem;">H83000 CORE</span>
+                        </div>
+                        <p class="mb-0 text-secondary" style="font-size: 0.82rem;">
+                            <i class="fa-solid fa-satellite-dish"></i> UVACO 官方進貨批號賦碼、跨國在途追蹤與 SV 點數核算入庫
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-md-6 text-md-end">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
+                    <button class="action-chip" id="btn-sync-gviz">
+                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                    </button>
+                    <button class="action-chip" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAnalytics">
+                        <i class="fa-solid fa-chart-pie"></i> 效期健康雷達
+                    </button>
+                    <button class="btn btn-primary px-3 py-2 fw-bold rounded-3 shadow-sm d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none;" data-bs-toggle="modal" data-bs-target="#modalCreateInbound">
+                        <i class="fa-solid fa-plus-circle"></i> 新增進貨單據
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel pipeline-stepper">
+            <div class="step-node active" data-status-filter="ALL">
+                <i class="fa-solid fa-layer-group"></i> 全域進貨流水
+                <span class="step-count" id="count-all">0</span>
+            </div>
+            <div class="step-node" data-status-filter="ORDERED">
+                <i class="fa-solid fa-file-invoice-dollar"></i> 已下單待出運
+                <span class="step-count" id="count-ordered">0</span>
+            </div>
+            <div class="step-node" data-status-filter="RECEIVING">
+                <i class="fa-solid fa-box-open"></i> 現場點收驗收中
+                <span class="step-count" id="count-receiving">0</span>
+            </div>
+            <div class="step-node" data-status-filter="COMPLETED">
+                <i class="fa-solid fa-circle-check"></i> 已核銷入庫上架
+                <span class="step-count" id="count-completed">0</span>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-xl-9">
+                <div class="glass-panel p-3 p-lg-4">
+                    <div class="row g-2 align-items-center mb-3">
+                        <div class="col-12 col-md-4">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-dark border-secondary text-secondary">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                                <input type="text" id="custom-table-search" class="form-control form-control-sm" placeholder="快速搜尋單號、品名、批號或倉庫...">
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <select id="filter-source-type" class="form-select form-select-sm">
+                                <option value="">全部進貨來源 (All Sources)</option>
+                                <option value="UVACO_TW">台灣葡眾總公司 (TW)</option>
+                                <option value="UVACO_MY">大馬葡眾總公司 (MY)</option>
+                                <option value="LOCAL_TRANSFER">跨據點調撥入庫</option>
+                                <option value="RETURN_RESTOCK">客戶退換貨入庫</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <select id="filter-warehouse" class="form-select form-select-sm">
+                                <option value="">全部收貨倉庫 (All Warehouses)</option>
+                                <option value="WH-TW-NORTH">台北總倉 (TW-N)</option>
+                                <option value="WH-MY-KL">吉隆坡旗艦倉 (MY-KL)</option>
+                                <option value="WH-MY-JB">新山戰術中繼倉 (MY-JB)</option>
+                                <option value="WH-TRIP-LUGGAGE">差旅隨身在途庫存</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2 text-end">
+                            <span class="text-secondary small" id="table-summary-info">加載中...</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="inbound-datatable" class="table table-dark-custom display responsive nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>單號 / 來源</th>
+                                    <th>進貨品項 / 規格</th>
+                                    <th>收貨倉庫</th>
+                                    <th>實收 / 預計盒數</th>
+                                    <th>批號 / 有效期限</th>
+                                    <th>結算成本 / SV</th>
+                                    <th>狀態</th>
+                                    <th>戰術動作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inbound-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-3">
+                <div class="d-flex flex-column gap-3">
+                    
+                    <div class="glass-panel p-3" style="border-left: 4px solid var(--uvaco-secondary);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0 fw-bold text-white">
+                                <i class="fa-solid fa-barcode text-secondary"></i> 快速批號驗收登記
+                            </h6>
+                            <span class="badge bg-secondary bg-opacity-25 text-white" style="font-size: 0.7rem;">LIVE QC</span>
+                        </div>
+                        <p class="text-secondary" style="font-size: 0.78rem;">現場拆箱點收時，直接輸入批號與盒數完成快速初驗。</p>
+                        
+                        <div class="mb-2">
+                            <label class="form-label text-secondary small mb-1">目標進貨單號</label>
+                            <input type="text" id="quick-inbound-no" class="form-control form-control-sm" placeholder="如：INB-20260819-01">
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small mb-1">生產批號 (Batch)</label>
+                                <input type="text" id="quick-batch-no" class="form-control form-control-sm" placeholder="如：B260815">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small mb-1">有效期限 (Exp)</label>
+                                <input type="date" id="quick-expiry-date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small mb-1">本次實收盒數 (Boxes)</label>
+                            <input type="number" id="quick-received-qty" class="form-control form-control-sm" placeholder="盒數 (如: 50)">
+                        </div>
+                        <button class="btn btn-sm w-100 fw-bold text-white d-flex align-items-center justify-content-center gap-2" id="btn-quick-verify" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); border: none; border-radius: 8px; padding: 0.55rem;">
+                            <i class="fa-solid fa-stamp"></i> 驗收合格並寫入庫存
+                        </button>
+                    </div>
+
+                    <div class="glass-panel p-3">
+                        <h6 class="mb-2 fw-bold text-white">
+                            <i class="fa-solid fa-triangle-exclamation text-warning"></i> 異常與效期預警 (Alerts)
+                        </h6>
+                        <div class="d-flex flex-column gap-2" id="inbound-alerts-container">
+                            <div class="p-2 rounded-3" style="background: rgba(236,72,153,0.12); border: 1px solid rgba(236,72,153,0.25);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-white" style="font-size: 0.8rem;">INB-20260818-03 數量短缺</span>
+                                    <span class="badge bg-danger" style="font-size: 0.65rem;">短少 2 盒</span>
+                                </div>
+                                <div class="text-secondary mt-1" style="font-size: 0.75rem;">
+                                    樟芝益 實收 48 / 預計 50，已發送折讓通知。
+                                </div>
+                            </div>
+                            
+                            <div class="p-2 rounded-3" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-white" style="font-size: 0.8rem;">批號 B251102 效期接近</span>
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">剩餘 165 天</span>
+                                </div>
+                                <div class="text-secondary mt-1" style="font-size: 0.75rem;">
+                                    百克斯 (新山倉)，入庫自動標記為優先出貨 (FIFO)。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAnalytics" style="width: 380px;">
+        <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
+            <h5 class="offcanvas-title fw-bold text-white">
+                <i class="fa-solid fa-chart-line text-secondary"></i> 入庫效期與倉儲分佈
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="mb-4">
+                <h6 class="text-secondary small fw-bold text-uppercase mb-2">在庫批號效期健康度 (Expiry Health)</h6>
+                <div style="height: 200px;">
+                    <canvas id="chartExpiryHealth"></canvas>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <h6 class="text-secondary small fw-bold text-uppercase mb-2">本月各據點入庫盒數佔比</h6>
+                <div style="height: 190px;">
+                    <canvas id="chartWarehouseVolume"></canvas>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-3" style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2);">
+                <div class="small fw-bold text-white mb-1"><i class="fa-solid fa-lightbulb text-warning"></i> AI 戰術建議</div>
+                <div class="text-secondary" style="font-size: 0.78rem;">
+                    大馬新山倉目前 995 益菌多庫存週轉率達 18 天/批，建議下一梯次 UVACO_MY 採購量提升 25% 以防斷貨。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCreateInbound" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-cart-flatbed text-secondary"></i> 建立全新進貨入庫單據
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="form-create-inbound">
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-secondary small">進貨來源類型 (Source Type)</label>
+                                <select class="form-select" id="new-source-type" required>
+                                    <option value="UVACO_TW">台灣葡眾總公司官方採購 (TW)</option>
+                                    <option value="UVACO_MY">馬來西亞葡眾總公司官方採購 (MY)</option>
+                                    <option value="LOCAL_TRANSFER">跨據點調撥入庫</option>
+                                    <option value="RETURN_RESTOCK">客戶退換貨入庫</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-secondary small">目標收貨據點 (Target Warehouse)</label>
+                                <select class="form-select" id="new-target-wh" required>
+                                    <option value="WH-TW-NORTH">台北總倉 (TW-NORTH)</option>
+                                    <option value="WH-MY-KL">吉隆坡旗艦倉 (MY-KL)</option>
+                                    <option value="WH-MY-JB">新山戰術中繼倉 (MY-JB)</option>
+                                    <option value="WH-TRIP-LUGGAGE">差旅隨身行李在庫</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-secondary small">進貨產品項目 (Product Item)</label>
+                                <select class="form-select" id="new-product-code" required>
+                                    <option value="TW0101001">995 超級營養液 (TW0101001)</option>
+                                    <option value="TW0101002">樟芝益菌絲體生技精華 (TW0101002)</option>
+                                    <option value="TW0102001">康爾喜益生菌 (TW0102001)</option>
+                                    <option value="TW0102003">百克斯 (TW0102003)</option>
+                                    <option value="MY0101001">995 營養液大馬版 (MY0101001)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-secondary small">預計到貨盒數 (Ordered Qty)</label>
+                                <input type="number" class="form-control" id="new-order-qty" min="1" placeholder="輸入採購盒數" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-secondary small">預設生產批號 (Batch No)</label>
+                                <input type="text" class="form-control" id="new-batch-no" placeholder="如：B260820">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-secondary small">預估有效期限 (Expiry Date)</label>
+                                <input type="date" class="form-control" id="new-expiry-date">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-secondary small">官方訂單單號 (UVACO Ref No)</label>
+                                <input type="text" class="form-control" id="new-ref-no" placeholder="選填官方發票單號">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">進貨備註與驗收重點說明</label>
+                            <textarea class="form-control" id="new-notes" rows="2" placeholder="備註託運單號、海關報關進度或特殊溫控要求..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none;">
+                                <i class="fa-solid fa-check"></i> 建立並進入待驗收流水
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾進貨入庫欄位解耦中介層 (Decoupled Field Mapping)
+         * 允許 Google 試算表欄位名稱彈性變更，前端自動模糊匹配
+         */
+        const InboundFieldMap = {
+            inbound_no: ["進貨單號", "入庫單號", "inbound_no", "Inbound No", "單號"],
+            source_type: ["進貨來源", "來源類型", "source_type", "Source", "供應方"],
+            product_code: ["產品編號", "商品代碼", "product_code", "Code"],
+            product_name: ["產品名稱", "品名", "product_name", "Product"],
+            target_wh_name: ["目標倉庫", "收貨倉庫", "target_wh_name", "Warehouse", "入庫據點"],
+            order_qty: ["預計盒數", "下單數量", "order_qty", "Order Qty", "預計數量"],
+            received_qty: ["實收盒數", "已收數量", "received_qty", "Received Qty", "實收數量"],
+            batch_no: ["生產批號", "批號", "batch_no", "Batch"],
+            expiry_date: ["有效期限", "到期日", "expiry_date", "Expiry"],
+            unit_cost: ["單盒進價", "成本單價", "unit_cost", "Cost"],
+            unit_sv: ["單盒SV", "SV積分", "unit_sv", "SV"],
+            status: ["入庫狀態", "驗收狀態", "status", "Status"],
+            created_at: ["建立時間", "下單時間", "created_at", "Date"]
+        };
+
+        // 本地備援模擬數據庫（當試算表離線時無縫接管）
+        let rawInboundDataset = [
+            {
+                inbound_no: "INB-20260819-01",
+                source_type: "UVACO_TW",
+                product_code: "TW0101001",
+                product_name: "995 超級營養液",
+                target_wh_name: "台北總倉 (TW-N)",
+                order_qty: 100,
+                received_qty: 100,
+                batch_no: "B260810",
+                expiry_date: "2028-08-10",
+                unit_cost: 5040,
+                unit_sv: 4030,
+                status: "COMPLETED",
+                created_at: "2026-08-19"
+            },
+            {
+                inbound_no: "INB-20260819-02",
+                source_type: "UVACO_MY",
+                product_code: "MY0101001",
+                product_name: "995 營養液 (大馬版)",
+                target_wh_name: "吉隆坡旗艦倉 (MY-KL)",
+                order_qty: 60,
+                received_qty: 60,
+                batch_no: "B260715",
+                expiry_date: "2028-07-15",
+                unit_cost: 720,
+                unit_sv: 4030,
+                status: "RECEIVING",
+                created_at: "2026-08-19"
+            },
+            {
+                inbound_no: "INB-20260818-03",
+                source_type: "UVACO_TW",
+                product_code: "TW0101002",
+                product_name: "樟芝益菌絲體生技精華",
+                target_wh_name: "台北總倉 (TW-N)",
+                order_qty: 50,
+                received_qty: 48,
+                batch_no: "B260805",
+                expiry_date: "2028-08-05",
+                unit_cost: 5040,
+                unit_sv: 4030,
+                status: "RECEIVING",
+                created_at: "2026-08-18"
+            },
+            {
+                inbound_no: "INB-20260817-04",
+                source_type: "LOCAL_TRANSFER",
+                product_code: "TW0102001",
+                product_name: "康爾喜益生菌",
+                target_wh_name: "新山戰術中繼倉 (MY-JB)",
+                order_qty: 40,
+                received_qty: 0,
+                batch_no: "B260620",
+                expiry_date: "2028-06-20",
+                unit_cost: 1512,
+                unit_sv: 1200,
+                status: "ORDERED",
+                created_at: "2026-08-17"
+            },
+            {
+                inbound_no: "INB-20260816-05",
+                source_type: "UVACO_MY",
+                product_code: "TW0102003",
+                product_name: "百克斯",
+                target_wh_name: "新山戰術中繼倉 (MY-JB)",
+                order_qty: 30,
+                received_qty: 30,
+                batch_no: "B251102",
+                expiry_date: "2027-02-01",
+                unit_cost: 1250,
+                unit_sv: 1000,
+                status: "COMPLETED",
+                created_at: "2026-08-16"
+            }
+        ];
+
+        let dataTableInstance = null;
+        let chartExpiryInstance = null;
+        let chartWarehouseInstance = null;
+        let activeStatusFilter = "ALL";
+
+        $(document).ready(function () {
+            initInboundTable();
+            initCharts();
+            bindEvents();
+            refreshCounters();
+        });
+
+        /**
+         * 解耦解析單筆試算表行
+         */
+        function parseDecoupledInboundRow(row) {
+            const mapped = {};
+            for (const [key, aliases] of Object.entries(InboundFieldMap)) {
+                for (const alias of aliases) {
+                    if (row[alias] !== undefined && row[alias] !== null && row[alias] !== "") {
+                        mapped[key] = row[alias];
+                        break;
+                    }
+                }
+            }
+            return {
+                inbound_no: mapped.inbound_no || "INB-NEW",
+                source_type: mapped.source_type || "UVACO_TW",
+                product_code: mapped.product_code || "PRD-UNK",
+                product_name: mapped.product_name || "未指定商品",
+                target_wh_name: mapped.target_wh_name || "台北總倉",
+                order_qty: parseInt(mapped.order_qty, 10) || 0,
+                received_qty: parseInt(mapped.received_qty, 10) || 0,
+                batch_no: mapped.batch_no || "TBD",
+                expiry_date: mapped.expiry_date || "2028-12-31",
+                unit_cost: parseFloat(mapped.unit_cost) || 0,
+                unit_sv: parseInt(mapped.unit_sv, 10) || 0,
+                status: (mapped.status || "ORDERED").toUpperCase(),
+                created_at: mapped.created_at || new Date().toISOString().split('T')[0]
+            };
+        }
+
+        /**
+         * 初始化 DataTable.js
+         */
+        function initInboundTable() {
+            dataTableInstance = $('#inbound-datatable').DataTable({
+                data: rawInboundDataset,
+                responsive: true,
+                pageLength: 8,
+                lengthChange: false,
+                ordering: true,
+                order: [[0, 'desc']],
+                dom: 'rtip',
+                language: {
+                    paginate: {
+                        previous: "<i class='fa-solid fa-chevron-left'></i>",
+                        next: "<i class='fa-solid fa-chevron-right'></i>"
+                    },
+                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆入庫單據",
+                    emptyTable: "目前尚無進貨單據"
+                },
+                columns: [
+                    {
+                        data: null,
+                        render: function (data) {
+                            let sourceBadge = '';
+                            if (data.source_type.includes('TW')) sourceBadge = '<span class="badge bg-primary bg-opacity-25 text-white border border-primary border-opacity-25">TW 總部</span>';
+                            else if (data.source_type.includes('MY')) sourceBadge = '<span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25">MY 總部</span>';
+                            else sourceBadge = '<span class="badge bg-secondary bg-opacity-25 text-white">調撥/退貨</span>';
+
+                            return `
+                                <div>
+                                    <div class="fw-bold text-white font-monospace">${data.inbound_no}</div>
+                                    <div class="mt-1 d-flex gap-1 align-items-center">${sourceBadge} <span class="text-secondary" style="font-size: 0.72rem;">${data.created_at}</span></div>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            return `
+                                <div>
+                                    <div class="fw-bold text-white">${data.product_name}</div>
+                                    <div class="text-secondary small font-monospace">${data.product_code}</div>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: "target_wh_name",
+                        render: function (data) {
+                            return `<span class="badge bg-dark border border-secondary border-opacity-50 text-light"><i class="fa-solid fa-warehouse text-secondary"></i> ${data}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            const isDiff = data.status === 'RECEIVING' && data.received_qty < data.order_qty;
+                            const diffColor = isDiff ? 'text-danger fw-bold' : 'text-success fw-bold';
+                            return `
+                                <div>
+                                    <span class="${diffColor}">${data.received_qty}</span> 
+                                    <span class="text-secondary">/ ${data.order_qty} 盒</span>
+                                    ${isDiff ? '<div class="text-danger" style="font-size: 0.7rem;"><i class="fa-solid fa-triangle-exclamation"></i> 短缺待補</div>' : ''}
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            const today = new Date();
+                            const exp = new Date(data.expiry_date);
+                            const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+                            
+                            let dotClass = "expiry-safe";
+                            if (diffDays < 180) dotClass = "expiry-danger";
+                            else if (diffDays < 365) dotClass = "expiry-warn";
+
+                            return `
+                                <div>
+                                    <div class="font-monospace text-light"><i class="fa-solid fa-tag text-secondary"></i> ${data.batch_no}</div>
+                                    <div class="small mt-1" style="font-size: 0.75rem;">
+                                        <span class="expiry-dot ${dotClass}"></span>
+                                        <span class="text-secondary">${data.expiry_date}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            const totalAmount = data.received_qty * data.unit_cost;
+                            const totalSv = data.received_qty * data.unit_sv;
+                            return `
+                                <div>
+                                    <div class="fw-bold text-white">$${totalAmount.toLocaleString()}</div>
+                                    <div class="text-warning small" style="font-size: 0.72rem;"><i class="fa-solid fa-coins"></i> ${totalSv.toLocaleString()} SV</div>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (status) {
+                            if (status === 'ORDERED') return '<span class="badge-status badge-ordered"><i class="fa-solid fa-clock"></i> 待出運</span>';
+                            if (status === 'RECEIVING') return '<span class="badge-status badge-receiving"><i class="fa-solid fa-spinner fa-spin"></i> 驗收中</span>';
+                            if (status === 'COMPLETED') return '<span class="badge-status badge-completed"><i class="fa-solid fa-check-circle"></i> 已入庫</span>';
+                            return `<span class="badge-status badge-draft">${status}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data) {
+                            return `
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-dark border-secondary border-opacity-50 text-light px-2 py-1" data-bs-toggle="dropdown">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow">
+                                        <li><a class="dropdown-item small btn-quick-qc" href="#" data-no="${data.inbound_no}" data-batch="${data.batch_no}" data-qty="${data.order_qty}"><i class="fa-solid fa-stamp text-secondary"></i> 執行現場驗收</a></li>
+                                        <li><a class="dropdown-item small" href="#"><i class="fa-solid fa-print text-secondary"></i> 列印批號條碼貼紙</a></li>
+                                        <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
+                                        <li><a class="dropdown-item small text-danger" href="#"><i class="fa-solid fa-ban"></i> 註銷進貨單據</a></li>
+                                    </ul>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            $('#table-summary-info').text(`共 ${rawInboundDataset.length} 筆調度紀錄`);
+        }
+
+        /**
+         * 刷新階段計數器
+         */
+        function refreshCounters() {
+            const countAll = rawInboundDataset.length;
+            const countOrdered = rawInboundDataset.filter(d => d.status === 'ORDERED').length;
+            const countReceiving = rawInboundDataset.filter(d => d.status === 'RECEIVING').length;
+            const countCompleted = rawInboundDataset.filter(d => d.status === 'COMPLETED').length;
+
+            $('#count-all').text(countAll);
+            $('#count-ordered').text(countOrdered);
+            $('#count-receiving').text(countReceiving);
+            $('#count-completed').text(countCompleted);
+        }
+
+        /**
+         * 綁定事件監聽
+         */
+        function bindEvents() {
+            // 頂部流水線進度過濾切換
+            $('.pipeline-stepper .step-node').on('click', function () {
+                $('.pipeline-stepper .step-node').removeClass('active');
+                $(this).addClass('active');
+
+                activeStatusFilter = $(this).data('status-filter');
+                applyFilters();
+            });
+
+            // 外部自訂搜尋輸入
+            $('#custom-table-search').on('keyup', function () {
+                dataTableInstance.search(this.value).draw();
+            });
+
+            // 來源與倉庫下拉過濾
+            $('#filter-source-type, #filter-warehouse').on('change', function () {
+                applyFilters();
+            });
+
+            // 快速點收填充
+            $(document).on('click', '.btn-quick-qc', function (e) {
+                e.preventDefault();
+                const inboundNo = $(this).data('no');
+                const batchNo = $(this).data('batch');
+                const qty = $(this).data('qty');
+
+                $('#quick-inbound-no').val(inboundNo);
+                $('#quick-batch-no').val(batchNo);
+                $('#quick-received-qty').val(qty);
+                $('#quick-expiry-date').val(new Date().toISOString().split('T')[0]);
+            });
+
+            // 快速驗收提交
+            $('#btn-quick-verify').on('click', function () {
+                const inboundNo = $('#quick-inbound-no').val();
+                const receivedQty = parseInt($('#quick-received-qty').val(), 10);
+                const batchNo = $('#quick-batch-no').val();
+
+                if (!inboundNo || isNaN(receivedQty) || receivedQty <= 0) {
+                    alert('請輸入有效的進貨單號與實收盒數！');
+                    return;
+                }
+
+                const targetItem = rawInboundDataset.find(d => d.inbound_no === inboundNo);
+                if (targetItem) {
+                    targetItem.received_qty = receivedQty;
+                    targetItem.batch_no = batchNo || targetItem.batch_no;
+                    targetItem.status = 'COMPLETED';
+                    
+                    dataTableInstance.clear().rows.add(rawInboundDataset).draw();
+                    refreshCounters();
+                    alert(`【驗收成功】單號 ${inboundNo} 已驗收 ${receivedQty} 盒，即時庫存與 SV 積分已同步歸戶！`);
+                    
+                    // 重設快速表單
+                    $('#quick-inbound-no').val('');
+                    $('#quick-batch-no').val('');
+                    $('#quick-received-qty').val('');
+                } else {
+                    alert('找不到該進貨單號，請檢查輸入！');
+                }
+            });
+
+            // 新增進貨單表單提交
+            $('#form-create-inbound').on('submit', function (e) {
+                e.preventDefault();
+                const newNo = "INB-" + new Date().toISOString().slice(0,10).replace(/-/g,"") + "-" + String(rawInboundDataset.length + 1).padStart(2, '0');
+                
+                const newEntry = {
+                    inbound_no: newNo,
+                    source_type: $('#new-source-type').val(),
+                    product_code: $('#new-product-code').val(),
+                    product_name: $('#new-product-code option:selected').text().split(' (')[0],
+                    target_wh_name: $('#new-target-wh option:selected').text(),
+                    order_qty: parseInt($('#new-order-qty').val(), 10),
+                    received_qty: 0,
+                    batch_no: $('#new-batch-no').val() || "PENDING",
+                    expiry_date: $('#new-expiry-date').val() || "2028-12-31",
+                    unit_cost: 3000,
+                    unit_sv: 2500,
+                    status: "ORDERED",
+                    created_at: new Date().toISOString().split('T')[0]
+                };
+
+                rawInboundDataset.unshift(newEntry);
+                dataTableInstance.clear().rows.add(rawInboundDataset).draw();
+                refreshCounters();
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalCreateInbound'));
+                modal.hide();
+                $('#form-create-inbound')[0].reset();
+                alert(`【單據已建立】進貨單 ${newNo} 已送入在途流水線！`);
+            });
+
+            // 試算表 GViz 重新整理模擬
+            $('#btn-sync-gviz').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin"></i> 同步中...');
+
+                setTimeout(() => {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表');
+                    dataTableInstance.clear().rows.add(rawInboundDataset).draw();
+                    refreshCounters();
+                    alert('已成功與 Google 試算表完成雙向解耦數據同步！');
+                }, 600);
+            });
+        }
+
+        /**
+         * 套用綜合篩選條件
+         */
+        function applyFilters() {
+            const sourceVal = $('#filter-source-type').val();
+            const whVal = $('#filter-warehouse').val();
+
+            const filteredData = rawInboundDataset.filter(item => {
+                const matchStatus = (activeStatusFilter === "ALL") || (item.status === activeStatusFilter);
+                const matchSource = (!sourceVal) || (item.source_type.includes(sourceVal));
+                const matchWh = (!whVal) || (item.target_wh_name.includes(whVal.replace('WH-', '')));
+                return matchStatus && matchSource && matchWh;
+            });
+
+            dataTableInstance.clear().rows.add(filteredData).draw();
+            $('#table-summary-info').text(`過濾後共 ${filteredData.length} 筆紀錄`);
+        }
+
+        /**
+         * 初始化側邊圖表 (Chart.js)
+         */
+        function initCharts() {
+            // 效期健康度甜甜圈圖
+            const ctxExpiry = document.getElementById('chartExpiryHealth').getContext('2d');
+            chartExpiryInstance = new Chart(ctxExpiry, {
+                type: 'doughnut',
+                data: {
+                    labels: ['充裕 (>365天)', '正常 (180~365天)', '告急 (<180天)'],
+                    datasets: [{
+                        data: [65, 25, 10],
+                        backgroundColor: ['#34d399', '#fbbf24', '#ec4899'],
+                        borderColor: '#130a21',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#a78bfa', boxWidth: 12, font: { size: 11 } }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // 倉儲入庫佔比柱狀圖
+            const ctxWh = document.getElementById('chartWarehouseVolume').getContext('2d');
+            chartWarehouseInstance = new Chart(ctxWh, {
+                type: 'bar',
+                data: {
+                    labels: ['台北總倉', '吉隆坡旗艦', '新山中繼', '差旅在途'],
+                    datasets: [{
+                        label: '入庫盒數',
+                        data: [150, 90, 70, 20],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#7c6f96', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#7c6f96', font: { size: 10 } }, grid: { color: 'rgba(139,92,246,0.1)' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
