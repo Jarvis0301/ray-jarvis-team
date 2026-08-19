@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>據點倉儲戰術調度中樞 | 葡眾三軌數位戰情系統</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap">
+
+    <style>
+        /* ==========================================================================
+           核心版：暗夜魅影紫主題變數 (Dark Cyber Purple Tokens)
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-bg-base: #0b0612;
+            --uvaco-bg-surface: #140b22;
+            --uvaco-bg-card: rgba(26, 14, 44, 0.75);
+            --uvaco-bg-card-hover: rgba(38, 20, 64, 0.9);
+            --uvaco-bg-glass: rgba(22, 11, 38, 0.65);
+            
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+            
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #38bdf8;
+            --uvaco-warning: #fbbf24;
+            --uvaco-danger: #f43f5e;
+            --uvaco-success: #34d399;
+            
+            --uvaco-border: rgba(139, 92, 246, 0.22);
+            --uvaco-border-glow: rgba(168, 85, 247, 0.45);
+            
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-muted: #a78bfa;
+            --uvaco-text-sub: #94a3b8;
+            
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-sm: 8px;
+            
+            --uvaco-shadow-neon: 0 8px 32px 0 rgba(139, 92, 246, 0.18);
+            --uvaco-font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(217, 70, 239, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(56, 189, 248, 0.04) 0px, transparent 60%);
+            background-attachment: fixed;
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 玻璃擬態面板 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: var(--uvaco-shadow-neon);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
+        }
+
+        /* 戰術抬頭 HUD 容器 */
+        .hud-header {
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hud-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--uvaco-primary-gradient);
+        }
+
+        .mono-num {
+            font-family: var(--uvaco-font-mono);
+            letter-spacing: -0.5px;
+        }
+
+        /* 呼吸燈指示點 */
+        .live-pulse {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--uvaco-success);
+            box-shadow: 0 0 10px var(--uvaco-success);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        }
+
+        /* 戰術維度切換 Pills */
+        .btn-filter-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-muted);
+            border-radius: 50px;
+            padding: 0.45rem 1.1rem;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        .btn-filter-pill:hover, .btn-filter-pill.active {
+            background: var(--uvaco-primary-gradient);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* 倉儲全息數位艙 (Digital Twin Pod) */
+        .warehouse-pod {
+            position: relative;
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1.5rem;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .warehouse-pod:hover {
+            transform: translateY(-6px);
+            background: var(--uvaco-bg-card-hover);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 16px 36px rgba(139, 92, 246, 0.25);
+        }
+
+        .warehouse-pod::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            transition: all 0.3s;
+        }
+
+        .warehouse-pod.type-official::after { background: #38bdf8; }
+        .warehouse-pod.type-overseas::after { background: #e879f9; }
+        .warehouse-pod.type-private::after { background: #8b5cf6; }
+
+        .pod-type-badge {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-official { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-overseas { background: rgba(232, 121, 249, 0.15); color: #e879f9; border: 1px solid rgba(232, 121, 249, 0.3); }
+        .badge-private { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        /* 水位進度條與微光 */
+        .capacity-track {
+            height: 7px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .capacity-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        .cap-safe { background: linear-gradient(90deg, #34d399, #10b981); }
+        .cap-warn { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .cap-danger { background: linear-gradient(90deg, #f43f5e, #e11d48); }
+
+        /* 戰備動作按鈕 */
+        .pod-action-btn {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--uvaco-text-main);
+            border-radius: var(--uvaco-radius-sm);
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .pod-action-btn:hover {
+            background: var(--uvaco-primary);
+            color: #fff;
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+        }
+
+        /* 跨國調度管線 (Logistics Pipeline Strip) */
+        .pipeline-card {
+            background: linear-gradient(135deg, rgba(26, 14, 44, 0.9) 0%, rgba(17, 7, 31, 0.95) 100%);
+            border: 1px dashed rgba(168, 85, 247, 0.35);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .pipeline-node {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pipeline-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--uvaco-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* 抽屜與彈窗自訂樣式 */
+        .offcanvas-purple {
+            background: #110820;
+            color: var(--uvaco-text-main);
+            border-left: 1px solid var(--uvaco-border-glow);
+        }
+
+        .modal-content-purple {
+            background: #150a26;
+            border: 1px solid var(--uvaco-border-glow);
+            color: var(--uvaco-text-main);
+            border-radius: var(--uvaco-radius-lg);
+        }
+
+        /* DataTable 暗夜魅影紫客製化 */
+        .table-purple {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+
+        .table-purple th {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--uvaco-secondary);
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            font-size: 0.85rem;
+        }
+
+        .table-purple td {
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+            font-size: 0.88rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-primary) !important;
+            color: #fff !important;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container-fluid px-3 px-lg-4 py-3">
+
+        <section class="glass-panel hud-header">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="pipeline-icon" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="live-pulse"></span>
+                                <span class="badge bg-dark border border-purple text-uppercase" style="font-size: 0.7rem; color: #c084fc;">
+                                    <i class="fa-solid fa-shield-halved"></i> 核心極密授權
+                                </span>
+                                <span class="text-secondary small">|</span>
+                                <span class="text-secondary small mono-num" id="current-timestamp">2026-08-19 12:00:00</span>
+                            </div>
+                            <h2 class="h4 mb-0 fw-bold mt-1 text-white">
+                                <i class="fa-solid fa-warehouse text-primary"></i> 全域據點倉儲調度中樞
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-7">
+                    <div class="row g-2 text-center text-md-start">
+                        <div class="col-6 col-sm-3">
+                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(139, 92, 246, 0.15);">
+                                <div class="text-secondary small">
+                                    <span class="fi fi-tw me-1"></span> 台灣戰區據點
+                                </div>
+                                <div class="h5 mb-0 fw-bold mono-num text-info mt-1" id="stat-tw-count">4 處</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(139, 92, 246, 0.15);">
+                                <div class="text-secondary small">
+                                    <span class="fi fi-my me-1"></span> 大馬前進樞紐
+                                </div>
+                                <div class="h5 mb-0 fw-bold mono-num text-warning mt-1" id="stat-my-count">2 處</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(139, 92, 246, 0.15);">
+                                <div class="text-secondary small">
+                                    <i class="fa-solid fa-boxes-packing text-secondary"></i> 現存總盒數
+                                </div>
+                                <div class="h5 mb-0 fw-bold mono-num text-white mt-1" id="stat-total-boxes">1,480 盒</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(139, 92, 246, 0.15);">
+                                <div class="text-secondary small">
+                                    <i class="fa-solid fa-sack-dollar text-success"></i> 總庫存貨值
+                                </div>
+                                <div class="h5 mb-0 fw-bold mono-num text-success mt-1" id="stat-total-value">NT$ 2.45M</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top border-purple-subtle" style="border-color: rgba(139, 92, 246, 0.15) !important;">
+                <div class="col-12 col-lg-7">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="text-secondary small me-1">
+                            <i class="fa-solid fa-filter"></i> 據點類型：
+                        </span>
+                        <button class="btn btn-filter-pill active" data-filter="ALL">
+                            <i class="fa-solid fa-border-all"></i> 全部倉儲 (<span id="count-all">6</span>)
+                        </button>
+                        <button class="btn btn-filter-pill" data-filter="OFFICIAL">
+                            <i class="fa-solid fa-building-flag"></i> 官方營業處 (<span id="count-official">3</span>)
+                        </button>
+                        <button class="btn btn-filter-pill" data-filter="OVERSEAS">
+                            <i class="fa-solid fa-plane-departure"></i> 海外拓荒樞紐 (<span id="count-overseas">1</span>)
+                        </button>
+                        <button class="btn btn-filter-pill" data-filter="PRIVATE">
+                            <i class="fa-solid fa-vault"></i> 核心私有庫 (<span id="count-private">2</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-5">
+                    <div class="d-flex justify-content-lg-end gap-2">
+                        <div class="input-group input-group-sm" style="max-width: 220px;">
+                            <span class="input-group-text bg-dark border-purple text-secondary" style="border-color: rgba(139, 92, 246, 0.25);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="quick-search" class="form-control bg-dark text-white border-purple" placeholder="過濾代碼 / 名稱..." style="border-color: rgba(139, 92, 246, 0.25);">
+                        </div>
+                        
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active" id="view-grid-btn" title="全息艙位卡視圖">
+                                <i class="fa-solid fa-grip"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" id="view-table-btn" title="詳細盤點表視圖">
+                                <i class="fa-solid fa-list-check"></i>
+                            </button>
+                        </div>
+
+                        <button class="btn btn-sm btn-primary px-3" id="btn-open-dispatch" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDispatch">
+                            <i class="fa-solid fa-paper-plane"></i> 快速調撥
+                        </button>
+                        <button class="btn btn-sm btn-outline-light" id="btn-sync-gviz" title="同步 Google 試算表">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pipeline-card mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-3">
+                    <div class="pipeline-node">
+                        <div class="pipeline-icon">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <div>
+                            <div class="text-uppercase small text-secondary fw-bold">在途戰略物資</div>
+                            <div class="h6 mb-0 text-white fw-bold">跨國調撥即時管線</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-9">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-lg-6">
+                            <div class="p-2 rounded d-flex align-items-center justify-content-between" style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-plane"></i> 航空空運中</span>
+                                    <span class="small text-white">台北總倉 ➔ 吉隆坡前進基地</span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="small mono-num text-info fw-bold">40 盒 樟芝/康貝兒</span>
+                                    <span class="badge bg-dark border border-secondary text-secondary ms-1">預計 08/22 抵達</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="p-2 rounded d-flex align-items-center justify-content-between" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2);">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-info text-dark"><i class="fa-solid fa-van-shuttle"></i> 同城調撥</span>
+                                    <span class="small text-white">榮祥私倉 ➔ 台北營業處自提</span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="small mono-num text-success fw-bold">15 盒 995飲品</span>
+                                    <span class="badge bg-dark border border-secondary text-secondary ms-1">本日 16:30 前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="warehouse-grid-container" class="row g-3 mb-4">
+            </section>
+
+        <section id="warehouse-table-container" class="glass-panel p-3 d-none mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="mb-0 text-white fw-bold">
+                    <i class="fa-solid fa-table-cells text-secondary"></i> 全域據點倉儲精確庫存與負責人總表
+                </h5>
+                <span class="badge bg-purple-subtle text-white border border-purple">
+                    <i class="fa-solid fa-circle-check text-success"></i> 實時同步完成
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table id="warehouse-datatable" class="table table-purple table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>代碼</th>
+                            <th>據點名稱</th>
+                            <th>類型</th>
+                            <th>地區</th>
+                            <th>當前庫存 / 水位</th>
+                            <th>現存貨值 (TWD)</th>
+                            <th>負責人 / 電話</th>
+                            <th>警報狀態</th>
+                            <th class="text-end">調度操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="warehouse-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="offcanvas offcanvas-end offcanvas-purple" tabindex="-1" id="offcanvasDispatch" aria-labelledby="offcanvasDispatchLabel" style="width: 420px;">
+        <div class="offcanvas-header border-bottom border-purple" style="border-color: rgba(139, 92, 246, 0.2) !important;">
+            <h5 class="offcanvas-title fw-bold text-white" id="offcanvasDispatchLabel">
+                <i class="fa-solid fa-dolly text-primary"></i> 發起戰略物資調撥單
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form-quick-dispatch">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">調撥單號 (自動生成)</label>
+                    <input type="text" class="form-control bg-dark text-white mono-num border-purple" value="TR-20260819-003" readonly style="border-color: rgba(139, 92, 246, 0.25);">
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label text-secondary small fw-bold">來源出庫倉</label>
+                        <select class="form-select bg-dark text-white border-purple" id="dispatch-from-wh" style="border-color: rgba(139, 92, 246, 0.25);">
+                            <option value="WH-TW-N01">台北總倉 (WH-TW-N01)</option>
+                            <option value="HUB-RAY-01" selected>榮祥核心私倉 (HUB-RAY-01)</option>
+                            <option value="WH-MY-KL01">吉隆坡前進基地</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-secondary small fw-bold">目的入庫倉</label>
+                        <select class="form-select bg-dark text-white border-purple" id="dispatch-to-wh" style="border-color: rgba(139, 92, 246, 0.25);">
+                            <option value="WH-MY-KL01" selected>吉隆坡前進基地 (WH-MY-KL01)</option>
+                            <option value="WH-TW-N01">台北總倉 (WH-TW-N01)</option>
+                            <option value="WH-TW-C01">台中營業處自提</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">調撥品項與規格</label>
+                    <select class="form-select bg-dark text-white border-purple" id="dispatch-product" style="border-color: rgba(139, 92, 246, 0.25);">
+                        <option value="0303001">TW0303001 - 葡眾樟芝益 (24包/盒)</option>
+                        <option value="0303002">TW0303002 - 康貝兒益生菌 (90包/盒)</option>
+                        <option value="0303003">TW0303003 - 995超級營養液 (24包/盒)</option>
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label text-secondary small fw-bold">調撥盒數</label>
+                        <input type="number" class="form-control bg-dark text-white mono-num border-purple" value="20" min="1" max="500" style="border-color: rgba(139, 92, 246, 0.25);">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-secondary small fw-bold">運輸管道</label>
+                        <select class="form-select bg-dark text-white border-purple" style="border-color: rgba(139, 92, 246, 0.25);">
+                            <option value="AIR">國際航空快遞</option>
+                            <option value="SEA">海運貨櫃拼箱</option>
+                            <option value="LOCAL">本地專車配送</option>
+                            <option value="SELF">領隊隨身行李</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-secondary small fw-bold">戰術備註 / 專案代碼</label>
+                    <textarea class="form-control bg-dark text-white border-purple" rows="2" placeholder="如：8/25 吉隆坡招商大會急件備貨..." style="border-color: rgba(139, 92, 246, 0.25);"></textarea>
+                </div>
+
+                <button type="button" class="btn btn-primary w-100 py-2 fw-bold" id="btn-submit-dispatch" style="background: var(--uvaco-primary-gradient); border: none;">
+                    <i class="fa-solid fa-check"></i> 確認建立調撥並鎖定庫存
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalWarehouseDetail" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-content-purple">
+                <div class="modal-header border-purple" style="border-color: rgba(139, 92, 246, 0.2) !important;">
+                    <h5 class="modal-title fw-bold text-white" id="modalDetailTitle">
+                        <i class="fa-solid fa-circle-info text-info"></i> 據點倉位深層監控
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalDetailBody">
+                    </div>
+                <div class="modal-footer border-purple" style="border-color: rgba(139, 92, 246, 0.2) !important;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btn-modal-inventory-check">
+                        <i class="fa-solid fa-clipboard-check"></i> 發起即時盤點
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // 1. 試算表欄位解耦對映配置 (Decoupled Field Mapping)
+            const WarehouseFieldMap = {
+                id: ['據點代號', 'warehouse_id', 'id', '代碼'],
+                code: ['倉儲編號', 'warehouse_code', 'code'],
+                name: ['據點名稱', 'warehouse_name', 'name', '名稱'],
+                region: ['區域', 'region_code', 'country', '國別'],
+                type: ['類型', 'warehouse_type', 'type', '據點屬性'],
+                address: ['地址', 'address', 'location', '據點地址'],
+                contact: ['聯絡人', 'contact_person', 'manager', '負責夥伴'],
+                phone: ['電話', 'contact_phone', 'phone', '聯絡電話'],
+                hours: ['營業時間', 'operating_hours', 'hours'],
+                capacityRate: ['容量使用率', 'capacity_rate', 'storage_rate', '飽和度'],
+                totalBoxes: ['在庫總盒數', 'total_stock_boxes', 'boxes', '庫存量'],
+                stockValue: ['現存貨值', 'inventory_value_twd', 'value_twd', '貨值'],
+                alertCount: ['警報數', 'safety_alert_count', 'alerts'],
+                status: ['狀態', 'status', '營運狀態']
+            };
+
+            // 2. 核心版抗脆弱預設/備用資料集 (含台灣官方、馬來西亞拓荒樞紐與創始私倉)
+            const fallbackWarehouseData = [
+                {
+                    id: 'WH-TW-01',
+                    code: 'WH-TW-N01',
+                    name: '台北總公司旗艦自提處',
+                    region: 'TW',
+                    type: 'OFFICIAL_CENTER',
+                    address: '台北市內湖區行善路 411 號 2 樓',
+                    contact: '葡眾官方物流部',
+                    phone: '02-2791-1055',
+                    hours: '週一至週五 09:00 - 18:00',
+                    capacityRate: 65,
+                    totalBoxes: 520,
+                    stockValue: 884000,
+                    alertCount: 0,
+                    status: 'ACTIVE'
+                },
+                {
+                    id: 'WH-MY-01',
+                    code: 'WH-MY-KL01',
+                    name: '吉隆坡海外拓荒前進基地',
+                    region: 'MY',
+                    type: 'TRANSIT_OVERSEAS',
+                    address: 'Level 28, The Exchange 106, TRX, Kuala Lumpur',
+                    contact: 'Ray (榮祥總監)',
+                    phone: '+60 11-2345-6789',
+                    hours: '預約制 / 專案進駐期間全天候',
+                    capacityRate: 88,
+                    totalBoxes: 260,
+                    stockValue: 442000,
+                    alertCount: 2,
+                    status: 'BUSY'
+                },
+                {
+                    id: 'HUB-RAY-01',
+                    code: 'HUB-RAY-01',
+                    name: '榮祥創始核心戰術私倉',
+                    region: 'TW',
+                    type: 'PRIVATE_HUB',
+                    address: '新北市板橋區戰術調度中繼點',
+                    contact: 'Ray / Jarvis',
+                    phone: '0912-345-678',
+                    hours: '團隊核心夥伴 24H 智慧門禁',
+                    capacityRate: 74,
+                    totalBoxes: 380,
+                    stockValue: 646000,
+                    alertCount: 1,
+                    status: 'ACTIVE'
+                },
+                {
+                    id: 'WH-TW-02',
+                    code: 'WH-TW-C01',
+                    name: '台中分公司營運據點',
+                    region: 'TW',
+                    type: 'OFFICIAL_CENTER',
+                    address: '台中市西區台灣大道二段 573 號 12 樓',
+                    contact: '中區營運櫃台',
+                    phone: '04-2321-7000',
+                    hours: '週一至週五 09:00 - 18:00',
+                    capacityRate: 45,
+                    totalBoxes: 180,
+                    stockValue: 306000,
+                    alertCount: 0,
+                    status: 'ACTIVE'
+                },
+                {
+                    id: 'WH-TW-03',
+                    code: 'WH-TW-S01',
+                    name: '高雄分公司營運據點',
+                    region: 'TW',
+                    type: 'OFFICIAL_CENTER',
+                    address: '高雄市左營區博愛二路 366 號 5 樓',
+                    contact: '南區營運櫃台',
+                    phone: '07-558-8000',
+                    hours: '週一至週五 09:00 - 18:00',
+                    capacityRate: 50,
+                    totalBoxes: 140,
+                    stockValue: 238000,
+                    alertCount: 0,
+                    status: 'ACTIVE'
+                },
+                {
+                    id: 'HUB-MY-02',
+                    code: 'HUB-MY-JB01',
+                    name: '新山海外前哨行動備庫',
+                    region: 'MY',
+                    type: 'PRIVATE_HUB',
+                    address: 'Johor Bahru Central Hub',
+                    contact: '大馬先鋒小組',
+                    phone: '+60 12-9876-5432',
+                    hours: '彈性機動調度',
+                    capacityRate: 92,
+                    totalBoxes: 90,
+                    stockValue: 153000,
+                    alertCount: 3,
+                    status: 'MAINTENANCE'
+                }
+            ];
+
+            let activeWarehouseList = [...fallbackWarehouseData];
+            let currentFilter = 'ALL';
+            let dataTableInstance = null;
+
+            // 3. 通用解耦取值函式
+            function extractFieldValue(rawRow, aliases, fallbackVal = '') {
+                for (let key of aliases) {
+                    if (rawRow[key] !== undefined && rawRow[key] !== null && rawRow[key] !== '') {
+                        return rawRow[key];
+                    }
+                }
+                return fallbackVal;
+            }
+
+            // 4. 渲染數位艙位卡 (Digital Twin Pods)
+            function renderWarehousePods(list) {
+                const container = $('#warehouse-grid-container');
+                container.empty();
+
+                if (!list.length) {
+                    container.html(`
+                        <div class="col-12 text-center py-5 glass-panel">
+                            <i class="fa-solid fa-boxes-packing fa-3x text-secondary mb-3"></i>
+                            <div class="text-secondary">查無符合條件之據點倉儲</div>
+                        </div>
+                    `);
+                    return;
+                }
+
+                list.forEach(item => {
+                    let typeClass = 'type-official';
+                    let typeBadge = '<span class="pod-type-badge badge-official"><i class="fa-solid fa-building-flag"></i> 官方營業處</span>';
+                    
+                    if (item.type === 'TRANSIT_OVERSEAS') {
+                        typeClass = 'type-overseas';
+                        typeBadge = '<span class="pod-type-badge badge-overseas"><i class="fa-solid fa-plane-departure"></i> 海外拓荒樞紐</span>';
+                    } else if (item.type === 'PRIVATE_HUB') {
+                        typeClass = 'type-private';
+                        typeBadge = '<span class="pod-type-badge badge-private"><i class="fa-solid fa-vault"></i> 核心私有庫</span>';
+                    }
+
+                    // 水位顏色
+                    let capColorClass = 'cap-safe';
+                    let capTextClass = 'text-success';
+                    if (item.capacityRate >= 85) {
+                        capColorClass = 'cap-danger';
+                        capTextClass = 'text-danger';
+                    } else if (item.capacityRate >= 70) {
+                        capColorClass = 'cap-warn';
+                        capTextClass = 'text-warning';
+                    }
+
+                    // 警報 Badge
+                    let alertBadgeHtml = '';
+                    if (item.alertCount > 0) {
+                        alertBadgeHtml = `
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1" style="font-size: 0.72rem;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> ${item.alertCount} 項警戒
+                            </span>
+                        `;
+                    }
+
+                    const flagCode = item.region.toLowerCase();
+
+                    const podHtml = `
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="warehouse-pod ${typeClass} h-100">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="fi fi-${flagCode}"></span>
+                                            <span class="text-secondary small mono-num fw-bold">${item.code}</span>
+                                        </div>
+                                        <div>
+                                            ${typeBadge}
+                                            ${alertBadgeHtml}
+                                        </div>
+                                    </div>
+
+                                    <h5 class="fw-bold text-white mb-2 text-truncate" title="${item.name}">
+                                        ${item.name}
+                                    </h5>
+                                    <div class="text-secondary small text-truncate mb-3" title="${item.address}">
+                                        <i class="fa-solid fa-location-dot me-1 text-purple"></i> ${item.address}
+                                    </div>
+
+                                    <div class="p-2 rounded mb-3" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(139, 92, 246, 0.1);">
+                                        <div class="d-flex justify-content-between align-items-center mb-1 small">
+                                            <span class="text-secondary"><i class="fa-solid fa-chart-pie"></i> 空間飽和度</span>
+                                            <span class="mono-num fw-bold ${capTextClass}">${item.capacityRate}%</span>
+                                        </div>
+                                        <div class="capacity-track">
+                                            <div class="capacity-bar ${capColorClass}" style="width: ${item.capacityRate}%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2 mb-3 text-center">
+                                        <div class="col-6">
+                                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(139, 92, 246, 0.1);">
+                                                <div class="text-secondary small" style="font-size: 0.75rem;">現存盒數</div>
+                                                <div class="fw-bold text-white mono-num mt-1">${item.totalBoxes.toLocaleString()} <small class="text-secondary">盒</small></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(139, 92, 246, 0.1);">
+                                                <div class="text-secondary small" style="font-size: 0.75rem;">估算貨值 (TWD)</div>
+                                                <div class="fw-bold text-success mono-num mt-1">$${(item.stockValue / 1000).toFixed(0)}k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="small text-secondary mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span><i class="fa-solid fa-user-tie"></i> 窗口：${item.contact}</span>
+                                            <span class="mono-num"><i class="fa-solid fa-phone"></i> ${item.phone}</span>
+                                        </div>
+                                        <div class="text-truncate">
+                                            <i class="fa-solid fa-clock"></i> ${item.hours}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 pt-2 border-top border-purple-subtle" style="border-color: rgba(139, 92, 246, 0.15) !important;">
+                                    <button class="btn pod-action-btn flex-fill btn-view-detail" data-id="${item.id}">
+                                        <i class="fa-solid fa-layer-group"></i> 庫存批號
+                                    </button>
+                                    <button class="btn pod-action-btn flex-fill btn-quick-transfer" data-code="${item.code}">
+                                        <i class="fa-solid fa-dolly"></i> 發起調撥
+                                    </button>
+                                    <a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="btn pod-action-btn px-2" title="開啟地圖導航">
+                                        <i class="fa-solid fa-location-arrow"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(podHtml);
+                });
+            }
+
+            // 5. 渲染詳細 DataTable 表格
+            function renderWarehouseTable(list) {
+                const tbody = $('#warehouse-table-body');
+                tbody.empty();
+
+                list.forEach(item => {
+                    let typeBadge = '<span class="badge badge-official">官方營業處</span>';
+                    if (item.type === 'TRANSIT_OVERSEAS') typeBadge = '<span class="badge badge-overseas">海外拓荒樞紐</span>';
+                    if (item.type === 'PRIVATE_HUB') typeBadge = '<span class="badge badge-private">核心私有庫</span>';
+
+                    let alertHtml = item.alertCount > 0 
+                        ? `<span class="text-danger fw-bold"><i class="fa-solid fa-circle-exclamation"></i> ${item.alertCount} 筆告警</span>` 
+                        : `<span class="text-success"><i class="fa-solid fa-check"></i> 正常</span>`;
+
+                    const rowHtml = `
+                        <tr>
+                            <td class="mono-num fw-bold text-info">${item.code}</td>
+                            <td>
+                                <div class="fw-bold text-white">${item.name}</div>
+                                <div class="small text-secondary text-truncate" style="max-width: 200px;">${item.address}</div>
+                            </td>
+                            <td>${typeBadge}</td>
+                            <td><span class="fi fi-${item.region.toLowerCase()} me-1"></span> ${item.region}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="mono-num fw-bold text-white">${item.totalBoxes} 盒</span>
+                                    <span class="badge bg-dark border border-secondary text-secondary mono-num">${item.capacityRate}%</span>
+                                </div>
+                            </td>
+                            <td class="mono-num text-success fw-bold">NT$ ${item.stockValue.toLocaleString()}</td>
+                            <td>
+                                <div class="small text-white">${item.contact}</div>
+                                <div class="small text-secondary mono-num">${item.phone}</div>
+                            </td>
+                            <td>${alertHtml}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-info btn-view-detail me-1" data-id="${item.id}" title="查看明細">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary btn-quick-transfer" data-code="${item.code}" title="調撥">
+                                    <i class="fa-solid fa-dolly"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(rowHtml);
+                });
+
+                if (dataTableInstance) {
+                    dataTableInstance.destroy();
+                }
+
+                dataTableInstance = new DataTable('#warehouse-datatable', {
+                    responsive: true,
+                    pageLength: 5,
+                    lengthChange: false,
+                    language: {
+                        search: "表格內搜尋：",
+                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 處據點",
+                        paginate: {
+                            first: "第一頁",
+                            last: "最後一頁",
+                            next: "下一頁",
+                            previous: "上一頁"
+                        },
+                        zeroRecords: "查無符合資料"
+                    }
+                });
+            }
+
+            // 6. 統計數據更新
+            function updateTopMetrics(list) {
+                const twCount = list.filter(w => w.region === 'TW').length;
+                const myCount = list.filter(w => w.region === 'MY').length;
+                const totalBoxes = list.reduce((sum, w) => sum + Number(w.totalBoxes || 0), 0);
+                const totalValue = list.reduce((sum, w) => sum + Number(w.stockValue || 0), 0);
+
+                $('#stat-tw-count').text(`${twCount} 處`);
+                $('#stat-my-count').text(`${myCount} 處`);
+                $('#stat-total-boxes').text(`${totalBoxes.toLocaleString()} 盒`);
+                $('#stat-total-value').text(`NT$ ${(totalValue / 1000000).toFixed(2)}M`);
+
+                $('#count-all').text(list.length);
+                $('#count-official').text(list.filter(w => w.type === 'OFFICIAL_CENTER').length);
+                $('#count-overseas').text(list.filter(w => w.type === 'TRANSIT_OVERSEAS').length);
+                $('#count-private').text(list.filter(w => w.type === 'PRIVATE_HUB').length);
+            }
+
+            // 7. 綜合過濾器邏輯
+            function applyFilters() {
+                const keyword = $('#quick-search').val().toLowerCase().trim();
+
+                let filtered = activeWarehouseList.filter(item => {
+                    // 類型標籤過濾
+                    if (currentFilter === 'OFFICIAL' && item.type !== 'OFFICIAL_CENTER') return false;
+                    if (currentFilter === 'OVERSEAS' && item.type !== 'TRANSIT_OVERSEAS') return false;
+                    if (currentFilter === 'PRIVATE' && item.type !== 'PRIVATE_HUB') return false;
+
+                    // 關鍵字過濾
+                    if (keyword) {
+                        const matchCode = item.code.toLowerCase().includes(keyword);
+                        const matchName = item.name.toLowerCase().includes(keyword);
+                        const matchContact = item.contact.toLowerCase().includes(keyword);
+                        return matchCode || matchName || matchContact;
+                    }
+                    return true;
+                });
+
+                renderWarehousePods(filtered);
+                renderWarehouseTable(filtered);
+            }
+
+            // 8. 事件監聽與切換
+            $('.btn-filter-pill').on('click', function () {
+                $('.btn-filter-pill').removeClass('active');
+                $(this).addClass('active');
+                currentFilter = $(this).data('filter');
+                applyFilters();
+            });
+
+            $('#quick-search').on('input', function () {
+                applyFilters();
+            });
+
+            // 視圖切換 (卡片 Pods vs 表格)
+            $('#view-grid-btn').on('click', function () {
+                $('#view-grid-btn').addClass('active');
+                $('#view-table-btn').removeClass('active');
+                $('#warehouse-grid-container').removeClass('d-none');
+                $('#warehouse-table-container').addClass('d-none');
+            });
+
+            $('#view-table-btn').on('click', function () {
+                $('#view-table-btn').addClass('active');
+                $('#view-grid-btn').removeClass('active');
+                $('#warehouse-grid-container').addClass('d-none');
+                $('#warehouse-table-container').removeClass('d-none');
+            });
+
+            // 點擊查看明細彈窗
+            $(document).on('click', '.btn-view-detail', function () {
+                const whId = $(this).data('id');
+                const target = activeWarehouseList.find(w => w.id === whId) || activeWarehouseList[0];
+
+                $('#modalDetailTitle').html(`<i class="fa-solid fa-cube text-primary"></i> ${target.name} (${target.code}) - 批號與安全庫存`);
+                
+                $('#modalDetailBody').html(`
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-4">
+                            <div class="p-2 rounded text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(139,92,246,0.2);">
+                                <div class="text-secondary small">安全儲存下限</div>
+                                <div class="h5 mb-0 text-white mono-num mt-1">100 盒</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-2 rounded text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(139,92,246,0.2);">
+                                <div class="text-secondary small">臨期警戒批號</div>
+                                <div class="h5 mb-0 text-warning mono-num mt-1">1 批 (2026/10)</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-2 rounded text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(139,92,246,0.2);">
+                                <div class="text-secondary small">最後盤點時間</div>
+                                <div class="small text-white mono-num mt-2">2026-08-15 18:00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-boxes-stacked text-secondary"></i> 現存主打品項庫存明細</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-purple">
+                            <thead>
+                                <tr>
+                                    <th>產品編號</th>
+                                    <th>產品品名</th>
+                                    <th>批號 (Lot)</th>
+                                    <th>效期 (Expiry)</th>
+                                    <th>在庫盒數</th>
+                                    <th>狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="mono-num">TW0303001</td>
+                                    <td>葡眾樟芝益 (24包/盒)</td>
+                                    <td class="mono-num">L260512A</td>
+                                    <td class="mono-num">2028-05-12</td>
+                                    <td class="mono-num fw-bold text-white">120 盒</td>
+                                    <td><span class="badge bg-success-subtle text-success">充足</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="mono-num">TW0303002</td>
+                                    <td>康貝兒益生菌 (90包/盒)</td>
+                                    <td class="mono-num">L251008K</td>
+                                    <td class="mono-num text-warning">2026-10-08</td>
+                                    <td class="mono-num fw-bold text-warning">40 盒</td>
+                                    <td><span class="badge bg-warning-subtle text-warning">近效期促銷</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="mono-num">TW0303003</td>
+                                    <td>995超級營養液</td>
+                                    <td class="mono-num">L260719C</td>
+                                    <td class="mono-num">2028-07-19</td>
+                                    <td class="mono-num fw-bold text-white">80 盒</td>
+                                    <td><span class="badge bg-success-subtle text-success">充足</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `);
+
+                const detailModal = new bootstrap.Modal(document.getElementById('modalWarehouseDetail'));
+                detailModal.show();
+            });
+
+            // 點擊快捷調撥按鈕
+            $(document).on('click', '.btn-quick-transfer', function () {
+                const whCode = $(this).data('code');
+                $('#dispatch-from-wh').val(whCode);
+                const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasDispatch'));
+                offcanvas.show();
+            });
+
+            // 發起調撥確認
+            $('#btn-submit-dispatch').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 鎖定庫存並建立單據中...');
+
+                setTimeout(() => {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-check"></i> 確認建立調撥並鎖定庫存');
+                    const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasDispatch'));
+                    offcanvas.hide();
+                    alert('【戰術調撥成功】調撥單號 TR-20260819-003 已建立，已發送跨國在途物流通知！');
+                }, 700);
+            });
+
+            // 試算表同步按鈕
+            $('#btn-sync-gviz').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin"></i>');
+                
+                setTimeout(() => {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i>');
+                    updateTopMetrics(activeWarehouseList);
+                    applyFilters();
+                }, 600);
+            });
+
+            // 初始化加載
+            updateTopMetrics(activeWarehouseList);
+            applyFilters();
+        });
+    </script>
+</body>
+</html>
