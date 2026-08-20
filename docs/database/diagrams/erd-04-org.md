@@ -3,159 +3,175 @@ erDiagram
     %% ==========================================
     %% 外部依賴核心模組
     %% ==========================================
-    CRM_CUSTOMERS ||--o{ ORG_ABC_CONSULTS : "C 顧客關聯"
+    CRM_CUSTOMERS ||--o{ ORG_ABC_CONSULTS : "C 顧客對象"
     CRM_SCHEDULES ||--o{ ORG_MANAGER_MONITORS : "調度採購排程"
-    FIN_RECONCILIATIONS ||--o{ ORG_MONTHLY_PERFS : "50/50 對拆依據"
-    FIN_SV_ASSISTANCES ||--o{ ORG_SV_LOANS : "獎金日自動沖銷"
+    FIN_RECONCILIATIONS ||--o{ ORG_SV_LOANS : "月度內部對帳沖銷"
 
     %% ==========================================
     %% 組織模組 13 張核心實體表
     %% ==========================================
     ORG_RANKS ||--o{ ORG_PARTNERS : "當前職級標準"
-    ORG_RANKS ||--o{ ORG_RANK_HISTORY : "晉升目標職級"
-    
-    ORG_PARTNERS ||--|| ORG_PARTNER_DETAILS : "1:1 垂直個資加密"
-    ORG_PARTNERS ||--o{ ORG_RELATIONS : "上線節點 (Ancestor)"
-    ORG_PARTNERS ||--o{ ORG_RELATIONS : "下線節點 (Descendant)"
-    ORG_PARTNERS ||--o{ ORG_RANK_HISTORY : "晉升歷史軌跡"
+    ORG_RANKS ||--o{ ORG_RANK_HISTORY : "異動職級標準"
+    ORG_RANKS ||--o{ ORG_MONTHLY_PERFS : "結算職級標準"
+    ORG_RANKS ||--o{ ORG_DORMANT_PARTNERS : "歷史鎖定最高職級"
+
+    ORG_PARTNERS ||--|| ORG_PARTNER_DETAILS : "1:1 垂直聯絡個資"
+    ORG_PARTNERS ||--o{ ORG_RELATIONS : "上線祖先 (Ancestor)"
+    ORG_PARTNERS ||--o{ ORG_RELATIONS : "下線後代 (Descendant)"
+    ORG_PARTNERS ||--o{ ORG_RANK_HISTORY : "晉升歷程記錄"
     ORG_PARTNERS ||--o{ ORG_MONTHLY_PERFS : "月度業績結算"
-    ORG_PARTNERS ||--o{ ORG_MANAGER_MONITORS : "門檻調度監控"
-    ORG_PARTNERS ||--o{ ORG_SV_LOANS : "出借人 (Lender)"
-    ORG_PARTNERS ||--o{ ORG_SV_LOANS : "借點人 (Borrower)"
-    ORG_PARTNERS ||--o{ ORG_SV_ALLOCATIONS : "出點來源 (Source)"
-    ORG_PARTNERS ||--o{ ORG_SV_ALLOCATIONS : "落點目標 (Target)"
-    ORG_PARTNERS ||--o{ ORG_QUALIFICATION_ALERTS : "四重資格告警"
-    ORG_PARTNERS ||--o| ORG_DORMANT_PARTNERS : "沉睡夥伴認領"
+    ORG_PARTNERS ||--o{ ORG_MANAGER_MONITORS : "監控目標經理"
+    ORG_PARTNERS ||--o{ ORG_SV_LOANS : "出借人 (Ray)"
+    ORG_PARTNERS ||--o{ ORG_SV_LOANS : "借點人 (下線夥伴)"
+    ORG_PARTNERS ||--o{ ORG_SV_ALLOCATIONS : "出點來源帳號"
+    ORG_PARTNERS ||--o{ ORG_SV_ALLOCATIONS : "落點目標帳號"
+    ORG_PARTNERS ||--o{ ORG_QUALIFICATION_ALERTS : "資格告警對象"
+    ORG_PARTNERS ||--o| ORG_DORMANT_PARTNERS : "沉睡認領夥伴"
     ORG_PARTNERS ||--o{ ORG_COMPRESSION_LOGS : "緊縮受益上線"
-    ORG_PARTNERS ||--o{ ORG_COMPRESSION_LOGS : "緊縮跳過中繼"
+    ORG_PARTNERS ||--o{ ORG_COMPRESSION_LOGS : "緊縮跳過經理"
     ORG_PARTNERS ||--o{ ORG_ABC_CONSULTS : "B 橋樑發起人"
     ORG_PARTNERS ||--o{ ORG_ABC_CONSULTS : "A 顧問受邀人"
 
     ORG_PARTNERS {
-        varchar partner_id PK
-        varchar member_no UK
-        varchar sponsor_id FK
-        varchar placement_id FK
-        varchar current_rank_id FK
-        varchar highest_rank_id FK
-        varchar name
-        varchar country_code
-        varchar is_our_team
-        varchar operator_status
-        date join_date
+        varchar partner_id PK "夥伴系統唯一ID"
+        varchar member_no UK "葡眾官方直銷商編號"
+        varchar sponsor_id FK "推薦人ID"
+        varchar placement_id FK "安置人ID"
+        varchar current_rank_id FK "當前生效職級"
+        varchar highest_rank_id FK "歷史最高達成職級"
+        varchar name "真實姓名/行號"
+        varchar display_name "前台展示暱稱"
+        varchar country_code "市場代碼 TW/MY"
+        varchar is_our_team "是否為榮祥團隊 Y/N"
+        varchar relation_type "關係屬性"
+        varchar operator_status "帳號營運狀態"
+        date join_date "官方簽約入會日"
+        date renewal_due_date "年度資格續約日"
     }
 
     ORG_PARTNER_DETAILS {
-        varchar detail_id PK
-        varchar partner_id UK,FK
-        varchar id_card_no
-        varchar bank_code
-        varchar bank_account
-        varchar phone
-        varchar address
+        varchar detail_id PK "明細唯一ID"
+        varchar partner_id UK,FK "關聯夥伴ID (1:1)"
+        date birthday "生日(關懷推播)"
+        varchar gender "性別"
+        varchar phone "主要聯絡手機"
+        varchar line_id "LINE ID"
+        varchar whatsapp "WhatsApp 號碼"
+        varchar email "電子郵件"
+        varchar postal_code "郵遞區號"
+        varchar address "物資配送地址"
+        varchar emergency_contact_name "緊急聯絡人"
+        varchar emergency_contact_phone "緊急聯絡電話"
     }
 
     ORG_RELATIONS {
-        varchar relation_id PK
-        varchar ancestor_id FK
-        varchar descendant_id FK
-        int depth
-        varchar tree_type
-        boolean is_direct
+        varchar relation_id PK "閉包關係唯一ID"
+        varchar ancestor_id FK "祖先上線ID"
+        varchar descendant_id FK "後代下線ID"
+        int depth "代數距離差距"
+        varchar tree_type "樹鏈類型 SPONSOR/PLACEMENT"
+        boolean is_direct "是否為直屬第1代"
     }
 
     ORG_RANKS {
-        varchar rank_id PK
-        varchar rank_code UK
-        varchar rank_name_zh
-        int rank_level
-        decimal bonus_rate
-        decimal monthly_personal_sv
-        decimal monthly_group_sv
+        varchar rank_id PK "職級唯一代碼"
+        varchar rank_code UK "職級英文識別碼"
+        varchar rank_name_zh "中文職級名稱"
+        int rank_level "職級位階權重"
+        decimal bonus_rate "階差回饋率 (%)"
+        decimal monthly_personal_sv "個人低標 SV (160)"
+        decimal monthly_group_sv "經理合格責任額 SV (12000)"
     }
 
     ORG_RANK_HISTORY {
-        varchar history_id PK
-        varchar partner_id FK
-        varchar old_rank_id FK
-        varchar new_rank_id FK
-        varchar effective_month
-        decimal qualified_sv_snapshot
+        varchar history_id PK "歷程唯一ID"
+        varchar partner_id FK "晉升夥伴ID"
+        varchar old_rank_id FK "原職級"
+        varchar new_rank_id FK "新晉升職級"
+        varchar effective_month "生效月份 YYYY-MM"
+        decimal qualified_sv_snapshot "晉升達標累計 SV 快照"
     }
 
     ORG_MONTHLY_PERFS {
-        varchar perf_id PK
-        varchar calc_month
-        varchar partner_id FK
-        decimal personal_sv_total
-        decimal group_sv_total
-        boolean is_personal_qualified
-        boolean is_manager_qualified
+        varchar perf_id PK "結算唯一ID"
+        varchar calc_month "業績月份 YYYY-MM"
+        varchar partner_id FK "夥伴ID"
+        varchar rank_id_snapshot FK "結算當下職級快照"
+        decimal personal_sv_total "個人月自購累計 SV"
+        decimal group_sv_total "整組月累計 SV"
+        boolean is_personal_qualified "個人 160 SV 是否合格"
+        boolean is_manager_qualified "經理 12,000 SV 是否合格"
     }
 
     ORG_MANAGER_MONITORS {
-        varchar monitor_id PK
-        varchar calc_month
-        varchar target_partner_id FK
-        varchar sponsor_id FK
-        decimal personal_gap_sv
-        decimal group_gap_sv
-        varchar breakaway_risk_level
+        varchar monitor_id PK "監控工單唯一ID"
+        varchar calc_month "監控月份 YYYY-MM"
+        varchar target_partner_id FK "目標經理ID"
+        varchar sponsor_id FK "輔導上線ID"
+        decimal personal_gap_sv "個人 160 SV 缺口"
+        decimal group_gap_sv "小組 12,000 SV 缺口"
+        decimal scheduled_order_sv "排程調度下單預計 SV"
+        varchar breakaway_risk_level "斷代風險評級"
+        varchar action_plan "戰術調度方案"
     }
 
     ORG_SV_LOANS {
-        varchar loan_id PK
-        varchar loan_no UK
-        varchar lender_partner_id FK
-        varchar borrower_partner_id FK
-        decimal loan_sv_amount
-        decimal principal_amount_twd
-        varchar settlement_status
+        varchar loan_id PK "借貸記錄唯一ID"
+        varchar loan_no UK "借貸流水單號"
+        varchar lender_partner_id FK "出借人ID (Ray)"
+        varchar borrower_partner_id FK "借點人ID (下線經理)"
+        decimal loan_sv_amount "出借 SV 積分點數"
+        decimal principal_amount_twd "折算新台幣代墊款"
+        decimal expected_rebate_twd "預計 20% 經理回饋金"
+        varchar settlement_status "沖銷狀態"
     }
 
     ORG_SV_ALLOCATIONS {
-        varchar alloc_id PK
-        varchar calc_month
-        varchar source_partner_id FK
-        varchar target_partner_id FK
-        decimal allocated_sv
-        varchar allocation_strategy
+        varchar alloc_id PK "落點方案唯一ID"
+        varchar calc_month "規劃月份 YYYY-MM"
+        varchar source_partner_id FK "出點來源帳號"
+        varchar target_partner_id FK "落點目標帳號"
+        decimal allocated_sv "建議落點 SV 點數"
+        varchar allocation_strategy "落點策略目標"
     }
 
     ORG_QUALIFICATION_ALERTS {
-        varchar alert_id PK
-        varchar partner_id FK
-        varchar alert_type
-        varchar risk_severity
-        decimal gap_value
-        boolean is_handled
+        varchar alert_id PK "預警唯一ID"
+        varchar partner_id FK "預警夥伴ID"
+        varchar alert_type "預警類型"
+        varchar risk_severity "嚴重度等級"
+        decimal gap_value "差額缺口數值"
+        date deadline_date "處置截止期限"
+        boolean is_handled "是否已處置銷警"
     }
 
     ORG_DORMANT_PARTNERS {
-        varchar dormant_id PK
-        varchar partner_id UK,FK
-        varchar assigned_mentor_id FK
-        int dormant_days
-        varchar dormant_tier
-        varchar wake_status
+        varchar dormant_id PK "沉睡記錄唯一ID"
+        varchar partner_id UK,FK "沉睡夥伴ID (1:1)"
+        varchar assigned_mentor_id FK "指派認領主管ID"
+        int dormant_days "連續無訂單天數"
+        varchar dormant_tier "沉睡分級"
+        decimal retained_rebate_rate "永久鎖定階差回饋率 (%)"
+        varchar wake_status "喚醒跟進狀態"
     }
 
     ORG_COMPRESSION_LOGS {
-        varchar compress_id PK
-        varchar calc_month
-        varchar beneficiary_partner_id FK
-        varchar skipped_partner_id FK
-        int compressed_depth
-        decimal compressed_group_sv
+        varchar compress_id PK "緊縮日誌唯一ID"
+        varchar calc_month "結算月份 YYYY-MM"
+        varchar beneficiary_partner_id FK "緊縮受益上線ID"
+        varchar skipped_partner_id FK "被跳過經理ID"
+        int compressed_depth "緊縮後實質代數"
+        decimal compressed_group_sv "歸併小組 SV 業績"
     }
 
     ORG_ABC_CONSULTS {
-        varchar consult_id PK
-        varchar consult_no UK
-        varchar bridge_partner_id FK
-        varchar advisor_partner_id FK
-        varchar target_customer_id FK
-        varchar consult_type
-        varchar status
+        varchar consult_id PK "ABC 工單唯一ID"
+        varchar consult_no UK "ABC 工單編號"
+        varchar bridge_partner_id FK "B 橋樑夥伴ID"
+        varchar advisor_partner_id FK "A 顧問領導人ID"
+        varchar target_customer_id FK "C 顧客/準夥伴ID"
+        varchar consult_type "會談屬性"
+        varchar meeting_method "會談形式"
+        varchar status "工單進度狀態"
     }
 ```
