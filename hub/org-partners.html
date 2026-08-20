@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>組織成員戰術指揮中樞 - 榮祥葡眾三軌數位戰情系統</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root {
+            /* 核心版紫色系主題變數 (Dark Purple Theme) */
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-primary-glow: rgba(139, 92, 246, 0.4);
+            --uvaco-secondary: #a78bfa;
+            --uvaco-accent: #f472b6;
+            --uvaco-accent-gold: #fbbf24;
+            --uvaco-accent-cyan: #38bdf8;
+            --uvaco-accent-green: #34d399;
+            --uvaco-danger: #fb7185;
+
+            --uvaco-bg-body: #0d0b18;
+            --uvaco-bg-surface: #130e24;
+            --uvaco-bg-card: #191233;
+            --uvaco-bg-card-hover: #211842;
+            --uvaco-border: rgba(139, 92, 246, 0.18);
+            --uvaco-border-bright: rgba(139, 92, 246, 0.45);
+
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-text-dim: #64748b;
+
+            --uvaco-radius-sm: 8px;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-full: 9999px;
+
+            --uvaco-font-sans: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --uvaco-font-serif: 'Noto Serif TC', serif;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-body);
+            color: var(--uvaco-text-main);
+            font-family: var(--uvaco-font-sans);
+            margin: 0;
+            padding: 1.25rem;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 戰術抬頭玻璃面板 (Tactical HUD Header) */
+        .hud-glass-panel {
+            background: linear-gradient(135deg, rgba(25, 18, 51, 0.75) 0%, rgba(19, 14, 36, 0.85) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .hud-glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 5%;
+            width: 90%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--uvaco-primary), transparent);
+        }
+
+        /* 戰情數字徽章 */
+        .stat-chip {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.6rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.25s ease;
+        }
+
+        .stat-chip:hover {
+            border-color: var(--uvaco-primary);
+            background: rgba(139, 92, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--uvaco-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* 視圖切換器與濾鏡按鈕 */
+        .nav-pills-tactical .nav-link {
+            color: var(--uvaco-text-muted);
+            background: rgba(25, 18, 51, 0.6);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-full);
+            padding: 0.45rem 1.1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-pills-tactical .nav-link.active,
+        .nav-pills-tactical .nav-link:hover {
+            color: #fff;
+            background: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+            box-shadow: 0 0 15px var(--uvaco-primary-glow);
+        }
+
+        /* 戰術夥伴卡片 (Tactical Member Cards) */
+        .partner-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1.25rem;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .partner-card:hover {
+            border-color: var(--uvaco-border-bright);
+            background: var(--uvaco-bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .partner-card.is-core {
+            border-left: 4px solid var(--uvaco-primary);
+        }
+
+        .partner-card.is-cross {
+            border-left: 4px solid var(--uvaco-text-dim);
+            opacity: 0.88;
+        }
+
+        .partner-avatar-wrap {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            flex-shrink: 0;
+        }
+
+        .partner-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--uvaco-primary);
+            background: #2d1f47;
+        }
+
+        .rank-badge-floating {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: var(--uvaco-radius-full);
+            background: var(--uvaco-primary);
+            color: #fff;
+            border: 2px solid var(--uvaco-bg-card);
+            text-transform: uppercase;
+        }
+
+        /* 職級階梯色彩標識 */
+        .rank-tag-MGR { background: #38bdf8; color: #082f49; } /* 經理 - 天藍 */
+        .rank-tag-PRD { background: #34d399; color: #022c22; } /* 珍珠 - 翡翠綠 */
+        .rank-tag-DIR { background: #fbbf24; color: #451a03; } /* 翡翠 - 金琥珀 */
+        .rank-tag-EMER { background: #f472b6; color: #500724; } /* 藍鑽 - 霓虹粉 */
+        .rank-tag-DIA { background: #c084fc; color: #3b0764; } /* 皇冠 - 魅紫 */
+        .rank-tag-PRO, .rank-tag-MEM { background: #64748b; color: #ffffff; } /* 主任/會員 */
+
+        /* SV 考核進度條 (12,000 SV 戰術計量) */
+        .sv-progress-track {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: var(--uvaco-radius-full);
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+            margin: 0.5rem 0 0.25rem 0;
+        }
+
+        .sv-progress-fill {
+            height: 100%;
+            border-radius: var(--uvaco-radius-full);
+            background: linear-gradient(90deg, var(--uvaco-primary) 0%, var(--uvaco-accent) 100%);
+            transition: width 0.6s ease;
+        }
+
+        .sv-progress-fill.is-qualified {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+        }
+
+        /* 戰術血緣樹節點樣式 (Lineage Tree Grid) */
+        .tree-node-card {
+            background: rgba(25, 18, 51, 0.85);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tree-node-card:hover {
+            border-color: var(--uvaco-primary);
+            background: rgba(33, 24, 66, 0.95);
+        }
+
+        .tree-level-indent {
+            border-left: 2px dashed rgba(139, 92, 246, 0.3);
+            margin-left: 1.25rem;
+            padding-left: 1.25rem;
+        }
+
+        /* DataTables 自訂深紫風格 */
+        .table-responsive-custom {
+            background: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1rem;
+        }
+
+        table.dataTable {
+            color: var(--uvaco-text-main) !important;
+            border-color: var(--uvaco-border) !important;
+        }
+
+        table.dataTable thead th {
+            background-color: rgba(139, 92, 246, 0.12) !important;
+            color: var(--uvaco-secondary) !important;
+            border-bottom: 1px solid var(--uvaco-border-bright) !important;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: rgba(139, 92, 246, 0.08) !important;
+        }
+
+        .dataTables_filter input {
+            background: var(--uvaco-bg-card) !important;
+            border: 1px solid var(--uvaco-border) !important;
+            color: #fff !important;
+            border-radius: var(--uvaco-radius-full) !important;
+            padding: 0.35rem 0.85rem !important;
+        }
+
+        /* 浮動行動按鈕 (Floating Action Drawer & Modal) */
+        .offcanvas-tactical {
+            background: #110c22;
+            border-left: 1px solid var(--uvaco-border-bright);
+            color: var(--uvaco-text-main);
+        }
+
+        .form-tactical-control {
+            background: #1a1333;
+            border: 1px solid var(--uvaco-border);
+            color: #fff;
+            border-radius: var(--uvaco-radius-sm);
+        }
+
+        .form-tactical-control:focus {
+            background: #20173f;
+            border-color: var(--uvaco-primary);
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+        }
+
+        /* 自訂按鈕體系 */
+        .btn-purple-primary {
+            background: linear-gradient(135deg, var(--uvaco-primary) 0%, #6d28d9 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            box-shadow: 0 4px 14px var(--uvaco-primary-glow);
+            transition: all 0.25s ease;
+        }
+
+        .btn-purple-primary:hover {
+            background: linear-gradient(135deg, #9d71f7 0%, #7c3aed 100%);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        .btn-icon-tactical {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--uvaco-text-muted);
+            border: 1px solid var(--uvaco-border);
+            transition: all 0.2s;
+        }
+
+        .btn-icon-tactical:hover {
+            color: #fff;
+            background: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud-glass-panel">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-xl-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon-wrap bg-primary bg-opacity-25 text-primary">
+                        <i class="fa-solid fa-sitemap fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h4 class="mb-0 fw-bold font-serif text-white">組織成員戰術中樞</h4>
+                            <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25">H41000</span>
+                        </div>
+                        <p class="mb-0 text-secondary small">直屬血緣矩陣 / 經理考核安全邊際 / 跨國人才檔案庫</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="d-flex flex-wrap gap-2 justify-content-xl-center">
+                    <div class="stat-chip">
+                        <span class="text-secondary small"><i class="fa-solid fa-users text-primary"></i> 團隊總人數</span>
+                        <span class="fw-bold text-white fs-6" id="hud-total-partners">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="text-secondary small"><i class="fa-solid fa-medal text-warning"></i> 合格經理數</span>
+                        <span class="fw-bold text-warning fs-6" id="hud-qualified-mgrs">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="text-secondary small"><i class="fa-solid fa-shield-halved text-danger"></i> 借點待沖銷</span>
+                        <span class="fw-bold text-danger fs-6" id="hud-sv-loans">0 SV</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-3 text-xl-end d-flex gap-2 justify-content-xl-end">
+                <button class="btn btn-outline-light btn-sm border-secondary border-opacity-25 rounded-pill px-3" id="btn-sync-sheet">
+                    <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                </button>
+                <button class="btn btn-purple-primary btn-sm rounded-pill" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPartnerDetail" onclick="openPartnerModalForCreate()">
+                    <i class="fa-solid fa-user-plus"></i> 登錄新夥伴
+                </button>
+            </div>
+        </div>
+
+        <hr class="my-3 border-secondary border-opacity-25">
+        <div class="row g-2 align-items-center justify-content-between">
+            <div class="col-12 col-lg-8">
+                <div class="d-flex flex-wrap gap-1 align-items-center">
+                    <span class="text-secondary small me-2"><i class="fa-solid fa-filter"></i> 戰術分流：</span>
+                    <ul class="nav nav-pills nav-pills-tactical gap-1" id="filter-pills">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-filter="ALL"><i class="fa-solid fa-globe"></i> 全員網絡</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-filter="OUR_TEAM"><i class="fa-solid fa-star text-warning"></i> Ray&Jarvis 直屬</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-filter="QUALIFIED_MGR"><i class="fa-solid fa-award text-info"></i> 達標經理 (12k+)</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-filter="MGR_PIPELINE"><i class="fa-solid fa-bolt text-danger"></i> 衝刺梯隊 (<12k)</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-filter="MY_MARKET"><span class="fi fi-my"></span> 大馬戰隊</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4 text-lg-end">
+                <div class="btn-group btn-group-sm p-1 bg-black bg-opacity-40 border border-secondary border-opacity-25 rounded-pill" role="group">
+                    <input type="radio" class="btn-check" name="viewMode" id="view-cards" autocomplete="off" checked>
+                    <label class="btn btn-outline-light border-0 rounded-pill px-3 py-1" for="view-cards">
+                        <i class="fa-solid fa-table-cells-large"></i> 戰術卡
+                    </label>
+
+                    <input type="radio" class="btn-check" name="viewMode" id="view-table" autocomplete="off">
+                    <label class="btn btn-outline-light border-0 rounded-pill px-3 py-1" for="view-table">
+                        <i class="fa-solid fa-list-check"></i> 數據矩陣
+                    </label>
+
+                    <input type="radio" class="btn-check" name="viewMode" id="view-tree" autocomplete="off">
+                    <label class="btn btn-outline-light border-0 rounded-pill px-3 py-1" for="view-tree">
+                        <i class="fa-solid fa-network-wired"></i> 血緣樹
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="container-cards-view">
+        <div class="row g-3" id="partner-cards-grid">
+            </div>
+    </div>
+
+    <div id="container-table-view" class="d-none">
+        <div class="table-responsive-custom">
+            <table id="partners-datatable" class="table table-hover align-middle w-100">
+                <thead>
+                    <tr>
+                        <th>夥伴代碼 / 姓名</th>
+                        <th>國家</th>
+                        <th>目前職級</th>
+                        <th>直屬上線 / 安置人</th>
+                        <th>歸屬體系</th>
+                        <th>個人 / 小組當月 SV</th>
+                        <th>經理安全邊際 (12k)</th>
+                        <th>狀態</th>
+                        <th class="text-end">戰術操作</th>
+                    </tr>
+                </thead>
+                <tbody id="partners-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="container-tree-view" class="d-none">
+        <div class="hud-glass-panel">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="mb-0 fw-bold text-white"><i class="fa-solid fa-diagram-project text-primary"></i> 組織血緣脈絡導航樹</h5>
+                <span class="text-secondary small">提示：點擊節點可快速展開/收合下線分支</span>
+            </div>
+            <div id="lineage-tree-root">
+                </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end offcanvas-tactical w-50" tabindex="-1" id="offcanvasPartnerDetail" style="min-width: 360px; max-width: 600px;">
+        <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
+            <h5 class="offcanvas-title fw-bold text-white d-flex align-items-center gap-2" id="offcanvasTitle">
+                <i class="fa-solid fa-id-card-clip text-primary"></i> 夥伴戰術檔案 360°
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-4">
+            <form id="partnerForm">
+                <input type="hidden" id="form-partner-id">
+
+                <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-black bg-opacity-30 rounded-3 border border-secondary border-opacity-25">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" id="form-preview-avatar" class="rounded-circle border border-primary" width="64" height="64" alt="Avatar">
+                    <div class="flex-grow-1">
+                        <label class="text-secondary small">頭像圖片 URL</label>
+                        <input type="url" class="form-control form-tactical-control form-control-sm" id="form-avatar-url" placeholder="https://..." value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150">
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">真實姓名 *</label>
+                        <input type="text" class="form-control form-tactical-control" id="form-real-name" required placeholder="例如：林承志">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">戰術暱稱 / 常用稱呼</label>
+                        <input type="text" class="form-control form-tactical-control" id="form-nick-name" placeholder="例如：Jarvis">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">所屬國家 / 市場 *</label>
+                        <select class="form-select form-tactical-control" id="form-country-code">
+                            <option value="TW">🇹🇼 台灣 (Taiwan)</option>
+                            <option value="MY">🇲🇾 馬來西亞 (Malaysia)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">目前職級 (葡眾體系) *</label>
+                        <select class="form-select form-tactical-control" id="form-rank-code">
+                            <option value="MEM">會員 (Member)</option>
+                            <option value="PRO">主任 (Promoter)</option>
+                            <option value="MGR" selected>經理 (Manager - 12k門檻)</option>
+                            <option value="PRD">珍珠 (Pearl Director)</option>
+                            <option value="DIR">翡翠 (Jade Director)</option>
+                            <option value="EMER">藍鑽 (Blue Diamond)</option>
+                            <option value="DIA">皇冠 (Crown)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">直屬推薦上線 (Sponsor ID)</label>
+                        <input type="text" class="form-control form-tactical-control" id="form-sponsor-id" placeholder="例如：P-TW-0001 (Ray)">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">組織線路安置人 (Placement ID)</label>
+                        <input type="text" class="form-control form-tactical-control" id="form-placement-id" placeholder="例如：P-TW-0001">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">團隊歸屬 *</label>
+                        <select class="form-select form-tactical-control" id="form-is-our-team">
+                            <option value="Y">⭐️ Ray & Jarvis 核心直屬體系</option>
+                            <option value="N">🌐 大體系 / 旁線支援友軍</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">關係類型</label>
+                        <select class="form-select form-tactical-control" id="form-relation-type">
+                            <option value="DIRECT">直屬本體系 (Direct Downline)</option>
+                            <option value="UP_LINE">上線領導體系 (Upline)</option>
+                            <option value="CROSS_LINE">旁線友軍交流 (Crossline)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">聯絡電話 / 手機</label>
+                        <input type="tel" class="form-control form-tactical-control" id="form-phone" placeholder="0912-345-678">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">LINE ID / 通訊帳號</label>
+                        <input type="text" class="form-control form-tactical-control" id="form-line-id" placeholder="line_username">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">入會加入日期</label>
+                        <input type="date" class="form-control form-tactical-control" id="form-join-date">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small">目標晉升經理日</label>
+                        <input type="date" class="form-control form-tactical-control" id="form-target-mgr-date">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-secondary small">戰術備註 / 特質標籤 / 借點歷史備註</label>
+                        <textarea class="form-control form-tactical-control" id="form-notes" rows="3" placeholder="例如：主力開發長春健康與樟芝益；目前有借點 2,400 SV 待次月 20 日獎金沖銷..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="offcanvas">取消</button>
+                    <button type="submit" class="btn btn-purple-primary rounded-pill px-4">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存檔案
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * ============================================================================
+         * 組織成員戰術指揮中樞 JavaScript 業務控制器 (PartnersTacticalController)
+         * ============================================================================
+         */
+
+        // 1. Google 試算表欄位解耦映射字典 (Anti-Corruption Layer - PartnersFieldMap)
+        const PartnersFieldMap = {
+            '夥伴編號': 'partner_id',
+            '真實姓名': 'real_name',
+            '暱稱': 'nick_name',
+            '頭像網址': 'avatar_url',
+            '國家': 'country_code',
+            '職級代碼': 'rank_code',
+            '推薦人編號': 'sponsor_id',
+            '安置人編號': 'placement_id',
+            '直屬團隊': 'is_our_team',
+            '關係類型': 'relation_type',
+            '聯絡電話': 'phone',
+            'LINE帳號': 'line_id',
+            '當月個人SV': 'current_month_personal_sv',
+            '當月小組SV': 'current_month_group_sv',
+            '累計生涯SV': 'total_career_sv',
+            '加入日期': 'join_date',
+            '預計晉升經理日': 'target_mgr_date',
+            '借點未還SV': 'unsettled_loan_sv',
+            '狀態': 'status',
+            '備註': 'notes'
+        };
+
+        // 2. 本地戰術模擬數據庫 (對齊 org_partners 資料表規格)
+        let partnersDatabase = [
+            {
+                partner_id: "P-TW-0001",
+                real_name: "翁榮祥",
+                nick_name: "Ray",
+                avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+                country_code: "TW",
+                rank_code: "DIA", // 皇冠
+                sponsor_id: "ROOT",
+                placement_id: "ROOT",
+                is_our_team: "Y",
+                relation_type: "DIRECT",
+                phone: "0912-345-678",
+                line_id: "ray_weng",
+                current_month_personal_sv: 5400,
+                current_month_group_sv: 86400,
+                total_career_sv: 1250000,
+                join_date: "2023-01-15",
+                target_mgr_date: "2023-03-01",
+                unsettled_loan_sv: 0,
+                status: "ACTIVE",
+                notes: "團隊創始核心；專注全網引流與馬來西亞跨境佈局。"
+            },
+            {
+                partner_id: "P-TW-0002",
+                real_name: "林承志",
+                nick_name: "Jarvis",
+                avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+                country_code: "TW",
+                rank_code: "EMER", // 藍鑽
+                sponsor_id: "P-TW-0001",
+                placement_id: "P-TW-0001",
+                is_our_team: "Y",
+                relation_type: "DIRECT",
+                phone: "0988-765-432",
+                line_id: "jarvis_lin",
+                current_month_personal_sv: 3200,
+                current_month_group_sv: 64200,
+                total_career_sv: 890000,
+                join_date: "2023-02-01",
+                target_mgr_date: "2023-04-15",
+                unsettled_loan_sv: 0,
+                status: "ACTIVE",
+                notes: "技術與營運大腦；負責三軌系統開發與財務分潤結算。"
+            },
+            {
+                partner_id: "P-TW-0003",
+                real_name: "陳雅婷",
+                nick_name: "Tina",
+                avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150",
+                country_code: "TW",
+                rank_code: "MGR", // 經理
+                sponsor_id: "P-TW-0001",
+                placement_id: "P-TW-0001",
+                is_our_team: "Y",
+                relation_type: "DIRECT",
+                phone: "0921-111-222",
+                line_id: "tina_chen",
+                current_month_personal_sv: 480,
+                current_month_group_sv: 14200, // 超過 12k 合格經理
+                total_career_sv: 156000,
+                join_date: "2024-03-10",
+                target_mgr_date: "2024-06-30",
+                unsettled_loan_sv: 0,
+                status: "ACTIVE",
+                notes: "本月經理考核已順利達標 (14,200 SV)；主力產品為 995 與樟芝益。"
+            },
+            {
+                partner_id: "P-MY-0001",
+                real_name: "黃偉倫",
+                nick_name: "Alan",
+                avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
+                country_code: "MY",
+                rank_code: "PRO", // 主任衝刺經理
+                sponsor_id: "P-TW-0002",
+                placement_id: "P-TW-0002",
+                is_our_team: "Y",
+                relation_type: "DIRECT",
+                phone: "+60-12-345-6789",
+                line_id: "alan_kl",
+                current_month_personal_sv: 320,
+                current_month_group_sv: 9800, // 距 12,000 差 2,200 SV
+                total_career_sv: 48000,
+                join_date: "2025-01-10",
+                target_mgr_date: "2026-09-30",
+                unsettled_loan_sv: 2200, // 借點 2,200 衝刺中
+                status: "ACTIVE",
+                notes: "吉隆坡先鋒幹部；當前衝刺經理考核中，已代轉借點 2,200 SV。"
+            },
+            {
+                partner_id: "P-TW-0005",
+                real_name: "張建國",
+                nick_name: "David",
+                avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
+                country_code: "TW",
+                rank_code: "DIR", // 翡翠
+                sponsor_id: "ROOT",
+                placement_id: "ROOT",
+                is_our_team: "N",
+                relation_type: "CROSS_LINE",
+                phone: "0933-999-888",
+                line_id: "david_cross",
+                current_month_personal_sv: 160,
+                current_month_group_sv: 45000,
+                total_career_sv: 620000,
+                join_date: "2022-11-20",
+                target_mgr_date: "2023-01-10",
+                unsettled_loan_sv: 0,
+                status: "ACTIVE",
+                notes: "旁線高階領導人，常態進行跨體系招商會資源互助。"
+            }
+        ];
+
+        let currentFilter = 'ALL';
+        let dataTableInstance = null;
+
+        // 3. 初始化就緒事件
+        $(document).ready(function () {
+            initEventListeners();
+            renderAllViews();
+        });
+
+        function initEventListeners() {
+            // 視圖切換
+            $('input[name="viewMode"]').on('change', function () {
+                const mode = $(this).attr('id');
+                $('#container-cards-view, #container-table-view, #container-tree-view').addClass('d-none');
+
+                if (mode === 'view-cards') {
+                    $('#container-cards-view').removeClass('d-none');
+                } else if (mode === 'view-table') {
+                    $('#container-table-view').removeClass('d-none');
+                    if (dataTableInstance) dataTableInstance.columns.adjust().responsive.recalc();
+                } else if (mode === 'view-tree') {
+                    $('#container-tree-view').removeClass('d-none');
+                }
+            });
+
+            // 戰術過濾器切換
+            $('#filter-pills .nav-link').on('click', function () {
+                $('#filter-pills .nav-link').removeClass('active');
+                $(this).addClass('active');
+                currentFilter = $(this).data('filter');
+                renderAllViews();
+            });
+
+            // 表單提交儲存
+            $('#partnerForm').on('submit', function (e) {
+                e.preventDefault();
+                savePartnerData();
+            });
+
+            // 試算表同步模擬 (GViz / PapaParse 解耦機制)
+            $('#btn-sync-sheet').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin"></i> 同步中...');
+                
+                setTimeout(() => {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表');
+                    alert('【Google 試算表同步成功】\n已透過 PartnersFieldMap 適配層完成數據解耦，最新成員名冊已刷新！');
+                    renderAllViews();
+                }, 700);
+            });
+        }
+
+        // 4. 戰術數據過濾器
+        function getFilteredPartners() {
+            return partnersDatabase.filter(p => {
+                if (currentFilter === 'OUR_TEAM') return p.is_our_team === 'Y';
+                if (currentFilter === 'QUALIFIED_MGR') return p.current_month_group_sv >= 12000;
+                if (currentFilter === 'MGR_PIPELINE') return p.current_month_group_sv < 12000;
+                if (currentFilter === 'MY_MARKET') return p.country_code === 'MY';
+                return true; // ALL
+            });
+        }
+
+        // 5. 渲染全域視圖與頂部戰情指標
+        function renderAllViews() {
+            const list = getFilteredPartners();
+
+            // 更新頂部 HUD 指標
+            $('#hud-total-partners').text(partnersDatabase.length);
+            const qualifiedCount = partnersDatabase.filter(p => p.current_month_group_sv >= 12000).length;
+            $('#hud-qualified-mgrs').text(qualifiedCount);
+            const totalLoans = partnersDatabase.reduce((sum, p) => sum + (p.unsettled_loan_sv || 0), 0);
+            $('#hud-sv-loans').text(totalLoans.toLocaleString() + ' SV');
+
+            // 渲染各視圖
+            renderCardsView(list);
+            renderDataTableView(list);
+            renderTreeView();
+        }
+
+        // 6. 渲染戰術卡片視圖 (Cards View)
+        function renderCardsView(list) {
+            const grid = $('#partner-cards-grid');
+            grid.empty();
+
+            if (list.length === 0) {
+                grid.html('<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-users-slash fa-2x mb-2"></i><br>目前篩選條件下無符合之成員檔案</div>');
+                return;
+            }
+
+            list.forEach(p => {
+                const isQualified = p.current_month_group_sv >= 12000;
+                const svPercent = Math.min(Math.round((p.current_month_group_sv / 12000) * 100), 100);
+                const flagClass = p.country_code === 'MY' ? 'fi-my' : 'fi-tw';
+                const cardBorderClass = p.is_our_team === 'Y' ? 'is-core' : 'is-cross';
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="partner-card ${cardBorderClass}">
+                            <div>
+                                <div class="d-flex align-items-start justify-content-between mb-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="partner-avatar-wrap">
+                                            <img src="${p.avatar_url}" class="partner-avatar" alt="${p.real_name}">
+                                            <span class="rank-badge-floating rank-tag-${p.rank_code}">${p.rank_code}</span>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <h6 class="mb-0 fw-bold text-white fs-5">${p.real_name}</h6>
+                                                <span class="text-secondary small">(${p.nick_name || '無暱稱'})</span>
+                                                <span class="fi ${flagClass} rounded-1"></span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2 mt-1">
+                                                <span class="badge ${p.is_our_team === 'Y' ? 'bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25' : 'bg-secondary bg-opacity-25 text-secondary'} small">
+                                                    ${p.is_our_team === 'Y' ? '⭐️ 直屬核心' : '🌐 旁線/友軍'}
+                                                </span>
+                                                <span class="text-secondary small font-monospace">${p.partner_id}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-icon-tactical" data-bs-toggle="dropdown">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-secondary border-opacity-25">
+                                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="openPartnerModalForEdit('${p.partner_id}')"><i class="fa-solid fa-user-pen text-primary"></i> 編輯戰術檔案</a></li>
+                                            <li><a class="dropdown-item" href="tel:${p.phone}"><i class="fa-solid fa-phone text-success"></i> 撥打行動電話</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="alert('已複製夥伴 ${p.real_name} LINE ID: ${p.line_id}')"><i class="fa-brands fa-line text-info"></i> 聯絡 LINE 夥伴</a></li>
+                                            <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
+                                            <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deletePartner('${p.partner_id}')"><i class="fa-solid fa-user-xmark"></i> 封存/移除</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center small mb-1">
+                                        <span class="text-secondary"><i class="fa-solid fa-chart-simple text-primary"></i> 當月小組 SV</span>
+                                        <span class="fw-bold ${isQualified ? 'text-success' : 'text-white'} font-monospace">
+                                            ${p.current_month_group_sv.toLocaleString()} / 12,000 SV
+                                        </span>
+                                    </div>
+                                    <div class="sv-progress-track">
+                                        <div class="sv-progress-fill ${isQualified ? 'is-qualified' : ''}" style="width: ${svPercent}%;"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 0.75rem;">
+                                        <span class="text-muted">個人 SV: <strong class="text-white">${p.current_month_personal_sv}</strong></span>
+                                        <span class="${isQualified ? 'badge bg-success bg-opacity-25 text-success' : 'text-warning'}">
+                                            ${isQualified ? '<i class="fa-solid fa-check"></i> 經理已合格' : `差 ${(12000 - p.current_month_group_sv).toLocaleString()} 達標`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                ${p.unsettled_loan_sv > 0 ? `
+                                    <div class="p-2 mb-3 rounded-2 bg-danger bg-opacity-10 border border-danger border-opacity-25 d-flex align-items-center justify-content-between">
+                                        <span class="text-danger small"><i class="fa-solid fa-hand-holding-dollar"></i> 借點待沖銷款</span>
+                                        <span class="text-danger fw-bold font-monospace">${p.unsettled_loan_sv.toLocaleString()} SV</span>
+                                    </div>
+                                ` : ''}
+
+                                <p class="text-secondary small mb-3 text-truncate-2" style="font-size: 0.82rem; min-height: 2.4rem;">
+                                    ${p.notes || '無特殊備註事項。'}
+                                </p>
+                            </div>
+
+                            <div class="pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
+                                <span class="text-muted small">上線: <strong>${p.sponsor_id}</strong></span>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-light border-secondary border-opacity-25 rounded-pill px-3" onclick="openPartnerModalForEdit('${p.partner_id}')">
+                                        <i class="fa-solid fa-address-card"></i> 檔案詳情
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.append(cardHtml);
+            });
+        }
+
+        // 7. 渲染 DataTable.js 數據矩陣
+        function renderDataTableView(list) {
+            if (dataTableInstance) {
+                dataTableInstance.destroy();
+                $('#partners-table-body').empty();
+            }
+
+            list.forEach(p => {
+                const isQualified = p.current_month_group_sv >= 12000;
+                const flagClass = p.country_code === 'MY' ? 'fi-my' : 'fi-tw';
+
+                const rowHtml = `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="${p.avatar_url}" class="rounded-circle border border-primary border-opacity-50" width="32" height="32">
+                                <div>
+                                    <div class="fw-bold text-white">${p.real_name} <span class="text-secondary small">(${p.nick_name || ''})</span></div>
+                                    <span class="text-secondary small font-monospace">${p.partner_id}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="fi ${flagClass}"></span> ${p.country_code}</td>
+                        <td><span class="badge rank-tag-${p.rank_code}">${p.rank_code}</span></td>
+                        <td>
+                            <div class="small text-white">${p.sponsor_id}</div>
+                            <div class="text-secondary small">安置: ${p.placement_id}</div>
+                        </td>
+                        <td>
+                            <span class="badge ${p.is_our_team === 'Y' ? 'bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25' : 'bg-secondary bg-opacity-25 text-secondary'}">
+                                ${p.is_our_team === 'Y' ? '直屬核心' : '旁線友軍'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="font-monospace text-white">${p.current_month_personal_sv} / <strong>${p.current_month_group_sv.toLocaleString()}</strong></div>
+                        </td>
+                        <td>
+                            ${isQualified ? 
+                                '<span class="badge bg-success bg-opacity-20 text-success"><i class="fa-solid fa-check"></i> 合格</span>' : 
+                                `<span class="badge bg-warning bg-opacity-20 text-warning">差 ${(12000 - p.current_month_group_sv).toLocaleString()}</span>`}
+                        </td>
+                        <td>
+                            <span class="badge bg-success bg-opacity-10 text-success">${p.status}</span>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-icon-tactical" onclick="openPartnerModalForEdit('${p.partner_id}')" title="編輯">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $('#partners-table-body').append(rowHtml);
+            });
+
+            dataTableInstance = $('#partners-datatable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "矩陣搜尋：",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" },
+                    zeroRecords: "未找到符合的夥伴檔案"
+                }
+            });
+        }
+
+        // 8. 渲染血緣樹 (Lineage Tree View)
+        function renderTreeView() {
+            const container = $('#lineage-tree-root');
+            container.empty();
+
+            // 尋找根節點 (如 Ray)
+            const roots = partnersDatabase.filter(p => p.sponsor_id === 'ROOT' || p.partner_id === 'P-TW-0001');
+
+            function buildBranch(partner) {
+                const children = partnersDatabase.filter(p => p.sponsor_id === partner.partner_id);
+                const flagClass = partner.country_code === 'MY' ? 'fi-my' : 'fi-tw';
+
+                let html = `
+                    <div class="tree-node-card">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="${partner.avatar_url}" class="rounded-circle border border-primary" width="36" height="36">
+                                <div>
+                                    <span class="fw-bold text-white">${partner.real_name}</span>
+                                    <span class="badge rank-tag-${partner.rank_code} ms-1">${partner.rank_code}</span>
+                                    <span class="fi ${flagClass} ms-1"></span>
+                                    <span class="text-secondary small font-monospace ms-2">[${partner.partner_id}]</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="font-monospace text-secondary small">當月: <strong class="text-white">${partner.current_month_group_sv.toLocaleString()} SV</strong></span>
+                                <button class="btn btn-sm btn-icon-tactical" onclick="openPartnerModalForEdit('${partner.partner_id}')">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (children.length > 0) {
+                    html += `<div class="tree-level-indent">`;
+                    children.forEach(child => {
+                        html += buildBranch(child);
+                    });
+                    html += `</div>`;
+                }
+
+                return html;
+            }
+
+            roots.forEach(root => {
+                container.append(buildBranch(root));
+            });
+        }
+
+        // 9. 夥伴 360° Offcanvas 互動邏輯 (CRUD)
+        function openPartnerModalForCreate() {
+            $('#offcanvasTitle').html('<i class="fa-solid fa-user-plus text-primary"></i> 登錄新夥伴檔案');
+            $('#form-partner-id').val('');
+            $('#partnerForm')[0].reset();
+            $('#form-preview-avatar').attr('src', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150');
+            $('#form-join-date').val(new Date().toISOString().split('T')[0]);
+        }
+
+        function openPartnerModalForEdit(partnerId) {
+            const partner = partnersDatabase.find(p => p.partner_id === partnerId);
+            if (!partner) return;
+
+            $('#offcanvasTitle').html(`<i class="fa-solid fa-id-card-clip text-primary"></i> 編輯夥伴檔案 - ${partner.real_name}`);
+            $('#form-partner-id').val(partner.partner_id);
+            $('#form-real-name').val(partner.real_name);
+            $('#form-nick-name').val(partner.nick_name || '');
+            $('#form-avatar-url').val(partner.avatar_url);
+            $('#form-preview-avatar').attr('src', partner.avatar_url);
+            $('#form-country-code').val(partner.country_code);
+            $('#form-rank-code').val(partner.rank_code);
+            $('#form-sponsor-id').val(partner.sponsor_id);
+            $('#form-placement-id').val(partner.placement_id);
+            $('#form-is-our-team').val(partner.is_our_team);
+            $('#form-relation-type').val(partner.relation_type);
+            $('#form-phone').val(partner.phone);
+            $('#form-line-id').val(partner.line_id);
+            $('#form-join-date').val(partner.join_date);
+            $('#form-target-mgr-date').val(partner.target_mgr_date || '');
+            $('#form-notes').val(partner.notes || '');
+
+            const offcanvasElement = document.getElementById('offcanvasPartnerDetail');
+            const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement);
+            bsOffcanvas.show();
+        }
+
+        function savePartnerData() {
+            const id = $('#form-partner-id').val();
+            const partnerData = {
+                partner_id: id || `P-${$('#form-country-code').val()}-${String(partnersDatabase.length + 1).padStart(4, '0')}`,
+                real_name: $('#form-real-name').val(),
+                nick_name: $('#form-nick-name').val(),
+                avatar_url: $('#form-avatar-url').val() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                country_code: $('#form-country-code').val(),
+                rank_code: $('#form-rank-code').val(),
+                sponsor_id: $('#form-sponsor-id').val() || 'ROOT',
+                placement_id: $('#form-placement-id').val() || 'ROOT',
+                is_our_team: $('#form-is-our-team').val(),
+                relation_type: $('#form-relation-type').val(),
+                phone: $('#form-phone').val(),
+                line_id: $('#form-line-id').val(),
+                current_month_personal_sv: id ? (partnersDatabase.find(p => p.partner_id === id)?.current_month_personal_sv || 0) : 0,
+                current_month_group_sv: id ? (partnersDatabase.find(p => p.partner_id === id)?.current_month_group_sv || 0) : 0,
+                total_career_sv: id ? (partnersDatabase.find(p => p.partner_id === id)?.total_career_sv || 0) : 0,
+                join_date: $('#form-join-date').val(),
+                target_mgr_date: $('#form-target-mgr-date').val(),
+                unsettled_loan_sv: id ? (partnersDatabase.find(p => p.partner_id === id)?.unsettled_loan_sv || 0) : 0,
+                status: 'ACTIVE',
+                notes: $('#form-notes').val()
+            };
+
+            if (id) {
+                const index = partnersDatabase.findIndex(p => p.partner_id === id);
+                if (index !== -1) partnersDatabase[index] = partnerData;
+            } else {
+                partnersDatabase.unshift(partnerData);
+            }
+
+            const offcanvasElement = document.getElementById('offcanvasPartnerDetail');
+            bootstrap.Offcanvas.getInstance(offcanvasElement).hide();
+            renderAllViews();
+            alert('【戰術檔案已儲存】夥伴資料已更新並同步至本地陣列結構中！');
+        }
+
+        function deletePartner(partnerId) {
+            if (confirm(`確定要封存/移除代碼為 [${partnerId}] 的成員檔案嗎？`)) {
+                partnersDatabase = partnersDatabase.filter(p => p.partner_id !== partnerId);
+                renderAllViews();
+            }
+        }
+    </script>
+</body>
+</html>

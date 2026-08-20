@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>月度業績戰情中樞 | 榮祥葡眾數位戰情系統</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-surface: #140b2b;
+            --uvaco-bg-card: #1c0f3d;
+            --uvaco-bg-elevated: #261552;
+            --uvaco-border-color: rgba(139, 92, 246, 0.25);
+            --uvaco-border-focus: rgba(236, 72, 153, 0.6);
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-success: #10b981;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #f43f5e;
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-glow-purple: 0 0 20px rgba(139, 92, 246, 0.35);
+            --uvaco-glow-pink: 0 0 20px rgba(236, 72, 153, 0.35);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px 15px;
+            overflow-x: hidden;
+        }
+
+        /* 戰術 HUD 卡片與面板容器 */
+        .hud-panel {
+            background-color: var(--uvaco-bg-surface);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .hud-panel:hover {
+            border-color: rgba(139, 92, 246, 0.45);
+        }
+
+        .hud-panel-accent {
+            border-left: 4px solid var(--uvaco-accent);
+        }
+
+        .hud-panel-primary {
+            border-left: 4px solid var(--uvaco-primary);
+        }
+
+        /* 脈衝狀態點 */
+        .pulse-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* 戰術微型按鈕 */
+        .btn-action-tactical {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid var(--uvaco-border-color);
+            color: var(--uvaco-text-main);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action-tactical:hover {
+            background: linear-gradient(135deg, var(--uvaco-primary), var(--uvaco-accent));
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: var(--uvaco-glow-pink);
+            transform: translateY(-1px);
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 8px 18px;
+            box-shadow: var(--uvaco-glow-purple);
+            transition: all 0.3s ease;
+        }
+
+        .btn-cta:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
+        }
+
+        /* 業績計量環與進度條 */
+        .progress-dark {
+            background-color: var(--uvaco-bg-card);
+            border-radius: 20px;
+            height: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar-purple {
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        }
+
+        .progress-bar-emerald {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        /* 徽章樣式 */
+        .badge-cyber {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-cyber-purple {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-cyber-pink {
+            background-color: rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.4);
+        }
+
+        .badge-cyber-emerald {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-cyber-amber {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        /* DataTables 深色客製化 */
+        .table-tactical {
+            color: var(--uvaco-text-main);
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+        }
+
+        .table-tactical thead th {
+            background-color: var(--uvaco-bg-card);
+            color: var(--uvaco-text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border: none;
+            padding: 12px 14px;
+        }
+
+        .table-tactical tbody tr {
+            background-color: var(--uvaco-bg-elevated);
+            transition: all 0.2s ease;
+        }
+
+        .table-tactical tbody tr:hover {
+            background-color: #2f1a66;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-tactical tbody td {
+            padding: 14px;
+            vertical-align: middle;
+            border-top: 1px solid var(--uvaco-border-color);
+            border-bottom: 1px solid var(--uvaco-border-color);
+        }
+
+        .table-tactical tbody td:first-child {
+            border-left: 1px solid var(--uvaco-border-color);
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .table-tactical tbody td:last-child {
+            border-right: 1px solid var(--uvaco-border-color);
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        /* 自定義頁籤 */
+        .nav-tactical .nav-link {
+            color: var(--uvaco-text-muted);
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tactical .nav-link.active {
+            color: var(--uvaco-accent);
+            border-bottom-color: var(--uvaco-accent);
+            background: transparent;
+        }
+
+        /* 側拉試算抽屜 */
+        .offcanvas-tactical {
+            background-color: #120926;
+            border-left: 1px solid var(--uvaco-border-color);
+            color: var(--uvaco-text-main);
+        }
+
+        .form-control-tactical {
+            background-color: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border-color);
+            color: #ffffff;
+            border-radius: 8px;
+        }
+
+        .form-control-tactical:focus {
+            background-color: var(--uvaco-bg-elevated);
+            border-color: var(--uvaco-accent);
+            box-shadow: 0 0 0 0.25rem rgba(236, 72, 153, 0.25);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row g-3 mb-4 align-items-center">
+        <div class="col-12 col-xl-7">
+            <div class="d-flex align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center">
+                    <div class="p-2 rounded-3 me-3" style="background: rgba(139, 92, 246, 0.2); border: 1px solid var(--uvaco-primary);">
+                        <i class="fa-solid fa-chart-line fa-xl text-primary"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                            月度組織業績戰情室
+                            <span class="badge badge-cyber badge-cyber-purple">H43000</span>
+                        </h4>
+                        <small class="text-muted">即時監控 160 SV 責任額、3,200 SV 經理合格邊際與次月 20 日獎金對沖</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="d-flex align-items-center justify-content-xl-end flex-wrap gap-2">
+                <div class="input-group input-group-sm" style="width: auto;">
+                    <span class="input-group-text bg-dark text-muted border-secondary">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </span>
+                    <select id="selectPerfMonth" class="form-select form-select-sm bg-dark text-light border-secondary">
+                        <option value="2026-08" selected>2026-08 (當月即時推進)</option>
+                        <option value="2026-07">2026-07 (已封存結算)</option>
+                        <option value="2026-06">2026-06 (已封存結算)</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-action-tactical" id="btnSyncGviz">
+                    <i class="fa-solid fa-arrows-rotate"></i> 試算表同步
+                </button>
+                <button class="btn btn-cta" id="btnOpenDispatch">
+                    <i class="fa-solid fa-bolt"></i> 點數調度沙盤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-panel hud-panel-primary h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small">體系總業績 (Total Org SV)</span>
+                    <span class="pulse-indicator text-primary"></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-light" id="statTotalOrgSv">184,520</h3>
+                    <small class="text-muted">SV</small>
+                </div>
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>月度衝刺目標 (250k)</span>
+                        <span id="statOrgGoalPercent">73.8%</span>
+                    </div>
+                    <div class="progress-dark">
+                        <div class="progress-bar progress-bar-purple" id="barOrgGoal" style="width: 73.8%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-panel hud-panel-accent h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small">經理合格安全邊際 (Qualified Legs)</span>
+                    <span class="badge badge-cyber badge-cyber-pink" id="statQualifiedRate">85.7%</span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-light" id="statQualifiedLegsCount">6 / 7</h3>
+                    <small class="text-muted">條合格線</small>
+                </div>
+                <div class="mt-3 small text-muted d-flex justify-content-between">
+                    <span>脫離風險線：<strong class="text-danger">1 條</strong> (差 320 SV)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-panel h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small">SV 借貸代墊對沖中 (Loans)</span>
+                    <i class="fa-solid fa-hand-holding-dollar text-warning"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-warning" id="statActiveLoanSv">6,400</h3>
+                    <small class="text-muted">SV</small>
+                </div>
+                <div class="mt-3 small text-muted d-flex justify-content-between">
+                    <span>次月 20 日獎金沖銷預估：</span>
+                    <strong class="text-light">NT$ 32,000</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-panel h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small">創始人預估淨利回饋 (50/50)</span>
+                    <i class="fa-solid fa-sack-dollar text-success"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-success" id="statEstBonusNtd">NT$ 142,800</h3>
+                </div>
+                <div class="mt-3 small text-muted d-flex justify-content-between">
+                    <span>Ray / Jarvis 對拆各半：</span>
+                    <strong class="text-light">NT$ 71,400</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="hud-panel h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-primary"></i> 經理小組業績 (3,200 SV) 與合格防禦雷達
+                    </h6>
+                    <span class="text-muted small">每 10 分鐘自動計算安全邊際</span>
+                </div>
+                <div style="height: 260px; position: relative;">
+                    <canvas id="chartManagerMargin"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="hud-panel h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-users-viewfinder text-accent"></i> 160 SV 責任額達標分佈
+                    </h6>
+                </div>
+                <div style="height: 200px; position: relative;">
+                    <canvas id="chartPersonalSvDonut"></canvas>
+                </div>
+                <div class="d-flex justify-content-around mt-3 text-center small">
+                    <div>
+                        <div class="text-muted">已達標 (≥160)</div>
+                        <h6 class="text-success fw-bold mb-0" id="cntQualifiedPersonal">24 人</h6>
+                    </div>
+                    <div>
+                        <div class="text-muted">臨界差額 (1~159)</div>
+                        <h6 class="text-warning fw-bold mb-0" id="cntNearPersonal">3 人</h6>
+                    </div>
+                    <div>
+                        <div class="text-muted">未動作 (0 SV)</div>
+                        <h6 class="text-danger fw-bold mb-0" id="cntZeroPersonal">5 人</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hud-panel mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+            <ul class="nav nav-tactical" id="perfFilterTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="javascript:void(0)" data-filter="ALL">
+                        <i class="fa-solid fa-list-ul"></i> 全部組織成員 (<span id="tabCountAll">32</span>)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)" data-filter="WARNING">
+                        <i class="fa-solid fa-triangle-exclamation text-warning"></i> 門檻差額預警 (<span id="tabCountWarning">4</span>)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)" data-filter="LOAN">
+                        <i class="fa-solid fa-handshake-angle text-info"></i> 借點對沖中 (<span id="tabCountLoan">2</span>)
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2">
+                <input type="text" id="customSearchInput" class="form-control form-control-sm form-control-tactical" placeholder="搜尋夥伴姓名/編號..." style="width: 200px;">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tablePerformance" class="table table-tactical w-100">
+                <thead>
+                    <tr>
+                        <th>夥伴代碼 / 姓名</th>
+                        <th>職級階層</th>
+                        <th>個人 SV (160 門檻)</th>
+                        <th>小組 SV (3,200 經理線)</th>
+                        <th>整組累計 SV</th>
+                        <th>借貸狀態</th>
+                        <th>合格狀態</th>
+                        <th class="text-end">戰術行動</th>
+                    </tr>
+                </thead>
+                <tbody id="performanceTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end offcanvas-tactical" tabindex="-1" id="offcanvasDispatch" style="width: 420px;">
+    <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title fw-bold d-flex align-items-center gap-2">
+            <i class="fa-solid fa-sliders text-accent"></i> SV 戰術調度與對沖推演
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="formDispatchSimulator">
+            <div class="mb-3">
+                <label class="form-label text-muted small">目標調度夥伴</label>
+                <select class="form-select form-control-tactical" id="simTargetPartner">
+                    </select>
+            </div>
+
+            <div class="hud-panel p-3 mb-3" style="background-color: var(--uvaco-bg-card);">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>當前個人 SV：<strong class="text-light" id="simCurrentPersonal">120</strong></span>
+                    <span>當前小組 SV：<strong class="text-light" id="simCurrentGroup">2,880</strong></span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>距離 160 SV 責任額：<strong class="text-warning" id="simGapPersonal">-40 SV</strong></span>
+                    <span>距離 3,200 經理線：<strong class="text-danger" id="simGapGroup">-320 SV</strong></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small">擬調撥 / 代墊 SV 點數</label>
+                <div class="input-group">
+                    <input type="number" class="form-control form-control-tactical" id="simInjectSv" value="320" step="10">
+                    <span class="input-group-text bg-dark text-muted border-secondary">SV</span>
+                </div>
+                <small class="text-muted">來源：創始人戰略儲備庫 / 跨組先買單借調</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small">借貸性質與沖銷方式</label>
+                <select class="form-select form-control-tactical" id="simLoanType">
+                    <option value="BONUS_OFFSET">次月 20 日獎金發放自動沖銷 (預設 20% 經理回饋)</option>
+                    <option value="NEXT_MONTH_REPAY">夥伴次月 10 日前補單返還</option>
+                    <option value="CASH_DIRECT">現金已結清 (僅代過點)</option>
+                </select>
+            </div>
+
+            <div class="hud-panel p-3 mb-4" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3);">
+                <h6 class="text-accent fw-bold small mb-2">
+                    <i class="fa-solid fa-calculator"></i> 對沖模擬精算結果
+                </h6>
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">調配後小組業績：</span>
+                    <strong class="text-success">3,200 SV (達成合格經理)</strong>
+                </div>
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">解鎖代數獎金（預估）：</span>
+                    <strong class="text-light">+ NT$ 4,800</strong>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">次月 20 日扣抵代墊款：</span>
+                    <strong class="text-warning">NT$ 9,600</strong>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-cta w-100" id="btnConfirmDispatch">
+                <i class="fa-solid fa-check"></i> 確認寫入 SV 借貸對沖排程
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // =================================================================
+    // 1. Google 試算表欄位防腐化映射字典 (Anti-Corruption Layer)
+    // =================================================================
+    const PerformanceFieldMap = {
+        perf_id: ["紀錄ID", "PerfID", "ID", "編號"],
+        partner_id: ["夥伴ID", "PartnerID", "成員編號"],
+        partner_name: ["姓名", "夥伴姓名", "PartnerName", "名字"],
+        member_no: ["葡眾會員編號", "會員號", "MemberNo"],
+        current_rank: ["當前職級", "職級", "Rank"],
+        personal_sv: ["個人SV", "當月個人業績", "PersonalSV"],
+        group_sv: ["小組SV", "當月小組業績", "GroupSV"],
+        total_org_sv: ["整組總SV", "總業績", "TotalOrgSV"],
+        sv_loan_in: ["借入SV", "代墊點數", "LoanInSV"],
+        sv_loan_out: ["借出SV", "LoanOutSV"],
+        is_qualified: ["合格經理", "是否合格", "IsQualified"],
+        perf_month: ["業績月份", "Month", "月份"]
+    };
+
+    // 模擬測試數據庫（實務對齊 Google 試算表 org_monthly_perfs 表 403）
+    let performanceDatabase = [
+        {
+            perf_id: "PF-202608-01",
+            partner_id: "P001",
+            partner_name: "翁榮祥 (Ray)",
+            member_no: "TW009812",
+            current_rank: "珍珠",
+            personal_sv: 320,
+            group_sv: 14800,
+            total_org_sv: 184520,
+            sv_loan_in: 0,
+            sv_loan_out: 3200,
+            is_qualified: true,
+            perf_month: "2026-08"
+        },
+        {
+            perf_id: "PF-202608-02",
+            partner_id: "P002",
+            partner_name: "林佳蓉",
+            member_no: "TW014523",
+            current_rank: "經理",
+            personal_sv: 180,
+            group_sv: 4200,
+            total_org_sv: 28400,
+            sv_loan_in: 0,
+            sv_loan_out: 0,
+            is_qualified: true,
+            perf_month: "2026-08"
+        },
+        {
+            perf_id: "PF-202608-03",
+            partner_id: "P003",
+            partner_name: "張志豪",
+            member_no: "TW021980",
+            current_rank: "經理",
+            personal_sv: 120, // 差 40 SV 達標 160
+            group_sv: 2880, // 差 320 SV 達標 3200
+            total_org_sv: 19500,
+            sv_loan_in: 0,
+            sv_loan_out: 0,
+            is_qualified: false, // 預警對象
+            perf_month: "2026-08"
+        },
+        {
+            perf_id: "PF-202608-04",
+            partner_id: "P004",
+            partner_name: "陳怡君",
+            member_no: "TW034112",
+            current_rank: "經理",
+            personal_sv: 200,
+            group_sv: 3600,
+            total_org_sv: 12200,
+            sv_loan_in: 1200, // 借點對沖中
+            sv_loan_out: 0,
+            is_qualified: true,
+            perf_month: "2026-08"
+        },
+        {
+            perf_id: "PF-202608-05",
+            partner_id: "P005",
+            partner_name: "李國華",
+            member_no: "TW048901",
+            current_rank: "副理",
+            personal_sv: 160,
+            group_sv: 1800,
+            total_org_sv: 8400,
+            sv_loan_in: 0,
+            sv_loan_out: 0,
+            is_qualified: false,
+            perf_month: "2026-08"
+        },
+        {
+            perf_id: "PF-202608-06",
+            partner_id: "P006",
+            partner_name: "黃雅婷",
+            member_no: "TW051230",
+            current_rank: "主任",
+            personal_sv: 0, // 未動作
+            group_sv: 450,
+            total_org_sv: 450,
+            sv_loan_in: 0,
+            sv_loan_out: 0,
+            is_qualified: false,
+            perf_month: "2026-08"
+        }
+    ];
+
+    let perfDataTable = null;
+    let chartMarginInstance = null;
+    let chartDonutInstance = null;
+
+    // =================================================================
+    // 2. 初始化與事件綁定
+    // =================================================================
+    $(document).ready(function() {
+        initCharts();
+        initDataTable();
+        populateSimDropdown();
+        bindEvents();
+    });
+
+    // =================================================================
+    // 3. DataTable 初始化與深色主題自定義渲染
+    // =================================================================
+    function initDataTable() {
+        perfDataTable = $('#tablePerformance').DataTable({
+            data: performanceDatabase,
+            responsive: true,
+            pageLength: 10,
+            dom: '<"top"r>t<"bottom d-flex justify-content-between align-items-center mt-3"ip><"clear">',
+            language: {
+                zeroRecords: '<div class="text-center py-4 text-muted"><i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>查無符合條件的業績紀錄</div>',
+                info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 位成員',
+                infoEmpty: '無資料可顯示',
+                infoFiltered: '(從 _MAX_ 筆資料中過濾)',
+                paginate: {
+                    first: '<i class="fa-solid fa-angles-left"></i>',
+                    last: '<i class="fa-solid fa-angles-right"></i>',
+                    next: '<i class="fa-solid fa-chevron-right"></i>',
+                    previous: '<i class="fa-solid fa-chevron-left"></i>'
+                }
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function(data) {
+                        return `
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2 d-flex align-items-center justify-content-center fw-bold" 
+                                     style="width: 34px; height: 34px; border-radius: 8px; background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid var(--uvaco-primary);">
+                                    ${data.partner_name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-light">${data.partner_name}</div>
+                                    <small class="text-muted">${data.member_no}</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    data: 'current_rank',
+                    render: function(rank) {
+                        let badgeClass = 'badge-cyber-purple';
+                        if (rank === '珍珠' || rank === '翡翠') badgeClass = 'badge-cyber-pink';
+                        if (rank === '經理') badgeClass = 'badge-cyber-emerald';
+                        return `<span class="badge badge-cyber ${badgeClass}">${rank}</span>`;
+                    }
+                },
+                {
+                    data: 'personal_sv',
+                    render: function(sv) {
+                        const target = 160;
+                        const pct = Math.min(100, Math.round((sv / target) * 100));
+                        const isOk = sv >= target;
+                        return `
+                            <div style="min-width: 110px;">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <strong class="${isOk ? 'text-success' : 'text-warning'}">${sv} SV</strong>
+                                    <span class="text-muted">${pct}%</span>
+                                </div>
+                                <div class="progress-dark">
+                                    <div class="progress-bar ${isOk ? 'progress-bar-emerald' : 'bg-warning'}" style="width: ${pct}%;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    data: 'group_sv',
+                    render: function(sv, type, row) {
+                        if (row.current_rank !== '經理' && row.current_rank !== '珍珠') {
+                            return `<span class="text-muted small">${sv} SV (未列經理線)</span>`;
+                        }
+                        const target = 3200;
+                        const isOk = sv >= target;
+                        return `
+                            <div>
+                                <strong class="${isOk ? 'text-light' : 'text-danger'}">${sv.toLocaleString()} SV</strong>
+                                ${!isOk ? `<small class="text-danger d-block"><i class="fa-solid fa-circle-exclamation"></i> 尚差 ${target - sv} SV</small>` : ''}
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    data: 'total_org_sv',
+                    render: function(sv) {
+                        return `<span class="text-light fw-bold">${sv.toLocaleString()} SV</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function(row) {
+                        if (row.sv_loan_in > 0) {
+                            return `<span class="badge badge-cyber badge-cyber-amber"><i class="fa-solid fa-arrow-down"></i> 借入 ${row.sv_loan_in} SV</span>`;
+                        }
+                        if (row.sv_loan_out > 0) {
+                            return `<span class="badge badge-cyber badge-cyber-purple"><i class="fa-solid fa-arrow-up"></i> 借出 ${row.sv_loan_out} SV</span>`;
+                        }
+                        return `<span class="text-muted small">無借貸</span>`;
+                    }
+                },
+                {
+                    data: 'is_qualified',
+                    render: function(isQual, type, row) {
+                        if (row.current_rank !== '經理' && row.current_rank !== '珍珠') {
+                            return `<span class="text-muted small">--</span>`;
+                        }
+                        return isQual 
+                            ? `<span class="badge badge-cyber badge-cyber-emerald"><i class="fa-solid fa-check"></i> 合格</span>` 
+                            : `<span class="badge badge-cyber badge-cyber-pink"><i class="fa-solid fa-triangle-exclamation"></i> 脫離預警</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    className: 'text-end',
+                    orderable: false,
+                    render: function(row) {
+                        return `
+                            <button class="btn btn-action-tactical btn-sm" onclick="openSimForPartner('${row.partner_id}')">
+                                <i class="fa-solid fa-sliders"></i> 調度
+                            </button>
+                        `;
+                    }
+                }
+            ]
+        });
+
+        // 自定義搜尋監聽
+        $('#customSearchInput').on('keyup', function() {
+            perfDataTable.search(this.value).draw();
+        });
+    }
+
+    // =================================================================
+    // 4. Chart.js 視覺化圖表渲染
+    // =================================================================
+    function initCharts() {
+        // 經理合格安全邊際長條圖
+        const ctxMargin = document.getElementById('chartManagerMargin').getContext('2d');
+        const gradientPurple = ctxMargin.createLinearGradient(0, 0, 0, 240);
+        gradientPurple.addColorStop(0, '#ec4899');
+        gradientPurple.addColorStop(1, '#8b5cf6');
+
+        chartMarginInstance = new Chart(ctxMargin, {
+            type: 'bar',
+            data: {
+                labels: ['翁榮祥(Ray)', '林佳蓉(經理)', '張志豪(經理-預警)', '陳怡君(經理)'],
+                datasets: [
+                    {
+                        label: '當前小組 SV',
+                        data: [14800, 4200, 2880, 3600],
+                        backgroundColor: gradientPurple,
+                        borderRadius: 6,
+                        barThickness: 24
+                    },
+                    {
+                        type: 'line',
+                        label: '3,200 SV 合格門檻線',
+                        data: [3200, 3200, 3200, 3200],
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(139, 92, 246, 0.1)' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+
+        // 責任額圓環圖
+        const ctxDonut = document.getElementById('chartPersonalSvDonut').getContext('2d');
+        chartDonutInstance = new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: ['已達標 (≥160)', '臨界差額 (1~159)', '未動作 (0 SV)'],
+                datasets: [{
+                    data: [24, 3, 5],
+                    backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // =================================================================
+    // 5. 戰術篩選與互動邏輯
+    // =================================================================
+    function bindEvents() {
+        // 頁籤過濾切換
+        $('#perfFilterTabs a').on('click', function(e) {
+            e.preventDefault();
+            $('#perfFilterTabs a').removeClass('active');
+            $(this).addClass('active');
+
+            const filterType = $(this).data('filter');
+            if (filterType === 'ALL') {
+                perfDataTable.search('').columns().search('').draw();
+            } else if (filterType === 'WARNING') {
+                // 篩選未合格經理或個人責任額未滿
+                perfDataTable.rows().every(function() {
+                    const data = this.data();
+                    const isWarning = (data.current_rank === '經理' && !data.is_qualified) || (data.personal_sv < 160 && data.personal_sv > 0);
+                    if (!isWarning) {
+                        $(this.node()).hide();
+                    } else {
+                        $(this.node()).show();
+                    }
+                });
+            } else if (filterType === 'LOAN') {
+                perfDataTable.rows().every(function() {
+                    const data = this.data();
+                    const hasLoan = data.sv_loan_in > 0 || data.sv_loan_out > 0;
+                    if (!hasLoan) {
+                        $(this.node()).hide();
+                    } else {
+                        $(this.node()).show();
+                    }
+                });
+            }
+        });
+
+        // 試算表 GViz 解耦同步按鈕模擬
+        $('#btnSyncGviz').on('click', function() {
+            const btn = $(this);
+            btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...').prop('disabled', true);
+
+            setTimeout(() => {
+                btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表同步').prop('disabled', false);
+                alert('【防腐化解耦層已同步】成功自 Google 試算表更新 32 筆組織月度業績數據！');
+            }, 800);
+        });
+
+        // 打開調度抽屜
+        $('#btnOpenDispatch').on('click', function() {
+            const offcanvasEl = document.getElementById('offcanvasDispatch');
+            const offcanvas = new bootstrap.Offcanvas(offcanvasEl);
+            offcanvas.show();
+        });
+
+        // 確認調度寫入
+        $('#btnConfirmDispatch').on('click', function() {
+            alert('【戰術調度已確認】已成功產生 320 SV 調撥排程，並寫入次月 20 日獎金自動對沖簿！');
+            const offcanvasEl = document.getElementById('offcanvasDispatch');
+            bootstrap.Offcanvas.getInstance(offcanvasEl).hide();
+        });
+    }
+
+    function populateSimDropdown() {
+        const select = $('#simTargetPartner');
+        select.empty();
+        performanceDatabase.forEach(p => {
+            select.append(`<option value="${p.partner_id}">${p.partner_name} (${p.current_rank} - ${p.member_no})</option>`);
+        });
+
+        select.on('change', function() {
+            const p = performanceDatabase.find(item => item.partner_id === this.value);
+            if (p) {
+                $('#simCurrentPersonal').text(p.personal_sv);
+                $('#simCurrentGroup').text(p.group_sv.toLocaleString());
+                $('#simGapPersonal').text(p.personal_sv >= 160 ? '已達標' : `-${160 - p.personal_sv} SV`);
+                $('#simGapGroup').text(p.group_sv >= 3200 ? '已合格' : `-${3200 - p.group_sv} SV`);
+            }
+        });
+    }
+
+    // 指定夥伴開啟調度抽屜
+    window.openSimForPartner = function(partnerId) {
+        $('#simTargetPartner').val(partnerId).trigger('change');
+        const offcanvasEl = document.getElementById('offcanvasDispatch');
+        const offcanvas = new bootstrap.Offcanvas(offcanvasEl);
+        offcanvas.show();
+    };
+</script>
+
+</body>
+</html>

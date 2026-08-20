@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職級晉升體系 | 榮祥葡眾數位核心戰情室</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root[data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-hover: #db2777;
+            --uvaco-muted: #a1a1aa;
+            --uvaco-body-bg: #0a0518;
+            --uvaco-card-bg: #150a2a;
+            --uvaco-card-hover: #1e0f3d;
+            --uvaco-card-inner: #0d061f;
+            --uvaco-card-accent: #2b1022;
+            --uvaco-input-bg: #170b2e;
+            --uvaco-border-glow: rgba(139, 92, 246, 0.35);
+            --uvaco-pink-glow: rgba(236, 72, 153, 0.4);
+            --uvaco-text-main: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--uvaco-body-bg);
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-chakra {
+            font-family: 'Chakra Petch', sans-serif;
+        }
+
+        /* 核心版霓虹玻璃容器 */
+        .cyber-glass-panel {
+            background: linear-gradient(135deg, rgba(21, 10, 42, 0.85) 0%, rgba(13, 6, 31, 0.95) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cyber-glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--uvaco-primary), var(--uvaco-accent), transparent);
+        }
+
+        /* 職級天梯星軌導航條 */
+        .rank-track-wrapper {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 16px 4px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--uvaco-primary) var(--uvaco-card-inner);
+        }
+
+        .rank-track-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .rank-track-wrapper::-webkit-scrollbar-track {
+            background: var(--uvaco-card-inner);
+            border-radius: 4px;
+        }
+
+        .rank-track-wrapper::-webkit-scrollbar-thumb {
+            background: var(--uvaco-primary);
+            border-radius: 4px;
+        }
+
+        .rank-node-btn {
+            flex: 0 0 auto;
+            min-width: 140px;
+            background: var(--uvaco-card-inner);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .rank-node-btn:hover {
+            background: var(--uvaco-card-hover);
+            border-color: var(--uvaco-secondary);
+            transform: translateY(-2px);
+        }
+
+        .rank-node-btn.active {
+            background: linear-gradient(145deg, #1e0f3d, #2b1022);
+            border-color: var(--uvaco-accent);
+            box-shadow: 0 0 15px var(--uvaco-pink-glow);
+        }
+
+        .rank-node-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--uvaco-accent);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+        }
+
+        .rank-badge-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--uvaco-secondary);
+            transition: all 0.3s;
+        }
+
+        .rank-node-btn.active .rank-badge-icon {
+            background: var(--uvaco-accent);
+            color: #ffffff;
+            box-shadow: 0 0 12px var(--uvaco-accent);
+        }
+
+        /* 徽章色彩體系 */
+        .text-accent-pink { color: var(--uvaco-accent) !important; }
+        .text-neon-purple { color: var(--uvaco-secondary) !important; }
+        .bg-card-inner { background-color: var(--uvaco-card-inner) !important; }
+        .border-purple { border-color: rgba(139, 92, 246, 0.3) !important; }
+
+        /* 達標雷達數值框 */
+        .metric-pill {
+            background: rgba(13, 6, 31, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+
+        /* 進度條霓虹漸變 */
+        .progress-cyber {
+            height: 10px;
+            background-color: var(--uvaco-card-inner);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .progress-cyber .progress-bar {
+            background: linear-gradient(90deg, var(--uvaco-primary), var(--uvaco-accent));
+            box-shadow: 0 0 10px var(--uvaco-pink-glow);
+        }
+
+        /* 搜尋與輸入框 */
+        .cyber-input {
+            background-color: var(--uvaco-input-bg) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            color: #ffffff !important;
+            border-radius: 8px;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--uvaco-accent) !important;
+            box-shadow: 0 0 10px var(--uvaco-pink-glow) !important;
+        }
+
+        /* DataTable 自定義樣式調優 */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: var(--uvaco-text-main) !important;
+            border-radius: 6px;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-secondary) !important;
+            color: #ffffff !important;
+        }
+        table.dataTable {
+            border-color: rgba(139, 92, 246, 0.2) !important;
+        }
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: rgba(139, 92, 246, 0.08) !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid py-4 px-lg-4">
+    
+    <div class="row align-items-center mb-4">
+        <div class="col-12 col-md-7">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rank-badge-icon shadow-sm" style="width: 52px; height: 52px; font-size: 1.5rem; background: var(--uvaco-primary); color: #fff;">
+                    <i class="fa-solid fa-ranking-star"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h3 class="fw-bold mb-0 text-white font-chakra">RANK ADVANCEMENT SYSTEM</h3>
+                        <span class="badge bg-danger bg-opacity-25 text-accent-pink border border-danger border-opacity-50 px-2 py-1">
+                            <i class="fa-solid fa-bolt"></i> 葡眾 9 階不歸零
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0 small mt-1">
+                        維護葡眾職級晉升標準（<span class="text-neon-purple">org_ranks</span>）與夥伴升階歷史審核軌跡（<span class="text-neon-purple">org_rank_history</span>）
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-5 mt-3 mt-md-0 text-md-end">
+            <button class="btn btn-outline-info me-2 btn-sm border-purple text-light" id="btn-sync-gspread">
+                <i class="fa-solid fa-rotate"></i> 同步試算表
+            </button>
+            <button class="btn btn-sm px-3 text-white fw-bold" style="background: linear-gradient(135deg, var(--uvaco-primary), var(--uvaco-accent));" data-bs-toggle="modal" data-bs-target="#newRankHistoryModal">
+                <i class="fa-solid fa-plus"></i> 登錄夥伴晉升
+            </button>
+        </div>
+    </div>
+
+    <div class="cyber-glass-panel p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+            <div class="small text-muted fw-bold">
+                <i class="fa-solid fa-diagram-project text-neon-purple"></i> 葡眾 9 大職級階梯地圖（點擊節點切換標準檢視）
+            </div>
+            <div class="small text-muted font-chakra">LEVEL: R10 - R90</div>
+        </div>
+        <div class="rank-track-wrapper" id="rankTrackContainer">
+            </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        
+        <div class="col-12 col-xl-7">
+            <div class="cyber-glass-panel p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start border-bottom border-purple pb-3 mb-3">
+                    <div>
+                        <span class="badge px-3 py-1 mb-2 font-chakra" id="activeRankCodeBadge" style="background: var(--uvaco-card-inner); border: 1px solid var(--uvaco-secondary); color: var(--uvaco-secondary);">
+                            CODE: R40
+                        </span>
+                        <h4 class="fw-bold mb-0 text-white" id="activeRankTitle">經理 (Manager)</h4>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-muted small">個人回饋率</div>
+                        <div class="h3 fw-bold text-accent-pink font-chakra mb-0" id="activeDirectRebate">20.00%</div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-sm-3">
+                        <div class="metric-pill text-center">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-coins text-warning"></i> 累積最低 PV
+                            </div>
+                            <div class="h5 fw-bold text-white font-chakra mb-0" id="activeMinPv">30,000</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="metric-pill text-center">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-users-rays text-info"></i> 直屬合格線
+                            </div>
+                            <div class="h5 fw-bold text-white font-chakra mb-0" id="activeMinLegs">0 條</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="metric-pill text-center">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-user-tag text-neon-purple"></i> 個人責任額
+                            </div>
+                            <div class="h5 fw-bold text-white font-chakra mb-0" id="activePersonalSv">160 SV</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="metric-pill text-center">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-network-wired text-accent-pink"></i> 小組整組額
+                            </div>
+                            <div class="h5 fw-bold text-white font-chakra mb-0" id="activeGroupSv">12,000 SV</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-card-inner rounded-3 border border-purple">
+                    <h6 class="fw-bold text-neon-purple mb-3">
+                        <i class="fa-solid fa-layer-group"></i> 組織代數獎金穿透配置（Generation Bonus Depth）
+                    </h6>
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-5 text-center mb-3 mb-md-0">
+                            <div style="height: 160px; max-width: 180px; margin: 0 auto;">
+                                <canvas id="bonusDoughnutChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                                <li class="d-flex justify-content-between align-items-center p-2 rounded bg-dark bg-opacity-50">
+                                    <span><i class="fa-solid fa-circle-1 text-info"></i> 第 1 代合格組織獎金</span>
+                                    <strong class="font-chakra text-white" id="activeGen1">5.00%</strong>
+                                </li>
+                                <li class="d-flex justify-content-between align-items-center p-2 rounded bg-dark bg-opacity-50">
+                                    <span><i class="fa-solid fa-circle-2 text-primary"></i> 第 2 代合格組織獎金</span>
+                                    <strong class="font-chakra text-white" id="activeGen2">4.00%</strong>
+                                </li>
+                                <li class="d-flex justify-content-between align-items-center p-2 rounded bg-dark bg-opacity-50">
+                                    <span><i class="fa-solid fa-circle-3 text-accent-pink"></i> 第 3 代合格組織獎金</span>
+                                    <strong class="font-chakra text-white" id="activeGen3">3.00%</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="cyber-glass-panel p-4 h-100">
+                <div class="d-flex align-items-center gap-2 border-bottom border-purple pb-3 mb-3">
+                    <i class="fa-solid fa-wand-magic-sparkles text-accent-pink"></i>
+                    <h5 class="fw-bold mb-0 text-white">晉升門檻缺口推演（Live Gap Analyzer）</h5>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small text-muted">選擇受測夥伴</label>
+                    <select class="form-select cyber-input" id="simulatorPartnerSelect">
+                        <option value="PTN-001">翁榮祥 (Ray) - 目前職級：藍鑽 (R90)</option>
+                        <option value="PTN-002">林承志 (Jarvis) - 目前職級：長青 (R60)</option>
+                        <option value="PTN-003" selected>王小美 (May) - 目前職級：副理 (R30)</option>
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small text-muted">當前個人歷史累積 PV</label>
+                        <input type="number" class="form-control cyber-input font-chakra" id="inputCurrentPv" value="18500">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small text-muted">旗下合格經理線數</label>
+                        <input type="number" class="form-control cyber-input font-chakra" id="inputCurrentLegs" value="0">
+                    </div>
+                </div>
+
+                <div class="p-3 bg-card-inner rounded-3 border border-purple mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small text-muted">目標職級：<strong class="text-white" id="simTargetRank">經理 (Manager)</strong></span>
+                        <span class="badge bg-primary font-chakra" id="simOverallPercent">61.6% 達標</span>
+                    </div>
+                    <div class="progress progress-cyber mb-3">
+                        <div class="progress-bar" id="simProgressBar" role="progressbar" style="width: 61.6%"></div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 small">
+                        <div class="d-flex justify-content-between text-muted">
+                            <span><i class="fa-solid fa-arrow-right text-neon-purple"></i> 累積點數缺口：</span>
+                            <span class="font-chakra fw-bold text-warning" id="simPvGap">尚差 11,500 PV</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted">
+                            <span><i class="fa-solid fa-arrow-right text-neon-purple"></i> 合格經理線缺口：</span>
+                            <span class="font-chakra fw-bold text-success" id="simLegGap">已達標 (0/0)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn w-100 py-2 text-white fw-bold border-0" id="btnRunAuditCalc" style="background: linear-gradient(90deg, #7c3aed, #ec4899);">
+                    <i class="fa-solid fa-calculator"></i> 重新精算達標路徑
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="cyber-glass-panel p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h5 class="fw-bold mb-1 text-white">
+                    <i class="fa-solid fa-timeline text-neon-purple"></i> 團隊晉升歷程與榮譽戰報（org_rank_history）
+                </h5>
+                <p class="text-muted small mb-0">即時稽核全體經營者晉升審核狀態、達標月份與表揚狀態</p>
+            </div>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm cyber-input" id="filterStatus" style="width: 130px;">
+                    <option value="">全部表揚狀態</option>
+                    <option value="CELEBRATED">大會已表揚</option>
+                    <option value="PENDING">待表揚</option>
+                </select>
+                <select class="form-select form-select-sm cyber-input" id="filterMonth" style="width: 120px;">
+                    <option value="">所有月份</option>
+                    <option value="2026-08">2026-08</option>
+                    <option value="2026-07">2026-07</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="rankHistoryTable" class="table table-hover align-middle text-nowrap w-100">
+                <thead>
+                    <tr class="text-muted small border-purple">
+                        <th>紀錄序號</th>
+                        <th>夥伴姓名 / 編號</th>
+                        <th>原所屬職級</th>
+                        <th>晉升新職級</th>
+                        <th>生效月份</th>
+                        <th>達標累積點數</th>
+                        <th>合格線數</th>
+                        <th>審核核定人</th>
+                        <th>表揚狀態</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="newRankHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cyber-glass-panel border-purple" style="background: #150a2a;">
+            <div class="modal-header border-purple">
+                <h5 class="modal-title text-white fw-bold">
+                    <i class="fa-solid fa-medal text-accent-pink"></i> 登錄夥伴職級晉升審核
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRankHistory">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">晉升夥伴 ID / 姓名</label>
+                        <input type="text" class="form-control cyber-input" placeholder="例如：PTN-003 王小美" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">原職級</label>
+                            <select class="form-select cyber-input">
+                                <option value="MEMBER">會員 (Member)</option>
+                                <option value="R20">主任 (Supervisor)</option>
+                                <option value="R30" selected>副理 (Specialist)</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">新晉升職級</label>
+                            <select class="form-select cyber-input">
+                                <option value="MGR" selected>經理 (Manager)</option>
+                                <option value="PEARL">珍珠 (Pearl)</option>
+                                <option value="BLUE_DIAMOND">藍鑽 (Blue Diamond)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">生效月份</label>
+                            <input type="month" class="form-control cyber-input font-chakra" value="2026-08">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">達標累積 PV</label>
+                            <input type="number" class="form-control cyber-input font-chakra" value="30500">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">審核激勵備忘錄 (Memo)</label>
+                        <textarea class="form-control cyber-input" rows="2" placeholder="填寫激勵評語或小組衝刺細節..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-purple">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-sm text-white px-3" style="background: var(--uvaco-primary);" id="btnSubmitHistory">
+                    <i class="fa-solid fa-check"></i> 確認寫入資料表
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script>
+    // =========================================================================
+    // 1. Google 試算表欄位解耦對照字典 (Decoupled Mapping Layer)
+    // =========================================================================
+    const SchemaMapping = {
+        ranks: {
+            rank_id: ['rank_id', '職級代碼', 'RankID'],
+            rank_code: ['rank_code', '職級簡稱', 'Code'],
+            rank_name_zh: ['rank_name_zh', '中文名稱', '職級名稱'],
+            rank_name_en: ['rank_name_en', '英文名稱'],
+            min_accumulated_pv: ['min_accumulated_pv', '累積最低PV', 'MinPV'],
+            min_manager_legs: ['min_manager_legs', '直屬合格經理線', 'MinLegs'],
+            personal_sv_quota: ['personal_sv_quota', '個人責任額', 'PersonalSV'],
+            group_sv_quota: ['group_sv_quota', '小組責任額', 'GroupSV'],
+            direct_rebate_rate: ['direct_rebate_rate', '個人回饋率', 'RebateRate'],
+            gen1_bonus_rate: ['gen1_bonus_rate', '第1代獎金', 'Gen1'],
+            gen2_bonus_rate: ['gen2_bonus_rate', '第2代獎金', 'Gen2'],
+            gen3_bonus_rate: ['gen3_bonus_rate', '第3代獎金', 'Gen3'],
+            badge_icon_class: ['badge_icon_class', '圖示', 'Icon']
+        },
+        history: {
+            history_id: ['history_id', '紀錄ID', 'ID'],
+            partner_name: ['partner_name', '夥伴姓名', 'Name'],
+            member_no: ['member_no', '會員編號', 'No'],
+            previous_rank: ['previous_rank', '原職級'],
+            new_rank: ['new_rank', '新職級'],
+            effective_month: ['effective_month', '生效月份', 'Month'],
+            qualification_pv: ['qualification_pv', '達標PV', 'PV'],
+            qualified_legs_count: ['qualified_legs_count', '合格線數', 'Legs'],
+            verifier_name: ['verifier_name', '審核人', 'Verifier'],
+            celebration_status: ['celebration_status', '表揚狀態', 'Status']
+        }
+    };
+
+    // =========================================================================
+    // 2. 本地預設數據源（葡眾 9 大職級完整標準）
+    // =========================================================================
+    const defaultRanksData = [
+        { rank_id: 'MEMBER', rank_code: 'R10', rank_name_zh: '會員', rank_name_en: 'Member', min_accumulated_pv: 0, min_manager_legs: 0, personal_sv_quota: 0, group_sv_quota: 0, direct_rebate_rate: 0.05, gen1_bonus_rate: 0, gen2_bonus_rate: 0, gen3_bonus_rate: 0, badge_icon_class: 'fa-solid fa-user' },
+        { rank_id: 'SUPERVISOR', rank_code: 'R20', rank_name_zh: '主任', rank_name_en: 'Supervisor', min_accumulated_pv: 1000, min_manager_legs: 0, personal_sv_quota: 0, group_sv_quota: 0, direct_rebate_rate: 0.10, gen1_bonus_rate: 0, gen2_bonus_rate: 0, gen3_bonus_rate: 0, badge_icon_class: 'fa-solid fa-user-check' },
+        { rank_id: 'SPECIALIST', rank_code: 'R30', rank_name_zh: '副理', rank_name_en: 'Specialist', min_accumulated_pv: 5000, min_manager_legs: 0, personal_sv_quota: 0, group_sv_quota: 0, direct_rebate_rate: 0.15, gen1_bonus_rate: 0, gen2_bonus_rate: 0, gen3_bonus_rate: 0, badge_icon_class: 'fa-solid fa-award' },
+        { rank_id: 'MGR', rank_code: 'R40', rank_name_zh: '經理', rank_name_en: 'Manager', min_accumulated_pv: 30000, min_manager_legs: 0, personal_sv_quota: 160, group_sv_quota: 12000, direct_rebate_rate: 0.20, gen1_bonus_rate: 0.05, gen2_bonus_rate: 0.04, gen3_bonus_rate: 0.03, badge_icon_class: 'fa-solid fa-medal' },
+        { rank_id: 'PINE', rank_code: 'R50', rank_name_zh: '松柏', rank_name_en: 'Pine Leader', min_accumulated_pv: 30000, min_manager_legs: 2, personal_sv_quota: 160, group_sv_quota: 12000, direct_rebate_rate: 0.20, gen1_bonus_rate: 0.05, gen2_bonus_rate: 0.04, gen3_bonus_rate: 0.03, badge_icon_class: 'fa-solid fa-tree' },
+        { rank_id: 'EVERGREEN', rank_code: 'R60', rank_name_zh: '長青', rank_name_en: 'Evergreen Leader', min_accumulated_pv: 30000, min_manager_legs: 4, personal_sv_quota: 160, group_sv_quota: 12000, direct_rebate_rate: 0.20, gen1_bonus_rate: 0.05, gen2_bonus_rate: 0.04, gen3_bonus_rate: 0.03, badge_icon_class: 'fa-solid fa-shield-halved' },
+        { rank_id: 'PEARL', rank_code: 'R70', rank_name_zh: '珍珠', rank_name_en: 'Pearl Leader', min_accumulated_pv: 30000, min_manager_legs: 6, personal_sv_quota: 160, group_sv_quota: 12000, direct_rebate_rate: 0.20, gen1_bonus_rate: 0.05, gen2_bonus_rate: 0.04, gen3_bonus_rate: 0.03, badge_icon_class: 'fa-solid fa-gem' },
+        { rank_id: 'EMERALD', rank_code: 'R80', rank_name_zh: '翡翠', rank_name_en: 'Emerald Leader', min_accumulated_pv: 30000, min_manager_legs: 8, personal_sv_quota: 160, group_sv_quota: 12000, direct_rebate_rate: 0.20, gen1_bonus_rate: 0.05, gen2_bonus_rate: 0.04, gen3_bonus_rate: 0.03, badge_icon_class: 'fa-solid fa-certificate' },
+        { rank_id: 'BLUE_DIAMOND', rank_code: 'R90', rank_name_zh: '藍鑽', rank_name_en: 'Blue Diamond', min_accumulated_pv: 30000, min_manager_legs: 10, personal_sv_quota: 160, group_sv_quota: 12000, direct_rebate_rate: 0.20, gen1_bonus_rate: 0.05, gen2_bonus_rate: 0.04, gen3_bonus_rate: 0.03, badge_icon_class: 'fa-solid fa-crown' }
+    ];
+
+    const defaultHistoryData = [
+        { history_id: 'HIS-2026-08-01', partner_name: '翁榮祥', member_no: 'TW990182', previous_rank: '翡翠', new_rank: '藍鑽', effective_month: '2026-08', qualification_pv: 320000, qualified_legs_count: 10, verifier_name: '林承志', celebration_status: 'PENDING' },
+        { history_id: 'HIS-2026-08-02', partner_name: '陳美雲', member_no: 'TW887201', previous_rank: '副理', new_rank: '經理', effective_month: '2026-08', qualification_pv: 31200, qualified_legs_count: 0, verifier_name: '翁榮祥', celebration_status: 'PENDING' },
+        { history_id: 'HIS-2026-07-01', partner_name: '張家豪', member_no: 'TW773411', previous_rank: '主任', new_rank: '副理', effective_month: '2026-07', qualification_pv: 5400, qualified_legs_count: 0, verifier_name: '翁榮祥', celebration_status: 'CELEBRATED' },
+        { history_id: 'HIS-2026-07-02', partner_name: '李雅婷', member_no: 'TW662390', previous_rank: '經理', new_rank: '松柏', effective_month: '2026-07', qualification_pv: 58000, qualified_legs_count: 2, verifier_name: '林承志', celebration_status: 'CELEBRATED' }
+    ];
+
+    let bonusChartInstance = null;
+    let rankDataTable = null;
+
+    // =========================================================================
+    // 3. 介面初始化與渲染引擎
+    // =========================================================================
+    $(document).ready(function() {
+        renderRankOrbit(defaultRanksData);
+        initBonusChart();
+        selectRankNode('R40'); // 預設聚焦經理級
+        initDataTable(defaultHistoryData);
+        bindEvents();
+    });
+
+    // 渲染職級星軌導航
+    function renderRankOrbit(ranks) {
+        const $container = $('#rankTrackContainer');
+        $container.empty();
+
+        ranks.forEach(rank => {
+            const html = `
+                <div class="rank-node-btn" data-rank-code="${rank.rank_code}" onclick="selectRankNode('${rank.rank_code}')">
+                    <div class="rank-badge-icon">
+                        <i class="${rank.badge_icon_class}"></i>
+                    </div>
+                    <div class="font-chakra fw-bold small text-white">${rank.rank_code}</div>
+                    <div class="small text-muted text-truncate">${rank.rank_name_zh}</div>
+                </div>
+            `;
+            $container.append(html);
+        });
+    }
+
+    // 聚焦特定職級節點並更新特權畫布
+    window.selectRankNode = function(rankCode) {
+        $('.rank-node-btn').removeClass('active');
+        $(`.rank-node-btn[data-rank-code="${rankCode}"]`).addClass('active');
+
+        const rank = defaultRanksData.find(r => r.rank_code === rankCode);
+        if (!rank) return;
+
+        // 更新特權畫布數據
+        $('#activeRankCodeBadge').text(`CODE: ${rank.rank_code}`);
+        $('#activeRankTitle').text(`${rank.rank_name_zh} (${rank.rank_name_en})`);
+        $('#activeDirectRebate').text(`${(rank.direct_rebate_rate * 100).toFixed(2)}%`);
+        $('#activeMinPv').text(rank.min_accumulated_pv.toLocaleString());
+        $('#activeMinLegs').text(`${rank.min_manager_legs} 條`);
+        $('#activePersonalSv').text(`${rank.personal_sv_quota} SV`);
+        $('#activeGroupSv').text(`${rank.group_sv_quota.toLocaleString()} SV`);
+
+        $('#activeGen1').text(`${(rank.gen1_bonus_rate * 100).toFixed(2)}%`);
+        $('#activeGen2').text(`${(rank.gen2_bonus_rate * 100).toFixed(2)}%`);
+        $('#activeGen3').text(`${(rank.gen3_bonus_rate * 100).toFixed(2)}%`);
+
+        // 更新圓餅圖
+        updateBonusChart(rank);
+    };
+
+    // 初始化 Chart.js
+    function initBonusChart() {
+        const ctx = document.getElementById('bonusDoughnutChart').getContext('2d');
+        bonusChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['第1代 (5%)', '第2代 (4%)', '第3代 (3%)'],
+                datasets: [{
+                    data: [5, 4, 3],
+                    backgroundColor: ['#06b6d4', '#8b5cf6', '#ec4899'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                cutout: '72%'
+            }
+        });
+    }
+
+    function updateBonusChart(rank) {
+        if (!bonusChartInstance) return;
+        const gen1 = rank.gen1_bonus_rate * 100;
+        const gen2 = rank.gen2_bonus_rate * 100;
+        const gen3 = rank.gen3_bonus_rate * 100;
+
+        if (gen1 === 0 && gen2 === 0 && gen3 === 0) {
+            bonusChartInstance.data.datasets[0].data = [1];
+            bonusChartInstance.data.datasets[0].backgroundColor = ['#374151'];
+        } else {
+            bonusChartInstance.data.datasets[0].data = [gen1, gen2, gen3];
+            bonusChartInstance.data.datasets[0].backgroundColor = ['#06b6d4', '#8b5cf6', '#ec4899'];
+        }
+        bonusChartInstance.update();
+    }
+
+    // 初始化 DataTable.js
+    function initDataTable(historyData) {
+        rankDataTable = $('#rankHistoryTable').DataTable({
+            data: historyData,
+            responsive: true,
+            pageLength: 5,
+            lengthChange: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "搜尋夥伴姓名/編號...",
+                paginate: {
+                    previous: "<i class='fa-solid fa-angle-left'></i>",
+                    next: "<i class='fa-solid fa-angle-right'></i>"
+                },
+                info: "顯示第 _START_ 至 _END_ 項，共 _TOTAL_ 筆",
+                emptyTable: "尚無晉升核定紀錄"
+            },
+            columns: [
+                { data: 'history_id', className: 'font-chakra text-muted' },
+                { 
+                    data: null, 
+                    render: function(d) {
+                        return `<div class="fw-bold text-white">${d.partner_name}</div><div class="text-muted small font-chakra">${d.member_no}</div>`;
+                    }
+                },
+                { data: 'previous_rank', className: 'text-muted' },
+                { 
+                    data: 'new_rank',
+                    render: function(d) {
+                        return `<span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, var(--uvaco-primary), var(--uvaco-accent));">${d}</span>`;
+                    }
+                },
+                { data: 'effective_month', className: 'font-chakra' },
+                { 
+                    data: 'qualification_pv',
+                    className: 'font-chakra text-end',
+                    render: function(d) { return Number(d).toLocaleString(); }
+                },
+                { data: 'qualified_legs_count', className: 'font-chakra text-center' },
+                { data: 'verifier_name', className: 'text-neon-purple' },
+                { 
+                    data: 'celebration_status',
+                    render: function(d) {
+                        if (d === 'CELEBRATED') {
+                            return `<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50"><i class="fa-solid fa-check"></i> 大會已表揚</span>`;
+                        }
+                        return `<span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50"><i class="fa-solid fa-clock"></i> 待表揚</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function() {
+                        return `<button class="btn btn-sm btn-outline-light border-purple py-0 px-2"><i class="fa-solid fa-eye"></i></button>`;
+                    }
+                }
+            ]
+        });
+
+        // 綁定篩選器
+        $('#filterStatus').on('change', function() {
+            rankDataTable.column(8).search($(this).val()).draw();
+        });
+        $('#filterMonth').on('change', function() {
+            rankDataTable.column(4).search($(this).val()).draw();
+        });
+    }
+
+    // =========================================================================
+    // 4. 差距探測試算邏輯與事件
+    // =========================================================================
+    function bindEvents() {
+        $('#btnRunAuditCalc').on('click', function() {
+            const currentPv = parseFloat($('#inputCurrentPv').val()) || 0;
+            const currentLegs = parseInt($('#inputCurrentLegs').val()) || 0;
+            const targetRank = defaultRanksData.find(r => r.rank_code === 'R40'); // 目標：經理
+
+            const reqPv = targetRank.min_accumulated_pv;
+            const reqLegs = targetRank.min_manager_legs;
+
+            const pvPercent = Math.min(100, (currentPv / reqPv) * 100);
+            const legsPercent = reqLegs === 0 ? 100 : Math.min(100, (currentLegs / reqLegs) * 100);
+            const overall = ((pvPercent + legsPercent) / 2).toFixed(1);
+
+            $('#simProgressBar').css('width', `${overall}%`);
+            $('#simOverallPercent').text(`${overall}% 達標`);
+
+            const pvGap = reqPv - currentPv;
+            if (pvGap <= 0) {
+                $('#simPvGap').html(`<span class="text-success"><i class="fa-solid fa-circle-check"></i> 點數已達標</span>`);
+            } else {
+                $('#simPvGap').text(`尚差 ${pvGap.toLocaleString()} PV`);
+            }
+
+            const legGap = reqLegs - currentLegs;
+            if (legGap <= 0) {
+                $('#simLegGap').html(`<span class="text-success"><i class="fa-solid fa-circle-check"></i> 線數已達標</span>`);
+            } else {
+                $('#simLegGap').text(`尚差 ${legGap} 條合格線`);
+            }
+        });
+
+        // 模擬寫入晉升紀錄
+        $('#btnSubmitHistory').on('click', function() {
+            const newRecord = {
+                history_id: `HIS-2026-08-${Math.floor(Math.random() * 90 + 10)}`,
+                partner_name: '王小美',
+                member_no: 'TW551928',
+                previous_rank: '副理',
+                new_rank: '經理',
+                effective_month: '2026-08',
+                qualification_pv: 30500,
+                qualified_legs_count: 0,
+                verifier_name: '翁榮祥',
+                celebration_status: 'PENDING'
+            };
+            rankDataTable.row.add(newRecord).draw();
+            $('#newRankHistoryModal').modal('hide');
+        });
+    }
+</script>
+
+</body>
+</html>

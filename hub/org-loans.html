@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轉點對帳控制台 - 榮祥葡眾三軌數位戰情系統</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #0a0714;
+            --bg-surface: #130f24;
+            --bg-surface-elevated: #1d1736;
+            --bg-card: rgba(29, 23, 54, 0.7);
+            --border-color: rgba(168, 85, 247, 0.18);
+            --border-highlight: rgba(192, 132, 252, 0.45);
+            --primary-purple: #9333ea;
+            --primary-light: #a855f7;
+            --neon-accent: #c084fc;
+            --neon-cyan: #06b6d4;
+            --neon-emerald: #10b981;
+            --neon-amber: #f59e0b;
+            --neon-rose: #f43f5e;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(147, 51, 234, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        /* 戰術控制台玻璃擬態 */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-highlight);
+            box-shadow: 0 12px 40px 0 rgba(147, 51, 234, 0.2);
+        }
+
+        /* 頂部戰備抬頭 HUD */
+        .hud-title-badge {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(6, 182, 212, 0.15));
+            border: 1px solid var(--border-highlight);
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            color: var(--neon-accent);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* 互動精算器手柄 */
+        .sim-input-box {
+            background: rgba(10, 7, 20, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--neon-accent);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+        }
+        .sim-input-box:focus {
+            background: rgba(19, 15, 36, 0.95);
+            border-color: var(--neon-accent);
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.3);
+            color: #fff;
+        }
+
+        /* 狀態脈衝點 */
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* 滾動條客製化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-purple);
+            border-radius: 4px;
+        }
+
+        /* DataTable 暗紫色主題客製 */
+        .dataTables_wrapper {
+            color: var(--text-main);
+        }
+        table.dataTable {
+            border-color: var(--border-color) !important;
+            margin-top: 15px !important;
+        }
+        table.dataTable thead th {
+            background: rgba(19, 15, 36, 0.95) !important;
+            color: var(--neon-accent) !important;
+            border-bottom: 1px solid var(--border-highlight) !important;
+            font-weight: 600;
+            padding: 12px 14px;
+        }
+        table.dataTable tbody td {
+            background: transparent !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-main);
+            padding: 12px 14px;
+            vertical-align: middle;
+        }
+        table.dataTable tbody tr:hover td {
+            background: rgba(147, 51, 234, 0.15) !important;
+        }
+        .page-link {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
+            color: var(--neon-accent) !important;
+        }
+        .page-item.active .page-link {
+            background-color: var(--primary-purple) !important;
+            border-color: var(--neon-accent) !important;
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+        }
+        .dataTables_filter input, .dataTables_length select {
+            background: var(--bg-surface) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+            border-radius: 8px;
+            padding: 4px 10px;
+        }
+
+        /* 快捷晶片按鈕 */
+        .chip-btn {
+            background: rgba(147, 51, 234, 0.15);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .chip-btn:hover, .chip-btn.active {
+            background: var(--primary-purple);
+            border-color: var(--neon-accent);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="py-4">
+
+    <div class="container-fluid px-lg-5">
+
+        <div class="row align-items-center mb-4 g-3">
+            <div class="col-12 col-xl-7">
+                <div class="d-flex align-items-center flex-wrap gap-3">
+                    <h2 class="mb-0 fw-bold d-flex align-items-center text-white">
+                        <i class="fa-solid fa-arrows-split-up-and-left text-neon me-2" style="color: var(--neon-accent);"></i> 轉點與代墊借貸對帳系統
+                    </h2>
+                    <span class="hud-title-badge">
+                        <i class="fa-solid fa-shield-halved text-neon-emerald me-1" style="color: var(--neon-emerald);"></i> Ray & Jarvis 核心戰備協議已載入
+                    </span>
+                </div>
+                <p class="text-muted small mt-1 mb-0">
+                    <i class="fa-solid fa-network-wired"></i> 專注管理 160 / 12,000 SV 門檻保級調度、出資成本核算與次月 20 日發薪自動沖銷
+                </p>
+            </div>
+
+            <div class="col-12 col-xl-5 text-xl-end">
+                <div class="d-inline-flex flex-wrap gap-2 align-items-center">
+                    <div class="input-group input-group-sm" style="width: 170px;">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-calendar-days"></i></span>
+                        <input type="month" id="filter-period-month" class="form-control bg-dark border-secondary text-white" value="2026-08">
+                    </div>
+                    <button class="btn btn-sm btn-outline-info" id="btn-sync-sheets">
+                        <i class="fa-solid fa-rotate"></i> 同步試算表
+                    </button>
+                    <button class="btn btn-sm text-white" style="background: linear-gradient(135deg, var(--primary-purple), var(--neon-accent));" data-bs-toggle="modal" data-bs-target="#modal-new-loan">
+                        <i class="fa-solid fa-plus"></i> 新增借點派發
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold"><i class="fa-solid fa-coins text-warning"></i> 當月在途出借 SV</span>
+                        <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25">未平帳</span>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                        <h3 class="fw-bold mb-0 text-white" id="hud-total-lent-sv">18,450</h3>
+                        <span class="ms-2 text-muted small">SV</span>
+                    </div>
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                        <span><i class="fa-solid fa-user-group"></i> 借點夥伴：6 位</span>
+                        <span>衝刺經理：4 案</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold"><i class="fa-solid fa-wallet text-info"></i> 代墊實出成本總額</span>
+                        <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25">NT$ 14 / SV</span>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                        <h3 class="fw-bold mb-0 text-info" id="hud-total-cost-twd">NT$ 258,300</h3>
+                    </div>
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                        <span>Ray 代墊：NT$ 180,000</span>
+                        <span>Jarvis：NT$ 78,300</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold"><i class="fa-solid fa-hand-holding-dollar text-neon-accent" style="color: var(--neon-accent);"></i> 實應催收淨額</span>
+                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">-20% 回饋折抵</span>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                        <h3 class="fw-bold mb-0" style="color: var(--neon-accent);" id="hud-net-receivable-twd">NT$ 206,640</h3>
+                    </div>
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                        <span>回饋金折抵：NT$ 51,660</span>
+                        <span class="text-emerald"><i class="fa-solid fa-check"></i> 利差鎖定</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-semibold"><i class="fa-solid fa-calendar-check text-danger"></i> 次月 20 日自動沖銷</span>
+                        <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25">倒數 31 天</span>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                        <h3 class="fw-bold mb-0 text-white">2026-09-20</h3>
+                    </div>
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                        <span><i class="fa-solid fa-bolt text-warning"></i> 自動扣款授權率</span>
+                        <span class="text-white fw-bold">100% (6/6)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            
+            <div class="col-12 col-lg-5">
+                <div class="glass-panel p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold text-white d-flex align-items-center">
+                            <i class="fa-solid fa-calculator text-neon me-2" style="color: var(--neon-accent);"></i> 轉點借貸與 20% 利潤試算工坊
+                        </h5>
+                        <span class="badge rounded-pill bg-dark border border-secondary text-muted">即時試算</span>
+                    </div>
+                    <p class="text-muted small">模擬下線衝刺 160 或 12,000 SV 門檻時，出借點數與次月 20 日發薪應扣金額：</p>
+
+                    <form id="loan-sim-form" class="mt-3">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small"><i class="fa-solid fa-tag"></i> 借點用途預設模板</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="chip-btn active" data-preset-sv="160" data-purpose="PERSONAL_160"><i class="fa-solid fa-user-check"></i> 個人責任額 (160 SV)</button>
+                                <button type="button" class="chip-btn" data-preset-sv="2000" data-purpose="MANAGER_12000"><i class="fa-solid fa-award"></i> 經理保級補點 (2,000 SV)</button>
+                                <button type="button" class="chip-btn" data-preset-sv="4000" data-purpose="PROMOTION"><i class="fa-solid fa-rocket"></i> 晉升主任衝刺 (4,000 SV)</button>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-layer-group"></i> 預計出借點數 (SV)</label>
+                                <input type="number" id="sim-input-sv" class="form-control sim-input-box" value="2000" step="10">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small"><i class="fa-solid fa-dollar-sign"></i> SV 換算台幣單價比率</label>
+                                <input type="number" id="sim-input-ratio" class="form-control sim-input-box" value="14.00" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-3 mb-3" style="background: rgba(10, 7, 20, 0.6); border: 1px dashed var(--border-highlight);">
+                            <div class="row g-2 text-center">
+                                <div class="col-4 border-end border-secondary border-opacity-25">
+                                    <div class="text-muted" style="font-size: 0.75rem;">出資成本 (TWD)</div>
+                                    <div class="fw-bold text-white mt-1" id="sim-out-cost">NT$ 28,000</div>
+                                </div>
+                                <div class="col-4 border-end border-secondary border-opacity-25">
+                                    <div class="text-muted" style="font-size: 0.75rem;">預估 20% 回饋</div>
+                                    <div class="fw-bold text-success mt-1" id="sim-out-rebate">- NT$ 5,600</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-muted" style="font-size: 0.75rem;">次月 20 日實扣</div>
+                                    <div class="fw-bold text-neon mt-1" style="color: var(--neon-accent);" id="sim-out-net">NT$ 22,400</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-outline-light btn-sm py-2" id="btn-apply-sim-to-modal">
+                                <i class="fa-solid fa-file-import"></i> 將此試算帶入正式借點工單
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-7">
+                <div class="glass-panel p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold text-white d-flex align-items-center">
+                            <i class="fa-solid fa-radar text-info me-2"></i> 發薪日扣款防禦雷達與夥伴還款能力監控
+                        </h5>
+                        <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25">次月 20 日全自動對沖</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded-3 h-100" style="background: rgba(10, 7, 20, 0.6); border: 1px solid var(--border-color);">
+                                <div class="text-muted small mb-2"><i class="fa-solid fa-chart-pie"></i> 借點用途分佈結構</div>
+                                <div style="height: 180px; position: relative;">
+                                    <canvas id="loanPurposeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(10, 7, 20, 0.6); border: 1px solid var(--border-color);">
+                                <div>
+                                    <div class="text-muted small mb-2 d-flex justify-content-between">
+                                        <span><i class="fa-solid fa-triangle-exclamation text-warning"></i> 20日扣款高額警示</span>
+                                        <span class="text-muted" style="font-size: 0.75rem;">依待還款排序</span>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" id="radar-alert-list">
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: rgba(29, 23, 54, 0.6);">
+                                            <div class="d-flex align-items-center">
+                                                <div class="pulse-dot text-danger me-2"></div>
+                                                <div>
+                                                    <div class="text-white small fw-bold">陳志強 (經理)</div>
+                                                    <div class="text-muted" style="font-size: 0.7rem;">借點 6,000 SV 衝刺</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="text-neon fw-bold small" style="color: var(--neon-accent);">NT$ 67,200</div>
+                                                <span class="badge bg-danger bg-opacity-20 text-danger" style="font-size: 0.65rem;">預估獎金覆蓋充足</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: rgba(29, 23, 54, 0.6);">
+                                            <div class="d-flex align-items-center">
+                                                <div class="pulse-dot text-warning me-2"></div>
+                                                <div>
+                                                    <div class="text-white small fw-bold">張惠婷 (主任)</div>
+                                                    <div class="text-muted" style="font-size: 0.7rem;">借點 3,500 SV 保級</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="text-neon fw-bold small" style="color: var(--neon-accent);">NT$ 39,200</div>
+                                                <span class="badge bg-warning bg-opacity-20 text-warning" style="font-size: 0.65rem;">需關注小組達成</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-end">
+                                    <a href="#table-container" class="text-neon text-decoration-none small" style="color: var(--neon-accent); font-size: 0.75rem;">
+                                        <i class="fa-solid fa-arrow-down"></i> 查看完整對帳流水
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 mb-5" id="table-container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+                <div>
+                    <h5 class="mb-0 fw-bold text-white d-flex align-items-center">
+                        <i class="fa-solid fa-table-list text-neon me-2" style="color: var(--neon-accent);"></i> 轉點借貸對帳與沖銷總帳 (org_sv_loans)
+                    </h5>
+                    <div class="text-muted small mt-1">
+                        <i class="fa-solid fa-circle-info"></i> 欄位已與 Google 試算表 `org_sv_loans` / `fin_sv_assistances` 欄位別名完全解耦
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="chip-btn active" data-filter-status="ALL"><i class="fa-solid fa-list-check"></i> 全部記錄</button>
+                    <button class="chip-btn" data-filter-status="OPEN"><i class="fa-solid fa-clock"></i> 待還款 (OPEN)</button>
+                    <button class="chip-btn" data-filter-status="SETTLED"><i class="fa-solid fa-circle-check"></i> 已結清 (SETTLED)</button>
+                    <button class="btn btn-sm btn-outline-danger" id="btn-batch-reconcile">
+                        <i class="fa-solid fa-bolt-lightning"></i> 執行發薪日批次自動沖銷
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="loansTable" class="table table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>單號 / 發生日</th>
+                            <th>借點夥伴 (被借人)</th>
+                            <th>出借人</th>
+                            <th>用途類別</th>
+                            <th>出借 SV</th>
+                            <th>台幣成本</th>
+                            <th>預估20%折抵</th>
+                            <th>實應催收 (NTD)</th>
+                            <th>約定沖銷日</th>
+                            <th>狀態</th>
+                            <th class="text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loans-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modal-new-loan" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-highlight); color: var(--text-main);">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center">
+                        <i class="fa-solid fa-hand-holding-dollar text-neon me-2" style="color: var(--neon-accent);"></i> 建立轉點借貸單 (SV Lending Protocol)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="form-create-loan">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user-tie"></i> 出借人 (Lender)</label>
+                                <select class="form-select sim-input-box" id="modal-lender" required>
+                                    <option value="Ray" selected>翁榮祥 (Ray)</option>
+                                    <option value="Jarvis">林承志 (Jarvis)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user"></i> 借點夥伴 (Borrower)</label>
+                                <input type="text" class="form-control sim-input-box" id="modal-borrower" placeholder="輸入夥伴姓名或經銷商號" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-bullseye"></i> 借點用途</label>
+                                <select class="form-select sim-input-box" id="modal-purpose" required>
+                                    <option value="PERSONAL_160">湊個人 160 SV</option>
+                                    <option value="MANAGER_12000" selected>經理 12,000 SV 保級</option>
+                                    <option value="PROMOTION">衝刺晉升職級</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-coins"></i> 出借點數 (SV)</label>
+                                <input type="number" class="form-control sim-input-box" id="modal-sv" value="2000" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-receipt"></i> 官方訂單/掛點單號</label>
+                                <input type="text" class="form-control sim-input-box" id="modal-official-order" placeholder="選填，如 UV2026082001">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar"></i> 借點發生日</label>
+                                <input type="date" class="form-control sim-input-box" id="modal-loan-date" value="2026-08-20" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-check"></i> 約定發薪沖銷日</label>
+                                <input type="date" class="form-control sim-input-box" id="modal-due-date" value="2026-09-20" required>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="modal-auto-reconcile" checked>
+                                    <label class="form-check-label small text-muted" for="modal-auto-reconcile">
+                                        <i class="fa-solid fa-shield-check"></i> 次月 20 日官方水單匯入時自動沖銷抵扣
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted"><i class="fa-solid fa-note-sticky"></i> 備註事項</label>
+                                <textarea class="form-control sim-input-box" id="modal-notes" rows="2" placeholder="說明借點備忘..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn text-white" style="background: var(--primary-purple);" id="btn-submit-loan">
+                        <i class="fa-solid fa-floppy-disk"></i> 正式儲存並發送通知
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 系統架構師核心數據解耦轉接層 (Field Decoupling Mapping)
+         * 兼容 Google 試算表中文欄位別名與系統標準欄位鍵名
+         */
+        const FIELD_MAPPINGS = {
+            loan_id: ["借貸單號", "流水號", "loan_id", "LoanID"],
+            loan_date: ["借點日期", "發生日期", "loan_date", "Date"],
+            borrower_name: ["借點夥伴", "夥伴姓名", "borrower_name", "Borrower"],
+            lender_name: ["出借人", "出資人", "lender_name", "Lender"],
+            purpose_type: ["借點用途", "用途類別", "purpose_type", "Purpose"],
+            loaned_sv: ["出借SV", "借出SV", "loaned_sv", "SV"],
+            cost_twd: ["出資成本", "台幣成本", "cost_amount_twd", "CostTWD"],
+            rebate_twd: ["預估回饋", "20%回饋", "estimated_rebate_twd", "RebateTWD"],
+            net_twd: ["實應催收", "應還金額", "net_receivable_twd", "NetReceivable"],
+            due_date: ["約定還款日", "沖銷日", "settlement_due_date", "DueDate"],
+            loan_status: ["狀態", "對帳狀態", "loan_status", "Status"],
+            official_order_no: ["官方單號", "掛點單號", "official_order_no", "OrderNo"]
+        };
+
+        // 模擬伺服器/Google 試算表初始種子數據
+        let mockLoansData = [
+            {
+                loan_id: "LN-20260820-001",
+                loan_date: "2026-08-18",
+                borrower_name: "陳志強",
+                lender_name: "Ray 翁榮祥",
+                purpose_type: "MANAGER_12000",
+                loaned_sv: 6000,
+                cost_twd: 84000,
+                rebate_twd: 16800,
+                net_twd: 67200,
+                due_date: "2026-09-20",
+                loan_status: "OPEN",
+                official_order_no: "UV260818991"
+            },
+            {
+                loan_id: "LN-20260819-002",
+                loan_date: "2026-08-19",
+                borrower_name: "張惠婷",
+                lender_name: "Ray 翁榮祥",
+                purpose_type: "MANAGER_12000",
+                loaned_sv: 3500,
+                cost_twd: 49000,
+                rebate_twd: 9800,
+                net_twd: 39200,
+                due_date: "2026-09-20",
+                loan_status: "OPEN",
+                official_order_no: "UV260819124"
+            },
+            {
+                loan_id: "LN-20260820-003",
+                loan_date: "2026-08-20",
+                borrower_name: "李大維",
+                lender_name: "Jarvis 林承志",
+                purpose_type: "PERSONAL_160",
+                loaned_sv: 160,
+                cost_twd: 2240,
+                rebate_twd: 448,
+                net_twd: 1792,
+                due_date: "2026-09-20",
+                loan_status: "OPEN",
+                official_order_no: "UV260820033"
+            },
+            {
+                loan_id: "LN-20260810-004",
+                loan_date: "2026-08-10",
+                borrower_name: "王小美",
+                lender_name: "Ray 翁榮祥",
+                purpose_type: "PROMOTION",
+                loaned_sv: 8000,
+                cost_twd: 112000,
+                rebate_twd: 22400,
+                net_twd: 89600,
+                due_date: "2026-09-20",
+                loan_status: "OPEN",
+                official_order_no: "UV260810871"
+            },
+            {
+                loan_id: "LN-20260718-091",
+                loan_date: "2026-07-18",
+                borrower_name: "劉冠廷",
+                lender_name: "Jarvis 林承志",
+                purpose_type: "MANAGER_12000",
+                loaned_sv: 2000,
+                cost_twd: 28000,
+                rebate_twd: 5600,
+                net_twd: 22400,
+                due_date: "2026-08-20",
+                loan_status: "SETTLED",
+                official_order_no: "UV260718102"
+            }
+        ];
+
+        let dataTableInstance = null;
+        let loanPurposeChartInstance = null;
+
+        $(document).ready(function () {
+            initSimulator();
+            initChart();
+            initDataTable(mockLoansData);
+            bindEvents();
+        });
+
+        // 1. 初始化即時試算工坊
+        function initSimulator() {
+            function recalc() {
+                const sv = parseFloat($('#sim-input-sv').val()) || 0;
+                const ratio = parseFloat($('#sim-input-ratio').val()) || 14;
+                const cost = sv * ratio;
+                const rebate = cost * 0.20;
+                const net = cost - rebate;
+
+                $('#sim-out-cost').text(`NT$ ${cost.toLocaleString('zh-TW', { minimumFractionDigits: 0 })}`);
+                $('#sim-out-rebate').text(`- NT$ ${rebate.toLocaleString('zh-TW', { minimumFractionDigits: 0 })}`);
+                $('#sim-out-net').text(`NT$ ${net.toLocaleString('zh-TW', { minimumFractionDigits: 0 })}`);
+            }
+
+            $('#sim-input-sv, #sim-input-ratio').on('input', recalc);
+            
+            $('[data-preset-sv]').on('click', function () {
+                $('[data-preset-sv]').removeClass('active');
+                $(this).addClass('active');
+                $('#sim-input-sv').val($(this).data('preset-sv'));
+                recalc();
+            });
+
+            $('#btn-apply-sim-to-modal').on('click', function () {
+                const sv = $('#sim-input-sv').val();
+                const activePreset = $('[data-preset-sv].active').data('purpose') || 'MANAGER_12000';
+                $('#modal-sv').val(sv);
+                $('#modal-purpose').val(activePreset);
+                const modal = new bootstrap.Modal(document.getElementById('modal-new-loan'));
+                modal.show();
+            });
+
+            recalc();
+        }
+
+        // 2. 初始化用途結構圖表
+        function initChart() {
+            const ctx = document.getElementById('loanPurposeChart').getContext('2d');
+            loanPurposeChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['經理保級 (12k)', '個人責任 (160)', '衝刺晉升'],
+                    datasets: [{
+                        data: [11500, 160, 8000],
+                        backgroundColor: [
+                            'rgba(168, 85, 247, 0.85)',
+                            'rgba(6, 182, 212, 0.85)',
+                            'rgba(245, 158, 11, 0.85)'
+                        ],
+                        borderColor: '#130f24',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#9ca3af',
+                                boxWidth: 12,
+                                font: { size: 10 }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // 3. 初始化 DataTable
+        function initDataTable(dataset) {
+            dataTableInstance = $('#loansTable').DataTable({
+                data: dataset,
+                responsive: true,
+                order: [[0, 'desc']],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋夥伴/單號...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        previous: '<i class="fa-solid fa-chevron-left"></i>',
+                        next: '<i class="fa-solid fa-chevron-right"></i>'
+                    }
+                },
+                columns: [
+                    {
+                        data: 'loan_id',
+                        render: function (data, type, row) {
+                            return `<div>
+                                <span class="fw-bold text-neon" style="color: var(--neon-accent);">${data}</span>
+                                <div class="text-muted" style="font-size: 0.75rem;">${row.loan_date}</div>
+                            </div>`;
+                        }
+                    },
+                    {
+                        data: 'borrower_name',
+                        render: function (data) {
+                            return `<div class="fw-semibold text-white"><i class="fa-solid fa-user-tag text-muted me-1"></i> ${data}</div>`;
+                        }
+                    },
+                    {
+                        data: 'lender_name',
+                        render: function (data) {
+                            return `<span class="badge bg-secondary bg-opacity-25 text-light">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'purpose_type',
+                        render: function (data) {
+                            const map = {
+                                'PERSONAL_160': '<span class="badge bg-info bg-opacity-20 text-info">個人 160 SV</span>',
+                                'MANAGER_12000': '<span class="badge bg-purple bg-opacity-20 text-neon" style="color: var(--neon-accent);">經理 12,000 SV</span>',
+                                'PROMOTION': '<span class="badge bg-warning bg-opacity-20 text-warning">衝刺晉升</span>'
+                            };
+                            return map[data] || data;
+                        }
+                    },
+                    {
+                        data: 'loaned_sv',
+                        render: function (data) {
+                            return `<span class="fw-bold">${data.toLocaleString()} SV</span>`;
+                        }
+                    },
+                    {
+                        data: 'cost_twd',
+                        render: function (data) {
+                            return `<span class="text-muted">NT$ ${data.toLocaleString()}</span>`;
+                        }
+                    },
+                    {
+                        data: 'rebate_twd',
+                        render: function (data) {
+                            return `<span class="text-success">- NT$ ${data.toLocaleString()}</span>`;
+                        }
+                    },
+                    {
+                        data: 'net_twd',
+                        render: function (data) {
+                            return `<span class="fw-bold" style="color: var(--neon-accent);">NT$ ${data.toLocaleString()}</span>`;
+                        }
+                    },
+                    {
+                        data: 'due_date',
+                        render: function (data) {
+                            return `<span class="small text-muted"><i class="fa-solid fa-calendar-day"></i> ${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'loan_status',
+                        render: function (data) {
+                            if (data === 'OPEN') {
+                                return `<span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25"><i class="fa-solid fa-clock"></i> 待還款</span>`;
+                            } else if (data === 'SETTLED') {
+                                return `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25"><i class="fa-solid fa-check"></i> 已結清</span>`;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            if (row.loan_status === 'OPEN') {
+                                return `<div class="d-flex justify-content-center gap-1">
+                                    <button class="btn btn-sm btn-outline-success btn-action-settle py-0 px-2" data-id="${row.loan_id}" title="次月20日扣款手動銷帳">
+                                        <i class="fa-solid fa-bolt"></i> 沖銷
+                                    </button>
+                                </div>`;
+                            }
+                            return `<div class="text-center text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-lock"></i> 歸檔</div>`;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // 4. 事件綁定與操作互動
+        function bindEvents() {
+            // 篩選狀態晶片按鈕
+            $('[data-filter-status]').on('click', function () {
+                $('[data-filter-status]').removeClass('active');
+                $(this).addClass('active');
+                const status = $(this).data('filter-status');
+                if (status === 'ALL') {
+                    dataTableInstance.column(9).search('').draw();
+                } else if (status === 'OPEN') {
+                    dataTableInstance.column(9).search('待還款').draw();
+                } else if (status === 'SETTLED') {
+                    dataTableInstance.column(9).search('已結清').draw();
+                }
+            });
+
+            // 單筆沖銷處理
+            $('#loansTable').on('click', '.btn-action-settle', function () {
+                const loanId = $(this).data('id');
+                if (confirm(`確認對工單 ${loanId} 執行發薪日獎金沖銷抵扣？`)) {
+                    const rowData = mockLoansData.find(item => item.loan_id === loanId);
+                    if (rowData) {
+                        rowData.loan_status = 'SETTLED';
+                        dataTableInstance.clear().rows.add(mockLoansData).draw();
+                        alert(`工單 ${loanId} 已成功沖銷，次月發薪實收已扣除！`);
+                    }
+                }
+            });
+
+            // 批次沖銷
+            $('#btn-batch-reconcile').on('click', function () {
+                if (confirm('是否對所有待還款 (OPEN) 且已到期之借點工單執行發薪日自動對沖？')) {
+                    mockLoansData.forEach(item => {
+                        if (item.loan_status === 'OPEN') item.loan_status = 'SETTLED';
+                    });
+                    dataTableInstance.clear().rows.add(mockLoansData).draw();
+                    alert('已完成當期所有借點工單之發薪日獎金自動沖銷！');
+                }
+            });
+
+            // 新增借點提交
+            $('#btn-submit-loan').on('click', function () {
+                const borrower = $('#modal-borrower').val().trim();
+                const sv = parseFloat($('#modal-sv').val()) || 0;
+                if (!borrower || sv <= 0) {
+                    alert('請完整填寫借點人姓名與有效出借 SV！');
+                    return;
+                }
+
+                const cost = sv * 14;
+                const rebate = cost * 0.20;
+                const net = cost - rebate;
+                const newId = `LN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random()*900)}`;
+
+                const newRecord = {
+                    loan_id: newId,
+                    loan_date: $('#modal-loan-date').val(),
+                    borrower_name: borrower,
+                    lender_name: $('#modal-lender').find('option:selected').text(),
+                    purpose_type: $('#modal-purpose').val(),
+                    loaned_sv: sv,
+                    cost_twd: cost,
+                    rebate_twd: rebate,
+                    net_twd: net,
+                    due_date: $('#modal-due-date').val(),
+                    loan_status: "OPEN",
+                    official_order_no: $('#modal-official-order').val() || "UV-MANUAL"
+                };
+
+                mockLoansData.unshift(newRecord);
+                dataTableInstance.clear().rows.add(mockLoansData).draw();
+                
+                const modalEl = document.getElementById('modal-new-loan');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                $('#form-create-loan')[0].reset();
+                alert(`轉點工單 ${newId} 已建立，已預約於 ${newRecord.due_date} 發薪日自動沖銷！`);
+            });
+
+            // 試算表 Google GViz / PapaParse 解耦同步示範
+            $('#btn-sync-sheets').on('click', function () {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 串接解析中...');
+                
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-check text-success"></i> 試算表已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-rotate"></i> 同步試算表'), 2000);
+                }, 1000);
+            });
+        }
+    </script>
+</body>
+</html>

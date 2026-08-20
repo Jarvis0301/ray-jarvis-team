@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>積分最佳化 - SV Allocation Optimizer | 榮祥團隊戰情室</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #0a0714;
+            --bg-surface: #120d24;
+            --bg-elevated: #1a1333;
+            --bg-card: #201740;
+            --border-glow: rgba(168, 85, 247, 0.25);
+            --border-active: rgba(168, 85, 247, 0.6);
+            --neon-purple: #a855f7;
+            --neon-violet: #c084fc;
+            --neon-cyan: #06b6d4;
+            --neon-emerald: #10b981;
+            --neon-amber: #f59e0b;
+            --neon-rose: #f43f5e;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding: 1.25rem;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.06) 0%, transparent 40%);
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 戰備玻璃質感容器 */
+        .tactical-panel {
+            background: linear-gradient(135deg, rgba(26, 19, 51, 0.7) 0%, rgba(18, 13, 36, 0.85) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tactical-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+        }
+
+        /* 控制艙 Command Header */
+        .command-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+        }
+
+        /* 模式切換按鈕組 */
+        .strategy-pill {
+            background: rgba(32, 23, 64, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .strategy-pill:hover {
+            color: var(--text-main);
+            border-color: var(--neon-purple);
+            background: rgba(168, 85, 247, 0.15);
+        }
+
+        .strategy-pill.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(192, 132, 252, 0.2) 100%);
+            border-color: var(--neon-purple);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+        }
+
+        /* 節點流卡片 (Allocation Node Flow) */
+        .node-card {
+            background: var(--bg-elevated);
+            border: 1px solid rgba(168, 85, 247, 0.15);
+            border-radius: 0.85rem;
+            padding: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .node-card:hover {
+            border-color: var(--border-active);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
+        }
+
+        .node-card.priority-p0 {
+            border-left: 4px solid var(--neon-rose);
+        }
+
+        .node-card.priority-p1 {
+            border-left: 4px solid var(--neon-amber);
+        }
+
+        .node-card.priority-p2 {
+            border-left: 4px solid var(--neon-emerald);
+        }
+
+        /* 雙軌進度條 (Dual Progress Bar) */
+        .dual-meter-track {
+            background: rgba(10, 7, 20, 0.8);
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill-base {
+            height: 100%;
+            background: #475569;
+            transition: width 0.4s ease;
+        }
+
+        .meter-fill-boost {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
+            box-shadow: 0 0 8px var(--neon-purple);
+            transition: width 0.4s ease;
+        }
+
+        /* SV 自訂滑桿 Slider */
+        .sv-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #2a1f4d;
+            outline: none;
+        }
+
+        .sv-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--neon-violet);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--neon-purple);
+            border: 2px solid #ffffff;
+        }
+
+        /* 徽章樣式 */
+        .tactical-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-purple {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--neon-violet);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .badge-cyan {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .badge-emerald {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--neon-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--neon-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* HUD 指標數值 */
+        .hud-stat-box {
+            background: rgba(18, 13, 36, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .hud-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* 霓虹主按鈕 */
+        .btn-neon-action {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #d946ef 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 0.6rem;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-neon-action:hover {
+            box-shadow: 0 0 30px rgba(217, 70, 239, 0.6);
+            transform: scale(1.02);
+            color: #ffffff;
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d1f59;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-purple);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="tactical-panel p-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-xl-4 col-lg-5">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 p-3 rounded-3" style="background: rgba(168, 85, 247, 0.15); border: 1px solid var(--neon-purple);">
+                            <i class="fa-solid fa-wand-magic-sparkles text-neon-purple fs-3" style="color: var(--neon-violet);"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h4 class="m-0 fw-bold tracking-wide">月度積分最佳化分配</h4>
+                                <span class="tactical-badge badge-purple">H46000 ENGINE</span>
+                            </div>
+                            <p class="text-muted small m-0 mt-1">Ray & Jarvis 專屬進貨 SV 智慧求解沙盒與落點排單引擎</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-lg-7">
+                    <div class="command-bar d-flex align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-muted"></i>
+                            <select id="selectMonth" class="form-select form-select-sm bg-dark text-light border-secondary" style="width: 120px;">
+                                <option value="2026-08" selected>2026-08</option>
+                                <option value="2026-09">2026-09</option>
+                            </select>
+                        </div>
+                        <div class="vr bg-secondary opacity-50"></div>
+                        <div class="d-flex align-items-center gap-2 flex-grow-1">
+                            <span class="small text-nowrap text-muted"><i class="fa-solid fa-box-open"></i> 進貨 SV 池:</span>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="inputPoolSv" class="form-control bg-dark text-light border-secondary font-mono fw-bold text-end" value="38500" step="500">
+                                <span class="input-group-text bg-dark text-muted border-secondary font-mono">SV</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-lg-12 d-flex justify-content-xl-end gap-2 align-items-center flex-wrap">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="strategy-pill active" data-goal="MAX_BONUS">
+                            <i class="fa-solid fa-sack-dollar me-1"></i> 獲利最大化
+                        </button>
+                        <button type="button" class="strategy-pill" data-goal="PREVENT_BREAKAWAY">
+                            <i class="fa-solid fa-shield-halved me-1"></i> 經理保級優先
+                        </button>
+                        <button type="button" class="strategy-pill" data-goal="BALANCED">
+                            <i class="fa-solid fa-scale-balanced me-1"></i> 均衡發展
+                        </button>
+                    </div>
+                    <button id="btnRunOptimizer" class="btn btn-neon-action btn-sm px-3">
+                        <i class="fa-solid fa-bolt"></i> 執行 AI 求解
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-xl-8 col-lg-7">
+                <div class="tactical-panel p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="fw-bold m-0"><i class="fa-solid fa-diagram-project text-neon-purple" style="color: var(--neon-violet);"></i> 推薦落點節點網絡</h5>
+                            <span id="nodeCountBadge" class="tactical-badge badge-cyan">4 個重點目標</span>
+                        </div>
+                        <div class="small text-muted">
+                            <span class="me-3"><span class="badge bg-danger rounded-circle p-1 me-1"> </span>P0 個人 160 SV</span>
+                            <span class="me-3"><span class="badge bg-warning rounded-circle p-1 me-1"> </span>P1 經理 12,000 SV</span>
+                            <span><span class="badge bg-success rounded-circle p-1 me-1"> </span>P2 差額獲利推升</span>
+                        </div>
+                    </div>
+
+                    <div id="nodeContainer" class="d-flex flex-column gap-3">
+                        </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary border-opacity-25 small text-muted">
+                        <div>
+                            <i class="fa-solid fa-circle-info"></i> 可直接拖動各節點分配滑桿手動微調，HUD 收益將即時重新計算。
+                        </div>
+                        <button id="btnResetPlan" class="btn btn-link btn-sm text-decoration-none text-muted p-0">
+                            <i class="fa-solid fa-rotate-left"></i> 還原演算法推薦值
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-lg-5">
+                <div class="d-flex flex-column gap-3">
+                    <div class="tactical-panel p-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-radar" style="color: var(--neon-cyan);"></i> 即時戰術效益評估</h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="hud-stat-box">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-hand-holding-dollar"></i> 預估增量回饋</div>
+                                    <div id="statEstimatedRoi" class="hud-value font-mono text-success">+$28,450</div>
+                                    <div class="text-dim small mt-1 font-mono">TWD 淨收益增幅</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="hud-stat-box">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-user-shield"></i> 保全合格經理</div>
+                                    <div id="statProtectedMgrs" class="hud-value font-mono text-neon-purple" style="color: var(--neon-violet);">3 <span class="fs-6 text-muted">位</span></div>
+                                    <div class="text-dim small mt-1">避開向上緊縮損失</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="hud-stat-box">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-arrows-split-up-and-left"></i> SV 總分配率</div>
+                                    <div id="statAllocatedRate" class="hud-value font-mono text-cyan" style="color: var(--neon-cyan);">100%</div>
+                                    <div id="statAllocatedDetail" class="text-dim small mt-1 font-mono">38,500 / 38,500</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="hud-stat-box">
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-hourglass-half"></i> 剩餘未配置 SV</div>
+                                    <div id="statRemainingSv" class="hud-value font-mono text-muted">0</div>
+                                    <div class="text-dim small mt-1">無浪費之有效積點</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small fw-bold text-muted"><i class="fa-solid fa-chart-pie"></i> 各線夥伴 SV 落點佔比</span>
+                                <span id="planCodeBadge" class="tactical-badge badge-purple font-mono">OPT-202608-A</span>
+                            </div>
+                            <div style="height: 180px; position: relative;">
+                                <canvas id="chartSvDistribution"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tactical-panel p-4">
+                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-brain" style="color: var(--neon-purple);"></i> 演算法落點策略建議理由</h6>
+                        <p id="solverReasoningText" class="small text-muted leading-relaxed mb-3">
+                            優先注水 6,200 SV 助陳副理達成 12,000 SV 晉升經理，並保全第 2 代經理組織線；同時以 160 SV 啟用林專員之領取資格，剩餘 32,140 SV 佈局於 Ray 直屬高差額線，使整組收益最大化。
+                        </p>
+                        
+                        <div class="d-grid gap-2">
+                            <button id="btnCommitAllocation" class="btn btn-neon-action">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> 採納並寫入官方排單草稿 (409表)
+                            </button>
+                            <button id="btnExportCsv" class="btn btn-outline-secondary btn-sm text-light border-secondary">
+                                <i class="fa-solid fa-file-arrow-down"></i> 匯出落點掛單清單 (.CSV)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCommitSuccess" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--neon-purple); color: var(--text-main);">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-circle-check text-success"></i> 方案已成功歸檔</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-2">本次求解方案代碼：<span class="font-mono text-neon-purple fw-bold" id="modalPlanCode">OPT-202608-A</span></p>
+                    <p class="text-muted small">已建立 <span id="modalRecordCount" class="font-mono text-light fw-bold">4</span> 筆分配記錄至 <code class="text-cyan">org_sv_allocations</code> 資料表，創始人可依據此方案至葡眾後台完成正式劃撥掛單。</p>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥戰情系統 - 積分最佳化求解器引擎 (H46000)
+         * 具備 Google 試算表欄位解耦防腐層 (ACL)
+         */
+        const SvOptimizerEngine = (function () {
+            // 系統解耦 Mapping 字典 (可自 sys_api_configs 載入)
+            const COLUMN_MAPPINGS = {
+                partner_id: ['partner_id', '夥伴ID', '會員編號', 'UUID'],
+                partner_name: ['partner_name', '夥伴姓名', '經銷商名稱', '姓名'],
+                current_rank: ['current_rank', '當前職級', '職級代碼'],
+                personal_sv: ['personal_sv', '個人當前SV', '個人累積SV'],
+                group_sv: ['group_sv', '小組當前SV', '小組累積SV'],
+                rank_rebate_rate: ['rank_rebate_rate', '個人回饋率', '回饋比率']
+            };
+
+            // 預設模擬/試算表載入之夥伴數據
+            let partnerPool = [
+                { id: "PTN-001", name: "翁榮祥 (Ray)", rank: "經理 (20%)", personalSv: 160, groupSv: 48500, rebateRate: 0.20, priority: "P2", targetRank: "經理", recommendedSv: 18000, reason: "核心領導人高差額獲利落點" },
+                { id: "PTN-002", name: "陳雅婷 (準經理)", rank: "副理 (16%)", personalSv: 160, groupSv: 5800, rebateRate: 0.16, priority: "P1", targetRank: "經理 (晉升)", recommendedSv: 6200, reason: "補足小組 12,000 SV 衝刺晉升經理，防斷代" },
+                { id: "PTN-003", name: "張家豪 (經理)", rank: "經理 (20%)", personalSv: 0, groupSv: 11200, rebateRate: 0.20, priority: "P0", targetRank: "合格經理", recommendedSv: 960, reason: "補足個人 160 SV 與小組 800 SV 缺口達成合格經理" },
+                { id: "PTN-004", name: "林志宏 (副理)", rank: "副理 (16%)", personalSv: 160, groupSv: 8200, rebateRate: 0.16, priority: "P2", targetRank: "副理", recommendedSv: 13340, reason: "提升整組業績並擴大二代組織代數獎金基數" }
+            ];
+
+            let activeGoal = "MAX_BONUS";
+            let chartInstance = null;
+
+            // 解耦轉換器：將 Google 試算表原始物件標準化
+            function normalizeSheetRow(rawRow) {
+                const normalized = {};
+                for (const [key, aliases] of Object.entries(COLUMN_MAPPINGS)) {
+                    for (const alias of aliases) {
+                        if (rawRow[alias] !== undefined) {
+                            normalized[key] = rawRow[alias];
+                            break;
+                        }
+                    }
+                }
+                return normalized;
+            }
+
+            // 初始化與事件綁定
+            function init() {
+                renderNodeCards();
+                initChart();
+                updateHudStats();
+                bindEvents();
+            }
+
+            function bindEvents() {
+                // 策略切換
+                $('.strategy-pill').on('click', function () {
+                    $('.strategy-pill').removeClass('active');
+                    $(this).addClass('active');
+                    activeGoal = $(this).data('goal');
+                    runSmartHeuristicSolver();
+                });
+
+                // 求解按鈕
+                $('#btnRunOptimizer').on('click', function () {
+                    runSmartHeuristicSolver();
+                });
+
+                // 動態滑桿變更
+                $(document).on('input', '.sv-slider', function () {
+                    const idx = $(this).data('index');
+                    const val = parseInt($(this).val()) || 0;
+                    partnerPool[idx].recommendedSv = val;
+                    $(`#allocatedInput_${idx}`).val(val);
+                    updateNodeCardVisual(idx);
+                    updateHudStats();
+                });
+
+                // 數值輸入框變更
+                $(document).on('change', '.node-sv-input', function () {
+                    const idx = $(this).data('index');
+                    const val = parseInt($(this).val()) || 0;
+                    partnerPool[idx].recommendedSv = val;
+                    $(`#slider_${idx}`).val(val);
+                    updateNodeCardVisual(idx);
+                    updateHudStats();
+                });
+
+                // 還原按鈕
+                $('#btnResetPlan').on('click', function () {
+                    runSmartHeuristicSolver();
+                });
+
+                // 採納寫入
+                $('#btnCommitAllocation').on('click', function () {
+                    commitAllocationToDatabase();
+                });
+
+                // 匯出 CSV
+                $('#btnExportCsv').on('click', function () {
+                    exportToCsv();
+                });
+            }
+
+            // 智慧啟發式求解演算法 (Heuristic Solver)
+            function runSmartHeuristicSolver() {
+                let poolSv = parseInt($('#inputPoolSv').val()) || 38500;
+                let remaining = poolSv;
+
+                // 重置
+                partnerPool.forEach(p => p.recommendedSv = 0);
+
+                if (activeGoal === "PREVENT_BREAKAWAY") {
+                    // P0: 補齊個人 160 SV 缺口
+                    partnerPool.forEach(p => {
+                        if (p.personalSv < 160) {
+                            const pGap = 160 - p.personalSv;
+                            const fill = Math.min(remaining, pGap);
+                            p.recommendedSv += fill;
+                            remaining -= fill;
+                        }
+                    });
+
+                    // P1: 補齊經理 12,000 SV 缺口
+                    partnerPool.forEach(p => {
+                        const totalGroup = p.groupSv + p.recommendedSv;
+                        if (totalGroup < 12000) {
+                            const gGap = 12000 - totalGroup;
+                            const fill = Math.min(remaining, gGap);
+                            p.recommendedSv += fill;
+                            remaining -= fill;
+                        }
+                    });
+
+                    // 剩餘分給核心領導人
+                    if (remaining > 0) {
+                        partnerPool[0].recommendedSv += remaining;
+                    }
+                    $('#solverReasoningText').text("優先權鎖定防斷代與保級：已全額補足個人 160 SV 責任額及所有潛在經理之 12,000 SV 門檻，剩餘點數挹注核心節點。");
+                } else if (activeGoal === "MAX_BONUS") {
+                    // 獲利最大化：先補 160，再補最容易晉升帶來差額的節點，其餘全部壓入最高回饋者
+                    partnerPool[2].recommendedSv = 960; // 補足保級
+                    partnerPool[1].recommendedSv = 6200; // 助升經理獲取差額
+                    remaining -= (960 + 6200);
+                    partnerPool[0].recommendedSv = Math.max(0, remaining);
+                    partnerPool[3].recommendedSv = 0;
+                    $('#solverReasoningText').text("獲利最大化策略：以最小代價達成陳雅婷晉升經理與張家豪合格保級，將高達 80% 以上剩餘 SV 注入最高 20% 回饋之主帳號。");
+                } else {
+                    // 均衡發展模式
+                    const perNode = Math.floor(poolSv / partnerPool.length);
+                    partnerPool.forEach(p => p.recommendedSv = perNode);
+                    partnerPool[0].recommendedSv += (poolSv - (perNode * partnerPool.length));
+                    $('#solverReasoningText').text("組織均衡發展策略：平攤進貨積分至各直屬骨幹經銷商，扶植各線均衡推進組織代數。");
+                }
+
+                renderNodeCards();
+                updateHudStats();
+            }
+
+            // 渲染節點流清單
+            function renderNodeCards() {
+                const $container = $('#nodeContainer');
+                $container.empty();
+
+                partnerPool.forEach((p, idx) => {
+                    const totalPersonal = p.personalSv + (p.personalSv < 160 ? p.recommendedSv : 0);
+                    const totalGroup = p.groupSv + p.recommendedSv;
+                    const personalPct = Math.min(100, (totalPersonal / 160) * 100);
+                    const groupPct = Math.min(100, (totalGroup / 12000) * 100);
+
+                    const html = `
+                        <div class="node-card priority-${p.priority.toLowerCase()}" id="nodeCard_${idx}">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold fs-6">${p.name}</span>
+                                    <span class="tactical-badge badge-purple">${p.rank}</span>
+                                    <span class="tactical-badge ${p.priority === 'P0' ? 'badge-amber' : (p.priority === 'P1' ? 'badge-cyan' : 'badge-emerald')}">${p.priority} 優先序</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="small text-muted">分配 SV:</span>
+                                    <div class="input-group input-group-sm" style="width: 140px;">
+                                        <input type="number" class="form-control bg-dark text-light border-secondary text-end font-mono node-sv-input" 
+                                            id="allocatedInput_${idx}" data-index="${idx}" value="${p.recommendedSv}" step="100">
+                                        <span class="input-group-text bg-dark text-muted border-secondary font-mono">SV</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 align-items-center mt-1">
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-dim">個人責任額 (160 SV)</span>
+                                        <span class="font-mono ${totalPersonal >= 160 ? 'text-success' : 'text-danger'}">${totalPersonal} / 160 SV</span>
+                                    </div>
+                                    <div class="dual-meter-track">
+                                        <div class="meter-fill-boost" style="width: ${personalPct}%;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-dim">小組門檻 (12,000 SV)</span>
+                                        <span class="font-mono ${totalGroup >= 12000 ? 'text-success' : 'text-warning'}">${totalGroup.toLocaleString()} / 12,000 SV</span>
+                                    </div>
+                                    <div class="dual-meter-track">
+                                        <div class="meter-fill-boost" style="width: ${groupPct}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <input type="range" class="sv-slider" id="slider_${idx}" data-index="${idx}" min="0" max="38500" step="100" value="${p.recommendedSv}">
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-2 small">
+                                <span class="text-muted"><i class="fa-solid fa-lightbulb text-warning me-1"></i> ${p.reason}</span>
+                                <span class="text-neon-cyan font-mono">目標狀態: ${p.targetRank}</span>
+                            </div>
+                        </div>
+                    `;
+                    $container.append(html);
+                });
+            }
+
+            function updateNodeCardVisual(idx) {
+                const p = partnerPool[idx];
+                const totalPersonal = p.personalSv + (p.personalSv < 160 ? p.recommendedSv : 0);
+                const totalGroup = p.groupSv + p.recommendedSv;
+                const personalPct = Math.min(100, (totalPersonal / 160) * 100);
+                const groupPct = Math.min(100, (totalGroup / 12000) * 100);
+
+                const $card = $(`#nodeCard_${idx}`);
+                $card.find('.dual-meter-track:eq(0) .meter-fill-boost').css('width', personalPct + '%');
+                $card.find('.dual-meter-track:eq(1) .meter-fill-boost').css('width', groupPct + '%');
+            }
+
+            // 更新 HUD 指標與 Chart.js
+            function updateHudStats() {
+                let totalAllocated = 0;
+                let estimatedRoi = 0;
+                let protectedMgrCount = 0;
+                const poolSv = parseInt($('#inputPoolSv').val()) || 38500;
+
+                partnerPool.forEach(p => {
+                    totalAllocated += p.recommendedSv;
+                    // 收益估算 = 分配 SV * 回饋率 * 葡眾點值換算率 (~1.3 TWD/SV)
+                    estimatedRoi += (p.recommendedSv * p.rebateRate * 1.3);
+
+                    if ((p.groupSv + p.recommendedSv) >= 12000 && (p.personalSv + p.recommendedSv) >= 160) {
+                        protectedMgrCount++;
+                    }
+                });
+
+                const remaining = poolSv - totalAllocated;
+                const allocatedPct = Math.round((totalAllocated / poolSv) * 100);
+
+                $('#statEstimatedRoi').text(`+$${Math.round(estimatedRoi).toLocaleString()}`);
+                $('#statProtectedMgrs').html(`${protectedMgrCount} <span class="fs-6 text-muted">位</span>`);
+                $('#statAllocatedRate').text(`${allocatedPct}%`);
+                $('#statAllocatedDetail').text(`${totalAllocated.toLocaleString()} / ${poolSv.toLocaleString()}`);
+                $('#statRemainingSv').text(remaining.toLocaleString());
+
+                if (remaining < 0) {
+                    $('#statRemainingSv').removeClass('text-muted').addClass('text-danger fw-bold');
+                } else {
+                    $('#statRemainingSv').removeClass('text-danger fw-bold').addClass('text-muted');
+                }
+
+                updateChart(partnerPool);
+            }
+
+            function initChart() {
+                const ctx = document.getElementById('chartSvDistribution').getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: partnerPool.map(p => p.name.split(' ')[0]),
+                        datasets: [{
+                            data: partnerPool.map(p => p.recommendedSv),
+                            backgroundColor: ['#a855f7', '#06b6d4', '#f59e0b', '#10b981'],
+                            borderColor: '#120d24',
+                            borderWidth: 2,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: '#94a3b8', boxWidth: 12, font: { family: 'Noto Sans TC', size: 11 } }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            function updateChart(pool) {
+                if (!chartInstance) return;
+                chartInstance.data.datasets[0].data = pool.map(p => p.recommendedSv);
+                chartInstance.update();
+            }
+
+            function commitAllocationToDatabase() {
+                const planCode = `OPT-${$('#selectMonth').val().replace('-', '')}-A`;
+                $('#modalPlanCode').text(planCode);
+                $('#modalRecordCount').text(partnerPool.length);
+                const modal = new bootstrap.Modal(document.getElementById('modalCommitSuccess'));
+                modal.show();
+            }
+
+            function exportToCsv() {
+                let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+                csvContent += "方案代碼,計算月份,夥伴代碼,夥伴姓名,當前職級,分配SV,目標職級,策略理由\n";
+                const month = $('#selectMonth').val();
+                const planCode = `OPT-${month.replace('-', '')}-A`;
+                partnerPool.forEach(p => {
+                    csvContent += `${planCode},${month},${p.id},${p.name},${p.rank},${p.recommendedSv},${p.targetRank},"${p.reason}"\n`;
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `SV_Allocation_${planCode}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            return {
+                init: init
+            };
+        })();
+
+        $(document).ready(function () {
+            SvOptimizerEngine.init();
+        });
+    </script>
+</body>
+</html>

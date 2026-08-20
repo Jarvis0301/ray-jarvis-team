@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>門檻調度 - 戰術沙盤調控台 | 葡眾數位戰情系統</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bs-body-bg: #0a0518;
+            --bs-body-color: #faf5ff;
+            --uvaco-primary: #8b5cf6;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-muted: #9e8eb3;
+            --card-base: #150a2a;
+            --card-hover: #1e0f3d;
+            --card-inner: #0d061f;
+            --input-bg: #170b2e;
+            --border-glow: rgba(139, 92, 246, 0.35);
+            --border-highlight: rgba(192, 132, 252, 0.7);
+            --danger-glow: rgba(244, 63, 94, 0.4);
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --warning-glow: rgba(245, 158, 11, 0.4);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            overflow-x: hidden;
+        }
+
+        /* 戰術背景氛圍光 */
+        .glow-sphere {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.05) 50%, rgba(10, 5, 24, 0) 70%);
+            top: -150px;
+            right: -150px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glow-sphere-left {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, rgba(139, 92, 246, 0.03) 60%, rgba(10, 5, 24, 0) 80%);
+            bottom: 5%;
+            left: -150px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 戰術卡片樣式 */
+        .tactical-card {
+            background-color: var(--card-base);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            transition: all 0.25s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tactical-card:hover {
+            border-color: var(--border-highlight);
+            box-shadow: 0 8px 24px -6px rgba(139, 92, 246, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .tactical-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--uvaco-primary), var(--uvaco-accent));
+            opacity: 0.8;
+        }
+
+        /* 頂部 HUD 狀態列 */
+        .hud-metric-pill {
+            background: var(--card-inner);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .hud-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* 經理資格動態戰況進度條 */
+        .qualification-track {
+            background: #1e0f37;
+            border-radius: 999px;
+            height: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .qualification-fill-personal {
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        .qualification-fill-group {
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        /* 戰術標籤 (Badges) */
+        .badge-risk-critical {
+            background-color: rgba(244, 63, 94, 0.2);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            animation: pulse-danger 2s infinite;
+        }
+
+        .badge-risk-warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .badge-risk-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(244, 63, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
+        /* 戰術沙盤卡片流態 */
+        .dispatch-lane {
+            background: rgba(21, 10, 42, 0.6);
+            border: 1px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            min-height: 480px;
+        }
+
+        .manager-tactical-unit {
+            background: var(--card-base);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .manager-tactical-unit:hover {
+            background: var(--card-hover);
+            border-color: var(--uvaco-secondary);
+            transform: scale(1.01);
+        }
+
+        /* DataTables 樣式覆寫 */
+        .dataTables_wrapper {
+            padding: 0.5rem 0;
+        }
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 6px !important;
+            background: transparent !important;
+        }
+        table.dataTable tbody tr {
+            background-color: var(--card-base) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            transition: transform 0.15s ease;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: var(--card-hover) !important;
+        }
+        table.dataTable tbody td {
+            border: none !important;
+            padding: 1rem 0.85rem !important;
+            vertical-align: middle;
+            color: #faf5ff;
+        }
+        table.dataTable thead th {
+            border: none !important;
+            color: var(--uvaco-muted);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 0.75rem;
+        }
+
+        /* 自定義彈窗與抽屜 */
+        .modal-content {
+            background-color: #120824;
+            border: 1px solid var(--border-highlight);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border-radius: 1.25rem;
+        }
+
+        .order-boost-row {
+            background: var(--card-inner);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 0.65rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 自定義切換 Switch */
+        .form-check-input:checked {
+            background-color: var(--uvaco-accent);
+            border-color: var(--uvaco-accent);
+        }
+        
+        .form-control, .form-select {
+            background-color: var(--input-bg);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #faf5ff;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg);
+            border-color: var(--uvaco-secondary);
+            color: #faf5ff;
+            box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+        }
+    </style>
+</head>
+<body class="p-3 p-md-4">
+
+    <div class="glow-sphere"></div>
+    <div class="glow-sphere-left"></div>
+
+    <div class="container-fluid max-width-1600">
+
+        <div class="row align-items-center mb-4 g-3">
+            <div class="col-12 col-xl-6">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="hud-icon-box bg-purple-subtle text-purple" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="fw-bold mb-0 text-white">經理門檻戰術調度看板</h3>
+                            <span class="badge" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); font-size: 0.75rem;">★Ray 專屬戰術台</span>
+                        </div>
+                        <p class="text-muted mb-0 small mt-1">即時監控 160 / 12,000 SV 門檻缺口，協調消費者下單排程（先買/延買）衝刺合格經理</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="d-flex flex-wrap align-items-center justify-content-xl-end gap-2">
+                    <div class="input-group" style="max-width: 200px;">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-calendar-day"></i></span>
+                        <input type="month" class="form-control" id="targetMonth" value="2026-08">
+                    </div>
+                    <button class="btn btn-outline-light border-secondary" id="btnRefreshData">
+                        <i class="fa-solid fa-arrows-rotate me-1"></i> 同步試算表
+                    </button>
+                    <button class="btn btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;" data-bs-toggle="modal" data-bs-target="#modalBulkOptimizer">
+                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i> AI 戰術試算引擎
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="hud-metric-pill">
+                    <div class="hud-icon-box" style="background: rgba(244, 63, 94, 0.15); color: #fb7185;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">高危險斷代經理</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="h4 fw-bold mb-0 text-white" id="statCriticalCount">3</span>
+                            <span class="small text-danger"><i class="fa-solid fa-arrow-trend-up"></i> 需緊急介入</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="hud-metric-pill">
+                    <div class="hud-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">小組 SV 總缺口</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="h4 fw-bold mb-0 text-white" id="statTotalGapSv">18,420</span>
+                            <span class="small text-warning">SV</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="hud-metric-pill">
+                    <div class="hud-icon-box" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">排程可調度自用點數</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="h4 fw-bold mb-0 text-white" id="statBoostAvailable">12,650</span>
+                            <span class="small text-info">SV (CRM)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="hud-metric-pill">
+                    <div class="hud-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">預期合格達成率</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="h4 fw-bold mb-0 text-white" id="statProjectedRate">85.7%</span>
+                            <span class="small text-success"><i class="fa-solid fa-check"></i> 12/14 條</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <ul class="nav nav-pills" id="viewModeTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill px-3 py-1" id="tab-sandbox-btn" data-bs-toggle="pill" data-bs-target="#view-sandbox" type="button">
+                        <i class="fa-solid fa-chess-board me-1"></i> 戰術沙盤看版
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-3 py-1 text-light" id="tab-grid-btn" data-bs-toggle="pill" data-bs-target="#view-grid" type="button">
+                        <i class="fa-solid fa-table-list me-1"></i> 門檻數據總表
+                    </button>
+                </li>
+            </ul>
+
+            <div class="text-muted small d-none d-md-block">
+                <i class="fa-solid fa-circle-info text-primary me-1"></i> 點擊任何經理卡片即可展開「先買/延買排程調度儀」
+            </div>
+        </div>
+
+        <div class="tab-content" id="viewModeTabContent">
+
+            <div class="tab-pane fade show active" id="view-sandbox" role="tabpanel">
+                <div class="row g-3">
+                    
+                    <div class="col-12 col-lg-4">
+                        <div class="dispatch-lane">
+                            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-circle p-1 bg-danger"> </span>
+                                    <span class="fw-bold text-white">極高危斷代警戒區</span>
+                                </div>
+                                <span class="badge bg-danger bg-opacity-25 text-danger px-2 py-1 rounded-pill" id="countLaneCritical">3 員</span>
+                            </div>
+
+                            <div id="laneCriticalContainer">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="dispatch-lane">
+                            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-circle p-1 bg-warning"> </span>
+                                    <span class="fw-bold text-white">排程調度推進中</span>
+                                </div>
+                                <span class="badge bg-warning bg-opacity-25 text-warning px-2 py-1 rounded-pill" id="countLaneWarning">5 員</span>
+                            </div>
+
+                            <div id="laneWarningContainer">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="dispatch-lane">
+                            <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-circle p-1 bg-success"> </span>
+                                    <span class="fw-bold text-white">合格安全達標區</span>
+                                </div>
+                                <span class="badge bg-success bg-opacity-25 text-success px-2 py-1 rounded-pill" id="countLaneQualified">6 員</span>
+                            </div>
+
+                            <div id="laneQualifiedContainer">
+                                </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="view-grid" role="tabpanel">
+                <div class="tactical-card p-3 p-md-4">
+                    <div class="table-responsive">
+                        <table id="dispatchTable" class="table align-middle w-100">
+                            <thead>
+                                <tr>
+                                    <th>經理夥伴</th>
+                                    <th>直屬上線</th>
+                                    <th>個人責任額 (160 SV)</th>
+                                    <th>小組責任額 (12,000 SV)</th>
+                                    <th>排程補足 SV</th>
+                                    <th>斷代風險</th>
+                                    <th>處置狀態</th>
+                                    <th class="text-end">戰術行動</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalDispatchDrawer" tabindex="-1" aria-labelledby="modalDispatchDrawerLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25 pb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="hud-icon-box bg-purple-subtle" style="width: 36px; height: 36px; font-size: 1rem;">
+                            <i class="fa-solid fa-sliders text-purple"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-white" id="modalDispatchDrawerLabel">自用訂單調度沙盤</h5>
+                            <span class="text-muted small" id="drawerTargetPartnerInfo">目標經理：林書涵 (經理) | 輔導人：Ray</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3" style="background: #170b2e; border: 1px solid rgba(139, 92, 246, 0.3);">
+                                <div class="text-muted small mb-1">當前小組 SV / 缺口</div>
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <span class="h5 fw-bold text-white mb-0" id="drawerCurrentGroupSv">8,800 / 12,000 SV</span>
+                                    <span class="text-danger fw-bold" id="drawerGroupGapSv">-3,200 SV</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3" style="background: #170b2e; border: 1px solid rgba(236, 72, 153, 0.3);">
+                                <div class="text-muted small mb-1">模擬調度後預期 SV</div>
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <span class="h5 fw-bold text-success mb-0" id="drawerProjectedGroupSv">12,150 SV</span>
+                                    <span class="badge bg-success" id="drawerProjectedBadge">達成合格經理</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert mb-4" style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); color: #faf5ff;">
+                        <i class="fa-solid fa-lightbulb text-warning me-2"></i>
+                        <strong>★Ray 調度戰術錦囊：</strong>勾選調動次月自用客戶「提前至本月結帳」，或將已足額者「延後結帳」以平滑下月業績。
+                    </div>
+
+                    <h6 class="fw-bold text-white mb-3"><i class="fa-solid fa-list-check me-2"></i> 傘下自用顧客定期回購清單</h6>
+                    <div id="customerScheduleListContainer" class="mb-4">
+                        </div>
+
+                    <div class="p-3 rounded-3 mb-3" style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-warning"><i class="fa-solid fa-hand-holding-dollar me-1"></i> 若排程訂單仍不足，啟動「湊單借點扶持」</div>
+                                <div class="text-muted small">借點由創始人代墊，發薪日自動由 20% 經理回饋金與實領獎金沖銷</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-warning" id="btnOpenSvLoan">
+                                <i class="fa-solid fa-bolt me-1"></i> 發起轉點
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label text-muted small">調度戰術執行備忘 (Action Plan)</label>
+                        <textarea class="form-control" id="tacticalActionPlanText" rows="2" placeholder="例：已電聯張小姐將 2 盒 995 提前於 26 號下單..."></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;" id="btnSaveTacticalDispatch">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> 確認並保存調度方案
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalBulkOptimizer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-wand-magic-sparkles text-purple me-2"></i> AI 全域門檻落點最佳化求解</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small">輸入手邊待分配之總進貨 SV，演算法將智慧試算「保證最多經理合格 + 團隊回饋金最大化」的掛點配置。</p>
+                    <div class="mb-3">
+                        <label class="form-label text-white">當前待分配總進貨 SV</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="optInputSv" value="6500">
+                            <span class="input-group-text bg-dark text-muted">SV</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">求解戰術策略偏好</label>
+                        <select class="form-select" id="optStrategy">
+                            <option value="PREVENT_BREAKAWAY" selected>優先防斷代（補足 12,000 SV 邊緣名單）</option>
+                            <option value="MAX_BONUS">獲利最大化（衝刺高代數獎金線）</option>
+                            <option value="BALANCED">平衡配置</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;" onclick="alert('AI 運算完成！已自動將 3,200 SV 推薦配置至林書涵，3,300 SV 配置至王品捷。'); $('#modalBulkOptimizer').modal('hide');">
+                        <i class="fa-solid fa-calculator me-1"></i> 開始最佳化求解
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 葡眾戰情中台 - 門檻調度業務邏輯 (org_manager_monitors)
+         * 資料表解耦 Mapping 機制
+         */
+        const MONITOR_FIELD_MAP = {
+            monitor_id: 'monitor_id',
+            partner_name: 'partner_name',
+            rank_name: 'rank_name',
+            sponsor_name: 'sponsor_name',
+            current_personal_sv: 'current_personal_sv',
+            personal_gap_sv: 'personal_gap_sv',
+            current_group_sv: 'current_group_sv',
+            group_gap_sv: 'group_gap_sv',
+            breakaway_risk_level: 'breakaway_risk_level',
+            scheduled_boost_sv: 'scheduled_boost_sv',
+            dispatch_status: 'dispatch_status',
+            tactical_action_plan: 'tactical_action_plan'
+        };
+
+        // 模擬數據源 (對齊表 407 org_manager_monitors 與 CRM 聯動)
+        let monitorDataStore = [
+            {
+                monitor_id: "MON-001",
+                partner_name: "林書涵",
+                rank_name: "經理",
+                sponsor_name: "Ray",
+                current_personal_sv: 160.00,
+                personal_gap_sv: 0.00,
+                current_group_sv: 8800.00,
+                group_gap_sv: 3200.00,
+                breakaway_risk_level: "HIGH",
+                scheduled_boost_sv: 3350.00,
+                dispatch_status: "BOOSTED",
+                tactical_action_plan: "協調自用客戶張小姐將 995 提前至本月 25 日結帳",
+                schedules: [
+                    { customer_name: "張雅婷 (自用客戶)", product: "995生技營養品 x2", sv: 2600, original_date: "次月 05 日", action: "advance", active: true },
+                    { customer_name: "李大為 (自用客戶)", product: "康爾喜益生菌 x1", sv: 750, original_date: "次月 08 日", action: "advance", active: true }
+                ]
+            },
+            {
+                monitor_id: "MON-002",
+                partner_name: "王品捷",
+                rank_name: "經理",
+                sponsor_name: "Ray",
+                current_personal_sv: 120.00,
+                personal_gap_sv: 40.00,
+                current_group_sv: 6200.00,
+                group_gap_sv: 5800.00,
+                breakaway_risk_level: "CRITICAL",
+                scheduled_boost_sv: 0.00,
+                dispatch_status: "MONITORING",
+                tactical_action_plan: "個人責任額尚差 40 SV，整組缺 5,800 SV，預計安排 SV 借點扶持",
+                schedules: [
+                    { customer_name: "陳銘 (自用客戶)", product: "樟芝益 x1", sv: 1300, original_date: "次月 02 日", action: "advance", active: false }
+                ]
+            },
+            {
+                monitor_id: "MON-003",
+                partner_name: "陳冠宇",
+                rank_name: "經理",
+                sponsor_name: "Jarvis",
+                current_personal_sv: 320.00,
+                personal_gap_sv: 0.00,
+                current_group_sv: 13400.00,
+                group_gap_sv: 0.00,
+                breakaway_risk_level: "LOW",
+                scheduled_boost_sv: 0.00,
+                dispatch_status: "QUALIFIED",
+                tactical_action_plan: "已穩固合格，無需調度",
+                schedules: []
+            },
+            {
+                monitor_id: "MON-004",
+                partner_name: "黃千芳",
+                rank_name: "經理",
+                sponsor_name: "Ray",
+                current_personal_sv: 160.00,
+                personal_gap_sv: 0.00,
+                current_group_sv: 10500.00,
+                group_gap_sv: 1500.00,
+                breakaway_risk_level: "MEDIUM",
+                scheduled_boost_sv: 1500.00,
+                dispatch_status: "BOOSTED",
+                tactical_action_plan: "已排定康爾喜 2 盒提前下單補足",
+                schedules: [
+                    { customer_name: "周美華 (自用客戶)", product: "康爾喜益生菌 x2", sv: 1500, original_date: "次月 04 日", action: "advance", active: true }
+                ]
+            },
+            {
+                monitor_id: "MON-005",
+                partner_name: "趙又廷",
+                rank_name: "經理",
+                sponsor_name: "Jarvis",
+                current_personal_sv: 160.00,
+                personal_gap_sv: 0.00,
+                current_group_sv: 12100.00,
+                group_gap_sv: 0.00,
+                breakaway_risk_level: "LOW",
+                scheduled_boost_sv: 0.00,
+                dispatch_status: "QUALIFIED",
+                tactical_action_plan: "達標安全",
+                schedules: []
+            }
+        ];
+
+        let activeEditingItem = null;
+        let dataTableInstance = null;
+
+        $(document).ready(function() {
+            renderTacticalDashboard();
+            initializeDataTable();
+            bindEventHandlers();
+        });
+
+        /**
+         * 渲染三軌戰術沙盤隊列
+         */
+        function renderTacticalDashboard() {
+            let criticalHtml = '';
+            let warningHtml = '';
+            let qualifiedHtml = '';
+
+            let countCritical = 0;
+            let countWarning = 0;
+            let countQualified = 0;
+            let totalGap = 0;
+
+            monitorDataStore.forEach(item => {
+                totalGap += item.group_gap_sv;
+
+                // 個人進度百分比 (最大 160)
+                const personalPct = Math.min(100, Math.round((item.current_personal_sv / 160) * 100));
+                // 小組進度百分比 (最大 12000)
+                const groupPct = Math.min(100, Math.round((item.current_group_sv / 12000) * 100));
+
+                const cardHtml = `
+                    <div class="manager-tactical-unit" onclick="openDispatchDrawer('${item.monitor_id}')">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="fw-bold text-white fs-6">${item.partner_name} <span class="badge bg-secondary bg-opacity-50 text-light ms-1" style="font-size:0.7rem;">${item.rank_name}</span></div>
+                                <div class="text-muted small">輔導上線: ${item.sponsor_name}</div>
+                            </div>
+                            ${getRiskBadge(item.breakaway_risk_level)}
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">個人 160 SV:</span>
+                                <span class="${item.personal_gap_sv === 0 ? 'text-success' : 'text-danger'} fw-bold">${item.current_personal_sv} / 160 SV</span>
+                            </div>
+                            <div class="qualification-track mb-2">
+                                <div class="qualification-fill-personal" style="width: ${personalPct}%;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">小組 12,000 SV:</span>
+                                <span class="${item.group_gap_sv === 0 ? 'text-success' : 'text-warning'} fw-bold">${item.current_group_sv.toLocaleString()} SV</span>
+                            </div>
+                            <div class="qualification-track">
+                                <div class="qualification-fill-group" style="width: ${groupPct}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 mt-2">
+                            <span class="small text-muted">
+                                <i class="fa-solid fa-cart-flatbed text-info me-1"></i> 排程補足: <strong class="text-info">${item.scheduled_boost_sv} SV</strong>
+                            </span>
+                            <span class="badge bg-purple-subtle text-purple border border-purple-subtle" style="font-size:0.7rem;">
+                                ${item.dispatch_status}
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                if (item.breakaway_risk_level === 'CRITICAL' || item.personal_gap_sv > 0 || item.group_gap_sv > 4000) {
+                    criticalHtml += cardHtml;
+                    countCritical++;
+                } else if (item.group_gap_sv > 0 || item.dispatch_status === 'BOOSTED') {
+                    warningHtml += cardHtml;
+                    countWarning++;
+                } else {
+                    qualifiedHtml += cardHtml;
+                    countQualified++;
+                }
+            });
+
+            $('#laneCriticalContainer').html(criticalHtml || '<div class="text-center text-muted p-4 small">無危急名單</div>');
+            $('#laneWarningContainer').html(warningHtml || '<div class="text-center text-muted p-4 small">無推進中名單</div>');
+            $('#laneQualifiedContainer').html(qualifiedHtml || '<div class="text-center text-muted p-4 small">尚無達標者</div>');
+
+            $('#countLaneCritical').text(`${countCritical} 員`);
+            $('#countLaneWarning').text(`${countWarning} 員`);
+            $('#countLaneQualified').text(`${countQualified} 員`);
+            $('#statCriticalCount').text(countCritical);
+            $('#statTotalGapSv').text(totalGap.toLocaleString());
+        }
+
+        /**
+         * 初始化 DataTables 視圖
+         */
+        function initializeDataTable() {
+            dataTableInstance = $('#dispatchTable').DataTable({
+                data: monitorDataStore,
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋經理、上線或狀態...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" }
+                },
+                columns: [
+                    { 
+                        data: 'partner_name',
+                        render: function(data, type, row) {
+                            return `<div class="fw-bold text-white">${data} <span class="badge bg-dark text-muted ms-1">${row.rank_name}</span></div>`;
+                        }
+                    },
+                    { data: 'sponsor_name' },
+                    { 
+                        data: 'current_personal_sv',
+                        render: function(data, type, row) {
+                            const isOk = row.personal_gap_sv === 0;
+                            return `<span class="badge ${isOk ? 'bg-success' : 'bg-danger'} bg-opacity-25 ${isOk ? 'text-success' : 'text-danger'}">${data} / 160 SV</span>`;
+                        }
+                    },
+                    { 
+                        data: 'current_group_sv',
+                        render: function(data, type, row) {
+                            return `<div><strong>${data.toLocaleString()}</strong> / 12,000 SV</div>
+                                    <small class="text-danger">缺口: -${row.group_gap_sv.toLocaleString()} SV</small>`;
+                        }
+                    },
+                    { 
+                        data: 'scheduled_boost_sv',
+                        render: function(data) {
+                            return `<span class="text-info fw-bold">+${data.toLocaleString()} SV</span>`;
+                        }
+                    },
+                    { 
+                        data: 'breakaway_risk_level',
+                        render: function(data) {
+                            return getRiskBadge(data);
+                        }
+                    },
+                    { 
+                        data: 'dispatch_status',
+                        render: function(data) {
+                            return `<span class="badge bg-secondary bg-opacity-50">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'monitor_id',
+                        className: 'text-end',
+                        render: function(data) {
+                            return `<button class="btn btn-sm btn-outline-primary" onclick="openDispatchDrawer('${data}')">
+                                        <i class="fa-solid fa-sliders me-1"></i> 調度沙盤
+                                    </button>`;
+                        }
+                    }
+                ]
+            });
+        }
+
+        /**
+         * 開啟 Ray 調度抽屜
+         */
+        window.openDispatchDrawer = function(monitorId) {
+            const item = monitorDataStore.find(x => x.monitor_id === monitorId);
+            if (!item) return;
+
+            activeEditingItem = item;
+
+            $('#drawerTargetPartnerInfo').text(`目標經理：${item.partner_name} (${item.rank_name}) | 輔導人：${item.sponsor_name}`);
+            $('#drawerCurrentGroupSv').text(`${item.current_group_sv.toLocaleString()} / 12,000 SV`);
+            $('#drawerGroupGapSv').text(`-${item.group_gap_sv.toLocaleString()} SV`);
+            $('#tacticalActionPlanText').val(item.tactical_action_plan || '');
+
+            // 渲染排程訂單
+            renderCustomerSchedules(item);
+            calculateSimulatedGap();
+
+            const modal = new bootstrap.Modal(document.getElementById('modalDispatchDrawer'));
+            modal.show();
+        };
+
+        /**
+         * 渲染客戶排程先買/延買列表
+         */
+        function renderCustomerSchedules(item) {
+            let html = '';
+            if (!item.schedules || item.schedules.length === 0) {
+                html = '<div class="text-center text-muted p-3 border border-secondary border-dashed rounded-3 small">傘下無排程定期回購名單</div>';
+            } else {
+                item.schedules.forEach((sch, idx) => {
+                    html += `
+                        <div class="order-boost-row d-flex justify-content-between align-items-center">
+                            <div class="form-check d-flex align-items-center gap-2 mb-0">
+                                <input class="form-check-input order-toggle-check" type="checkbox" data-idx="${idx}" id="schCheck_${idx}" ${sch.active ? 'checked' : ''}>
+                                <label class="form-check-label text-white small" for="schCheck_${idx}">
+                                    <div class="fw-bold">${sch.customer_name} - <span class="text-info">${sch.product}</span></div>
+                                    <div class="text-muted" style="font-size:0.75rem;">原排程：${sch.original_date} ➔ 協調提前本月 25 日下單</div>
+                                </label>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-purple-subtle text-purple border border-purple-subtle">+${sch.sv} SV</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            $('#customerScheduleListContainer').html(html);
+
+            // 綁定動態試算事件
+            $('.order-toggle-check').on('change', function() {
+                const idx = $(this).data('idx');
+                activeEditingItem.schedules[idx].active = $(this).is(':checked');
+                calculateSimulatedGap();
+            });
+        }
+
+        /**
+         * 動態計算調度後的預期缺口與達成狀態
+         */
+        function calculateSimulatedGap() {
+            if (!activeEditingItem) return;
+
+            let boostedSv = 0;
+            if (activeEditingItem.schedules) {
+                activeEditingItem.schedules.forEach(sch => {
+                    if (sch.active) boostedSv += sch.sv;
+                });
+            }
+
+            const projectedSv = activeEditingItem.current_group_sv + boostedSv;
+            $('#drawerProjectedGroupSv').text(`${projectedSv.toLocaleString()} SV`);
+
+            if (projectedSv >= 12000) {
+                $('#drawerProjectedBadge').removeClass('bg-danger bg-warning').addClass('bg-success').text('預期可達成合格經理');
+            } else {
+                const remainGap = 12000 - projectedSv;
+                $('#drawerProjectedBadge').removeClass('bg-success').addClass('bg-danger').text(`仍缺 ${remainGap.toLocaleString()} SV`);
+            }
+        }
+
+        /**
+         * 保存調度方案
+         */
+        $('#btnSaveTacticalDispatch').on('click', function() {
+            if (!activeEditingItem) return;
+
+            let boostedSv = 0;
+            if (activeEditingItem.schedules) {
+                activeEditingItem.schedules.forEach(sch => {
+                    if (sch.active) boostedSv += sch.sv;
+                });
+            }
+
+            activeEditingItem.scheduled_boost_sv = boostedSv;
+            activeEditingItem.tactical_action_plan = $('#tacticalActionPlanText').val();
+
+            if (activeEditingItem.current_group_sv + boostedSv >= 12000) {
+                activeEditingItem.dispatch_status = "QUALIFIED_BOOSTED";
+                activeEditingItem.breakaway_risk_level = "LOW";
+            } else {
+                activeEditingItem.dispatch_status = "BOOSTED";
+            }
+
+            renderTacticalDashboard();
+            if (dataTableInstance) {
+                dataTableInstance.clear().rows.add(monitorDataStore).draw();
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('modalDispatchDrawer')).hide();
+        });
+
+        function getRiskBadge(level) {
+            switch(level) {
+                case 'CRITICAL':
+                    return '<span class="badge badge-risk-critical"><i class="fa-solid fa-triangle-exclamation me-1"></i> 極高危斷代</span>';
+                case 'HIGH':
+                    return '<span class="badge badge-risk-critical"><i class="fa-solid fa-circle-exclamation me-1"></i> 高度警戒</span>';
+                case 'MEDIUM':
+                    return '<span class="badge badge-risk-warning"><i class="fa-solid fa-bell me-1"></i> 需調度</span>';
+                case 'LOW':
+                default:
+                    return '<span class="badge badge-risk-success"><i class="fa-solid fa-circle-check me-1"></i> 安全達標</span>';
+            }
+        }
+
+        function bindEventHandlers() {
+            $('#btnOpenSvLoan').on('click', function() {
+                alert('已為 ' + activeEditingItem.partner_name + ' 啟動轉點借貸單 (AST-202608-01)，發薪日將自動自 20% 回饋金扣抵！');
+            });
+
+            $('#btnRefreshData').on('click', function() {
+                $(this).find('i').addClass('fa-spin');
+                setTimeout(() => {
+                    $(this).find('i').removeClass('fa-spin');
+                    renderTacticalDashboard();
+                    alert('已成功與 Google 試算表 (org_manager_monitors / crm_schedules) 雙向同步最新數據！');
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>

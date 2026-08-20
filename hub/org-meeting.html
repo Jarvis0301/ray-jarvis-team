@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會議紀錄與戰略行動中樞 - 榮祥葡眾核心戰情系統</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. UVACO 魅影深紫核心主題變數 (Phantom Cyber Purple Design System)
+           ========================================================================== */
+        :root[data-bs-theme="dark-purple"] {
+            --uvaco-bg-primary: #090514;
+            --uvaco-bg-surface: #130a24;
+            --uvaco-bg-card: rgba(26, 15, 48, 0.72);
+            --uvaco-bg-card-hover: rgba(38, 22, 71, 0.85);
+            --uvaco-border-color: rgba(168, 85, 247, 0.22);
+            --uvaco-border-active: rgba(192, 132, 252, 0.55);
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-neon: #a855f7;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #fde047;
+            --uvaco-accent-rose: #fb7185;
+            --uvaco-accent-cyan: #38bdf8;
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-glass-blur: blur(14px);
+        }
+
+        body {
+            background-color: var(--uvaco-bg-primary);
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding: 1.25rem;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(15, 10, 30, 0.8) 0px, transparent 100%);
+            background-attachment: fixed;
+        }
+
+        /* 玻璃擬態面板 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: var(--uvaco-glass-blur);
+            -webkit-backdrop-filter: var(--uvaco-glass-blur);
+            border: 1px solid var(--uvaco-border-color);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.25s ease;
+        }
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-active);
+        }
+
+        /* 戰情抬頭 HUD 指標晶片 */
+        .hud-metric-chip {
+            background: rgba(19, 10, 36, 0.8);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+        }
+
+        /* 戰略時間軸脈絡 */
+        .timeline-stream {
+            position: relative;
+            padding-left: 1.75rem;
+        }
+        .timeline-stream::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            bottom: 0.5rem;
+            width: 2px;
+            background: linear-gradient(180deg, var(--uvaco-primary-neon) 0%, rgba(168, 85, 247, 0.1) 100%);
+        }
+        .timeline-item {
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 1.25rem;
+            transition: transform 0.2s ease;
+        }
+        .timeline-item:hover {
+            transform: translateX(4px);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.55rem;
+            top: 1.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--uvaco-primary-neon);
+            box-shadow: 0 0 10px var(--uvaco-primary-neon);
+            border: 2px solid #090514;
+        }
+        .timeline-item.active .glass-panel {
+            border-color: var(--uvaco-secondary);
+            background: var(--uvaco-bg-card-hover);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+        .timeline-item.active::before {
+            background: var(--uvaco-accent);
+            box-shadow: 0 0 12px var(--uvaco-accent);
+        }
+
+        /* 雙首長共筆簽核區 */
+        .founder-quote-box {
+            background: rgba(14, 8, 28, 0.7);
+            border-left: 4px solid var(--uvaco-primary-neon);
+            border-radius: 0 0.75rem 0.75rem 0;
+            padding: 1rem 1.25rem;
+        }
+        .founder-quote-box.jarvis {
+            border-left-color: var(--uvaco-accent-cyan);
+        }
+
+        /* 行動待辦鏈項目 */
+        .action-item-card {
+            background: rgba(19, 10, 36, 0.65);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 0.65rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.65rem;
+            transition: all 0.2s ease;
+        }
+        .action-item-card:hover {
+            background: rgba(30, 17, 56, 0.8);
+            border-color: var(--uvaco-border-active);
+        }
+
+        /* 優先權標籤 */
+        .badge-priority-high { background-color: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid #fb7185; }
+        .badge-priority-medium { background-color: rgba(253, 224, 71, 0.2); color: #fde047; border: 1px solid #fde047; }
+        .badge-priority-low { background-color: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
+
+        /* 自訂紫色系按鈕與輸入框 */
+        .btn-purple-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+        }
+        .btn-purple-primary:hover {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+        .form-control, .form-select {
+            background-color: rgba(19, 10, 36, 0.85);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: var(--uvaco-text-main);
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(26, 14, 50, 0.95);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 0 0.25rem rgba(168, 85, 247, 0.25);
+        }
+
+        /* DataTable 深色微調 */
+        table.dataTable {
+            color: #e2e8f0 !important;
+            border-collapse: separate !important;
+            border-spacing: 0 0.35rem !important;
+        }
+        table.dataTable thead th {
+            background-color: rgba(26, 15, 48, 0.9) !important;
+            color: var(--uvaco-secondary) !important;
+            border-bottom: 1px solid var(--uvaco-border-color) !important;
+        }
+        table.dataTable tbody tr {
+            background-color: rgba(19, 10, 36, 0.6) !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: rgba(43, 25, 78, 0.7) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="row g-3 mb-4 align-items-center">
+        <div class="col-12 col-xl-5">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(168, 85, 247, 0.2); width: 56px; height: 56px;">
+                    <i class="fa-solid fa-handshake-angle text-secondary fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                        <span>戰略會議與動態行動中樞</span>
+                        <span class="badge bg-purple-subtle text-white border border-secondary small py-1 px-2" style="font-size: 0.75rem;">H48000 · 413/414 表</span>
+                    </h3>
+                    <p class="text-muted mb-0 small mt-1">
+                        <i class="fa-solid fa-shield-halved"></i> 雙首長戰術決策 · 待辦執行率閉環 · Google 試算表防腐化適配
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-7">
+            <div class="row g-2">
+                <div class="col-6 col-md-3">
+                    <div class="hud-metric-chip text-center">
+                        <div class="text-muted small mb-1"><i class="fa-solid fa-calendar-days"></i> 本月累計會議</div>
+                        <div class="h5 mb-0 fw-bold text-white" id="stat-total-meetings">12 <span class="fs-6 text-muted">場</span></div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="hud-metric-chip text-center">
+                        <div class="text-muted small mb-1"><i class="fa-solid fa-list-check text-warning"></i> 待辦行動總數</div>
+                        <div class="h5 mb-0 fw-bold text-warning" id="stat-total-actions">38 <span class="fs-6 text-muted">項</span></div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="hud-metric-chip text-center">
+                        <div class="text-muted small mb-1"><i class="fa-solid fa-circle-check text-success"></i> 行動結案率</div>
+                        <div class="h5 mb-0 fw-bold text-success" id="stat-completion-rate">86.8%</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="d-flex flex-column h-100 gap-1 justify-content-center">
+                        <button class="btn btn-purple-primary btn-sm fw-bold w-100" data-bs-toggle="modal" data-bs-target="#modal-new-meeting">
+                            <i class="fa-solid fa-plus"></i> 發起戰略會議
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" id="btn-sync-gsheet">
+                            <i class="fa-solid fa-rotate"></i> 同步 Google 試算表
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-12 col-lg-5 col-xl-4">
+            <div class="glass-panel p-3 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-timeline"></i> 決策演進脈絡</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary active filter-type-btn" data-type="ALL">全選</button>
+                        <button type="button" class="btn btn-outline-secondary filter-type-btn" data-type="STRATEGY">閉門</button>
+                        <button type="button" class="btn btn-outline-secondary filter-type-btn" data-type="MGR_ALIGN">經理</button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-transparent border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="input-timeline-search" class="form-control" placeholder="搜尋會議主題、核心結論或與會夥伴...">
+                    </div>
+                </div>
+
+                <div class="timeline-stream flex-grow-1 overflow-y-auto" id="timeline-container" style="max-height: 680px;">
+                    </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7 col-xl-8">
+            <div class="glass-panel p-4 h-100" id="meeting-detail-canvas">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 pb-3 mb-3 border-bottom border-secondary">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary-subtle text-primary border border-primary" id="detail-type-badge">STRATEGY 戰略決策會</span>
+                            <span class="text-muted small" id="detail-date"><i class="fa-solid fa-clock"></i> 2026-08-18 20:00 ~ 22:30</span>
+                            <span class="badge bg-dark border border-secondary text-info small" id="detail-location"><i class="fa-solid fa-video"></i> Google Meet 線上戰情室</span>
+                        </div>
+                        <h4 class="fw-bold mb-0 text-white" id="detail-title">2026 Q3 馬來西亞市場拓荒暨雙軌 PV 借貸平衡戰略佈局</h4>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button class="btn btn-sm btn-outline-warning" id="btn-edit-current"><i class="fa-solid fa-pen-to-square"></i> 編輯紀要</button>
+                        <button class="btn btn-sm btn-outline-info" id="btn-quick-add-action"><i class="fa-solid fa-plus"></i> 追加待辦</button>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-4">
+                    <div class="col-12 col-md-6">
+                        <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary small">
+                            <span class="text-muted"><i class="fa-solid fa-user-tie"></i> 主持/紀錄：</span>
+                            <span class="fw-bold text-white" id="detail-host-recorder">翁榮祥 (Ray) / 賴冠宇 (Jarvis)</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary small text-truncate">
+                            <span class="text-muted"><i class="fa-solid fa-users"></i> 與會夥伴：</span>
+                            <span class="text-white" id="detail-attendees">林佳蓉、陳柏翰、黃耀德、馬來西亞吉隆坡先遣核心群</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="text-secondary fw-bold mb-2"><i class="fa-solid fa-anchor"></i> 核心決議事項與雙首長共筆 (Key Strategic Decisions)</h6>
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-6">
+                            <div class="founder-quote-box">
+                                <div class="small fw-bold text-secondary mb-1"><i class="fa-solid fa-chess-knight"></i> Ray (戰略排線與激勵方針)</div>
+                                <p class="mb-0 small text-light" id="detail-ray-notes">
+                                    針對 8 月底前欲衝刺經理的 3 條種子線，由公共儲備點數池各支援 500 SV 作為安全墊，約定於 9 月 20 日獎金發放時等額沖銷；大馬市場專屬 995 超級營養液樣品包優先配發吉隆坡對焦領導人。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="founder-quote-box jarvis">
+                                <div class="small fw-bold text-info mb-1"><i class="fa-solid fa-code-branch"></i> Jarvis (數位戰情與交付閉環)</div>
+                                <p class="mb-0 small text-light" id="detail-jarvis-notes">
+                                    「馬來西亞專區 (H80000)」前端選單已對接 GViz 自動換算 MYR/TWD 即時匯率，週五前完成培訓模組講義 PDF 雲端共用權限配發，並於 GitHub Pages 自動部署白名單驗證。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-warning fw-bold mb-0"><i class="fa-solid fa-bars-progress"></i> 會議待辦行動清單與執行驗證 (Action Trackers)</h6>
+                        <span class="badge bg-warning bg-opacity-20 text-warning border border-warning small" id="detail-action-summary">4 項待辦 · 3 項已結案 (75%)</span>
+                    </div>
+
+                    <div id="detail-action-list">
+                        </div>
+                </div>
+
+                <div>
+                    <h6 class="text-muted fw-bold mb-2"><i class="fa-solid fa-paperclip"></i> 會議附件、錄音與白板快照 (Artifacts & Attachments)</h6>
+                    <div class="d-flex flex-wrap gap-2" id="detail-attachments">
+                        <a href="#" class="btn btn-sm btn-dark border border-secondary text-decoration-none">
+                            <i class="fa-solid fa-image text-info"></i> 戰術白板排線草圖.png
+                        </a>
+                        <a href="#" class="btn btn-sm btn-dark border border-secondary text-decoration-none">
+                            <i class="fa-solid fa-file-pdf text-danger"></i> 2026-Q3-大馬展業戰略簡報.pdf
+                        </a>
+                        <a href="#" class="btn btn-sm btn-dark border border-secondary text-decoration-none">
+                            <i class="fa-solid fa-microphone-lines text-success"></i> 會議錄音存檔 (Google Drive)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-panel p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-database"></i> 跨期會議決議與待辦總帳審計庫</h5>
+                    <div class="text-muted small">
+                        <i class="fa-solid fa-circle-info"></i> 點擊任一列可快速載入上方全息戰略工作台進行編輯或檢視
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="table-meeting-audit" class="table table-hover align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th>會議單號</th>
+                                <th>會議類型</th>
+                                <th>會議主題</th>
+                                <th>召開日期</th>
+                                <th>主持人</th>
+                                <th>待辦總數</th>
+                                <th>完成率</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-new-meeting" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-panel" style="background: #140b28; border: 1px solid var(--uvaco-secondary);">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold text-white">
+                        <i class="fa-solid fa-file-pen text-secondary"></i> 發起 / 登記團隊戰略會議
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-meeting">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">會議類型 (meeting_type)</label>
+                                <select class="form-select" id="form-meeting-type" required>
+                                    <option value="STRATEGY">STRATEGY 戰略決策會</option>
+                                    <option value="WEEKLY">WEEKLY 每週常態進度會</option>
+                                    <option value="MGR_ALIGN">MGR_ALIGN 經理對焦調度會</option>
+                                    <option value="1ON1">1ON1 領袖一對一突破</option>
+                                    <option value="EMERGENCY">EMERGENCY 月底衝刺緊急會</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-8">
+                                <label class="form-label small text-muted">會議標題 (meeting_title)</label>
+                                <input type="text" class="form-control" id="form-meeting-title" placeholder="例：8 月份經理達標線最後衝刺與 SV 對沖會議" required>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">召開日期</label>
+                                <input type="date" class="form-control" id="form-meeting-date" required>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="form-label small text-muted">開始時間</label>
+                                <input type="time" class="form-control" id="form-start-time" value="20:00">
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="form-label small text-muted">結束時間</label>
+                                <input type="time" class="form-control" id="form-end-time" value="21:30">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">主持領袖 (host_partner_id)</label>
+                                <select class="form-select" id="form-host-id">
+                                    <option value="P001">翁榮祥 (Ray)</option>
+                                    <option value="P002">賴冠宇 (Jarvis)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">記錄人員 (recorder_partner_id)</label>
+                                <select class="form-select" id="form-recorder-id">
+                                    <option value="P002">賴冠宇 (Jarvis)</option>
+                                    <option value="P001">翁榮祥 (Ray)</option>
+                                    <option value="P003">林佳蓉 (珍珠級)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">會議討論核心主題 (meeting_topics)</label>
+                                <textarea class="form-control" id="form-meeting-topics" rows="2" placeholder="列出欲對焦之核心議題..."></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">會議決議與戰略重點 (meeting_conclusions)</label>
+                                <textarea class="form-control" id="form-meeting-conclusions" rows="3" placeholder="記錄明確決議、支援承諾與結論..."></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">雲端附件 / 錄音 / 白板照片連結 (attachment_url)</label>
+                                <input type="url" class="form-control" id="form-attachment-url" placeholder="https://drive.google.com/...">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-purple-primary fw-bold" id="btn-save-meeting">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存會議紀錄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        /**
+         * ==========================================================================
+         * 葡眾三軌戰情系統：會議紀錄與行動追蹤控制器 (H48000 / org-meeting.html)
+         * ==========================================================================
+         */
+
+        // 1. Google 試算表欄位解耦合防腐化映射表 (Field Mapping Adapter)
+        const MeetingFieldMap = {
+            meeting_id: '會議編號',
+            meeting_type: '會議類型',
+            meeting_title: '會議標題',
+            meeting_date: '召開日期',
+            start_time: '開始時間',
+            end_time: '結束時間',
+            location_detail: '地點說明',
+            host_name: '主持人',
+            recorder_name: '記錄人',
+            attendees: '與會夥伴',
+            ray_notes: 'Ray戰略筆記',
+            jarvis_notes: 'Jarvis營運筆記',
+            action_completion_rate: '行動完成率',
+            meeting_status: '會議狀態',
+            attachment_url: '附件連結'
+        };
+
+        // 2. 本地 Mock 數據存儲庫 (模擬 Google Sheets 413 & 414 表資料)
+        let meetingsDB = [
+            {
+                meeting_id: 'MTG-202608-01',
+                meeting_type: 'STRATEGY',
+                meeting_title: '2026 Q3 馬來西亞市場拓荒暨雙軌 PV 借貸平衡戰略佈局',
+                meeting_date: '2026-08-18',
+                start_time: '20:00',
+                end_time: '22:30',
+                location_detail: 'Google Meet 線上戰情室',
+                host_name: '翁榮祥 (Ray)',
+                recorder_name: '賴冠宇 (Jarvis)',
+                attendees: '林佳蓉、陳柏翰、黃耀德、馬來西亞吉隆坡先遣核心群',
+                ray_notes: '針對 8 月底前欲衝刺經理的 3 條種子線，由公共儲備點數池各支援 500 SV 作為安全墊，約定於 9 月 20 日獎金發放時等額沖銷；大馬市場專屬 995 超級營養液樣品包優先配發吉隆坡對焦領導人。',
+                jarvis_notes: '「馬來西亞專區 (H80000)」前端選單已對接 GViz 自動換算 MYR/TWD 即時匯率，週五前完成培訓模組講義 PDF 雲端共用權限配發，並於 GitHub Pages 自動部署白名單驗證。',
+                action_completion_rate: 75.0,
+                meeting_status: 'COMPLETED',
+                attachment_url: 'https://drive.google.com/drive/folders/uvaco-meeting-01',
+                actions: [
+                    { action_id: 'ACT-01', title: '大馬吉隆坡實體說明會場地租借確認', assignee: '陳柏翰', deadline: '2026-08-22', priority: 'HIGH', status: 'DONE' },
+                    { action_id: 'ACT-02', title: '完成 3 筆 500 SV 戰術借貸單系統預錄 (H45000)', assignee: '賴冠宇 (Jarvis)', deadline: '2026-08-20', priority: 'HIGH', status: 'DONE' },
+                    { action_id: 'ACT-03', title: '發布 2026 新版產品簡報至培訓下載專區', assignee: '賴冠宇 (Jarvis)', deadline: '2026-08-23', priority: 'MEDIUM', status: 'DONE' },
+                    { action_id: 'ACT-04', title: '與吉隆坡高階團隊簽署跨國加盟合作備忘錄', assignee: '翁榮祥 (Ray)', deadline: '2026-08-28', priority: 'HIGH', status: 'IN_PROGRESS' }
+                ]
+            },
+            {
+                meeting_id: 'MTG-202608-02',
+                meeting_type: 'MGR_ALIGN',
+                meeting_title: '8 月份經理責任額 160 SV 與 3,200 SV 邊際防呆對焦會',
+                meeting_date: '2026-08-15',
+                start_time: '14:00',
+                end_time: '15:30',
+                location_detail: '台北營運總部 貴賓會議室',
+                host_name: '賴冠宇 (Jarvis)',
+                recorder_name: '賴冠宇 (Jarvis)',
+                attendees: '全體衝刺經理級別夥伴 (共 14 人)',
+                ray_notes: '提醒全體成員密切監控個人 160 SV 門檻，凡差額小於 50 SV 者，由所屬指導經理進行一對一關懷。',
+                jarvis_notes: '戰情系統已全面啟用「門檻調度 (H44000)」沙盤，夥伴可直接於手機查看倒數警示。',
+                action_completion_rate: 100.0,
+                meeting_status: 'CLOSED',
+                attachment_url: 'https://drive.google.com/drive/folders/uvaco-meeting-02',
+                actions: [
+                    { action_id: 'ACT-05', title: '排查 14 位經理個人 160 SV 達成進度', assignee: '林佳蓉', deadline: '2026-08-16', priority: 'HIGH', status: 'DONE' },
+                    { action_id: 'ACT-06', title: '推播 LINE 自動告警至未達標夥伴手機', assignee: '賴冠宇 (Jarvis)', deadline: '2026-08-16', priority: 'MEDIUM', status: 'DONE' }
+                ]
+            },
+            {
+                meeting_id: 'MTG-202608-03',
+                meeting_type: '1ON1',
+                meeting_title: '耀德夥伴 — 晉升珍珠級領袖生涯規劃與排線指導',
+                meeting_date: '2026-08-10',
+                start_time: '19:30',
+                end_time: '21:00',
+                location_detail: '星巴克 (信義旗艦店)',
+                host_name: '翁榮祥 (Ray)',
+                recorder_name: '翁榮祥 (Ray)',
+                attendees: '黃耀德',
+                ray_notes: '協助耀德盤點第三條合格經理線，目前組織深度已達 4 代，重點鎖定第 3 代小李進行全職育成。',
+                jarvis_notes: '後台已為耀德開通跨國市場權限，可於系統直接調閱馬來西亞產品定價與制度規章。',
+                action_completion_rate: 50.0,
+                meeting_status: 'IN_PROGRESS',
+                attachment_url: '',
+                actions: [
+                    { action_id: 'ACT-07', title: '安排與小李進行三方視訊招商會 (ABC 法則)', assignee: '黃耀德', deadline: '2026-08-25', priority: 'HIGH', status: 'IN_PROGRESS' },
+                    { action_id: 'ACT-08', title: '製作客製化事業評估收益試算表', assignee: '翁榮祥 (Ray)', deadline: '2026-08-22', priority: 'MEDIUM', status: 'TODO' }
+                ]
+            }
+        ];
+
+        let selectedMeetingId = 'MTG-202608-01';
+        let dataTableInstance = null;
+
+        // 3. 頁面初始化
+        $(document).ready(function () {
+            // 初始化召開日期預設為今日
+            const today = new Date().toISOString().split('T')[0];
+            $('#form-meeting-date').val(today);
+
+            renderTimeline(meetingsDB);
+            loadMeetingDetail(selectedMeetingId);
+            initDataTable(meetingsDB);
+            bindEvents();
+        });
+
+        // 4. 渲染時間軸串流 (Timeline Stream)
+        function renderTimeline(data) {
+            const container = $('#timeline-container');
+            container.empty();
+
+            data.forEach(item => {
+                const isActive = item.meeting_id === selectedMeetingId ? 'active' : '';
+                const typeBadgeClass = getTypeBadge(item.meeting_type);
+                
+                const html = `
+                    <div class="timeline-item ${isActive}" data-id="${item.meeting_id}">
+                        <div class="glass-panel p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge ${typeBadgeClass} small">${item.meeting_type}</span>
+                                <span class="text-muted small"><i class="fa-regular fa-calendar"></i> ${item.meeting_date}</span>
+                            </div>
+                            <h6 class="fw-bold text-white mb-2 text-truncate">${item.meeting_title}</h6>
+                            <div class="d-flex justify-content-between align-items-center small text-muted">
+                                <span><i class="fa-solid fa-user-tie"></i> ${item.host_name}</span>
+                                <span class="badge ${item.action_completion_rate === 100 ? 'bg-success' : 'bg-secondary'} bg-opacity-25 text-light">
+                                    <i class="fa-solid fa-circle-check"></i> 待辦 ${item.action_completion_rate}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(html);
+            });
+        }
+
+        // 5. 載入並渲染右側全息工作台 (Executive Canvas)
+        function loadMeetingDetail(meetingId) {
+            const meeting = meetingsDB.find(m => m.meeting_id === meetingId);
+            if (!meeting) return;
+
+            selectedMeetingId = meetingId;
+
+            // 標題與基礎資訊
+            $('#detail-type-badge').text(meeting.meeting_type).attr('class', `badge ${getTypeBadge(meeting.meeting_type)}`);
+            $('#detail-date').html(`<i class="fa-solid fa-clock"></i> ${meeting.meeting_date} ${meeting.start_time} ~ ${meeting.end_time}`);
+            $('#detail-location').html(`<i class="fa-solid fa-location-dot"></i> ${meeting.location_detail}`);
+            $('#detail-title').text(meeting.meeting_title);
+            $('#detail-host-recorder').text(`${meeting.host_name} / ${meeting.recorder_name}`);
+            $('#detail-attendees').text(meeting.attendees);
+
+            // 雙首長筆記
+            $('#detail-ray-notes').text(meeting.ray_notes || '（無個別指引）');
+            $('#detail-jarvis-notes').text(meeting.jarvis_notes || '（無個別指引）');
+
+            // 待辦清單
+            const actionContainer = $('#detail-action-list');
+            actionContainer.empty();
+
+            if (meeting.actions && meeting.actions.length > 0) {
+                const completedCount = meeting.actions.filter(a => a.status === 'DONE').length;
+                const totalCount = meeting.actions.length;
+                const rate = Math.round((completedCount / totalCount) * 100);
+                
+                $('#detail-action-summary').text(`${totalCount} 項待辦 · ${completedCount} 項已結案 (${rate}%)`);
+
+                meeting.actions.forEach(action => {
+                    const priorityClass = `badge-priority-${action.priority.toLowerCase()}`;
+                    const isDone = action.status === 'DONE';
+                    
+                    const actionCard = `
+                        <div class="action-item-card d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="checkbox" class="form-check-input mt-0 action-toggle" data-action-id="${action.action_id}" ${isDone ? 'checked' : ''}>
+                                <span class="${isDone ? 'text-decoration-line-through text-muted' : 'text-white'} fw-medium">${action.title}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 small">
+                                <span class="badge ${priorityClass}">${action.priority}</span>
+                                <span class="text-secondary"><i class="fa-solid fa-user-check"></i> ${action.assignee}</span>
+                                <span class="text-muted"><i class="fa-regular fa-calendar-xmark"></i> ${action.deadline}</span>
+                            </div>
+                        </div>
+                    `;
+                    actionContainer.append(actionCard);
+                });
+            } else {
+                actionContainer.html('<div class="text-muted small p-2">本次會議尚無待辦事項。</div>');
+                $('#detail-action-summary').text('0 項待辦');
+            }
+
+            // 更新時間軸選取狀態
+            $('.timeline-item').removeClass('active');
+            $(`.timeline-item[data-id="${meetingId}"]`).addClass('active');
+        }
+
+        // 6. 初始化 DataTable.js 審計表格
+        function initDataTable(data) {
+            const tableData = data.map(item => [
+                `<span class="fw-bold text-secondary">${item.meeting_id}</span>`,
+                `<span class="badge ${getTypeBadge(item.meeting_type)}">${item.meeting_type}</span>`,
+                `<div class="fw-bold text-white text-truncate" style="max-width: 260px;">${item.meeting_title}</div>`,
+                `<span class="text-muted">${item.meeting_date}</span>`,
+                item.host_name,
+                item.actions ? item.actions.length : 0,
+                `<div class="progress" style="height: 6px; width: 80px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${item.action_completion_rate}%"></div>
+                </div> <span class="small text-muted ms-1">${item.action_completion_rate}%</span>`,
+                `<span class="badge bg-${item.meeting_status === 'CLOSED' ? 'dark' : (item.meeting_status === 'COMPLETED' ? 'success' : 'warning')} bg-opacity-25 border">${item.meeting_status}</span>`,
+                `<button class="btn btn-sm btn-outline-light btn-view-row" data-id="${item.meeting_id}"><i class="fa-solid fa-arrow-up-right-from-square"></i> 載入</button>`
+            ]);
+
+            dataTableInstance = $('#table-meeting-audit').DataTable({
+                data: tableData,
+                language: {
+                    search: "即時過濾：",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆戰略會議",
+                    paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" }
+                },
+                pageLength: 5,
+                responsive: true,
+                order: [[3, 'desc']]
+            });
+        }
+
+        // 7. 事件監聽綁定
+        function bindEvents() {
+            // 時間軸卡片點擊
+            $(document).on('click', '.timeline-item', function () {
+                const meetingId = $(this).data('id');
+                loadMeetingDetail(meetingId);
+            });
+
+            // DataTable 列按鈕點擊
+            $(document).on('click', '.btn-view-row', function () {
+                const meetingId = $(this).data('id');
+                loadMeetingDetail(meetingId);
+                $('html, body').animate({ scrollTop: 0 }, 300);
+            });
+
+            // 待辦事項 Checkbox 快速切換狀態
+            $(document).on('change', '.action-toggle', function () {
+                const actionId = $(this).data('action-id');
+                const isChecked = $(this).is(':checked');
+                
+                const currentMeeting = meetingsDB.find(m => m.meeting_id === selectedMeetingId);
+                if (currentMeeting) {
+                    const act = currentMeeting.actions.find(a => a.action_id === actionId);
+                    if (act) {
+                        act.status = isChecked ? 'DONE' : 'IN_PROGRESS';
+                        // 重新計算完成率
+                        const doneCount = currentMeeting.actions.filter(a => a.status === 'DONE').length;
+                        currentMeeting.action_completion_rate = Math.round((doneCount / currentMeeting.actions.length) * 100);
+                        
+                        loadMeetingDetail(selectedMeetingId);
+                        renderTimeline(meetingsDB);
+                    }
+                }
+            });
+
+            // 儲存新會議
+            $('#btn-save-meeting').on('click', function () {
+                const title = $('#form-meeting-title').val();
+                if (!title) {
+                    alert('請輸入會議標題！');
+                    return;
+                }
+
+                const newMeeting = {
+                    meeting_id: `MTG-202608-${Math.floor(Math.random() * 90 + 10)}`,
+                    meeting_type: $('#form-meeting-type').val(),
+                    meeting_title: title,
+                    meeting_date: $('#form-meeting-date').val(),
+                    start_time: $('#form-start-time').val(),
+                    end_time: $('#form-end-time').val(),
+                    location_detail: '線上戰情室 / 指定會所',
+                    host_name: $('#form-host-id option:selected').text(),
+                    recorder_name: $('#form-recorder-id option:selected').text(),
+                    attendees: '全體受邀夥伴',
+                    ray_notes: $('#form-meeting-conclusions').val(),
+                    jarvis_notes: '系統自動化建立完成，待後續跟進。',
+                    action_completion_rate: 0.0,
+                    meeting_status: 'SCHEDULED',
+                    attachment_url: $('#form-attachment-url').val(),
+                    actions: []
+                };
+
+                meetingsDB.unshift(newMeeting);
+                renderTimeline(meetingsDB);
+                loadMeetingDetail(newMeeting.meeting_id);
+                
+                const modalEl = document.getElementById('modal-new-meeting');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                $('#form-meeting')[0].reset();
+                
+                alert(`會議單號 [${newMeeting.meeting_id}] 已成功建立並同步！`);
+            });
+
+            // Google 試算表同步 (PapaParse & GViz 適配展示)
+            $('#btn-sync-gsheet').on('click', function () {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 串接 Google 試算表中...').prop('disabled', true);
+
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 試算表已同步');
+                    setTimeout(() => {
+                        btn.html('<i class="fa-solid fa-rotate"></i> 同步 Google 試算表').prop('disabled', false);
+                    }, 2000);
+                }, 1200);
+            });
+        }
+
+        // 輔助函式：會議類型 Badge 顏色對應
+        function getTypeBadge(type) {
+            switch (type) {
+                case 'STRATEGY': return 'bg-danger bg-opacity-25 text-danger border border-danger';
+                case 'WEEKLY': return 'bg-info bg-opacity-25 text-info border border-info';
+                case 'MGR_ALIGN': return 'bg-warning bg-opacity-25 text-warning border border-warning';
+                case '1ON1': return 'bg-success bg-opacity-25 text-success border border-success';
+                case 'EMERGENCY': return 'bg-danger text-white';
+                default: return 'bg-secondary text-light';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夥伴預警戰情中樞 | 榮祥葡眾數位戰情系統</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --uvaco-bg-base: #090514;
+            --uvaco-bg-card: #150a2a;
+            --uvaco-bg-surface: #1e0e3b;
+            --uvaco-bg-hover: #29144d;
+            --uvaco-primary: #8b5cf6;
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent: #ec4899;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #ef4444;
+            --uvaco-success: #10b981;
+            --uvaco-border-glow: rgba(139, 92, 246, 0.25);
+            --uvaco-border-danger: rgba(239, 68, 68, 0.4);
+            --uvaco-text-main: #f1f5f9;
+            --uvaco-text-muted: #9e8eb3;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            color: var(--uvaco-text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 1.25rem;
+            min-height: 100vh;
+        }
+
+        /* 戰情 HUD 頂部跑馬與總覽列 */
+        .hud-glass-panel {
+            background: linear-gradient(135deg, rgba(21, 10, 42, 0.85) 0%, rgba(30, 14, 59, 0.65) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .hud-stat-pill {
+            background: rgba(14, 7, 28, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hud-stat-pill:hover {
+            border-color: var(--uvaco-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+        }
+
+        /* 呼吸燈動態效果 */
+        .pulse-beacon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .pulse-danger {
+            background-color: var(--uvaco-danger);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: beacon-pulse-danger 1.8s infinite;
+        }
+
+        .pulse-warning {
+            background-color: var(--uvaco-warning);
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+            animation: beacon-pulse-warning 1.8s infinite;
+        }
+
+        @keyframes beacon-pulse-danger {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        @keyframes beacon-pulse-warning {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        /* 戰術分頁導航膠囊 */
+        .nav-pills-custom .nav-link {
+            background: rgba(21, 10, 42, 0.6);
+            color: var(--uvaco-text-muted);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 12px;
+            padding: 0.6rem 1.25rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            transition: all 0.25s ease;
+        }
+
+        .nav-pills-custom .nav-link.active {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: #ffffff;
+            border-color: #a78bfa;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 預警卡片流 */
+        .alert-item-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-item-card:hover {
+            border-color: var(--uvaco-secondary);
+            background: var(--uvaco-bg-surface);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.18);
+        }
+
+        .alert-item-card.border-risk-critical {
+            border-left: 5px solid var(--uvaco-danger);
+        }
+
+        .alert-item-card.border-risk-warning {
+            border-left: 5px solid var(--uvaco-warning);
+        }
+
+        .alert-item-card.border-risk-info {
+            border-left: 5px solid var(--uvaco-primary);
+        }
+
+        /* 進度條自訂 */
+        .progress-dark {
+            background-color: rgba(9, 5, 20, 0.8);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        /* 沉睡夥伴流失指數儀表條 */
+        .churn-score-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 20px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* 抽屜樣式修飾 */
+        .offcanvas-custom {
+            background-color: #120824;
+            color: var(--uvaco-text-main);
+            border-left: 1px solid var(--uvaco-border-glow);
+        }
+
+        /* DataTable 深色適配 */
+        .dataTables_wrapper {
+            color: var(--uvaco-text-main);
+        }
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(30, 14, 59, 0.3);
+            --bs-table-hover-bg: rgba(139, 92, 246, 0.15);
+            color: var(--uvaco-text-main);
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+        .page-link {
+            background-color: var(--uvaco-bg-card);
+            border-color: var(--uvaco-border-glow);
+            color: var(--uvaco-text-muted);
+        }
+        .page-link:hover, .page-item.active .page-link {
+            background-color: var(--uvaco-primary);
+            border-color: var(--uvaco-primary);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud-glass-panel mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-4 col-12">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 rounded-4 me-3" style="background: rgba(139, 92, 246, 0.2); border: 1px solid var(--uvaco-border-glow);">
+                        <i class="fa-solid fa-shield-virus fa-2x text-warning"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1 fw-bold text-white d-flex align-items-center">
+                            <span class="pulse-beacon pulse-danger"></span>
+                            夥伴預警戰情中樞
+                        </h4>
+                        <p class="mb-0 text-muted small">
+                            監控週期：<span id="currentCycleDisplay">2026 年 08 月</span> | 雙軌風控防禦中
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-12">
+                <div class="row g-2">
+                    <div class="col-sm-3 col-6">
+                        <div class="hud-stat-pill">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 經理斷代高危
+                            </div>
+                            <div class="d-flex align-items-baseline">
+                                <h3 class="mb-0 fw-bold text-danger" id="countBreakaway">2</h3>
+                                <span class="small text-muted ms-1">位夥伴</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="hud-stat-pill">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-user-xmark text-warning me-1"></i> 160 SV 差額
+                            </div>
+                            <div class="d-flex align-items-baseline">
+                                <h3 class="mb-0 fw-bold text-warning" id="countPersonalGap">5</h3>
+                                <span class="small text-muted ms-1">位未達</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="hud-stat-pill">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-bed text-info me-1"></i> 沉睡 > 60 天
+                            </div>
+                            <div class="d-flex align-items-baseline">
+                                <h3 class="mb-0 fw-bold text-info" id="countDormant">14</h3>
+                                <span class="small text-muted ms-1">位待甦醒</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-6">
+                        <div class="hud-stat-pill">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-bolt text-success me-1"></i> 今日待處置
+                            </div>
+                            <div class="d-flex align-items-baseline">
+                                <h3 class="mb-0 fw-bold text-success" id="countPendingAction">7</h3>
+                                <span class="small text-muted ms-1">項任務</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <ul class="nav nav-pills nav-pills-custom" id="alertTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-defense-btn" data-bs-toggle="pill" data-bs-target="#tab-defense" type="button" role="tab">
+                    <i class="fa-solid fa-shield-halved me-1"></i> 合格保衛與斷代防禦
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-dormant-btn" data-bs-toggle="pill" data-bs-target="#tab-dormant" type="button" role="tab">
+                    <i class="fa-solid fa-moon me-1"></i> 沉睡甦醒與流失阻斷
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-database-btn" data-bs-toggle="pill" data-bs-target="#tab-database" type="button" role="tab">
+                    <i class="fa-solid fa-table-list me-1"></i> 全景風控資料清冊
+                </button>
+            </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="max-width: 220px;">
+                <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="quickSearchInput" class="form-control bg-dark text-light border-secondary" placeholder="搜尋夥伴姓名/代碼...">
+            </div>
+            <button class="btn btn-sm btn-outline-primary" id="btnSyncGoogleSheet">
+                <i class="fa-solid fa-rotate me-1"></i> 同步試算表
+            </button>
+        </div>
+    </div>
+
+    <div class="tab-content" id="alertTabContent">
+
+        <div class="tab-pane fade show active" id="tab-defense" role="tabpanel">
+            <div class="row g-3" id="qualificationAlertsContainer">
+                </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-dormant" role="tabpanel">
+            <div class="row g-3" id="dormantAlertsContainer">
+                </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-database" role="tabpanel">
+            <div class="hud-glass-panel">
+                <div class="table-responsive">
+                    <table id="tableAllAlerts" class="table table-dark-custom table-hover align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th>預警類型</th>
+                                <th>夥伴代號 / 姓名</th>
+                                <th>當前職級</th>
+                                <th>風險評級</th>
+                                <th>指標差距 (SV / 天數)</th>
+                                <th>推薦應對策略</th>
+                                <th>處置狀態</th>
+                                <th class="text-end">戰術行動</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="offcanvas offcanvas-end offcanvas-custom" tabindex="-1" id="offcanvasCareAction" style="width: 420px;">
+        <div class="offcanvas-header border-bottom border-secondary pb-3">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasCareTitle">
+                <i class="fa-brands fa-line text-success me-2"></i> 專屬關懷文案產生器
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="p-3 mb-3 rounded-3" style="background: rgba(139, 92, 246, 0.15); border: 1px solid var(--uvaco-border-glow);">
+                <div class="small text-muted mb-1">目標夥伴</div>
+                <div class="h6 fw-bold text-white mb-0" id="targetPartnerNameDisplay">--</div>
+                <div class="small text-warning" id="targetPartnerStatusDisplay">--</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small text-muted">選擇關懷戰術劇本</label>
+                <select class="form-select bg-dark text-light border-secondary" id="scriptTemplateSelect">
+                    <option value="T1">【新品上市體驗】邀約試用與好久不見問候</option>
+                    <option value="T2">【體質調理覆盤】關心上次購買產品食用感受</option>
+                    <option value="T3">【月會活動VIP】邀請參加團隊實體沙龍與聚會</option>
+                    <option value="T4">【資格倒數提醒】160 SV 責任額合格權益保衛</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small text-muted">生成的 LINE 格式化文案</label>
+                <textarea class="form-control bg-dark text-light border-secondary" id="generatedCareText" rows="8"></textarea>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-success" id="btnCopyCareText">
+                    <i class="fa-solid fa-copy me-1"></i> 一鍵複製關懷文案
+                </button>
+                <button class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
+                    <i class="fa-solid fa-check me-1"></i> 標記為已關懷跟進
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * 榮祥團隊 夥伴預警資料防腐化解耦適配器 (Anti-Corruption Adapter)
+         */
+        const AlertsFieldMap = {
+            id: ['預警編號', 'alert_id', 'id'],
+            partner_id: ['夥伴編號', 'partner_id', 'member_no'],
+            partner_name: ['夥伴姓名', 'partner_name', 'name'],
+            current_rank: ['當前職級', 'current_rank', 'rank'],
+            alert_type: ['預警類型', 'alert_type', 'type'],
+            risk_level: ['風險等級', 'risk_level', 'level'],
+            current_val: ['當前數值', 'current_sv', 'current_val'],
+            target_val: ['目標門檻', 'target_sv', 'threshold'],
+            gap_val: ['差額', 'gap_sv', 'gap'],
+            days_inactive: ['未訂購天數', 'dormant_days', 'days_inactive'],
+            churn_score: ['流失指數', 'churn_risk_score', 'churn_score'],
+            action_strategy: ['建議策略', 'recommended_action', 'strategy'],
+            status: ['狀態', 'status', 'status_state']
+        };
+
+        // 模擬從 Google 試算表解耦抓取後的標準化資料
+        const mockQualificationAlerts = [
+            {
+                id: 'ALT-160-01',
+                partner_id: 'TW55102',
+                partner_name: '張雅筑',
+                current_rank: '副理',
+                alert_type: 'PERSONAL_160_GAP',
+                risk_level: 'CRITICAL',
+                current_val: 80,
+                target_val: 160,
+                gap_val: 80,
+                days_left: 4,
+                action_strategy: '尚差 80 SV（約 1 盒康爾喜），建議推播自用補貨提醒或協助配單。',
+                status: 'OPEN'
+            },
+            {
+                id: 'ALT-12K-02',
+                partner_id: 'TW33891',
+                partner_name: '陳建豪',
+                current_rank: '經理',
+                alert_type: 'MANAGER_12000_MARGIN',
+                risk_level: 'CRITICAL',
+                current_val: 9400,
+                target_val: 12000,
+                gap_val: 2600,
+                days_left: 4,
+                action_strategy: '小組尚差 2,600 SV 即斷代，建議啟動消費者提前購貨調度或轉點調配。',
+                status: 'OPEN'
+            },
+            {
+                id: 'ALT-BRK-03',
+                partner_id: 'TW88210',
+                partner_name: '林美雲',
+                current_rank: '經理',
+                alert_type: 'BREAKAWAY_SAFETY_RISK',
+                risk_level: 'WARNING',
+                current_val: 13200,
+                target_val: 12000,
+                gap_val: -1200,
+                days_left: 4,
+                action_strategy: '下線副理即將晉升，下月脫離後小組 SV 預估僅存 6,000 SV，需提早培育新代數。',
+                status: 'MONITORING'
+            }
+        ];
+
+        const mockDormantAlerts = [
+            {
+                id: 'DOR-001',
+                partner_id: 'TW12003',
+                partner_name: '黃怡君',
+                current_rank: '主任',
+                historical_max_rank: '經理',
+                days_inactive: 78,
+                last_product: '樟芝益 (12入)',
+                churn_score: 85,
+                risk_level: 'CRITICAL',
+                action_strategy: '曾為高階經理，已停購 78 天。建議使用【新品健康沙龍】進行一對一關懷。',
+                status: 'PENDING'
+            },
+            {
+                id: 'DOR-002',
+                partner_id: 'TW66291',
+                partner_name: '李志剛',
+                current_rank: '會員',
+                historical_max_rank: '副理',
+                days_inactive: 45,
+                last_product: '995 超級營養液',
+                churn_score: 62,
+                risk_level: 'WARNING',
+                action_strategy: '產品庫存應已耗盡，建議發送【產品回饋與體質覆盤】話術。',
+                status: 'PENDING'
+            },
+            {
+                id: 'DOR-003',
+                partner_id: 'TW44192',
+                partner_name: '蘇雪芬',
+                current_rank: '會員',
+                historical_max_rank: '會員',
+                days_inactive: 95,
+                last_product: '衛傑 (膠囊)',
+                churn_score: 92,
+                risk_level: 'CRITICAL',
+                action_strategy: '高危即將流失！建議贈送團隊關懷體驗包重新激活連結。',
+                status: 'CONTACTED'
+            }
+        ];
+
+        let dataTableInstance = null;
+
+        $(document).ready(function () {
+            renderQualificationView();
+            renderDormantView();
+            initDataTable();
+            bindEvents();
+        });
+
+        // 渲染軌道一：合格保衛卡片
+        function renderQualificationView() {
+            const container = $('#qualificationAlertsContainer');
+            container.empty();
+
+            mockQualificationAlerts.forEach(item => {
+                const percent = Math.min(100, Math.round((item.current_val / item.target_val) * 100));
+                const riskBorder = item.risk_level === 'CRITICAL' ? 'border-risk-critical' : 'border-risk-warning';
+                const badgeColor = item.risk_level === 'CRITICAL' ? 'bg-danger text-white' : 'bg-warning text-dark';
+
+                const cardHtml = `
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="alert-item-card ${riskBorder}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="badge ${badgeColor} me-1">${item.risk_level === 'CRITICAL' ? '危急斷代' : '注意觀察'}</span>
+                                    <span class="badge bg-secondary">${item.current_rank}</span>
+                                </div>
+                                <span class="small text-danger fw-bold"><i class="fa-regular fa-clock me-1"></i> 剩 ${item.days_left} 天結算</span>
+                            </div>
+                            
+                            <h5 class="fw-bold text-white mb-1">${item.partner_name} <span class="small text-muted font-monospace">(${item.partner_id})</span></h5>
+                            <div class="small text-muted mb-3">${item.alert_type === 'PERSONAL_160_GAP' ? '個人 160 SV 責任額考核' : '經理 12,000 SV 安全門檻'}</div>
+
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-muted">當前達成率</span>
+                                    <span class="text-light fw-bold">${item.current_val} / ${item.target_val} SV (${percent}%)</span>
+                                </div>
+                                <div class="progress progress-dark">
+                                    <div class="progress-bar ${percent < 50 ? 'bg-danger' : 'bg-warning'}" style="width: ${percent}%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 rounded-3 mb-3 small" style="background: rgba(9, 5, 20, 0.6); border: 1px dashed rgba(139, 92, 246, 0.25);">
+                                <i class="fa-solid fa-lightbulb text-warning me-1"></i> ${item.action_strategy}
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-light flex-grow-1" onclick="openCareDrawer('${item.partner_name}', '資格缺額差 ${item.gap_val} SV')">
+                                    <i class="fa-brands fa-line text-success me-1"></i> 發送關懷
+                                </button>
+                                <button class="btn btn-sm btn-primary flex-grow-1" onclick="alert('已轉跳至 H44000 門檻調度沙盤，為 ${item.partner_name} 安排轉點調配！')">
+                                    <i class="fa-solid fa-arrows-split-up-and-left me-1"></i> 轉點調度
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        // 渲染軌道二：沉睡甦醒卡片
+        function renderDormantView() {
+            const container = $('#dormantAlertsContainer');
+            container.empty();
+
+            mockDormantAlerts.forEach(item => {
+                const cardHtml = `
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="alert-item-card border-risk-critical">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="churn-score-badge">流失指數：${item.churn_score}%</span>
+                                </div>
+                                <span class="small text-muted"><i class="fa-solid fa-clock-rotate-left me-1"></i> 未回購 ${item.days_inactive} 天</span>
+                            </div>
+
+                            <h5 class="fw-bold text-white mb-1">
+                                ${item.partner_name}
+                                <span class="badge bg-dark border border-secondary small ms-1">歷史最高：${item.historical_max_rank}</span>
+                            </h5>
+                            <div class="small text-muted mb-2">上次主力產品：<span class="text-light">${item.last_product}</span></div>
+
+                            <div class="p-2 rounded-3 mb-3 small" style="background: rgba(9, 5, 20, 0.6); border: 1px dashed rgba(139, 92, 246, 0.25);">
+                                <i class="fa-solid fa-route text-info me-1"></i> ${item.action_strategy}
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-success flex-grow-1" onclick="openCareDrawer('${item.partner_name}', '未訂購 ${item.days_inactive} 天 (流失指數 ${item.churn_score}%)')">
+                                    <i class="fa-solid fa-heart me-1"></i> 啟動喚醒劇本
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="alert('已將 ${item.partner_name} 加入下週實體研討會 VIP 邀約名單！')">
+                                    <i class="fa-solid fa-calendar-plus me-1"></i> 邀約活動
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        // 初始化全景風控清冊 DataTable
+        function initDataTable() {
+            const tableData = [
+                ...mockQualificationAlerts.map(q => ({
+                    type: '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger">資格/斷代</span>',
+                    partner: `${q.partner_name} <span class="text-muted">(${q.partner_id})</span>`,
+                    rank: q.current_rank,
+                    level: `<span class="badge ${q.risk_level === 'CRITICAL' ? 'bg-danger' : 'bg-warning'}">${q.risk_level}</span>`,
+                    gap: `缺 ${q.gap_val} SV`,
+                    strategy: q.action_strategy,
+                    status: `<span class="badge bg-secondary">${q.status}</span>`,
+                    action: `<button class="btn btn-xs btn-outline-primary" onclick="openCareDrawer('${q.partner_name}', '資格缺額')"><i class="fa-solid fa-bolt me-1"></i> 處置</button>`
+                })),
+                ...mockDormantAlerts.map(d => ({
+                    type: '<span class="badge bg-info bg-opacity-25 text-info border border-info">沉睡流失</span>',
+                    partner: `${d.partner_name} <span class="text-muted">(${d.partner_id})</span>`,
+                    rank: d.current_rank,
+                    level: `<span class="badge bg-danger">指數 ${d.churn_score}%</span>`,
+                    gap: `停購 ${d.days_inactive} 天`,
+                    strategy: d.action_strategy,
+                    status: `<span class="badge bg-secondary">${d.status}</span>`,
+                    action: `<button class="btn btn-xs btn-outline-success" onclick="openCareDrawer('${d.partner_name}', '沉睡喚醒')"><i class="fa-solid fa-heart me-1"></i> 喚醒</button>`
+                }))
+            ];
+
+            dataTableInstance = $('#tableAllAlerts').DataTable({
+                data: tableData,
+                columns: [
+                    { data: 'type' },
+                    { data: 'partner' },
+                    { data: 'rank' },
+                    { data: 'level' },
+                    { data: 'gap' },
+                    { data: 'strategy' },
+                    { data: 'status' },
+                    { data: 'action', className: 'text-end' }
+                ],
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "快速過濾表格...",
+                    lengthMenu: "顯示 _MENU_ 筆",
+                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆預警",
+                    paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" }
+                }
+            });
+        }
+
+        // 開啟關懷抽屜
+        function openCareDrawer(name, statusInfo) {
+            $('#targetPartnerNameDisplay').text(name);
+            $('#targetPartnerStatusDisplay').text(statusInfo);
+            updateGeneratedCareText(name);
+            const offcanvasEl = new bootstrap.Offcanvas(document.getElementById('offcanvasCareAction'));
+            offcanvasEl.show();
+        }
+
+        // 動態生成關懷文案
+        function updateGeneratedCareText(partnerName) {
+            const template = $('#scriptTemplateSelect').val();
+            let text = '';
+            switch (template) {
+                case 'T1':
+                    text = `${partnerName} 您好！最近團隊剛引進葡萄王生技最新的調理研討成果，想到您之前很注重全家人的元氣保養，這週有空喝杯咖啡，我帶兩包最新品讓您體驗看看嗎？😊`;
+                    break;
+                case 'T2':
+                    text = `${partnerName} 早安！上次您帶的樟芝益與 995 應該剛好吃完一個週期了，最近精神與體力感覺如何呢？若需要協助調整食用方式或幫您直接配送，隨時跟我說喔！`;
+                    break;
+                case 'T3':
+                    text = `哈囉 ${partnerName}！下週六我們榮祥團隊在台中有一場專屬核心夥伴的健康沙龍，現場有資深營養專家現場諮詢，我特別幫您預留了貴賓席，一起來聊聊聚聚吧！✨`;
+                    break;
+                case 'T4':
+                    text = `${partnerName} 提醒您～本月您的個人責任額尚差少許即可達成 160 SV 合格門檻，為避免影響整組代數獎金的回饋權益，建議於 25 號前完成自用補單或通知我協助您配單調度喔！`;
+                    break;
+            }
+            $('#generatedCareText').val(text);
+        }
+
+        // 事件綁定
+        function bindEvents() {
+            $('#scriptTemplateSelect').on('change', function () {
+                const name = $('#targetPartnerNameDisplay').text();
+                updateGeneratedCareText(name);
+            });
+
+            $('#btnCopyCareText').on('click', function () {
+                const text = $('#generatedCareText').val();
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('已成功複製專屬 LINE 關懷文案！');
+                });
+            });
+
+            $('#quickSearchInput').on('keyup', function () {
+                const val = $(this).val().toLowerCase();
+                $('.alert-item-card').each(function () {
+                    const text = $(this).text().toLowerCase();
+                    $(this).parent().toggle(text.indexOf(val) > -1);
+                });
+            });
+
+            // 模擬解耦同步 Google 試算表
+            $('#btnSyncGoogleSheet').on('click', function () {
+                const $btn = $(this);
+                $btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 同步中...').prop('disabled', true);
+
+                setTimeout(() => {
+                    $btn.html('<i class="fa-solid fa-rotate me-1"></i> 同步試算表').prop('disabled', false);
+                    alert('【Google 試算表防腐層同步成功】已解耦重載 411 資格預警與 410 沉睡夥伴最新數據！');
+                }, 900);
+            });
+        }
+    </script>
+</body>
+</html>
