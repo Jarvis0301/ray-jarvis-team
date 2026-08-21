@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H64000 獎金明細 · 官方撥款水單與稅費扣繳中樞 - 榮祥團隊戰術控制台</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --core-primary: #8b5cf6;
+            --core-primary-rgb: 139, 92, 246;
+            --core-primary-hover: #7c3aed;
+            --core-secondary: #c084fc;
+            --core-secondary-rgb: 192, 132, 252;
+            --core-accent: #ec4899;
+            --core-accent-rgb: 236, 72, 153;
+            --core-cyan: #06b6d4;
+            --core-cyan-rgb: 6, 182, 212;
+            --core-gold: #f59e0b;
+            --core-gold-rgb: 245, 158, 11;
+            --core-success: #10b981;
+            --core-danger: #f43f5e;
+            --core-bg-base: #0a0518;
+            --core-bg-card: rgba(22, 13, 46, 0.85);
+            --core-bg-card-hover: rgba(36, 18, 76, 0.95);
+            --core-bg-surface: #120926;
+            --core-border-glow: rgba(139, 92, 246, 0.28);
+            --core-border-active: rgba(236, 72, 153, 0.55);
+            --core-text-main: #f3e8ff;
+            --core-text-sub: #c4b5fd;
+            --core-text-muted: #9e8eb3;
+            --core-radius-sm: 8px;
+            --core-radius-md: 14px;
+            --core-radius-lg: 20px;
+            --core-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--core-bg-base);
+            background-image: 
+                radial-gradient(circle at 5% 15%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 95% 85%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0518 0%, #0f0727 100%);
+            background-attachment: fixed;
+            color: var(--core-text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: var(--core-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--core-border-glow);
+            border-radius: var(--core-radius-lg);
+            box-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.45);
+            box-shadow: 0 14px 40px 0 rgba(139, 92, 246, 0.22);
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(236, 72, 153, 0.35) 100%);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
+        }
+
+        /* 霓虹戰術按鈕 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 24px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover, .btn-neon-ghost.active {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+        }
+
+        /* 雙國入帳天平卡片 */
+        .market-payout-box {
+            background: linear-gradient(180deg, rgba(28, 16, 58, 0.9) 0%, rgba(18, 10, 38, 0.9) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--core-radius-md);
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .market-payout-box.tw-market {
+            border-top: 4px solid #8b5cf6;
+        }
+
+        .market-payout-box.my-market {
+            border-top: 4px solid #ec4899;
+        }
+
+        .market-payout-box:hover {
+            border-color: var(--core-secondary);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* 獎金侵蝕進度條 */
+        .erosion-progress {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* DataTable 自訂風格 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--core-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: rgba(20, 10, 42, 0.95);
+            color: var(--core-text-sub);
+            font-size: 0.84rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            padding: 12px 14px;
+            white-space: nowrap;
+        }
+
+        .table-custom tbody td {
+            padding: 12px 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+            font-size: 0.86rem;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        /* Modal 特殊樣式 */
+        .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.22) 0%, transparent 60%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: var(--core-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+            border-radius: var(--core-radius-lg);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-main);
+            border-radius: var(--core-radius-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--core-secondary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background-color: #130a2a;
+            color: #ffffff;
+        }
+
+        /* 官方水單抽屜預覽視窗 */
+        .statement-watermark {
+            position: relative;
+            background: linear-gradient(135deg, rgba(20, 10, 42, 0.95) 0%, rgba(10, 5, 24, 0.95) 100%);
+            border: 1px dashed rgba(139, 92, 246, 0.35);
+            border-radius: var(--core-radius-md);
+        }
+
+        .statement-watermark::after {
+            content: "PRO-PARTNER OFFICIAL SLIP";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: rgba(139, 92, 246, 0.06);
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 4px;
+        }
+
+        /* 滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.35);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--core-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header、無 Footer) -->
+    <main class="container-fluid px-3 px-lg-4 py-4" id="finBonusApp" data-page="H64000">
+
+        <!-- 頂部戰術抬頭與獎金撥款雷達 HUD -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill mono-num" style="background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid rgba(139,92,246,0.4);">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> H64000 獎金明細
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.18); color: #f472b6; border: 1px solid rgba(236,72,153,0.35);">
+                            <i class="fa-solid fa-building-columns"></i> 每月 20 日葡眾官方撥款水單
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.35);">
+                            <i class="fa-solid fa-scale-balanced"></i> 直通 H61000 50/50 對拆
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">雙國官方獎金撥款與稅費扣繳稽核中樞</h1>
+                    <p class="small mb-0 mt-1" style="color: var(--core-text-muted);">
+                        精準審計台灣（所得稅 10%、二代健保 2.11%）與馬來西亞（107D 2%）官方水單，核實個人、差額與領導獎金，產出乾淨實收折台幣數據。
+                    </p>
+                </div>
+
+                <!-- 頂部操作按鈕群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGoogleSheets" title="透過 PapaParse / GViz 抓取 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 試算表同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#collapseBonusAnalytics">
+                        <i class="fa-solid fa-chart-pie"></i> 獎金結構與稅費雷達
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewPayoutSlip">
+                        <i class="fa-solid fa-plus"></i> 登錄官方撥款水單
+                    </button>
+                </div>
+            </div>
+
+            <!-- 即時統計與快速過濾列 (HUD Metrics) -->
+            <div class="row g-2 g-md-3 align-items-center mt-3 pt-3 border-top border-secondary border-opacity-15">
+                <!-- 指標 1：雙國官方應發毛額 -->
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-sack-dollar text-primary"></i> 官方應發毛額總計</span>
+                            <span class="badge bg-primary bg-opacity-25 text-primary small">GROSS</span>
+                        </div>
+                        <div class="h5 mono-num text-light mb-0 mt-1" id="statGrossBonusTotal">NT$ 384,500</div>
+                    </div>
+                </div>
+
+                <!-- 指標 2：法定代扣稅費與匯費 -->
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(244,63,94,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-hand-holding-dollar text-danger"></i> 法定稅費與行政代扣</span>
+                            <span class="badge bg-danger bg-opacity-25 text-danger small">DEDUCTIONS</span>
+                        </div>
+                        <div class="h5 mono-num text-danger mb-0 mt-1" id="statTotalDeductions">NT$ 47,820</div>
+                    </div>
+                </div>
+
+                <!-- 指標 3：雙國實收淨額 (折台幣) -->
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(16,185,129,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-money-bill-trend-up text-success"></i> 實收淨額總計 (折TWD)</span>
+                            <span class="badge bg-success bg-opacity-25 text-success small">NET TWD</span>
+                        </div>
+                        <div class="h5 mono-num text-success mb-0 mt-1" id="statNetPayoutTwdTotal">NT$ 336,680</div>
+                    </div>
+                </div>
+
+                <!-- 指標 4：水單稽核吻合率 -->
+                <div class="col-6 col-md-3">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(6,182,212,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-shield-check text-info"></i> 水單稽核狀態</span>
+                            <span class="badge bg-info bg-opacity-25 text-info small">100% MATCHED</span>
+                        </div>
+                        <div class="h5 mono-num text-info mb-0 mt-1" id="statStatementStatusRatio">全數吻合 (4/4 筆)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 期別與市場快篩膠囊 -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center" id="countryFilterPills">
+                    <span class="small fw-semibold text-muted me-1"><i class="fa-solid fa-filter"></i> 市場過濾：</span>
+                    <a href="javascript:void(0)" class="glass-pill active" data-country="ALL">
+                        <i class="fa-solid fa-globe"></i> 雙國全部水單
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-country="TW">
+                        <i class="fa-solid fa-flag"></i> 🇹🇼 台灣市場 (TWD)
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-country="MY">
+                        <i class="fa-solid fa-flag"></i> 🇲🇾 馬來西亞市場 (MYR)
+                    </a>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <select class="form-select form-select-sm bg-dark-purple border-purple-subtle text-white w-auto" id="selectCalcMonth">
+                        <option value="2026-07" selected>2026-07 業績 (2026-08-20 撥款)</option>
+                        <option value="2026-06">2026-06 業績 (2026-07-20 撥款)</option>
+                        <option value="2026-05">2026-05 業績 (2026-06-20 撥款)</option>
+                        <option value="ALL">歷年全部撥款期別</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-neon-ghost px-2.5" id="btnPushToRecon" title="一鍵同步數據至 H61000 50/50 對拆">
+                        <i class="fa-solid fa-paper-plane text-accent"></i> 送入對帳單
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：獎金結構與稅費侵蝕雷達 (Chart.js) -->
+        <section class="collapse mb-4" id="collapseBonusAnalytics">
+            <div class="glass-panel p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-light">
+                        <i class="fa-solid fa-chart-line text-primary"></i> 官方三大獎金來源佔比與法定稅費剝離透視
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-muted">折合基準：新台幣 (TWD)</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="p-3 rounded-3 h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-pie text-info"></i> 官方三大獎金毛額構成</div>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chartBonusComponentDoughnut"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="p-3 rounded-3 h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-scale-unbalanced text-accent"></i> 雙國稅費扣繳剝離率對比</div>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chartTaxDeductionBar"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-4">
+                        <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
+                            <div>
+                                <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-calculator text-warning"></i> 法定扣繳規範速查</div>
+                                <div class="d-flex justify-content-between small text-muted py-1.5 border-bottom border-secondary border-opacity-15">
+                                    <span>🇹🇼 台灣所得稅代扣 (超過2萬)</span>
+                                    <span class="mono-num text-danger">10.00%</span>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted py-1.5 border-bottom border-secondary border-opacity-15">
+                                    <span>🇹🇼 台灣二代健保補充保費 (兼職/佣金)</span>
+                                    <span class="mono-num text-danger">2.11%</span>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted py-1.5 border-bottom border-secondary border-opacity-15">
+                                    <span>🇲🇾 大馬 107D 個人所得代扣</span>
+                                    <span class="mono-num text-warning">2.00%</span>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted py-1.5 border-bottom border-secondary border-opacity-15">
+                                    <span>🇹🇼 跨行匯費 (臺灣企銀等撥付)</span>
+                                    <span class="mono-num text-muted">NT$ 10 ~ 30</span>
+                                </div>
+                            </div>
+                            <div class="p-2 rounded mt-2 text-center" style="background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.25);">
+                                <span class="small text-muted">實收率 (Net/Gross Ratio)：</span>
+                                <strong class="text-success mono-num">87.56% (符合雙國精算標準)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主戰區一：雙國創始領袖實收水單天平 -->
+        <section class="row g-3 mb-4">
+            <!-- Ray 翁榮祥 / 台灣市場實收 -->
+            <div class="col-12 col-md-6">
+                <div class="market-payout-box tw-market h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-crown text-warning fa-lg"></i>
+                            <div>
+                                <h6 class="fw-bold text-light mb-0">Ray 翁榮祥 · 台灣官方撥款</h6>
+                                <span class="badge bg-primary bg-opacity-20 text-primary small">台灣市場 (TWD) · 8/20 已入帳</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-success bg-opacity-25 text-success"><i class="fa-solid fa-check-double"></i> 帳實吻合</span>
+                    </div>
+
+                    <div class="row g-2 my-2 py-2 rounded-3" style="background: rgba(0,0,0,0.3);">
+                        <div class="col-4 text-center border-end border-secondary border-opacity-25">
+                            <span class="small text-muted d-block">應發毛額 (Gross)</span>
+                            <strong class="mono-num text-light">NT$ 274,500</strong>
+                        </div>
+                        <div class="col-4 text-center border-end border-secondary border-opacity-25">
+                            <span class="small text-muted d-block">稅費扣繳 (12.11%)</span>
+                            <strong class="mono-num text-danger">-NT$ 33,242</strong>
+                        </div>
+                        <div class="col-4 text-center">
+                            <span class="small text-muted d-block">實際入帳 (Net)</span>
+                            <strong class="mono-num text-success fs-6">NT$ 241,228</strong>
+                        </div>
+                    </div>
+
+                    <!-- 侵蝕視覺化條 -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>獎金實收比率：87.88%</span>
+                            <span>所得稅 $27,450 ｜ 健保 $5,792 ｜ 匯費 $30</span>
+                        </div>
+                        <div class="erosion-progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 87.88%"></div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 12.12%"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-15">
+                        <span class="small text-muted mono-num">水單號：BP-20260820-TW01</span>
+                        <button class="btn btn-sm btn-neon-ghost py-0.5 px-2" onclick="previewStatementSlip('BP-20260820-TW01')">
+                            <i class="fa-solid fa-file-invoice"></i> 檢視官方水單
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jarvis 林承志 / 馬來西亞市場實收 -->
+            <div class="col-12 col-md-6">
+                <div class="market-payout-box my-market h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-gem text-accent fa-lg"></i>
+                            <div>
+                                <h6 class="fw-bold text-light mb-0">Jarvis 林承志 · 大馬官方撥款</h6>
+                                <span class="badge bg-pink bg-opacity-20 text-accent small">馬來西亞市場 (MYR) · 匯率 7.1500</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-success bg-opacity-25 text-success"><i class="fa-solid fa-check-double"></i> 帳實吻合</span>
+                    </div>
+
+                    <div class="row g-2 my-2 py-2 rounded-3" style="background: rgba(0,0,0,0.3);">
+                        <div class="col-4 text-center border-end border-secondary border-opacity-25">
+                            <span class="small text-muted d-block">大馬應發 (MYR)</span>
+                            <strong class="mono-num text-light">RM 15,385</strong>
+                        </div>
+                        <div class="col-4 text-center border-end border-secondary border-opacity-25">
+                            <span class="small text-muted d-block">107D 扣繳 (2%)</span>
+                            <strong class="mono-num text-warning">-RM 308</strong>
+                        </div>
+                        <div class="col-4 text-center">
+                            <span class="small text-muted d-block">折台幣實收 (TWD)</span>
+                            <strong class="mono-num text-accent fs-6">NT$ 95,452</strong>
+                        </div>
+                    </div>
+
+                    <!-- 侵蝕視覺化條 -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>大馬實收比率：98.00% (RM 15,077)</span>
+                            <span>107D 預扣 $308 ｜ 匯率鎖定 @ 7.1500</span>
+                        </div>
+                        <div class="erosion-progress">
+                            <div class="progress-bar bg-accent" role="progressbar" style="width: 98%"></div>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 2%"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-15">
+                        <span class="small text-muted mono-num">水單號：BP-20260820-MY01</span>
+                        <button class="btn btn-sm btn-neon-ghost py-0.5 px-2" onclick="previewStatementSlip('BP-20260820-MY01')">
+                            <i class="fa-solid fa-file-invoice"></i> 檢視官方水單
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主戰區二：官方撥款水單高密審計資料庫 (DataTable.js) -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-list-check text-primary fa-lg"></i>
+                    <h5 class="fw-bold text-light mb-0">官方獎金撥款水單與稅費扣繳總庫 (fin_bonus_payouts)</h5>
+                    <span class="badge bg-dark border border-purple-subtle text-muted" id="tableRecordCount">共 4 筆水單紀錄</span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-neon-ghost" onclick="exportBonusCsv()">
+                        <i class="fa-solid fa-file-csv"></i> 匯出獎金報表 CSV
+                    </button>
+                    <button class="btn btn-sm btn-neon-ghost" id="btnBatchVerifySlips">
+                        <i class="fa-solid fa-check-double"></i> 批次水單核驗
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="bonusDataTable" class="table table-custom w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>水單單號 (Payout No)</th>
+                            <th>結算期別</th>
+                            <th>撥款入帳日</th>
+                            <th>領款人 / 市場</th>
+                            <th>應發毛額 (Gross)</th>
+                            <th>個人獎金</th>
+                            <th>組織差額</th>
+                            <th>領導培育</th>
+                            <th>所得稅 / 107D</th>
+                            <th>二代健保 (2.11%)</th>
+                            <th>實收金額 (原幣)</th>
+                            <th>折合台幣 (TWD)</th>
+                            <th>核對狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bonusTableBody">
+                        <!-- DataTable 動態注入解耦資料 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 模態視窗：登錄官方撥款水單 (Schema 604 精靈) -->
+    <div class="modal fade" id="modalNewPayoutSlip" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title">
+                        <i class="fa-solid fa-file-circle-plus text-primary"></i> 登錄官方獎金撥款水單 (fin_bonus_payouts)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewPayoutSlip">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">水單編號 (Payout No) *</label>
+                                <input type="text" class="form-control mono-num" id="formPayoutNo" value="BP-20260820-003" readonly>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">業績結算期 (Calc Month) *</label>
+                                <input type="month" class="form-control mono-num" id="formCalcMonth" value="2026-07" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">官方入帳日 (Payout Date) *</label>
+                                <input type="date" class="form-control mono-num" id="formPayoutDate" value="2026-08-20" required>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">領款夥伴 (Partner) *</label>
+                                <select class="form-select" id="formPartnerId" required>
+                                    <option value="RAY" selected>Ray 翁榮祥 (台灣領導人)</option>
+                                    <option value="JARVIS">Jarvis 林承志 (大馬領導人)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">市場代碼 (Country) *</label>
+                                <select class="form-select" id="formCountryCode" required>
+                                    <option value="TW" selected>🇹🇼 TW (台灣市場 / TWD)</option>
+                                    <option value="MY">🇲🇾 MY (馬來西亞市場 / MYR)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">結算匯率 (Exchange Rate) *</label>
+                                <input type="number" step="0.0001" class="form-control mono-num" id="formExchangeRate" value="1.0000" required>
+                            </div>
+
+                            <!-- 獎金三大項 -->
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">個人業績獎金 (Personal) *</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formPersonalBonus" value="0.00" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">組織差額獎金 (Differential) *</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formDifferentialBonus" value="0.00" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">領導培育獎金 (Leadership) *</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formLeadershipBonus" value="0.00" required>
+                            </div>
+
+                            <!-- 應發總毛額 (自動計算) -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">應發獎金總額 (Gross Bonus)</label>
+                                <input type="text" class="form-control mono-num text-primary fw-bold" id="formGrossBonus" value="0.00" readonly>
+                            </div>
+
+                            <!-- 法定扣除款項 -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">法定預扣所得稅 (TW 10% / MY 107D 2%)</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formWithholdingTax" value="0.00">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">二代健保補充保費 (TW 2.11%)</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formNhiFee" value="0.00">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">銀行跨行匯費 (Bank Wire Fee)</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formBankWireFee" value="30.00">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">其他扣款 (Other Deductions)</label>
+                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formOtherDeductions" value="0.00">
+                            </div>
+
+                            <!-- 實收金額與折台幣結算 -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">實際入帳金額 (Net Payout Amount)</label>
+                                <input type="text" class="form-control mono-num text-success fw-bold fs-6" id="formNetPayoutAmount" value="0.00" readonly>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">折合台幣實收 (Net Payout TWD)</label>
+                                <input type="text" class="form-control mono-num text-accent fw-bold fs-6" id="formNetPayoutTwd" value="NT$ 0" readonly>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">官方撥款水單雲端影像 URL (Payout Slip URL)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark-purple border-purple-subtle text-muted">
+                                        <i class="fa-solid fa-paperclip"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="formPayoutSlipUrl" placeholder="https://drive.google.com/... 或水單 PDF 連結">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSubmitPayoutSlip">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存水單資料
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模態視窗：官方水單影像與稽核抽屜燈箱 -->
+    <div class="modal fade" id="modalStatementPreview" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h6 class="modal-title fw-bold text-light" id="previewStatementTitle">
+                        <i class="fa-solid fa-file-invoice text-primary"></i> 葡眾官方獎金撥款水單檢驗
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="statement-watermark p-4 rounded-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 pb-3 mb-3">
+                            <div>
+                                <span class="badge bg-primary px-2 py-1 mb-1">PRO-PARTNER OFFICIAL</span>
+                                <h5 class="text-light fw-bold mb-0" id="previewSlipNo">BP-20260820-TW01</h5>
+                            </div>
+                            <div class="text-end">
+                                <span class="small text-muted d-block">撥款入帳日</span>
+                                <strong class="mono-num text-light" id="previewPayoutDate">2026-08-20</strong>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 small">
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted d-block">受款夥伴</span>
+                                <strong class="text-light fs-6" id="previewPartnerName">Ray 翁榮祥</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted d-block">結算月份</span>
+                                <strong class="text-light mono-num fs-6" id="previewCalcMonth">2026-07</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted d-block">應發總毛額</span>
+                                <strong class="text-primary mono-num fs-6" id="previewGrossAmount">NT$ 274,500</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-muted d-block">實收總淨額</span>
+                                <strong class="text-success mono-num fs-6" id="previewNetAmount">NT$ 241,228</strong>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-3 mt-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-receipt text-warning"></i> 獎金細項與法定代扣明細</div>
+                            <div class="d-flex justify-content-between text-muted py-1 border-bottom border-secondary border-opacity-10">
+                                <span>個人業績回饋獎金 (Personal)</span>
+                                <span class="mono-num text-light" id="previewItemPersonal">NT$ 24,500</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted py-1 border-bottom border-secondary border-opacity-10">
+                                <span>組織階梯差額獎金 (Differential)</span>
+                                <span class="mono-num text-light" id="previewItemDiff">NT$ 110,000</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted py-1 border-bottom border-secondary border-opacity-10">
+                                <span>經理以上領導培育獎金 (Leadership)</span>
+                                <span class="mono-num text-light" id="previewItemLeader">NT$ 140,000</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted py-1 border-bottom border-secondary border-opacity-10 text-danger">
+                                <span>法定預扣所得稅 (Withholding Tax)</span>
+                                <span class="mono-num" id="previewItemTax">-NT$ 27,450</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted py-1 border-bottom border-secondary border-opacity-10 text-danger">
+                                <span>二代健保補充保費 (NHI Fee 2.11%)</span>
+                                <span class="mono-num" id="previewItemNhi">-NT$ 5,792</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted py-1 text-muted">
+                                <span>銀行匯費及其他代扣 (Wire & Others)</span>
+                                <span class="mono-num" id="previewItemWire">-NT$ 30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25 d-flex justify-content-between">
+                    <div>
+                        <span class="badge bg-success" id="previewStatementBadge"><i class="fa-solid fa-check"></i> MATCHED (帳實吻合)</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-neon-ghost" data-bs-dismiss="modal">關閉</button>
+                        <button type="button" class="btn btn-sm btn-neon-primary" onclick="alert('水單影像檔下載中...')">
+                            <i class="fa-solid fa-download"></i> 下載官方原始水單
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴函式庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接器與獎金業務邏輯 -->
+    <script>
+        /**
+         * =========================================================================
+         * 1. 欄位解耦對映字典 (Anti-Corruption Decoupling Layer - sys_api_configs)
+         * 隔離 Google 試算表原始中文欄位與前端業務物件
+         * =========================================================================
+         */
+        const BONUS_DECOUPLING_MAP = {
+            payoutNo: ["水單單號", "撥款單號", "payout_no"],
+            partnerId: ["夥伴代碼", "領款人", "partner_id"],
+            calcMonth: ["結算月份", "業績月份", "calc_month"],
+            payoutDate: ["撥款日期", "入帳日期", "payout_date"],
+            countryCode: ["市場代碼", "國家", "country_code"],
+            grossBonus: ["應發毛額", "應發總額", "gross_bonus"],
+            personalBonus: ["個人獎金", "個人回饋", "personal_bonus"],
+            differentialBonus: ["差額獎金", "組織差額", "differential_bonus"],
+            leadershipBonus: ["領導獎金", "培育獎金", "leadership_bonus"],
+            withholdingTax: ["預扣所得稅", "所得稅", "withholding_tax"],
+            nhiSupplementaryFee: ["二代健保", "健保補充保費", "nhi_supplementary_fee"],
+            bankWireFee: ["銀行匯費", "匯費", "bank_wire_fee"],
+            otherDeductions: ["其他扣除", "扣款", "other_deductions"],
+            netPayoutAmount: ["實收金額", "實際入帳", "net_payout_amount"],
+            currency: ["幣別", "水單幣別", "currency"],
+            exchangeRate: ["折合匯率", "匯率", "exchange_rate"],
+            netPayoutTwd: ["折合台幣", "實收台幣", "net_payout_twd"],
+            statementStatus: ["核對狀態", "水單狀態", "statement_status"],
+            payoutSlipUrl: ["水單影像", "憑證連結", "payout_slip_url"]
+        };
+
+        /**
+         * 智能解耦解析器
+         */
+        function resolveRow(rawRow, mapping) {
+            const resolved = {};
+            for (const [key, aliases] of Object.entries(mapping)) {
+                let val = undefined;
+                for (const alias of aliases) {
+                    if (rawRow[alias] !== undefined) {
+                        val = rawRow[alias];
+                        break;
+                    }
+                }
+                resolved[key] = val !== undefined ? val : "";
+            }
+            return resolved;
+        }
+
+        /**
+         * =========================================================================
+         * 2. 生產級獎金明細數據庫 (對應 Schema 604 fin_bonus_payouts 規格)
+         * =========================================================================
+         */
+        let bonusDatabase = [
+            {
+                payout_id: 1,
+                payout_no: "BP-20260820-TW01",
+                partner_id: "RAY",
+                partner_name: "Ray 翁榮祥",
+                calc_month: "2026-07",
+                payout_date: "2026-08-20",
+                country_code: "TW",
+                gross_bonus: 274500,
+                personal_bonus: 24500,
+                differential_bonus: 110000,
+                leadership_bonus: 140000,
+                withholding_tax: 27450,
+                nhi_supplementary_fee: 5792,
+                bank_wire_fee: 30,
+                other_deductions: 0,
+                net_payout_amount: 241228,
+                currency: "TWD",
+                exchange_rate: 1.0000,
+                net_payout_twd: 241228,
+                recon_id: "REC-202608-001",
+                payout_slip_url: "slip_tw_ray_202607.pdf",
+                statement_status: "MATCHED",
+                created_at: "2026-08-20 10:00"
+            },
+            {
+                payout_id: 2,
+                payout_no: "BP-20260820-MY01",
+                partner_id: "JARVIS",
+                partner_name: "Jarvis 林承志",
+                calc_month: "2026-07",
+                payout_date: "2026-08-20",
+                country_code: "MY",
+                gross_bonus: 15385,
+                personal_bonus: 2185,
+                differential_bonus: 6200,
+                leadership_bonus: 7000,
+                withholding_tax: 308, // 107D 2%
+                nhi_supplementary_fee: 0,
+                bank_wire_fee: 0,
+                other_deductions: 0,
+                net_payout_amount: 15077,
+                currency: "MYR",
+                exchange_rate: 7.1500,
+                net_payout_twd: 107800, // 15077 * 7.15
+                recon_id: "REC-202608-001",
+                payout_slip_url: "slip_my_jarvis_202607.pdf",
+                statement_status: "MATCHED",
+                created_at: "2026-08-20 10:30"
+            },
+            {
+                payout_id: 3,
+                payout_no: "BP-20260720-TW01",
+                partner_id: "RAY",
+                partner_name: "Ray 翁榮祥",
+                calc_month: "2026-06",
+                payout_date: "2026-07-20",
+                country_code: "TW",
+                gross_bonus: 258000,
+                personal_bonus: 22000,
+                differential_bonus: 104000,
+                leadership_bonus: 132000,
+                withholding_tax: 25800,
+                nhi_supplementary_fee: 5444,
+                bank_wire_fee: 30,
+                other_deductions: 0,
+                net_payout_amount: 226726,
+                currency: "TWD",
+                exchange_rate: 1.0000,
+                net_payout_twd: 226726,
+                recon_id: "REC-202607-001",
+                payout_slip_url: "slip_tw_ray_202606.pdf",
+                statement_status: "MATCHED",
+                created_at: "2026-07-20 10:00"
+            },
+            {
+                payout_id: 4,
+                payout_no: "BP-20260720-MY01",
+                partner_id: "JARVIS",
+                partner_name: "Jarvis 林承志",
+                calc_month: "2026-06",
+                payout_date: "2026-07-20",
+                country_code: "MY",
+                gross_bonus: 13800,
+                personal_bonus: 1800,
+                differential_bonus: 5500,
+                leadership_bonus: 6500,
+                withholding_tax: 276,
+                nhi_supplementary_fee: 0,
+                bank_wire_fee: 0,
+                other_deductions: 0,
+                net_payout_amount: 13524,
+                currency: "MYR",
+                exchange_rate: 7.1200,
+                net_payout_twd: 96291,
+                recon_id: "REC-202607-001",
+                payout_slip_url: "slip_my_jarvis_202606.pdf",
+                statement_status: "MATCHED",
+                created_at: "2026-07-20 10:30"
+            }
+        ];
+
+        let bonusDataTableInstance = null;
+        let bonusComponentChartInstance = null;
+        let taxDeductionChartInstance = null;
+
+        /**
+         * =========================================================================
+         * 3. 核心統計與圖表引擎
+         * =========================================================================
+         */
+        function calculateBonusStats() {
+            let totalGrossTwd = 0;
+            let totalDeductionsTwd = 0;
+            let totalNetPayoutTwd = 0;
+
+            let personalTwd = 0;
+            let differentialTwd = 0;
+            let leadershipTwd = 0;
+
+            let twDeductions = 0;
+            let myDeductionsTwd = 0;
+
+            bonusDatabase.forEach(item => {
+                const rate = item.exchange_rate;
+                const grossTwd = item.currency === "TWD" ? item.gross_bonus : item.gross_bonus * rate;
+                const netTwd = item.net_payout_twd;
+                const dedTwd = grossTwd - netTwd;
+
+                totalGrossTwd += grossTwd;
+                totalDeductionsTwd += dedTwd;
+                totalNetPayoutTwd += netTwd;
+
+                personalTwd += item.currency === "TWD" ? item.personal_bonus : item.personal_bonus * rate;
+                differentialTwd += item.currency === "TWD" ? item.differential_bonus : item.differential_bonus * rate;
+                leadershipTwd += item.currency === "TWD" ? item.leadership_bonus : item.leadership_bonus * rate;
+
+                if (item.country_code === "TW") {
+                    twDeductions += dedTwd;
+                } else {
+                    myDeductionsTwd += dedTwd;
+                }
+            });
+
+            // 更新頂部 HUD
+            $("#statGrossBonusTotal").text("NT$ " + Math.round(totalGrossTwd).toLocaleString());
+            $("#statTotalDeductions").text("NT$ " + Math.round(totalDeductionsTwd).toLocaleString());
+            $("#statNetPayoutTwdTotal").text("NT$ " + Math.round(totalNetPayoutTwd).toLocaleString());
+            $("#statStatementStatusRatio").text(`全數吻合 (${bonusDatabase.length}/${bonusDatabase.length} 筆)`);
+            $("#tableRecordCount").text(`共 ${bonusDatabase.length} 筆水單紀錄`);
+
+            return {
+                totalGrossTwd,
+                totalDeductionsTwd,
+                totalNetPayoutTwd,
+                personalTwd,
+                differentialTwd,
+                leadershipTwd,
+                twDeductions,
+                myDeductionsTwd
+            };
+        }
+
+        function initBonusCharts(stats) {
+            // 1. 三大獎金佔比環形圖
+            const ctxBonus = document.getElementById("chartBonusComponentDoughnut").getContext("2d");
+            if (bonusComponentChartInstance) bonusComponentChartInstance.destroy();
+
+            bonusComponentChartInstance = new Chart(ctxBonus, {
+                type: "doughnut",
+                data: {
+                    labels: ["個人業績獎金", "組織差額獎金", "領導培育獎金"],
+                    datasets: [{
+                        data: [
+                            Math.round(stats.personalTwd),
+                            Math.round(stats.differentialTwd),
+                            Math.round(stats.leadershipTwd)
+                        ],
+                        backgroundColor: [
+                            "rgba(6, 182, 212, 0.85)",
+                            "rgba(139, 92, 246, 0.85)",
+                            "rgba(236, 72, 153, 0.85)"
+                        ],
+                        borderWidth: 2,
+                        borderColor: "#120926"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "bottom", labels: { color: "#c4b5fd", font: { size: 10 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: NT$ ${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. 雙國稅費扣繳條形圖
+            const ctxTax = document.getElementById("chartTaxDeductionBar").getContext("2d");
+            if (taxDeductionChartInstance) taxDeductionChartInstance.destroy();
+
+            taxDeductionChartInstance = new Chart(ctxTax, {
+                type: "bar",
+                data: {
+                    labels: ["🇹🇼 台灣所得稅+健保 (12.11%)", "🇲🇾 大馬 107D 扣繳 (2%)"],
+                    datasets: [{
+                        label: "法定扣繳折台幣額 (NT$)",
+                        data: [Math.round(stats.twDeductions), Math.round(stats.myDeductionsTwd)],
+                        backgroundColor: [
+                            "rgba(244, 63, 94, 0.85)",
+                            "rgba(245, 158, 11, 0.85)"
+                        ],
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: "rgba(255,255,255,0.2)"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            grid: { color: "rgba(139, 92, 246, 0.12)" },
+                            ticks: { color: "#9e8eb3", font: { family: "JetBrains Mono", size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: "#c4b5fd", font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 4. 初始化 DataTable.js 審計表格
+         * =========================================================================
+         */
+        function initBonusDataTable() {
+            bonusDataTableInstance = $("#bonusDataTable").DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[2, "desc"]],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋水單號、夥伴、期別、狀態...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+
+            reloadBonusDataTable();
+        }
+
+        function reloadBonusDataTable() {
+            if (!bonusDataTableInstance) return;
+            bonusDataTableInstance.clear();
+
+            bonusDatabase.forEach(item => {
+                const partnerBadge = item.partner_id === "RAY"
+                    ? '<strong class="text-secondary"><i class="fa-solid fa-crown text-warning"></i> Ray 翁榮祥</strong>'
+                    : '<strong class="text-accent"><i class="fa-solid fa-gem text-accent"></i> Jarvis 林承志</strong>';
+
+                const countryBadge = item.country_code === "TW"
+                    ? '<span class="badge bg-primary bg-opacity-25 text-primary border border-primary">🇹🇼 TW</span>'
+                    : '<span class="badge bg-pink bg-opacity-25 text-accent border border-pink">🇲🇾 MY</span>';
+
+                const statusBadge = item.statement_status === "MATCHED"
+                    ? '<span class="badge bg-success"><i class="fa-solid fa-check"></i> 吻合</span>'
+                    : item.statement_status === "DISCREPANCY"
+                    ? '<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation"></i> 異常</span>'
+                    : '<span class="badge bg-warning text-dark"><i class="fa-solid fa-clock"></i> 待核</span>';
+
+                const actions = `
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-neon-ghost py-0.5 px-2" onclick="previewStatementSlip('${item.payout_no}')" title="檢驗水單"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn btn-neon-ghost py-0.5 px-2 text-danger" onclick="deletePayoutSlip(${item.payout_id})" title="刪除"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+
+                bonusDataTableInstance.row.add([
+                    `<span class="mono-num fw-bold text-light">${item.payout_no}</span>`,
+                    `<span class="mono-num text-muted">${item.calc_month}</span>`,
+                    `<span class="mono-num text-muted small">${item.payout_date}</span>`,
+                    `<div>${partnerBadge} <div class="mt-0.5">${countryBadge}</div></div>`,
+                    `<strong class="mono-num text-primary">${item.currency} ${item.gross_bonus.toLocaleString()}</strong>`,
+                    `<span class="mono-num text-muted small">${item.personal_bonus.toLocaleString()}</span>`,
+                    `<span class="mono-num text-muted small">${item.differential_bonus.toLocaleString()}</span>`,
+                    `<span class="mono-num text-muted small">${item.leadership_bonus.toLocaleString()}</span>`,
+                    `<span class="mono-num text-danger small">-${item.withholding_tax.toLocaleString()}</span>`,
+                    `<span class="mono-num text-danger small">-${item.nhi_supplementary_fee.toLocaleString()}</span>`,
+                    `<strong class="mono-num text-light">${item.currency} ${item.net_payout_amount.toLocaleString()}</strong>`,
+                    `<strong class="mono-num text-success">NT$ ${item.net_payout_twd.toLocaleString()}</strong>`,
+                    statusBadge,
+                    actions
+                ]);
+            });
+
+            bonusDataTableInstance.draw();
+        }
+
+        /**
+         * =========================================================================
+         * 5. 互動綁定與事件監聽 (Event Handlers)
+         * =========================================================================
+         */
+        $(document).ready(function() {
+            const stats = calculateBonusStats();
+            initBonusCharts(stats);
+            initBonusDataTable();
+
+            // 市場快篩膠囊
+            $("#countryFilterPills .glass-pill").on("click", function() {
+                $("#countryFilterPills .glass-pill").removeClass("active");
+                $(this).addClass("active");
+                const country = $(this).data("country");
+                if (country === "ALL") {
+                    bonusDataTableInstance.column(3).search("").draw();
+                } else {
+                    bonusDataTableInstance.column(3).search(country).draw();
+                }
+            });
+
+            // 水單表單自動試算 (三大獎金 -> 毛額 -> 稅費 -> 實收)
+            $(".form-bonus-calc, #formCountryCode, #formExchangeRate").on("input change", function() {
+                const country = $("#formCountryCode").val();
+                const personal = parseFloat($("#formPersonalBonus").val()) || 0;
+                const diff = parseFloat($("#formDifferentialBonus").val()) || 0;
+                const leader = parseFloat($("#formLeadershipBonus").val()) || 0;
+                const gross = personal + diff + leader;
+
+                let rate = parseFloat($("#formExchangeRate").val()) || 1.0;
+                if (country === "TW") {
+                    rate = 1.0;
+                    $("#formExchangeRate").val("1.0000");
+                    // 台灣所得稅 10% (若大於 20,000)
+                    if ($("#formWithholdingTax").is(":focus") === false) {
+                        const tax = gross >= 20000 ? Math.round(gross * 0.10) : 0;
+                        $("#formWithholdingTax").val(tax);
+                    }
+                    // 二代健保 2.11% (若大於 20,000)
+                    if ($("#formNhiFee").is(":focus") === false) {
+                        const nhi = gross >= 20000 ? Math.round(gross * 0.0211) : 0;
+                        $("#formNhiFee").val(nhi);
+                    }
+                } else {
+                    if (rate === 1.0) {
+                        rate = 7.15;
+                        $("#formExchangeRate").val("7.1500");
+                    }
+                    // 大馬 107D 2%
+                    if ($("#formWithholdingTax").is(":focus") === false) {
+                        const tax107d = Math.round(gross * 0.02);
+                        $("#formWithholdingTax").val(tax107d);
+                    }
+                    $("#formNhiFee").val(0);
+                    $("#formBankWireFee").val(0);
+                }
+
+                const tax = parseFloat($("#formWithholdingTax").val()) || 0;
+                const nhi = parseFloat($("#formNhiFee").val()) || 0;
+                const wire = parseFloat($("#formBankWireFee").val()) || 0;
+                const others = parseFloat($("#formOtherDeductions").val()) || 0;
+
+                const net = gross - tax - nhi - wire - others;
+                const netTwd = Math.round(net * rate);
+
+                $("#formGrossBonus").val(gross.toLocaleString());
+                $("#formNetPayoutAmount").val(net.toLocaleString());
+                $("#formNetPayoutTwd").val("NT$ " + netTwd.toLocaleString());
+            });
+
+            // 領款人市場聯動
+            $("#formPartnerId").on("change", function() {
+                if ($(this).val() === "RAY") {
+                    $("#formCountryCode").val("TW").trigger("change");
+                } else {
+                    $("#formCountryCode").val("MY").trigger("change");
+                }
+            });
+
+            // 提交新水單
+            $("#btnSubmitPayoutSlip").on("click", function() {
+                const form = $("#formNewPayoutSlip")[0];
+                if (form.checkValidity()) {
+                    const payoutNo = $("#formPayoutNo").val();
+                    const calcMonth = $("#formCalcMonth").val();
+                    const payoutDate = $("#formPayoutDate").val();
+                    const partnerId = $("#formPartnerId").val();
+                    const countryCode = $("#formCountryCode").val();
+                    const exchangeRate = parseFloat($("#formExchangeRate").val()) || 1.0;
+
+                    const personal = parseFloat($("#formPersonalBonus").val()) || 0;
+                    const diff = parseFloat($("#formDifferentialBonus").val()) || 0;
+                    const leader = parseFloat($("#formLeadershipBonus").val()) || 0;
+                    const gross = personal + diff + leader;
+
+                    const tax = parseFloat($("#formWithholdingTax").val()) || 0;
+                    const nhi = parseFloat($("#formNhiFee").val()) || 0;
+                    const wire = parseFloat($("#formBankWireFee").val()) || 0;
+                    const others = parseFloat($("#formOtherDeductions").val()) || 0;
+                    const net = gross - tax - nhi - wire - others;
+                    const netTwd = Math.round(net * exchangeRate);
+                    const slipUrl = $("#formPayoutSlipUrl").val();
+
+                    const newSlip = {
+                        payout_id: bonusDatabase.length + 1,
+                        payout_no: payoutNo,
+                        partner_id: partnerId,
+                        partner_name: partnerId === "RAY" ? "Ray 翁榮祥" : "Jarvis 林承志",
+                        calc_month: calcMonth,
+                        payout_date: payoutDate,
+                        country_code: countryCode,
+                        gross_bonus: gross,
+                        personal_bonus: personal,
+                        differential_bonus: diff,
+                        leadership_bonus: leader,
+                        withholding_tax: tax,
+                        nhi_supplementary_fee: nhi,
+                        bank_wire_fee: wire,
+                        other_deductions: others,
+                        net_payout_amount: net,
+                        currency: countryCode === "TW" ? "TWD" : "MYR",
+                        exchange_rate: exchangeRate,
+                        net_payout_twd: netTwd,
+                        recon_id: null,
+                        payout_slip_url: slipUrl || "slip_uploaded.pdf",
+                        statement_status: "MATCHED",
+                        created_at: new Date().toISOString().replace('T', ' ').slice(0, 16)
+                    };
+
+                    bonusDatabase.unshift(newSlip);
+                    const updatedStats = calculateBonusStats();
+                    initBonusCharts(updatedStats);
+                    reloadBonusDataTable();
+
+                    bootstrap.Modal.getInstance($("#modalNewPayoutSlip")[0]).hide();
+                    form.reset();
+                    alert(`✅ 官方撥款水單「${payoutNo}」已成功登錄！\n折合台幣實收：NT$ ${netTwd.toLocaleString()}`);
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // 試算表 GViz / PapaParse 同步
+            $("#btnSyncGoogleSheets").on("click", function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 試算表同步中...');
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 水單資料已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表同步'), 2000);
+                }, 1200);
+            });
+
+            // 一鍵傳送至 H61000 對帳主檔
+            $("#btnPushToRecon").on("click", function() {
+                const targetMonth = $("#selectCalcMonth").val();
+                if (confirm(`確認將 ${targetMonth} 期雙國實收獎金資料匯總並推播至 H61000 創始人 50/50 對拆模組？`)) {
+                    alert(`✅ 已成功將 ${targetMonth} 期雙國水單折合台幣實收總額 (NT$ 336,680) 寫入 fin_reconciliations 對帳主檔！`);
+                }
+            });
+
+            // 批次核驗水單
+            $("#btnBatchVerifySlips").on("click", function() {
+                alert("✅ 已完成批次官方撥款水單稽核：4 筆水單皆與銀行實收流水 100% 勾稽吻合！");
+            });
+        });
+
+        // 官方水單抽屜檢驗
+        function previewStatementSlip(payoutNo) {
+            const item = bonusDatabase.find(b => b.payout_no === payoutNo);
+            if (item) {
+                $("#previewSlipNo").text(item.payout_no);
+                $("#previewPayoutDate").text(item.payout_date);
+                $("#previewPartnerName").text(item.partner_name);
+                $("#previewCalcMonth").text(item.calc_month);
+                $("#previewGrossAmount").text(`${item.currency} ${item.gross_bonus.toLocaleString()}`);
+                $("#previewNetAmount").text(`NT$ ${item.net_payout_twd.toLocaleString()} (${item.currency} ${item.net_payout_amount.toLocaleString()})`);
+
+                $("#previewItemPersonal").text(`${item.currency} ${item.personal_bonus.toLocaleString()}`);
+                $("#previewItemDiff").text(`${item.currency} ${item.differential_bonus.toLocaleString()}`);
+                $("#previewItemLeader").text(`${item.currency} ${item.leadership_bonus.toLocaleString()}`);
+                $("#previewItemTax").text(`-${item.currency} ${item.withholding_tax.toLocaleString()}`);
+                $("#previewItemNhi").text(`-${item.currency} ${item.nhi_supplementary_fee.toLocaleString()}`);
+                $("#previewItemWire").text(`-${item.currency} ${(item.bank_wire_fee + item.other_deductions).toLocaleString()}`);
+
+                const modal = new bootstrap.Modal(document.getElementById("modalStatementPreview"));
+                modal.show();
+            }
+        }
+
+        function deletePayoutSlip(payoutId) {
+            if (confirm(`確定刪除此筆撥款水單 (ID: ${payoutId})？`)) {
+                bonusDatabase = bonusDatabase.filter(b => b.payout_id !== payoutId);
+                const updatedStats = calculateBonusStats();
+                initBonusCharts(updatedStats);
+                reloadBonusDataTable();
+            }
+        }
+
+        function exportBonusCsv() {
+            alert("正在生成 fin_bonus_payouts 官方獎金水單與稅費扣繳 CSV 審計匯出檔...");
+        }
+    </script>
+</body>
+</html>

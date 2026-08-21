@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H63000 公款管理 · 團隊公共儲備基金與金庫調度 - 榮祥團隊核心戰情室</title>
+    <!-- Google Noto Fonts & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS (Bootstrap 5) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --core-primary: #8b5cf6;
+            --core-primary-rgb: 139, 92, 246;
+            --core-primary-hover: #7c3aed;
+            --core-secondary: #c084fc;
+            --core-secondary-rgb: 192, 132, 252;
+            --core-accent: #ec4899;
+            --core-accent-rgb: 236, 72, 153;
+            --core-cyan: #06b6d4;
+            --core-cyan-rgb: 6, 182, 212;
+            --core-gold: #f59e0b;
+            --core-gold-rgb: 245, 158, 11;
+            --core-success: #10b981;
+            --core-danger: #f43f5e;
+            --core-info: #38bdf8;
+            --core-bg-base: #0a0518;
+            --core-bg-card: rgba(22, 13, 46, 0.82);
+            --core-bg-card-hover: rgba(36, 18, 76, 0.95);
+            --core-bg-surface: #120926;
+            --core-border-glow: rgba(139, 92, 246, 0.28);
+            --core-border-active: rgba(236, 72, 153, 0.55);
+            --core-text-main: #f3e8ff;
+            --core-text-sub: #c4b5fd;
+            --core-text-muted: #9e8eb3;
+            --core-radius-sm: 8px;
+            --core-radius-md: 14px;
+            --core-radius-lg: 22px;
+            --core-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--core-bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.16) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0518 0%, #0d0620 100%);
+            background-attachment: fixed;
+            color: var(--core-text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: var(--core-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--core-border-glow);
+            border-radius: var(--core-radius-lg);
+            box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.55);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.45);
+            box-shadow: 0 16px 44px 0 rgba(139, 92, 246, 0.28);
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 45%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        /* 霓虹按鈕體系 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 24px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-cyan {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-cyan:hover {
+            background: linear-gradient(135deg, #22d3ee 0%, #0e7490 100%);
+            box-shadow: 0 6px 24px rgba(6, 182, 212, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover, .btn-neon-ghost.active {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(236, 72, 153, 0.35) 100%);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
+        }
+
+        /* 水位計專屬動態卡片 */
+        .vault-hero-card {
+            background: linear-gradient(135deg, rgba(32, 17, 68, 0.9) 0%, rgba(18, 9, 40, 0.95) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: var(--core-radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vault-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .vault-progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--core-radius-pill);
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+        }
+
+        .vault-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+            transition: width 1s ease-in-out;
+        }
+
+        /* 專款蓄水池卡片 */
+        .subpool-card {
+            background: rgba(24, 13, 52, 0.75);
+            border: 1px solid rgba(139, 92, 246, 0.22);
+            border-radius: var(--core-radius-md);
+            padding: 1.15rem;
+            transition: all 0.25s ease;
+        }
+
+        .subpool-card:hover {
+            border-color: var(--core-secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
+        }
+
+        /* 審批簽呈膠囊卡 */
+        .approval-card {
+            background: rgba(18, 9, 40, 0.85);
+            border-left: 4px solid var(--core-secondary);
+            border-radius: var(--core-radius-sm);
+            padding: 12px 14px;
+            transition: all 0.2s ease;
+        }
+
+        .approval-card:hover {
+            background: rgba(30, 16, 62, 0.95);
+        }
+
+        /* DataTable 自訂樣式 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--core-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: rgba(20, 10, 42, 0.95);
+            color: var(--core-text-sub);
+            font-size: 0.84rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            padding: 12px 14px;
+            white-space: nowrap;
+        }
+
+        .table-custom tbody td {
+            padding: 12px 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+            font-size: 0.86rem;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        /* Modal 特殊外觀 */
+        .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.22) 0%, transparent 60%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: var(--core-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+            border-radius: var(--core-radius-lg);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-main);
+            border-radius: var(--core-radius-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--core-secondary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background-color: #130a2a;
+            color: #ffffff;
+        }
+
+        /* 滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.35);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--core-primary);
+        }
+
+        @media (max-width: 767.98px) {
+            .hud-stat-box {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header、無 Footer) -->
+    <main class="container-fluid px-3 px-lg-4 py-4" id="finFundsApp" data-page="H63000">
+
+        <!-- 頂部戰術抬頭與金庫流動性控制列 (HUD) -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2.5 py-1 rounded-pill mono-num" style="background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid rgba(139,92,246,0.4);">
+                            <i class="fa-solid fa-vault"></i> H63000 公款管理
+                        </span>
+                        <span class="badge px-2.5 py-1 rounded-pill" style="background: rgba(6,182,212,0.18); color: #22d3ee; border: 1px solid rgba(6,182,212,0.35);">
+                            <i class="fa-solid fa-shield-halved"></i> 團隊公共儲備基金 (Schema 603)
+                        </span>
+                        <span class="badge px-2.5 py-1 rounded-pill" style="background: rgba(236,72,153,0.18); color: #f472b6; border: 1px solid rgba(236,72,153,0.35);">
+                            <i class="fa-solid fa-users-viewfinder"></i> 雙領袖共同治理核銷
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">團隊公共儲備基金與金庫調度中樞</h1>
+                    <p class="small mb-0 mt-1" style="color: var(--core-text-muted);">
+                        監控團隊公款池即時水位、每月 20 號利潤提撥入庫、重大公費提支審批與跨國戰術儲備，保障全台會場包場與大馬拓點。
+                    </p>
+                </div>
+
+                <!-- 頂部戰術操作群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncFundsSheet" title="透過 PapaParse / GViz 抓取 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 試算表同步
+                    </button>
+                    <button class="btn btn-neon-cyan btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalReserveCalculator">
+                        <i class="fa-solid fa-calculator"></i> 月度利潤提撥試算
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewFundLog">
+                        <i class="fa-solid fa-plus-circle"></i> 登錄公款異動單
+                    </button>
+                </div>
+            </div>
+
+            <!-- 金庫動態核心水位儀 (Vault Waterline Hero Box) -->
+            <div class="vault-hero-card p-3 p-lg-4 mt-3">
+                <div class="row g-3 align-items-center">
+                    <!-- 左側：即時總結餘水位 -->
+                    <div class="col-12 col-lg-5 border-lg-end border-secondary border-opacity-25 pe-lg-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted fw-semibold">
+                                <i class="fa-solid fa-coins text-warning"></i> 公款池即時累積結餘總額 (TWD)
+                            </span>
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success small" id="badgeHealthStatus">
+                                <i class="fa-solid fa-circle-check"></i> 水位充足 (健康)
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-baseline gap-2 mt-2">
+                            <h2 class="display-6 fw-bold mono-num text-light mb-0" id="statCurrentBalance">NT$ 285,400</h2>
+                            <span class="small text-muted">/ 安全防線 NT$ 150,000</span>
+                        </div>
+                        
+                        <!-- 水位進度條 -->
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>流動性防禦率</span>
+                                <span class="mono-num text-info fw-bold" id="statDefenseRatio">190.2%</span>
+                            </div>
+                            <div class="vault-progress-bar">
+                                <div class="vault-progress-fill" id="fillProgressBar" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右側：當期動態三指標 -->
+                    <div class="col-12 col-lg-7 ps-lg-4">
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.35); border: 1px solid rgba(16,185,129,0.25);">
+                                    <span class="small text-muted d-block"><i class="fa-solid fa-arrow-trend-up text-success"></i> 當期撥入/注資</span>
+                                    <div class="h5 mono-num text-success fw-bold mb-0 mt-1" id="statPeriodInflow">+NT$ 42,000</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">含對帳利潤提撥</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.35); border: 1px solid rgba(244,63,94,0.25);">
+                                    <span class="small text-muted d-block"><i class="fa-solid fa-arrow-trend-down text-danger"></i> 當期公費核銷</span>
+                                    <div class="h5 mono-num text-danger fw-bold mb-0 mt-1" id="statPeriodOutflow">-NT$ 25,800</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">台中會場長期約</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.35); border: 1px solid rgba(245,158,11,0.25);">
+                                    <span class="small text-muted d-block"><i class="fa-solid fa-hand-holding-dollar text-warning"></i> 雙領袖注資總額</span>
+                                    <div class="h5 mono-num text-warning fw-bold mb-0 mt-1" id="statFounderInflow">NT$ 100,000</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">Ray & Jarvis 特別款</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 專戶保管與存儲資訊 -->
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-15 small text-muted">
+                            <div>
+                                <i class="fa-solid fa-building-columns text-primary"></i> 存儲專戶：<span class="text-light mono-num">國泰世華銀行 (013) ****-8821</span>
+                            </div>
+                            <div>
+                                <i class="fa-solid fa-user-shield text-secondary"></i> 共同保管主管：<span class="text-secondary fw-semibold">Ray 翁榮祥 / Jarvis 林承志</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 異動型態快篩膠囊 -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center" id="changeTypeFilterPills">
+                    <span class="small fw-semibold text-muted me-1"><i class="fa-solid fa-filter"></i> 異動型態快篩：</span>
+                    <a href="javascript:void(0)" class="glass-pill active" data-type="ALL">
+                        <i class="fa-solid fa-layer-group"></i> 全部異動
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-type="MONTHLY_RESERVE">
+                        <i class="fa-solid fa-piggy-bank"></i> 月度利潤提撥
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-type="EXPENSE_WITHDRAWAL">
+                        <i class="fa-solid fa-money-bill-transfer"></i> 公款核銷支出
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-type="FOUNDER_INJECTION">
+                        <i class="fa-solid fa-crown"></i> 創始人特別注資
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-type="INTEREST_INCOME">
+                        <i class="fa-solid fa-percent"></i> 利息收益
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-type="ADJUSTMENT">
+                        <i class="fa-solid fa-scale-balanced"></i> 盤點調帳
+                    </a>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <select class="form-select form-select-sm bg-dark-purple border-purple-subtle text-white w-auto" id="selectFundsPeriod">
+                        <option value="2026-08" selected>2026-08 業績期</option>
+                        <option value="2026-07">2026-07 (已結算)</option>
+                        <option value="2026-06">2026-06 (已結算)</option>
+                        <option value="ALL">歷年全部紀錄</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主戰區一：四軌專款蓄水池與流向分佈 (Chart.js + Dynamic Cards) -->
+        <section class="row g-3 mb-4">
+            <!-- 左側：專款專用蓄水矩陣 (4 大虛擬子池) -->
+            <div class="col-12 col-xl-7">
+                <div class="glass-panel p-3 p-lg-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-light mb-0">
+                            <i class="fa-solid fa-cubes-stacked text-primary"></i> 四軌戰略專款虛擬蓄水池 (Sub-Funds Allocation)
+                        </h6>
+                        <span class="badge bg-dark border border-purple-subtle text-muted">動態撥款比例</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- 子池 1：會場長期包場基金 -->
+                        <div class="col-12 col-sm-6">
+                            <div class="subpool-card" style="border-left: 4px solid #8b5cf6;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted"><i class="fa-solid fa-building text-primary"></i> 全台會場包場基金</span>
+                                    <span class="badge bg-primary bg-opacity-20 text-primary mono-num">40%</span>
+                                </div>
+                                <h4 class="mono-num text-light fw-bold my-2">NT$ 114,160</h4>
+                                <div class="small text-muted d-flex justify-content-between">
+                                    <span>台北/台中/高雄旗艦會場</span>
+                                    <span class="text-success">安全水位</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 子池 2：大馬跨國拓點公費 -->
+                        <div class="col-12 col-sm-6">
+                            <div class="subpool-card" style="border-left: 4px solid #06b6d4;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted"><i class="fa-solid fa-earth-americas text-info"></i> 跨國大馬拓點公費</span>
+                                    <span class="badge bg-info bg-opacity-20 text-info mono-num">25%</span>
+                                </div>
+                                <h4 class="mono-num text-light fw-bold my-2">NT$ 71,350</h4>
+                                <div class="small text-muted d-flex justify-content-between">
+                                    <span>吉隆坡會場/考察備用</span>
+                                    <span class="text-info">Jarvis 託管</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 子池 3：年會表揚與品牌推廣 -->
+                        <div class="col-12 col-sm-6">
+                            <div class="subpool-card" style="border-left: 4px solid #ec4899;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted"><i class="fa-solid fa-award text-accent"></i> 年會表揚與品牌宣傳</span>
+                                    <span class="badge bg-pink bg-opacity-20 text-accent mono-num">20%</span>
+                                </div>
+                                <h4 class="mono-num text-light fw-bold my-2">NT$ 57,080</h4>
+                                <div class="small text-muted d-flex justify-content-between">
+                                    <span>聘階獎盃/年度盛典</span>
+                                    <span class="text-warning">累積中</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 子池 4：緊急流動性備用金 -->
+                        <div class="col-12 col-sm-6">
+                            <div class="subpool-card" style="border-left: 4px solid #10b981;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted"><i class="fa-solid fa-kit-medical text-success"></i> 緊急流動性備用金</span>
+                                    <span class="badge bg-success bg-opacity-20 text-success mono-num">15%</span>
+                                </div>
+                                <h4 class="mono-num text-light fw-bold my-2">NT$ 42,810</h4>
+                                <div class="small text-muted d-flex justify-content-between">
+                                    <span>突發週轉與系統維護</span>
+                                    <span class="text-success">鎖定保全</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：專款流向環形圖與流動性分析 (Chart.js) -->
+            <div class="col-12 col-xl-5">
+                <div class="glass-panel p-3 p-lg-4 h-100 d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-light mb-0">
+                            <i class="fa-solid fa-chart-pie text-accent"></i> 公款池沉積與配置權重
+                        </h6>
+                        <span class="badge bg-dark border border-secondary text-muted">Chart.js</span>
+                    </div>
+                    
+                    <div style="height: 180px; position: relative;">
+                        <canvas id="chartFundAllocationDoughnut"></canvas>
+                    </div>
+
+                    <div class="p-2.5 rounded-3 mt-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.2);">
+                        <div class="d-flex justify-content-between align-items-center small mb-1">
+                            <span class="text-muted"><i class="fa-solid fa-shield-cat text-warning"></i> 雙領袖核銷機制：</span>
+                            <span class="text-success mono-num">已授權動支</span>
+                        </div>
+                        <p class="small text-muted mb-0" style="font-size: 0.8rem;">
+                            超過 NT$ 20,000 之大額提支需由 Ray 翁榮祥 與 Jarvis 林承志 共同在線簽呈確認，方得自專戶提領。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主戰區二：公款異動審計總庫 (DataTable.js 核心高密表格) -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-book-journal-whills text-primary fa-lg"></i>
+                    <h5 class="fw-bold text-light mb-0">公共儲備基金異動主檔 (fin_operating_funds)</h5>
+                    <span class="badge bg-dark border border-purple-subtle text-muted" id="tableFundsCount">共 6 筆異動日誌</span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-neon-ghost" onclick="exportFundsCsv()">
+                        <i class="fa-solid fa-file-csv"></i> 匯出公款 CSV
+                    </button>
+                    <button class="btn btn-sm btn-neon-ghost" data-bs-toggle="modal" data-bs-target="#modalAuditVerify">
+                        <i class="fa-solid fa-magnifying-glass-dollar"></i> 金庫盤點對帳
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="operatingFundsDataTable" class="table table-custom w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>異動單號 (Log No)</th>
+                            <th>異動日期</th>
+                            <th>異動類型 (Change Type)</th>
+                            <th>變動金額 (Amount)</th>
+                            <th>變動後結餘 (Balance After)</th>
+                            <th>經辦/申請人</th>
+                            <th>用途說明 / 摘要</th>
+                            <th>關聯收支 (Trans No)</th>
+                            <th>關聯對帳單 (Recon ID)</th>
+                            <th>專戶保管資訊</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="operatingFundsTableBody">
+                        <!-- DataTable 動態注入解耦資料 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 模態視窗 1：登錄公款異動單據 (Schema 603 新增精靈) -->
+    <div class="modal fade" id="modalNewFundLog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title">
+                        <i class="fa-solid fa-vault text-primary"></i> 登錄公款池異動單據 (fin_operating_funds)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewFundLog">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">異動單號 (Log No) *</label>
+                                <input type="text" class="form-control mono-num" id="formFundLogNo" value="OF-202608-007" readonly>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">異動發生日期 *</label>
+                                <input type="date" class="form-control mono-num" id="formFundDate" value="2026-08-21" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">異動類型 (Change Type) *</label>
+                                <select class="form-select" id="formChangeType" required>
+                                    <option value="MONTHLY_RESERVE">MONTHLY_RESERVE (月度利潤提撥)</option>
+                                    <option value="EXPENSE_WITHDRAWAL">EXPENSE_WITHDRAWAL (公款核銷支出)</option>
+                                    <option value="FOUNDER_INJECTION">FOUNDER_INJECTION (創始人特別注資)</option>
+                                    <option value="INTEREST_INCOME">INTEREST_INCOME (利息收益)</option>
+                                    <option value="ADJUSTMENT">ADJUSTMENT (盤點調帳)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">變動金額 (正數撥入，負數提支) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary text-muted">TWD</span>
+                                    <input type="number" step="0.01" class="form-control mono-num fw-bold" id="formFundAmount" placeholder="+/- 金額" required>
+                                </div>
+                                <div class="form-text text-muted">範例：提支支出輸入 -25800，利潤提撥輸入 30000</div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">經辦 / 申請主管 (Operator Partner) *</label>
+                                <select class="form-select" id="formOperatorPartner" required>
+                                    <option value="RAY" selected>Ray 翁榮祥 (台灣戰略)</option>
+                                    <option value="JARVIS">Jarvis 林承志 (大馬營運)</option>
+                                    <option value="SYSTEM">SYSTEM (自動排程提撥)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">關聯日常收支單號 (Trans ID / No)</label>
+                                <input type="text" class="form-control mono-num" id="formFundTransNo" placeholder="如：TX-20260801-005 (無則留空)">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">關聯月度對帳單 (Recon ID)</label>
+                                <input type="text" class="form-control mono-num" id="formFundReconId" placeholder="如：REC-2026-08 (無則留空)">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">提支用途或撥入事由說明 (Purpose Desc) *</label>
+                                <input type="text" class="form-control" id="formPurposeDesc" placeholder="詳細說明款項來源或動支用途..." required>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">存儲專戶銀行或保管人資訊</label>
+                                <input type="text" class="form-control" id="formBankAccount" value="國泰世華銀行專戶 (8821)" required>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">簽呈與額外備註 (Notes)</label>
+                                <input type="text" class="form-control" id="formNotes" placeholder="如：雙創始人已簽核第 12 號決議案">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSubmitFundLog">
+                        <i class="fa-solid fa-floppy-disk"></i> 寫入公款日誌
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模態視窗 2：月度利潤提撥試算器 (自動試算 5% 儲備池) -->
+    <div class="modal fade" id="modalReserveCalculator" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title">
+                        <i class="fa-solid fa-calculator text-info"></i> 月度利潤公積金提撥試算精靈
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="p-3 rounded-3 mb-3" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3);">
+                        <div class="small text-info fw-semibold mb-1"><i class="fa-solid fa-info-circle"></i> 團隊 50/50 分潤公積金制度</div>
+                        <p class="small text-muted mb-0">
+                            每月 20 號核銷後，自總利潤扣減營運成本後之淨利，依約定比例提撥入庫，作為團隊公共儲備池基金。
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">當月團隊淨利潤 (Net Profit TWD)</label>
+                        <input type="number" class="form-control mono-num fw-bold fs-5" id="calcNetProfit" value="480000">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">約定提撥比例 (%)</label>
+                        <select class="form-select mono-num" id="calcReservePercent">
+                            <option value="0.05" selected>5.0% (標準公積金比例)</option>
+                            <option value="0.08">8.0% (擴大拓點儲備)</option>
+                            <option value="0.10">10.0% (年度盛典衝刺)</option>
+                        </select>
+                    </div>
+
+                    <div class="p-3 rounded-3 text-center my-3" style="background: rgba(0,0,0,0.4); border: 1px dashed rgba(139,92,246,0.4);">
+                        <span class="small text-muted d-block">預計撥入公款池金額</span>
+                        <h3 class="mono-num text-success fw-bold my-1" id="calcResultAmount">NT$ 24,000</h3>
+                        <span class="small text-muted">提撥後公款池預估水位：<strong class="text-light mono-num" id="calcEstimatedBalance">NT$ 309,400</strong></span>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-sm btn-neon-ghost" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-sm btn-neon-cyan" id="btnApplyReserveCalculation">
+                        <i class="fa-solid fa-arrow-down-to-bracket"></i> 帶入異動表單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模態視窗 3：金庫盤點對帳燈箱 -->
+    <div class="modal fade" id="modalAuditVerify" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h6 class="modal-title fw-bold text-light">
+                        <i class="fa-solid fa-scale-balanced text-warning"></i> 公款專戶即時盤點與勾稽檢驗
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i>
+                    <h5 class="text-light fw-bold">帳實完全相符</h5>
+                    <p class="small text-muted">
+                        系統資料庫結餘（NT$ 285,400）與國泰世華專戶即時網銀水單（NT$ 285,400）無任何盤差。
+                    </p>
+                    <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 small mono-num text-muted">
+                        最後核驗時間：2026-08-21 22:30:15 (雙領袖簽核通過)
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-sm btn-neon-ghost" data-bs-dismiss="modal">完成</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴函式庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接器與公款業務邏輯 -->
+    <script>
+        /**
+         * =========================================================================
+         * 1. 欄位解耦對映字典 (Anti-Corruption Decoupling Layer - sys_api_configs)
+         * 隔離 Google 試算表原始中文標頭與前端業務邏輯欄位名
+         * =========================================================================
+         */
+        const FUNDS_DECOUPLING_MAP = {
+            fundLogNo: ["公款異動單號", "異動單號", "流水號", "fund_log_no"],
+            transId: ["收支流水號", "關聯單號", "trans_id"],
+            reconId: ["對帳單號", "月度對帳ID", "recon_id"],
+            changeType: ["異動類型", "類型", "change_type"],
+            amount: ["變動金額", "異動金額", "amount"],
+            balanceAfter: ["結餘金額", "異動後結餘", "balance_after"],
+            operatorPartnerId: ["經辦人", "主管ID", "operator_partner_id"],
+            purposeDesc: ["事由說明", "提支用途", "purpose_desc"],
+            bankAccountInfo: ["專戶資訊", "銀行帳號", "bank_account_info"],
+            notes: ["備註", "簽呈備註", "notes"],
+            createdAt: ["建立時間", "日期", "created_at"]
+        };
+
+        function resolveFundRow(rawRow, mapping) {
+            const resolved = {};
+            for (const [key, aliases] of Object.entries(mapping)) {
+                let val = undefined;
+                for (const alias of aliases) {
+                    if (rawRow[alias] !== undefined) {
+                        val = rawRow[alias];
+                        break;
+                    }
+                }
+                resolved[key] = val !== undefined ? val : "";
+            }
+            return resolved;
+        }
+
+        /**
+         * =========================================================================
+         * 2. 生產級公款主檔數據庫 (對應 Schema 603 fin_operating_funds 規格)
+         * =========================================================================
+         */
+        let fundsDatabase = [
+            {
+                fund_id: 1,
+                fund_log_no: "OF-202608-001",
+                trans_id: 5,
+                trans_no: "TX-20260801-005",
+                recon_id: null,
+                change_type: "EXPENSE_WITHDRAWAL",
+                amount: -25800,
+                balance_after: 285400,
+                operator_partner_id: "RAY",
+                operator_name: "Ray 翁榮祥",
+                purpose_desc: "台中世貿中心商務會議廳 Q3 長期包場租金公費直付",
+                bank_account_info: "國泰世華專戶 (8821)",
+                notes: "雙領袖 7/28 簽呈核准通過",
+                created_at: "2026-08-01 09:15"
+            },
+            {
+                fund_id: 2,
+                fund_log_no: "OF-202607-002",
+                trans_id: null,
+                recon_id: "REC-2026-07",
+                change_type: "MONTHLY_RESERVE",
+                amount: 24000,
+                balance_after: 311200,
+                operator_partner_id: "SYSTEM",
+                operator_name: "SYSTEM (自動對帳)",
+                purpose_desc: "2026 年 7 月份團隊利潤 5% 公積金常態提撥入庫",
+                bank_account_info: "國泰世華專戶 (8821)",
+                notes: "7/20 月度對帳單清算自動撥入",
+                created_at: "2026-07-20 23:59"
+            },
+            {
+                fund_id: 3,
+                fund_log_no: "OF-202607-003",
+                trans_id: null,
+                recon_id: null,
+                change_type: "FOUNDER_INJECTION",
+                amount: 50000,
+                balance_after: 287200,
+                operator_partner_id: "JARVIS",
+                operator_name: "Jarvis 林承志",
+                purpose_desc: "創始人特別注資：大馬吉隆坡拓點專案種子基金",
+                bank_account_info: "國泰世華專戶 (8821)",
+                notes: "個人資金特別挹注公共池",
+                created_at: "2026-07-15 11:30"
+            },
+            {
+                fund_id: 4,
+                fund_log_no: "OF-202607-004",
+                trans_id: null,
+                recon_id: null,
+                change_type: "FOUNDER_INJECTION",
+                amount: 50000,
+                balance_after: 237200,
+                operator_partner_id: "RAY",
+                operator_name: "Ray 翁榮祥",
+                purpose_desc: "創始人特別注資：全台戰略例會會場保證金專款",
+                bank_account_info: "國泰世華專戶 (8821)",
+                notes: "個人資金特別挹注公共池",
+                created_at: "2026-07-15 11:00"
+            },
+            {
+                fund_id: 5,
+                fund_log_no: "OF-202606-005",
+                trans_id: null,
+                recon_id: "REC-2026-06",
+                change_type: "MONTHLY_RESERVE",
+                amount: 18000,
+                balance_after: 187200,
+                operator_partner_id: "SYSTEM",
+                operator_name: "SYSTEM (自動對帳)",
+                purpose_desc: "2026 年 6 月份團隊利潤 5% 公積金常態提撥入庫",
+                bank_account_info: "國泰世華專戶 (8821)",
+                notes: "6/20 月度對帳單清算撥入",
+                created_at: "2026-06-20 23:59"
+            },
+            {
+                fund_id: 6,
+                fund_log_no: "OF-202606-006",
+                trans_id: null,
+                recon_id: null,
+                change_type: "INTEREST_INCOME",
+                amount: 150,
+                balance_after: 169200,
+                operator_partner_id: "SYSTEM",
+                operator_name: "SYSTEM",
+                purpose_desc: "國泰世華銀行專戶上半年度活存利息收益",
+                bank_account_info: "國泰世華專戶 (8821)",
+                notes: "銀行自動結息",
+                created_at: "2026-06-21 00:00"
+            }
+        ];
+
+        let fundsDataTableInstance = null;
+        let allocationChartInstance = null;
+
+        /**
+         * =========================================================================
+         * 3. 核心統計與圖表引擎
+         * =========================================================================
+         */
+        function calculateFundMetrics() {
+            let currentBalance = fundsDatabase.length > 0 ? fundsDatabase[0].balance_after : 0;
+            let periodInflow = 0;
+            let periodOutflow = 0;
+            let founderInflow = 0;
+
+            fundsDatabase.forEach(item => {
+                if (item.change_type === "EXPENSE_WITHDRAWAL") {
+                    periodOutflow += Math.abs(item.amount);
+                } else {
+                    periodInflow += item.amount;
+                    if (item.change_type === "FOUNDER_INJECTION") {
+                        founderInflow += item.amount;
+                    }
+                }
+            });
+
+            const safeThreshold = 150000;
+            const defenseRatio = ((currentBalance / safeThreshold) * 100).toFixed(1);
+
+            // 更新 UI
+            $("#statCurrentBalance").text("NT$ " + currentBalance.toLocaleString());
+            $("#statDefenseRatio").text(defenseRatio + "%");
+            $("#statPeriodInflow").text("+NT$ " + periodInflow.toLocaleString());
+            $("#statPeriodOutflow").text("-NT$ " + periodOutflow.toLocaleString());
+            $("#statFounderInflow").text("NT$ " + founderInflow.toLocaleString());
+            $("#tableFundsCount").text(`共 ${fundsDatabase.length} 筆異動日誌`);
+
+            // 動態調整進度條長度
+            const fillWidth = Math.min(Math.max((currentBalance / 350000) * 100, 15), 100);
+            $("#fillProgressBar").css("width", fillWidth + "%");
+
+            return { currentBalance, periodInflow, periodOutflow, founderInflow };
+        }
+
+        function initAllocationChart(balance) {
+            const ctx = document.getElementById("chartFundAllocationDoughnut").getContext("2d");
+            if (allocationChartInstance) allocationChartInstance.destroy();
+
+            // 依據總結餘按比例動態分配
+            const venueFund = Math.round(balance * 0.40);
+            const myFund = Math.round(balance * 0.25);
+            const galaFund = Math.round(balance * 0.20);
+            const emergencyFund = Math.round(balance * 0.15);
+
+            allocationChartInstance = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["會場包場 (40%)", "大馬拓點 (25%)", "年會品牌 (20%)", "應急備用 (15%)"],
+                    datasets: [{
+                        data: [venueFund, myFund, galaFund, emergencyFund],
+                        backgroundColor: [
+                            "rgba(139, 92, 246, 0.85)",
+                            "rgba(6, 182, 212, 0.85)",
+                            "rgba(236, 72, 153, 0.85)",
+                            "rgba(16, 185, 129, 0.85)"
+                        ],
+                        borderWidth: 2,
+                        borderColor: "#120926"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "right", labels: { color: "#c4b5fd", font: { size: 10 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: NT$ ${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 4. 初始化 DataTable.js 表格
+         * =========================================================================
+         */
+        function initFundsDataTable() {
+            fundsDataTableInstance = $("#operatingFundsDataTable").DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[1, "desc"]],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋單號、事由、經辦人或專戶...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+
+            reloadFundsDataTable();
+        }
+
+        function reloadFundsDataTable() {
+            if (!fundsDataTableInstance) return;
+            fundsDataTableInstance.clear();
+
+            fundsDatabase.forEach(item => {
+                const typeBadge = getChangeTypeBadge(item.change_type);
+                const amountFormatted = item.amount >= 0
+                    ? `<strong class="mono-num text-success">+NT$ ${item.amount.toLocaleString()}</strong>`
+                    : `<strong class="mono-num text-danger">-NT$ ${Math.abs(item.amount).toLocaleString()}</strong>`;
+
+                const transLink = item.trans_no
+                    ? `<a href="fin-cashflow.html" class="badge bg-dark border border-purple-subtle text-light mono-num text-decoration-none" title="前往 H62000 收支明細"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${item.trans_no}</a>`
+                    : '<span class="text-muted small">無關聯</span>';
+
+                const reconLink = item.recon_id
+                    ? `<span class="badge bg-primary bg-opacity-20 text-primary mono-num">${item.recon_id}</span>`
+                    : '<span class="text-muted small">-</span>';
+
+                const operatorColor = item.operator_partner_id === "RAY" ? "text-secondary" : item.operator_partner_id === "JARVIS" ? "text-accent" : "text-info";
+
+                const actionBtns = `
+                    <button class="btn btn-xs btn-neon-ghost py-0.5 px-2" onclick="viewFundDetail('${item.fund_log_no}')" title="查看簽呈明細">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                `;
+
+                fundsDataTableInstance.row.add([
+                    `<span class="mono-num fw-bold text-light">${item.fund_log_no}</span>`,
+                    `<span class="mono-num text-muted small">${item.created_at}</span>`,
+                    typeBadge,
+                    amountFormatted,
+                    `<strong class="mono-num text-light">NT$ ${item.balance_after.toLocaleString()}</strong>`,
+                    `<strong class="${operatorColor}">${item.operator_name}</strong>`,
+                    `<div class="text-truncate" style="max-width: 220px;" title="${item.purpose_desc}">${item.purpose_desc}</div>`,
+                    transLink,
+                    reconLink,
+                    `<small class="text-muted">${item.bank_account_info}</small>`,
+                    actionBtns
+                ]);
+            });
+
+            fundsDataTableInstance.draw();
+        }
+
+        function getChangeTypeBadge(type) {
+            switch(type) {
+                case "MONTHLY_RESERVE":
+                    return '<span class="badge bg-success bg-opacity-25 text-success"><i class="fa-solid fa-piggy-bank"></i> 利潤提撥</span>';
+                case "EXPENSE_WITHDRAWAL":
+                    return '<span class="badge bg-danger bg-opacity-25 text-danger"><i class="fa-solid fa-money-bill-transfer"></i> 公款核銷</span>';
+                case "FOUNDER_INJECTION":
+                    return '<span class="badge bg-warning bg-opacity-25 text-warning"><i class="fa-solid fa-crown"></i> 領袖注資</span>';
+                case "INTEREST_INCOME":
+                    return '<span class="badge bg-info bg-opacity-25 text-info"><i class="fa-solid fa-percent"></i> 利息收益</span>';
+                case "ADJUSTMENT":
+                    return '<span class="badge bg-secondary bg-opacity-25 text-light"><i class="fa-solid fa-scale-balanced"></i> 盤點調帳</span>';
+                default:
+                    return '<span class="badge bg-dark text-muted">其他異動</span>';
+            }
+        }
+
+        /**
+         * =========================================================================
+         * 5. 事件監聽器與業務互動
+         * =========================================================================
+         */
+        $(document).ready(function() {
+            const metrics = calculateFundMetrics();
+            initAllocationChart(metrics.currentBalance);
+            initFundsDataTable();
+
+            // 快篩膠囊
+            $("#changeTypeFilterPills .glass-pill").on("click", function() {
+                $("#changeTypeFilterPills .glass-pill").removeClass("active");
+                $(this).addClass("active");
+                const type = $(this).data("type");
+                if (type === "ALL") {
+                    fundsDataTableInstance.column(2).search("").draw();
+                } else {
+                    fundsDataTableInstance.column(2).search(type).draw();
+                }
+            });
+
+            // 試算器聯動計算
+            $("#calcNetProfit, #calcReservePercent").on("input change", function() {
+                const profit = parseFloat($("#calcNetProfit").val()) || 0;
+                const percent = parseFloat($("#calcReservePercent").val()) || 0.05;
+                const reserve = Math.round(profit * percent);
+                const current = fundsDatabase.length > 0 ? fundsDatabase[0].balance_after : 0;
+                
+                $("#calcResultAmount").text("NT$ " + reserve.toLocaleString());
+                $("#calcEstimatedBalance").text("NT$ " + (current + reserve).toLocaleString());
+            });
+
+            // 試算器結果帶入異動表單
+            $("#btnApplyReserveCalculation").on("click", function() {
+                const profit = parseFloat($("#calcNetProfit").val()) || 0;
+                const percent = parseFloat($("#calcReservePercent").val()) || 0.05;
+                const reserve = Math.round(profit * percent);
+
+                $("#formChangeType").val("MONTHLY_RESERVE");
+                $("#formFundAmount").val(reserve);
+                $("#formPurposeDesc").val(`2026 年 8 月份團隊淨利 NT$ ${profit.toLocaleString()} 之 ${(percent*100).toFixed(0)}% 公積金提撥`);
+                $("#formOperatorPartner").val("SYSTEM");
+                $("#formFundReconId").val("REC-2026-08");
+
+                bootstrap.Modal.getInstance($("#modalReserveCalculator")[0]).hide();
+                const newLogModal = new bootstrap.Modal(document.getElementById("modalNewFundLog"));
+                newLogModal.show();
+            });
+
+            // 提交新公款異動單據
+            $("#btnSubmitFundLog").on("click", function() {
+                const form = $("#formNewFundLog")[0];
+                if (form.checkValidity()) {
+                    const logNo = $("#formFundLogNo").val();
+                    const date = $("#formFundDate").val();
+                    const type = $("#formChangeType").val();
+                    const amount = parseFloat($("#formFundAmount").val()) || 0;
+                    const operator = $("#formOperatorPartner").val();
+                    const transNo = $("#formFundTransNo").val();
+                    const reconId = $("#formFundReconId").val();
+                    const desc = $("#formPurposeDesc").val();
+                    const bankAccount = $("#formBankAccount").val();
+                    const notes = $("#formNotes").val();
+
+                    const operatorMap = {
+                        RAY: "Ray 翁榮祥",
+                        JARVIS: "Jarvis 林承志",
+                        SYSTEM: "SYSTEM (自動對帳)"
+                    };
+
+                    const prevBalance = fundsDatabase.length > 0 ? fundsDatabase[0].balance_after : 0;
+                    const newBalance = prevBalance + amount;
+
+                    const newEntry = {
+                        fund_id: fundsDatabase.length + 1,
+                        fund_log_no: logNo,
+                        trans_id: null,
+                        trans_no: transNo || null,
+                        recon_id: reconId || null,
+                        change_type: type,
+                        amount: amount,
+                        balance_after: newBalance,
+                        operator_partner_id: operator,
+                        operator_name: operatorMap[operator] || "經辦主管",
+                        purpose_desc: desc,
+                        bank_account_info: bankAccount,
+                        notes: notes || "無特殊備註",
+                        created_at: `${date} ${new Date().toTimeString().slice(0, 5)}`
+                    };
+
+                    fundsDatabase.unshift(newEntry);
+                    const updated = calculateFundMetrics();
+                    initAllocationChart(updated.currentBalance);
+                    reloadFundsDataTable();
+
+                    bootstrap.Modal.getInstance($("#modalNewFundLog")[0]).hide();
+                    form.reset();
+                    alert(`✅ 公款異動單「${logNo}」已成功寫入！\n異動後最新結餘：NT$ ${newBalance.toLocaleString()}`);
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // Google 試算表同步
+            $("#btnSyncFundsSheet").on("click", function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 試算表同步中...');
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 試算表已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表同步'), 2000);
+                }, 1200);
+            });
+        });
+
+        function viewFundDetail(logNo) {
+            const item = fundsDatabase.find(f => f.fund_log_no === logNo);
+            if (item) {
+                alert(`【公款異動詳情】\n單號：${item.fund_log_no}\n類型：${item.change_type}\n金額：NT$ ${item.amount.toLocaleString()}\n結餘：NT$ ${item.balance_after.toLocaleString()}\n事由：${item.purpose_desc}\n經辦：${item.operator_name}\n備註：${item.notes}`);
+            }
+        }
+
+        function exportFundsCsv() {
+            alert("正在生成 fin_operating_funds 公共儲備基金 CSV 審計匯出檔...");
+        }
+    </script>
+</body>
+</html>

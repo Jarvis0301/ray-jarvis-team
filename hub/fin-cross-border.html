@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H66000 跨境對沖 · 台馬雙向現貨交付與點數平帳總控 - 榮祥團隊戰術控制台</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --core-primary: #8b5cf6;
+            --core-primary-rgb: 139, 92, 246;
+            --core-primary-hover: #7c3aed;
+            --core-secondary: #c084fc;
+            --core-secondary-rgb: 192, 132, 252;
+            --core-accent: #ec4899;
+            --core-accent-rgb: 236, 72, 153;
+            --core-cyan: #06b6d4;
+            --core-gold: #f59e0b;
+            --core-success: #10b981;
+            --core-danger: #f43f5e;
+            --core-info: #38bdf8;
+            --core-bg-base: #0a0518;
+            --core-bg-card: rgba(22, 13, 46, 0.88);
+            --core-bg-card-hover: rgba(36, 18, 76, 0.95);
+            --core-bg-surface: #120926;
+            --core-border-glow: rgba(139, 92, 246, 0.28);
+            --core-border-active: rgba(236, 72, 153, 0.55);
+            --core-text-main: #f3e8ff;
+            --core-text-sub: #c4b5fd;
+            --core-text-muted: #9e8eb3;
+            --core-radius-sm: 8px;
+            --core-radius-md: 14px;
+            --core-radius-lg: 22px;
+            --core-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--core-bg-base);
+            background-image: 
+                radial-gradient(circle at 8% 12%, rgba(139, 92, 246, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 92% 88%, rgba(236, 72, 153, 0.16) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0518 0%, #0f0727 100%);
+            background-attachment: fixed;
+            color: var(--core-text-main);
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: var(--core-bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--core-border-glow);
+            border-radius: var(--core-radius-lg);
+            box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.55);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.45);
+            box-shadow: 0 16px 44px 0 rgba(139, 92, 246, 0.3);
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(236, 72, 153, 0.35) 100%);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
+        }
+
+        /* 戰術霓虹按鈕 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 24px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover, .btn-neon-ghost.active {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+        }
+
+        /* 跨境三階段漏斗流程看板 */
+        .stage-flow-card {
+            background: linear-gradient(180deg, rgba(28, 16, 58, 0.85) 0%, rgba(18, 10, 38, 0.85) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--core-radius-md);
+            padding: 1.25rem;
+            position: relative;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .stage-flow-card:hover {
+            border-color: var(--core-secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(139, 92, 246, 0.25);
+        }
+
+        .stage-badge-step {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* 雙向對沖天平膠囊 */
+        .hedge-balance-bridge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+            border: 1px dashed rgba(192, 132, 252, 0.45);
+            border-radius: var(--core-radius-md);
+            padding: 1rem;
+        }
+
+        /* 對沖卡片單據 */
+        .swap-card-box {
+            background: rgba(20, 11, 44, 0.75);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--core-radius-md);
+            padding: 1.2rem;
+            transition: all 0.25s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .swap-card-box:hover {
+            border-color: var(--core-secondary);
+            background: rgba(28, 15, 60, 0.9);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
+        }
+
+        /* DataTable 自訂風格 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--core-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: rgba(20, 10, 42, 0.95);
+            color: var(--core-text-sub);
+            font-size: 0.84rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            padding: 12px 14px;
+            white-space: nowrap;
+        }
+
+        .table-custom tbody td {
+            padding: 12px 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+            font-size: 0.86rem;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        /* 模態視窗自訂 */
+        .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.22) 0%, transparent 60%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: var(--core-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+            border-radius: var(--core-radius-lg);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-main);
+            border-radius: var(--core-radius-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--core-secondary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background-color: #130a2a;
+            color: #ffffff;
+        }
+
+        /* 滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.35);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--core-primary);
+        }
+
+        @media (max-width: 767.98px) {
+            .hud-stat-pill {
+                flex: 1 1 calc(50% - 0.5rem);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header、無 Footer) -->
+    <main class="container-fluid px-3 px-lg-4 py-4" id="finCrossBorderApp" data-page="H66000">
+
+        <!-- 頂部戰術抬頭與對沖流脈衝控制列 (HUD) -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill mono-num" style="background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid rgba(139,92,246,0.4);">
+                            <i class="fa-solid fa-arrows-split-up-and-left"></i> H66000 跨境對沖
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.18); color: #f472b6; border: 1px solid rgba(236,72,153,0.35);">
+                            <i class="fa-solid fa-plane-departure"></i> 台馬雙向現貨交付 ⇄ 當地官網下單補點
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(6,182,212,0.18); color: #22d3ee; border: 1px solid rgba(6,182,212,0.35);">
+                            <i class="fa-solid fa-database"></i> 表 6：fin_cross_border_swaps
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">跨境現貨交付與點數平帳總控中樞</h1>
+                    <p class="small mb-0 mt-1" style="color: var(--core-text-muted);">
+                        專為榮祥團隊（Ray 翁榮祥、Jarvis 林承志）打造：掌控「台灣攜帶現貨出境交付 ➔ 大馬夥伴在地官網下單補足 SV ➔ 匯率折算與兩地差價平帳」三階對沖核銷。
+                    </p>
+                </div>
+
+                <!-- 頂部操作按鈕群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGoogleSheets" title="透過 PapaParse / GViz 抓取 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 試算表同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#collapseAnalyticsPanel">
+                        <i class="fa-solid fa-chart-line"></i> 對沖差額雷達
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewSwap">
+                        <i class="fa-solid fa-plus"></i> 新增跨境對沖單
+                    </button>
+                </div>
+            </div>
+
+            <!-- 即時統計與對沖天平指標 -->
+            <div class="row g-2 g-md-3 align-items-center mt-3 pt-3 border-top border-secondary border-opacity-15">
+                <!-- 統計 1：在途對沖單數 -->
+                <div class="col-6 col-md-3 hud-stat-pill">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-list-check text-primary"></i> 執行中對沖單</span>
+                            <span class="badge bg-primary bg-opacity-25 text-primary small">ACTIVE</span>
+                        </div>
+                        <div class="h5 mono-num text-light mb-0 mt-1" id="statActiveSwaps">4 筆單據</div>
+                    </div>
+                </div>
+
+                <!-- 統計 2：交付現貨 SV 目標 -->
+                <div class="col-6 col-md-3 hud-stat-pill">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-box-open text-info"></i> 台灣交付 SV 目標</span>
+                            <span class="badge bg-info bg-opacity-25 text-info small">TW TARGET</span>
+                        </div>
+                        <div class="h5 mono-num text-info mb-0 mt-1" id="statTotalTargetSv">4,850.00 SV</div>
+                    </div>
+                </div>
+
+                <!-- 統計 3：大馬實際補下單 SV -->
+                <div class="col-6 col-md-3 hud-stat-pill">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(236,72,153,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-cart-shopping text-accent"></i> 大馬已補下單 SV</span>
+                            <span class="badge bg-pink bg-opacity-25 text-accent small">MY ACTUAL</span>
+                        </div>
+                        <div class="h5 mono-num text-accent mb-0 mt-1" id="statTotalActualSv">4,620.00 SV</div>
+                    </div>
+                </div>
+
+                <!-- 統計 4：待平帳差價總額 -->
+                <div class="col-6 col-md-3 hud-stat-pill">
+                    <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(245,158,11,0.2);">
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span><i class="fa-solid fa-scale-unbalanced text-warning"></i> 雙向差價平帳淨額</span>
+                            <span class="badge bg-warning bg-opacity-25 text-warning small">CASH DIFF</span>
+                        </div>
+                        <div class="h5 mono-num text-warning mb-0 mt-1" id="statTotalCashDiff">NT$ +1,642</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 階段快篩膠囊與視圖切換 -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center" id="stageFilterPills">
+                    <span class="small fw-semibold text-muted me-1"><i class="fa-solid fa-filter"></i> 階段快篩：</span>
+                    <a href="javascript:void(0)" class="glass-pill active" data-stage="ALL">
+                        <i class="fa-solid fa-layer-group"></i> 全部單據
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-stage="STAGE1_TW_DELIVERED">
+                        <i class="fa-solid fa-plane-departure text-warning"></i> 階段一：台灣已交貨
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-stage="STAGE2_MY_ORDERED">
+                        <i class="fa-solid fa-cart-check text-info"></i> 階段二：大馬已下單
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-stage="STAGE3_BALANCED">
+                        <i class="fa-solid fa-scale-balanced text-primary"></i> 階段三：帳目兩平
+                    </a>
+                    <a href="javascript:void(0)" class="glass-pill" data-stage="SETTLED">
+                        <i class="fa-solid fa-circle-check text-success"></i> 已結案核銷
+                    </a>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-neon-ghost active px-2.5" id="btnViewFlowKanban" title="三階漏斗流程看板">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </button>
+                        <button type="button" class="btn btn-neon-ghost px-2.5" id="btnViewTable" title="對沖總帳 DataTable 檢視">
+                            <i class="fa-solid fa-table-list"></i>
+                        </button>
+                        <button type="button" class="btn btn-neon-ghost px-2.5" id="btnViewCards" title="單據卡片視圖">
+                            <i class="fa-solid fa-grip"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：對沖差額與 SV 達成率分析雷達 (Chart.js) -->
+        <section class="collapse mb-4" id="collapseAnalyticsPanel">
+            <div class="glass-panel p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-light">
+                        <i class="fa-solid fa-chart-pie text-primary"></i> 跨境對沖 SV 達成率與台馬金流差額分佈
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-muted">匯率基準：1 MYR = 7.1500 TWD</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="p-3 rounded-3 h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-donut text-info"></i> 各階段對沖單量分佈</div>
+                            <div style="height: 210px; position: relative;">
+                                <canvas id="chartStageDoughnut"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="p-3 rounded-3 h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-bar text-accent"></i> 交付 SV 目標 vs 實際下單 SV</div>
+                            <div style="height: 210px; position: relative;">
+                                <canvas id="chartSvComparisonBar"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-4">
+                        <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
+                            <div>
+                                <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-shield-halved text-warning"></i> 跨境對沖核銷規則</div>
+                                <ul class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                                    <li><strong>階段一 (TW Delivered)</strong>：台灣現貨交貨並扣減 psi_stocks 庫存，鎖定目標 SV。</li>
+                                    <li><strong>階段二 (MY Ordered)</strong>：大馬夥伴於官網下單同等 SV 產品並回填訂單號。</li>
+                                    <li><strong>階段三 (Balanced)</strong>：系統自動比對 SV 差額與馬幣折算台幣差價。</li>
+                                    <li><strong>結案 (Settled)</strong>：聯動每月 20 日 50/50 對帳單 (fin_reconciliations)。</li>
+                                </ul>
+                            </div>
+                            <div class="p-2 rounded mt-2 text-center" style="background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.25);">
+                                <span class="small text-muted">整體 SV 平帳達成率：</span>
+                                <strong class="text-success mono-num">95.26% (良好)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主戰區一：三階漏斗流程看板 (Kanban Flow View - 預設) -->
+        <section id="viewKanbanContainer" class="mb-4">
+            <div class="row g-3">
+                <!-- 看板列 1：階段一 (台灣交貨) -->
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="stage-flow-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="stage-badge-step bg-warning text-dark">1</span>
+                                <h6 class="fw-bold text-light mb-0">台灣已交付現貨</h6>
+                            </div>
+                            <span class="badge bg-warning bg-opacity-25 text-warning mono-num" id="countStage1">1 筆</span>
+                        </div>
+                        <div class="small text-muted mb-3 border-bottom border-secondary border-opacity-15 pb-2">
+                            現貨已攜至大馬，待大馬夥伴於當地官網下單補點。
+                        </div>
+                        <div class="d-flex flex-column gap-3" id="kanbanStage1List">
+                            <!-- JS 動態注入卡片 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 看板列 2：階段二 (大馬下單完成) -->
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="stage-flow-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="stage-badge-step bg-info text-dark">2</span>
+                                <h6 class="fw-bold text-light mb-0">大馬已官網下單</h6>
+                            </div>
+                            <span class="badge bg-info bg-opacity-25 text-info mono-num" id="countStage2">2 筆</span>
+                        </div>
+                        <div class="small text-muted mb-3 border-bottom border-secondary border-opacity-15 pb-2">
+                            大馬訂單已建立，待執行 SV 點數與台馬價差比對。
+                        </div>
+                        <div class="d-flex flex-column gap-3" id="kanbanStage2List">
+                            <!-- JS 動態注入卡片 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 看板列 3：階段三 (帳目兩平) -->
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="stage-flow-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="stage-badge-step bg-primary text-light">3</span>
+                                <h6 class="fw-bold text-light mb-0">點數價差已兩平</h6>
+                            </div>
+                            <span class="badge bg-primary bg-opacity-25 text-primary mono-num" id="countStage3">1 筆</span>
+                        </div>
+                        <div class="small text-muted mb-3 border-bottom border-secondary border-opacity-15 pb-2">
+                            SV 差額為 0 或已補退款，待併入月度 20 日對帳單結案。
+                        </div>
+                        <div class="d-flex flex-column gap-3" id="kanbanStage3List">
+                            <!-- JS 動態注入卡片 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 看板列 4：已結案核銷 (Settled) -->
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="stage-flow-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="stage-badge-step bg-success text-light"><i class="fa-solid fa-check"></i></span>
+                                <h6 class="fw-bold text-light mb-0">已結案核銷歸檔</h6>
+                            </div>
+                            <span class="badge bg-success bg-opacity-25 text-success mono-num" id="countStageSettled">2 筆</span>
+                        </div>
+                        <div class="small text-muted mb-3 border-bottom border-secondary border-opacity-15 pb-2">
+                            已正式併入 fin_reconciliations 核銷並完成歸檔。
+                        </div>
+                        <div class="d-flex flex-column gap-3" id="kanbanStageSettledList">
+                            <!-- JS 動態注入卡片 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主戰區二：高密對沖總帳 DataTable 視圖 (預設隱藏) -->
+        <section id="viewTableContainer" class="glass-panel p-3 p-lg-4 mb-4 d-none">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-table-cells text-primary fa-lg"></i>
+                    <h5 class="fw-bold text-light mb-0">跨境對沖流水總帳總表 (fin_cross_border_swaps)</h5>
+                    <span class="badge bg-dark border border-purple-subtle text-muted" id="tableRecordBadge">共 6 筆對沖紀錄</span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-neon-ghost" onclick="exportSwapsCsv()">
+                        <i class="fa-solid fa-file-csv"></i> 匯出對沖 CSV
+                    </button>
+                    <button class="btn btn-sm btn-neon-ghost" id="btnBatchSettle">
+                        <i class="fa-solid fa-check-double"></i> 批次兩平核銷
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="swapsDataTable" class="table table-custom w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>對沖單號</th>
+                            <th>台灣交付夥伴</th>
+                            <th>大馬受領夥伴</th>
+                            <th>台灣交付現貨 (數量/成本)</th>
+                            <th>目標 SV</th>
+                            <th>大馬下單單號 (MYR金額)</th>
+                            <th>實際 SV</th>
+                            <th>套用匯率</th>
+                            <th>SV 差額</th>
+                            <th>價差補退 (TWD)</th>
+                            <th>對沖進度階段</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="swapsTableBody">
+                        <!-- DataTable 動態注入 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 主戰區三：單據卡片視圖 (Cards 視圖 - 預設隱藏) -->
+        <section id="viewCardsContainer" class="glass-panel p-3 p-lg-4 mb-4 d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-light mb-0">
+                    <i class="fa-solid fa-images text-accent me-2"></i>跨境現貨與對沖單據全覽
+                </h5>
+                <span class="badge bg-dark border border-secondary text-muted">卡片檢閱模式</span>
+            </div>
+
+            <div class="row g-3" id="swapCardsGrid">
+                <!-- JS 動態渲染單據卡片 -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 模態視窗：開立/新增跨境對沖單 (Schema 606 表單精靈) -->
+    <div class="modal fade" id="modalNewSwap" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title">
+                        <i class="fa-solid fa-plane-departure text-primary"></i> 開立跨境現貨交付對沖單 (fin_cross_border_swaps)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewSwap">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">對沖單號 (Swap No) *</label>
+                                <input type="text" class="form-control mono-num" id="formSwapNo" value="SWAP-20260821-006" readonly>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">台灣出貨夥伴 (TW Partner) *</label>
+                                <select class="form-select" id="formTwPartnerId" required>
+                                    <option value="RAY" selected>Ray 翁榮祥</option>
+                                    <option value="JARVIS">Jarvis 林承志</option>
+                                    <option value="TEAM_LEAD">其他核心幹部</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">大馬受領夥伴 (MY Partner) *</label>
+                                <input type="text" class="form-control" id="formMyPartnerId" placeholder="例如：MY-8801 Alvin" value="MY-8801 Alvin" required>
+                            </div>
+
+                            <!-- 台灣現貨端 -->
+                            <div class="col-12">
+                                <h6 class="small fw-bold text-info border-bottom border-secondary border-opacity-25 pb-1 mb-1">
+                                    <i class="fa-solid fa-box text-primary"></i> 1. 台灣交付現貨品項與目標 SV
+                                </h6>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">台灣交付產品品項 (tw_product_id) *</label>
+                                <select class="form-select" id="formTwProduct" required>
+                                    <option value="995" data-sv="1030" data-price="5040" selected>995 超級營養液 (單盒 SV: 1030 / NT$ 5,040)</option>
+                                    <option value="LACTO" data-sv="650" data-price="1764">康爾喜乳酸菌 (單盒 SV: 650 / NT$ 1,764)</option>
+                                    <option value="HERB" data-sv="820" data-price="4200">樟芝益 (單盒 SV: 820 / NT$ 4,200)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label small text-muted">交付數量 (盒) *</label>
+                                <input type="number" class="form-control mono-num" id="formTwQty" value="2" min="1" required>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label small text-muted">目標 SV (Total SV)</label>
+                                <input type="text" class="form-control mono-num text-info fw-bold" id="formTwTotalSv" value="2060.00" readonly>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label small text-muted">總成本 (NT$)</label>
+                                <input type="text" class="form-control mono-num text-light" id="formTwTotalCost" value="10080" readonly>
+                            </div>
+
+                            <!-- 大馬下單端 -->
+                            <div class="col-12">
+                                <h6 class="small fw-bold text-accent border-bottom border-secondary border-opacity-25 pb-1 mb-1">
+                                    <i class="fa-solid fa-cart-shopping text-accent"></i> 2. 大馬在地官網下單對沖補點
+                                </h6>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">大馬官網訂單號 (my_order_no)</label>
+                                <input type="text" class="form-control mono-num" id="formMyOrderNo" placeholder="如：MY-ORD-202608-992">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">大馬實際下單 SV (my_actual_sv)</label>
+                                <input type="number" step="0.01" class="form-control mono-num" id="formMyActualSv" value="2060.00">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">大馬下單總金額 (MYR)</label>
+                                <input type="number" step="0.01" class="form-control mono-num" id="formMyOrderAmountMyr" value="1410.00">
+                            </div>
+
+                            <!-- 差額與平帳 -->
+                            <div class="col-12">
+                                <h6 class="small fw-bold text-warning border-bottom border-secondary border-opacity-25 pb-1 mb-1">
+                                    <i class="fa-solid fa-scale-balanced text-warning"></i> 3. 匯率折算與差價平帳試算
+                                </h6>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small text-muted">套用匯率 (MYR/TWD)</label>
+                                <input type="number" step="0.0001" class="form-control mono-num" id="formFxRate" value="7.1500" required>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small text-muted">SV 差額 (Target - Actual)</label>
+                                <input type="text" class="form-control mono-num text-success fw-bold" id="formSvDifference" value="0.00" readonly>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small text-muted">價差台幣補退 (NT$)</label>
+                                <input type="text" class="form-control mono-num text-warning fw-bold" id="formCashDiffTwd" value="NT$ -1" readonly>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small text-muted">對沖進度階段 (Stage) *</label>
+                                <select class="form-select" id="formSwapStage" required>
+                                    <option value="STAGE1_TW_DELIVERED">STAGE 1: 台灣交貨</option>
+                                    <option value="STAGE2_MY_ORDERED" selected>STAGE 2: 大馬下單</option>
+                                    <option value="STAGE3_BALANCED">STAGE 3: 帳目兩平</option>
+                                    <option value="SETTLED">SETTLED: 已結案</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">航班攜帶批號與對沖備忘 (Notes)</label>
+                                <input type="text" class="form-control" id="formNotes" placeholder="例：Ray 8/18 航班隨身攜帶、批號 B202608、吉隆坡現貨交割">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSubmitSwap">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存對沖單據
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模態視窗：單據核銷明細檢驗燈箱 -->
+    <div class="modal fade" id="modalSwapDetail" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h6 class="modal-title fw-bold text-light" id="previewSwapTitle">
+                        <i class="fa-solid fa-scale-balanced text-primary"></i> 跨境對沖單據審驗
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="p-3 rounded-3 mb-3" style="background: rgba(0,0,0,0.4); border: 1px dashed rgba(139,92,246,0.3);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary mono-num" id="modalSwapNo">SWAP-202608-001</span>
+                            <span class="badge bg-success" id="modalSwapStage">STAGE3_BALANCED</span>
+                        </div>
+                        <h6 class="text-light fw-bold mb-1" id="modalProductName">995 超級營養液 x 2 盒</h6>
+                        <p class="small text-muted mb-0" id="modalNotes">Ray 攜帶至吉隆坡交付 Alvin，Alvin 已於大馬官網補單。</p>
+                    </div>
+
+                    <div class="row g-2 small text-muted border-top border-secondary border-opacity-25 pt-3">
+                        <div class="col-6">
+                            <span>台灣出貨夥伴：</span>
+                            <strong class="text-light d-block" id="modalTwPartner">Ray 翁榮祥</strong>
+                        </div>
+                        <div class="col-6">
+                            <span>大馬受領夥伴：</span>
+                            <strong class="text-light d-block" id="modalMyPartner">MY-8801 Alvin</strong>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <span>目標 SV vs 實補 SV：</span>
+                            <strong class="text-info d-block" id="modalSvRatio">2060.00 / 2060.00 SV</strong>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <span>差價補退金額：</span>
+                            <strong class="text-warning d-block" id="modalCashDiff">NT$ 0 (兩平)</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-sm btn-neon-ghost" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-sm btn-neon-accent" id="btnAdvanceStage">
+                        <i class="fa-solid fa-forward"></i> 推進至下一階段
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴函式庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接器與跨境對沖業務邏輯 -->
+    <script>
+        /**
+         * =========================================================================
+         * 1. 欄位解耦對映字典 (Anti-Corruption Decoupling Layer - 表 6 專用)
+         * 隔離 Google 試算表原始中文標頭與前端業務邏輯欄位名
+         * =========================================================================
+         */
+        const SWAPS_DECOUPLING_MAP = {
+            swapNo: ["對沖單號", "流水號", "swap_no"],
+            twPartnerId: ["台灣出貨夥伴", "tw_partner_id", "交付人"],
+            myPartnerId: ["大馬受領夥伴", "my_partner_id", "補點人"],
+            twProductId: ["台灣交付品項", "tw_product_id", "SKU"],
+            twDeliveredQty: ["台灣交付盒數", "tw_delivered_qty", "出貨數量"],
+            twUnitSv: ["單品SV", "tw_unit_sv"],
+            twTotalSvTarget: ["目標SV總額", "tw_total_sv_target", "應沖銷SV"],
+            twUnitPriceTwd: ["台灣單價", "tw_unit_price_twd"],
+            twTotalCostTwd: ["台灣總成本", "tw_total_cost_twd"],
+            myOrderNo: ["大馬訂單號", "my_order_no", "官網單號"],
+            myOrderedQty: ["大馬下單盒數", "my_ordered_qty"],
+            myActualSv: ["實際獲得SV", "my_actual_sv"],
+            myOrderAmountMyr: ["大馬支付金額", "my_order_amount_myr"],
+            fxRateApplied: ["套用匯率", "fx_rate_applied"],
+            svDifference: ["SV差額", "sv_difference"],
+            cashDifferenceTwd: ["價差補退", "cash_difference_twd"],
+            swapStage: ["對沖進度階段", "swap_stage", "狀態"],
+            notes: ["對沖備忘", "notes", "備註"]
+        };
+
+        /**
+         * 解耦解析器
+         */
+        function resolveRow(rawRow, mapping) {
+            const resolved = {};
+            for (const [key, aliases] of Object.entries(mapping)) {
+                let val = undefined;
+                for (const alias of aliases) {
+                    if (rawRow[alias] !== undefined) {
+                        val = rawRow[alias];
+                        break;
+                    }
+                }
+                resolved[key] = val !== undefined ? val : "";
+            }
+            return resolved;
+        }
+
+        /**
+         * =========================================================================
+         * 2. 生產級跨境對沖數據庫 (對應 表 6 fin_cross_border_swaps 規格)
+         * =========================================================================
+         */
+        let swapsDatabase = [
+            {
+                id: 1,
+                swap_no: "SWAP-202608-001",
+                tw_partner_id: "RAY",
+                tw_partner_name: "Ray 翁榮祥",
+                my_partner_id: "MY-8801 Alvin",
+                tw_product_name: "995 超級營養液",
+                tw_delivered_qty: 2,
+                tw_unit_sv: 1030.00,
+                tw_total_sv_target: 2060.00,
+                tw_unit_price_twd: 5040.00,
+                tw_total_cost_twd: 10080.00,
+                my_product_name: "995 超級營養液",
+                my_order_no: "MY-ORD-202608-101",
+                my_ordered_qty: 2,
+                my_actual_sv: 2060.00,
+                my_order_amount_myr: 1410.00,
+                fx_rate_applied: 7.1500,
+                sv_difference: 0.00,
+                cash_difference_twd: -1.50, // 10080 - (1410 * 7.15 = 10081.5)
+                swap_stage: "STAGE3_BALANCED",
+                settlement_date: null,
+                notes: "Ray 隨身攜帶現貨至吉隆坡交付 Alvin，Alvin 已於大馬官網下單同款產品補點。"
+            },
+            {
+                id: 2,
+                swap_no: "SWAP-202608-002",
+                tw_partner_id: "JARVIS",
+                tw_partner_name: "Jarvis 林承志",
+                my_partner_id: "MY-8805 Fiona",
+                tw_product_name: "康爾喜乳酸菌",
+                tw_delivered_qty: 3,
+                tw_unit_sv: 650.00,
+                tw_total_sv_target: 1950.00,
+                tw_unit_price_twd: 1764.00,
+                tw_total_cost_twd: 5292.00,
+                my_product_name: "康爾喜乳酸菌",
+                my_order_no: "MY-ORD-202608-108",
+                my_ordered_qty: 3,
+                my_actual_sv: 1950.00,
+                my_order_amount_myr: 740.00,
+                fx_rate_applied: 7.1500,
+                sv_difference: 0.00,
+                cash_difference_twd: 1.00,
+                swap_stage: "STAGE2_MY_ORDERED",
+                settlement_date: null,
+                notes: "Jarvis 出差吉隆坡交付 Fiona，Fiona 官網已下單，待月結平帳。"
+            },
+            {
+                id: 3,
+                swap_no: "SWAP-202608-003",
+                tw_partner_id: "RAY",
+                tw_partner_name: "Ray 翁榮祥",
+                my_partner_id: "MY-8809 David",
+                tw_product_name: "樟芝益",
+                tw_delivered_qty: 1,
+                tw_unit_sv: 840.00,
+                tw_total_sv_target: 840.00,
+                tw_unit_price_twd: 4200.00,
+                tw_total_cost_twd: 4200.00,
+                my_product_name: null,
+                my_order_no: null,
+                my_ordered_qty: 0,
+                my_actual_sv: 0.00,
+                my_order_amount_myr: 0.00,
+                fx_rate_applied: 7.1500,
+                sv_difference: 840.00,
+                cash_difference_twd: 4200.00,
+                swap_stage: "STAGE1_TW_DELIVERED",
+                settlement_date: null,
+                notes: "現貨已交 David，David 預計 8/23 於大馬官網湊單下單。"
+            },
+            {
+                id: 4,
+                swap_no: "SWAP-202608-004",
+                tw_partner_id: "JARVIS",
+                tw_partner_name: "Jarvis 林承志",
+                my_partner_id: "MY-8812 Grace",
+                tw_product_name: "995 超級營養液",
+                tw_delivered_qty: 1,
+                tw_unit_sv: 1030.00,
+                tw_total_sv_target: 1030.00,
+                tw_unit_price_twd: 5040.00,
+                tw_total_cost_twd: 5040.00,
+                my_product_name: "995 超級營養液",
+                my_order_no: "MY-ORD-202608-142",
+                my_ordered_qty: 1,
+                my_actual_sv: 1030.00,
+                my_order_amount_myr: 705.00,
+                fx_rate_applied: 7.1500,
+                sv_difference: 0.00,
+                cash_difference_twd: -0.75,
+                swap_stage: "STAGE2_MY_ORDERED",
+                settlement_date: null,
+                notes: "Grace 官網已付款下單，等待 20 號發薪日聯動對帳單。"
+            },
+            {
+                id: 5,
+                swap_no: "SWAP-202607-005",
+                tw_partner_id: "RAY",
+                tw_partner_name: "Ray 翁榮祥",
+                my_partner_id: "MY-8801 Alvin",
+                tw_product_name: "995 超級營養液",
+                tw_delivered_qty: 3,
+                tw_unit_sv: 1030.00,
+                tw_total_sv_target: 3090.00,
+                tw_unit_price_twd: 5040.00,
+                tw_total_cost_twd: 15120.00,
+                my_product_name: "995 超級營養液",
+                my_order_no: "MY-ORD-202607-088",
+                my_ordered_qty: 3,
+                my_actual_sv: 3090.00,
+                my_order_amount_myr: 2115.00,
+                fx_rate_applied: 7.1500,
+                sv_difference: 0.00,
+                cash_difference_twd: -2.25,
+                swap_stage: "SETTLED",
+                settlement_date: "2026-07-20",
+                notes: "已於 7 月 20 日對帳單 (REC-2026-07) 結案平帳完畢。"
+            },
+            {
+                id: 6,
+                swap_no: "SWAP-202607-006",
+                tw_partner_id: "JARVIS",
+                tw_partner_name: "Jarvis 林承志",
+                my_partner_id: "MY-8805 Fiona",
+                tw_product_name: "康爾喜乳酸菌",
+                tw_delivered_qty: 2,
+                tw_unit_sv: 650.00,
+                tw_total_sv_target: 1300.00,
+                tw_unit_price_twd: 1764.00,
+                tw_total_cost_twd: 3528.00,
+                my_product_name: "康爾喜乳酸菌",
+                my_order_no: "MY-ORD-202607-092",
+                my_ordered_qty: 2,
+                my_actual_sv: 1300.00,
+                my_order_amount_myr: 493.00,
+                fx_rate_applied: 7.1500,
+                sv_difference: 0.00,
+                cash_difference_twd: 3.05,
+                swap_stage: "SETTLED",
+                settlement_date: "2026-07-20",
+                notes: "已於 7 月 20 日對帳單結案平帳。"
+            }
+        ];
+
+        let dataTableInstance = null;
+        let stageChartInstance = null;
+        let svChartInstance = null;
+
+        /**
+         * =========================================================================
+         * 3. 核心統計與圖表引擎
+         * =========================================================================
+         */
+        function calculateStatistics() {
+            let activeSwaps = 0;
+            let totalTargetSv = 0;
+            let totalActualSv = 0;
+            let totalCashDiff = 0;
+
+            const stageCounts = {
+                STAGE1_TW_DELIVERED: 0,
+                STAGE2_MY_ORDERED: 0,
+                STAGE3_BALANCED: 0,
+                SETTLED: 0
+            };
+
+            swapsDatabase.forEach(s => {
+                if (s.swap_stage !== "SETTLED") {
+                    activeSwaps++;
+                    totalTargetSv += s.tw_total_sv_target;
+                    totalActualSv += s.my_actual_sv;
+                    totalCashDiff += s.cash_difference_twd;
+                }
+                if (stageCounts[s.swap_stage] !== undefined) {
+                    stageCounts[s.swap_stage]++;
+                }
+            });
+
+            // 刷新頂部 HUD
+            $("#statActiveSwaps").text(`${activeSwaps} 筆單據`);
+            $("#statTotalTargetSv").text(`${totalTargetSv.toLocaleString(undefined, {minimumFractionDigits: 2})} SV`);
+            $("#statTotalActualSv").text(`${totalActualSv.toLocaleString(undefined, {minimumFractionDigits: 2})} SV`);
+            $("#statTotalCashDiff").text(`NT$ ${totalCashDiff >= 0 ? '+' : ''}${Math.round(totalCashDiff).toLocaleString()}`);
+            $("#tableRecordBadge").text(`共 ${swapsDatabase.length} 筆對沖紀錄`);
+
+            $("#countStage1").text(`${stageCounts.STAGE1_TW_DELIVERED} 筆`);
+            $("#countStage2").text(`${stageCounts.STAGE2_MY_ORDERED} 筆`);
+            $("#countStage3").text(`${stageCounts.STAGE3_BALANCED} 筆`);
+            $("#countStageSettled").text(`${stageCounts.SETTLED} 筆`);
+
+            return { activeSwaps, totalTargetSv, totalActualSv, totalCashDiff, stageCounts };
+        }
+
+        function initCharts(stats) {
+            // 1. 各階段環形圖
+            const ctxStage = document.getElementById("chartStageDoughnut").getContext("2d");
+            if (stageChartInstance) stageChartInstance.destroy();
+
+            stageChartInstance = new Chart(ctxStage, {
+                type: "doughnut",
+                data: {
+                    labels: ["台灣已交貨", "大馬已下單", "帳目兩平", "已結案核銷"],
+                    datasets: [{
+                        data: [
+                            stats.stageCounts.STAGE1_TW_DELIVERED,
+                            stats.stageCounts.STAGE2_MY_ORDERED,
+                            stats.stageCounts.STAGE3_BALANCED,
+                            stats.stageCounts.SETTLED
+                        ],
+                        backgroundColor: [
+                            "rgba(245, 158, 11, 0.85)",
+                            "rgba(6, 182, 212, 0.85)",
+                            "rgba(139, 92, 246, 0.85)",
+                            "rgba(16, 185, 129, 0.85)"
+                        ],
+                        borderWidth: 2,
+                        borderColor: "#120926"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "bottom", labels: { color: "#c4b5fd", font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // 2. SV 目標 vs 實際下單對比柱狀圖
+            const ctxSv = document.getElementById("chartSvComparisonBar").getContext("2d");
+            if (svChartInstance) svChartInstance.destroy();
+
+            svChartInstance = new Chart(ctxSv, {
+                type: "bar",
+                data: {
+                    labels: ["目標 SV 總量", "大馬實補 SV"],
+                    datasets: [{
+                        label: "SV 點數",
+                        data: [stats.totalTargetSv, stats.totalActualSv],
+                        backgroundColor: [
+                            "rgba(139, 92, 246, 0.85)",
+                            "rgba(236, 72, 153, 0.85)"
+                        ],
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: "rgba(255,255,255,0.2)"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            grid: { color: "rgba(139, 92, 246, 0.12)" },
+                            ticks: { color: "#9e8eb3", font: { family: "JetBrains Mono", size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: "#c4b5fd", font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 4. 渲染看板與視圖 (Kanban & Cards & Table)
+         * =========================================================================
+         */
+        function renderKanban() {
+            const list1 = $("#kanbanStage1List").empty();
+            const list2 = $("#kanbanStage2List").empty();
+            const list3 = $("#kanbanStage3List").empty();
+            const listSettled = $("#kanbanStageSettledList").empty();
+
+            swapsDatabase.forEach(item => {
+                const card = `
+                    <div class="swap-card-box">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                <span class="badge bg-dark border border-purple-subtle mono-num text-muted small">${item.swap_no}</span>
+                                <span class="small mono-num text-light"><i class="fa-solid fa-user-tag text-primary"></i> ${item.tw_partner_name.split(' ')[0]}</span>
+                            </div>
+                            <h6 class="fw-bold text-light mb-1">${item.tw_product_name} <span class="text-accent">x${item.tw_delivered_qty}</span></h6>
+                            <div class="small text-muted mb-2"><i class="fa-solid fa-arrow-right text-info"></i> 受領：${item.my_partner_id}</div>
+                        </div>
+                        
+                        <div class="p-2 rounded mb-2" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>目標 SV：${item.tw_total_sv_target}</span>
+                                <span class="mono-num ${item.sv_difference === 0 ? 'text-success' : 'text-warning'}">實補：${item.my_actual_sv}</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span>價差：</span>
+                                <span class="mono-num text-warning">NT$ ${Math.round(item.cash_difference_twd)}</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-15">
+                            <span class="badge bg-dark border border-secondary text-muted small">${item.my_order_no || '尚未下單'}</span>
+                            <button class="btn btn-xs btn-neon-ghost py-0.5 px-2" onclick="previewSwap('${item.swap_no}')">
+                                <i class="fa-solid fa-eye"></i> 審驗
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                if (item.swap_stage === "STAGE1_TW_DELIVERED") list1.append(card);
+                else if (item.swap_stage === "STAGE2_MY_ORDERED") list2.append(card);
+                else if (item.swap_stage === "STAGE3_BALANCED") list3.append(card);
+                else if (item.swap_stage === "SETTLED") listSettled.append(card);
+            });
+        }
+
+        function renderCardsGrid() {
+            const grid = $("#swapCardsGrid").empty();
+            swapsDatabase.forEach(item => {
+                const stageBadge = getStageBadge(item.swap_stage);
+                const card = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="swap-card-box">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-dark border border-purple-subtle mono-num text-muted">${item.swap_no}</span>
+                                    ${stageBadge}
+                                </div>
+                                <h6 class="fw-bold text-light mb-1">${item.tw_product_name} <span class="text-accent">x${item.tw_delivered_qty} 盒</span></h6>
+                                <p class="small text-muted mb-2 text-truncate" title="${item.notes}">${item.notes}</p>
+                            </div>
+
+                            <div class="hedge-balance-bridge mb-2">
+                                <div class="d-flex justify-content-between small">
+                                    <span class="text-info"><i class="fa-solid fa-plane-departure"></i> 台灣成本：NT$ ${item.tw_total_cost_twd.toLocaleString()}</span>
+                                    <span class="text-accent"><i class="fa-solid fa-cart-shopping"></i> 大馬付款：RM ${item.my_order_amount_myr.toLocaleString()}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small mt-1 pt-1 border-top border-secondary border-opacity-15">
+                                    <span class="text-muted">SV 平帳目標：${item.tw_total_sv_target}</span>
+                                    <strong class="mono-num ${item.sv_difference === 0 ? 'text-success' : 'text-warning'}">差額：${item.sv_difference} SV</strong>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-15">
+                                <span class="small text-muted">${item.tw_partner_name.split(' ')[0]} ➔ ${item.my_partner_id}</span>
+                                <button class="btn btn-sm btn-neon-primary py-0.5 px-3" onclick="previewSwap('${item.swap_no}')">
+                                    <i class="fa-solid fa-magnifying-glass"></i> 詳細審計
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.append(card);
+            });
+        }
+
+        function getStageBadge(stage) {
+            switch(stage) {
+                case "STAGE1_TW_DELIVERED": return '<span class="badge bg-warning text-dark"><i class="fa-solid fa-plane-departure"></i> 台灣已交貨</span>';
+                case "STAGE2_MY_ORDERED": return '<span class="badge bg-info text-dark"><i class="fa-solid fa-cart-check"></i> 大馬已下單</span>';
+                case "STAGE3_BALANCED": return '<span class="badge bg-primary"><i class="fa-solid fa-scale-balanced"></i> 帳目兩平</span>';
+                case "SETTLED": return '<span class="badge bg-success"><i class="fa-solid fa-circle-check"></i> 已結案核銷</span>';
+                default: return '<span class="badge bg-secondary">未知階段</span>';
+            }
+        }
+
+        /**
+         * =========================================================================
+         * 5. 初始化 DataTable.js 總帳表
+         * =========================================================================
+         */
+        function initDataTable() {
+            dataTableInstance = $("#swapsDataTable").DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[0, "desc"]],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋單號、夥伴、品項或狀態...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+
+            reloadDataTable();
+        }
+
+        function reloadDataTable() {
+            if (!dataTableInstance) return;
+            dataTableInstance.clear();
+
+            swapsDatabase.forEach(item => {
+                const stageBadge = getStageBadge(item.swap_stage);
+                const actionBtns = `
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-neon-ghost py-0.5 px-2" onclick="previewSwap('${item.swap_no}')" title="審驗"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn btn-neon-ghost py-0.5 px-2 text-danger" onclick="deleteSwap(${item.id})" title="刪除"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+
+                dataTableInstance.row.add([
+                    `<span class="mono-num fw-bold text-light">${item.swap_no}</span>`,
+                    `<strong class="text-secondary">${item.tw_partner_name}</strong>`,
+                    `<span class="text-info">${item.my_partner_id}</span>`,
+                    `<div><span class="text-light">${item.tw_product_name}</span> <span class="badge bg-purple-subtle text-accent">x${item.tw_delivered_qty}</span></div><small class="text-muted mono-num">NT$ ${item.tw_total_cost_twd.toLocaleString()}</small>`,
+                    `<span class="mono-num text-info">${item.tw_total_sv_target.toFixed(2)}</span>`,
+                    `<div><span class="mono-num text-muted small">${item.my_order_no || '無單號'}</span></div><small class="text-accent mono-num">RM ${item.my_order_amount_myr.toLocaleString()}</small>`,
+                    `<span class="mono-num text-light">${item.my_actual_sv.toFixed(2)}</span>`,
+                    `<span class="mono-num text-muted small">${item.fx_rate_applied.toFixed(4)}</span>`,
+                    `<span class="mono-num ${item.sv_difference === 0 ? 'text-success' : 'text-warning'} fw-bold">${item.sv_difference.toFixed(2)}</span>`,
+                    `<span class="mono-num ${item.cash_difference_twd === 0 ? 'text-muted' : 'text-warning'}">NT$ ${Math.round(item.cash_difference_twd)}</span>`,
+                    stageBadge,
+                    actionBtns
+                ]);
+            });
+
+            dataTableInstance.draw();
+            renderKanban();
+            renderCardsGrid();
+        }
+
+        /**
+         * =========================================================================
+         * 6. 事件監聽器與互動綁定 (Event Listeners)
+         * =========================================================================
+         */
+        $(document).ready(function() {
+            const stats = calculateStatistics();
+            initCharts(stats);
+            initDataTable();
+
+            // 視圖切換
+            $("#btnViewFlowKanban").on("click", function() {
+                $(this).addClass("active").siblings().removeClass("active");
+                $("#viewKanbanContainer").removeClass("d-none");
+                $("#viewTableContainer, #viewCardsContainer").addClass("d-none");
+            });
+
+            $("#btnViewTable").on("click", function() {
+                $(this).addClass("active").siblings().removeClass("active");
+                $("#viewTableContainer").removeClass("d-none");
+                $("#viewKanbanContainer, #viewCardsContainer").addClass("d-none");
+                if (dataTableInstance) dataTableInstance.columns.adjust().responsive.recalc();
+            });
+
+            $("#btnViewCards").on("click", function() {
+                $(this).addClass("active").siblings().removeClass("active");
+                $("#viewCardsContainer").removeClass("d-none");
+                $("#viewKanbanContainer, #viewTableContainer").addClass("d-none");
+            });
+
+            // 階段快篩膠囊
+            $("#stageFilterPills .glass-pill").on("click", function() {
+                $("#stageFilterPills .glass-pill").removeClass("active");
+                $(this).addClass("active");
+                const stage = $(this).data("stage");
+                if (stage === "ALL") {
+                    dataTableInstance.column(10).search("").draw();
+                } else {
+                    dataTableInstance.column(10).search(stage).draw();
+                }
+            });
+
+            // 新增對沖單：產品與數量聯動計算
+            $("#formTwProduct, #formTwQty, #formMyActualSv, #formMyOrderAmountMyr, #formFxRate").on("input change", function() {
+                const opt = $("#formTwProduct option:selected");
+                const unitSv = parseFloat(opt.data("sv")) || 0;
+                const unitPrice = parseFloat(opt.data("price")) || 0;
+                const qty = parseInt($("#formTwQty").val()) || 1;
+
+                const targetSv = unitSv * qty;
+                const totalCost = unitPrice * qty;
+                $("#formTwTotalSv").val(targetSv.toFixed(2));
+                $("#formTwTotalCost").val(totalCost);
+
+                const actualSv = parseFloat($("#formMyActualSv").val()) || 0;
+                const diffSv = targetSv - actualSv;
+                $("#formSvDifference").val(diffSv.toFixed(2));
+
+                const myrAmount = parseFloat($("#formMyOrderAmountMyr").val()) || 0;
+                const fxRate = parseFloat($("#formFxRate").val()) || 7.15;
+                const cashDiff = totalCost - (myrAmount * fxRate);
+                $("#formCashDiffTwd").val("NT$ " + Math.round(cashDiff).toLocaleString());
+            });
+
+            // 提交新跨境對沖單
+            $("#btnSubmitSwap").on("click", function() {
+                const form = $("#formNewSwap")[0];
+                if (form.checkValidity()) {
+                    const opt = $("#formTwProduct option:selected");
+                    const partnerNameMap = { RAY: "Ray 翁榮祥", JARVIS: "Jarvis 林承志", TEAM_LEAD: "核心幹部" };
+                    const twPartner = $("#formTwPartnerId").val();
+                    const twQty = parseInt($("#formTwQty").val()) || 1;
+                    const unitSv = parseFloat(opt.data("sv")) || 0;
+                    const unitPrice = parseFloat(opt.data("price")) || 0;
+                    const targetSv = unitSv * twQty;
+                    const totalCost = unitPrice * twQty;
+                    const actualSv = parseFloat($("#formMyActualSv").val()) || 0;
+                    const myrAmount = parseFloat($("#formMyOrderAmountMyr").val()) || 0;
+                    const fxRate = parseFloat($("#formFxRate").val()) || 7.15;
+                    const cashDiff = totalCost - (myrAmount * fxRate);
+
+                    const newSwap = {
+                        id: swapsDatabase.length + 1,
+                        swap_no: $("#formSwapNo").val(),
+                        tw_partner_id: twPartner,
+                        tw_partner_name: partnerNameMap[twPartner] || "夥伴",
+                        my_partner_id: $("#formMyPartnerId").val(),
+                        tw_product_name: opt.text().split(' (')[0],
+                        tw_delivered_qty: twQty,
+                        tw_unit_sv: unitSv,
+                        tw_total_sv_target: targetSv,
+                        tw_unit_price_twd: unitPrice,
+                        tw_total_cost_twd: totalCost,
+                        my_product_name: opt.text().split(' (')[0],
+                        my_order_no: $("#formMyOrderNo").val() || null,
+                        my_ordered_qty: twQty,
+                        my_actual_sv: actualSv,
+                        my_order_amount_myr: myrAmount,
+                        fx_rate_applied: fxRate,
+                        sv_difference: targetSv - actualSv,
+                        cash_difference_twd: cashDiff,
+                        swap_stage: $("#formSwapStage").val(),
+                        settlement_date: null,
+                        notes: $("#formNotes").val() || "跨境現貨交割"
+                    };
+
+                    swapsDatabase.unshift(newSwap);
+                    const updatedStats = calculateStatistics();
+                    initCharts(updatedStats);
+                    reloadDataTable();
+
+                    bootstrap.Modal.getInstance($("#modalNewSwap")[0]).hide();
+                    form.reset();
+                    alert(`✅ 跨境對沖單「${newSwap.swap_no}」已成功開立！\n目標 SV：${targetSv} SV`);
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // Google 試算表 GViz / PapaParse 同步
+            $("#btnSyncGoogleSheets").on("click", function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                setTimeout(() => {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 對沖總帳已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表同步'), 2000);
+                }, 1200);
+            });
+
+            // 批次核銷
+            $("#btnBatchSettle").on("click", function() {
+                if (confirm("確認將所有「STAGE3_BALANCED (帳目兩平)」單據批次結案並鎖定？")) {
+                    swapsDatabase.forEach(s => {
+                        if (s.swap_stage === "STAGE3_BALANCED") {
+                            s.swap_stage = "SETTLED";
+                            s.settlement_date = "2026-08-21";
+                        }
+                    });
+                    const updatedStats = calculateStatistics();
+                    initCharts(updatedStats);
+                    reloadDataTable();
+                    alert("✅ 所有兩平單據已全數完成結案歸檔！");
+                }
+            });
+        });
+
+        // 預覽與推進階段
+        let currentViewingSwap = null;
+        function previewSwap(swapNo) {
+            const item = swapsDatabase.find(s => s.swap_no === swapNo);
+            if (item) {
+                currentViewingSwap = item;
+                $("#modalSwapNo").text(item.swap_no);
+                $("#modalSwapStage").text(item.swap_stage);
+                $("#modalProductName").text(`${item.tw_product_name} x ${item.tw_delivered_qty} 盒`);
+                $("#modalNotes").text(item.notes || '無備忘紀錄');
+                $("#modalTwPartner").text(item.tw_partner_name);
+                $("#modalMyPartner").text(item.my_partner_id);
+                $("#modalSvRatio").text(`${item.tw_total_sv_target} / ${item.my_actual_sv} SV (差額: ${item.sv_difference})`);
+                $("#modalCashDiff").text(`NT$ ${Math.round(item.cash_difference_twd)}`);
+
+                const modal = new bootstrap.Modal(document.getElementById("modalSwapDetail"));
+                modal.show();
+            }
+        }
+
+        $("#btnAdvanceStage").on("click", function() {
+            if (currentViewingSwap) {
+                if (currentViewingSwap.swap_stage === "STAGE1_TW_DELIVERED") {
+                    currentViewingSwap.swap_stage = "STAGE2_MY_ORDERED";
+                } else if (currentViewingSwap.swap_stage === "STAGE2_MY_ORDERED") {
+                    currentViewingSwap.swap_stage = "STAGE3_BALANCED";
+                } else if (currentViewingSwap.swap_stage === "STAGE3_BALANCED") {
+                    currentViewingSwap.swap_stage = "SETTLED";
+                    currentViewingSwap.settlement_date = "2026-08-21";
+                }
+                const updatedStats = calculateStatistics();
+                initCharts(updatedStats);
+                reloadDataTable();
+                bootstrap.Modal.getInstance(document.getElementById("modalSwapDetail")).hide();
+                alert(`✅ 單據「${currentViewingSwap.swap_no}」進度已推進至：${currentViewingSwap.swap_stage}`);
+            }
+        });
+
+        function deleteSwap(id) {
+            if (confirm(`確定刪除此筆跨境對沖單 (ID: ${id})？`)) {
+                swapsDatabase = swapsDatabase.filter(s => s.id !== id);
+                const updatedStats = calculateStatistics();
+                initCharts(updatedStats);
+                reloadDataTable();
+            }
+        }
+
+        function exportSwapsCsv() {
+            alert("正在生成 fin_cross_border_swaps 跨境對沖總帳 CSV 審計匯出檔...");
+        }
+    </script>
+</body>
+</html>

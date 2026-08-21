@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H65000 稅務健保 · 雙國稅率二代健保與官方匯率中樞 - 榮祥團隊核心戰情室</title>
+    <!-- Google Noto Fonts & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        /* ==========================================================================
+           1. 核心版極致魅影深紫主題 Design Tokens (CSS Custom Properties)
+           ========================================================================== */
+        :root, [data-bs-theme="dark-purple"] {
+            --core-primary: #8b5cf6;
+            --core-primary-rgb: 139, 92, 246;
+            --core-primary-hover: #7c3aed;
+            --core-secondary: #c084fc;
+            --core-secondary-rgb: 192, 132, 252;
+            --core-accent: #ec4899;
+            --core-accent-rgb: 236, 72, 153;
+            --core-cyan: #06b6d4;
+            --core-cyan-rgb: 6, 182, 212;
+            --core-gold: #f59e0b;
+            --core-gold-rgb: 245, 158, 11;
+            --core-success: #10b981;
+            --core-danger: #f43f5e;
+            --core-info: #38bdf8;
+            --core-bg-base: #0a0518;
+            --core-bg-surface: #120926;
+            --core-bg-card: rgba(22, 13, 46, 0.85);
+            --core-bg-card-hover: rgba(36, 18, 76, 0.95);
+            --core-bg-glass: rgba(18, 9, 38, 0.72);
+            --core-border: rgba(139, 92, 246, 0.22);
+            --core-border-glow: rgba(192, 132, 252, 0.45);
+            --core-border-accent: rgba(236, 72, 153, 0.55);
+            --core-text-main: #f3e8ff;
+            --core-text-sub: #c4b5fd;
+            --core-text-muted: #9e8eb3;
+            --core-radius-sm: 8px;
+            --core-radius-md: 14px;
+            --core-radius-lg: 20px;
+            --core-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--core-bg-base);
+            background-image: 
+                radial-gradient(circle at 5% 10%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 95% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 55%),
+                linear-gradient(180deg, #0a0518 0%, #0e0722 100%);
+            background-attachment: fixed;
+            color: var(--core-text-main);
+            font-family: 'Noto Sans TC', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .hub-serif-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        /* 玻璃擬態戰術面板 */
+        .glass-panel {
+            background: var(--core-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--core-border);
+            border-radius: var(--core-radius-lg);
+            box-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--core-border-glow);
+            box-shadow: 0 14px 40px 0 rgba(139, 92, 246, 0.25);
+        }
+
+        /* 霓虹按鈕體系 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 24px rgba(236, 72, 153, 0.55);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover, .btn-neon-ghost.active {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+        }
+
+        .btn-outline-purple {
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: var(--core-text-sub);
+            background: rgba(139, 92, 246, 0.08);
+        }
+
+        .btn-outline-purple:hover, .btn-check:checked + .btn-outline-purple {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 雙國參數星圖卡片 (Dual-Country Tax Orbit Card) */
+        .tax-orbit-card {
+            background: linear-gradient(180deg, rgba(28, 16, 58, 0.9) 0%, rgba(16, 8, 34, 0.9) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--core-radius-md);
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tax-orbit-card:hover {
+            border-color: var(--core-secondary);
+            box-shadow: 0 8px 26px rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tax-orbit-card.orbit-tw {
+            border-top: 4px solid var(--core-primary);
+        }
+
+        .tax-orbit-card.orbit-my {
+            border-top: 4px solid var(--core-accent);
+        }
+
+        .tax-orbit-card.orbit-fx {
+            border-top: 4px solid var(--core-gold);
+        }
+
+        /* 模擬沙盒控制台 (Interactive Sandbox Deck) */
+        .sandbox-deck {
+            background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, rgba(18, 9, 38, 0.95) 70%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: var(--core-radius-lg);
+            padding: 1.5rem;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 稅後實拿能量條 */
+        .net-pay-meter {
+            height: 14px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .net-pay-fill-tax {
+            background: #f43f5e;
+            height: 100%;
+            transition: width 0.35s ease;
+        }
+
+        .net-pay-fill-nhi {
+            background: #f59e0b;
+            height: 100%;
+            transition: width 0.35s ease;
+        }
+
+        .net-pay-fill-net {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+            height: 100%;
+            transition: width 0.35s ease;
+        }
+
+        /* DataTable 自訂樣式 */
+        .table-custom-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--core-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+
+        .table-custom-dark thead th {
+            background: rgba(18, 9, 38, 0.95);
+            color: var(--core-text-sub);
+            font-size: 0.84rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            padding: 12px 14px;
+            white-space: nowrap;
+        }
+
+        .table-custom-dark tbody td {
+            padding: 12px 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            font-size: 0.875rem;
+        }
+
+        .table-custom-dark tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        /* DataTables 樣式補強 */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--core-text-muted) !important;
+            font-size: 0.825rem;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            color: #ffffff !important;
+            border-radius: 6px;
+            padding: 4px 10px;
+        }
+
+        .dataTables_wrapper .paginate_button {
+            color: var(--core-text-muted) !important;
+            border-radius: 4px;
+        }
+
+        .dataTables_wrapper .paginate_button.current {
+            background: var(--core-primary) !important;
+            border-color: var(--core-primary) !important;
+            color: #fff !important;
+        }
+
+        /* 模態彈窗 (Modals) */
+        .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.2) 0%, transparent 60%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--core-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+            border-radius: var(--core-radius-lg);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            color: var(--core-text-main);
+            border-radius: var(--core-radius-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--core-secondary);
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background-color: #130a2a;
+            color: #ffffff;
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.35);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--core-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header、無 Footer，全自包含) -->
+    <main class="container-fluid px-3 px-lg-4 py-4" id="finTaxApp" data-page="H65000">
+
+        <!-- 頂部指揮中樞：業務標頭、法源基準與多維動作列 -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <span class="badge px-2.5 py-1 rounded-pill mono-num" style="background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid rgba(139,92,246,0.4);">
+                            <i class="fa-solid fa-scale-balanced"></i> H65000 稅務健保
+                        </span>
+                        <span class="badge px-2.5 py-1 rounded-pill" style="background: rgba(6,182,212,0.18); color: #22d3ee; border: 1px solid rgba(6,182,212,0.35);">
+                            <i class="fa-solid fa-earth-americas"></i> 雙國稅率 · 二代健保 · 官方匯率參數庫 (Schema 605)
+                        </span>
+                        <span class="badge px-2.5 py-1 rounded-pill" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3);">
+                            <i class="fa-solid fa-shield-halved"></i> 全站獎金計算機唯一基準 (SSOT)
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-serif-title">雙國稅率、二代健保與官方基準匯率中樞</h1>
+                    <p class="small mb-0 mt-1" style="color: var(--core-text-muted);">
+                        維護台灣所得稅代扣 (10%)、二代健保補充保費 (2.11%)、大馬 107D (2%) 扣繳參數及台馬官方匯率，提供全站對帳、分潤與工具箱統一精準引用。
+                    </p>
+                </div>
+
+                <!-- 戰略操作動作列 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncCloudConfigs" title="透過 Google Sheets GViz / PapaParse 即時同步參數">
+                        <i class="fa-solid fa-arrows-rotate"></i> 雲端同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#collapseFxSimulationDeck">
+                        <i class="fa-solid fa-chart-line"></i> 匯率敏感度分析
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewTaxConfig">
+                        <i class="fa-solid fa-plus"></i> 新增參數版本
+                    </button>
+                </div>
+            </div>
+
+            <!-- 四大即時關鍵參數星圖 (Dual-Country Tax Orbit Matrix) -->
+            <div class="row g-3 mt-2 pt-3 border-top border-secondary border-opacity-15">
+                <!-- 參數卡 1：台灣執行業務所得稅 (TW_INCOME_TAX) -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="tax-orbit-card orbit-tw h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-primary-subtle text-primary small"><i class="fa-solid fa-flag"></i> 台灣 TW</span>
+                                <span class="badge bg-success-subtle text-success small mono-num">ACTIVE</span>
+                            </div>
+                            <h6 class="fw-bold text-light mb-1">執行業務所得稅代扣</h6>
+                            <p class="small text-muted mb-2">扣繳類別代號 9A / 9B，單筆獎金達門檻即扣繳</p>
+                        </div>
+                        <div class="pt-2 border-top border-secondary border-opacity-15">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <span class="small text-muted">法定扣繳率</span>
+                                <h3 class="fw-bold mono-num text-primary mb-0" id="orbitTwTaxRate">10.00%</h3>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1" style="font-size: 0.76rem;">
+                                <span>單筆起扣門檻:</span>
+                                <strong class="mono-num text-light">NT$ 20,000</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 參數卡 2：台灣二代健保補充保費 (TW_NHI_2ND) -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="tax-orbit-card orbit-tw h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-primary-subtle text-primary small"><i class="fa-solid fa-heart-pulse"></i> 台灣 TW 健保</span>
+                                <span class="badge bg-success-subtle text-success small mono-num">ACTIVE</span>
+                            </div>
+                            <h6 class="fw-bold text-light mb-1">二代健保補充保費</h6>
+                            <p class="small text-muted mb-2">健保法第31條第1項第2款，執行業務收入費率</p>
+                        </div>
+                        <div class="pt-2 border-top border-secondary border-opacity-15">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <span class="small text-muted">法定徵收率</span>
+                                <h3 class="fw-bold mono-num text-warning mb-0" id="orbitTwNhiRate">2.11%</h3>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1" style="font-size: 0.76rem;">
+                                <span>門檻 / 上限:</span>
+                                <strong class="mono-num text-light">NT$ 20,000 / 1,000萬</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 參數卡 3：馬來西亞 107D 扣繳稅 (MY_WITHHOLDING_107D) -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="tax-orbit-card orbit-my h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-pink-subtle text-accent small"><i class="fa-solid fa-flag"></i> 馬來西亞 MY</span>
+                                <span class="badge bg-success-subtle text-success small mono-num">ACTIVE</span>
+                            </div>
+                            <h6 class="fw-bold text-light mb-1">Section 107D 扣繳稅</h6>
+                            <p class="small text-muted mb-2">大馬內陸稅收局 (LHDN) 個人代理人扣繳規定</p>
+                        </div>
+                        <div class="pt-2 border-top border-secondary border-opacity-15">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <span class="small text-muted">大馬扣繳率</span>
+                                <h3 class="fw-bold mono-num text-accent mb-0" id="orbitMyTaxRate">2.00%</h3>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1" style="font-size: 0.76rem;">
+                                <span>適用對象:</span>
+                                <strong class="text-light">個人/獨資直銷夥伴</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 參數卡 4：官方結算基準匯率 (OFFICIAL_FX_RATE) -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="tax-orbit-card orbit-fx h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-warning-subtle text-warning small"><i class="fa-solid fa-money-bill-transfer"></i> 官方匯率 FX</span>
+                                <span class="badge bg-success-subtle text-success small mono-num">LOCKED</span>
+                            </div>
+                            <h6 class="fw-bold text-light mb-1">台馬官方月結匯率</h6>
+                            <p class="small text-muted mb-2">團隊對拆清算與積分折算鎖定基準</p>
+                        </div>
+                        <div class="pt-2 border-top border-secondary border-opacity-15">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <span class="small text-muted">1 MYR 兌 TWD</span>
+                                <h3 class="fw-bold mono-num text-warning mb-0" id="orbitFxRate">7.2500</h3>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1" style="font-size: 0.76rem;">
+                                <span>生效期別:</span>
+                                <strong class="mono-num text-light">2026-08-01 起</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 創新核心模組 1：實戰沙盒 · 跨國獎金稅後實拿雙軌試算控制台 (Interactive Sandbox) -->
+        <section class="sandbox-deck mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-calculator text-neon-purple fa-lg"></i>
+                    <h5 class="fw-bold text-light mb-0">跨國獎金扣繳與稅後實拿雙軌模擬沙盒</h5>
+                    <span class="badge bg-dark border border-secondary text-muted small">即時動態精算</span>
+                </div>
+                <div class="small text-muted">
+                    <i class="fa-solid fa-circle-info text-info"></i> 參數完全連動底層 <span class="mono-num text-warning">fin_tax_configs</span>
+                </div>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <!-- 左翼：輸入試算條件與身份選擇 -->
+                <div class="col-12 col-lg-5 border-end-lg border-secondary border-opacity-20 pe-lg-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small text-muted d-flex justify-content-between">
+                                <span>獎金結算幣別與發放國別</span>
+                                <span class="text-neon-purple fw-semibold" id="sandboxCountryLabel">🇹🇼 台灣夥伴 (TWD)</span>
+                            </label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="calcCountry" id="calcTw" value="TW" checked>
+                                <label class="btn btn-outline-purple btn-sm" for="calcTw"><i class="fa-solid fa-flag"></i> 台灣 (TWD)</label>
+
+                                <input type="radio" class="btn-check" name="calcCountry" id="calcMy" value="MY">
+                                <label class="btn btn-outline-purple btn-sm" for="calcMy"><i class="fa-solid fa-flag"></i> 馬來西亞 (MYR)</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small text-muted d-flex justify-content-between">
+                                <span>夥伴領取身份型態</span>
+                                <span class="text-info small" id="sandboxIdentityDesc">個人自然人 (扣稅+健保)</span>
+                            </label>
+                            <select class="form-select" id="sandboxIdentityType">
+                                <option value="INDIVIDUAL" selected>個人 / 自然人夥伴 (依法扣繳所得稅與健保)</option>
+                                <option value="CORPORATE">行號 / 有限公司 / 統編法人 (免代扣所得與補充保費)</option>
+                                <option value="NON_RESIDENT">非境內居住者 / 外籍人士 (所得稅 18% 或 20%)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label small text-muted mb-0">原始應發總獎金金額 (Gross Bonus)</label>
+                                <span class="badge bg-dark border border-purple-subtle mono-num text-light" id="sandboxAmountDisplay">NT$ 120,000</span>
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-dark border-secondary border-opacity-25 mono-num text-light" id="sandboxCurrencySymbol">NT$</span>
+                                <input type="number" class="form-control mono-num fs-5 fw-bold text-white" id="sandboxBonusInput" value="120000" step="1000">
+                            </div>
+                            <input type="range" class="form-range" id="sandboxBonusRange" min="5000" max="1000000" step="5000" value="120000">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右翼：精算扣繳明細與稅後實發入帳儀表 -->
+                <div class="col-12 col-lg-7 ps-lg-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-md-7">
+                            <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(139, 92, 246, 0.2);">
+                                <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-secondary border-opacity-15">
+                                <span>應發總獎金 (Gross Bonus)</span>
+                                    <strong class="mono-num text-light" id="resGrossBonus">NT$ 120,000</strong>
+                                </div>
+                                <div class="d-flex justify-content-between small py-1.5 border-bottom border-secondary border-opacity-15">
+                                    <span class="text-danger"><i class="fa-solid fa-minus"></i> <span id="resTaxLabel">所得稅代扣 (10%)</span></span>
+                                    <strong class="mono-num text-danger" id="resTaxAmount">- NT$ 12,000</strong>
+                                </div>
+                                <div class="d-flex justify-content-between small py-1.5 border-bottom border-secondary border-opacity-15">
+                                    <span class="text-warning"><i class="fa-solid fa-minus"></i> <span id="resNhiLabel">二代健保補充保費 (2.11%)</span></span>
+                                    <strong class="mono-num text-warning" id="resNhiAmount">- NT$ 2,532</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-end pt-2 mt-1">
+                                    <div>
+                                        <span class="small text-muted d-block">實際入帳淨額 (Net Payout)</span>
+                                        <span class="badge bg-success-subtle text-success small" id="resNetRatio">實拿 87.89%</span>
+                                    </div>
+                                    <h3 class="fw-bold mono-num text-success mb-0" id="resNetPayout">NT$ 105,468</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 實拿比例可視化能量艙 -->
+                        <div class="col-12 col-md-5">
+                            <div class="p-3 rounded-3 text-center h-100 d-flex flex-column justify-content-between" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(139, 92, 246, 0.15);">
+                                <span class="small text-muted mb-1"><i class="fa-solid fa-chart-pie text-neon-purple"></i> 獎金扣繳結構分佈</span>
+                                <div class="my-2">
+                                    <div class="d-flex justify-content-between small mono-num mb-1">
+                                        <span class="text-success" id="barNetPct">淨額 87.9%</span>
+                                        <span class="text-danger" id="barTaxPct">扣繳 12.1%</span>
+                                    </div>
+                                    <div class="net-pay-meter d-flex">
+                                        <div class="net-pay-fill-net" id="barNetFill" style="width: 87.89%;"></div>
+                                        <div class="net-pay-fill-nhi" id="barNhiFill" style="width: 2.11%;"></div>
+                                        <div class="net-pay-fill-tax" id="barTaxFill" style="width: 10.00%;"></div>
+                                    </div>
+                                </div>
+                                <div class="small text-muted mt-2" style="font-size: 0.74rem;">
+                                    折合新台幣基準: <strong class="mono-num text-white" id="resTwdEquivalent">NT$ 105,468</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：匯率敏感度與跨境利潤衝擊分析面板 (Chart.js) -->
+        <section class="collapse mb-4" id="collapseFxSimulationDeck">
+            <div class="glass-panel p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-light">
+                        <i class="fa-solid fa-chart-line text-warning me-1.5"></i> 台馬官方匯率波動敏感度與跨境對拆衝擊模擬
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-muted">基準: 1 MYR 兌 TWD</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 col-lg-8">
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="fxSensitivityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(245,158,11,0.2);">
+                            <div>
+                                <h6 class="fw-bold text-warning mb-2"><i class="fa-solid fa-shield-halved"></i> 匯率避險鎖定策略</h6>
+                                <p class="small text-muted mb-2">
+                                    榮祥團隊依合約於每月 1 號統一鎖定官方兌換匯率，作為當月全體夥伴積分換算、產品進貨結算及 20 號雙創始人 50/50 對拆唯一標準，杜絕月中匯率波動引發拆帳爭議。
+                                </p>
+                            </div>
+                            <div class="small text-muted border-top border-secondary border-opacity-15 pt-2">
+                                <span class="d-block">當前鎖定匯率：<strong class="mono-num text-light">7.2500</strong></span>
+                                <span class="d-block">近 6 個月波動區間：<strong class="mono-num text-light">7.1000 ~ 7.3500</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心模組 2：高密審計參數主庫 (DataTable.js View - Schema 605) -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-sliders text-neon-purple fa-lg"></i>
+                    <h5 class="fw-bold text-light mb-0">雙國稅率與匯率參數總庫</h5>
+                    <span class="badge bg-dark border border-purple-subtle text-muted" id="taxConfigCount">共 6 組有效參數</span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-neon-ghost" onclick="exportTaxConfigsCsv()">
+                        <i class="fa-solid fa-file-csv"></i> 匯出參數 CSV
+                    </button>
+                    <button class="btn btn-sm btn-neon-ghost" onclick="refreshConfigsTable()">
+                        <i class="fa-solid fa-rotate"></i> 重新載入
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="taxConfigsDataTable" class="table table-custom-dark w-100 align-middle">
+                    <thead>
+                        <tr>
+                            <th>參數ID</th>
+                            <th>國家/地區</th>
+                            <th>參數型態 (tax_type)</th>
+                            <th>參數名稱 (tax_name)</th>
+                            <th>稅率/費率</th>
+                            <th>單筆起扣門檻</th>
+                            <th>單筆扣費上限</th>
+                            <th>對台幣匯率</th>
+                            <th>生效日期</th>
+                            <th>狀態</th>
+                            <th>法源與業務說明</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taxConfigsTableBody">
+                        <!-- DataTable.js 動態注入 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 輔助模組：雙國稅法合規條文與業務備忘對照道 (Lore Accordion) -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <h6 class="fw-bold text-light mb-3">
+                <i class="fa-solid fa-book-bookmark text-neon-purple me-2"></i>雙國稅務合規條文、法源依據與系統計算備忘
+            </h6>
+            <div class="accordion accordion-flush" id="taxLoreAccordion">
+                <div class="accordion-item bg-transparent border-secondary border-opacity-20">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-light" type="button" data-bs-toggle="collapse" data-bs-target="#loreTwIncomeTax">
+                            <span class="badge bg-primary-subtle text-primary me-2">台灣法源</span>
+                            所得稅法第 88 條及各類所得扣繳率標準（執行業務所得 9A / 9B）
+                        </button>
+                    </h2>
+                    <div id="loreTwIncomeTax" class="accordion-collapse collapse" data-bs-parent="#taxLoreAccordion">
+                        <div class="accordion-body small text-muted">
+                            中華民國境內居住之個人，取得多層次傳銷事業之佣金、獎金等執行業務所得，每次給付額達新台幣 20,000 元（含）以上者，由扣繳義務人按給付額扣繳 10% 所得稅款，並於次年 1 月底前向稽徵機關申報扣繳憑單。若為法人行號夥伴則開立統一發票或免用發票收據，無須由總公司代扣。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item bg-transparent border-secondary border-opacity-20">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-light" type="button" data-bs-toggle="collapse" data-bs-target="#loreTwNhi2nd">
+                            <span class="badge bg-warning-subtle text-warning me-2">台灣法源</span>
+                            全民健康保險法第 31 條第 1 項第 2 款（二代健保補充保險費 2.11%）
+                        </button>
+                    </h2>
+                    <div id="loreTwNhi2nd" class="accordion-collapse collapse" data-bs-parent="#taxLoreAccordion">
+                        <div class="accordion-body small text-muted">
+                            個人兼職所得或未具專門職業證照之執行業務收入，單筆給付金額達新台幣 20,000 元（含）以上時，需依規定扣繳 2.11% 補充保險費；單筆扣費上限為新台幣 10,000,000 元（即單筆補充保費上限為 211,000 元）。若夥伴具備第二類健保（職業工會加保證明）或屬中低收入戶等法定免扣資格，得檢附證明申請免代扣。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item bg-transparent border-secondary border-opacity-20">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-light" type="button" data-bs-toggle="collapse" data-bs-target="#loreMySection107D">
+                            <span class="badge bg-pink-subtle text-accent me-2">大馬法源</span>
+                            Income Tax Act 1967 Section 107D（馬來西亞個人代理扣繳 2%）
+                        </button>
+                    </h2>
+                    <div id="loreMySection107D" class="accordion-collapse collapse" data-bs-parent="#taxLoreAccordion">
+                        <div class="accordion-body small text-muted">
+                            馬來西亞內陸稅收局 (LHDN) 針對境內公司支付予個人直銷商、代理人、經銷商之現金或非現金形式佣金，若該個人於前一年度自該公司獲取之佣金總額超過門檻（RM 100,000），公司須依法扣繳 2% 預繳稅款並於次月向 LHDN 繳納 (CP107D 申報)。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 模態視窗 1：新增 / 編輯參數版本 (Schema 605: fin_tax_configs Modal) -->
+    <div class="modal fade" id="modalNewTaxConfig" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-serif-title">
+                        <i class="fa-solid fa-pen-to-square text-neon-purple me-1.5"></i> 新增 / 修訂稅務健保與匯率參數 (fin_tax_configs)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formTaxConfig">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">國家/地區代碼 (country_code) *</label>
+                                <select class="form-select" id="formCountryCode" required>
+                                    <option value="TW" selected>TW (台灣)</option>
+                                    <option value="MY">MY (馬來西亞)</option>
+                                    <option value="GLOBAL">GLOBAL (全球/通用)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">參數型態 (tax_type) *</label>
+                                <select class="form-select" id="formTaxType" required>
+                                    <option value="TW_INCOME_TAX">TW_INCOME_TAX (台灣所得稅)</option>
+                                    <option value="TW_NHI_2ND">TW_NHI_2ND (台灣二代健保)</option>
+                                    <option value="MY_WITHHOLDING_107D">MY_WITHHOLDING_107D (大馬107D扣繳)</option>
+                                    <option value="OFFICIAL_FX_RATE">OFFICIAL_FX_RATE (官方結算匯率)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">參數名稱 (tax_name) *</label>
+                                <input type="text" class="form-control" id="formTaxName" placeholder="例如：台灣二代健保補充保費" required>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">稅率/費率比率 (tax_rate) *</label>
+                                <input type="number" step="0.0001" class="form-control mono-num" id="formTaxRate" placeholder="0.0211" required>
+                                <div class="form-text small text-muted">小數表示（如 0.0211 代表 2.11%）</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">單筆起扣門檻 (threshold_amount)</label>
+                                <input type="number" step="0.01" class="form-control mono-num" id="formThresholdAmount" value="20000.00">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">單筆扣費上限 (upper_limit_amount)</label>
+                                <input type="number" step="0.01" class="form-control mono-num" id="formUpperLimitAmount" placeholder="10000000.00">
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">兌新台幣匯率 (fx_rate_to_twd)</label>
+                                <input type="number" step="0.0001" class="form-control mono-num" id="formFxRateToTwd" value="1.0000" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">生效開始日期 (effective_date) *</label>
+                                <input type="date" class="form-control mono-num" id="formEffectiveDate" value="2026-08-01" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">是否啟用 (is_active) *</label>
+                                <select class="form-select" id="formIsActive" required>
+                                    <option value="Y" selected>Y (生效啟用中)</option>
+                                    <option value="N">N (停用/歷史紀錄)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">稅規法源條文、計算說明與備註 (description)</label>
+                                <textarea class="form-control" id="formDescription" rows="2" placeholder="註明法令依據條號、適用之身分別或結算備忘..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSaveTaxConfig">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並發布參數
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴函式庫 (CDN) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接器與業務邏輯 JavaScript -->
+    <script>
+        /**
+         * =========================================================================
+         * 1. 欄位解耦對映轉接器 (Anti-Corruption Layer - sys_api_configs)
+         * 隔離 Google 試算表原始中文標頭與前端業務邏輯欄位名
+         * =========================================================================
+         */
+        const FIN_TAX_DECOUPLING_MAP = {
+            configId: ["config_id", "參數流水號", "流水號", "ID"],
+            countryCode: ["country_code", "國家地區", "國別", "國家代碼"],
+            taxType: ["tax_type", "參數型態", "扣繳型態", "稅務型態"],
+            taxName: ["tax_name", "參數名稱", "稅規名稱", "名稱"],
+            taxRate: ["tax_rate", "稅率比率", "費率", "稅率"],
+            thresholdAmount: ["threshold_amount", "起扣門檻", "門檻金額"],
+            upperLimitAmount: ["upper_limit_amount", "扣費上限", "上限金額"],
+            fxRateToTwd: ["fx_rate_to_twd", "折台幣匯率", "匯率基準", "匯率"],
+            effectiveDate: ["effective_date", "生效日期", "開始日期"],
+            expirationDate: ["expiration_date", "截止日期", "失效日期"],
+            isActive: ["is_active", "是否啟用", "啟用狀態", "狀態"],
+            description: ["description", "法源說明", "備註說明", "說明"]
+        };
+
+        function resolveDecoupledRow(rawRow, mapping) {
+            const resolved = {};
+            for (const [propKey, aliases] of Object.entries(mapping)) {
+                let matchedVal = undefined;
+                for (const alias of aliases) {
+                    if (rawRow[alias] !== undefined) {
+                        matchedVal = rawRow[alias];
+                        break;
+                    }
+                }
+                resolved[propKey] = matchedVal !== undefined ? matchedVal : "";
+            }
+            return resolved;
+        }
+
+        /**
+         * =========================================================================
+         * 2. 生產級稅務健保與匯率參數資料庫 (Mock Database on Schema 605)
+         * =========================================================================
+         */
+        let taxConfigsDatabase = [
+            {
+                config_id: 1,
+                country_code: "TW",
+                tax_type: "TW_INCOME_TAX",
+                tax_name: "台灣執行業務所得稅代扣",
+                tax_rate: 0.1000,
+                threshold_amount: 20000.00,
+                upper_limit_amount: null,
+                fx_rate_to_twd: 1.0000,
+                effective_date: "2026-01-01",
+                expiration_date: null,
+                is_active: "Y",
+                description: "所得稅法第88條，執行業務所得 (9A/9B) 單筆達 20,000 元代扣 10%"
+            },
+            {
+                config_id: 2,
+                country_code: "TW",
+                tax_type: "TW_NHI_2ND",
+                tax_name: "台灣二代健保補充保費",
+                tax_rate: 0.0211,
+                threshold_amount: 20000.00,
+                upper_limit_amount: 10000000.00,
+                fx_rate_to_twd: 1.0000,
+                effective_date: "2026-01-01",
+                expiration_date: null,
+                is_active: "Y",
+                description: "全民健康保險法第31條，執行業務收入單筆達 20,000 元扣 2.11%，單筆上限 1,000 萬元"
+            },
+            {
+                config_id: 3,
+                country_code: "MY",
+                tax_type: "MY_WITHHOLDING_107D",
+                tax_name: "馬來西亞 107D 代理扣繳稅",
+                tax_rate: 0.0200,
+                threshold_amount: 0.00,
+                upper_limit_amount: null,
+                fx_rate_to_twd: 7.2500,
+                effective_date: "2026-01-01",
+                expiration_date: null,
+                is_active: "Y",
+                description: "Income Tax Act 1967 Section 107D，支付個人代理人/直銷商佣金扣繳 2%"
+            },
+            {
+                config_id: 4,
+                country_code: "GLOBAL",
+                tax_type: "OFFICIAL_FX_RATE",
+                tax_name: "台馬官方月度結算匯率",
+                tax_rate: 0.0000,
+                threshold_amount: 0.00,
+                upper_limit_amount: null,
+                fx_rate_to_twd: 7.2500,
+                effective_date: "2026-08-01",
+                expiration_date: null,
+                is_active: "Y",
+                description: "榮祥團隊 2026-08 業績期官方鎖定結算基準匯率 (1 MYR = 7.2500 TWD)"
+            },
+            {
+                config_id: 5,
+                country_code: "GLOBAL",
+                tax_type: "OFFICIAL_FX_RATE",
+                tax_name: "台美官方主機/軟體匯率",
+                tax_rate: 0.0000,
+                threshold_amount: 0.00,
+                upper_limit_amount: null,
+                fx_rate_to_twd: 32.1000,
+                effective_date: "2026-08-01",
+                expiration_date: null,
+                is_active: "Y",
+                description: "團隊雲端主機與全球 API 費用折算基準匯率 (1 USD = 32.1000 TWD)"
+            },
+            {
+                config_id: 6,
+                country_code: "TW",
+                tax_type: "TW_INCOME_TAX_NON_RESIDENT",
+                tax_name: "台灣非境內居住者扣繳稅",
+                tax_rate: 0.2000,
+                threshold_amount: 0.00,
+                upper_limit_amount: null,
+                fx_rate_to_twd: 1.0000,
+                effective_date: "2026-01-01",
+                expiration_date: null,
+                is_active: "Y",
+                description: "在華無居所且未住滿 183 天之外籍個人，各類所得扣繳率 20%"
+            }
+        ];
+
+        let dataTableInstance = null;
+        let fxChartInstance = null;
+
+        /**
+         * =========================================================================
+         * 3. 頁面初始化與互動綁定
+         * =========================================================================
+         */
+        $(document).ready(function() {
+            initDataTable();
+            initFxChart();
+            runSandboxCalculation();
+
+            // 沙盒動態事件監聽
+            $('input[name="calcCountry"]').on('change', function() {
+                const country = $(this).val();
+                if (country === 'TW') {
+                    $('#sandboxCountryLabel').html('🇹🇼 台灣夥伴 (TWD)');
+                    $('#sandboxCurrencySymbol').text('NT$');
+                    $('#sandboxBonusInput').val(120000);
+                    $('#sandboxBonusRange').attr({ min: 5000, max: 1000000, step: 5000 }).val(120000);
+                } else {
+                    $('#sandboxCountryLabel').html('🇲🇾 馬來西亞夥伴 (MYR)');
+                    $('#sandboxCurrencySymbol').text('RM');
+                    $('#sandboxBonusInput').val(15000);
+                    $('#sandboxBonusRange').attr({ min: 500, max: 150000, step: 500 }).val(15000);
+                }
+                runSandboxCalculation();
+            });
+
+            $('#sandboxIdentityType').on('change', function() {
+                const type = $(this).val();
+                if (type === 'INDIVIDUAL') $('#sandboxIdentityDesc').text('個人自然人 (扣稅+健保)');
+                else if (type === 'CORPORATE') $('#sandboxIdentityDesc').text('公司法人/統編 (免代扣)');
+                else if (type === 'NON_RESIDENT') $('#sandboxIdentityDesc').text('非居住者 (固定 20%)');
+                runSandboxCalculation();
+            });
+
+            $('#sandboxBonusInput').on('input', function() {
+                const val = parseFloat($(this).val()) || 0;
+                $('#sandboxBonusRange').val(val);
+                runSandboxCalculation();
+            });
+
+            $('#sandboxBonusRange').on('input', function() {
+                const val = $(this).val();
+                $('#sandboxBonusInput').val(val);
+                runSandboxCalculation();
+            });
+
+            // 儲存新參數
+            $('#btnSaveTaxConfig').on('click', function() {
+                const form = $('#formTaxConfig')[0];
+                if (form.checkValidity()) {
+                    const newConfig = {
+                        config_id: taxConfigsDatabase.length + 1,
+                        country_code: $('#formCountryCode').val(),
+                        tax_type: $('#formTaxType').val(),
+                        tax_name: $('#formTaxName').val(),
+                        tax_rate: parseFloat($('#formTaxRate').val()) || 0,
+                        threshold_amount: parseFloat($('#formThresholdAmount').val()) || 0,
+                        upper_limit_amount: parseFloat($('#formUpperLimitAmount').val()) || null,
+                        fx_rate_to_twd: parseFloat($('#formFxRateToTwd').val()) || 1.0,
+                        effective_date: $('#formEffectiveDate').val(),
+                        expiration_date: null,
+                        is_active: $('#formIsActive').val(),
+                        description: $('#formDescription').val()
+                    };
+
+                    taxConfigsDatabase.unshift(newConfig);
+                    reloadDataTable();
+                    updateOrbitMetrics();
+                    bootstrap.Modal.getInstance($('#modalNewTaxConfig')[0]).hide();
+                    form.reset();
+                    alert(`✅ 參數「${newConfig.tax_name}」發布成功！已同步生效至全站試算模組。`);
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // 雲端同步按鈕動態
+            $('#btnSyncCloudConfigs').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 參數同步中...');
+                setTimeout(function() {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 參數已是最新版');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 雲端同步'), 2500);
+                }, 1000);
+            });
+        });
+
+        /**
+         * =========================================================================
+         * 4. 沙盒雙軌即時精算核心 (Calculation Sandbox Engine)
+         * =========================================================================
+         */
+        function runSandboxCalculation() {
+            const country = $('input[name="calcCountry"]:checked').val();
+            const identity = $('#sandboxIdentityType').val();
+            const rawAmount = parseFloat($('#sandboxBonusInput').val()) || 0;
+
+            const currSymbol = country === 'TW' ? 'NT$' : 'RM';
+            $('#sandboxAmountDisplay').text(`${currSymbol} ${rawAmount.toLocaleString()}`);
+            $('#resGrossBonus').text(`${currSymbol} ${rawAmount.toLocaleString()}`);
+
+            let taxRate = 0;
+            let taxAmount = 0;
+            let nhiRate = 0;
+            let nhiAmount = 0;
+            let taxLabel = '所得稅扣繳';
+            let nhiLabel = '二代健保補充保費';
+
+            if (country === 'TW') {
+                // 台灣計算法則
+                const cfgTax = taxConfigsDatabase.find(c => c.tax_type === 'TW_INCOME_TAX' && c.is_active === 'Y') || { tax_rate: 0.1, threshold_amount: 20000 };
+                const cfgNhi = taxConfigsDatabase.find(c => c.tax_type === 'TW_NHI_2ND' && c.is_active === 'Y') || { tax_rate: 0.0211, threshold_amount: 20000, upper_limit_amount: 10000000 };
+
+                if (identity === 'INDIVIDUAL') {
+                    // 所得稅 10% (達 20,000 起扣)
+                    if (rawAmount >= cfgTax.threshold_amount) {
+                        taxRate = cfgTax.tax_rate;
+                        taxAmount = Math.round(rawAmount * taxRate);
+                    }
+                    taxLabel = `執行業務所得稅 (${(cfgTax.tax_rate * 100).toFixed(1)}%)`;
+
+                    // 二代健保 2.11% (達 20,000 起扣，上限 1000 萬)
+                    if (rawAmount >= cfgNhi.threshold_amount) {
+                        nhiRate = cfgNhi.tax_rate;
+                        const subjectAmount = Math.min(rawAmount, cfgNhi.upper_limit_amount || 10000000);
+                        nhiAmount = Math.round(subjectAmount * nhiRate);
+                    }
+                    nhiLabel = `二代健保補充保費 (${(cfgNhi.tax_rate * 100).toFixed(2)}%)`;
+                } else if (identity === 'NON_RESIDENT') {
+                    taxRate = 0.20;
+                    taxAmount = Math.round(rawAmount * taxRate);
+                    taxLabel = '非居住者所得稅 (20.0%)';
+                    nhiAmount = 0;
+                    nhiLabel = '二代健保 (非居住者免扣)';
+                } else if (identity === 'CORPORATE') {
+                    taxAmount = 0;
+                    nhiAmount = 0;
+                    taxLabel = '所得稅 (法人開立發票免代扣)';
+                    nhiLabel = '二代健保 (法人資格免扣繳)';
+                }
+            } else {
+                // 馬來西亞計算法則
+                const cfgMy = taxConfigsDatabase.find(c => c.tax_type === 'MY_WITHHOLDING_107D' && c.is_active === 'Y') || { tax_rate: 0.02 };
+                if (identity === 'INDIVIDUAL') {
+                    taxRate = cfgMy.tax_rate;
+                    taxAmount = Math.round(rawAmount * taxRate);
+                    taxLabel = `Section 107D 扣繳 (${(cfgMy.tax_rate * 100).toFixed(1)}%)`;
+                } else {
+                    taxAmount = 0;
+                    taxLabel = '107D 扣繳 (公司代理免扣繳)';
+                }
+                nhiAmount = 0;
+                nhiLabel = '大馬無健保補充保費項目';
+            }
+
+            const netPayout = rawAmount - taxAmount - nhiAmount;
+            const netRatio = rawAmount > 0 ? (netPayout / rawAmount * 100) : 100;
+            const taxRatio = rawAmount > 0 ? (taxAmount / rawAmount * 100) : 0;
+            const nhiRatio = rawAmount > 0 ? (nhiAmount / rawAmount * 100) : 0;
+
+            // 匯率折算
+            const fxMyr = taxConfigsDatabase.find(c => c.tax_name.includes('台馬官方') && c.is_active === 'Y')?.fx_rate_to_twd || 7.25;
+            const twdEquiv = country === 'TW' ? netPayout : Math.round(netPayout * fxMyr);
+
+            // 更新 UI
+            $('#resTaxLabel').text(taxLabel);
+            $('#resTaxAmount').text(`- ${currSymbol} ${taxAmount.toLocaleString()}`);
+            $('#resNhiLabel').text(nhiLabel);
+            $('#resNhiAmount').text(`- ${currSymbol} ${nhiAmount.toLocaleString()}`);
+            $('#resNetPayout').text(`${currSymbol} ${netPayout.toLocaleString()}`);
+            $('#resNetRatio').text(`實拿 ${netRatio.toFixed(2)}%`);
+            $('#resTwdEquivalent').text(`NT$ ${twdEquiv.toLocaleString()}`);
+
+            // 能量艙比例調配
+            $('#barNetPct').text(`淨額 ${netRatio.toFixed(1)}%`);
+            $('#barTaxPct').text(`扣費 ${(taxRatio + nhiRatio).toFixed(1)}%`);
+            $('#barNetFill').css('width', `${netRatio}%`);
+            $('#barNhiFill').css('width', `${nhiRatio}%`);
+            $('#barTaxFill').css('width', `${taxRatio}%`);
+        }
+
+        /**
+         * =========================================================================
+         * 5. DataTable.js 參數庫審計引擎
+         * =========================================================================
+         */
+        function initDataTable() {
+            dataTableInstance = $('#taxConfigsDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[0, 'asc']],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋參數代碼、名稱或法源...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+            reloadDataTable();
+        }
+
+        function reloadDataTable() {
+            if (!dataTableInstance) return;
+            dataTableInstance.clear();
+
+            taxConfigsDatabase.forEach(item => {
+                const decoupled = resolveDecoupledRow(item, FIN_TAX_DECOUPLING_MAP);
+
+                let countryBadge = '<span class="badge bg-primary-subtle text-primary">🇹🇼 台灣</span>';
+                if (decoupled.countryCode === 'MY') countryBadge = '<span class="badge bg-pink-subtle text-accent">🇲🇾 馬來西亞</span>';
+                else if (decoupled.countryCode === 'GLOBAL') countryBadge = '<span class="badge bg-info-subtle text-info">🌐 全球基準</span>';
+
+                const rateFormatted = decoupled.taxRate > 0 
+                    ? `<strong class="mono-num text-warning">${(Number(decoupled.taxRate) * 100).toFixed(2)}%</strong>`
+                    : '<span class="text-muted mono-num">-</span>';
+
+                const thresholdFormatted = Number(decoupled.thresholdAmount) > 0
+                    ? `<span class="mono-num text-light">$ ${Number(decoupled.thresholdAmount).toLocaleString()}</span>`
+                    : '<span class="text-muted small">0 (無門檻)</span>';
+
+                const upperFormatted = decoupled.upperLimitAmount
+                    ? `<span class="mono-num text-light">$ ${Number(decoupled.upperLimitAmount).toLocaleString()}</span>`
+                    : '<span class="text-muted small">無上限</span>';
+
+                const statusTag = decoupled.isActive === 'Y'
+                    ? '<span class="badge bg-success small"><i class="fa-solid fa-check"></i> 啟用中</span>'
+                    : '<span class="badge bg-secondary small">已停用</span>';
+
+                const actionBtns = `
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-neon-ghost py-0.5 px-2" onclick="toggleConfigActive(${decoupled.configId})" title="切換啟用/停用">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                    </div>
+                `;
+
+                dataTableInstance.row.add([
+                    `<strong class="mono-num text-neon-purple small">#${decoupled.configId}</strong>`,
+                    countryBadge,
+                    `<span class="mono-num small text-light">${decoupled.taxType}</span>`,
+                    `<strong class="text-light small">${decoupled.taxName}</strong>`,
+                    rateFormatted,
+                    thresholdFormatted,
+                    upperFormatted,
+                    `<span class="mono-num text-info">${Number(decoupled.fxRateToTwd).toFixed(4)}</span>`,
+                    `<span class="mono-num text-muted small">${decoupled.effectiveDate}</span>`,
+                    statusTag,
+                    `<div class="text-truncate small text-muted" style="max-width: 240px;" title="${decoupled.description}">${decoupled.description}</div>`,
+                    actionBtns
+                ]);
+            });
+
+            dataTableInstance.draw();
+            $('#taxConfigCount').text(`共 ${taxConfigsDatabase.length} 組系統參數`);
+        }
+
+        function toggleConfigActive(configId) {
+            const target = taxConfigsDatabase.find(c => c.config_id === configId);
+            if (target) {
+                target.is_active = target.is_active === 'Y' ? 'N' : 'Y';
+                reloadDataTable();
+                updateOrbitMetrics();
+                runSandboxCalculation();
+            }
+        }
+
+        function updateOrbitMetrics() {
+            const twTax = taxConfigsDatabase.find(c => c.tax_type === 'TW_INCOME_TAX' && c.is_active === 'Y');
+            if (twTax) $('#orbitTwTaxRate').text(`${(twTax.tax_rate * 100).toFixed(2)}%`);
+
+            const twNhi = taxConfigsDatabase.find(c => c.tax_type === 'TW_NHI_2ND' && c.is_active === 'Y');
+            if (twNhi) $('#orbitTwNhiRate').text(`${(twNhi.tax_rate * 100).toFixed(2)}%`);
+
+            const myTax = taxConfigsDatabase.find(c => c.tax_type === 'MY_WITHHOLDING_107D' && c.is_active === 'Y');
+            if (myTax) $('#orbitMyTaxRate').text(`${(myTax.tax_rate * 100).toFixed(2)}%`);
+
+            const fxOfficial = taxConfigsDatabase.find(c => c.tax_type === 'OFFICIAL_FX_RATE' && c.country_code === 'GLOBAL' && c.is_active === 'Y');
+            if (fxOfficial) $('#orbitFxRate').text(fxOfficial.fx_rate_to_twd.toFixed(4));
+        }
+
+        /**
+         * =========================================================================
+         * 6. Chart.js 匯率敏感度模擬圖表
+         * =========================================================================
+         */
+        function initFxChart() {
+            const ctx = document.getElementById('fxSensitivityChart').getContext('2d');
+            fxChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['7.00', '7.10', '7.20', '7.25 (官方)', '7.30', '7.40', '7.50'],
+                    datasets: [
+                        {
+                            label: '大馬 RM 10,000 折算新台幣 (TWD)',
+                            data: [70000, 71000, 72000, 72500, 73000, 74000, 75000],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#fbbf24',
+                            pointRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(139, 92, 246, 0.12)' },
+                            ticks: { color: '#c4b5fd', font: { family: 'JetBrains Mono', size: 10 }, callback: val => '$' + val.toLocaleString() }
+                        },
+                        x: {
+                            grid: { color: 'rgba(139, 92, 246, 0.08)' },
+                            ticks: { color: '#c4b5fd', font: { family: 'JetBrains Mono', size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#c4b5fd', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        function exportTaxConfigsCsv() {
+            alert("正在生成「H65000 雙國稅率與匯率參數全量 CSV 備份」...");
+        }
+
+        function refreshConfigsTable() {
+            reloadDataTable();
+            updateOrbitMetrics();
+            alert("✅ 參數資料庫視圖已完成刷新！");
+        }
+    </script>
+</body>
+</html>

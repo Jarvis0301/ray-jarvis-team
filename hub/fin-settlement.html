@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H61000 對帳管理 · 雙創始人 50/50 淨利清算中樞 - 榮祥團隊核心戰情室</title>
+    <!-- Google Noto Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --core-primary: #8b5cf6;
+            --core-primary-rgb: 139, 92, 246;
+            --core-primary-hover: #7c3aed;
+            --core-secondary: #c084fc;
+            --core-secondary-rgb: 192, 132, 252;
+            --core-accent: #ec4899;
+            --core-accent-rgb: 236, 72, 153;
+            --core-gold: #f59e0b;
+            --core-success: #10b981;
+            --core-danger: #f43f5e;
+            --core-info: #38bdf8;
+            --core-bg-base: #0a0518;
+            --core-bg-card: rgba(22, 13, 46, 0.82);
+            --core-bg-card-hover: rgba(38, 20, 78, 0.92);
+            --core-bg-surface: #130a2a;
+            --core-border-glow: rgba(139, 92, 246, 0.28);
+            --core-border-active: rgba(236, 72, 153, 0.55);
+            --core-text-main: #f3e8ff;
+            --core-text-sub: #c4b5fd;
+            --core-text-muted: #9e8eb3;
+            --core-radius-sm: 8px;
+            --core-radius-md: 14px;
+            --core-radius-lg: 22px;
+            --core-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--core-bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.05) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0518 0%, #0d0722 100%);
+            background-attachment: fixed;
+            color: var(--core-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: var(--core-bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--core-border-glow);
+            border-radius: var(--core-radius-lg);
+            box-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.55);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.45);
+            box-shadow: 0 14px 44px 0 rgba(139, 92, 246, 0.3);
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            padding: 6px 16px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(236, 72, 153, 0.35) 100%);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 28px rgba(139, 92, 246, 0.65);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--core-radius-pill);
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 28px rgba(236, 72, 153, 0.65);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.32);
+            color: var(--core-text-sub);
+            border-radius: var(--core-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover, .btn-neon-ghost.active {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: var(--core-secondary);
+            color: #ffffff;
+        }
+
+        /* 雙核清算引力艙天平樣式 */
+        .twin-core-box {
+            background: linear-gradient(180deg, rgba(29, 17, 60, 0.85) 0%, rgba(18, 10, 38, 0.85) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: var(--core-radius-md);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .twin-core-box.ray-box {
+            border-left: 5px solid #8b5cf6;
+        }
+
+        .twin-core-box.jarvis-box {
+            border-left: 5px solid #ec4899;
+        }
+
+        .twin-core-box:hover {
+            border-color: var(--core-secondary);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        /* 平帳向量指示中樞 */
+        .settlement-vector-hub {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(139, 92, 246, 0.2) 100%);
+            border: 2px dashed rgba(236, 72, 153, 0.5);
+            border-radius: var(--core-radius-md);
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .vector-arrow {
+            font-size: 1.75rem;
+            color: var(--core-accent);
+            animation: pulseHorizontal 1.8s infinite ease-in-out;
+        }
+
+        @keyframes pulseHorizontal {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+
+        /* 財務明細流水卡片 */
+        .settlement-card {
+            background: var(--core-bg-card);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--core-radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.25s ease;
+        }
+
+        .settlement-card:hover {
+            border-color: var(--core-secondary);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
+            background: var(--core-bg-card-hover);
+        }
+
+        /* DataTable 自訂外觀 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--core-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: rgba(22, 13, 46, 0.95);
+            color: var(--core-text-sub);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            padding: 14px 16px;
+        }
+
+        .table-custom tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+            font-size: 0.88rem;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.2) 0%, transparent 60%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: var(--core-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+            border-radius: var(--core-radius-lg);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--core-text-main);
+            border-radius: var(--core-radius-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--core-secondary);
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background-color: #130a2a;
+            color: #ffffff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.35);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--core-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header、無 Footer) -->
+    <main class="container-fluid px-3 px-lg-4 py-4">
+
+        <!-- 頂部戰略標頭與功能列 -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill mono-num" style="background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid rgba(139,92,246,0.4);">
+                            <i class="fa-solid fa-scale-balanced"></i> H61000 對帳管理
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.18); color: #f472b6; border: 1px solid rgba(236,72,153,0.35);">
+                            <i class="fa-solid fa-handshake"></i> Ray & Jarvis 雙創始人 50/50 營運淨利對拆總控
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">雙創始人 50/50 淨利對拆與跨國清算中樞</h1>
+                    <p class="small mb-0 mt-1" style="color: var(--core-text-muted);">
+                        整合每月 20 日台馬官方撥款水單、代扣所得稅/二代健保、差旅與代墊款核銷、公基金提撥，自動推算雙向平帳金額。
+                    </p>
+                </div>
+
+                <!-- 戰略操作按鈕群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncSheets" title="透過 PapaParse / GViz 抓取 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 雲端對帳同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#collapseWaterfallChart">
+                        <i class="fa-solid fa-chart-column"></i> 損益分流瀑布圖
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewSettlement">
+                        <i class="fa-solid fa-calculator"></i> 發薪日 20 號核銷精靈
+                    </button>
+                </div>
+            </div>
+
+            <!-- 期數選擇與視圖切換列 -->
+            <div class="row g-3 align-items-center mt-3 pt-3 border-top border-secondary border-opacity-15">
+                <div class="col-12 col-md-6 col-xl-7">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="small fw-semibold text-muted me-1"><i class="fa-solid fa-calendar-check"></i> 結算週期：</span>
+                        <div class="d-flex flex-wrap gap-2" id="periodFilterPills">
+                            <a href="javascript:void(0)" class="glass-pill active" data-period="2026-08">
+                                <i class="fa-solid fa-bolt text-warning"></i> 2026-08 (本期試算)
+                            </a>
+                            <a href="javascript:void(0)" class="glass-pill" data-period="2026-07">
+                                <i class="fa-solid fa-circle-check text-success"></i> 2026-07 (已核銷)
+                            </a>
+                            <a href="javascript:void(0)" class="glass-pill" data-period="2026-06">
+                                <i class="fa-solid fa-circle-check text-success"></i> 2026-06 (已核銷)
+                            </a>
+                            <a href="javascript:void(0)" class="glass-pill" data-period="ALL">
+                                <i class="fa-solid fa-list-ul"></i> 歷年全週期
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-5">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <div class="input-group" style="max-width: 260px;">
+                            <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--core-text-muted);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="reconSearchInput" class="form-control border-0" placeholder="搜尋單號、摘要或科目..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-neon-ghost active px-3" id="btnViewFlow" title="雙核清算流動艙視圖">
+                                <i class="fa-solid fa-arrows-split-up-and-left"></i>
+                            </button>
+                            <button type="button" class="btn btn-neon-ghost px-3" id="btnViewGrid" title="高密審計資料表視圖">
+                                <i class="fa-solid fa-table-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：金流階梯瀑布圖與淨利走向 (Chart.js) -->
+        <section class="collapse mb-4" id="collapseWaterfallChart">
+            <div class="glass-panel p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: var(--core-text-sub);">
+                        <i class="fa-solid fa-waterfall text-primary"></i> 2026-08 期雙國實收 ➔ 50/50 淨利分配階梯瀑布 (TWD)
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-muted">單位：新台幣 NT$</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 col-xl-8">
+                        <div style="height: 260px; position: relative;">
+                            <canvas id="chartWaterfall"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-4">
+                        <div class="p-3 rounded h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.2);">
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-shield-halved text-info"></i> 雙國稅制與公款提撥速查</div>
+                            <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-secondary border-opacity-15">
+                                <span>🇹🇼 台灣所得稅代扣 (10%)</span>
+                                <span class="mono-num text-danger">-NT$ 42,800</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-secondary border-opacity-15">
+                                <span>🇹🇼 二代健保補充保費 (2.11%)</span>
+                                <span class="mono-num text-danger">-NT$ 9,031</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-secondary border-opacity-15">
+                                <span>🇲🇾 大馬 107D 稅費 (2%)</span>
+                                <span class="mono-num text-danger">-RM 320 (≈NT$ 2,288)</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-secondary border-opacity-15">
+                                <span>🛡️ 團隊公基金儲備 (5% 提撥)</span>
+                                <span class="mono-num text-warning">-NT$ 24,500</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted py-1">
+                                <span>💱 結算官方匯率 (MYR/TWD)</span>
+                                <span class="mono-num text-success">1 : 7.1500</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心視圖 1：雙核引力平帳艙 (Twin-Core Flow View) -->
+        <section id="viewContainerFlow" class="mb-4">
+            
+            <!-- 雙核平衡天平主戰場 -->
+            <div class="row g-4 mb-4">
+                
+                <!-- 左翼：Ray 翁榮祥 財務向量 -->
+                <div class="col-12 col-xl-5">
+                    <div class="twin-core-box ray-box h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-primary px-2 py-1 rounded-pill mb-1">創始人 A</span>
+                                <h4 class="fw-bold text-light mb-0">Ray 翁榮祥</h4>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted">當期名下實收入帳</div>
+                                <h4 class="mono-num text-light mb-0" id="rayReceivedTotal">NT$ 268,450</h4>
+                            </div>
+                        </div>
+
+                        <!-- 收入與代墊明細列表 -->
+                        <div class="p-3 rounded mb-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.15);">
+                            <div class="d-flex justify-content-between small py-1 border-bottom border-secondary border-opacity-15">
+                                <span class="text-muted"><i class="fa-solid fa-building-columns"></i> 台灣官方實撥 (扣稅保)</span>
+                                <span class="mono-num text-light">NT$ 225,450</span>
+                            </div>
+                            <div class="d-flex justify-content-between small py-1 border-bottom border-secondary border-opacity-15">
+                                <span class="text-muted"><i class="fa-solid fa-earth-americas"></i> 大馬官方實撥 (RM 6,000 折算)</span>
+                                <span class="mono-num text-light">NT$ 42,900</span>
+                            </div>
+                            <div class="d-flex justify-content-between small py-1">
+                                <span class="text-muted"><i class="fa-solid fa-receipt text-warning"></i> Ray 當期代墊公費 (會場+印刷)</span>
+                                <span class="mono-num text-warning">+NT$ 15,800</span>
+                            </div>
+                        </div>
+
+                        <!-- 50% 淨利權益比對 -->
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <span class="small text-muted">應得 50% 淨利額：</span>
+                            <span class="mono-num fw-bold text-info" id="rayTargetShare">NT$ 250,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中央：平帳轉帳指示向量 (Settlement Vector Hub) -->
+                <div class="col-12 col-xl-2 d-flex align-items-center justify-content-center">
+                    <div class="settlement-vector-hub text-center w-100">
+                        <div class="small text-muted mb-1"><i class="fa-solid fa-arrows-rotate"></i> 50/50 平帳方向</div>
+                        <div class="vector-arrow my-1">
+                            <i class="fa-solid fa-arrow-left text-accent" id="vectorArrowIcon"></i>
+                        </div>
+                        <div class="small fw-bold text-light mb-1" id="settlementDirectionText">Jarvis 應付 Ray</div>
+                        <div class="h5 mono-num text-accent fw-bold mb-2" id="settlementAmountDisplay">NT$ 18,450</div>
+                        <button class="btn btn-sm btn-neon-accent w-100 py-1" onclick="triggerExecuteSettlement('2026-08')">
+                            <i class="fa-solid fa-check-double"></i> 確認平帳
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 右翼：Jarvis 林承志 財務向量 -->
+                <div class="col-12 col-xl-5">
+                    <div class="twin-core-box jarvis-box h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge px-2 py-1 rounded-pill mb-1" style="background: #ec4899;">創始人 B</span>
+                                <h4 class="fw-bold text-light mb-0">Jarvis 林承志</h4>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted">當期名下實收入帳</div>
+                                <h4 class="mono-num text-light mb-0" id="jarvisReceivedTotal">NT$ 253,550</h4>
+                            </div>
+                        </div>
+
+                        <!-- 收入與代墊明細列表 -->
+                        <div class="p-3 rounded mb-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(236,72,153,0.15);">
+                            <div class="d-flex justify-content-between small py-1 border-bottom border-secondary border-opacity-15">
+                                <span class="text-muted"><i class="fa-solid fa-building-columns"></i> 台灣官方實撥 (扣稅保)</span>
+                                <span class="mono-num text-light">NT$ 182,550</span>
+                            </div>
+                            <div class="d-flex justify-content-between small py-1 border-bottom border-secondary border-opacity-15">
+                                <span class="text-muted"><i class="fa-solid fa-earth-americas"></i> 大馬官方實撥 (RM 9,930 折算)</span>
+                                <span class="mono-num text-light">NT$ 71,000</span>
+                            </div>
+                            <div class="d-flex justify-content-between small py-1">
+                                <span class="text-muted"><i class="fa-solid fa-receipt text-warning"></i> Jarvis 當期代墊公費 (伺服器+差旅)</span>
+                                <span class="mono-num text-warning">+NT$ 6,200</span>
+                            </div>
+                        </div>
+
+                        <!-- 50% 淨利權益比對 -->
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <span class="small text-muted">應得 50% 淨利額：</span>
+                            <span class="mono-num fw-bold text-info" id="jarvisTargetShare">NT$ 250,000</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 本期已勾稽核銷之細項單據池 (獎金水單 + 代墊憑證) -->
+            <div class="glass-panel p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold" style="color: var(--core-text-sub);">
+                        <i class="fa-solid fa-file-invoice text-accent"></i> 2026-08 期 勾稽之官方獎金水單與代墊收支池
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-muted">已鎖定 6 筆單據</span>
+                </div>
+
+                <div class="row g-3" id="settlementDetailCardsContainer">
+                    <!-- JS 動態渲染本期單據卡片 -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 核心視圖 2：高密審計資料表 (DataTable.js View) -->
+        <section id="viewContainerGrid" class="glass-panel p-3 p-lg-4 d-none mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold" style="color: var(--core-text-sub);">
+                    <i class="fa-solid fa-table-list text-primary"></i> 雙創始人 50/50 歷月對帳結算審計總表 (Schema 601)
+                </h6>
+                <button class="btn btn-sm btn-neon-ghost" onclick="exportReconciliationCsv()">
+                    <i class="fa-solid fa-file-csv"></i> 匯出審計 CSV
+                </button>
+            </div>
+            
+            <div class="table-responsive">
+                <table id="reconDataTable" class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th>結算週期</th>
+                            <th>對帳單號</th>
+                            <th>台灣實收 (TWD)</th>
+                            <th>大馬實收折台</th>
+                            <th>公費代墊總額</th>
+                            <th>公款提撥 (5%)</th>
+                            <th>可分配淨利</th>
+                            <th>50/50 對拆份額</th>
+                            <th>平帳結算指示</th>
+                            <th>核銷狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyRecon">
+                        <!-- DataTable 引擎動態渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 模態視窗：每月 20 號發薪日核銷精靈 (Schema 601 + 604 表單) -->
+    <div class="modal fade" id="modalNewSettlement" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title">
+                        <i class="fa-solid fa-calculator text-primary"></i> 每月 20 號 雙國淨利 50/50 對拆清算精靈
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewSettlement">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">結算期數月份 (Period Month) *</label>
+                                <input type="month" class="form-control mono-num" name="period_month" value="2026-08" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">結算官方匯率 (MYR to TWD) *</label>
+                                <input type="number" step="0.0001" class="form-control mono-num" name="fx_rate" value="7.1500" required>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="small fw-bold text-info border-bottom border-secondary border-opacity-25 pb-1 mb-2">
+                                    1. Ray 翁榮祥 本期獎金水單 (應發 / 實收)
+                                </h6>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">台灣實收金額 (已扣 10%稅 + 2.11%健保) *</label>
+                                <input type="number" class="form-control mono-num" name="ray_tw_net" value="225450" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">大馬實收金額 (MYR 原幣，已扣 2% 107D) *</label>
+                                <input type="number" class="form-control mono-num" name="ray_my_net" value="6000" required>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="small fw-bold text-accent border-bottom border-secondary border-opacity-25 pb-1 mb-2">
+                                    2. Jarvis 林承志 本期獎金水單 (應發 / 實收)
+                                </h6>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">台灣實收金額 (已扣 10%稅 + 2.11%健保) *</label>
+                                <input type="number" class="form-control mono-num" name="jarvis_tw_net" value="182550" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">大馬實收金額 (MYR 原幣，已扣 2% 107D) *</label>
+                                <input type="number" class="form-control mono-num" name="jarvis_my_net" value="9930" required>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="small fw-bold text-warning border-bottom border-secondary border-opacity-25 pb-1 mb-2">
+                                    3. 團隊營運代墊與公基金提撥
+                                </h6>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">Ray 本期代墊款 (NT$)</label>
+                                <input type="number" class="form-control mono-num" name="ray_advance" value="15800">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">Jarvis 本期代墊款 (NT$)</label>
+                                <input type="number" class="form-control mono-num" name="jarvis_advance" value="6200">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">公基金提撥比率 (%)</label>
+                                <input type="number" class="form-control mono-num" name="reserve_rate" value="5.0" min="0" max="20" step="0.5">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnCalculateSettlement">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 立即試算並產出平帳單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴函式庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接器與業務清算邏輯 -->
+    <script>
+        /**
+         * 榮祥團隊 Google 試算表欄位解耦轉接器 (Finance Decoupling Adapter)
+         */
+        const FIN_SETTLEMENT_DECOUPLING_ADAPTER = {
+            "fin_reconciliations": {
+                reconId: 0,
+                reconNo: 1,
+                periodMonth: 2,
+                twBonusTotalTwd: 3,
+                myBonusTotalTwd: 4,
+                grossRevenueTwd: 5,
+                operatingFundReserveTwd: 6,
+                teamExpensesTwd: 7,
+                netDistributableProfitTwd: 8,
+                rayShareTwd: 9,
+                jarvisShareTwd: 10,
+                settlementDirection: 11,
+                settlementAmountTwd: 12,
+                status: 13,
+                updatedAt: 14
+            }
+        };
+
+        // 生產級對帳模擬數據庫 (對應 Schema 601 規格)
+        let reconDatabase = [
+            {
+                recon_id: "REC-2026-08",
+                recon_no: "SETTLE-20260820-001",
+                period_month: "2026-08",
+                tw_bonus_total_twd: 408000,
+                my_bonus_total_twd: 113900, // RM 15,930 * 7.15
+                gross_revenue_twd: 521900,
+                operating_fund_reserve_twd: 24500, // 5% 提撥
+                team_expenses_twd: 22000, // Ray 15800 + Jarvis 6200
+                net_distributable_profit_twd: 500000, // 521900 - 21900 扣項
+                ray_share_twd: 250000,
+                jarvis_share_twd: 250000,
+                ray_received_twd: 268450, // TW 225450 + MY 42900
+                jarvis_received_twd: 253550, // TW 182550 + MY 71000
+                ray_advance_twd: 15800,
+                jarvis_advance_twd: 6200,
+                settlement_direction: "JARVIS_TO_RAY", // Jarvis 應給 Ray
+                settlement_amount_twd: 18450,
+                status: "PENDING",
+                status_text: "本期試算中 (待20日撥款平帳)",
+                updated_at: "2026-08-21 17:30"
+            },
+            {
+                recon_id: "REC-2026-07",
+                recon_no: "SETTLE-20260720-001",
+                period_month: "2026-07",
+                tw_bonus_total_twd: 395000,
+                my_bonus_total_twd: 92950,
+                gross_revenue_twd: 487950,
+                operating_fund_reserve_twd: 22500,
+                team_expenses_twd: 18450,
+                net_distributable_profit_twd: 447000,
+                ray_share_twd: 223500,
+                jarvis_share_twd: 223500,
+                ray_received_twd: 245000,
+                jarvis_received_twd: 242950,
+                ray_advance_twd: 12000,
+                jarvis_advance_twd: 6450,
+                settlement_direction: "RAY_TO_JARVIS",
+                settlement_amount_twd: 15950,
+                status: "RECONCILED",
+                status_text: "已完成 50/50 核銷平帳",
+                updated_at: "2026-07-20 18:20"
+            },
+            {
+                recon_id: "REC-2026-06",
+                recon_no: "SETTLE-20260620-001",
+                period_month: "2026-06",
+                tw_bonus_total_twd: 362000,
+                my_bonus_total_twd: 78650,
+                gross_revenue_twd: 440650,
+                operating_fund_reserve_twd: 20000,
+                team_expenses_twd: 14650,
+                net_distributable_profit_twd: 406000,
+                ray_share_twd: 203000,
+                jarvis_share_twd: 203000,
+                ray_received_twd: 215000,
+                jarvis_received_twd: 225650,
+                ray_advance_twd: 8500,
+                jarvis_advance_twd: 6150,
+                settlement_direction: "JARVIS_TO_RAY",
+                settlement_amount_twd: 12000,
+                status: "RECONCILED",
+                status_text: "已完成 50/50 核銷平帳",
+                updated_at: "2026-06-20 16:45"
+            }
+        ];
+
+        // 本期細項單據池
+        const currentDetailDocs = [
+            { id: "PAY-TW-08-01", type: "BONUS", title: "🇹🇼 台灣官方獎金水單 (Ray)", amount: "NT$ 225,450", status: "已入帳", owner: "Ray 翁榮祥", icon: "fa-building-columns text-primary" },
+            { id: "PAY-MY-08-01", type: "BONUS", title: "🇲🇾 大馬官方獎金水單 (Ray)", amount: "RM 6,000 (≈NT$ 42,900)", status: "已入帳", owner: "Ray 翁榮祥", icon: "fa-earth-americas text-primary" },
+            { id: "EXP-08-001", type: "EXPENSE", title: "🏢 台北 8 月戰略例會會場包場費", amount: "NT$ 12,000", status: "Ray 代墊", owner: "Ray 翁榮祥", icon: "fa-receipt text-warning" },
+            { id: "PAY-TW-08-02", type: "BONUS", title: "🇹🇼 台灣官方獎金水單 (Jarvis)", amount: "NT$ 182,550", status: "已入帳", owner: "Jarvis 林承志", icon: "fa-building-columns text-accent" },
+            { id: "PAY-MY-08-02", type: "BONUS", title: "🇲🇾 大馬官方獎金水單 (Jarvis)", amount: "RM 9,930 (≈NT$ 71,000)", status: "已入帳", owner: "Jarvis 林承志", icon: "fa-earth-americas text-accent" },
+            { id: "EXP-08-002", type: "EXPENSE", title: "☁️ 系統雲端主機與簡訊 API 扣款", amount: "NT$ 6,200", status: "Jarvis 代墊", owner: "Jarvis 林承志", icon: "fa-server text-warning" }
+        ];
+
+        let reconDataTableInstance = null;
+        let waterfallChartInstance = null;
+
+        $(document).ready(function() {
+            renderSettlementDetailCards();
+            initDataTable();
+            initWaterfallChart();
+
+            // 視圖切換：流動艙 ⇄ 高密表格
+            $('#btnViewFlow').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewGrid').removeClass('active');
+                $('#viewContainerFlow').removeClass('d-none');
+                $('#viewContainerGrid').addClass('d-none');
+            });
+
+            $('#btnViewGrid').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewFlow').removeClass('active');
+                $('#viewContainerGrid').removeClass('d-none');
+                $('#viewContainerFlow').addClass('d-none');
+                if (reconDataTableInstance) {
+                    reconDataTableInstance.columns.adjust().responsive.recalc();
+                }
+            });
+
+            // 週期篩選
+            $('#periodFilterPills .glass-pill').on('click', function() {
+                $('#periodFilterPills .glass-pill').removeClass('active');
+                $(this).addClass('active');
+                const period = $(this).data('period');
+                applyPeriodFilter(period);
+            });
+
+            // 試算表 GViz 雲端同步
+            $('#btnSyncSheets').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                setTimeout(function() {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 財務主檔已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 雲端對帳同步'), 2500);
+                }, 1200);
+            });
+
+            // 20 日發薪日核銷精靈計算
+            $('#btnCalculateSettlement').on('click', function() {
+                const form = $('#formNewSettlement')[0];
+                if (form.checkValidity()) {
+                    const period = $('input[name="period_month"]').val();
+                    const fx = parseFloat($('input[name="fx_rate"]').val()) || 7.15;
+                    const rayTw = parseFloat($('input[name="ray_tw_net"]').val()) || 0;
+                    const rayMy = parseFloat($('input[name="ray_my_net"]').val()) || 0;
+                    const jarvisTw = parseFloat($('input[name="jarvis_tw_net"]').val()) || 0;
+                    const jarvisMy = parseFloat($('input[name="jarvis_my_net"]').val()) || 0;
+                    const rayAdv = parseFloat($('input[name="ray_advance"]').val()) || 0;
+                    const jarvisAdv = parseFloat($('input[name="jarvis_advance"]').val()) || 0;
+                    const reserveRate = parseFloat($('input[name="reserve_rate"]').val()) || 5.0;
+
+                    const rayReceived = rayTw + (rayMy * fx);
+                    const jarvisReceived = jarvisTw + (jarvisMy * fx);
+                    const totalTw = rayTw + jarvisTw;
+                    const totalMyTwd = (rayMy + jarvisMy) * fx;
+                    const gross = totalTw + totalMyTwd;
+                    const reserve = Math.round(gross * (reserveRate / 100));
+                    const totalExpenses = rayAdv + jarvisAdv;
+                    const netDistributable = gross - reserve - totalExpenses;
+                    const targetShare = Math.round(netDistributable / 2);
+
+                    // 計算平帳方向
+                    // Ray 最終應拿 = targetShare + rayAdv
+                    // Ray 目前已拿 = rayReceived
+                    // 差額 = Ray 最終應拿 - Ray 目前已拿
+                    const rayDiff = (targetShare + rayAdv) - rayReceived;
+                    let direction = "BALANCE";
+                    let settleAmount = Math.abs(Math.round(rayDiff));
+
+                    if (rayDiff > 0) {
+                        direction = "JARVIS_TO_RAY";
+                    } else if (rayDiff < 0) {
+                        direction = "RAY_TO_JARVIS";
+                    }
+
+                    const newRecon = {
+                        recon_id: "REC-" + period,
+                        recon_no: "SETTLE-" + period.replace('-', '') + "20-001",
+                        period_month: period,
+                        tw_bonus_total_twd: totalTw,
+                        my_bonus_total_twd: totalMyTwd,
+                        gross_revenue_twd: gross,
+                        operating_fund_reserve_twd: reserve,
+                        team_expenses_twd: totalExpenses,
+                        net_distributable_profit_twd: netDistributable,
+                        ray_share_twd: targetShare,
+                        jarvis_share_twd: targetShare,
+                        ray_received_twd: rayReceived,
+                        jarvis_received_twd: jarvisReceived,
+                        ray_advance_twd: rayAdv,
+                        jarvis_advance_twd: jarvisAdv,
+                        settlement_direction: direction,
+                        settlement_amount_twd: settleAmount,
+                        status: "PENDING",
+                        status_text: "已產出試算 (待核銷)",
+                        updated_at: "2026-08-21 " + new Date().toTimeString().slice(0, 5)
+                    };
+
+                    reconDatabase.unshift(newRecon);
+                    reloadDataTable();
+                    updateFlowView(newRecon);
+                    bootstrap.Modal.getInstance($('#modalNewSettlement')[0]).hide();
+                    alert(`✅ ${period} 期 50/50 對帳試算完成！\n平帳指示：${direction === 'JARVIS_TO_RAY' ? 'Jarvis 應轉帳給 Ray' : 'Ray 應轉帳給 Jarvis'} NT$ ${settleAmount.toLocaleString()}`);
+                } else {
+                    form.reportValidity();
+                }
+            });
+        });
+
+        // 渲染細項單據池
+        function renderSettlementDetailCards() {
+            const container = $('#settlementDetailCardsContainer');
+            container.empty();
+
+            currentDetailDocs.forEach(doc => {
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="settlement-card h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-dark border border-secondary text-muted small mono-num">${doc.id}</span>
+                                <span class="badge ${doc.type === 'BONUS' ? 'bg-success' : 'bg-warning text-dark'} small">${doc.status}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid ${doc.icon} fs-5"></i>
+                                <span class="small fw-bold text-light">${doc.title}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-end pt-2 border-top border-secondary border-opacity-15">
+                                <span class="small text-muted">${doc.owner}</span>
+                                <span class="mono-num fw-bold text-light">${doc.amount}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        // 初始化 DataTable.js
+        function initDataTable() {
+            reconDataTableInstance = $('#reconDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "在對帳資料庫中搜尋...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+            reloadDataTable();
+        }
+
+        function reloadDataTable() {
+            if (!reconDataTableInstance) return;
+            reconDataTableInstance.clear();
+
+            reconDatabase.forEach(item => {
+                const statusBadge = item.status === 'RECONCILED'
+                    ? '<span class="badge bg-success"><i class="fa-solid fa-check"></i> 已平帳</span>'
+                    : '<span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-half"></i> 試算中</span>';
+
+                const dirText = item.settlement_direction === 'JARVIS_TO_RAY'
+                    ? `<span class="text-accent fw-bold small"><i class="fa-solid fa-arrow-left"></i> J ➔ R NT$ ${item.settlement_amount_twd.toLocaleString()}</span>`
+                    : `<span class="text-info fw-bold small"><i class="fa-solid fa-arrow-right"></i> R ➔ J NT$ ${item.settlement_amount_twd.toLocaleString()}</span>`;
+
+                const actionBtn = `<button class="btn btn-sm btn-neon-ghost py-1 px-2" onclick="viewReconDetails('${item.recon_id}')"><i class="fa-solid fa-eye"></i> 審計</button>`;
+
+                reconDataTableInstance.row.add([
+                    `<strong class="mono-num text-light">${item.period_month}</strong>`,
+                    `<span class="small mono-num text-muted">${item.recon_no}</span>`,
+                    `<span class="mono-num text-light">NT$ ${item.tw_bonus_total_twd.toLocaleString()}</span>`,
+                    `<span class="mono-num text-light">NT$ ${item.my_bonus_total_twd.toLocaleString()}</span>`,
+                    `<span class="mono-num text-warning">NT$ ${item.team_expenses_twd.toLocaleString()}</span>`,
+                    `<span class="mono-num text-info">NT$ ${item.operating_fund_reserve_twd.toLocaleString()}</span>`,
+                    `<strong class="mono-num text-success">NT$ ${item.net_distributable_profit_twd.toLocaleString()}</strong>`,
+                    `<span class="mono-num text-light">NT$ ${item.ray_share_twd.toLocaleString()}</span>`,
+                    dirText,
+                    statusBadge,
+                    actionBtn
+                ]);
+            });
+
+            reconDataTableInstance.draw();
+        }
+
+        function updateFlowView(recon) {
+            $('#rayReceivedTotal').text(`NT$ ${recon.ray_received_twd.toLocaleString()}`);
+            $('#jarvisReceivedTotal').text(`NT$ ${recon.jarvis_received_twd.toLocaleString()}`);
+            $('#rayTargetShare').text(`NT$ ${recon.ray_share_twd.toLocaleString()}`);
+            $('#jarvisTargetShare').text(`NT$ ${recon.jarvis_share_twd.toLocaleString()}`);
+            $('#settlementAmountDisplay').text(`NT$ ${recon.settlement_amount_twd.toLocaleString()}`);
+
+            if (recon.settlement_direction === 'JARVIS_TO_RAY') {
+                $('#settlementDirectionText').text('Jarvis 應付 Ray');
+                $('#vectorArrowIcon').removeClass('fa-arrow-right').addClass('fa-arrow-left');
+            } else {
+                $('#settlementDirectionText').text('Ray 應付 Jarvis');
+                $('#vectorArrowIcon').removeClass('fa-arrow-left').addClass('fa-arrow-right');
+            }
+        }
+
+        function applyPeriodFilter(period) {
+            if (period === 'ALL') {
+                reloadDataTable();
+                return;
+            }
+            const found = reconDatabase.find(r => r.period_month === period);
+            if (found) {
+                updateFlowView(found);
+            }
+        }
+
+        // 初始化 Chart.js 瀑布分流圖
+        function initWaterfallChart() {
+            const ctx = document.getElementById('chartWaterfall').getContext('2d');
+            waterfallChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['雙國應發毛額', '台灣代扣稅保', '大馬107D稅', '公基金5%提撥', '代墊公費沖銷', '可分配淨利(50/50)'],
+                    datasets: [{
+                        label: '金流階梯變化 (NT$)',
+                        data: [576000, -51831, -2288, -24500, -22000, 500000],
+                        backgroundColor: [
+                            'rgba(139, 92, 246, 0.85)',
+                            'rgba(244, 63, 94, 0.85)',
+                            'rgba(244, 63, 94, 0.85)',
+                            'rgba(56, 189, 248, 0.85)',
+                            'rgba(245, 158, 11, 0.85)',
+                            'rgba(16, 185, 129, 0.85)'
+                        ],
+                        borderColor: '#120926',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(139, 92, 246, 0.15)' },
+                            ticks: { color: '#c4b5fd', font: { family: 'JetBrains Mono', size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#c4b5fd', font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `金額：NT$ ${Math.abs(context.parsed.y).toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function triggerExecuteSettlement(period) {
+            if (confirm(`確認執行 ${period} 期 雙創始人 50/50 平帳核銷作業？\n系統將自動鎖定單據並更新公基金與流水帳簿。`)) {
+                const target = reconDatabase.find(r => r.period_month === period);
+                if (target) {
+                    target.status = 'RECONCILED';
+                    target.status_text = '已完成 50/50 核銷平帳';
+                    reloadDataTable();
+                    alert(`✅ ${period} 期 對帳單 ${target.recon_no} 已成功核銷歸檔！`);
+                }
+            }
+        }
+
+        function viewReconDetails(reconId) {
+            alert(`調閱對帳單「${reconId}」之雙國匯款水單、差旅發票拍照存根與 50/50 簽署存證...`);
+        }
+
+        function exportReconciliationCsv() {
+            alert("正在生成 雙創始人 50/50 審計總表 CSV 導出檔...");
+        }
+    </script>
+</body>
+</html>
