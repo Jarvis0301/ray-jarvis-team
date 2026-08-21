@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H53000 顧客關懷軌跡與體感追蹤戰情室 - 榮祥團隊核心樞紐</title>
+    <!-- Google Noto Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-rgb: 192, 132, 252;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-muted: #a1a1aa;
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-card: rgba(22, 13, 46, 0.78);
+            --uvaco-bg-card-hover: rgba(36, 20, 74, 0.88);
+            --uvaco-bg-surface: #130a2a;
+            --uvaco-border-glow: rgba(139, 92, 246, 0.25);
+            --uvaco-border-active: rgba(236, 72, 153, 0.45);
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-sub: #c4b5fd;
+            --uvaco-text-muted: #9e8eb3;
+            --uvaco-success: #10b981;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #f43f5e;
+            --uvaco-info: #38bdf8;
+            --uvaco-radius-sm: 8px;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.04) 0%, transparent 65%),
+                linear-gradient(180deg, #0a0518 0%, #0d0722 100%);
+            background-attachment: fixed;
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 核心玻璃擬態面板 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.25);
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            padding: 6px 16px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.38) 0%, rgba(236, 72, 153, 0.32) 100%);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 55%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .hub-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 賽博魅影按鈕 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 25px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+        }
+
+        /* 沉浸式時間軸互動流 (Care Timeline Stream) */
+        .timeline-stream {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .timeline-stream::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            bottom: 15px;
+            left: 11px;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.6) 0%, rgba(236, 72, 153, 0.3) 100%);
+            border-radius: 2px;
+        }
+
+        .interaction-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--uvaco-radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .interaction-card:hover {
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 10px 28px rgba(139, 92, 246, 0.28);
+            transform: translateX(4px);
+            background: var(--uvaco-bg-card-hover);
+        }
+
+        .interaction-card-node {
+            position: absolute;
+            left: -28px;
+            top: 22px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #130a2a;
+            border: 2px solid var(--uvaco-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: var(--uvaco-secondary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            z-index: 2;
+        }
+
+        /* 體感回饋等級膠囊 */
+        .sentiment-badge {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: var(--uvaco-radius-pill);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sentiment-excellent { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .sentiment-stable { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+        .sentiment-reaction { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .sentiment-complaint { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+        /* 標籤小藥丸 */
+        .product-pill {
+            font-size: 0.72rem;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--uvaco-text-sub);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* 側邊警報卡片 */
+        .alert-urgent-box {
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px dashed rgba(244, 63, 94, 0.4);
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.85rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .alert-urgent-box:hover {
+            background: rgba(244, 63, 94, 0.15);
+            border-color: #f43f5e;
+        }
+
+        /* 表格自訂樣式 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: rgba(22, 13, 46, 0.95);
+            color: var(--uvaco-text-sub);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+        }
+
+        .table-custom tbody td {
+            padding: 12px 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            font-size: 0.88rem;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        /* 模態框與抽屜深色設定 */
+        .modal-content, .offcanvas {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.18) 0%, transparent 50%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--uvaco-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-main);
+            border-radius: var(--uvaco-radius-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background-color: #130a2a;
+            color: #ffffff;
+        }
+
+        /* 細緻捲動條 */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--uvaco-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header/Footer，專屬戰情主容器) -->
+    <main class="container-fluid px-3 px-lg-4 py-4">
+
+        <!-- 頂部戰略標頭與功能切換列 -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill hub-code" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.35);">
+                            <i class="fa-solid fa-comments"></i> H53000 關懷紀錄
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3);">
+                            <i class="fa-solid fa-heart-pulse"></i> 體感回饋追蹤 ➔ 好轉反應安撫 ➔ 續購促發 (Schema 504)
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">全通路顧客關懷與體感追蹤歷程</h1>
+                    <p class="text-muted small mb-0 mt-1" style="color: var(--uvaco-text-muted) !important;">
+                        1:N 深度沉澱電話關懷、LINE 諮詢、實體家訪與瞑眩反應處理軌跡，實現精準客情經營與體感週期自動回訪。
+                    </p>
+                </div>
+
+                <!-- 戰略操作按鈕群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncInteractionsGviz" title="透過 PapaParse / GViz 同步 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 雲端對帳同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnToggleSentimentChart" data-bs-toggle="collapse" data-bs-target="#sentimentChartCollapse">
+                        <i class="fa-solid fa-chart-pie"></i> 體感指標分佈
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewInteraction">
+                        <i class="fa-solid fa-pen-to-square"></i> 登錄關懷紀錄
+                    </button>
+                </div>
+            </div>
+
+            <!-- 多維意向篩選與視圖切換列 -->
+            <div class="row g-3 align-items-center mt-3 pt-3 border-top border-secondary border-opacity-10">
+                <div class="col-12 col-xl-7">
+                    <div class="d-flex flex-wrap gap-2" id="interactionFilterPills">
+                        <a href="javascript:void(0)" class="glass-pill active" data-filter="ALL">
+                            <i class="fa-solid fa-layer-group"></i> 全部軌跡 <span class="badge rounded-pill bg-dark ms-1" id="countAll">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="REACTION">
+                            <i class="fa-solid fa-triangle-exclamation text-warning"></i> 暝眩好轉期 <span class="badge rounded-pill bg-warning text-dark ms-1" id="countReaction">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="EXCELLENT">
+                            <i class="fa-solid fa-wand-magic-sparkles text-success"></i> 顯著有感 <span class="badge rounded-pill bg-success ms-1" id="countExcellent">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="REORDER">
+                            <i class="fa-solid fa-cart-arrow-down text-info"></i> 回購促發 <span class="badge rounded-pill bg-info ms-1" id="countReorder">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="OPP">
+                            <i class="fa-solid fa-handshake" style="color: var(--uvaco-secondary);"></i> 事業分享 <span class="badge rounded-pill bg-secondary ms-1" id="countOpp">0</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="interactionSearchInput" class="form-control border-0" placeholder="搜尋顧客姓名、產品品項、負責夥伴或關鍵字..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-neon-ghost active px-3" id="btnViewTimeline" title="時間軸瀑布流視圖">
+                                <i class="fa-solid fa-timeline"></i>
+                            </button>
+                            <button type="button" class="btn btn-neon-ghost px-3" id="btnViewTable" title="高密稽核資料表視圖">
+                                <i class="fa-solid fa-table-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：體感指標與關懷渠道大數據 (Chart.js) -->
+        <section class="collapse mb-4" id="sentimentChartCollapse">
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-circle-check text-success"></i> 調養體感健康回饋分佈</h6>
+                        <div style="height: 200px; position: relative;">
+                            <canvas id="chartSentimentStatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-comments text-info"></i> 關懷互動渠道佔比</h6>
+                        <div style="height: 200px; position: relative;">
+                            <canvas id="chartChannelType"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-xl-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-fire text-accent"></i> 本週主力關懷產品提及率 TOP 4</h6>
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>康爾喜乳酸菌 (排便/消化)</span>
+                                <span class="text-light fw-bold">45%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 45%; background: #8b5cf6;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>995 超級營養液 (體力/元氣)</span>
+                                <span class="text-light fw-bold">30%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 30%; background: #ec4899;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>樟芝益菌絲體 (熬夜/機能)</span>
+                                <span class="text-light fw-bold">15%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 15%; background: #38bdf8;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>衛傑膠囊 (養胃/逆流)</span>
+                                <span class="text-light fw-bold">10%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 10%; background: #10b981;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主體工作區：左側「作戰雷達」+ 右側「時空時間軸 / 資料表」 -->
+        <div class="row g-4">
+
+            <!-- 左側戰術控制塢 (Care Control Dock) -->
+            <div class="col-12 col-xl-4">
+                
+                <!-- 區塊 1：即時體感警報與今日回訪排程 -->
+                <div class="glass-panel p-3 p-lg-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold" style="color: var(--uvaco-text-sub);">
+                            <i class="fa-solid fa-bell text-warning"></i> 今日回訪與暝眩追蹤雷達
+                        </h6>
+                        <span class="badge bg-danger rounded-pill" id="alarmCountBadge">2 需緊急跟進</span>
+                    </div>
+
+                    <div id="careAlertList">
+                        <!-- 緊急好轉反應警報 -->
+                        <div class="alert-urgent-box">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <strong class="text-light">陳雅惠 (食用第 4 天)</strong>
+                                <span class="sentiment-badge sentiment-reaction">⚡ 好轉反應</span>
+                            </div>
+                            <p class="small text-muted mb-2">
+                                飲用 995+樟芝益後反映頭暈、皮膚微癢。需即時提醒多喝溫開水（2,500cc/天），並安撫此為氣血活化之正常過渡期。
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small hub-code text-secondary"><i class="fa-solid fa-user-check"></i> Ray 翁榮祥</span>
+                                <button class="btn btn-sm btn-neon-accent py-0 px-2" onclick="quickLineCare('陳雅惠', '0912-345-678')">
+                                    <i class="fa-brands fa-line"></i> 一鍵關懷
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 產品即將完食回購提醒 -->
+                        <div class="alert-urgent-box" style="border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08);">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <strong class="text-light">張建國 (康爾喜完食剩 3 天)</strong>
+                                <span class="sentiment-badge sentiment-stable">📦 週期續購</span>
+                            </div>
+                            <p class="small text-muted mb-2">
+                                客戶已連續食用康爾喜 27 天，排便改善明顯。建議發送 3 盒特惠優惠方案或詢問是否直升經理自用價。
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small hub-code text-secondary"><i class="fa-solid fa-user-check"></i> Jarvis 林承志</span>
+                                <button class="btn btn-sm btn-neon-primary py-0 px-2" onclick="quickLineCare('張建國', '0933-888-999')">
+                                    <i class="fa-brands fa-line"></i> 續購提醒
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 區塊 2：葡眾常備關懷話術指引 (Cheat Sheet) -->
+                <div class="glass-panel p-3 p-lg-4">
+                    <h6 class="mb-3 fw-bold" style="color: var(--uvaco-text-sub);">
+                        <i class="fa-solid fa-book-medical text-primary"></i> 葡萄王體感調養指南
+                    </h6>
+                    <div class="accordion accordion-flush" id="accordionCareScripts">
+                        <div class="accordion-item bg-transparent border-secondary border-opacity-25">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-transparent text-light py-2 px-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#scriptOne">
+                                    <span class="small fw-semibold text-warning"><i class="fa-solid fa-circle-question"></i> 食用康爾喜初期排氣多、排便微稀？</span>
+                                </button>
+                            </h2>
+                            <div id="scriptOne" class="accordion-collapse collapse" data-bs-parent="#accordionCareScripts">
+                                <div class="accordion-body px-0 pt-1 pb-2 small text-muted">
+                                    【話術建議】：恭喜您！這代表十三支益生菌與多醣體正在快速調整腸道菌叢生態，壓制壞菌並產生有機酸。請持續每天 2~3 包，並多補充水分，約 3~5 天即可轉為漂亮的黃金香蕉便！
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item bg-transparent border-secondary border-opacity-25">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-transparent text-light py-2 px-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#scriptTwo">
+                                    <span class="small fw-semibold text-accent"><i class="fa-solid fa-circle-question"></i> 喝 995 超級營養液後嗜睡想睡覺？</span>
+                                </button>
+                            </h2>
+                            <div id="scriptTwo" class="accordion-collapse collapse" data-bs-parent="#accordionCareScripts">
+                                <div class="accordion-body px-0 pt-1 pb-2 small text-muted">
+                                    【話術建議】：995 的微分子胺基酸與大豆發酵多醣體正在深度修復長期透支的肝臟細胞與神經系統。這是身體在強烈發出「深層充電修復」的信號，建議早睡不要熬夜，讓細胞加速修護。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 右側主工作區：時間軸流 (Timeline) 與 資料表 (DataTable) -->
+            <div class="col-12 col-xl-8">
+                
+                <!-- 視圖 1：全通路時空時間軸 (預設) -->
+                <section id="viewContainerTimeline" class="timeline-stream">
+                    <div id="interactionTimelineList">
+                        <!-- 由 JS 動態注入關懷卡片 -->
+                    </div>
+                </section>
+
+                <!-- 視圖 2：高密稽核資料表 (點擊切換) -->
+                <section id="viewContainerTable" class="glass-panel p-3 p-lg-4 d-none">
+                    <div class="table-responsive">
+                        <table id="interactionsDataTable" class="table table-custom w-100">
+                            <thead>
+                                <tr>
+                                    <th>日期 / 時間</th>
+                                    <th>顧客姓名</th>
+                                    <th>渠道 / 類型</th>
+                                    <th>體感回饋狀態</th>
+                                    <th>涉及產品</th>
+                                    <th>對話摘要與跟進計畫</th>
+                                    <th>負責夥伴</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyInteractions">
+                                <!-- DataTable 引擎渲染 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 模態視窗：登錄關懷紀錄 (Schema 504 完整表單) -->
+    <div class="modal fade" id="modalNewInteraction" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-pen-nib text-primary"></i> 登錄新顧客關懷紀錄</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewInteraction">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">對象顧客姓名 *</label>
+                                <input type="text" class="form-control" name="customer_name" required placeholder="如：林美珠 (台中)">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">負責夥伴 / 錄入者 *</label>
+                                <select class="form-select" name="partner_name" required>
+                                    <option value="Ray 翁榮祥">Ray 翁榮祥 (核心創始)</option>
+                                    <option value="Jarvis 林承志">Jarvis 林承志 (技術總監)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">關懷溝通渠道 *</label>
+                                <select class="form-select" name="channel_type" required>
+                                    <option value="LINE">LINE 訊息 / 語音</option>
+                                    <option value="PHONE">電話通話</option>
+                                    <option value="IN_PERSON">實體到府 / 面談拜訪</option>
+                                    <option value="ZOOM">線上視訊會議 (Zoom/Meet)</option>
+                                    <option value="EVENT">會場 OPP 活動接觸</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">關懷主題類別 *</label>
+                                <select class="form-select" name="interaction_type" required>
+                                    <option value="HEALTH_CHECK">體感食用關懷 (食用第3/7/14天)</option>
+                                    <option value="REORDER_NUDGE">週期續購與特惠提醒</option>
+                                    <option value="OPP_SHARING">葡眾事業制度與經理價分享</option>
+                                    <option value="OBJECTION_CLEARING">異議排解與家人疑慮溝通</option>
+                                    <option value="REGULAR_CARE">節慶節氣日常問候</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">體感回饋等級 (Sentiment) *</label>
+                                <select class="form-select" name="health_sentiment" required>
+                                    <option value="EXCELLENT">✨ 體感顯著好轉 (高滿意度)</option>
+                                    <option value="STABLE">👍 改善穩定 (持續調理中)</option>
+                                    <option value="REACTION">⚡ 好轉/暝眩反應處理中 (需密集安撫)</option>
+                                    <option value="COMPLAINT">⚠️ 尚無明顯感受 / 食用疑慮</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">涉及/食用產品 (逗號分隔)</label>
+                                <input type="text" class="form-control" name="products_mentioned" placeholder="例如：康爾喜, 995, 樟芝益">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">對話重點與顧客反應摘要 *</label>
+                                <textarea class="form-control" name="summary" rows="3" required placeholder="詳細記錄顧客反應、食用瓶數/包數、排便次數、睡眠精神變化等..."></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">約定下次跟進日期</label>
+                                <input type="date" class="form-control" name="next_follow_date" value="2026-08-25">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">下一步跟進行動 (Next Action)</label>
+                                <input type="text" class="form-control" name="next_action_plan" placeholder="例如：追蹤暝眩反應消退情況、寄送經理方案目錄">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSaveInteraction">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並同步至試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴函式庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接引擎與互動業務邏輯 -->
+    <script>
+        /**
+         * 榮祥團隊 Google 試算表欄位解耦對映轉接器 (CRM Interactions Decoupling Adapter)
+         */
+        const CRM_INTERACTIONS_DECOUPLING_ADAPTER = {
+            "crm_interactions": {
+                interactionId: 0,
+                customerName: 1,
+                partnerName: 2,
+                channelType: 3,
+                interactionType: 4,
+                healthSentiment: 5,
+                productsMentioned: 6,
+                summary: 7,
+                interactionDate: 8,
+                nextFollowDate: 9,
+                nextActionPlan: 10
+            }
+        };
+
+        // 生產級模擬關懷數據庫 (對應 Schema 504 規格)
+        let interactionsDatabase = [
+            {
+                interaction_id: "INT-2026-0901",
+                customer_name: "林美珠",
+                partner_name: "Ray 翁榮祥",
+                channel_type: "LINE",
+                channel_name: "LINE 語音",
+                interaction_type: "HEALTH_CHECK",
+                interaction_type_name: "體感食用關懷 (第7天)",
+                health_sentiment: "EXCELLENT",
+                products_mentioned: ["康爾喜", "衛傑膠囊"],
+                summary: "客戶食用康爾喜搭配衛傑已滿一週，原本嚴重的飯後胃酸逆流與腹脹明顯緩解，主動詢問全家人食用能否以經理優惠價訂購套裝。",
+                interaction_date: "2026-08-21 14:30",
+                next_follow_date: "2026-08-28",
+                next_action_plan: "提供 3 盒家庭組方案試算，並說明入會自用回饋制度。"
+            },
+            {
+                interaction_id: "INT-2026-0898",
+                customer_name: "陳雅惠",
+                partner_name: "Ray 翁榮祥",
+                channel_type: "PHONE",
+                channel_name: "電話通話",
+                interaction_type: "HEALTH_CHECK",
+                interaction_type_name: "體感食用關懷 (第4天)",
+                health_sentiment: "REACTION",
+                products_mentioned: ["995 超級營養液", "樟芝益"],
+                summary: "飲用 995 每日一瓶後表示下午非常嗜睡且皮膚有輕微紅點。已安撫此為肝臟修護與排毒之暝眩反應，提醒將水喝足 2,500cc，兩天後再次致電關心。",
+                interaction_date: "2026-08-21 10:15",
+                next_follow_date: "2026-08-23",
+                next_action_plan: "24 小時後透過 LINE 發送溫馨提醒與補水打卡圖。"
+            },
+            {
+                interaction_id: "INT-2026-0885",
+                customer_name: "張建國",
+                partner_name: "Jarvis 林承志",
+                channel_type: "IN_PERSON",
+                channel_name: "到府拜訪",
+                interaction_type: "REORDER_NUDGE",
+                interaction_type_name: "週期續購提醒",
+                health_sentiment: "STABLE",
+                products_mentioned: ["康爾喜", "百克斯"],
+                summary: "親自送交百克斯至張大哥府上，順道檢視康爾喜庫存僅剩 6 條。張大哥表示換季晨起打噴嚏情況改善很多，當場預訂下月 2 盒續購。",
+                interaction_date: "2026-08-20 16:45",
+                next_follow_date: "2026-09-05",
+                next_action_plan: "出貨前確認是否需要加購欣悅康給大嫂調養。"
+            },
+            {
+                interaction_id: "INT-2026-0870",
+                customer_name: "郭子豪 (中藥行)",
+                partner_name: "Ray 翁榮祥",
+                channel_type: "ZOOM",
+                channel_name: "線上視訊",
+                interaction_type: "OPP_SHARING",
+                interaction_type_name: "事業商機分享",
+                health_sentiment: "STABLE",
+                products_mentioned: ["樟芝益", "995 超級營養液"],
+                summary: "針對大馬吉隆坡市場佈局與葡萄王生技發酵專利進行深入探討。郭老闆對樟芝益之護肝專利與高額 PV/SV 點數深具信心，預計下週簽約直銷商。",
+                interaction_date: "2026-08-19 20:00",
+                next_follow_date: "2026-08-26",
+                next_action_plan: "準備跨境加盟表單與馬來西亞提貨流程說明書。"
+            },
+            {
+                interaction_id: "INT-2026-0862",
+                customer_name: "廖秀琴",
+                partner_name: "Jarvis 林承志",
+                channel_type: "LINE",
+                channel_name: "LINE 文字",
+                interaction_type: "OBJECTION_CLEARING",
+                interaction_type_name: "疑慮與異議排解",
+                health_sentiment: "COMPLAINT",
+                products_mentioned: ["康爾喜"],
+                summary: "客戶女兒在網路論壇看到一般市售益生菌較便宜，質疑葡眾定價。已傳送葡萄王十三益菌共生發酵專利與 SNQ 國家品質標章證書進行專業澄清。",
+                interaction_date: "2026-08-18 11:20",
+                next_follow_date: "2026-08-22",
+                next_action_plan: "追蹤女兒閱讀專利文獻後之反饋態度。"
+            }
+        ];
+
+        let interactionsDataTableInstance = null;
+        let chartSentimentInstance = null;
+        let chartChannelInstance = null;
+
+        $(document).ready(function() {
+            renderTimelineStream(interactionsDatabase);
+            initDataTable();
+            initCharts();
+            updateFilterCounters();
+
+            // 視圖切換：時間軸 vs 資料表
+            $('#btnViewTimeline').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewTable').removeClass('active');
+                $('#viewContainerTimeline').removeClass('d-none');
+                $('#viewContainerTable').addClass('d-none');
+            });
+
+            $('#btnViewTable').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewTimeline').removeClass('active');
+                $('#viewContainerTable').removeClass('d-none');
+                $('#viewContainerTimeline').addClass('d-none');
+                if (interactionsDataTableInstance) {
+                    interactionsDataTableInstance.columns.adjust().responsive.recalc();
+                }
+            });
+
+            // 篩選膠囊事件
+            $('#interactionFilterPills .glass-pill').on('click', function() {
+                $('#interactionFilterPills .glass-pill').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                applyInteractionFilter(filter, $('#interactionSearchInput').val());
+            });
+
+            // 即時搜尋
+            $('#interactionSearchInput').on('keyup', function() {
+                const query = $(this).val();
+                const activeFilter = $('#interactionFilterPills .glass-pill.active').data('filter');
+                applyInteractionFilter(activeFilter, query);
+            });
+
+            // 試算表 GViz 雲端同步
+            $('#btnSyncInteractionsGviz').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                setTimeout(function() {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 關懷試算表已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 雲端對帳同步'), 2500);
+                }, 1200);
+            });
+
+            // 儲存新關懷紀錄
+            $('#btnSaveInteraction').on('click', function() {
+                const form = $('#formNewInteraction')[0];
+                if (form.checkValidity()) {
+                    const productsRaw = $('input[name="products_mentioned"]').val();
+                    const productsArr = productsRaw ? productsRaw.split(',').map(s => s.trim()).filter(s => s) : ['一般調養'];
+
+                    const channelMap = {
+                        'LINE': 'LINE 訊息/語音',
+                        'PHONE': '電話通話',
+                        'IN_PERSON': '到府/面談拜訪',
+                        'ZOOM': '線上視訊',
+                        'EVENT': '會場 OPP'
+                    };
+
+                    const typeMap = {
+                        'HEALTH_CHECK': '體感食用關懷',
+                        'REORDER_NUDGE': '週期續購提醒',
+                        'OPP_SHARING': '事業商機分享',
+                        'OBJECTION_CLEARING': '疑慮排解',
+                        'REGULAR_CARE': '日常問候'
+                    };
+
+                    const channelVal = $('select[name="channel_type"]').val();
+                    const typeVal = $('select[name="interaction_type"]').val();
+
+                    const newInteraction = {
+                        interaction_id: "INT-2026-" + Math.floor(1000 + Math.random() * 9000),
+                        customer_name: $('input[name="customer_name"]').val(),
+                        partner_name: $('select[name="partner_name"]').val(),
+                        channel_type: channelVal,
+                        channel_name: channelMap[channelVal] || channelVal,
+                        interaction_type: typeVal,
+                        interaction_type_name: typeMap[typeVal] || typeVal,
+                        health_sentiment: $('select[name="health_sentiment"]').val(),
+                        products_mentioned: productsArr,
+                        summary: $('textarea[name="summary"]').val(),
+                        interaction_date: "2026-08-21 " + new Date().toTimeString().slice(0, 5),
+                        next_follow_date: $('input[name="next_follow_date"]').val() || "未設定",
+                        next_action_plan: $('input[name="next_action_plan"]').val() || "持續追蹤"
+                    };
+
+                    interactionsDatabase.unshift(newInteraction);
+                    applyInteractionFilter($('#interactionFilterPills .glass-pill.active').data('filter'), $('#interactionSearchInput').val());
+                    reloadDataTable();
+                    updateFilterCounters();
+                    bootstrap.Modal.getInstance($('#modalNewInteraction')[0]).hide();
+                    form.reset();
+                } else {
+                    form.reportValidity();
+                }
+            });
+        });
+
+        // 渲染時空時間軸流 (Timeline Stream)
+        function renderTimelineStream(dataList) {
+            const container = $('#interactionTimelineList');
+            container.empty();
+
+            if (!dataList || dataList.length === 0) {
+                container.html('<div class="glass-panel p-4 text-center text-muted"><i class="fa-solid fa-inbox fa-2x mb-2 d-block opacity-50"></i>查無符合條件的關懷互動紀錄</div>');
+                return;
+            }
+
+            dataList.forEach(item => {
+                const sentimentClass = getSentimentClass(item.health_sentiment);
+                const sentimentText = getSentimentText(item.health_sentiment);
+                const channelIcon = getChannelIcon(item.channel_type);
+                const productBadges = item.products_mentioned.map(p => `<span class="product-pill"><i class="fa-solid fa-capsules"></i> ${p}</span>`).join(' ');
+
+                const cardHtml = `
+                    <div class="interaction-card">
+                        <div class="interaction-card-node">
+                            <i class="${channelIcon}"></i>
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <span class="h6 fw-bold text-light mb-0 me-2">${item.customer_name}</span>
+                                <span class="badge" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.3); font-size: 0.75rem;">
+                                    ${item.interaction_type_name}
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="sentiment-badge ${sentimentClass}">${sentimentText}</span>
+                                <span class="small hub-code text-muted">${item.interaction_date}</span>
+                            </div>
+                        </div>
+
+                        <p class="small text-light mb-2 lh-base" style="background: rgba(0,0,0,0.25); padding: 10px 12px; border-radius: 8px; border-left: 3px solid var(--uvaco-primary);">
+                            ${item.summary}
+                        </p>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top border-secondary border-opacity-15">
+                            <div class="d-flex align-items-center gap-1">
+                                ${productBadges}
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="small text-muted">
+                                    <i class="fa-solid fa-calendar-check text-warning"></i> 約定回訪：<strong class="text-light">${item.next_follow_date}</strong>
+                                </span>
+                                <span class="small hub-code" style="color: var(--uvaco-secondary);">
+                                    <i class="fa-solid fa-user-tie"></i> ${item.partner_name}
+                                </span>
+                                <button class="btn btn-sm btn-neon-ghost py-0 px-2" onclick="quickLineCare('${item.customer_name}', '0911-000-111')">
+                                    <i class="fa-brands fa-line text-success"></i> 私聊
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        // 初始化 DataTable.js
+        function initDataTable() {
+            interactionsDataTableInstance = $('#interactionsDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "在歷史紀錄中快速檢索...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+            reloadDataTable();
+        }
+
+        // 重新載入 DataTable
+        function reloadDataTable() {
+            if (!interactionsDataTableInstance) return;
+            interactionsDataTableInstance.clear();
+
+            interactionsDatabase.forEach(item => {
+                const sentimentClass = getSentimentClass(item.health_sentiment);
+                const sentimentText = getSentimentText(item.health_sentiment);
+                const sentimentBadge = `<span class="sentiment-badge ${sentimentClass}">${sentimentText}</span>`;
+                const products = item.products_mentioned.join(', ');
+                const actionBtn = `<button class="btn btn-sm btn-neon-ghost py-1 px-2" onclick="alert('檢視紀錄ID：${item.interaction_id}')"><i class="fa-solid fa-folder-open"></i> 詳情</button>`;
+
+                interactionsDataTableInstance.row.add([
+                    `<span class="small hub-code">${item.interaction_date}</span>`,
+                    `<strong>${item.customer_name}</strong>`,
+                    `<span class="small">${item.channel_name} · ${item.interaction_type_name}</span>`,
+                    sentimentBadge,
+                    `<span class="small">${products}</span>`,
+                    `<div class="small text-truncate" style="max-width: 240px;" title="${item.summary}">${item.summary}</div>`,
+                    `<span class="small" style="color: var(--uvaco-text-sub);">${item.partner_name}</span>`,
+                    actionBtn
+                ]);
+            });
+
+            interactionsDataTableInstance.draw();
+        }
+
+        // 篩選核心邏輯
+        function applyInteractionFilter(filterType, searchQuery) {
+            let filtered = interactionsDatabase;
+
+            if (filterType === 'REACTION') {
+                filtered = filtered.filter(i => i.health_sentiment === 'REACTION');
+            } else if (filterType === 'EXCELLENT') {
+                filtered = filtered.filter(i => i.health_sentiment === 'EXCELLENT');
+            } else if (filterType === 'REORDER') {
+                filtered = filtered.filter(i => i.interaction_type === 'REORDER_NUDGE');
+            } else if (filterType === 'OPP') {
+                filtered = filtered.filter(i => i.interaction_type === 'OPP_SHARING');
+            }
+
+            if (searchQuery && searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase().trim();
+                filtered = filtered.filter(i => 
+                    i.customer_name.toLowerCase().includes(q) ||
+                    i.partner_name.toLowerCase().includes(q) ||
+                    i.summary.toLowerCase().includes(q) ||
+                    i.products_mentioned.some(p => p.toLowerCase().includes(q))
+                );
+            }
+
+            renderTimelineStream(filtered);
+        }
+
+        // 更新篩選徽章計數
+        function updateFilterCounters() {
+            const total = interactionsDatabase.length;
+            const reaction = interactionsDatabase.filter(i => i.health_sentiment === 'REACTION').length;
+            const excellent = interactionsDatabase.filter(i => i.health_sentiment === 'EXCELLENT').length;
+            const reorder = interactionsDatabase.filter(i => i.interaction_type === 'REORDER_NUDGE').length;
+            const opp = interactionsDatabase.filter(i => i.interaction_type === 'OPP_SHARING').length;
+
+            $('#countAll').text(total);
+            $('#countReaction').text(reaction);
+            $('#countExcellent').text(excellent);
+            $('#countReorder').text(reorder);
+            $('#countOpp').text(opp);
+        }
+
+        // 初始化圖表 (Chart.js)
+        function initCharts() {
+            // 體感分佈圓餅圖
+            const ctxSentiment = document.getElementById('chartSentimentStatus').getContext('2d');
+            chartSentimentInstance = new Chart(ctxSentiment, {
+                type: 'doughnut',
+                data: {
+                    labels: ['顯著改善', '穩定調養中', '暝眩排毒好轉期', '尚無明顯感受'],
+                    datasets: [{
+                        data: [42, 35, 15, 8],
+                        backgroundColor: ['#10b981', '#38bdf8', '#f59e0b', '#f43f5e'],
+                        borderColor: '#120926',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#c4b5fd', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+
+            // 渠道佔比長條圖
+            const ctxChannel = document.getElementById('chartChannelType').getContext('2d');
+            chartChannelInstance = new Chart(ctxChannel, {
+                type: 'bar',
+                data: {
+                    labels: ['LINE 訊息', '電話通話', '面談家訪', '視訊會議', 'OPP活動'],
+                    datasets: [{
+                        label: '關懷次數',
+                        data: [58, 24, 18, 12, 6],
+                        backgroundColor: 'rgba(139, 92, 246, 0.75)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9e8eb3', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#9e8eb3' }, grid: { color: 'rgba(139, 92, 246, 0.1)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // 輔助工具函式
+        function getSentimentClass(sentiment) {
+            switch(sentiment) {
+                case 'EXCELLENT': return 'sentiment-excellent';
+                case 'STABLE': return 'sentiment-stable';
+                case 'REACTION': return 'sentiment-reaction';
+                case 'COMPLAINT': return 'sentiment-complaint';
+                default: return 'sentiment-stable';
+            }
+        }
+
+        function getSentimentText(sentiment) {
+            switch(sentiment) {
+                case 'EXCELLENT': return '✨ 顯著好轉';
+                case 'STABLE': return '👍 改善穩定';
+                case 'REACTION': return '⚡ 好轉反應中';
+                case 'COMPLAINT': return '⚠️ 需關注疑慮';
+                default: return '一般追蹤';
+            }
+        }
+
+        function getChannelIcon(channel) {
+            switch(channel) {
+                case 'LINE': return 'fa-brands fa-line text-success';
+                case 'PHONE': return 'fa-solid fa-phone text-info';
+                case 'IN_PERSON': return 'fa-solid fa-house-chimney-user text-warning';
+                case 'ZOOM': return 'fa-solid fa-video text-primary';
+                case 'EVENT': return 'fa-solid fa-users text-accent';
+                default: return 'fa-solid fa-comment-dots text-secondary';
+            }
+        }
+
+        function quickLineCare(customerName, phone) {
+            alert(`正在為「${customerName} (${phone})」開啟專屬 LINE 關懷對話視窗...`);
+        }
+    </script>
+</body>
+</html>

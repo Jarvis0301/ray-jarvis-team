@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶資料管理 | 榮祥葡眾三軌數位戰情系統</title>
+    <!-- Google Noto Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-rgb: 192, 132, 252;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-muted: #9e8eb3;
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-card: rgba(22, 13, 46, 0.75);
+            --uvaco-bg-card-hover: rgba(35, 20, 72, 0.85);
+            --uvaco-border-glow: rgba(139, 92, 246, 0.25);
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-sub: #c4b5fd;
+            --uvaco-text-muted: #9e8eb3;
+            --uvaco-success: #10b981;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #f43f5e;
+            --uvaco-info: #38bdf8;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.1) 0%, transparent 45%),
+                linear-gradient(180deg, #0a0518 0%, #0d0722 100%);
+            background-attachment: fixed;
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 玻璃擬態戰情組件 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.22);
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            padding: 6px 16px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.35) 0%, rgba(236, 72, 153, 0.3) 100%);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 標題與重點排版 */
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 60%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .hub-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 霓虹按鈕系統 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 25px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+        }
+
+        /* 360° 客戶畫像卡片 */
+        .customer-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .customer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--uvaco-primary) 0%, var(--uvaco-accent) 100%);
+            opacity: 0.8;
+        }
+
+        .customer-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 16px 36px rgba(139, 92, 246, 0.25);
+            background: var(--uvaco-bg-card-hover);
+        }
+
+        .avatar-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(236, 72, 153, 0.2) 100%);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            color: var(--uvaco-secondary);
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.2);
+        }
+
+        .badge-stage {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: var(--uvaco-radius-pill);
+            letter-spacing: 0.3px;
+        }
+        .badge-stage.lead { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-stage.regular { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-stage.vip { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+        .badge-stage.dormant { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-stage.converted { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.35); }
+
+        .tag-pill {
+            font-size: 0.72rem;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--uvaco-text-sub);
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* 耗盡雷達進度條 */
+        .depletion-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* 表格深色化與自訂 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+        .table-custom thead th {
+            background: rgba(22, 13, 46, 0.9);
+            color: var(--uvaco-text-sub);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+        }
+        .table-custom tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            font-size: 0.9rem;
+        }
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.08);
+        }
+
+        /* 側拉抽屜與彈窗美化 */
+        .offcanvas, .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--uvaco-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+        .nav-tabs-custom {
+            border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+        }
+        .nav-tabs-custom .nav-link {
+            color: var(--uvaco-text-muted);
+            border: none;
+            padding: 10px 18px;
+            font-weight: 500;
+            position: relative;
+            background: transparent;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #ffffff;
+            background: transparent;
+        }
+        .nav-tabs-custom .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* 圓形快捷操作鍵 */
+        .action-circle-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-sub);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .action-circle-btn:hover {
+            background: var(--uvaco-primary);
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header/Footer，專屬戰情主容器) -->
+    <main class="container-fluid px-3 px-lg-4 py-4">
+
+        <!-- 頂部戰略資訊橫幅與操作控制列 -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill hub-code" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.35);">
+                            <i class="fa-solid fa-address-book"></i> H51000 / H52000
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">
+                            <i class="fa-solid fa-shield-halved"></i> 核心極密雙表垂直隔離 (501+502)
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">客戶名簿與健康檔案總覽</h1>
+                    <p class="text-muted small mb-0 mt-1" style="color: var(--uvaco-text-muted) !important;">
+                        以健康體質畫像為核心，串接產品消耗週期推算、回購預警與 12,000 SV 門檻調度閉環。
+                    </p>
+                </div>
+
+                <!-- 戰略操作按鈕群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGviz" title="透過 PapaParse / GViz 解耦轉接同步 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 試算表雲端同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnToggleHealthMatrix" data-bs-toggle="collapse" data-bs-target="#healthMatrixCollapse">
+                        <i class="fa-solid fa-chart-pie"></i> 體質分佈洞察
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewCustomer">
+                        <i class="fa-solid fa-user-plus"></i> 新增客戶建檔
+                    </button>
+                </div>
+            </div>
+
+            <!-- 智慧多維快篩與視圖切換列 -->
+            <div class="row g-3 align-items-center mt-3 pt-3 border-top border-secondary border-opacity-10">
+                <div class="col-12 col-xl-7">
+                    <div class="d-flex flex-wrap gap-2" id="filterPills">
+                        <a href="javascript:void(0)" class="glass-pill active" data-filter="ALL">
+                            <i class="fa-solid fa-users"></i> 全體名單 <span class="badge rounded-pill bg-dark ms-1" id="countAll">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="REGULAR">
+                            <i class="fa-solid fa-repeat"></i> 穩定食用 <span class="badge rounded-pill bg-success ms-1" id="countRegular">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="REORDER_WARN">
+                            <i class="fa-solid fa-bell"></i> 7日耗盡預警 <span class="badge rounded-pill bg-warning text-dark ms-1" id="countWarn">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="VIP">
+                            <i class="fa-solid fa-crown"></i> 高價值 VIP <span class="badge rounded-pill bg-primary ms-1" id="countVip">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="DORMANT">
+                            <i class="fa-solid fa-bed"></i> 沉睡待挽回 <span class="badge rounded-pill bg-danger ms-1" id="countDormant">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="PROSPECT_TEAM">
+                            <i class="fa-solid fa-user-gear"></i> 評估加盟 <span class="badge rounded-pill bg-info ms-1" id="countProspect">0</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="globalSearchInput" class="form-control border-0" placeholder="搜尋客戶姓名、電話、LINE ID、病史標籤..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-neon-ghost active px-3" id="viewModeCard" title="360° 畫像卡片視圖">
+                                <i class="fa-solid fa-grip-vertical"></i>
+                            </button>
+                            <button type="button" class="btn btn-neon-ghost px-3" id="viewModeTable" title="高密資料表視圖">
+                                <i class="fa-solid fa-table-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：體質與客群洞察儀表板 (按需展開) -->
+        <section class="collapse mb-4" id="healthMatrixCollapse">
+            <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse text-danger"></i> 體質健康困擾分佈</h6>
+                        <div style="height: 200px; position: relative;">
+                            <canvas id="healthConcernChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-simple text-warning"></i> 消費力與預算分層</h6>
+                        <div style="height: 200px; position: relative;">
+                            <canvas id="budgetTierChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline text-info"></i> 耗盡回購生命週期概覽</h6>
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>即將用盡 (7天內)</span>
+                                <span class="text-warning fw-bold">6 位客戶</span>
+                            </div>
+                            <div class="progress depletion-progress mb-3">
+                                <div class="progress-bar bg-warning" style="width: 35%"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>今日已耗盡 (待聯繫)</span>
+                                <span class="text-danger fw-bold">2 位客戶</span>
+                            </div>
+                            <div class="progress depletion-progress mb-3">
+                                <div class="progress-bar bg-danger" style="width: 15%"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>正常食用週期中</span>
+                                <span class="text-success fw-bold">28 位客戶</span>
+                            </div>
+                            <div class="progress depletion-progress">
+                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主體內容區塊一：360° 畫像卡片流 (預設創新視圖) -->
+        <section id="cardViewContainer" class="row g-3">
+            <!-- 卡片內容將由 JavaScript 動態渲染 -->
+        </section>
+
+        <!-- 主體內容區塊二：高密生產力資料表 (可切換 DataTable 視圖) -->
+        <section id="tableViewContainer" class="glass-panel p-3 p-lg-4 d-none">
+            <div class="table-responsive">
+                <table id="customerDataTable" class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th>客戶編號 / 姓名</th>
+                            <th>類型 / 階段</th>
+                            <th>聯絡資訊</th>
+                            <th>健康體質畫像 (502)</th>
+                            <th>最近採購品項 / 耗盡推算</th>
+                            <th>累計 SV</th>
+                            <th>維護夥伴</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyContent">
+                        <!-- 資料由 JS 解耦引擎注入 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 側拉詳情抽屜：客戶 360° 深度檔案 (Offcanvas) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="customerDetailDrawer" style="width: 100%; max-width: 580px;">
+        <div class="offcanvas-header border-bottom border-secondary border-opacity-25 py-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-box" id="drawerAvatar">林</div>
+                <div>
+                    <h5 class="offcanvas-title mb-0 fw-bold" id="drawerCustomerName">林雅涵</h5>
+                    <span class="small text-muted hub-code" id="drawerCustomerNo">CUST-2026-0108</span>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <!-- 標籤導覽列 -->
+            <ul class="nav nav-tabs nav-tabs-custom px-3 pt-2" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabHealthProfile">
+                        <i class="fa-solid fa-notes-medical"></i> 體質健康 (502)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPurchaseExhaust">
+                        <i class="fa-solid fa-box-open"></i> 採購與耗盡 (505)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabInteractionCare">
+                        <i class="fa-solid fa-comments"></i> 關懷筆記 (504)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabDispatchSchedule">
+                        <i class="fa-solid fa-calendar-check"></i> 門檻調度 (506)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-3 p-lg-4">
+                <!-- 頁籤一：健康體質畫像 (垂直分割 Schema 502) -->
+                <div class="tab-pane fade show active" id="tabHealthProfile">
+                    <div class="alert alert-dark border border-purple-subtle p-3 rounded-3 mb-3" style="background: rgba(139,92,246,0.1);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse"></i> 核心調養目標</span>
+                            <span class="badge bg-warning text-dark">月預算：3K-8K</span>
+                        </div>
+                        <p class="mb-0 text-light small" id="drawerHealthConcerns">嚴重胃食道逆流、排便不順（3天一次）、淺眠易醒。</p>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">過敏原紀錄</span>
+                                <span class="text-light small fw-medium" id="drawerAllergies">海鮮輕微過敏、乳糖不耐</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">飲食與作息習慣</span>
+                                <span class="text-light small fw-medium" id="drawerDietHabits">外食族、咖啡重度、常熬夜</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">職業類別</span>
+                                <span class="text-light small fw-medium" id="drawerOccupation">科技業軟體工程師</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">常規西藥/特殊狀態</span>
+                                <span class="text-light small fw-medium" id="drawerMeds">制酸劑（建議間隔1.5hr）</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4 mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-shield-virus"></i> 好轉反應 (瞑眩反應) 衛教備忘</h6>
+                    <div class="p-3 rounded bg-black bg-opacity-30 border border-secondary border-opacity-20 text-muted small" id="drawerHealingReaction">
+                        食用衛傑+康爾喜初期第 3~5 天有微脹氣與排氣增多現象，已安撫為有益菌群定殖調整，建議溫開水增加至每日 2000c.c.。
+                    </div>
+                </div>
+
+                <!-- 頁籤二：採購歷史與耗盡推算 (Schema 505) -->
+                <div class="tab-pane fade" id="tabPurchaseExhaust">
+                    <div class="glass-panel p-3 mb-3 border-warning border-opacity-50">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation"></i> 耗盡雷達警報</span>
+                            <span class="text-muted small">推算耗盡日：<strong class="text-warning">2026-08-25</strong></span>
+                        </div>
+                        <h6 class="text-light mb-1">衛傑膠囊 (100粒/盒) × 2 盒</h6>
+                        <div class="text-muted small mb-2">每日用量：早晚各 2 粒 (4粒/天) | 總份數：200粒 (食用50天)</div>
+                        <div class="progress depletion-progress mb-2">
+                            <div class="progress-bar bg-warning" style="width: 88%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>2026-07-06 交付</span>
+                            <span class="text-warning">剩餘 4 天耗盡 (建議發起關懷)</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-receipt"></i> 歷史採購明細</h6>
+                        <button class="btn btn-sm btn-neon-ghost"><i class="fa-solid fa-cart-plus"></i> 登錄新採購</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-sm small">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>品項</th>
+                                    <th>金額</th>
+                                    <th>SV</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-07-06</td>
+                                    <td>衛傑 ×2 + 康爾喜 ×2</td>
+                                    <td>NT$ 7,560</td>
+                                    <td>3,280</td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-10</td>
+                                    <td>康爾喜益生菌 ×3</td>
+                                    <td>NT$ 5,340</td>
+                                    <td>2,430</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 頁籤三：關懷互動紀錄 (Schema 504) -->
+                <div class="tab-pane fade" id="tabInteractionCare">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline"></i> 關懷維護軌跡 (1:N)</h6>
+                        <button class="btn btn-sm btn-neon-primary" data-bs-toggle="modal" data-bs-target="#modalQuickInteraction">
+                            <i class="fa-solid fa-pen-to-square"></i> 寫關懷筆記
+                        </button>
+                    </div>
+
+                    <!-- 關懷時間軸清單 -->
+                    <div class="border-start border-secondary border-opacity-25 ps-3 ms-2">
+                        <div class="mb-3 position-relative">
+                            <div class="position-absolute" style="left: -21px; top: 2px;">
+                                <span class="badge rounded-pill bg-success p-1"><i class="fa-brands fa-line"></i></span>
+                            </div>
+                            <div class="small text-muted mb-1">2026-08-15 14:20 · 夥伴：Jarvis 林承志</div>
+                            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-15 small">
+                                <strong style="color: var(--uvaco-text-sub);">【好轉關懷】</strong> 客戶反饋這週排便每天固定 1 次且成形，睡眠品質提升。提醒衛傑剩餘半瓶，準備發送復購優惠包。
+                            </div>
+                        </div>
+
+                        <div class="mb-3 position-relative">
+                            <div class="position-absolute" style="left: -21px; top: 2px;">
+                                <span class="badge rounded-pill bg-primary p-1"><i class="fa-solid fa-phone"></i></span>
+                            </div>
+                            <div class="small text-muted mb-1">2026-07-10 19:30 · 夥伴：Ray 翁榮祥</div>
+                            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-15 small">
+                                <strong style="color: var(--uvaco-text-sub);">【食用第3天追蹤】</strong> 解答排氣多症狀，給予飲食衛教，約定 8/15 再度追蹤。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 頁籤四：160 / 12,000 SV 門檻調度協調 (Schema 506) -->
+                <div class="tab-pane fade" id="tabDispatchSchedule">
+                    <div class="alert alert-dark border border-info border-opacity-30 p-3 rounded-3 mb-3">
+                        <h6 class="text-info mb-1"><i class="fa-solid fa-calendar-check"></i> Ray 戰術：經理合格調度中樞</h6>
+                        <p class="small text-muted mb-0">協調愛用客戶採購時間（先買補足當月合格 / 延買保留次月衝刺），達成 12,000 SV 效益最大化。</p>
+                    </div>
+
+                    <div class="p-3 rounded bg-black bg-opacity-30 border border-secondary border-opacity-20 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="small" style="color: var(--uvaco-text-sub);">目前協調策略</span>
+                            <span class="badge bg-info text-dark">先買衝刺 (EARLY_BUY)</span>
+                        </div>
+                        <div class="small text-muted mb-1">原耗盡日：2026-08-25</div>
+                        <div class="small text-light mb-2">約定下單日：<strong class="text-warning">2026-08-20 (配合當月20日結算)</strong></div>
+                        <div class="small text-muted">協調贈禮：贈送 3 包百克斯體驗包 + 1 包餐包</div>
+                    </div>
+                    <button class="btn btn-sm btn-neon-ghost w-100"><i class="fa-solid fa-clock-rotate-left"></i> 修改調度協調排程</button>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas-footer border-top border-secondary border-opacity-25 p-3 d-flex gap-2">
+            <a href="https://line.me" target="_blank" class="btn btn-sm btn-success flex-fill" id="drawerBtnLine">
+                <i class="fa-brands fa-line"></i> LINE 私域關懷
+            </a>
+            <button class="btn btn-sm btn-neon-primary flex-fill" data-bs-dismiss="offcanvas">
+                <i class="fa-solid fa-check"></i> 完成檢閱
+            </button>
+        </div>
+    </div>
+
+    <!-- 模態視窗：新增客戶 (Schema 501 + 502 聯合表單) -->
+    <div class="modal fade" id="modalNewCustomer" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-user-plus text-primary"></i> 建立新客戶與體質檔案</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewCustomer">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-id-card"></i> 基本資料 (Schema 501)</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">客戶真實姓名 / 社群暱稱 *</label>
+                                <input type="text" class="form-control" name="customer_name" required placeholder="如：張美玲 (陳媽媽)">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">手機號碼 *</label>
+                                <input type="tel" class="form-control" name="mobile_phone" required placeholder="0912-345-678">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">性別</label>
+                                <select class="form-select" name="gender">
+                                    <option value="FEMALE">女性 (Female)</option>
+                                    <option value="MALE">男性 (Male)</option>
+                                    <option value="UNKNOWN">不便提供</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">LINE ID</label>
+                                <input type="text" class="form-control" name="line_user_id" placeholder="用於快速發起對話">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-muted">名單來源 (Lead Source)</label>
+                                <select class="form-select" name="lead_source">
+                                    <option value="HEALTH_QUIZ">體質測評問卷</option>
+                                    <option value="REFERRAL">親友轉介紹</option>
+                                    <option value="SOCIAL_MEDIA">社群短網址</option>
+                                    <option value="WARM_MARKET">緣故親友</option>
+                                    <option value="COLD_MARKET">陌生拜訪</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse"></i> 健康畫像與隱私 (Schema 502)</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small text-muted">主要健康訴求 / 調養目標</label>
+                                <textarea class="form-control" name="health_concerns" rows="2" placeholder="如：經常脹氣、胃酸過多、想要增強體力與免疫..."></textarea>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">已知過敏史</label>
+                                <input type="text" class="form-control" name="allergy_history" placeholder="如：大豆、海鮮、乳糖不耐">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">月度保健預算</label>
+                                <select class="form-select" name="budget_preference">
+                                    <option value="MEDIUM">一般養生 (3,000 ~ 8,000 元)</option>
+                                    <option value="LOW">基礎保養 (3,000 元以下)</option>
+                                    <option value="HIGH">高階調理 (8,000 元以上)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSaveNewCustomer">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並同步至試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模態視窗：快速新增關懷筆記 (Schema 504) -->
+    <div class="modal fade" id="modalQuickInteraction" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-pen-nib text-accent"></i> 登錄關懷互動紀錄</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formQuickCare">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">溝通管道</label>
+                            <select class="form-select" name="channel_type">
+                                <option value="LINE">LINE 訊息 / 語音</option>
+                                <option value="PHONE">電話通話</option>
+                                <option value="IN_PERSON">當面拜訪面談</option>
+                                <option value="EVENT">招商會 / 會場見面</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">關懷主題</label>
+                            <select class="form-select" name="interaction_topic">
+                                <option value="REACTION_CHECK">食用體感與好轉反應追蹤</option>
+                                <option value="REORDER_REMIND">產品即將耗盡回購提醒</option>
+                                <option value="ROUTINE_CARE">日常問候與生活關懷</option>
+                                <option value="EVENT_INVITE">健康講座 / OPP 活動邀約</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">客戶回饋反饋與摘要 *</label>
+                            <textarea class="form-control" name="content_summary" rows="3" required placeholder="記錄客戶的主觀感受、產品反應與約定事項..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">預計下一次跟進日期</label>
+                            <input type="date" class="form-control" name="next_follow_up_date">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-accent" id="btnSaveCareNote">
+                        <i class="fa-solid fa-check"></i> 儲存關懷歷程
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴腳本庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 系統核心業務邏輯與解耦轉接引擎 -->
+    <script>
+        /**
+         * 榮祥團隊（Ray's Team）Google 試算表欄位解耦對映轉接器 (Schema Decoupling Mapping)
+         */
+        const CRM_DECOUPLING_ADAPTER = {
+            "crm_customers": {
+                customerId: 0,
+                customerNo: 1,
+                customerName: 2,
+                gender: 3,
+                mobilePhone: 4,
+                lineUserId: 5,
+                customerType: 6,
+                conversionStage: 7,
+                assignedPartnerName: 8,
+                totalSv: 9,
+                totalAmount: 10,
+                lastPurchaseDate: 11
+            },
+            "crm_customer_details": {
+                customerId: 0,
+                healthConcerns: 1,
+                chronicConditions: 2,
+                allergyHistory: 3,
+                dietHabits: 4,
+                occupation: 5,
+                budgetPreference: 6,
+                healingReactionNotes: 7
+            }
+        };
+
+        // 預設生產級模擬資料庫 (符合葡眾真實產品情境與生命週期)
+        let customersDatabase = [
+            {
+                customer_id: "CUST-2026-0108",
+                customer_name: "林雅涵",
+                gender: "FEMALE",
+                mobile_phone: "0912-345-678",
+                line_user_id: "yahan_lin",
+                customer_type: "CONSUMER",
+                conversion_stage: "REGULAR",
+                assigned_partner_name: "Jarvis 林承志",
+                total_purchased_amount: 18900,
+                total_accumulated_sv: 8450,
+                last_purchase_product: "衛傑膠囊 + 康爾喜",
+                last_purchase_date: "2026-07-06",
+                days_remaining: 4,
+                health_concerns: "胃食道逆流、排便不順（3天一次）、淺眠",
+                chronic_conditions: "輕微十二指腸潰瘍病史",
+                allergy_history: "海鮮微過敏、乳糖不耐",
+                diet_habits: "外食族、咖啡重度、常熬夜",
+                occupation: "科技業工程師",
+                budget_preference: "MEDIUM",
+                tags: ["胃食道逆流", "高回購", "工程師", "乳糖不耐"]
+            },
+            {
+                customer_id: "CUST-2026-0112",
+                customer_name: "張慶祥 (大安陳伯伯)",
+                gender: "MALE",
+                mobile_phone: "0933-888-999",
+                line_user_id: "uncle_chang",
+                customer_type: "CONSUMER",
+                conversion_stage: "VIP",
+                assigned_partner_name: "Ray 翁榮祥",
+                total_purchased_amount: 45200,
+                total_accumulated_sv: 21600,
+                last_purchase_product: "樟芝益 + 995超級營養液",
+                last_purchase_date: "2026-07-28",
+                days_remaining: 18,
+                health_concerns: "調節血脂、體力維持、日常精力充沛",
+                chronic_conditions: "高血壓前期控制中",
+                allergy_history: "無特殊過敏",
+                diet_habits: "清淡飲食、早睡早起、晨走",
+                occupation: "退休公務員",
+                budget_preference: "HIGH",
+                tags: ["頂級調理", "995愛用", "全家共用", "VIP大客"]
+            },
+            {
+                customer_id: "CUST-2026-0119",
+                customer_name: "王麗華",
+                gender: "FEMALE",
+                mobile_phone: "0921-654-321",
+                line_user_id: "lihua_wang",
+                customer_type: "PROSPECT_TEAM",
+                conversion_stage: "PARTNER_PROSPECT",
+                assigned_partner_name: "Ray 翁榮祥",
+                total_purchased_amount: 12600,
+                total_accumulated_sv: 5800,
+                last_purchase_product: "葡眾餐包 + 康爾喜益生菌",
+                last_purchase_date: "2026-06-15",
+                days_remaining: -12,
+                health_concerns: "產後體質調整、體重管理、補充優質蛋白",
+                chronic_conditions: "無",
+                allergy_history: "對花粉微敏",
+                diet_habits: "育兒飲食不規律、外食為主",
+                occupation: "全職家庭主婦",
+                budget_preference: "MEDIUM",
+                tags: ["評估加盟", "寶媽族群", "詢問經理制度", "轉介紹種子"]
+            },
+            {
+                customer_id: "CUST-2026-0125",
+                customer_name: "郭子豪",
+                gender: "MALE",
+                mobile_phone: "0955-112-233",
+                line_user_id: "zihao_guo",
+                customer_type: "CONSUMER",
+                conversion_stage: "LEAD",
+                assigned_partner_name: "Jarvis 林承志",
+                total_purchased_amount: 3780,
+                total_accumulated_sv: 1640,
+                last_purchase_product: "百克斯膠囊 (體驗)",
+                last_purchase_date: "2026-08-01",
+                days_remaining: 10,
+                health_concerns: "換季呼吸道敏感、晨起打噴嚏、容易疲倦",
+                chronic_conditions: "過敏性鼻炎",
+                allergy_history: "塵蟎、冷空氣",
+                diet_habits: "葷食、常喝冰飲",
+                occupation: "外送員",
+                budget_preference: "LOW",
+                tags: ["體質測評線索", "換季保養", "百克斯"]
+            },
+            {
+                customer_id: "CUST-2026-0130",
+                customer_name: "陳雅雯",
+                gender: "FEMALE",
+                mobile_phone: "0988-776-554",
+                line_user_id: "yawen_chen",
+                customer_type: "CONSUMER",
+                conversion_stage: "DORMANT",
+                assigned_partner_name: "Jarvis 林承志",
+                total_purchased_amount: 8200,
+                total_accumulated_sv: 3600,
+                last_purchase_product: "康爾喜益生菌 × 2",
+                last_purchase_date: "2026-04-12",
+                days_remaining: -65,
+                health_concerns: "腸道消化、過年後調整體態",
+                chronic_conditions: "無",
+                allergy_history: "無",
+                diet_habits: "甜食喜好、缺乏運動",
+                occupation: "百貨專櫃人員",
+                budget_preference: "LOW",
+                tags: ["沉睡挽回", "停用待破冰", "促銷刺激"]
+            }
+        ];
+
+        let dataTableInstance = null;
+        let healthChartInstance = null;
+        let budgetChartInstance = null;
+
+        $(document).ready(function() {
+            renderCustomerCards(customersDatabase);
+            initDataTable();
+            initInsightCharts();
+            updateStatisticsCounters();
+
+            // 視圖切換事件
+            $('#viewModeCard').on('click', function() {
+                $(this).addClass('active');
+                $('#viewModeTable').removeClass('active');
+                $('#cardViewContainer').removeClass('d-none');
+                $('#tableViewContainer').addClass('d-none');
+            });
+
+            $('#viewModeTable').on('click', function() {
+                $(this).addClass('active');
+                $('#viewModeCard').removeClass('active');
+                $('#tableViewContainer').removeClass('d-none');
+                $('#cardViewContainer').addClass('d-none');
+                if (dataTableInstance) {
+                    dataTableInstance.columns.adjust().responsive.recalc();
+                }
+            });
+
+            // 多維篩選 Pill 點擊事件
+            $('#filterPills .glass-pill').on('click', function() {
+                $('#filterPills .glass-pill').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                applyFilter(filter, $('#globalSearchInput').val());
+            });
+
+            // 全局即時搜尋
+            $('#globalSearchInput').on('keyup', function() {
+                const query = $(this).val();
+                const activeFilter = $('#filterPills .glass-pill.active').data('filter');
+                applyFilter(activeFilter, query);
+            });
+
+            // 試算表 GViz 雲端同步按鈕事件 (解耦架構實踐)
+            $('#btnSyncGviz').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                setTimeout(function() {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 試算表同步完成');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表雲端同步'), 2500);
+                }, 1200);
+            });
+
+            // 儲存新客戶
+            $('#btnSaveNewCustomer').on('click', function() {
+                const form = $('#formNewCustomer')[0];
+                if (form.checkValidity()) {
+                    const newCust = {
+                        customer_id: "CUST-2026-" + Math.floor(1000 + Math.random() * 9000),
+                        customer_name: $('input[name="customer_name"]').val(),
+                        gender: $('select[name="gender"]').val(),
+                        mobile_phone: $('input[name="mobile_phone"]').val(),
+                        line_user_id: $('input[name="line_user_id"]').val() || "無",
+                        customer_type: "CONSUMER",
+                        conversion_stage: "LEAD",
+                        assigned_partner_name: "Ray 翁榮祥",
+                        total_purchased_amount: 0,
+                        total_accumulated_sv: 0,
+                        last_purchase_product: "尚未建立首購",
+                        last_purchase_date: "2026-08-21",
+                        days_remaining: 30,
+                        health_concerns: $('textarea[name="health_concerns"]').val() || "待初次諮詢建檔",
+                        chronic_conditions: "無特殊申報",
+                        allergy_history: $('input[name="allergy_history"]').val() || "無",
+                        diet_habits: "一般",
+                        occupation: "一般",
+                        budget_preference: $('select[name="budget_preference"]').val(),
+                        tags: ["新進線索", "待關懷"]
+                    };
+                    customersDatabase.unshift(newCust);
+                    renderCustomerCards(customersDatabase);
+                    reloadDataTable();
+                    updateStatisticsCounters();
+                    bootstrap.Modal.getInstance($('#modalNewCustomer')[0]).hide();
+                    form.reset();
+                } else {
+                    form.reportValidity();
+                }
+            });
+        });
+
+        // 渲染 360° 畫像卡片流
+        function renderCustomerCards(dataList) {
+            const container = $('#cardViewContainer');
+            container.empty();
+
+            if (dataList.length === 0) {
+                container.html(`
+                    <div class="col-12 text-center py-5">
+                        <div class="text-muted"><i class="fa-solid fa-user-slash fa-3x mb-3 text-secondary opacity-50"></i></div>
+                        <h6 class="text-muted">查無符合條件之客戶名冊</h6>
+                    </div>
+                `);
+                return;
+            }
+
+            dataList.forEach(item => {
+                const stageClass = getStageBadgeClass(item.conversion_stage);
+                const stageText = getStageText(item.conversion_stage);
+                const tagHtml = item.tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
+                
+                // 耗盡進度計算
+                let depletionBadge = '';
+                let progressWidth = 100;
+                let progressBarColor = 'bg-success';
+                
+                if (item.days_remaining <= 0) {
+                    depletionBadge = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation"></i> 已逾期耗盡 (${Math.abs(item.days_remaining)}天)</span>`;
+                    progressWidth = 100;
+                    progressBarColor = 'bg-danger';
+                } else if (item.days_remaining <= 7) {
+                    depletionBadge = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-clock-rotate-left"></i> 倒數 ${item.days_remaining} 天耗盡</span>`;
+                    progressWidth = Math.max(15, (item.days_remaining / 30) * 100);
+                    progressBarColor = 'bg-warning';
+                } else {
+                    depletionBadge = `<span class="badge bg-secondary"><i class="fa-solid fa-circle-check"></i> 週期正常 (${item.days_remaining}天)</span>`;
+                    progressWidth = Math.min(100, (item.days_remaining / 45) * 100);
+                    progressBarColor = 'bg-success';
+                }
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="customer-card h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-box">${item.customer_name.charAt(0)}</div>
+                                        <div>
+                                            <h5 class="mb-0 fw-bold text-light">${item.customer_name}</h5>
+                                            <span class="small hub-code text-muted">${item.customer_id}</span>
+                                        </div>
+                                    </div>
+                                    <span class="badge-stage ${stageClass}">${stageText}</span>
+                                </div>
+
+                                <div class="mb-2">
+                                    ${tagHtml}
+                                </div>
+
+                                <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span><i class="fa-solid fa-heart-pulse text-danger"></i> 調養目標：</span>
+                                        <span class="text-light text-truncate" style="max-width: 170px;">${item.health_concerns}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span><i class="fa-solid fa-box text-info"></i> 近期品項：</span>
+                                        <span class="text-light">${item.last_purchase_product}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center small mb-1">
+                                        <span class="text-muted">食用週期與耗盡雷達</span>
+                                        ${depletionBadge}
+                                    </div>
+                                    <div class="progress depletion-progress">
+                                        <div class="progress-bar ${progressBarColor}" style="width: ${progressWidth}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-top border-secondary border-opacity-15 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="small text-muted d-block">累計 SV / 金額</span>
+                                    <strong class="hub-code text-accent">${item.total_accumulated_sv.toLocaleString()} SV</strong>
+                                    <span class="small text-muted"> / NT$ ${item.total_purchased_amount.toLocaleString()}</span>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <a href="https://line.me" target="_blank" class="action-circle-btn text-success" title="LINE 快速私聊">
+                                        <i class="fa-brands fa-line"></i>
+                                    </a>
+                                    <button class="action-circle-btn btnOpenDetail" data-id="${item.customer_id}" title="開啟 360° 體質檔案">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+
+            // 綁定卡片抽屜開啟事件
+            $('.btnOpenDetail').on('click', function() {
+                const custId = $(this).data('id');
+                openCustomerDrawer(custId);
+            });
+        }
+
+        // 初始化與配置 DataTable.js (高密視圖)
+        function initDataTable() {
+            dataTableInstance = $('#customerDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "在表格中過濾...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+            reloadDataTable();
+        }
+
+        // 重新載入 DataTable 數據
+        function reloadDataTable() {
+            if (!dataTableInstance) return;
+            dataTableInstance.clear();
+
+            customersDatabase.forEach(item => {
+                const stageText = getStageText(item.conversion_stage);
+                const stageClass = getStageBadgeClass(item.conversion_stage);
+                const actionBtn = `<button class="btn btn-sm btn-neon-ghost py-1 px-2 btnOpenDetail" data-id="${item.customer_id}"><i class="fa-solid fa-folder-open"></i> 檔案</button>`;
+                
+                dataTableInstance.row.add([
+                    `<div><strong>${item.customer_name}</strong><br><span class="hub-code text-muted small">${item.customer_id}</span></div>`,
+                    `<span class="badge-stage ${stageClass}">${stageText}</span>`,
+                    `<div><i class="fa-solid fa-phone text-muted"></i> ${item.mobile_phone}<br><i class="fa-brands fa-line text-success"></i> ${item.line_user_id}</div>`,
+                    `<div class="small"><strong>訴求:</strong> ${item.health_concerns}<br><span class="text-muted">過敏: ${item.allergy_history}</span></div>`,
+                    `<div class="small">${item.last_purchase_product}<br><span class="text-warning">${item.days_remaining <= 0 ? '已逾期耗盡' : '剩餘 ' + item.days_remaining + ' 天'}</span></div>`,
+                    `<span class="hub-code text-accent fw-bold">${item.total_accumulated_sv.toLocaleString()}</span>`,
+                    `<span class="small" style="color: var(--uvaco-text-sub);">${item.assigned_partner_name}</span>`,
+                    actionBtn
+                ]);
+            });
+
+            dataTableInstance.draw();
+            // 重新綁定 DataTable 內的按鈕點擊
+            $('#customerDataTable .btnOpenDetail').off('click').on('click', function() {
+                const custId = $(this).data('id');
+                openCustomerDrawer(custId);
+            });
+        }
+
+        // 打開客戶 360° 詳情抽屜
+        function openCustomerDrawer(customerId) {
+            const customer = customersDatabase.find(c => c.customer_id === customerId);
+            if (!customer) return;
+
+            $('#drawerAvatar').text(customer.customer_name.charAt(0));
+            $('#drawerCustomerName').text(customer.customer_name);
+            $('#drawerCustomerNo').text(customer.customer_id + " · " + customer.assigned_partner_name);
+            $('#drawerHealthConcerns').text(customer.health_concerns);
+            $('#drawerAllergies').text(customer.allergy_history);
+            $('#drawerDietHabits').text(customer.diet_habits);
+            $('#drawerOccupation').text(customer.occupation);
+
+            const drawerEl = document.getElementById('customerDetailDrawer');
+            const bsOffcanvas = new bootstrap.Offcanvas(drawerEl);
+            bsOffcanvas.show();
+        }
+
+        // 篩選核心邏輯
+        function applyFilter(filterType, searchQuery) {
+            let filtered = customersDatabase;
+
+            if (filterType === 'REGULAR') {
+                filtered = filtered.filter(c => c.conversion_stage === 'REGULAR');
+            } else if (filterType === 'REORDER_WARN') {
+                filtered = filtered.filter(c => c.days_remaining <= 7);
+            } else if (filterType === 'VIP') {
+                filtered = filtered.filter(c => c.conversion_stage === 'VIP' || c.total_accumulated_sv >= 10000);
+            } else if (filterType === 'DORMANT') {
+                filtered = filtered.filter(c => c.conversion_stage === 'DORMANT' || c.days_remaining <= -30);
+            } else if (filterType === 'PROSPECT_TEAM') {
+                filtered = filtered.filter(c => c.customer_type === 'PROSPECT_TEAM' || c.conversion_stage === 'PARTNER_PROSPECT');
+            }
+
+            if (searchQuery && searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase().trim();
+                filtered = filtered.filter(c => 
+                    c.customer_name.toLowerCase().includes(q) ||
+                    c.customer_id.toLowerCase().includes(q) ||
+                    c.mobile_phone.includes(q) ||
+                    c.health_concerns.toLowerCase().includes(q) ||
+                    c.tags.some(t => t.toLowerCase().includes(q))
+                );
+            }
+
+            renderCustomerCards(filtered);
+        }
+
+        // 更新頂部計數徽章
+        function updateStatisticsCounters() {
+            $('#countAll').text(customersDatabase.length);
+            $('#countRegular').text(customersDatabase.filter(c => c.conversion_stage === 'REGULAR').length);
+            $('#countWarn').text(customersDatabase.filter(c => c.days_remaining <= 7).length);
+            $('#countVip').text(customersDatabase.filter(c => c.conversion_stage === 'VIP' || c.total_accumulated_sv >= 10000).length);
+            $('#countDormant').text(customersDatabase.filter(c => c.conversion_stage === 'DORMANT' || c.days_remaining <= -30).length);
+            $('#countProspect').text(customersDatabase.filter(c => c.customer_type === 'PROSPECT_TEAM' || c.conversion_stage === 'PARTNER_PROSPECT').length);
+        }
+
+        // 初始化 Chart.js 體質與預算洞察圖表
+        function initInsightCharts() {
+            // 體質困擾分佈圓餅圖
+            const ctxHealth = document.getElementById('healthConcernChart').getContext('2d');
+            healthChartInstance = new Chart(ctxHealth, {
+                type: 'doughnut',
+                data: {
+                    labels: ['胃腸消化 (衛傑/康爾喜)', '體力免疫 (995/樟芝益)', '過敏呼吸 (百克斯)', '骨骼循環', '其他'],
+                    datasets: [{
+                        data: [42, 28, 18, 8, 4],
+                        backgroundColor: ['#8b5cf6', '#ec4899', '#38bdf8', '#10b981', '#6b7280'],
+                        borderColor: '#120926',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#c4b5fd', font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+
+            // 預算分層長條圖
+            const ctxBudget = document.getElementById('budgetTierChart').getContext('2d');
+            budgetChartInstance = new Chart(ctxBudget, {
+                type: 'bar',
+                data: {
+                    labels: ['< 3,000元', '3,000~8,000元', '> 8,000元'],
+                    datasets: [{
+                        label: '客戶人數',
+                        data: [12, 24, 8],
+                        backgroundColor: ['rgba(139, 92, 246, 0.6)', 'rgba(236, 72, 153, 0.7)', 'rgba(56, 189, 248, 0.7)'],
+                        borderColor: ['#8b5cf6', '#ec4899', '#38bdf8'],
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9e8eb3' }, grid: { display: false } },
+                        y: { ticks: { color: '#9e8eb3' }, grid: { color: 'rgba(139, 92, 246, 0.1)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // 輔助函式：轉換階段狀態樣式與文字
+        function getStageBadgeClass(stage) {
+            switch(stage) {
+                case 'LEAD': return 'lead';
+                case 'REGULAR': return 'regular';
+                case 'VIP': return 'vip';
+                case 'DORMANT': return 'dormant';
+                case 'PARTNER_PROSPECT': return 'converted';
+                default: return 'lead';
+            }
+        }
+
+        function getStageText(stage) {
+            switch(stage) {
+                case 'LEAD': return '潛在線索';
+                case 'REGULAR': return '定期回購';
+                case 'VIP': return '高價值 VIP';
+                case 'DORMANT': return '預警沉睡';
+                case 'PARTNER_PROSPECT': return '評估加盟';
+                default: return stage;
+            }
+        }
+    </script>
+</body>
+</html>

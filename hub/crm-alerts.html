@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶預警與調度中樞 | 榮祥團隊戰情系統</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-rgb: 192, 132, 252;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-card: rgba(22, 13, 46, 0.75);
+            --uvaco-bg-card-hover: rgba(35, 20, 72, 0.85);
+            --uvaco-border-glow: rgba(139, 92, 246, 0.25);
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-sub: #c4b5fd;
+            --uvaco-text-muted: #9e8eb3;
+            --uvaco-success: #10b981;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #f43f5e;
+            --uvaco-info: #38bdf8;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            background-image: 
+                radial-gradient(circle at 5% 10%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 95% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0518 0%, #0d0722 100%);
+            background-attachment: fixed;
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 60%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hub-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.22);
+        }
+
+        /* 戰術預警卡片 (Triage Action Cards) */
+        .alert-action-card {
+            background: rgba(22, 13, 46, 0.65);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: var(--uvaco-radius-md);
+            padding: 1.15rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .alert-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .alert-action-card.severity-danger::before { background: var(--uvaco-danger); }
+        .alert-action-card.severity-warning::before { background: var(--uvaco-warning); }
+        .alert-action-card.severity-info::before { background: var(--uvaco-info); }
+        .alert-action-card.severity-success::before { background: var(--uvaco-secondary); }
+
+        .alert-action-card:hover {
+            transform: translateY(-3px);
+            background: rgba(35, 20, 72, 0.85);
+            border-color: rgba(192, 132, 252, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 快速處置指標丸 */
+        .stat-radar-pill {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--uvaco-radius-md);
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stat-radar-pill:hover, .stat-radar-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.25) 100%);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.3);
+        }
+
+        /* 按鈕系統 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.55);
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            transition: all 0.2s ease;
+        }
+
+        .btn-neon-ghost:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+        }
+
+        /* 耗盡進度條 */
+        .depletion-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* DataTables 深色化 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+        }
+        .table-custom thead th {
+            background: rgba(22, 13, 46, 0.9);
+            color: var(--uvaco-text-sub);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            padding: 12px 16px;
+        }
+        .table-custom tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .offcanvas, .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--uvaco-text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container-fluid px-3 px-lg-4 py-4">
+
+        <!-- 頂部戰略資訊與雷達指標列 -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill hub-code" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.35);">
+                            <i class="fa-solid fa-triangle-exclamation"></i> H54000 / crm-alerts
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3);">
+                            <i class="fa-solid fa-bullseye"></i> 7日耗盡與門檻調度閉環
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">客戶預警與回購雷達中樞</h1>
+                    <p class="text-muted small mb-0 mt-1" style="color: var(--uvaco-text-muted) !important;">
+                        主動監控產品耗盡週期、食用暝眩反應追蹤、沉睡流失風險與 12,000 SV 先買延買調度。
+                    </p>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGviz">
+                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表預警
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#analyticsCollapse">
+                        <i class="fa-solid fa-chart-pie"></i> 預警趨勢洞察
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" id="btnBatchActionModal" data-bs-toggle="modal" data-bs-target="#modalBatchDispatch">
+                        <i class="fa-solid fa-paper-plane"></i> 批次關懷推播
+                    </button>
+                </div>
+            </div>
+
+            <!-- 四大即時預警雷達指標卡 (可直接點擊進行快速篩選) -->
+            <div class="row g-3 mt-3 pt-3 border-top border-secondary border-opacity-10" id="radarFilterRow">
+                <div class="col-6 col-lg-3">
+                    <div class="stat-radar-pill active" data-filter="ALL">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted"><i class="fa-solid fa-list-check"></i> 全部待處置</span>
+                            <span class="badge bg-secondary rounded-pill hub-code" id="cntAll">0</span>
+                        </div>
+                        <h4 class="mb-0 mt-1 fw-bold text-light" id="totalActiveAlerts">0 <small class="fs-6 fw-normal text-muted">件</small></h4>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-radar-pill" data-filter="REORDER_7D">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small" style="color: #fbbf24;"><i class="fa-solid fa-hourglass-half"></i> 7日即將耗盡</span>
+                            <span class="badge bg-warning text-dark rounded-pill hub-code" id="cnt7d">0</span>
+                        </div>
+                        <h4 class="mb-0 mt-1 fw-bold text-warning" id="totalReorder7d">0 <small class="fs-6 fw-normal text-muted">人</small></h4>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-radar-pill" data-filter="HEALING_CHECK">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small" style="color: #38bdf8;"><i class="fa-solid fa-notes-medical"></i> 好轉反應關懷</span>
+                            <span class="badge bg-info text-dark rounded-pill hub-code" id="cntHealing">0</span>
+                        </div>
+                        <h4 class="mb-0 mt-1 fw-bold text-info" id="totalHealing">0 <small class="fs-6 fw-normal text-muted">人</small></h4>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-radar-pill" data-filter="SCHEDULE_DISPATCH">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small" style="color: #c084fc;"><i class="fa-solid fa-calendar-check"></i> 門檻調度約定</span>
+                            <span class="badge bg-purple rounded-pill hub-code" style="background: var(--uvaco-primary);" id="cntDispatch">0</span>
+                        </div>
+                        <h4 class="mb-0 mt-1 fw-bold" style="color: #c084fc;" id="totalDispatch">0 <small class="fs-6 fw-normal text-muted">單</small></h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：預警分佈分析圖表 -->
+        <section class="collapse mb-4" id="analyticsCollapse">
+            <div class="row g-3">
+                <div class="col-12 col-lg-6">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-pie text-accent"></i> 預警類型分佈佔比</h6>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="alertTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-gauge-high text-success"></i> 預警處置效率與回購轉化率</h6>
+                        <div style="height: 220px; position: relative;">
+                            <canvas id="conversionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 視圖切換與搜尋控制條 -->
+        <section class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group" style="max-width: 320px;">
+                    <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="alertSearchInput" class="form-control border-0" placeholder="搜尋客戶、品項或處理指引..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                </div>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-neon-ghost active px-3" id="btnViewCards" title="戰術卡片視圖">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                </button>
+                <button type="button" class="btn btn-neon-ghost px-3" id="btnViewTable" title="高密資料表視圖">
+                    <i class="fa-solid fa-list"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 視圖一：戰術預警任務流卡片 -->
+        <section id="alertCardsContainer" class="row g-3">
+            <!-- 由 JavaScript 動態生成預警卡片 -->
+        </section>
+
+        <!-- 視圖二：高密資料表視圖 (DataTable.js) -->
+        <section id="alertTableContainer" class="glass-panel p-3 p-lg-4 d-none">
+            <div class="table-responsive">
+                <table id="alertDataTable" class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th>預警編號 / 客戶</th>
+                            <th>類型 / 等級</th>
+                            <th>監控品項 / 用量推算</th>
+                            <th>剩餘天數 / 截止</th>
+                            <th>系統智慧建議話術</th>
+                            <th>負責夥伴</th>
+                            <th>即刻行動</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 由 JS 注入資料 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 側拉抽屜：單一預警快速處置與對話生成器 (Offcanvas) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="alertActionDrawer" style="width: 100%; max-width: 520px;">
+        <div class="offcanvas-header border-bottom border-secondary border-opacity-25 py-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-warning text-dark p-2" id="drawerAlertBadge"><i class="fa-solid fa-bell"></i></span>
+                <div>
+                    <h5 class="offcanvas-title mb-0 fw-bold" id="drawerTitle">7 日耗盡回購提醒</h5>
+                    <span class="small text-muted hub-code" id="drawerSubTitle">ALT-2026-8801 · 林雅涵</span>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-3 p-lg-4">
+            <div class="alert alert-dark border border-purple-subtle p-3 rounded-3 mb-3" style="background: rgba(139,92,246,0.1);">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-lightbulb"></i> 戰術行動指引</strong>
+                    <span class="badge bg-danger" id="drawerUrgency">極緊急 (剩餘 2 天)</span>
+                </div>
+                <p class="small text-light mb-0" id="drawerSuggestion">客戶食用衛傑已達 46 天，即將斷盒。建議詢問腸胃排便改善體感，並告知本週團隊有滿額贈百克斯活動，引導回購 2 盒。</p>
+            </div>
+
+            <h6 class="mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-brands fa-line text-success"></i> 智能推薦 LINE 私聊關懷話術</h6>
+            <div class="position-relative mb-3">
+                <textarea class="form-control" id="lineScriptBox" rows="5" style="background: rgba(0,0,0,0.3); color: #f3e8ff; border: 1px solid rgba(139,92,246,0.3); font-size: 0.9rem;"></textarea>
+                <button class="btn btn-sm btn-neon-ghost position-absolute bottom-0 end-0 m-2" id="btnCopyScript">
+                    <i class="fa-solid fa-copy"></i> 複製話術
+                </button>
+            </div>
+
+            <h6 class="mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-clipboard-check"></i> 處置結果登錄</h6>
+            <form id="drawerActionForm">
+                <div class="mb-3">
+                    <label class="form-label small text-muted">處置狀態</label>
+                    <select class="form-select" id="drawerStatusSelect">
+                        <option value="RESOLVED">已完成關懷並成功下單 (結案)</option>
+                        <option value="FOLLOW_UP">已聯繫，約定 3 天後再追蹤</option>
+                        <option value="DELAYED">客戶表示尚有庫存 (延後推算)</option>
+                        <option value="DISPATCHED">已轉入 12,000 SV 門檻排程協調</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small text-muted">簡要互動筆記 (自動同步至 CRM 關懷歷程)</label>
+                    <textarea class="form-control" id="drawerNotes" rows="2" placeholder="如：已電話溝通，客戶反饋胃酸情況好轉，預計週五聚會面交2盒..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="offcanvas-footer border-top border-secondary border-opacity-25 p-3 d-flex gap-2">
+            <a href="https://line.me" target="_blank" class="btn btn-sm btn-success flex-fill" id="btnDrawerOpenLine">
+                <i class="fa-brands fa-line"></i> 開啟 LINE 私聊
+            </a>
+            <button class="btn btn-sm btn-neon-primary flex-fill" id="btnSaveDrawerAction">
+                <i class="fa-solid fa-floppy-disk"></i> 儲存處置結果
+            </button>
+        </div>
+    </div>
+
+    <!-- 模態視窗：批次推播確認 -->
+    <div class="modal fade" id="modalBatchDispatch" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-paper-plane text-accent"></i> 批次發送回購關懷清單</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">系統已自動為當前篩選出的 <strong class="text-warning" id="batchTargetCount">3</strong> 位即將耗盡客戶打包 LINE 關懷短訊範本。</p>
+                    <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-20 mb-3 small" style="color: var(--uvaco-text-sub);">
+                        <i class="fa-solid fa-circle-info text-info"></i> 批次處理後，所有告警將自動轉為「處理中」並記錄時間戳記。
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-accent" id="btnConfirmBatch">
+                        <i class="fa-solid fa-check"></i> 確認批次標記
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴腳本 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 系統核心業務邏輯與解耦轉接引擎 -->
+    <script>
+        /**
+         * Google 試算表欄位解耦對映字典 (CRM Alerts Decoupling Adapter)
+         */
+        const CRM_ALERTS_DECOUPLING_ADAPTER = {
+            "crm_alerts": {
+                alertId: 0,
+                customerId: 1,
+                customerName: 2,
+                alertType: 3,
+                severity: 4,
+                productName: 5,
+                daysRemaining: 6,
+                targetDate: 7,
+                suggestedScript: 8,
+                suggestedAction: 9,
+                assignedPartner: 10,
+                status: 11
+            }
+        };
+
+        // 預設生產級模擬預警資料庫
+        let alertsDatabase = [
+            {
+                alert_id: "ALT-2026-8801",
+                customer_id: "CUST-2026-0108",
+                customer_name: "林雅涵",
+                alert_type: "REORDER_7D",
+                severity: "DANGER",
+                product_name: "衛傑膠囊 (100粒) × 2",
+                daily_dosage: "早晚各 2 粒 (4粒/天)",
+                days_remaining: 2,
+                target_date: "2026-08-23",
+                suggested_script: "雅涵您好！最近工作忙碌胃食道逆流有比較緩解嗎？看紀錄您的衛傑這兩天差不多要吃完了，本週團隊有訂購優惠，要幫您留兩盒保持調理不中斷嗎？",
+                suggested_action: "詢問腸胃體感，引導回購 2 盒並贈送餐包試用包",
+                assigned_partner: "Jarvis 林承志",
+                status: "UNRESOLVED"
+            },
+            {
+                alert_id: "ALT-2026-8802",
+                customer_id: "CUST-2026-0125",
+                customer_name: "郭子豪",
+                alert_type: "HEALING_CHECK",
+                severity: "INFO",
+                product_name: "百克斯膠囊 (體驗組)",
+                daily_dosage: "每日 2 粒",
+                days_remaining: 4,
+                target_date: "2026-08-25",
+                suggested_script: "子豪早安！百克斯開始吃第4天了，晨起打噴嚏的狀況有稍微感覺呼吸比較順嗎？初期如果覺得痰變多是正常清潤反應喔，記得多喝溫開水！",
+                suggested_action: "消除好轉反應疑慮，建立信任，預備轉正式盒裝",
+                assigned_partner: "Jarvis 林承志",
+                status: "UNRESOLVED"
+            },
+            {
+                alert_id: "ALT-2026-8803",
+                customer_id: "CUST-2026-0112",
+                customer_name: "張慶祥 (大安陳伯伯)",
+                alert_type: "SCHEDULE_DISPATCH",
+                severity: "SUCCESS",
+                product_name: "995超級營養液 + 樟芝益",
+                daily_dosage: "每日各 1 瓶",
+                days_remaining: 5,
+                target_date: "2026-08-20",
+                suggested_script: "張大哥您好！感謝您長期愛用995，本月團隊正在衝刺創始表揚門檻，若您方便在 20 號前下單次月份，我特別自掏腰包為您送上一盒百克斯隨身包！",
+                suggested_action: "Ray戰術：協調客戶 20 號前先買，衝刺 12,000 SV",
+                assigned_partner: "Ray 翁榮祥",
+                status: "UNRESOLVED"
+            },
+            {
+                alert_id: "ALT-2026-8804",
+                customer_id: "CUST-2026-0130",
+                customer_name: "陳雅雯",
+                alert_type: "DORMANT_RISK",
+                severity: "WARNING",
+                product_name: "康爾喜益生菌",
+                daily_dosage: "每日 1 包",
+                days_remaining: -25,
+                target_date: "2026-07-27",
+                suggested_script: "雅雯好久不見！最近天氣換季腸胃還好嗎？葡眾這個月有新配方見證分享，如果之前吃的益生菌有吃完，隨時跟我說幫您安排新鮮批號喔！",
+                suggested_action: "破冰關懷，提供體態/排便見證，挽回沉睡客戶",
+                assigned_partner: "Jarvis 林承志",
+                status: "UNRESOLVED"
+            }
+        ];
+
+        let alertDataTableInstance = null;
+        let alertTypeChartInstance = null;
+        let conversionChartInstance = null;
+        let currentFilter = "ALL";
+
+        $(document).ready(function() {
+            renderAlertCards(alertsDatabase);
+            initAlertDataTable();
+            initAnalyticsCharts();
+            updateRadarCounters();
+
+            // 視圖切換
+            $('#btnViewCards').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewTable').removeClass('active');
+                $('#alertCardsContainer').removeClass('d-none');
+                $('#alertTableContainer').addClass('d-none');
+            });
+
+            $('#btnViewTable').on('click', function() {
+                $(this).addClass('active');
+                $('#btnViewCards').removeClass('active');
+                $('#alertTableContainer').removeClass('d-none');
+                $('#alertCardsContainer').addClass('d-none');
+                if (alertDataTableInstance) {
+                    alertDataTableInstance.columns.adjust().responsive.recalc();
+                }
+            });
+
+            // 頂部雷達按鈕快篩
+            $('#radarFilterRow .stat-radar-pill').on('click', function() {
+                $('#radarFilterRow .stat-radar-pill').removeClass('active');
+                $(this).addClass('active');
+                currentFilter = $(this).data('filter');
+                applyFilter();
+            });
+
+            // 關鍵字搜尋
+            $('#alertSearchInput').on('keyup', function() {
+                applyFilter();
+            });
+
+            // 試算表同步
+            $('#btnSyncGviz').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 掃描中...');
+                setTimeout(function() {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 預警掃描完成');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表預警'), 2000);
+                }, 1000);
+            });
+
+            // 複製話術按鈕
+            $('#btnCopyScript').on('click', function() {
+                const text = $('#lineScriptBox').val();
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = $(this).html();
+                    $(this).html('<i class="fa-solid fa-check text-success"></i> 已複製');
+                    setTimeout(() => $(this).html(originalText), 1500);
+                });
+            });
+
+            // 儲存抽屜處置結果
+            $('#btnSaveDrawerAction').on('click', function() {
+                const alertId = $('#drawerSubTitle').text().split(' · ')[0];
+                const status = $('#drawerStatusSelect').val();
+                const targetAlert = alertsDatabase.find(a => a.alert_id === alertId);
+                if (targetAlert) {
+                    targetAlert.status = status;
+                }
+                renderAlertCards(alertsDatabase);
+                reloadAlertDataTable();
+                updateRadarCounters();
+                bootstrap.Offcanvas.getInstance($('#alertActionDrawer')[0]).hide();
+            });
+
+            // 批次確認
+            $('#btnConfirmBatch').on('click', function() {
+                alertsDatabase.forEach(a => {
+                    if (a.alert_type === 'REORDER_7D') a.status = 'ACKNOWLEDGED';
+                });
+                renderAlertCards(alertsDatabase);
+                reloadAlertDataTable();
+                updateRadarCounters();
+                bootstrap.Modal.getInstance($('#modalBatchDispatch')[0]).hide();
+            });
+        });
+
+        // 渲染戰術預警卡片流
+        function renderAlertCards(dataList) {
+            const container = $('#alertCardsContainer');
+            container.empty();
+
+            if (dataList.length === 0) {
+                container.html(`
+                    <div class="col-12 text-center py-5">
+                        <div class="text-muted"><i class="fa-solid fa-bell-slash fa-3x mb-3 text-secondary opacity-50"></i></div>
+                        <h6 class="text-muted">目前無符合條件之待處置預警</h6>
+                    </div>
+                `);
+                return;
+            }
+
+            dataList.forEach(item => {
+                const badgeInfo = getAlertTypeBadge(item.alert_type);
+                const severityClass = getSeverityClass(item.severity);
+
+                let countdownHtml = '';
+                if (item.days_remaining < 0) {
+                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation"></i> 逾期 ${Math.abs(item.days_remaining)} 天</span>`;
+                } else if (item.days_remaining <= 3) {
+                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-clock"></i> 倒數 ${item.days_remaining} 天</span>`;
+                } else {
+                    countdownHtml = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-start"></i> 倒數 ${item.days_remaining} 天</span>`;
+                }
+
+                const cardHtml = `
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="alert-action-card ${severityClass} h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="badge ${badgeInfo.class} mb-1">${badgeInfo.text}</span>
+                                        <h5 class="mb-0 fw-bold text-light">${item.customer_name}</h5>
+                                    </div>
+                                    ${countdownHtml}
+                                </div>
+
+                                <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-2">
+                                    <div class="small text-muted mb-1"><i class="fa-solid fa-box text-info"></i> 品項：<strong class="text-light">${item.product_name}</strong></div>
+                                    <div class="small text-muted"><i class="fa-solid fa-spoon text-warning"></i> 用量：${item.daily_dosage}</div>
+                                </div>
+
+                                <p class="small text-light mb-3" style="color: var(--uvaco-text-sub) !important;">
+                                    <i class="fa-solid fa-lightbulb text-warning"></i> <strong>建議對策：</strong>${item.suggested_action}
+                                </p>
+                            </div>
+
+                            <div class="pt-2 border-top border-secondary border-opacity-15 d-flex justify-content-between align-items-center">
+                                <span class="small text-muted"><i class="fa-solid fa-user-tie"></i> ${item.assigned_partner}</span>
+                                <button class="btn btn-sm btn-neon-primary btnOpenActionDrawer" data-id="${item.alert_id}">
+                                    <i class="fa-solid fa-bolt"></i> 立即處置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+
+            // 綁定處置按鈕
+            $('.btnOpenActionDrawer').on('click', function() {
+                const id = $(this).data('id');
+                openActionDrawer(id);
+            });
+        }
+
+        // 初始化 DataTable
+        function initAlertDataTable() {
+            alertDataTableInstance = $('#alertDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "在預警清單搜尋...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+            reloadAlertDataTable();
+        }
+
+        // 重新載入表格
+        function reloadAlertDataTable() {
+            if (!alertDataTableInstance) return;
+            alertDataTableInstance.clear();
+
+            alertsDatabase.forEach(item => {
+                const badgeInfo = getAlertTypeBadge(item.alert_type);
+                const actionBtn = `<button class="btn btn-sm btn-neon-primary py-1 px-2 btnOpenActionDrawer" data-id="${item.alert_id}"><i class="fa-solid fa-bolt"></i> 處置</button>`;
+                
+                alertDataTableInstance.row.add([
+                    `<div><strong>${item.customer_name}</strong><br><span class="hub-code text-muted small">${item.alert_id}</span></div>`,
+                    `<span class="badge ${badgeInfo.class}">${badgeInfo.text}</span>`,
+                    `<div class="small"><strong>${item.product_name}</strong><br><span class="text-muted">${item.daily_dosage}</span></div>`,
+                    `<span class="hub-code ${item.days_remaining <= 2 ? 'text-danger fw-bold' : 'text-warning'}">${item.days_remaining} 天 (${item.target_date})</span>`,
+                    `<div class="small text-truncate" style="max-width: 200px;" title="${item.suggested_script}">${item.suggested_script}</div>`,
+                    `<span class="small" style="color: var(--uvaco-text-sub);">${item.assigned_partner}</span>`,
+                    actionBtn
+                ]);
+            });
+
+            alertDataTableInstance.draw();
+            $('#alertDataTable .btnOpenActionDrawer').off('click').on('click', function() {
+                const id = $(this).data('id');
+                openActionDrawer(id);
+            });
+        }
+
+        // 開啟處置抽屜
+        function openActionDrawer(alertId) {
+            const item = alertsDatabase.find(a => a.alert_id === alertId);
+            if (!item) return;
+
+            $('#drawerTitle').text(getAlertTypeBadge(item.alert_type).text);
+            $('#drawerSubTitle').text(`${item.alert_id} · ${item.customer_name}`);
+            $('#drawerSuggestion').text(item.suggested_action);
+            $('#lineScriptBox').val(item.suggested_script);
+
+            const drawerEl = document.getElementById('alertActionDrawer');
+            const bsOffcanvas = new bootstrap.Offcanvas(drawerEl);
+            bsOffcanvas.show();
+        }
+
+        // 篩選核心
+        function applyFilter() {
+            const query = $('#alertSearchInput').val().toLowerCase().trim();
+            let filtered = alertsDatabase;
+
+            if (currentFilter === 'REORDER_7D') {
+                filtered = filtered.filter(a => a.alert_type === 'REORDER_7D');
+            } else if (currentFilter === 'HEALING_CHECK') {
+                filtered = filtered.filter(a => a.alert_type === 'HEALING_CHECK');
+            } else if (currentFilter === 'SCHEDULE_DISPATCH') {
+                filtered = filtered.filter(a => a.alert_type === 'SCHEDULE_DISPATCH');
+            }
+
+            if (query !== '') {
+                filtered = filtered.filter(a => 
+                    a.customer_name.toLowerCase().includes(query) ||
+                    a.product_name.toLowerCase().includes(query) ||
+                    a.suggested_action.toLowerCase().includes(query) ||
+                    a.assigned_partner.toLowerCase().includes(query)
+                );
+            }
+
+            renderAlertCards(filtered);
+        }
+
+        // 更新頂部雷達數字
+        function updateRadarCounters() {
+            const cntAll = alertsDatabase.filter(a => a.status === 'UNRESOLVED').length;
+            const cnt7d = alertsDatabase.filter(a => a.alert_type === 'REORDER_7D' && a.status === 'UNRESOLVED').length;
+            const cntHealing = alertsDatabase.filter(a => a.alert_type === 'HEALING_CHECK' && a.status === 'UNRESOLVED').length;
+            const cntDispatch = alertsDatabase.filter(a => a.alert_type === 'SCHEDULE_DISPATCH' && a.status === 'UNRESOLVED').length;
+
+            $('#cntAll, #totalActiveAlerts').text(cntAll);
+            $('#cnt7d, #totalReorder7d').text(cnt7d);
+            $('#cntHealing, #totalHealing').text(cntHealing);
+            $('#cntDispatch, #totalDispatch').text(cntDispatch);
+            $('#batchTargetCount').text(cnt7d);
+        }
+
+        // 圖表初始化
+        function initAnalyticsCharts() {
+            const ctxType = document.getElementById('alertTypeChart').getContext('2d');
+            alertTypeChartInstance = new Chart(ctxType, {
+                type: 'doughnut',
+                data: {
+                    labels: ['7日回購預警', '好轉反應追蹤', '門檻調度約定', '沉睡流失瀕危'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: ['#f59e0b', '#38bdf8', '#8b5cf6', '#f43f5e'],
+                        borderColor: '#120926',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#c4b5fd', font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+
+            const ctxConv = document.getElementById('conversionChart').getContext('2d');
+            conversionChartInstance = new Chart(ctxConv, {
+                type: 'bar',
+                data: {
+                    labels: ['週一', '週二', '週三', '週四', '週五', '週六', '週日'],
+                    datasets: [{
+                        label: '預警處置成功率 (%)',
+                        data: [82, 88, 91, 78, 95, 84, 90],
+                        backgroundColor: 'rgba(139, 92, 246, 0.65)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9e8eb3' }, grid: { display: false } },
+                        y: { ticks: { color: '#9e8eb3' }, grid: { color: 'rgba(139, 92, 246, 0.1)' }, min: 0, max: 100 }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // 輔助標籤與等級樣式轉換
+        function getAlertTypeBadge(type) {
+            switch(type) {
+                case 'REORDER_7D': return { text: '7日即將耗盡', class: 'bg-warning text-dark' };
+                case 'HEALING_CHECK': return { text: '好轉反應關懷', class: 'bg-info text-dark' };
+                case 'SCHEDULE_DISPATCH': return { text: '門檻排程調度', class: 'bg-purple text-light', style: 'background: var(--uvaco-primary);' };
+                case 'DORMANT_RISK': return { text: '沉睡流失警報', class: 'bg-danger text-light' };
+                default: return { text: '一般提醒', class: 'bg-secondary text-light' };
+            }
+        }
+
+        function getSeverityClass(severity) {
+            switch(severity) {
+                case 'DANGER': return 'severity-danger';
+                case 'WARNING': return 'severity-warning';
+                case 'INFO': return 'severity-info';
+                case 'SUCCESS': return 'severity-success';
+                default: return 'severity-info';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H52000 潛在名單與意向轉化戰情室 - 榮祥團隊核心樞紐</title>
+    <!-- Google Noto Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.1 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root, [data-bs-theme="dark-purple"] {
+            --uvaco-primary: #8b5cf6;
+            --uvaco-primary-rgb: 139, 92, 246;
+            --uvaco-primary-hover: #7c3aed;
+            --uvaco-secondary: #c084fc;
+            --uvaco-secondary-rgb: 192, 132, 252;
+            --uvaco-accent: #ec4899;
+            --uvaco-accent-rgb: 236, 72, 153;
+            --uvaco-muted: #a1a1aa;
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-card: rgba(22, 13, 46, 0.78);
+            --uvaco-bg-card-hover: rgba(36, 20, 74, 0.88);
+            --uvaco-bg-surface: #130a2a;
+            --uvaco-border-glow: rgba(139, 92, 246, 0.25);
+            --uvaco-border-active: rgba(236, 72, 153, 0.45);
+            --uvaco-text-main: #f3e8ff;
+            --uvaco-text-sub: #c4b5fd;
+            --uvaco-text-muted: #9e8eb3;
+            --uvaco-success: #10b981;
+            --uvaco-warning: #f59e0b;
+            --uvaco-danger: #f43f5e;
+            --uvaco-info: #38bdf8;
+            --uvaco-radius-sm: 8px;
+            --uvaco-radius-md: 14px;
+            --uvaco-radius-lg: 20px;
+            --uvaco-radius-pill: 50rem;
+        }
+
+        body {
+            background-color: var(--uvaco-bg-base);
+            background-image: 
+                radial-gradient(circle at 5% 10%, rgba(139, 92, 246, 0.15) 0%, transparent 42%),
+                radial-gradient(circle at 95% 90%, rgba(236, 72, 153, 0.12) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.05) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0518 0%, #0d0722 100%);
+            background-attachment: fixed;
+            color: var(--uvaco-text-main);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 核心玻璃擬態與高質感光暈 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border-glow);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(192, 132, 252, 0.45);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.25);
+        }
+
+        .glass-pill {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            padding: 6px 16px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .glass-pill:hover, .glass-pill.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.38) 0%, rgba(236, 72, 153, 0.32) 100%);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
+        }
+
+        .hub-title {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 55%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .hub-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 賽博魅影按鈕群 */
+        .btn-neon-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: var(--uvaco-radius-pill);
+            box-shadow: 0 4px 18px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-accent:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+            box-shadow: 0 6px 25px rgba(236, 72, 153, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-neon-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--uvaco-text-sub);
+            border-radius: var(--uvaco-radius-pill);
+            transition: all 0.25s ease;
+        }
+
+        .btn-neon-ghost:hover {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: var(--uvaco-secondary);
+            color: #ffffff;
+        }
+
+        /* 創新佈局：漏斗看板 (Pipeline Board) */
+        .pipeline-lane {
+            background: rgba(19, 10, 42, 0.65);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: var(--uvaco-radius-lg);
+            padding: 1rem;
+            min-height: 580px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s ease;
+        }
+
+        .pipeline-lane:hover {
+            border-color: rgba(192, 132, 252, 0.35);
+            background: rgba(25, 13, 54, 0.75);
+        }
+
+        .lane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .lane-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lane-badge {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--uvaco-secondary);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: var(--uvaco-radius-pill);
+            font-weight: 600;
+        }
+
+        .lane-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            overflow-y: auto;
+            max-height: 680px;
+            padding-right: 4px;
+        }
+
+        /* 自訂細緻滾動條 */
+        .lane-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .lane-body::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
+        }
+
+        /* 潛在名單微卡片 (Lead Card) */
+        .lead-card {
+            background: var(--uvaco-bg-card);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.9rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .lead-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--uvaco-secondary);
+            box-shadow: 0 10px 24px rgba(139, 92, 246, 0.3);
+            background: var(--uvaco-bg-card-hover);
+        }
+
+        .lead-card::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 0;
+            bottom: 10px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .lead-card.temp-hot::before { background: #f43f5e; box-shadow: 0 0 8px #f43f5e; }
+        .lead-card.temp-warm::before { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+        .lead-card.temp-cool::before { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+
+        .temp-indicator {
+            font-size: 0.7rem;
+            padding: 2px 7px;
+            border-radius: var(--uvaco-radius-pill);
+            font-weight: 600;
+        }
+        .temp-hot { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .temp-warm { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .temp-cool { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        .tag-pill {
+            font-size: 0.7rem;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--uvaco-text-sub);
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 3px;
+            margin-bottom: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .source-tag {
+            font-size: 0.72rem;
+            color: var(--uvaco-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 快速動作懸浮鈕 */
+        .lead-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--uvaco-text-sub);
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .lead-action-btn:hover {
+            background: var(--uvaco-primary);
+            color: #ffffff;
+            border-color: var(--uvaco-secondary);
+            transform: scale(1.15);
+        }
+
+        /* 統計指標迷你晶片 */
+        .metric-chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.25s ease;
+        }
+        .metric-chip:hover {
+            border-color: var(--uvaco-secondary);
+            background: rgba(139, 92, 246, 0.08);
+        }
+
+        /* 表格深色化與自訂 */
+        .table-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            --bs-table-border-color: rgba(139, 92, 246, 0.15);
+            margin-bottom: 0;
+        }
+        .table-custom thead th {
+            background: rgba(22, 13, 46, 0.95);
+            color: var(--uvaco-text-sub);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+        }
+        .table-custom tbody td {
+            padding: 13px 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            font-size: 0.88rem;
+        }
+        .table-custom tbody tr:hover td {
+            background-color: rgba(139, 92, 246, 0.09);
+        }
+
+        /* 側拉抽屜與模態框美化 */
+        .offcanvas, .modal-content {
+            background-color: #120926;
+            background-image: radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.18) 0%, transparent 50%);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: var(--uvaco-text-main);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+        }
+        .nav-tabs-custom {
+            border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+        }
+        .nav-tabs-custom .nav-link {
+            color: var(--uvaco-text-muted);
+            border: none;
+            padding: 10px 16px;
+            font-weight: 500;
+            position: relative;
+            background: transparent;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #ffffff;
+            background: transparent;
+        }
+        .nav-tabs-custom .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* 響應式優化 */
+        @media (max-width: 991.98px) {
+            .pipeline-lane {
+                min-height: auto;
+                margin-bottom: 1rem;
+            }
+            .lane-body {
+                max-height: 480px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面核心工作台 (無 Header/Footer，專屬戰情主容器) -->
+    <main class="container-fluid px-3 px-lg-4 py-4">
+
+        <!-- 頂部戰略資訊橫幅與操作控制列 -->
+        <section class="glass-panel p-3 p-lg-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge px-2 py-1 rounded-pill hub-code" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.35);">
+                            <i class="fa-solid fa-filter-circle-dollar"></i> H52000 潛在名單
+                        </span>
+                        <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3);">
+                            <i class="fa-solid fa-bolt"></i> 公域引流 ➔ 體感調養 ➔ 簽約轉化 (Schema 501+503)
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-0 hub-title">潛在名單與轉化孵化戰情室</h1>
+                    <p class="text-muted small mb-0 mt-1" style="color: var(--uvaco-text-muted) !important;">
+                        公域問卷測評、短網址引流與緣故轉介紹之即時線索沉澱，多維意向追蹤與直銷商簽約無縫繼承。
+                    </p>
+                </div>
+
+                <!-- 戰略操作按鈕群 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncLeadsGviz" title="透過 PapaParse / GViz 解耦轉接同步 Google 試算表">
+                        <i class="fa-solid fa-arrows-rotate"></i> 試算表雲端同步
+                    </button>
+                    <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnToggleFunnelInsights" data-bs-toggle="collapse" data-bs-target="#funnelInsightsCollapse">
+                        <i class="fa-solid fa-chart-pie"></i> 引流漏斗與轉化分析
+                    </button>
+                    <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewLead">
+                        <i class="fa-solid fa-user-plus"></i> 登錄新潛在名單
+                    </button>
+                </div>
+            </div>
+
+            <!-- 即時動態統計晶片列 -->
+            <div class="row g-2 mt-3 pt-3 border-top border-secondary border-opacity-10">
+                <div class="col-6 col-md-3 col-xl-2">
+                    <div class="metric-chip">
+                        <div>
+                            <span class="d-block small text-muted">總潛在線索</span>
+                            <strong class="h5 mb-0 hub-code text-light" id="statTotalLeads">0</strong>
+                        </div>
+                        <i class="fa-solid fa-users-rays text-primary fa-lg opacity-75"></i>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <div class="metric-chip">
+                        <div>
+                            <span class="d-block small text-muted">🔥 24hr 炙熱線索</span>
+                            <strong class="h5 mb-0 hub-code text-danger" id="statHotLeads">0</strong>
+                        </div>
+                        <i class="fa-solid fa-fire text-danger fa-lg opacity-75"></i>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <div class="metric-chip">
+                        <div>
+                            <span class="d-block small text-muted">測評引流來源</span>
+                            <strong class="h5 mb-0 hub-code text-info" id="statQuizLeads">0</strong>
+                        </div>
+                        <i class="fa-solid fa-square-poll-vertical text-info fa-lg opacity-75"></i>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <div class="metric-chip">
+                        <div>
+                            <span class="d-block small text-muted">事業加盟意向</span>
+                            <strong class="h5 mb-0 hub-code" style="color: var(--uvaco-secondary);" id="statProspectTeam">0</strong>
+                        </div>
+                        <i class="fa-solid fa-briefcase text-secondary fa-lg opacity-75"></i>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <div class="metric-chip">
+                        <div>
+                            <span class="d-block small text-muted">本月轉化直銷商</span>
+                            <strong class="h5 mb-0 hub-code text-success" id="statConvertedMonth">0</strong>
+                        </div>
+                        <i class="fa-solid fa-signature text-success fa-lg opacity-75"></i>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-xl-2">
+                    <div class="metric-chip">
+                        <div>
+                            <span class="d-block small text-muted">轉化平均週期</span>
+                            <strong class="h5 mb-0 hub-code text-warning">14.2 天</strong>
+                        </div>
+                        <i class="fa-solid fa-stopwatch text-warning fa-lg opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 多維意向快篩與看板/表格視圖切換列 -->
+            <div class="row g-3 align-items-center mt-3 pt-2">
+                <div class="col-12 col-xl-7">
+                    <div class="d-flex flex-wrap gap-2" id="leadFilterPills">
+                        <a href="javascript:void(0)" class="glass-pill active" data-filter="ALL">
+                            <i class="fa-solid fa-layer-group"></i> 全部線索 <span class="badge rounded-pill bg-dark ms-1" id="filterCountAll">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="HOT">
+                            <i class="fa-solid fa-fire text-danger"></i> 炙熱優先 <span class="badge rounded-pill bg-danger ms-1" id="filterCountHot">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="PROSPECT_TEAM">
+                            <i class="fa-solid fa-handshake text-info"></i> 評估事業 <span class="badge rounded-pill bg-info ms-1" id="filterCountTeam">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="HEALTH_QUIZ">
+                            <i class="fa-solid fa-notes-medical text-success"></i> 問卷測評 <span class="badge rounded-pill bg-success ms-1" id="filterCountQuiz">0</span>
+                        </a>
+                        <a href="javascript:void(0)" class="glass-pill" data-filter="MY_ASSIGNED">
+                            <i class="fa-solid fa-user-check text-warning"></i> 我的負責 <span class="badge rounded-pill bg-warning text-dark ms-1" id="filterCountMy">0</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="leadSearchInput" class="form-control border-0" placeholder="搜尋姓名、電話、LINE、體質痛點或來源..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-neon-ghost active px-3" id="viewModePipeline" title="五階漏斗看板視圖">
+                                <i class="fa-solid fa-table-columns"></i>
+                            </button>
+                            <button type="button" class="btn btn-neon-ghost px-3" id="viewModeTable" title="高密清單資料表視圖">
+                                <i class="fa-solid fa-list-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 可折疊：引流漏斗與意向轉化圖表 (按需展開) -->
+        <section class="collapse mb-4" id="funnelInsightsCollapse">
+            <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-bullseye text-accent"></i> 名單來源渠道分佈 (Lead Source)</h6>
+                        <div style="height: 210px; position: relative;">
+                            <canvas id="chartLeadSource"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-line text-warning"></i> 漏斗階段轉化流動率</h6>
+                        <div style="height: 210px; position: relative;">
+                            <canvas id="chartFunnelConversion"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="glass-panel p-3 h-100">
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse text-danger"></i> 潛在顧客體質痛點 TOP 5</h6>
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>腸道消化 / 便秘 (康爾喜+衛傑)</span>
+                                <span class="text-light fw-bold">42%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 42%; background: #8b5cf6;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>慢性疲勞 / 熬夜體力 (995+樟芝益)</span>
+                                <span class="text-light fw-bold">28%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 28%; background: #ec4899;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span>呼吸道敏感 / 換季 (百克斯)</span>
+                                <span class="text-light fw-bold">18%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: rgba(255,255,255,0.08);">
+                                <div class="progress-bar" style="width: 18%; background: #38bdf8;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主體視圖一：五階漏斗推進戰術看板 (Pipeline Kanban View - 預設) -->
+        <section id="pipelineViewContainer" class="row g-3">
+            <!-- 階段 1：新進線索 (LEAD) -->
+            <div class="col-12 col-md-6 col-xl">
+                <div class="pipeline-lane">
+                    <div class="lane-header">
+                        <div class="lane-title text-light">
+                            <i class="fa-solid fa-seedling text-info"></i> 新進名單
+                        </div>
+                        <span class="lane-badge" id="badgeLaneLead">0</span>
+                    </div>
+                    <div class="lane-body" id="laneLead">
+                        <!-- 線索卡片由 JS 注入 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 階段 2：已建立接觸 (CONTACTED) -->
+            <div class="col-12 col-md-6 col-xl">
+                <div class="pipeline-lane">
+                    <div class="lane-header">
+                        <div class="lane-title text-light">
+                            <i class="fa-solid fa-comments text-primary"></i> 初步接觸
+                        </div>
+                        <span class="lane-badge" id="badgeLaneContacted">0</span>
+                    </div>
+                    <div class="lane-body" id="laneContacted">
+                        <!-- 線索卡片由 JS 注入 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 階段 3：體驗/體質解析 (TRIAL) -->
+            <div class="col-12 col-md-6 col-xl">
+                <div class="pipeline-lane">
+                    <div class="lane-header">
+                        <div class="lane-title text-light">
+                            <i class="fa-solid fa-flask-vial text-warning"></i> 體驗與測評
+                        </div>
+                        <span class="lane-badge" id="badgeLaneTrial">0</span>
+                    </div>
+                    <div class="lane-body" id="laneTrial">
+                        <!-- 線索卡片由 JS 注入 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 階段 4：評估加盟/深度溝通 (PARTNER_PROSPECT) -->
+            <div class="col-12 col-md-6 col-xl">
+                <div class="pipeline-lane">
+                    <div class="lane-header">
+                        <div class="lane-title text-light">
+                            <i class="fa-solid fa-handshake" style="color: var(--uvaco-secondary);"></i> 評估加盟
+                        </div>
+                        <span class="lane-badge" id="badgeLaneProspect">0</span>
+                    </div>
+                    <div class="lane-body" id="laneProspect">
+                        <!-- 線索卡片由 JS 注入 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 階段 5：簽約轉化完成 (CONVERTED) -->
+            <div class="col-12 col-md-6 col-xl">
+                <div class="pipeline-lane" style="border-color: rgba(16, 185, 129, 0.35);">
+                    <div class="lane-header">
+                        <div class="lane-title text-success">
+                            <i class="fa-solid fa-circle-check"></i> 簽約直銷商
+                        </div>
+                        <span class="lane-badge bg-success text-dark" id="badgeLaneConverted">0</span>
+                    </div>
+                    <div class="lane-body" id="laneConverted">
+                        <!-- 線索卡片由 JS 注入 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主體視圖二：高密清單資料表 (DataTable 模式) -->
+        <section id="tableViewContainer" class="glass-panel p-3 p-lg-4 d-none">
+            <div class="table-responsive">
+                <table id="leadsDataTable" class="table table-custom w-100">
+                    <thead>
+                        <tr>
+                            <th>線索編號 / 姓名</th>
+                            <th>意向類型</th>
+                            <th>溫度</th>
+                            <th>引流來源 (Lead Source)</th>
+                            <th>健康訴求 / 創業動機</th>
+                            <th>負責夥伴</th>
+                            <th>建檔 / 跟進日期</th>
+                            <th>戰術操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyContent">
+                        <!-- 由 DataTable 引擎注入 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 側拉詳情抽屜：線索 360° 深度檔案與轉化工作台 (Offcanvas) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="leadDetailDrawer" style="width: 100%; max-width: 600px;">
+        <div class="offcanvas-header border-bottom border-secondary border-opacity-25 py-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-box" id="drawerLeadAvatar" style="width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, rgba(139,92,246,0.3) 0%, rgba(236,72,153,0.25) 100%); color: #c084fc; border: 1px solid rgba(192,132,252,0.3);">
+                    趙
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="offcanvas-title mb-0 fw-bold" id="drawerLeadName">趙子翔</h5>
+                        <span id="drawerLeadTempBadge"></span>
+                    </div>
+                    <span class="small text-muted hub-code" id="drawerLeadId">LEAD-2026-0812</span>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <!-- 標籤導覽 -->
+            <ul class="nav nav-tabs nav-tabs-custom px-3 pt-2" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabLeadOverview">
+                        <i class="fa-solid fa-address-card"></i> 意向畫像
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabLeadHealthQuiz">
+                        <i class="fa-solid fa-notes-medical"></i> 體質測評
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabLeadInteractions">
+                        <i class="fa-solid fa-comments"></i> 跟進歷程 (504)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabLeadConversionAction">
+                        <i class="fa-solid fa-signature text-accent"></i> 簽約轉化 (503)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-3 p-lg-4">
+                <!-- 頁籤一：意向畫像與基本資料 -->
+                <div class="tab-pane fade show active" id="tabLeadOverview">
+                    <div class="alert alert-dark border border-purple-subtle p-3 rounded-3 mb-3" style="background: rgba(139,92,246,0.1);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-bullseye"></i> 核心訴求 / 轉化動機</span>
+                            <span class="badge bg-secondary" id="drawerLeadType">潛在事業夥伴</span>
+                        </div>
+                        <p class="mb-0 text-light small" id="drawerLeadConcerns">評估副業增加被動收入，自身有長期熬夜疲勞困擾，對 995 超級營養液非常感興趣。</p>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">聯絡電話</span>
+                                <span class="text-light small fw-medium" id="drawerLeadPhone">0911-223-344</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">LINE 帳號</span>
+                                <span class="text-light small fw-medium" id="drawerLeadLine">zhaozx_88</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">名單來源渠道</span>
+                                <span class="text-light small fw-medium" id="drawerLeadSource">社群短網址 (IG 創業限動)</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10">
+                                <span class="text-muted d-block small">指派負責夥伴</span>
+                                <span class="text-light small fw-medium" id="drawerLeadPartner">Ray 翁榮祥</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">快速推進漏斗階段</label>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary btnStageQuick" data-stage="LEAD">新進</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary btnStageQuick" data-stage="CONTACTED">已接觸</button>
+                            <button type="button" class="btn btn-sm btn-outline-warning btnStageQuick" data-stage="TRIAL">體驗中</button>
+                            <button type="button" class="btn btn-sm btn-outline-info btnStageQuick" data-stage="PARTNER_PROSPECT">評估中</button>
+                            <button type="button" class="btn btn-sm btn-outline-success btnStageQuick" data-stage="CONVERTED">已轉化</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small text-muted">意向標籤</label>
+                        <div id="drawerLeadTags"></div>
+                    </div>
+                </div>
+
+                <!-- 頁籤二：體質測評問卷弱項雷達 (引流閉環) -->
+                <div class="tab-pane fade" id="tabLeadHealthQuiz">
+                    <div class="glass-panel p-3 mb-3 border-info border-opacity-30">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-info text-dark"><i class="fa-solid fa-square-poll-vertical"></i> 1分鐘體質問卷結果</span>
+                            <span class="text-muted small">測評時間：2026-08-18</span>
+                        </div>
+                        <h6 class="text-light mb-1">主要失衡系統：<span class="text-danger">肝膽經絡 (疲勞指數 85%)</span></h6>
+                        <p class="small text-muted mb-2">次要困擾：腸道消化不良、容易脹氣、睡眠中斷。</p>
+                        <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-15">
+                            <div class="small fw-bold" style="color: var(--uvaco-secondary);"><i class="fa-solid fa-wand-magic-sparkles"></i> 系統推薦調理配方：</div>
+                            <div class="small text-light">995 超級營養液 (每日1瓶) ＋ 樟芝益 (每日1包) ＋ 康爾喜 (每日2條)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 頁籤三：跟進歷程與互動紀錄 (Schema 504) -->
+                <div class="tab-pane fade" id="tabLeadInteractions">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline"></i> 跟進歷史紀錄</h6>
+                        <button class="btn btn-sm btn-neon-primary" data-bs-toggle="modal" data-bs-target="#modalLeadQuickInteraction">
+                            <i class="fa-solid fa-plus"></i> 追加跟進
+                        </button>
+                    </div>
+
+                    <div class="border-start border-secondary border-opacity-25 ps-3 ms-2" id="drawerInteractionTimeline">
+                        <!-- 時間軸由 JS 動態生成 -->
+                    </div>
+                </div>
+
+                <!-- 頁籤四：直銷商簽約轉化 (Schema 503 核心引導) -->
+                <div class="tab-pane fade" id="tabLeadConversionAction">
+                    <div class="alert alert-dark border border-pink-subtle p-3 rounded-3 mb-3" style="background: rgba(236,72,153,0.12); border-color: rgba(236,72,153,0.35);">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-signature text-accent fa-lg"></i>
+                            <h6 class="text-accent mb-0 fw-bold">簽約轉化為直銷商經銷夥伴</h6>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            將潛在對象轉化為正式葡眾經營者，自動在組織主檔（org_partners）建立夥伴資料並寫入轉化軌跡（crm_conversions 表 503）。
+                        </p>
+                    </div>
+
+                    <form id="formConvertPartner">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">簽約加入日期 *</label>
+                            <input type="date" class="form-control" name="conversion_date" value="2026-08-21" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">初始職級 (Initial Rank)</label>
+                            <select class="form-select" name="initial_rank_id">
+                                <option value="MEMBER">會員 (Member / 自用經理價)</option>
+                                <option value="MANAGER">經理 (Manager / 當月合格領小組獎金)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">轉化推薦人 (Sponsor Partner) *</label>
+                            <select class="form-select" name="sponsor_partner_id">
+                                <option value="PARTNER-001">Ray 翁榮祥 (核心創始)</option>
+                                <option value="PARTNER-002">Jarvis 林承志 (技術總監)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">轉化主要動機 (Conversion Trigger)</label>
+                            <select class="form-select" name="conversion_trigger">
+                                <option value="BUSINESS_OPP">事業商機與被動收入</option>
+                                <option value="PRODUCT_LOVE">產品愛用自用省錢</option>
+                                <option value="HEALTH_IMPROVED">體質顯著改善主動分享</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">葡眾官方直銷商編號 (Official Member No)</label>
+                            <input type="text" class="form-control" name="official_member_no" placeholder="如：TW-987654321">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">轉化交接與戰略備忘</label>
+                            <textarea class="form-control" name="conversion_notes" rows="2" placeholder="備註此夥伴未來的衝刺目標、主力產品線或輔導重點..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-neon-accent w-100 py-2" id="btnExecuteConversion">
+                            <i class="fa-solid fa-file-signature"></i> 確認簽約並生成夥伴帳號
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas-footer border-top border-secondary border-opacity-25 p-3 d-flex gap-2">
+            <a href="https://line.me" target="_blank" class="btn btn-sm btn-success flex-fill" id="drawerBtnQuickLine">
+                <i class="fa-brands fa-line"></i> LINE 私聊跟進
+            </a>
+            <a href="tel:0912345678" class="btn btn-sm btn-neon-ghost flex-fill" id="drawerBtnQuickCall">
+                <i class="fa-solid fa-phone"></i> 撥打電話
+            </a>
+            <button class="btn btn-sm btn-neon-primary flex-fill" data-bs-dismiss="offcanvas">
+                <i class="fa-solid fa-check"></i> 完成檢閱
+            </button>
+        </div>
+    </div>
+
+    <!-- 模態視窗：新增潛在名單 (Schema 501 聯合表單) -->
+    <div class="modal fade" id="modalNewLead" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-user-plus text-primary"></i> 登錄新潛在名單線索</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNewLead">
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">姓名 / 社群稱呼 *</label>
+                                <input type="text" class="form-control" name="lead_name" required placeholder="如：許雅婷 (芳療師)">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">手機號碼</label>
+                                <input type="tel" class="form-control" name="lead_phone" placeholder="09xx-xxx-xxx">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">LINE ID</label>
+                                <input type="text" class="form-control" name="lead_line" placeholder="用於快速發起對話">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">意向類別 (Customer Type) *</label>
+                                <select class="form-select" name="lead_type" required>
+                                    <option value="PROSPECT_CUSTOMER">潛在產品客戶 (注重健康調理)</option>
+                                    <option value="PROSPECT_TEAM">潛在事業夥伴 (評估副業加盟)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">名單來源 (Lead Source)</label>
+                                <select class="form-select" name="lead_source">
+                                    <option value="HEALTH_QUIZ">體質測評問卷引流</option>
+                                    <option value="SOCIAL_MEDIA">社群短網址 (IG/FB)</option>
+                                    <option value="REFERRAL">親友口碑轉介紹</option>
+                                    <option value="WARM_MARKET">緣故親友開發</option>
+                                    <option value="EVENT_OPP">線下招商 OPP 會場</option>
+                                    <option value="COLD_MARKET">陌生開發</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-muted">意向溫度評級 (Temperature)</label>
+                                <select class="form-select" name="lead_temp">
+                                    <option value="HOT">🔥 炙熱 (Hot - 24hr內跟進)</option>
+                                    <option value="WARM">⚡ 溫暖 (Warm - 3天內跟進)</option>
+                                    <option value="COOL">❄️ 冷淡/觀望 (Cool - 培育中)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">主要健康訴求 / 創業意向描述</label>
+                                <textarea class="form-control" name="lead_concerns" rows="2" placeholder="記錄此潛在名單的主要困擾或想了解的葡萄王/葡眾制度..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">標籤 (以逗號分隔)</label>
+                                <input type="text" class="form-control" name="lead_tags" placeholder="例如：芳療師, 睡眠障礙, 評估經理價, 寶媽">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-primary" id="btnSaveNewLead">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存並同步至試算表
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模態視窗：快速追加跟進紀錄 (Schema 504) -->
+    <div class="modal fade" id="modalLeadQuickInteraction" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary border-opacity-25">
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-pen-nib text-accent"></i> 追加線索跟進互動</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formLeadQuickCare">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">溝通管道</label>
+                            <select class="form-select" name="channel_type">
+                                <option value="LINE">LINE 訊息 / 語音</option>
+                                <option value="PHONE">電話通話</option>
+                                <option value="IN_PERSON">實體面談拜訪</option>
+                                <option value="EVENT">會場 OPP 活動</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">溝通主題</label>
+                            <select class="form-select" name="interaction_topic">
+                                <option value="QUIZ_EXPLAIN">體質問卷報告解析</option>
+                                <option value="PRODUCT_SHARE">主力產品體驗分享 (995/康爾喜)</option>
+                                <option value="BUSINESS_OPP">葡眾事業與制度解析</option>
+                                <option value="OBJECTION_HANDLING">直銷疑慮與異議排除</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">對話摘要與客戶反應 *</label>
+                            <textarea class="form-control" name="content_summary" rows="3" required placeholder="記錄本次溝通重點與客戶態度反饋..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">約定下次跟進日期</label>
+                            <input type="date" class="form-control" name="next_follow_up_date">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-neon-accent" id="btnSaveLeadCareNote">
+                        <i class="fa-solid fa-check"></i> 儲存跟進紀錄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依賴庫 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 核心解耦轉接引擎與業務邏輯腳本 -->
+    <script>
+        /**
+         * 榮祥團隊 Google 試算表欄位解耦對映轉接器 (CRM Leads Decoupling Adapter)
+         */
+        const CRM_LEADS_DECOUPLING_ADAPTER = {
+            "crm_customers": {
+                customerId: 0,
+                customerName: 1,
+                gender: 2,
+                mobilePhone: 3,
+                lineUserId: 4,
+                customerType: 5,
+                conversionStage: 6,
+                leadSource: 7,
+                leadTemperature: 8,
+                assignedPartnerName: 9,
+                healthConcerns: 10,
+                createdDate: 11
+            }
+        };
+
+        // 預設生產級模擬名單資料 (符合直銷漏斗與葡眾營運情境)
+        let leadsDatabase = [
+            {
+                lead_id: "LEAD-2026-0812",
+                lead_name: "趙子翔",
+                gender: "MALE",
+                lead_phone: "0911-223-344",
+                lead_line: "zhaozx_88",
+                lead_type: "PROSPECT_TEAM",
+                conversion_stage: "PARTNER_PROSPECT",
+                lead_source: "SOCIAL_MEDIA",
+                lead_source_name: "社群短網址 (IG 限動)",
+                lead_temp: "HOT",
+                assigned_partner_name: "Ray 翁榮祥",
+                health_concerns: "經常加班熬夜、體力不濟，評估副業兼職被動收入，想了解經理職級資格與利潤。",
+                created_date: "2026-08-16",
+                last_follow_date: "2026-08-19",
+                tags: ["評估加盟", "軟體主管", "熬夜疲勞", "995意向"],
+                interactions: [
+                    { date: "2026-08-19 20:30", partner: "Ray 翁榮祥", channel: "LINE", topic: "制度解析", summary: "客戶詢問 12,000 SV 門檻與經理合格計算方式，已詳細說明並約定本週五線上會議。" },
+                    { date: "2026-08-16 14:10", partner: "Ray 翁榮祥", channel: "LINE", topic: "初次接觸", summary: "填寫 IG 短網址表單，對被動收入有高度興趣。" }
+                ]
+            },
+            {
+                lead_id: "LEAD-2026-0815",
+                lead_name: "許雅婷",
+                gender: "FEMALE",
+                lead_phone: "0928-776-543",
+                lead_line: "yating_spa",
+                lead_type: "PROSPECT_CUSTOMER",
+                conversion_stage: "TRIAL",
+                lead_source: "HEALTH_QUIZ",
+                lead_source_name: "1分鐘體質測評",
+                lead_temp: "HOT",
+                assigned_partner_name: "Jarvis 林承志",
+                health_concerns: "芳療師職業，長期排便不順 (4天1次)、換季呼吸道過敏，測評推薦康爾喜+百克斯。",
+                created_date: "2026-08-18",
+                last_follow_date: "2026-08-20",
+                tags: ["芳療師", "便秘嚴重", "測評名單", "康爾喜體驗"],
+                interactions: [
+                    { date: "2026-08-20 11:20", partner: "Jarvis 林承志", channel: "PHONE", topic: "體驗追蹤", summary: "寄送 3 包康爾喜試喝，客戶反饋排便感覺順暢，正考慮訂購整盒。" }
+                ]
+            },
+            {
+                lead_id: "LEAD-2026-0818",
+                lead_name: "吳冠霖",
+                gender: "MALE",
+                lead_phone: "0935-443-221",
+                lead_line: "kuanlin_wu",
+                lead_type: "PROSPECT_CUSTOMER",
+                conversion_stage: "CONTACTED",
+                lead_source: "REFERRAL",
+                lead_source_name: "親友轉介紹 (林雅涵介紹)",
+                lead_temp: "WARM",
+                assigned_partner_name: "Jarvis 林承志",
+                health_concerns: "長輩胃食道逆流嚴重，想幫媽媽尋找合適養胃益生菌 (衛傑膠囊)。",
+                created_date: "2026-08-19",
+                last_follow_date: "2026-08-19",
+                tags: ["長輩養胃", "衛傑意向", "轉介紹", "孝親需求"],
+                interactions: [
+                    { date: "2026-08-19 16:00", partner: "Jarvis 林承志", channel: "LINE", topic: "初次接觸", summary: "林雅涵引薦，傳送衛傑國家健字號認證資料，等待回覆。" }
+                ]
+            },
+            {
+                lead_id: "LEAD-2026-0820",
+                lead_name: "黃敬堯",
+                gender: "MALE",
+                lead_phone: "0966-554-332",
+                lead_line: "chingyao_h",
+                lead_type: "PROSPECT_TEAM",
+                conversion_stage: "LEAD",
+                lead_source: "HEALTH_QUIZ",
+                lead_source_name: "1分鐘體質測評",
+                lead_temp: "COOL",
+                assigned_partner_name: "Ray 翁榮祥",
+                health_concerns: "體力容易透支、早起疲累，測評填表後尚未加入官方 LINE。",
+                created_date: "2026-08-21",
+                last_follow_date: "2026-08-21",
+                tags: ["新進測評", "待加LINE", "體力透支"],
+                interactions: []
+            },
+            {
+                lead_id: "LEAD-2026-0805",
+                lead_name: "孫詠晴",
+                gender: "FEMALE",
+                lead_phone: "0972-118-899",
+                lead_line: "sunny_sun",
+                lead_type: "PROSPECT_TEAM",
+                conversion_stage: "CONVERTED",
+                lead_source: "EVENT_OPP",
+                lead_source_name: "線下招商 OPP",
+                lead_temp: "HOT",
+                assigned_partner_name: "Ray 翁榮祥",
+                health_concerns: "寶媽二度就業，8/15 簽約直銷商，已轉入正式夥伴主檔，目標本月達成經理合格。",
+                created_date: "2026-08-10",
+                last_follow_date: "2026-08-15",
+                tags: ["已簽約直銷商", "寶媽加盟", "本月衝經理", "全家自用"],
+                interactions: [
+                    { date: "2026-08-15 15:00", partner: "Ray 翁榮祥", channel: "IN_PERSON", topic: "正式簽約", summary: "於台中營運中心完成簽約加盟，已建檔入會。" }
+                ]
+            }
+        ];
+
+        let currentActiveLead = null;
+        let leadsDataTableInstance = null;
+        let chartLeadSourceInstance = null;
+        let chartFunnelInstance = null;
+
+        $(document).ready(function() {
+            renderPipelineBoard(leadsDatabase);
+            initDataTable();
+            initFunnelCharts();
+            updateStatisticsCounters();
+
+            // 視圖切換：漏斗看板 vs 高密清單
+            $('#viewModePipeline').on('click', function() {
+                $(this).addClass('active');
+                $('#viewModeTable').removeClass('active');
+                $('#pipelineViewContainer').removeClass('d-none');
+                $('#tableViewContainer').addClass('d-none');
+            });
+
+            $('#viewModeTable').on('click', function() {
+                $(this).addClass('active');
+                $('#viewModePipeline').removeClass('active');
+                $('#tableViewContainer').removeClass('d-none');
+                $('#pipelineViewContainer').addClass('d-none');
+                if (leadsDataTableInstance) {
+                    leadsDataTableInstance.columns.adjust().responsive.recalc();
+                }
+            });
+
+            // 多維意向篩選 Pill
+            $('#leadFilterPills .glass-pill').on('click', function() {
+                $('#leadFilterPills .glass-pill').removeClass('active');
+                $(this).addClass('active');
+                const filter = $(this).data('filter');
+                applyFilter(filter, $('#leadSearchInput').val());
+            });
+
+            // 即時搜尋
+            $('#leadSearchInput').on('keyup', function() {
+                const query = $(this).val();
+                const activeFilter = $('#leadFilterPills .glass-pill.active').data('filter');
+                applyFilter(activeFilter, query);
+            });
+
+            // 試算表 GViz 雲端同步
+            $('#btnSyncLeadsGviz').on('click', function() {
+                const btn = $(this);
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                setTimeout(function() {
+                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 名單試算表已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表雲端同步'), 2500);
+                }, 1200);
+            });
+
+            // 儲存新名單
+            $('#btnSaveNewLead').on('click', function() {
+                const form = $('#formNewLead')[0];
+                if (form.checkValidity()) {
+                    const rawTags = $('input[name="lead_tags"]').val();
+                    const tagsArr = rawTags ? rawTags.split(',').map(s => s.trim()).filter(s => s) : ['新名單'];
+
+                    const newLead = {
+                        lead_id: "LEAD-2026-" + Math.floor(1000 + Math.random() * 9000),
+                        lead_name: $('input[name="lead_name"]').val(),
+                        gender: "UNKNOWN",
+                        lead_phone: $('input[name="lead_phone"]').val() || "未填寫",
+                        lead_line: $('input[name="lead_line"]').val() || "無",
+                        lead_type: $('select[name="lead_type"]').val(),
+                        conversion_stage: "LEAD",
+                        lead_source: $('select[name="lead_source"]').val(),
+                        lead_source_name: $('select[name="lead_source"] option:selected').text(),
+                        lead_temp: $('select[name="lead_temp"]').val(),
+                        assigned_partner_name: "Ray 翁榮祥",
+                        health_concerns: $('textarea[name="lead_concerns"]').val() || "待初次跟進諮詢",
+                        created_date: "2026-08-21",
+                        last_follow_date: "2026-08-21",
+                        tags: tagsArr,
+                        interactions: []
+                    };
+
+                    leadsDatabase.unshift(newLead);
+                    applyFilter($('#leadFilterPills .glass-pill.active').data('filter'), $('#leadSearchInput').val());
+                    reloadDataTable();
+                    updateStatisticsCounters();
+                    bootstrap.Modal.getInstance($('#modalNewLead')[0]).hide();
+                    form.reset();
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // 側拉抽屜內快速修改階段
+            $('.btnStageQuick').on('click', function() {
+                if (!currentActiveLead) return;
+                const newStage = $(this).data('stage');
+                currentActiveLead.conversion_stage = newStage;
+                renderPipelineBoard(leadsDatabase);
+                reloadDataTable();
+                updateStatisticsCounters();
+                $('.btnStageQuick').removeClass('btn-primary btn-warning btn-info btn-success').addClass('btn-outline-secondary');
+                $(this).removeClass('btn-outline-secondary').addClass('btn-primary');
+            });
+
+            // 儲存跟進互動筆記 (Schema 504)
+            $('#btnSaveLeadCareNote').on('click', function() {
+                if (!currentActiveLead) return;
+                const form = $('#formLeadQuickCare')[0];
+                if (form.checkValidity()) {
+                    const note = {
+                        date: "2026-08-21 " + new Date().toTimeString().slice(0, 5),
+                        partner: "Ray 翁榮祥",
+                        channel: $('select[name="channel_type"]').val(),
+                        topic: $('select[name="interaction_topic"] option:selected').text(),
+                        summary: $('textarea[name="content_summary"]').val()
+                    };
+                    currentActiveLead.interactions.unshift(note);
+                    currentActiveLead.last_follow_date = "2026-08-21";
+                    renderInteractionTimeline(currentActiveLead.interactions);
+                    renderPipelineBoard(leadsDatabase);
+                    bootstrap.Modal.getInstance($('#modalLeadQuickInteraction')[0]).hide();
+                    form.reset();
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // 執行簽約轉化為直銷商 (Schema 503)
+            $('#btnExecuteConversion').on('click', function() {
+                if (!currentActiveLead) return;
+                currentActiveLead.conversion_stage = "CONVERTED";
+                currentActiveLead.tags.push("已簽約直銷商");
+                
+                renderPipelineBoard(leadsDatabase);
+                reloadDataTable();
+                updateStatisticsCounters();
+                
+                alert(`恭喜！潛在對象「${currentActiveLead.lead_name}」已正式簽約轉化為葡萄王/葡眾直銷商夥伴！系統已寫入轉化歷程 (Schema 503)。`);
+                const offcanvasEl = bootstrap.Offcanvas.getInstance($('#leadDetailDrawer')[0]);
+                if (offcanvasEl) offcanvasEl.hide();
+            });
+        });
+
+        // 渲染五階漏斗戰術看板
+        function renderPipelineBoard(dataList) {
+            const lanes = {
+                LEAD: $('#laneLead'),
+                CONTACTED: $('#laneContacted'),
+                TRIAL: $('#laneTrial'),
+                PARTNER_PROSPECT: $('#laneProspect'),
+                CONVERTED: $('#laneConverted')
+            };
+
+            Object.values(lanes).forEach(lane => lane.empty());
+
+            const counts = { LEAD: 0, CONTACTED: 0, TRIAL: 0, PARTNER_PROSPECT: 0, CONVERTED: 0 };
+
+            dataList.forEach(lead => {
+                const stage = lead.conversion_stage || 'LEAD';
+                if (lanes[stage]) {
+                    counts[stage]++;
+                    const cardHtml = createLeadCardHtml(lead);
+                    lanes[stage].append(cardHtml);
+                }
+            });
+
+            // 更新泳道徽章計數
+            $('#badgeLaneLead').text(counts.LEAD);
+            $('#badgeLaneContacted').text(counts.CONTACTED);
+            $('#badgeLaneTrial').text(counts.TRIAL);
+            $('#badgeLaneProspect').text(counts.PARTNER_PROSPECT);
+            $('#badgeLaneConverted').text(counts.CONVERTED);
+
+            // 綁定卡片點擊抽屜事件
+            $('.lead-card').off('click').on('click', function() {
+                const leadId = $(this).data('id');
+                openLeadDrawer(leadId);
+            });
+        }
+
+        // 生成單一線索微卡片 HTML
+        function createLeadCardHtml(lead) {
+            const tempClass = lead.lead_temp === 'HOT' ? 'temp-hot' : (lead.lead_temp === 'WARM' ? 'temp-warm' : 'temp-cool');
+            const tempText = lead.lead_temp === 'HOT' ? '🔥 炙熱' : (lead.lead_temp === 'WARM' ? '⚡ 溫暖' : '❄️ 觀望');
+            const tagHtml = lead.tags.slice(0, 3).map(t => `<span class="tag-pill">${t}</span>`).join('');
+            const typeBadge = lead.lead_type === 'PROSPECT_TEAM' 
+                ? `<span class="badge" style="background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3);">事業加盟</span>`
+                : `<span class="badge" style="background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">產品調理</span>`;
+
+            return `
+                <div class="lead-card ${tempClass}" data-id="${lead.lead_id}">
+                    <div class="d-flex justify-content-between align-items-start mb-2 ps-2">
+                        <div>
+                            <h6 class="mb-0 fw-bold text-light">${lead.lead_name}</h6>
+                            <span class="source-tag"><i class="fa-solid fa-link"></i> ${lead.lead_source_name}</span>
+                        </div>
+                        <span class="temp-indicator ${tempClass}">${tempText}</span>
+                    </div>
+
+                    <p class="small text-muted mb-2 ps-2 text-truncate-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.35;">
+                        ${lead.health_concerns}
+                    </p>
+
+                    <div class="mb-2 ps-2">
+                        ${tagHtml}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-15 ps-2">
+                        ${typeBadge}
+                        <div class="d-flex gap-1" onclick="event.stopPropagation();">
+                            <a href="https://line.me" target="_blank" class="lead-action-btn text-success" title="LINE 快速私聊">
+                                <i class="fa-brands fa-line"></i>
+                            </a>
+                            <a href="tel:${lead.lead_phone}" class="lead-action-btn text-info" title="通話跟進">
+                                <i class="fa-solid fa-phone"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 初始化 DataTable.js
+        function initDataTable() {
+            leadsDataTableInstance = $('#leadsDataTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "在清單中快速過濾...",
+                    lengthMenu: "每頁 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
+                    paginate: {
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>'
+                    }
+                }
+            });
+            reloadDataTable();
+        }
+
+        // 重新載入 DataTable
+        function reloadDataTable() {
+            if (!leadsDataTableInstance) return;
+            leadsDataTableInstance.clear();
+
+            leadsDatabase.forEach(lead => {
+                const tempBadge = `<span class="temp-indicator ${lead.lead_temp === 'HOT' ? 'temp-hot' : (lead.lead_temp === 'WARM' ? 'temp-warm' : 'temp-cool')}">${lead.lead_temp === 'HOT' ? '🔥 炙熱' : (lead.lead_temp === 'WARM' ? '⚡ 溫暖' : '❄️ 觀望')}</span>`;
+                const typeText = lead.lead_type === 'PROSPECT_TEAM' ? '<span class="text-secondary fw-medium">評估事業加盟</span>' : '<span class="text-info fw-medium">產品健康調理</span>';
+                const actionBtn = `<button class="btn btn-sm btn-neon-ghost py-1 px-2 btnOpenLeadDrawer" data-id="${lead.lead_id}"><i class="fa-solid fa-folder-open"></i> 檔案</button>`;
+
+                leadsDataTableInstance.row.add([
+                    `<div><strong>${lead.lead_name}</strong><br><span class="hub-code text-muted small">${lead.lead_id}</span></div>`,
+                    typeText,
+                    tempBadge,
+                    `<span class="small">${lead.lead_source_name}</span>`,
+                    `<div class="small text-truncate" style="max-width: 200px;">${lead.health_concerns}</div>`,
+                    `<span class="small" style="color: var(--uvaco-text-sub);">${lead.assigned_partner_name}</span>`,
+                    `<div class="small">${lead.created_date}<br><span class="text-muted">跟進: ${lead.last_follow_date}</span></div>`,
+                    actionBtn
+                ]);
+            });
+
+            leadsDataTableInstance.draw();
+            $('#leadsDataTable .btnOpenLeadDrawer').off('click').on('click', function() {
+                const leadId = $(this).data('id');
+                openLeadDrawer(leadId);
+            });
+        }
+
+        // 開啟線索詳情抽屜
+        function openLeadDrawer(leadId) {
+            currentActiveLead = leadsDatabase.find(l => l.lead_id === leadId);
+            if (!currentActiveLead) return;
+
+            $('#drawerLeadAvatar').text(currentActiveLead.lead_name.charAt(0));
+            $('#drawerLeadName').text(currentActiveLead.lead_name);
+            $('#drawerLeadId').text(currentActiveLead.lead_id + " · " + currentActiveLead.created_date + " 建檔");
+            
+            const tempClass = currentActiveLead.lead_temp === 'HOT' ? 'temp-hot' : (currentActiveLead.lead_temp === 'WARM' ? 'temp-warm' : 'temp-cool');
+            const tempText = currentActiveLead.lead_temp === 'HOT' ? '🔥 炙熱線索' : (currentActiveLead.lead_temp === 'WARM' ? '⚡ 溫暖跟進' : '❄️ 觀望培育');
+            $('#drawerLeadTempBadge').html(`<span class="temp-indicator ${tempClass}">${tempText}</span>`);
+
+            $('#drawerLeadConcerns').text(currentActiveLead.health_concerns);
+            $('#drawerLeadPhone').text(currentActiveLead.lead_phone);
+            $('#drawerLeadLine').text(currentActiveLead.lead_line);
+            $('#drawerLeadSource').text(currentActiveLead.lead_source_name);
+            $('#drawerLeadPartner').text(currentActiveLead.assigned_partner_name);
+            $('#drawerLeadType').text(currentActiveLead.lead_type === 'PROSPECT_TEAM' ? '評估事業加盟' : '產品健康調理');
+
+            // 標籤
+            $('#drawerLeadTags').html(currentActiveLead.tags.map(t => `<span class="tag-pill">${t}</span>`).join(''));
+
+            // 快速階段按鈕反白
+            $('.btnStageQuick').removeClass('btn-primary btn-warning btn-info btn-success').addClass('btn-outline-secondary');
+            $(`.btnStageQuick[data-stage="${currentActiveLead.conversion_stage}"]`).removeClass('btn-outline-secondary').addClass('btn-primary');
+
+            // 渲染跟進歷程
+            renderInteractionTimeline(currentActiveLead.interactions || []);
+
+            const drawerEl = document.getElementById('leadDetailDrawer');
+            const bsOffcanvas = new bootstrap.Offcanvas(drawerEl);
+            bsOffcanvas.show();
+        }
+
+        // 渲染跟進時間軸
+        function renderInteractionTimeline(interactions) {
+            const container = $('#drawerInteractionTimeline');
+            container.empty();
+
+            if (!interactions || interactions.length === 0) {
+                container.html('<div class="text-muted small py-3">尚無跟進溝通紀錄，點擊上方按鈕建立初次接觸。</div>');
+                return;
+            }
+
+            interactions.forEach(item => {
+                const itemHtml = `
+                    <div class="mb-3 position-relative">
+                        <div class="position-absolute" style="left: -21px; top: 2px;">
+                            <span class="badge rounded-pill bg-primary p-1"><i class="fa-solid fa-comment-dots"></i></span>
+                        </div>
+                        <div class="small text-muted mb-1">${item.date} · 夥伴：${item.partner} (${item.channel})</div>
+                        <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-15 small">
+                            <strong style="color: var(--uvaco-text-sub);">【${item.topic}】</strong> ${item.summary}
+                        </div>
+                    </div>
+                `;
+                container.append(itemHtml);
+            });
+        }
+
+        // 篩選核心邏輯
+        function applyFilter(filterType, searchQuery) {
+            let filtered = leadsDatabase;
+
+            if (filterType === 'HOT') {
+                filtered = filtered.filter(l => l.lead_temp === 'HOT');
+            } else if (filterType === 'PROSPECT_TEAM') {
+                filtered = filtered.filter(l => l.lead_type === 'PROSPECT_TEAM');
+            } else if (filterType === 'HEALTH_QUIZ') {
+                filtered = filtered.filter(l => l.lead_source === 'HEALTH_QUIZ');
+            } else if (filterType === 'MY_ASSIGNED') {
+                filtered = filtered.filter(l => l.assigned_partner_name.includes('Ray'));
+            }
+
+            if (searchQuery && searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase().trim();
+                filtered = filtered.filter(l => 
+                    l.lead_name.toLowerCase().includes(q) ||
+                    l.lead_id.toLowerCase().includes(q) ||
+                    l.lead_phone.includes(q) ||
+                    l.health_concerns.toLowerCase().includes(q) ||
+                    l.tags.some(t => t.toLowerCase().includes(q))
+                );
+            }
+
+            renderPipelineBoard(filtered);
+        }
+
+        // 更新頂部統計數據
+        function updateStatisticsCounters() {
+            const total = leadsDatabase.length;
+            const hot = leadsDatabase.filter(l => l.lead_temp === 'HOT').length;
+            const quiz = leadsDatabase.filter(l => l.lead_source === 'HEALTH_QUIZ').length;
+            const team = leadsDatabase.filter(l => l.lead_type === 'PROSPECT_TEAM').length;
+            const converted = leadsDatabase.filter(l => l.conversion_stage === 'CONVERTED').length;
+            const my = leadsDatabase.filter(l => l.assigned_partner_name.includes('Ray')).length;
+
+            $('#statTotalLeads').text(total);
+            $('#statHotLeads').text(hot);
+            $('#statQuizLeads').text(quiz);
+            $('#statProspectTeam').text(team);
+            $('#statConvertedMonth').text(converted);
+
+            $('#filterCountAll').text(total);
+            $('#filterCountHot').text(hot);
+            $('#filterCountTeam').text(team);
+            $('#filterCountQuiz').text(quiz);
+            $('#filterCountMy').text(my);
+        }
+
+        // 初始化引流漏斗與來源圖表 (Chart.js)
+        function initFunnelCharts() {
+            // 來源渠道分佈
+            const ctxSource = document.getElementById('chartLeadSource').getContext('2d');
+            chartLeadSourceInstance = new Chart(ctxSource, {
+                type: 'doughnut',
+                data: {
+                    labels: ['體質測評問卷', '社群短網址', '親友轉介紹', '線下OPP會場', '緣故開發'],
+                    datasets: [{
+                        data: [38, 25, 20, 12, 5],
+                        backgroundColor: ['#8b5cf6', '#ec4899', '#38bdf8', '#10b981', '#f59e0b'],
+                        borderColor: '#120926',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#c4b5fd', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+
+            // 漏斗階段流動率
+            const ctxFunnel = document.getElementById('chartFunnelConversion').getContext('2d');
+            chartFunnelInstance = new Chart(ctxFunnel, {
+                type: 'bar',
+                data: {
+                    labels: ['新進線索', '初步接觸', '體驗/測評', '評估加盟', '簽約直銷商'],
+                    datasets: [{
+                        label: '階段轉化率 (%)',
+                        data: [100, 72, 48, 30, 18],
+                        backgroundColor: [
+                            'rgba(139, 92, 246, 0.4)',
+                            'rgba(139, 92, 246, 0.6)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(192, 132, 252, 0.8)',
+                            'rgba(16, 185, 129, 0.9)'
+                        ],
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#9e8eb3', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#9e8eb3' }, grid: { color: 'rgba(139, 92, 246, 0.1)' }, max: 100 }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
