@@ -31,6 +31,7 @@ window.addEventListener('AppReady', function() {
     // ✨【關鍵修改】優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
     const savedLastPage = sessionStorage.getItem(SESSION_NAME);
     const initialPage = (savedLastPage || 'home') + '.html';
+    currentPageUrl = initialPage; // ✨ 確保初始變數即時同步
     loadPage(initialPage);
 });
 

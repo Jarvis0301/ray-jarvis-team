@@ -21,6 +21,7 @@ window.addEventListener('AppReady', function () {
     // ✨ 優先讀取網址列 Hash 或 sessionStorage，若無才回到 home.html
     const savedLastPage = sessionStorage.getItem(SESSION_NAME);
     const initialPage = (savedLastPage || 'home') + '.html';
+    currentPageUrl = initialPage; // ✨ 確保初始變數即時同步
     loadPage(initialPage);
 });
 
@@ -265,6 +266,8 @@ function setActiveMenuItem(pageUrl) {
 // 5. 【關鍵核心】iFrame 無縫切換與 100% JS 變數隔離引擎
 function loadPage(pageUrl) {
     if (!pageUrl || pageUrl === '#') return;
+
+    currentPageUrl = pageUrl; // ✨ 補上這行：更新全域變數，確保非同步選單載入完成後能正確取得當前頁面
 
     $('#portalSidebar').removeClass('mobile-open');
 
