@@ -139,8 +139,8 @@ erDiagram
     sys_menus ||--o{ sys_menus : "樹狀階層自關聯 (parent_node_id)"
 
     sys_dynamic_links ||--o{ crm_customers : "短代碼追蹤名單來源 (UTM Source)"
-    sys_compliance_keywords ..o{ sys_copy_audits : "比對違規字詞 (規則匹配)"
+    sys_compliance_keywords ||--o{ sys_copy_audits : "比對違規字詞 (規則匹配)"
 
-    sys_permissions ..o{ sys_access_logs : "驗證通行與記錄身分軌跡"
-    sys_access_logs ..o{ sys_daily_stats : "夜間排程匯總為每日流量快取"
+    sys_permissions ||--o{ sys_access_logs : "驗證通行與記錄身分軌跡"
+    sys_access_logs ||--o{ sys_daily_stats : "夜間排程匯總為每日流量快取"
 ```
