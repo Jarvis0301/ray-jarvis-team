@@ -108,10 +108,10 @@ async function fetchGoogleSheetsData() {
         };
 
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
-            fetchSheet('產品主表'),
-            fetchSheet('產品主系列表'),
-            fetchSheet('產品次系列表'),
-            fetchSheet('產品型態表')
+            fetchSheet('產品主檔'),
+            fetchSheet('產品主系列'),
+            fetchSheet('產品次系列'),
+            fetchSheet('產品型態')
         ]);
 
         let hasData = false;
@@ -126,6 +126,7 @@ async function fetchGoogleSheetsData() {
         if (mainCategoriesData && mainCategoriesData.length > 0) {
             appState.seriesList = buildSeriesTree(mainCategoriesData, subcategoriesData || []);
             updateSeriesDropdowns();
+            renderSubSeriesChartCards(); // ✨【新增】資料載入完成後，動態建立子系列圖表 Canvas 與實例
         }
 
         if (productTypesData && productTypesData.length > 0) {
@@ -550,6 +551,32 @@ function bindChartControls() {
             bsModal.show();
         }
     });
+
+    // 1. 準備開啟時立即計算位置
+    $('#subSeriesChartsModal').off('show.bs.modal').on('show.bs.modal', function () {
+        centerModalInIframeViewport($(this));
+    });
+
+    // 2. 完全展開後再次精準校正位置、重繪圖表
+    $('#subSeriesChartsModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+        const $modal = $(this);
+        
+        if (Object.keys(chartSubInstances).length === 0) {
+            renderSubSeriesChartCards();
+        }
+        updateCartSummary();
+
+        // 刷新圖表尺寸
+        Object.values(chartSubInstances).forEach(inst => {
+            if (inst) {
+                inst.resize();
+                inst.update();
+            }
+        });
+
+        // 圖表渲染後的高度精準二度置中
+        centerModalInIframeViewport($modal);
+    });
 }
 
 // ==========================================
@@ -739,18 +766,27 @@ function renderProducts() {
         }
     }
 
+    if (dataTableInstance) {
+        dataTableInstance.on('draw', function () {
+            Object.keys(cartState).forEach(id => {
+                updateQtyInputsUI(id);
+            });
+        });
+    }
+
     bindQtyEvents();
 }
 
 function bindQtyEvents() {
-    $(".btn-plus").off("click").on("click", function () {
+    // 使用事件委派，確保 DataTables 換頁或搜尋後的元素皆可正常觸發
+    $(document).off("click", ".btn-plus").on("click", ".btn-plus", function () {
         const id = String($(this).data("id"));
         cartState[id] = (cartState[id] || 0) + 1;
         updateQtyInputsUI(id);
         updateCartSummary();
     });
 
-    $(".btn-minus").off("click").on("click", function () {
+    $(document).off("click", ".btn-minus").on("click", ".btn-minus", function () {
         const id = String($(this).data("id"));
         if (cartState[id] && cartState[id] > 0) {
             cartState[id] -= 1;
@@ -760,9 +796,9 @@ function bindQtyEvents() {
         }
     });
 
-    $(".qty-input").off("change input").on("change input", function () {
+    $(document).off("change input", ".qty-input").on("change input", function () {
         const id = String($(this).data("id"));
-        let val = parseInt($(this).val()) || 0;
+        let val = parseInt($(this).val(), 10) || 0;
         if (val < 0) val = 0;
         if (val === 0) {
             delete cartState[id];
@@ -1292,21 +1328,58 @@ function renderSubSeriesChartCards() {
     if (!$container.length) return;
     $container.empty();
 
+    // 1. 銷毀既有的子系列圖表實例，避免記憶體洩漏或無法重繪
+    Object.values(chartSubInstances).forEach(inst => {
+        if (inst) inst.destroy();
+    });
+    chartSubInstances = {};
+
     const mainCats = getMainCategories();
+    if (!mainCats || mainCats.length === 0) return;
+
+    // 2. 動態生成各主系列的 Canvas 卡片
     mainCats.forEach(cat => {
+        const canvasId = `chartSub_${cat.code}`;
         const html = `
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6 mb-3">
                 <div class="p-3 rounded bg-dark-subtle border border-secondary border-opacity-50 h-100">
                     <div class="fw-bold mb-2" style="color: ${cat.color};">
                         <i class="${cat.icon}"></i> ${cat.code} ${cat.name}
                     </div>
                     <div style="height: 180px; position: relative;">
-                        <canvas id="chartSub_${cat.code}"></canvas>
+                        <canvas id="${canvasId}"></canvas>
                     </div>
                 </div>
             </div>
         `;
         $container.append(html);
+
+        // 3. 立即實例化各系列的環狀圖
+        const ctx = document.getElementById(canvasId)?.getContext('2d');
+        if (ctx) {
+            chartSubInstances[cat.code] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['無選購項目'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#334155'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
     });
 }
 
@@ -1768,4 +1841,42 @@ function setupIframeFloatingPositionEngine() {
     updatePosition();
     setTimeout(updatePosition, 300);
     setTimeout(updatePosition, 800);
+}
+
+// 計算父視窗可視高度並將 Modal 定位在中央
+function centerModalInIframeViewport($modal) {
+    try {
+        const isInsideIframe = (window.self !== window.top);
+        if (!isInsideIframe) return;
+
+        const parentWin = window.parent;
+        const frameEl = window.frameElement;
+        if (!parentWin || !frameEl) return;
+
+        const parentScrollY = parentWin.scrollY || parentWin.pageYOffset || 0;
+        const parentInnerHeight = parentWin.innerHeight || document.documentElement.clientHeight;
+        const frameRect = frameEl.getBoundingClientRect();
+        const iframeTopInParent = frameRect.top + parentScrollY;
+
+        // 計算父視窗當前視野中心點在 iframe 內部的相對 Y 座標
+        const parentCenterYInIframe = (parentScrollY + parentInnerHeight / 2) - iframeTopInParent;
+
+        const $dialog = $modal.find('.modal-dialog');
+        // 移除 Bootstrap 預設的垂直置中 class 避免干擾
+        $dialog.removeClass('modal-dialog-centered');
+
+        const dialogHeight = $dialog.outerHeight() || 480;
+        let targetMarginTop = parentCenterYInIframe - (dialogHeight / 2);
+
+        // 邊界防護：避免超出頂部或底部
+        const iframeHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+        targetMarginTop = Math.max(20, Math.min(targetMarginTop, iframeHeight - dialogHeight - 50));
+
+        $dialog.css({
+            'margin-top': targetMarginTop + 'px',
+            'margin-bottom': '30px'
+        });
+    } catch (e) {
+        console.warn("Modal centering notice:", e);
+    }
 }

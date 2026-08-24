@@ -1,10 +1,10 @@
 :root {
-    --bg-dark: #0b132b;
-    --bg-card: #1c2541;
-    --bg-card-hover: #232f52;
-    --bg-input: #0e1738;
-    --border-color: rgba(56, 189, 248, 0.2);
-    --border-highlight: rgba(56, 189, 248, 0.6);
+/*     --uvaco-bg-dark: #0b132b;
+    --uvaco-bg-card: #1c2541;
+    --uvaco-bg-card-hover: #232f52;
+    --uvaco-bg-input: #0e1738;
+    --uvaco-border-color: rgba(56, 189, 248, 0.2);
+    --uvaco-border-highlight: rgba(56, 189, 248, 0.6); */
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --accent-blue: #38bdf8;
@@ -19,7 +19,7 @@ html, body {
     min-height: 100%;
     margin: 0;
     padding: 0;
-    background-color: var(--bg-dark);
+    background-color: var(--uvaco-bg-dark);
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     padding-bottom: 100px; /* 留出充足底端緩衝空間，防止與外層頁尾重疊裁切 */
@@ -28,7 +28,7 @@ html, body {
 /* 頂部標題 Header */
 .page-header {
     background: linear-gradient(135deg, #0c2340 0%, #1c2541 100%);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--uvaco-border-color);
     padding: 1.25rem 0;
     margin-bottom: 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -43,8 +43,8 @@ html, body {
 
 /* 通用戰情卡片 */
 .war-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
@@ -53,28 +53,28 @@ html, body {
 }
 
 .war-card:hover {
-    border-color: var(--border-highlight);
+    border-color: var(--uvaco-border-highlight);
 }
 
 /* 搜尋與過濾區塊 (網頁3風格) */
 .filter-section {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
 }
 
 .form-control-custom, .form-select-custom {
-    background-color: var(--bg-input);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-input);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--text-main);
     border-radius: 8px;
     padding: 0.5rem 0.85rem;
 }
 
 .form-control-custom:focus, .form-select-custom:focus {
-    background-color: var(--bg-input);
+    background-color: var(--uvaco-bg-input);
     border-color: var(--accent-blue);
     color: var(--text-main);
     box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
@@ -89,7 +89,7 @@ html, body {
 
 .type-btn {
     background-color: rgba(28, 37, 65, 0.8);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--text-muted);
     border-radius: 20px;
     padding: 0.35rem 0.9rem;
@@ -108,8 +108,8 @@ html, body {
 
 /* 檢視模式切換按鈕 */
 .view-switch-btn {
-    background-color: var(--bg-input);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-input);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--text-muted);
     padding: 0.4rem 0.8rem;
     font-size: 0.88rem;
@@ -125,8 +125,8 @@ html, body {
 
 /* 網格卡片模式 (網頁1風格) */
 .product-item-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
     border-radius: 10px;
     padding: 1rem;
     height: 100%;
@@ -139,7 +139,7 @@ html, body {
 .product-item-card:hover {
     transform: translateY(-3px);
     border-color: var(--accent-blue);
-    background-color: var(--bg-card-hover);
+    background-color: var(--uvaco-bg-card-hover);
 }
 
 .product-badge {
@@ -179,7 +179,7 @@ html, body {
 
 .table-dark-custom th {
     color: var(--accent-cyan);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--uvaco-border-color);
     font-weight: 600;
     font-size: 0.9rem;
     white-space: nowrap;
@@ -202,8 +202,8 @@ html, body {
 }
 
 .dataTables_wrapper .dataTables_filter input {
-    background-color: var(--bg-input) !important;
-    border: 1px solid var(--border-color) !important;
+    background-color: var(--uvaco-bg-input) !important;
+    border: 1px solid var(--uvaco-border-color) !important;
     color: var(--text-main) !important;
     border-radius: 6px;
     padding: 0.375rem 0.75rem;
@@ -217,8 +217,8 @@ html, body {
 }
 
 .page-link {
-    background-color: var(--bg-card) !important;
-    border-color: var(--border-color) !important;
+    background-color: var(--uvaco-bg-card) !important;
+    border-color: var(--uvaco-border-color) !important;
     color: var(--text-main) !important;
 }
 
@@ -237,8 +237,8 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-input);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-input);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--accent-blue);
     border-radius: 6px;
     font-weight: bold;
@@ -255,8 +255,8 @@ html, body {
     width: 46px;
     height: 30px;
     text-align: center;
-    background-color: var(--bg-input);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-input);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--text-main);
     border-radius: 6px;
     font-weight: 600;
@@ -327,7 +327,7 @@ html, body {
 
 .progress-shipping {
     height: 8px;
-    background-color: var(--bg-input);
+    background-color: var(--uvaco-bg-input);
     border-radius: 4px;
     overflow: hidden;
     margin-top: 0.4rem;
@@ -343,7 +343,7 @@ html, body {
     background-color: rgba(14, 23, 56, 0.6);
     border-radius: 8px;
     padding: 0.75rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--uvaco-border-color);
     margin-bottom: 0.75rem;
 }
 
@@ -403,7 +403,7 @@ html, body {
 
 .btn-action-clear {
     background-color: transparent;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--text-muted);
     border-radius: 8px;
     padding: 0.5rem;
@@ -426,15 +426,15 @@ html, body {
     margin-top: 1.5rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--uvaco-border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .chart-standalone-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-card);
+    border: 1px solid var(--uvaco-border-color);
     border-radius: 12px;
     padding: 1.25rem;
     height: 100%;
@@ -443,7 +443,7 @@ html, body {
 }
 
 .chart-standalone-card:hover {
-    border-color: var(--border-highlight);
+    border-color: var(--uvaco-border-highlight);
     box-shadow: 0 6px 20px rgba(56, 189, 248, 0.15);
 }
 
@@ -517,7 +517,7 @@ html, body {
 
 .btn-toggle-floating {
     background: rgba(56, 189, 248, 0.15);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--uvaco-border-color);
     color: var(--accent-blue);
     border-radius: 20px;
     padding: 0.35rem 0.85rem;

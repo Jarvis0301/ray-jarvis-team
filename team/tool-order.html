@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-bs-theme="dark-blue">
+<html lang="zh-TW" data-bs-theme="dark-purple">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>訂購試算與全方位數據戰情儀表板 - 榮祥葡眾團隊</title>
+        <title>訂購試算 - 榮祥葡眾團隊</title>
 
         <script src="../assets/js/auth-guard.js"></script>
         
@@ -83,7 +83,7 @@
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pt-2 border-top border-secondary border-opacity-25 gap-2">
                             <div class="d-flex align-items-center gap-2">
                                 <label for="rank-select" class="text-nowrap small text-muted mb-0">
-                                    <i class="fa-solid fa-user-graduate text-info"></i> 預估回饋職級：
+                                    <i class="fa-solid fa-user-graduate text-secondary"></i> 預估回饋職級：
                                 </label>
                                 <select id="rank-select" class="form-select form-select-custom form-select-sm" style="width: auto;">
                                     <option value="0.05">會員 (5% 回饋)</option>
@@ -139,9 +139,9 @@
                         <!-- 訂購明細標題 -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 text-white font-weight-bold">
-                                <i class="fa-solid fa-receipt text-info"></i> 訂購明細摘要
+                                <i class="fa-solid fa-receipt text-secondary"></i> 訂購明細摘要
                             </h5>
-                            <span class="badge bg-info text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
+                            <span class="badge bg-secondary text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
                         </div>
 
                         <!-- 幣別切換與匯率/地區設定 (預設摺疊) -->
@@ -175,9 +175,9 @@
                                             </label>
                                             <div class="btn-group w-100" role="group">
                                                 <input type="radio" class="btn-check" name="myRegion" id="myRegionWest" value="WEST" checked>
-                                                <label class="btn btn-outline-info btn-sm" for="myRegionWest">西馬 (RM 15)</label>
+                                                <label class="btn btn-outline-secondary btn-sm" for="myRegionWest">西馬 (RM 15)</label>
                                                 <input type="radio" class="btn-check" name="myRegion" id="myRegionEast" value="EAST">
-                                                <label class="btn btn-outline-info btn-sm" for="myRegionEast">東馬 (RM 35)</label>
+                                                <label class="btn btn-outline-secondary btn-sm" for="myRegionEast">東馬 (RM 35)</label>
                                             </div>
                                         </div>
                                     </div>
@@ -197,7 +197,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between small">
                                 <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> 免運費門檻</span>
-                                <span id="shipping-progress-text" class="text-info font-weight-bold">0 / 5,000</span>
+                                <span id="shipping-progress-text" class="text-secondary font-weight-bold">0 / 5,000</span>
                             </div>
                             <div class="progress-shipping">
                                 <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
