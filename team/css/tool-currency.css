@@ -1,0 +1,214 @@
+:root {
+    --bs-body-bg: #060d19;
+    --bs-body-color: #f1f5f9;
+    --uvaco-primary: #0284c7;
+    --uvaco-secondary: #38bdf8;
+    --uvaco-accent: #fde047;
+    --uvaco-card-bg: #0c182b;
+    --uvaco-card-hover: #13233d;
+    --uvaco-border-glow: rgba(56, 189, 248, 0.2);
+    --uvaco-border-active: rgba(56, 189, 248, 0.5);
+    --uvaco-glass-bg: rgba(12, 24, 43, 0.75);
+    --uvaco-myr-gold: #fbbf24;
+    --uvaco-twd-blue: #38bdf8;
+}
+
+body {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* 玻璃擬態與鋼鐵科技藍外框 */
+.tactical-glass-card {
+    background: var(--uvaco-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--uvaco-border-glow);
+    border-radius: 18px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tactical-glass-card:hover {
+    border-color: var(--uvaco-border-active);
+    box-shadow: 0 8px 32px rgba(2, 132, 199, 0.15);
+}
+
+/* HUD 戰術抬頭控制面板 */
+.hud-banner {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(6, 13, 25, 0.85) 100%);
+    border: 1px solid var(--uvaco-border-glow);
+    border-radius: 20px;
+}
+
+/* 極速輸入與雙向微調轉換閥 */
+.converter-pod {
+    background: rgba(6, 13, 25, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.12);
+    border-radius: 14px;
+    padding: 1.25rem;
+    position: relative;
+}
+
+.converter-pod.active-pod {
+    border-color: var(--uvaco-secondary);
+    box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.1);
+}
+
+.huge-input {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 2rem;
+    font-weight: 800;
+    padding: 0;
+    width: 100%;
+    outline: none;
+    box-shadow: none !important;
+}
+
+.huge-input::placeholder {
+    color: rgba(148, 163, 184, 0.4);
+}
+
+.rate-slider-track {
+    accent-color: var(--uvaco-secondary);
+}
+
+/* ========================================== */
+/* 全新匯率戰術控制儀表 (FX Console) */
+/* ========================================== */
+.fx-rate-console {
+    background: linear-gradient(145deg, rgba(12, 24, 43, 0.9) 0%, rgba(6, 13, 25, 0.95) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), inset 0 0 15px rgba(2, 132, 199, 0.08);
+    min-width: 320px;
+    max-width: 460px;
+    width: 100%;
+}
+
+.fx-input-wrap {
+    background: rgba(6, 13, 25, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    min-width: 90px;
+}
+
+.fx-input-wrap input {
+    font-size: 1.05rem;
+    width: 55px;
+    outline: none;
+    box-shadow: none !important;
+}
+
+/* ========================================== */
+/* 發光漸層滑桿與刻度樣式 (7.00 ~ 9.00) */
+/* ========================================== */
+.fx-glow-slider {
+    accent-color: #38bdf8;
+    cursor: pointer;
+}
+
+.fx-glow-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #0284c7, #38bdf8, #fbbf24);
+    height: 6px;
+    border-radius: 3px;
+}
+
+.fx-glow-slider::-webkit-slider-thumb {
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+}
+
+.fx-scale-mark {
+    cursor: pointer;
+    transition: color 0.15s ease;
+    user-select: none;
+}
+
+.fx-scale-mark:hover {
+    color: #38bdf8 !important;
+}
+
+/* 標籤微光 Badge */
+.btn-cyber-accent {
+    background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
+    color: #060d19;
+    border: 1px solid #fef08a;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.btn-cyber-accent:hover {
+    box-shadow: 0 0 18px rgba(253, 224, 71, 0.5);
+    color: #000000;
+}
+
+/* 購物與對沖清單卡片 */
+.sku-card-item {
+    background: rgba(12, 24, 43, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.sku-card-item:hover {
+    background: rgba(19, 35, 61, 0.9);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* DataTables 深色客製化 */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: #94a3b8 !important;
+    font-size: 0.875rem;
+}
+
+table.dataTable {
+    border-color: rgba(56, 189, 248, 0.1) !important;
+}
+
+.table-dark-custom th {
+    background-color: #0c182b !important;
+    color: #38bdf8 !important;
+    border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important;
+}
+
+.table-dark-custom td {
+    background-color: rgba(6, 13, 25, 0.4) !important;
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.08) !important;
+}
+
+.nav-pills .nav-link {
+    color: #94a3b8;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.nav-pills .nav-link.active {
+    background-color: rgba(2, 132, 199, 0.25);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* 自訂滾動條 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #060d19;
+}
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+}

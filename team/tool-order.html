@@ -258,26 +258,26 @@
             <!-- ========================================== -->
             <div class="analytics-section-title d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2 mb-3" id="analyticsSection">
                 <div class="d-flex align-items-center gap-2 text-nowrap">
-                    <span class="fw-bold"><i class="fa-solid fa-chart-line text-info"></i> 訂購戰情與數據統計分析中心</span>
+                    <span class="fw-bold"><i class="fa-solid fa-chart-line text-secondary"></i> 訂購戰情與數據統計分析中心</span>
                 </div>
                 
                 <!-- 圖表數據開關與列印按鈕區塊 -->
                 <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-lg-auto justify-content-start justify-content-lg-end">
                     <!-- 數值顯示切換分段按鈕 -->
                     <div class="d-flex align-items-center bg-dark-subtle p-1 rounded border border-secondary border-opacity-50">
-                        <span class="small text-muted px-2"><i class="fa-solid fa-hashtag text-info"></i> 列印數據：</span>
+                        <span class="small text-muted px-2"><i class="fa-solid fa-hashtag text-secondary"></i> 列印數據：</span>
                         <div class="btn-group btn-group-sm" role="group" id="btnGroupShowData">
-                            <button type="button" class="btn btn-outline-info active" data-value="true">
+                            <button type="button" class="btn btn-outline-secondary active" data-value="true">
                                 <i class="fa-solid fa-eye"></i> 顯示數值
                             </button>
-                            <button type="button" class="btn btn-outline-info" data-value="false">
+                            <button type="button" class="btn btn-outline-secondary" data-value="false">
                                 <i class="fa-solid fa-eye-slash"></i> 隱藏數值
                             </button>
                         </div>
                     </div>
 
                     <!-- 列印按鈕 -->
-                    <button class="btn btn-sm btn-info text-dark font-weight-bold rounded-pill px-3" id="btnPrintAnalytics">
+                    <button class="btn btn-sm btn-secondary text-dark font-weight-bold rounded-pill px-3" id="btnPrintAnalytics">
                         <i class="fa-solid fa-file-pdf"></i> 列印戰情圖表 (PDF)
                     </button>
                 </div>
@@ -289,14 +289,14 @@
                 <div class="col-12 col-lg-6">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <span><i class="fa-solid fa-chart-pie text-info"></i> 1. 主系列整體占比分析</span>
+                            <span><i class="fa-solid fa-chart-pie text-cyan"></i> 1. 主系列整體占比分析</span>
                             <div class="d-flex align-items-center gap-2">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-info active chart1-metric-btn" data-metric="TWD">TWD</button>
-                                    <button type="button" class="btn btn-outline-info chart1-metric-btn" data-metric="MYR">MYR</button>
-                                    <button type="button" class="btn btn-outline-info chart1-metric-btn" data-metric="SV">SV</button>
+                                    <button type="button" class="btn btn-outline-cyan active chart1-metric-btn" data-metric="TWD">TWD</button>
+                                    <button type="button" class="btn btn-outline-cyan chart1-metric-btn" data-metric="MYR">MYR</button>
+                                    <button type="button" class="btn btn-outline-cyan chart1-metric-btn" data-metric="SV">SV</button>
                                 </div>
-                                <button class="btn btn-sm btn-info text-dark font-weight-bold" id="btnOpenSubSeriesModal" title="查看子系列細節">
+                                <button class="btn btn-sm btn-cyan font-weight-bold" id="btnOpenSubSeriesModal" title="查看子系列細節">
                                     <i class="fa-solid fa-sitemap"></i> 子系列明細
                                 </button>
                             </div>
@@ -311,7 +311,7 @@
                 <div class="col-12 col-lg-6">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <span><i class="fa-solid fa-chart-column" style="color: #c084fc;"></i> 2. 各系列採購數據分佈</span>
+                            <span><i class="fa-solid fa-chart-column text-purple"></i> 2. 各系列採購數據分佈</span>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-purple active chartBar-metric-btn" data-metric="TWD">TWD</button>
                                 <button type="button" class="btn btn-outline-purple chartBar-metric-btn" data-metric="MYR">MYR</button>
@@ -328,8 +328,8 @@
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title">
-                            <span><i class="fa-solid fa-chart-simple text-success"></i> 3. 型態訂購數量統計</span>
-                            <span class="badge bg-secondary opacity-75 fs-8">全型態</span>
+                            <span><i class="fa-solid fa-chart-simple text-green"></i> 3. 型態訂購數量統計</span>
+                            <span class="badge bg-green opacity-75 fs-8">全型態</span>
                         </div>
                         <div style="height: 220px; position: relative;">
                             <canvas id="chartTypeQty"></canvas>
@@ -341,11 +341,11 @@
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <span><i class="fa-solid fa-trophy" style="color: #fbbf24;"></i> 4. 單品採購 Top 5</span>
+                            <span><i class="fa-solid fa-trophy text-yellow"></i> 4. 單品採購 Top 5</span>
                             <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-warning active chart4-metric-btn" data-metric="TWD">TWD</button>
-                                <button type="button" class="btn btn-outline-warning chart4-metric-btn" data-metric="MYR">MYR</button>
-                                <button type="button" class="btn btn-outline-warning chart4-metric-btn" data-metric="SV">SV</button>
+                                <button type="button" class="btn btn-outline-yellow active chart4-metric-btn" data-metric="TWD">TWD</button>
+                                <button type="button" class="btn btn-outline-yellow chart4-metric-btn" data-metric="MYR">MYR</button>
+                                <button type="button" class="btn btn-outline-yellow chart4-metric-btn" data-metric="SV">SV</button>
                             </div>
                         </div>
                         <div style="height: 220px; position: relative;">
@@ -358,11 +358,11 @@
                 <div class="col-12 col-md-12 col-xl-4">
                     <div class="chart-standalone-card">
                         <div class="chart-header-title d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <span><i class="fa-solid fa-chart-radar" style="color: #f43f5e;"></i> 5. 型態貢獻雷達圖</span>
+                            <span><i class="fa-solid fa-chart-area text-red"></i> 5. 型態貢獻雷達圖</span>
                             <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-danger active chart5-metric-btn" data-metric="TWD">TWD</button>
-                                <button type="button" class="btn btn-outline-danger chart5-metric-btn" data-metric="MYR">MYR</button>
-                                <button type="button" class="btn btn-outline-danger chart5-metric-btn" data-metric="SV">SV</button>
+                                <button type="button" class="btn btn-outline-red active chart5-metric-btn" data-metric="TWD">TWD</button>
+                                <button type="button" class="btn btn-outline-red chart5-metric-btn" data-metric="MYR">MYR</button>
+                                <button type="button" class="btn btn-outline-red chart5-metric-btn" data-metric="SV">SV</button>
                             </div>
                         </div>
                         <div style="height: 220px; position: relative;">
