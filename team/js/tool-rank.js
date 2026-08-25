@@ -47,12 +47,21 @@ function getCurrencyFactor() {
     const isMYR = (currentCurrency === 'MYR');
     return {
         symbol: isMYR ? 'RM' : 'NT$',
-        rate: isMYR ? (1 / exchangeRate) : 1
+        rate: isMYR ? (1 / exchangeRate) : 1,
+        pv: isMYR ? 3.5 : 25
     };
 }
 
 /**
- * 幣別金額轉換與格式化工具函式
+ * 格式化已依地區 PV / 匯率計算完成的當前幣別金額
+ */
+function formatLocalCurrency(amount) {
+    const { symbol } = getCurrencyFactor();
+    return `${symbol} ${Math.round(amount).toLocaleString()}`;
+}
+
+/**
+ * 台幣基礎金額轉為當前幣別字串（用於字典表等靜態台幣基底）
  */
 function formatMoney(amountInTwd) {
     const { symbol, rate } = getCurrencyFactor();
@@ -84,17 +93,7 @@ async function initApp() {
 // 4. PapaParse + GViz 資料讀取引擎 (表 org_ranks 職級主檔讀取)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    const $syncTag = $('#syncStatusTag');
-    const $btnSync = $('#btnSyncGoogleSheets');
-
     try {
-        if ($syncTag.length) {
-            $syncTag.html('<i class="fa-solid fa-spinner fa-spin text-info"></i> 職級標準同步中...');
-        }
-        if ($btnSync.length) {
-            $btnSync.prop('disabled', true);
-        }
-
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
             const res = await fetch(url);
@@ -126,21 +125,8 @@ async function fetchGoogleSheetsData() {
         populateTargetRankDropdown();
         renderRankDataTable();
         runSimulation();
-
-        if ($syncTag.length) {
-            $syncTag.html(`<i class="fa-solid fa-circle-check text-success"></i> 已同步 ${appState.activeRankList.length} 階官方標準`);
-        }
-        if ($btnSync.length) {
-            $btnSync.prop('disabled', false);
-        }
     } catch (err) {
         console.error("Google Sheets 職級主檔讀取失敗:", err);
-        if ($syncTag.length) {
-            $syncTag.html('<i class="fa-solid fa-triangle-exclamation text-danger"></i> 同步失敗');
-        }
-        if ($btnSync.length) {
-            $btnSync.prop('disabled', false);
-        }
         showErrorNotice("無法連線至 Google 試算表讀取職級標準，請檢查網路連線或共用權限！");
     }
 }
@@ -186,7 +172,7 @@ function parseRanksTable(rows) {
 // ==========================================================================
 function bindUIEvents() {
     $('#inputPersonalSv, #inputCumGroupSv, #inputMonthGroupSv, #inputTotalOrgSv, #inputManagerLines, #inputPearlLines, #inputConsecutiveMonths, #selectTargetRank').off('input change').on('input change', function () {
-        $('.btn-group button').removeClass('active');
+        $('.btn-preset').removeClass('active');
         runSimulation();
     });
 
@@ -205,13 +191,13 @@ function bindUIEvents() {
         renderRankDataTable();
     });
 
-    // 官方例算快速套用：例算 I 兼差經理
+    // 例算套用：經理
     $('#btnPresetPartTime').off('click').on('click', function () {
         $('.btn-preset').removeClass('active');
         $(this).addClass('active');
-        $('#inputPersonalSv').val(400);
-        $('#inputCumGroupSv').val(15000);
-        $('#inputMonthGroupSv').val(2800);
+        $('#inputPersonalSv').val(160);
+        $('#inputCumGroupSv').val(12000);
+        $('#inputMonthGroupSv').val(3200);
         $('#inputTotalOrgSv').val(3200);
         $('#inputManagerLines').val(0);
         $('#inputPearlLines').val(0);
@@ -219,13 +205,13 @@ function bindUIEvents() {
         $('#selectTargetRank').val('RANK_04_MGR').trigger('change');
     });
 
-    // 官方例算快速套用：例算 II 專職珍珠
+    // 例算套用：珍珠
     $('#btnPresetFullTime').off('click').on('click', function () {
         $('.btn-preset').removeClass('active');
         $(this).addClass('active');
-        $('#inputPersonalSv').val(400);
+        $('#inputPersonalSv').val(160);
         $('#inputCumGroupSv').val(80000);
-        $('#inputMonthGroupSv').val(2800);
+        $('#inputMonthGroupSv').val(3200);
         $('#inputTotalOrgSv').val(45000);
         $('#inputManagerLines').val(4);
         $('#inputPearlLines').val(0);
@@ -233,22 +219,18 @@ function bindUIEvents() {
         $('#selectTargetRank').val('RANK_07_PEARL').trigger('change');
     });
 
-    // 官方例算快速套用：例算 III 事業藍鑽
+    // 例算套用：藍鑽
     $('#btnPresetDiamond').off('click').on('click', function () {
         $('.btn-preset').removeClass('active');
         $(this).addClass('active');
-        $('#inputPersonalSv').val(400);
+        $('#inputPersonalSv').val(160);
         $('#inputCumGroupSv').val(500000);
-        $('#inputMonthGroupSv').val(2800);
+        $('#inputMonthGroupSv').val(3200);
         $('#inputTotalOrgSv').val(100000);
         $('#inputManagerLines').val(10);
         $('#inputPearlLines').val(3);
         $('#inputConsecutiveMonths').val(4);
         $('#selectTargetRank').val('RANK_09_DIAMOND').trigger('change');
-    });
-
-    $('#btnSyncGoogleSheets').off('click').on('click', async function () {
-        await fetchGoogleSheetsData();
     });
 }
 
@@ -335,47 +317,75 @@ function runSimulation() {
         $('#dispRescueTag').removeClass('bg-warning text-dark').addClass('bg-success-subtle text-success').text('正常合格狀態');
     }
 
-    // 3. 實戰收益精算 (PV=25, 點值=0.7)
-    const pv = 25;
+// 3. 實戰收益精算 (台灣 PV=25 / 馬來西亞 PV=3.5, 點值=0.7)
+    const { pv, rate: currencyRate, symbol: currencySymbol } = getCurrencyFactor();
+    const isMYR = (currentCurrency === 'MYR');
     const pointValue = 0.7;
+
+    // 更新 KPI 生產力基準顯示
+    $('#dispPvRate').text(`PV = ${pv}`);
+
+    // SV 基礎獎金依所屬地區 PV 係數計算
     const rebateIncome = pSv * currentRank.direct_rebate_rate * pv;
     const groupDiffIncome = mSv * 0.10 * pv;
-    let qualifiedBonusIncome = 0;
-    let leadershipBonusIncome = 0;
-    let pearlDividendIncome = 0;
-    let excellenceIncome = 0;
-    let travelIncome = 0;
-    let carFundIncome = 0;
+
+    // 定額獎金與珍鑽分紅級距計算
+    let rawQualified = 0;
+    let rawLeadership = 0;
+    let rawPearlDiv = 0;
+    let rawExcellence = 0;
+    let rawTravel = 0;
+    let rawCarFund = 0;
 
     if (currentRank.has_group_bonus || currentRank.has_manager_bonus) {
-        qualifiedBonusIncome = 15000;
+        rawQualified = 15000;
     }
 
+    /*
     if (currentRank.rank_level === 70) {
-        leadershipBonusIncome = 44000;
-        pearlDividendIncome = 42000;
-        excellenceIncome = 25000;
-        travelIncome = 10000;
+        rawLeadership = 44000;
+        rawPearlDiv = 42000;
+        rawExcellence = 25000;
+        rawTravel = 10000;
     } else if (currentRank.rank_level === 80) {
-        leadershipBonusIncome = 60000;
-        pearlDividendIncome = 50000;
-        excellenceIncome = 35000;
-        travelIncome = 15000;
+        rawLeadership = 60000;
+        rawPearlDiv = 50000;
+        rawExcellence = 35000;
+        rawTravel = 15000;
     } else if (currentRank.rank_level >= 90) {
-        leadershipBonusIncome = 74000;
-        pearlDividendIncome = 60000;
-        excellenceIncome = 46000;
-        travelIncome = 19000;
-        if (currentRank.has_car_fund) carFundIncome = 27000;
+        rawLeadership = 74000;
+        rawPearlDiv = 60000;
+        rawExcellence = 46000;
+        rawTravel = 19000;
+        if (currentRank.has_car_fund) rawCarFund = 27000;
     } else if (currentRank.leadership_gen_depth > 0) {
-        leadershipBonusIncome = (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines);
+        rawLeadership = (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * 25) * Math.max(1, lines);
     }
+    */
+
+    rawLeadership = (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines);
+    rawPearlDiv = 5500 * Math.max(1, lines);
+    rawExcellence = 13000;
+    rawTravel = 6500;
+    if (currentRank.has_car_fund) rawCarFund = 27000;
+
+    // 換算為當前幣別數額
+    const qualifiedBonusIncome = isMYR ? Math.round(rawQualified * currencyRate) : rawQualified;
+    const leadershipBonusIncome = isMYR 
+        ? (currentRank.leadership_gen_depth > 0 && currentRank.rank_level < 70 
+            ? (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines) 
+            : Math.round(rawLeadership * currencyRate)) 
+        : rawLeadership;
+    const pearlDividendIncome = isMYR ? Math.round(rawPearlDiv * currencyRate) : rawPearlDiv;
+    const excellenceIncome = isMYR ? Math.round(rawExcellence * currencyRate) : rawExcellence;
+    const travelIncome = isMYR ? Math.round(rawTravel * currencyRate) : rawTravel;
+    const carFundIncome = isMYR ? Math.round(rawCarFund * currencyRate) : rawCarFund;
 
     const totalEstIncome = Math.round(rebateIncome + groupDiffIncome + qualifiedBonusIncome + leadershipBonusIncome + pearlDividendIncome + excellenceIncome + travelIncome + carFundIncome);
 
-    // 採用雙幣別格式輸出頂部總額
-    $('#dispTotalIncome').text(formatMoney(totalEstIncome));
-    $('#dispIncomeQuickTotal').text(formatMoney(totalEstIncome));
+    // 渲染頂部與快速總額
+    $('#dispTotalIncome').text(formatLocalCurrency(totalEstIncome));
+    $('#dispIncomeQuickTotal').text(formatLocalCurrency(totalEstIncome));
 
     // 計算各項達成率比率
     const gapRates = [
@@ -403,9 +413,9 @@ function runSimulation() {
     evaluateTargetGaps(targetRank, pSv, cSv, mSv, totalOrgSv, lines, pearlLines, months);
     renderTargetRightsPills(targetRank);
 
-    // 5. 渲染三大落地模組
+    // 5. 渲染三大落地模組 (傳入當前 PV)
     renderGateChecklist(targetRank, pSv, cSv, mSv, totalOrgSv, lines, pearlLines, months);
-    renderIncomeBreakdownTable(rebateIncome, groupDiffIncome, qualifiedBonusIncome, leadershipBonusIncome, pearlDividendIncome, excellenceIncome, travelIncome, carFundIncome, totalEstIncome, currentRank);
+    renderIncomeBreakdownTable(rebateIncome, groupDiffIncome, qualifiedBonusIncome, leadershipBonusIncome, pearlDividendIncome, excellenceIncome, travelIncome, carFundIncome, totalEstIncome, currentRank, pv);
     renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank);
 }
 
@@ -460,13 +470,13 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
         $title.addClass('text-warning').removeClass('text-success')
               .html(`<i class="fa-solid fa-triangle-exclamation"></i> 衝刺【${target.rank_name_zh}】尚缺以下核心指標：`);
 
-        if (gapP > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 個人業績尚差：<strong class="text-danger">${gapP} SV</strong> (需達 ${target.month_personal_sv_req} SV)</li>`);
-        if (gapC > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 整組累計尚差：<strong class="text-warning">${gapC.toLocaleString()} SV</strong> (門檻 ${target.cum_group_sv_req.toLocaleString()} SV)</li>`);
-        if (gapM > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 小組責任額尚差：<strong class="text-warning">${gapM.toLocaleString()} SV</strong> (需達 ${target.month_group_sv_req.toLocaleString()} SV)</li>`);
-        if (gapOrg > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 整組總業績尚差：<strong class="text-warning">${gapOrg.toLocaleString()} SV</strong> (需達 ${target.month_total_org_sv_req.toLocaleString()} SV)</li>`);
-        if (gapLines > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 經理線尚缺：<strong class="text-warning">${gapLines} 條</strong> (門檻 ${target.qualified_lines_req} 條)</li>`);
-        if (gapPearl > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 實動珍珠線尚缺：<strong class="text-warning">${gapPearl} 條</strong> (需達 ${target.pearl_lines_req} 條)</li>`);
-        if (gapMonths > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-info"></i> 連續考核月份尚缺：<strong class="text-warning">${gapMonths} 個月</strong> (需連續 ${target.consecutive_months_req} 個月)</li>`);
+        if (gapP > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 個人業績尚差：<strong class="text-danger">${gapP} SV</strong> (需達 ${target.month_personal_sv_req} SV)</li>`);
+        if (gapC > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 整組累計尚差：<strong class="text-warning">${gapC.toLocaleString()} SV</strong> (門檻 ${target.cum_group_sv_req.toLocaleString()} SV)</li>`);
+        if (gapM > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 小組責任額尚差：<strong class="text-warning">${gapM.toLocaleString()} SV</strong> (需達 ${target.month_group_sv_req.toLocaleString()} SV)</li>`);
+        if (gapOrg > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 整組總業績尚差：<strong class="text-warning">${gapOrg.toLocaleString()} SV</strong> (需達 ${target.month_total_org_sv_req.toLocaleString()} SV)</li>`);
+        if (gapLines > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 經理線尚缺：<strong class="text-warning">${gapLines} 條</strong> (門檻 ${target.qualified_lines_req} 條)</li>`);
+        if (gapPearl > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 實動珍珠線尚缺：<strong class="text-warning">${gapPearl} 條</strong> (需達 ${target.pearl_lines_req} 條)</li>`);
+        if (gapMonths > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 連續考核月份尚缺：<strong class="text-warning">${gapMonths} 個月</strong> (需連續 ${target.consecutive_months_req} 個月)</li>`);
         $('#dispProgressLabel').text(`衝刺中 (${progressPct}%)`);
     }
 }
@@ -559,7 +569,7 @@ function renderGateChecklist(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLine
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <span class="mono-font small text-secondary">${g.val}</span>
-                    <span class="badge ${badgeClass} mono-font">${iconPass} ${g.pass ? '達標' : '未過'}</span>
+                    <span class="badge ${badgeClass}">${iconPass} ${g.pass ? '達標' : '未過'}</span>
                 </div>
             </div>
         `);
@@ -569,19 +579,19 @@ function renderGateChecklist(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLine
 /**
  * 模組 B：收益細部拆解明細表
  */
-function renderIncomeBreakdownTable(rebate, groupDiff, qualified, leadership, pearlDiv, excellence, travel, carFund, total, currentRank) {
+function renderIncomeBreakdownTable(rebate, groupDiff, qualified, leadership, pearlDiv, excellence, travel, carFund, total, currentRank, pv) {
     const $tbody = $('#incomeBreakdownTableBody');
     $tbody.empty();
 
     const items = [
-        { label: "個人階差回饋", desc: `個人消費 × ${Math.round(currentRank.direct_rebate_rate * 100)}% × 25`, amount: rebate, color: "text-white" },
-        { label: "小組成員差額", desc: "責任小組平均約 10% 階差", amount: groupDiff, color: "text-white" },
-        { label: "合格小組/經理獎金", desc: currentRank.has_group_bonus ? "小組 10% + 經理 5% 提撥" : "未達經理位階", amount: qualified, color: "text-info" },
+        { label: "個人階差回饋", desc: `個人消費 × ${Math.round(currentRank.direct_rebate_rate * 100)}% × ${pv}`, amount: rebate, color: "text-white" },
+        { label: "小組成員差額", desc: `責任小組平均約 10% 階差 × ${pv}`, amount: groupDiff, color: "text-white" },
+        { label: "合格小組/經理獎金", desc: currentRank.has_group_bonus ? "小組 10% + 經理 5% 提撥" : "未達經理位階", amount: qualified, color: "text-secondary" },
         { label: "全球領導獎金 (6%)", desc: currentRank.leadership_gen_depth > 0 ? `解鎖 ${currentRank.leadership_gen_depth} 代合格經理` : "無代數資格", amount: leadership, color: "text-warning" },
         { label: "珍鑽體系分紅 (5%)", desc: currentRank.has_pearl_dividend ? "全月全球業績加權分紅" : "珍珠級以上解鎖", amount: pearlDiv, color: "text-warning" },
         { label: "珍鑽年度卓越獎勵 (5%)", desc: currentRank.has_annual_excellence ? "年終卓越累積獎金" : "珍珠級以上解鎖", amount: excellence, color: "text-warning" },
         { label: "珍鑽海外旅遊獎勵 (1.5%)", desc: currentRank.has_travel_incentive ? "每年6月旅遊基金發放" : "珍珠級以上解鎖", amount: travel, color: "text-warning" },
-        { label: "尊爵贈車分期基金", desc: currentRank.has_car_fund ? "100 萬 / 36 期月補貼" : "藍鑽級專屬享有", amount: carFund, color: "text-info" }
+        { label: "尊爵贈車分期基金", desc: currentRank.has_car_fund ? "100 萬 / 36 期月補貼" : "藍鑽級專屬享有", amount: carFund, color: "text-secondary" }
     ];
 
     items.forEach(item => {
@@ -592,17 +602,17 @@ function renderIncomeBreakdownTable(rebate, groupDiff, qualified, leadership, pe
                     <div class="text-secondary" style="font-size: 0.72rem;">${item.desc}</div>
                 </td>
                 <td class="text-end align-middle mono-font fw-bold ${item.amount > 0 ? item.color : 'text-secondary'}">
-                    ${formatMoney(item.amount)}
+                    ${formatLocalCurrency(item.amount)}
                 </td>
             </tr>
         `);
     });
 
     $tbody.append(`
-        <tr class="border-top border-info border-opacity-50">
+        <tr class="border-top border-secondary border-opacity-50">
             <td class="fw-black text-warning">當月預估合計收益</td>
             <td class="text-end align-middle mono-font fw-black text-warning fs-6">
-                ${formatMoney(total)}
+                ${formatLocalCurrency(total)}
             </td>
         </tr>
     `);
@@ -617,17 +627,17 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
 
     // 拓撲狀態卡
     $container.append(`
-        <div class="p-3 rounded-3" style="background: rgba(6, 13, 25, 0.6); border: 1px solid var(--team-border-glow);">
+        <div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-info"></i> 直屬合格經理線拓撲</span>
-                <span class="badge bg-primary-subtle text-info mono-font">${lines} 條實動線</span>
+                <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary"></i> 直屬合格經理線拓撲</span>
+                <span class="badge badge-primary-subtle">${lines} 條實動線</span>
             </div>
             <div class="d-flex gap-1 flex-wrap">
                 ${Array.from({ length: Math.max(10, lines) }).map((_, i) => {
                     const isFilled = i < lines;
                     const isPearl = i < pearlLines;
-                    let color = isPearl ? 'btn-warning' : (isFilled ? 'btn-info' : 'btn-outline-secondary');
-                    return `<button type="button" class="btn btn-sm ${color} py-0 px-2 mono-font" style="font-size: 0.75rem;" disabled>${i + 1}${isPearl ? '★' : ''}</button>`;
+                    let color = isPearl ? 'btn-outline-warning' : (isFilled ? 'btn-outline-secondary' : 'btn-outline-muted');
+                    return `<button type="button" class="btn btn-sm ${color} py-0 px-2" style="font-size: 0.75rem;" disabled>${i + 1}${isPearl ? '★' : ''}</button>`;
                 }).join('')}
             </div>
             <div class="text-secondary small mt-2" style="font-size: 0.75rem;">
@@ -639,16 +649,16 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     // 自動補救防線卡
     const rescueStatusHtml = hasAutoRescue
         ? `<div class="p-3 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-50">
-                <div class="d-flex align-items-center gap-2 text-warning fw-bold small mb-1">
+                <div class="d-flex align-items-center gap-2 text-dark fw-bold small mb-1">
                     <i class="fa-solid fa-shield-cat fs-5"></i> 第 5 條線業績自動補救已啟動
                 </div>
-                <div class="text-light small" style="font-size: 0.78rem;">
+                <div class="text-dark small" style="font-size: 0.78rem;">
                     您已培育 5 條以上合格經理線，第 5 條經理線之小組業績已自動填補您本人 3,200 SV 小組缺口，免除保級顧慮。
                 </div>
            </div>`
-        : `<div class="p-3 rounded-3" style="background: rgba(6, 13, 25, 0.6); border: 1px solid var(--team-border-glow);">
+        : `<div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
                 <div class="d-flex align-items-center gap-2 text-secondary fw-bold small mb-1">
-                    <i class="fa-solid fa-shield text-info"></i> 業績自動補救機制守則
+                    <i class="fa-solid fa-shield text-secondary"></i> 業績自動補救機制守則
                 </div>
                 <div class="text-secondary small" style="font-size: 0.78rem;">
                     珍珠級以上經營者若培育達 5 條合格經理線，將啟動自動補救機制，免受每月 3,200 SV 考核限制。
@@ -686,7 +696,7 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
             data: {
                 labels: bonusItems.map(i => i.label),
                 datasets: [{
-                    data: bonusItems.map(i => Math.round(i.val * currencyRate)),
+                    data: bonusItems.map(i => Math.round(i.val)),
                     backgroundColor: [
                         '#38bdf8', '#0284c7', '#10b981', '#facc15',
                         '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1'
@@ -717,7 +727,7 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
         });
     }
 
-    // 2. 晉升門檻達成率雷達圖
+    // 2. 晉升門檻達成率雷達圖 (維持不變)
     const ctxRadar = document.getElementById('chartGapsRadar');
     if (ctxRadar) {
         if (chartGapsRadar) chartGapsRadar.destroy();
@@ -839,8 +849,8 @@ function renderRankDataTable() {
                     <i class="${iconClass}" style="color: ${colorHex};"></i> ${r.rank_name_zh}
                 </td>
                 <td class="text-light small">${condsHtml || `入會資料袋 ${formatMoney(1000)}`}</td>
-                <td class="text-warning fw-bold mono-font">${Math.round(r.direct_rebate_rate * 100)}%</td>
-                <td class="text-success mono-font">${r.leadership_gen_depth > 0 ? r.leadership_gen_depth + ' 代 (6%)' : '—'}</td>
+                <td class="text-warning fw-bold">${Math.round(r.direct_rebate_rate * 100)}%</td>
+                <td class="text-success">${r.leadership_gen_depth > 0 ? r.leadership_gen_depth + ' 代 (6%)' : '—'}</td>
                 <td class="text-secondary small">${rightsArr.join(' ‧ ') || '個人階差回饋'}</td>
             </tr>
         `);

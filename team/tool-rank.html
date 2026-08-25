@@ -21,33 +21,45 @@
     <body>
 
         <main class="container-fluid p-3 p-md-4">
-            <!-- 頂部雙幣別、自訂匯率與資料同步控制列 -->
-            <section class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="text-secondary small">
-                        <i class="fa-solid fa-earth-asia text-info"></i> 雙幣別即時換算
-                    </span>
-                    <div class="input-group input-group-sm" style="max-width: 190px;">
-                        <span class="input-group-text bg-dark text-secondary border-secondary border-opacity-50">
-                            <i class="fa-solid fa-scale-balanced"></i> 匯率 (MYR/TWD)
+            <section class="glass-panel p-3 mb-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <!-- 左側佔位（維持桌面版水平居中平衡，手機版自動隱藏） -->
+                    <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-start gap-1">
+                        <span class="text-secondary small">
+                            <i class="fa-solid fa-earth-asia text-secondary"></i> 雙幣別即時換算
                         </span>
-                        <input type="number" class="form-control mono-font text-end bg-dark text-white border-secondary border-opacity-50" id="inputExchangeRate" value="8.00" step="0.01" min="0.01" placeholder="8.00">
                     </div>
-                    <span id="syncStatusTag" class="small text-secondary ms-2"></span>
-                </div>
 
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <div class="btn-group" role="group" id="currencyToggleGroup">
-                        <button type="button" class="btn btn-sm btn-outline-info active" data-currency="TWD">
-                            <i class="fa-solid fa-coins"></i> 新台幣 (NTD)
+                    <!-- 中間：匯率輸入與幣別切換（水平置中） -->
+                    <div class="col-12 col-lg-6 d-flex flex-wrap justify-content-center align-items-center gap-2">
+                        <div class="input-group input-group-sm" style="max-width: 250px;">
+                            <span class="input-group-text bg-dark text-secondary border-secondary border-opacity-50">
+                                <i class="fa-solid fa-scale-balanced me-1"></i> 匯率 (MYR/TWD)
+                            </span>
+                            <input type="number" class="form-control mono-font text-end bg-dark text-white border-secondary border-opacity-50" id="inputExchangeRate" value="8.00" step="0.01" min="0.01" placeholder="8.00">
+                        </div>
+                        <div class="btn-group" role="group" id="currencyToggleGroup">
+                            <button type="button" class="btn btn-sm btn-outline-secondary active" data-currency="TWD">
+                                <i class="fa-solid fa-money-bill-wave"></i> 新台幣 (NTD)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-currency="MYR">
+                                <i class="fa-solid fa-coins"></i> 馬幣 (MYR)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 右側：經理、珍珠、藍鑽快速例算 -->
+                    <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-end gap-1">
+                        <button type="button" class="btn btn-sm btn-preset active" id="btnPresetPartTime">
+                            <i class="fa-solid fa-user-check"></i> 經理
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-info" data-currency="MYR">
-                            <i class="fa-solid fa-money-bill-wave"></i> 馬幣 (MYR)
+                        <button type="button" class="btn btn-sm btn-preset" id="btnPresetFullTime">
+                            <i class="fa-solid fa-gem"></i> 珍珠
+                        </button>
+                        <button type="button" class="btn btn-sm btn-preset" id="btnPresetDiamond">
+                            <i class="fa-solid fa-crown"></i> 藍鑽
                         </button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSyncGoogleSheets" title="重新同步試算表">
-                        <i class="fa-solid fa-arrows-rotate"></i> 同步資料
-                    </button>
                 </div>
             </section>
 
@@ -57,12 +69,12 @@
                 <div class="kpi-card glass-panel">
                     <div class="kpi-header">
                         <span>當前判定實動職級</span>
-                        <i class="fa-solid fa-user-check text-info"></i>
+                        <i class="fa-solid fa-user-check text-secondary"></i>
                     </div>
-                    <div class="kpi-value text-info mono-font" id="dispCurrentRank">經理</div>
+                    <div class="kpi-value text-secondary mono-font" id="dispCurrentRank">經理</div>
                     <div class="kpi-subtext">
                         <span class="text-secondary">個人階差比率：<strong class="text-white" id="dispRebateRate">20%</strong></span>
-                        <span class="badge bg-primary-subtle text-info mono-font" id="dispStatusTag">合格經理</span>
+                        <span class="badge bg-primary-subtle text-secondary mono-font" id="dispStatusTag">合格經理</span>
                     </div>
                 </div>
 
@@ -74,7 +86,7 @@
                     </div>
                     <div class="kpi-value text-warning mono-font" id="dispTotalIncome">NT$ 24,000</div>
                     <div class="kpi-subtext">
-                        <span class="text-secondary">生產力基準：<strong class="text-light">PV = 25</strong></span>
+                        <span class="text-secondary">生產力基準：<strong class="text-light mono-font" id="dispPvRate">PV = 25</strong></span>
                         <span class="text-success fw-bold mono-font"><i class="fa-solid fa-calculator"></i> 實戰精算</span>
                     </div>
                 </div>
@@ -91,7 +103,7 @@
                     </div>
                     <div class="kpi-subtext mt-2">
                         <span class="text-secondary">目標：<strong class="text-warning" id="dispTargetRankName">經理</strong></span>
-                        <span class="text-info mono-font" id="dispProgressLabel">已完全達標</span>
+                        <span class="text-secondary mono-font" id="dispProgressLabel">已完全達標</span>
                     </div>
                 </div>
 
@@ -116,21 +128,8 @@
                     <div class="glass-panel p-4 h-100">
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                             <h5 class="section-header mb-0">
-                                <i class="fa-solid fa-sliders text-info"></i> 個人與組織現況參數
+                                <i class="fa-solid fa-sliders text-secondary"></i> 個人與組織現況參數
                             </h5>
-                        </div>
-
-                        <!-- 官方例算快速套用 -->
-                        <div class="d-flex flex-wrap gap-2 mb-3">
-                            <button type="button" class="btn btn-preset active" id="btnPresetPartTime">
-                                <i class="fa-solid fa-user-clock"></i> 例算 I 兼差經理
-                            </button>
-                            <button type="button" class="btn btn-preset" id="btnPresetFullTime">
-                                <i class="fa-solid fa-user-tie"></i> 例算 II 專職珍珠
-                            </button>
-                            <button type="button" class="btn btn-preset" id="btnPresetDiamond">
-                                <i class="fa-solid fa-gem"></i> 例算 III 事業藍鑽
-                            </button>
                         </div>
                         
                         <form id="simulatorForm">
@@ -140,7 +139,7 @@
                                     <label for="inputPersonalSv" class="form-label">
                                         <i class="fa-solid fa-cart-shopping"></i> 當月個人業績 (SV)
                                     </label>
-                                    <input type="number" class="form-control mono-font" id="inputPersonalSv" value="400" min="0" step="10">
+                                    <input type="number" class="form-control mono-font" id="inputPersonalSv" value="160" min="0" step="10">
                                     <div class="form-text text-secondary">基本盤：需達 160 SV 領取各項獎金。</div>
                                 </div>
 
@@ -148,7 +147,7 @@
                                     <label for="inputMonthGroupSv" class="form-label">
                                         <i class="fa-solid fa-users"></i> 當月小組責任額 (SV)
                                     </label>
-                                    <input type="number" class="form-control mono-font" id="inputMonthGroupSv" value="2800" min="0" step="100">
+                                    <input type="number" class="form-control mono-font" id="inputMonthGroupSv" value="3200" min="0" step="100">
                                     <div class="form-text text-secondary">合格經理責任額門檻 3,200 SV。</div>
                                 </div>
                             </div>
@@ -167,7 +166,7 @@
                                     <label for="inputCumGroupSv" class="form-label">
                                         <i class="fa-solid fa-boxes-stacked"></i> 整組累計業績 (SV)
                                     </label>
-                                    <input type="number" class="form-control mono-font" id="inputCumGroupSv" value="15000" min="0" step="100">
+                                    <input type="number" class="form-control mono-font" id="inputCumGroupSv" value="12000" min="0" step="100">
                                     <div class="form-text text-secondary">主任 1.2K / 副理 6K / 經理 12K SV。</div>
                                 </div>
                             </div>
@@ -178,19 +177,19 @@
                                     <label for="inputManagerLines" class="form-label">
                                         <i class="fa-solid fa-network-wired"></i> 經理線 (條)
                                     </label>
-                                    <input type="number" class="form-control mono-font" id="inputManagerLines" value="0" min="0" max="20">
+                                    <input type="number" class="form-control mono-font" id="inputManagerLines" value="0" min="0"">
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label for="inputPearlLines" class="form-label">
-                                        <i class="fa-solid fa-gem text-info"></i> 珍珠線 (條)
+                                        <i class="fa-solid fa-gem text-secondary"></i> 珍珠線 (條)
                                     </label>
-                                    <input type="number" class="form-control mono-font" id="inputPearlLines" value="0" min="0" max="10">
+                                    <input type="number" class="form-control mono-font" id="inputPearlLines" value="0" min="0">
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label for="inputConsecutiveMonths" class="form-label">
                                         <i class="fa-solid fa-calendar-check"></i> 連續考核月
                                     </label>
-                                    <input type="number" class="form-control mono-font" id="inputConsecutiveMonths" value="1" min="1" max="4">
+                                    <input type="number" class="form-control mono-font" id="inputConsecutiveMonths" value="1" min="1">
                                 </div>
                             </div>
 
@@ -211,7 +210,7 @@
                     <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
                         <div>
                             <h5 class="section-header">
-                                <i class="fa-solid fa-list-check text-info"></i> 晉升條件檢核與差距診斷
+                                <i class="fa-solid fa-list-check text-secondary"></i> 晉升條件檢核與差距診斷
                             </h5>
 
                             <!-- 動態缺口警示盒 -->
@@ -239,7 +238,7 @@
                         <div class="p-3 rounded-3" style="background: rgba(6, 13, 25, 0.7); border: 1px solid var(--team-border-glow);">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="small text-secondary fw-bold">
-                                    <i class="fa-solid fa-calculator text-info"></i> 預估當月到手總額：
+                                    <i class="fa-solid fa-calculator text-secondary"></i> 預估當月到手總額：
                                 </span>
                                 <span class="fs-5 text-warning fw-bold mono-font" id="dispIncomeQuickTotal">NT$ 24,000</span>
                             </div>
@@ -266,7 +265,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="glass-panel p-4 h-100">
                         <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-chart-line text-info"></i> 晉升指標達成率分析
+                            <i class="fa-solid fa-chart-line text-secondary"></i> 晉升指標達成率分析
                         </h6>
                         <div style="position: relative; height: 260px;">
                             <canvas id="chartGapsRadar"></canvas>
@@ -293,7 +292,7 @@
                 <div class="col-lg-4">
                     <div class="glass-panel p-4 h-100">
                         <h6 class="fw-bold text-white mb-3">
-                            <i class="fa-solid fa-clipboard-check text-info"></i> 晉升門檻通關檢核表
+                            <i class="fa-solid fa-clipboard-check text-secondary"></i> 晉升門檻通關檢核表
                         </h6>
                         <div class="d-flex flex-column gap-2" id="gateChecklistContainer">
                             <!-- 動態由 JS 渲染各門檻 Pass/Fail 狀態卡 -->
@@ -336,9 +335,8 @@
                     <div class="glass-panel p-4">
                         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                             <h5 class="section-header mb-0">
-                                <i class="fa-solid fa-book-bookmark text-info"></i> 葡眾 10 大職級晉升標準字典總表
+                                <i class="fa-solid fa-book-bookmark text-secondary"></i> 葡眾 10 大職級晉升標準字典總表
                             </h5>
-                            <span class="text-secondary small">來源：Google 試算表 `org_ranks` 主檔</span>
                         </div>
                         <div class="table-responsive">
                             <table id="tableRankDictionary" class="table table-custom-dark w-100">

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>職級試算小工具</title>
+        <title>職級試算小工具 - 榮祥葡眾團隊私域戰情室</title>
 
         <script src="../assets/js/auth-guard.js"></script>
         
@@ -21,164 +21,342 @@
     <body>
 
         <main class="container-fluid p-3 p-md-4">
-            <div class="row g-3 mb-4">
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fa-solid fa-user-check"></i> 目前判定職級
-                        </div>
-                        <div class="stat-value" id="dispCurrentRank">會員</div>
+            <section class="glass-panel p-3 mb-4">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <!-- 左側佔位（維持桌面版水平居中平衡，手機版自動隱藏） -->
+                    <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-start gap-1">
+                        <span class="text-secondary small">
+                            <i class="fa-solid fa-earth-asia text-secondary"></i> 雙幣別即時換算
+                        </span>
                     </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fa-solid fa-percent"></i> 個人階差回饋率
-                        </div>
-                        <div class="stat-value green" id="dispCurrentRebate">5%</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fa-solid fa-crosshairs"></i> 目標衝刺職級
-                        </div>
-                        <div class="stat-value gold" id="dispTargetRank">經理</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fa-solid fa-chart-line"></i> 總體目標達成度
-                        </div>
-                        <div class="stat-value" id="dispOverallProgress">0%</div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="row g-4">
+                    <!-- 中間：匯率輸入與幣別切換（水平置中） -->
+                    <div class="col-12 col-lg-6 d-flex flex-wrap justify-content-center align-items-center gap-2">
+                        <div class="input-group input-group-sm" style="max-width: 250px;">
+                            <span class="input-group-text bg-dark text-secondary border-secondary border-opacity-50">
+                                <i class="fa-solid fa-scale-balanced me-1"></i> 匯率 (MYR/TWD)
+                            </span>
+                            <input type="number" class="form-control mono-font text-end bg-dark text-white border-secondary border-opacity-50" id="inputExchangeRate" value="8.00" step="0.01" min="0.01" placeholder="8.00">
+                        </div>
+                        <div class="btn-group" role="group" id="currencyToggleGroup">
+                            <button type="button" class="btn btn-sm btn-outline-secondary active" data-currency="TWD">
+                                <i class="fa-solid fa-money-bill-wave"></i> 新台幣 (NTD)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-currency="MYR">
+                                <i class="fa-solid fa-coins"></i> 馬幣 (MYR)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 右側：經理、珍珠、藍鑽快速例算 -->
+                    <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-end gap-1">
+                        <button type="button" class="btn btn-sm btn-preset active" id="btnPresetPartTime">
+                            <i class="fa-solid fa-user-check"></i> 經理
+                        </button>
+                        <button type="button" class="btn btn-sm btn-preset" id="btnPresetFullTime">
+                            <i class="fa-solid fa-gem"></i> 珍珠
+                        </button>
+                        <button type="button" class="btn btn-sm btn-preset" id="btnPresetDiamond">
+                            <i class="fa-solid fa-crown"></i> 藍鑽
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 核心診斷指標卡組 (KPI Matrix) -->
+            <section class="kpi-matrix">
+                <!-- 當前實動職級 -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>當前判定實動職級</span>
+                        <i class="fa-solid fa-user-check text-secondary"></i>
+                    </div>
+                    <div class="kpi-value text-secondary mono-font" id="dispCurrentRank">經理</div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">個人階差比率：<strong class="text-white" id="dispRebateRate">20%</strong></span>
+                        <span class="badge bg-primary-subtle text-secondary mono-font" id="dispStatusTag">合格經理</span>
+                    </div>
+                </div>
+
+                <!-- 預估總收益 -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>當月預估綜合收益</span>
+                        <i class="fa-solid fa-sack-dollar text-warning"></i>
+                    </div>
+                    <div class="kpi-value text-warning mono-font" id="dispTotalIncome">NT$ 24,000</div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">生產力基準：<strong class="text-light mono-font" id="dispPvRate">PV = 25</strong></span>
+                        <span class="text-success fw-bold mono-font"><i class="fa-solid fa-calculator"></i> 實戰精算</span>
+                    </div>
+                </div>
+
+                <!-- 目標衝刺達成度 -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>目標衝刺達成進度</span>
+                        <i class="fa-solid fa-bullseye text-danger"></i>
+                    </div>
+                    <div class="kpi-value text-white mono-font" id="dispOverallProgress">100%</div>
+                    <div class="progress-thin mt-2">
+                        <div class="progress-bar progress-bar-blue" id="dispProgressBar" style="width: 100%;"></div>
+                    </div>
+                    <div class="kpi-subtext mt-2">
+                        <span class="text-secondary">目標：<strong class="text-warning" id="dispTargetRankName">經理</strong></span>
+                        <span class="text-secondary mono-font" id="dispProgressLabel">已完全達標</span>
+                    </div>
+                </div>
+
+                <!-- 組織線條與補救狀態 -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>合格經理線 / 實動珍珠</span>
+                        <i class="fa-solid fa-sitemap text-success"></i>
+                    </div>
+                    <div class="kpi-value text-success mono-font" id="dispOrgLegs">0 <span class="fs-6 fw-normal text-secondary">/ 0 條</span></div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">領導獎金：<strong class="text-white" id="dispGenDepth">0 代 (各6%)</strong></span>
+                        <span class="badge bg-success-subtle text-success mono-font" id="dispRescueTag">正常合格</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 上半部：左側參數輸入 vs 右側目標缺口與權利 -->
+            <section class="row g-4 mb-4">
+                <!-- 左側：輸入控制艙 -->
                 <div class="col-lg-5">
-                    <div class="card-custom">
-                        <h2 class="h5 section-title">
-                            <i class="fa-solid fa-sliders"></i> 個人與組織現況輸入
-                        </h2>
-                        <form id="calculatorForm">
-                            <div class="mb-3">
-                                <label for="cumSvInput" class="form-label">
-                                    <i class="fa-solid fa-boxes-stacked"></i> 個人當前累計業績 (SV)
-                                </label>
-                                <input type="number" class="form-control" id="cumSvInput" value="3500" min="0" step="100">
-                                <input type="range" class="form-range mt-2" id="cumSvSlider" min="0" max="50000" step="100" value="3500">
-                                <div class="form-text text-muted">提示：主任門檻 1,000 SV，副理門檻 10,000 SV，經理門檻 30,000 SV。</div>
+                    <div class="glass-panel p-4 h-100">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                            <h5 class="section-header mb-0">
+                                <i class="fa-solid fa-sliders text-secondary"></i> 個人與組織現況參數
+                            </h5>
+                        </div>
+                        
+                        <form id="simulatorForm">
+                            <!-- 第一排：當月個人業績 (SV) 與 當月小組責任額 (SV) -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputPersonalSv" class="form-label">
+                                        <i class="fa-solid fa-cart-shopping"></i> 當月個人業績 (SV)
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputPersonalSv" value="160" min="0" step="10">
+                                    <div class="form-text text-secondary">基本盤：需達 160 SV 領取各項獎金。</div>
+                                </div>
+
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputMonthGroupSv" class="form-label">
+                                        <i class="fa-solid fa-users"></i> 當月小組責任額 (SV)
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputMonthGroupSv" value="3200" min="0" step="100">
+                                    <div class="form-text text-secondary">合格經理責任額門檻 3,200 SV。</div>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="monthPersonalSvInput" class="form-label">
-                                    <i class="fa-solid fa-cart-shopping"></i> 當月個人消費業績 (SV)
-                                </label>
-                                <input type="number" class="form-control" id="monthPersonalSvInput" value="160" min="0" step="10">
-                                <div class="form-text text-muted">合格基本盤：當月個人業績需達 160 SV。</div>
+                            <!-- 第二排：當月整組總業績 (SV) 與 整組累計業績 (SV) -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputTotalOrgSv" class="form-label">
+                                        <i class="fa-solid fa-globe"></i> 當月整組總業績 (SV)
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputTotalOrgSv" value="3200" min="0" step="1000">
+                                    <div class="form-text text-secondary">藍鑽晉升需當月達 100,000 SV。</div>
+                                </div>
+
+                                <div class="col-12 col-sm-6">
+                                    <label for="inputCumGroupSv" class="form-label">
+                                        <i class="fa-solid fa-boxes-stacked"></i> 整組累計業績 (SV)
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputCumGroupSv" value="12000" min="0" step="100">
+                                    <div class="form-text text-secondary">主任 1.2K / 副理 6K / 經理 12K SV。</div>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="monthGroupSvInput" class="form-label">
-                                    <i class="fa-solid fa-users-viewfinder"></i> 當月小組累積業績 (SV)
-                                </label>
-                                <input type="number" class="form-control" id="monthGroupSvInput" value="3200" min="0" step="100">
-                                <div class="form-text text-muted">合格小組基本盤：經理及升經理當月需達 3,200 SV。</div>
+                            <!-- 第三排：線路與考核月 -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-sm-4">
+                                    <label for="inputManagerLines" class="form-label">
+                                        <i class="fa-solid fa-network-wired"></i> 經理線 (條)
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputManagerLines" value="0" min="0"">
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label for="inputPearlLines" class="form-label">
+                                        <i class="fa-solid fa-gem text-secondary"></i> 珍珠線 (條)
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputPearlLines" value="0" min="0">
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label for="inputConsecutiveMonths" class="form-label">
+                                        <i class="fa-solid fa-calendar-check"></i> 連續考核月
+                                    </label>
+                                    <input type="number" class="form-control mono-font" id="inputConsecutiveMonths" value="1" min="1">
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="managerLinesInput" class="form-label">
-                                    <i class="fa-solid fa-sitemap"></i> 直系合格經理線數量 (條)
+                            <div class="mb-2 pt-2 border-top border-secondary border-opacity-25">
+                                <label for="selectTargetRank" class="form-label text-warning fw-bold">
+                                    <i class="fa-solid fa-crosshairs"></i> 設定目標衝刺職級
                                 </label>
-                                <input type="number" class="form-control" id="managerLinesInput" value="0" min="0" max="20" step="1">
-                                <div class="form-text text-muted">珍珠(2條)、翡翠(4條)、藍鑽(6條)、雙藍鑽(8條)、皇冠(10條)、雙皇冠(12條)。</div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="targetRankSelect" class="form-label">
-                                    <i class="fa-solid fa-bullseye"></i> 設定目標衝刺職級
-                                </label>
-                                <select class="form-select" id="targetRankSelect">
-                                    <option value="主任">主任 (10% 回饋)</option>
-                                    <option value="副理">副理 (15% 回饋)</option>
-                                    <option value="經理" selected>經理 (20% 回饋)</option>
-                                    <option value="珍珠">珍珠 (2 條合格經理線)</option>
-                                    <option value="翡翠">翡翠 (4 條合格經理線)</option>
-                                    <option value="藍鑽">藍鑽 (6 條合格經理線)</option>
-                                    <option value="雙藍鑽">雙藍鑽 (8 條合格經理線)</option>
-                                    <option value="皇冠">皇冠 (10 條合格經理線)</option>
-                                    <option value="雙皇冠">雙皇冠 (12 條合格經理線)</option>
+                                <select class="form-select border-warning mono-font" id="selectTargetRank">
+                                    <!-- 由 JavaScript 依 org_ranks 動態填入 -->
                                 </select>
                             </div>
                         </form>
                     </div>
                 </div>
 
+                <!-- 右側：缺口診斷與解鎖權利 -->
                 <div class="col-lg-7">
-                    <div class="card-custom">
-                        <h2 class="h5 section-title">
-                            <i class="fa-solid fa-list-check"></i> 晉升目標差距解鎖分析
-                        </h2>
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="section-header">
+                                <i class="fa-solid fa-list-check text-secondary"></i> 晉升條件檢核與差距診斷
+                            </h5>
 
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-white"><i class="fa-solid fa-bars-progress"></i> 目標達成進度條</span>
-                                <span class="text-info fw-bold" id="progressPercentText">0%</span>
+                            <!-- 動態缺口警示盒 -->
+                            <div class="gap-alert-card mb-3" id="boxGapAnalysis">
+                                <h6 class="fw-bold mb-2 text-warning" id="txtGapTitle">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 條件檢核中...
+                                </h6>
+                                <ul class="mb-0 ps-3 text-secondary small" id="listGapItems">
+                                    <li>載入中...</li>
+                                </ul>
                             </div>
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width: 0%;">0%</div>
+
+                            <!-- 目標職級專屬權利 -->
+                            <div class="mb-3">
+                                <div class="small text-secondary fw-bold mb-2">
+                                    <i class="fa-solid fa-award text-warning"></i> 目標職級享有權利與禮遇清單：
+                                </div>
+                                <div id="containerRightsPills">
+                                    <!-- 動態生成 Badge -->
+                                </div>
                             </div>
                         </div>
 
-                        <div class="gap-box" id="gapAnalysisBox">
-                            <h3 class="h6 fw-bold mb-2 text-warning" id="gapTitle">
-                                <i class="fa-solid fa-triangle-exclamation"></i> 尚未解鎖目標職級
-                            </h3>
-                            <ul class="mb-0 ps-3 text-muted" id="gapList">
-                                <li>計算中...</li>
-                            </ul>
-                        </div>
-
-                        <div class="mt-4">
-                            <h3 class="h6 fw-bold mb-3 text-white">
-                                <i class="fa-solid fa-chart-column"></i> 業績與經理線戰力對比圖
-                            </h3>
-                            <div style="position: relative; height:240px;">
-                                <canvas id="rankGapChart"></canvas>
+                        <!-- 收益摘要快速列 -->
+                        <div class="p-3 rounded-3" style="background: rgba(6, 13, 25, 0.7); border: 1px solid var(--team-border-glow);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small text-secondary fw-bold">
+                                    <i class="fa-solid fa-calculator text-secondary"></i> 預估當月到手總額：
+                                </span>
+                                <span class="fs-5 text-warning fw-bold mono-font" id="dispIncomeQuickTotal">NT$ 24,000</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card-custom">
-                        <h2 class="h5 section-title">
-                            <i class="fa-solid fa-table"></i> 葡眾 10 大職級晉升條件與階差對照表
-                        </h2>
+            <!-- 圖表戰情展示區 (3 張圖表) -->
+            <section class="row g-4 mb-4">
+                <!-- 圖表 1：獎金占比圓餅圖 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="glass-panel p-4 h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-chart-pie text-warning"></i> 獎金收益結構占比
+                        </h6>
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="chartBonusPie"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 2：晉升門檻達成雷達圖 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="glass-panel p-4 h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-chart-line text-secondary"></i> 晉升指標達成率分析
+                        </h6>
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="chartGapsRadar"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖表 3：各職階預估收益對比長條圖 -->
+                <div class="col-lg-4 col-md-12">
+                    <div class="glass-panel p-4 h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-chart-simple text-success"></i> 各職階預估收益梯隊
+                        </h6>
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="chartRankIncomeBar"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 實戰三大落地分析模組 -->
+            <section class="row g-4 mb-4">
+                <!-- 模組 A：晉升多重門檻動態檢核清單 -->
+                <div class="col-lg-4">
+                    <div class="glass-panel p-4 h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-clipboard-check text-secondary"></i> 晉升門檻通關檢核表
+                        </h6>
+                        <div class="d-flex flex-column gap-2" id="gateChecklistContainer">
+                            <!-- 動態由 JS 渲染各門檻 Pass/Fail 狀態卡 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模組 B：多階收益與領導獎金細部拆解表 -->
+                <div class="col-lg-4">
+                    <div class="glass-panel p-4 h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-money-bill-transfer text-warning"></i> 獎金與分紅細部拆解
+                        </h6>
                         <div class="table-responsive">
-                            <table id="rankDetailTable" class="table table-dark table-hover w-100">
-                                <thead>
-                                    <tr>
-                                        <th>職級代號</th>
-                                        <th>職級名稱</th>
-                                        <th>累計 SV 門檻</th>
-                                        <th>當月小組 SV</th>
-                                        <th>合格經理線</th>
-                                        <th>階差回饋率</th>
-                                        <th>制度特點與分紅說明</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rankTableBody">
-                                    </tbody>
+                            <table class="table table-sm table-dark table-custom-dark mb-0">
+                                <tbody id="incomeBreakdownTableBody">
+                                    <!-- 動態由 JS 渲染收益細項與金額 -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- 模組 C：經理線拓撲與第 5 線自動補救診斷 -->
+                <div class="col-lg-4">
+                    <div class="glass-panel p-4 h-100">
+                        <h6 class="fw-bold text-white mb-3">
+                            <i class="fa-solid fa-shield-halved text-success"></i> 組織線路健全與補救防線
+                        </h6>
+                        <div class="d-flex flex-column gap-3" id="topologyRescueContainer">
+                            <!-- 動態由 JS 渲染線路拓撲與補救判定 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 底部：10 大職級官方晉升標準字典表 -->
+            <section class="row">
+                <div class="col-12">
+                    <div class="glass-panel p-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                            <h5 class="section-header mb-0">
+                                <i class="fa-solid fa-book-bookmark text-secondary"></i> 葡眾 10 大職級晉升標準字典總表
+                            </h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="tableRankDictionary" class="table table-custom-dark w-100">
+                                <thead>
+                                    <tr>
+                                        <th>職級名稱</th>
+                                        <th>晉升標準門檻</th>
+                                        <th>階差比率</th>
+                                        <th>領導代數</th>
+                                        <th>專屬權利與分紅說明</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 資料由 DataTable.js 動態注入 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
     </body>
