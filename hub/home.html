@@ -20,212 +20,340 @@
 
     <body>
 
-        <main class="container-fluid p-3 p-md-4">
+        <!-- 戰情總覽核心主體 (純戰術中樞，無 header / footer) -->
+        <div class="dashboard-container">
 
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card-custom p-3">
-                        <div class="row align-items-center g-3">
-                            <div class="col-lg-8">
-                                <div class="img-placeholder-container" style="min-height: 260px;" id="heroImgBox">
-                                    <span class="img-badge"><i class="fa-solid fa-image"></i> 圖片預留區 (1200x400)</span>
-                                    <div class="text-center p-3 z-1">
-                                        <i class="fa-solid fa-mountain-sun fa-3x text-warning mb-2"></i>
-                                        <h5 class="fw-bold text-white mb-1">榮祥團隊 2026 戰略願景與品牌視覺</h5>
-                                        <p class="text-secondary small mb-2">此區塊可直接放入 Team Banner、葡萄王/葡眾榮耀年會或吉隆坡海外研討會照片</p>
-                                        <button class="btn btn-sm btn-outline-light" onclick="toggleSampleImage('heroImgBox', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80')">
-                                            <i class="fa-solid fa-eye"></i> 載入範例圖片預覽
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="p-2">
-                                    <span class="text-warning fw-bold small"><i class="fa-solid fa-bullhorn"></i> 創始樞紐公告</span>
-                                    <h4 class="fw-bold mt-1 text-white">歡迎回到核心樞控制台</h4>
-                                    <p class="text-secondary small">
-                                        本系統已連結私密 Google Sheets 與 GAS 後端中繼 API。所有數據均已實現欄位別名解耦，確保營運資料 100% 安全隔離。
-                                    </p>
-                                    <hr class="border-secondary">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="small text-secondary"><i class="fa-solid fa-database"></i> 資料庫連線狀態</span>
-                                        <span class="badge bg-success"><i class="fa-solid fa-check"></i> 正常運作</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="small text-secondary"><i class="fa-solid fa-clock"></i> 上次自動同步</span>
-                                        <span class="small text-white font-monospace" id="lastSyncTime">2026-08-07 21:30</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <!-- 頂部戰術指揮天線 HUD (Tactical Command HUD) -->
+            <div class="glass-panel command-bar">
+                <div class="command-title-box">
+                    <div class="command-badge-icon">
+                        <i class="fa-solid fa-chart-line"></i>
                     </div>
-                </div>
-            </div>
-
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card-custom p-3 kpi-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-secondary small"><i class="fa-solid fa-coins"></i> 本月團隊總 SV 業績</span>
-                                <h3 class="fw-bold text-white mt-1 mb-0 font-monospace" id="kpiTotalSv">1,850,000</h3>
-                                <span class="text-success small"><i class="fa-solid fa-arrow-trend-up"></i> +12.5% 較上月</span>
-                            </div>
-                            <div class="rounded-circle p-3" style="background-color: rgba(168, 85, 247, 0.2);">
-                                <i class="fa-solid fa-chart-line fa-2x text-purple-light" style="color: var(--accent-purple-light);"></i>
-                            </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h3 class="mb-0 fw-black text-white">戰情總覽 <span class="brand-gradient-text">EXECUTIVE HUB</span></h3>
+                            <span class="status-pill"><span class="pulse-dot"></span> 雙鏈戰術網絡即時連線中</span>
+                            <span class="badge bg-purple-subtle border border-purple px-2 py-1"><i class="fa-solid fa-crown"></i> 最高戰略權限</span>
                         </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card-custom p-3 kpi-card gold">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-secondary small"><i class="fa-solid fa-boxes-stacked"></i> 低庫存預警品項</span>
-                                <h3 class="fw-bold text-warning mt-1 mb-0 font-monospace" id="kpiLowStock">3 品項</h3>
-                                <span class="text-warning small"><i class="fa-solid fa-triangle-exclamation"></i> 建議安排補貨</span>
-                            </div>
-                            <div class="rounded-circle p-3" style="background-color: rgba(245, 158, 11, 0.2);">
-                                <i class="fa-solid fa-warehouse fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card-custom p-3 kpi-card blue">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-secondary small"><i class="fa-solid fa-users"></i> 白名單夥伴總數</span>
-                                <h3 class="fw-bold text-white mt-1 mb-0 font-monospace" id="kpiActiveUsers">48 人</h3>
-                                <span class="text-info small"><i class="fa-solid fa-user-check"></i> /team 存取權開通</span>
-                            </div>
-                            <div class="rounded-circle p-3" style="background-color: rgba(56, 189, 248, 0.2);">
-                                <i class="fa-solid fa-users-gear fa-2x text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="card-custom p-3 kpi-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-secondary small"><i class="fa-solid fa-shield-cat"></i> 全站 AccessLogs</span>
-                                <h3 class="fw-bold text-white mt-1 mb-0 font-monospace" id="kpiAccessCount">128 筆</h3>
-                                <span class="text-success small"><i class="fa-solid fa-lock"></i> 無異常連線</span>
-                            </div>
-                            <div class="rounded-circle p-3" style="background-color: rgba(168, 85, 247, 0.2);">
-                                <i class="fa-solid fa-list-check fa-2x text-purple-light" style="color: var(--accent-purple-light);"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-12 col-lg-8">
-                    <div class="card-custom p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-chart-column text-purple-light"></i> 組織月度 SV/PV 業績成長趨勢</h5>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="reloadChartData()">
-                                <i class="fa-solid fa-rotate"></i> 重載圖表
-                            </button>
-                        </div>
-                        <div style="position: relative; height: 300px;">
-                            <canvas id="svTrendChart"></canvas>
+                        <div class="text-secondary small mt-1">
+                            <i class="fa-solid fa-users-viewfinder"></i> 團隊領導核心：<strong class="text-light">Ray 翁榮祥</strong> × <strong class="text-light">Jarvis 林承志</strong> 專屬數位戰術控制台
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-4">
-                    <div class="card-custom p-3 h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-image text-warning"></i> 明星產品與運營中心</h5>
-                            <div class="img-placeholder-container mb-3" style="min-height: 180px;" id="productImgBox">
-                                <span class="img-badge"><i class="fa-solid fa-camera"></i> 產品展示槽 (4:3)</span>
-                                <div class="text-center p-2 z-1">
-                                    <i class="fa-solid fa-box-open fa-2x text-purple-light mb-1"></i>
-                                    <div class="fw-bold text-white small">康爾喜 / 樟芝益 展售圖片</div>
-                                    <span class="text-secondary extra-small">可預留放團隊熱銷組合拍攝圖</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn btn-sm btn-outline-warning w-100" onclick="toggleSampleImage('productImgBox', 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80')">
-                            <i class="fa-solid fa-image"></i> 載入產品範例圖
+                <!-- 控制面板工具列 (解耦更新按鈕與時間戳) -->
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="text-end d-none d-sm-block">
+                        <div class="small text-secondary"><i class="fa-solid fa-server"></i> Google Sheets 資料源狀態</div>
+                        <div class="small text-light mono-font" id="syncTimestamp">即時同步：2026-08-22 08:58:30</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-light rounded-pill px-3 py-2" id="btnRefreshHub">
+                        <i class="fa-solid fa-arrows-rotate"></i> 刷新戰情快取
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-sm text-white rounded-pill px-3 py-2" style="background: var(--uvaco-gradient-primary);" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-bolt"></i> 戰術行動
                         </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end glass-panel border-0 shadow-lg p-2">
+                            <li><a class="dropdown-item rounded-3 py-2" href="org-dispatch.html"><i class="fa-solid fa-calendar-check text-purple"></i> 經理門檻下單協調</a></li>
+                            <li><a class="dropdown-item rounded-3 py-2" href="org-loans.html"><i class="fa-solid fa-hand-holding-dollar text-warning"></i> 轉點借貸對帳催收</a></li>
+                            <li><a class="dropdown-item rounded-3 py-2" href="fin-settlement.html"><i class="fa-solid fa-scale-balanced text-accent"></i> 創始人 50/50 損益對拆</a></li>
+                            <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+                            <li><a class="dropdown-item rounded-3 py-2" href="psi-alerts.html"><i class="fa-solid fa-triangle-exclamation text-danger"></i> 庫存效期緊急預警</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-4">
-                    <div class="card-custom p-3">
-                        <div class="img-placeholder-container mb-2" style="min-height: 150px;" id="gridImg1">
-                            <span class="img-badge"><i class="fa-solid fa-file-image"></i> 圖片區 A</span>
-                            <div class="text-center p-2 z-1">
-                                <i class="fa-solid fa-sitemap fa-2x text-info mb-1"></i>
-                                <div class="small fw-bold text-white">六大顧問體系拓撲</div>
-                            </div>
+            <!-- 核心作戰指標矩陣 (Tactical Kinetic KPI Grid) -->
+            <div class="kpi-matrix">
+                
+                <!-- KPI 1: 當月 SV 總量 vs 營收目標 (表 406 / sys_daily_stats) -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>當月累積總業績 SV</span>
+                        <div class="kpi-icon-badge bg-purple-subtle">
+                            <i class="fa-solid fa-cubes"></i>
                         </div>
-                        <h6 class="fw-bold text-white mt-2"><i class="fa-solid fa-diagram-project"></i> 組織網路圖展售</h6>
-                        <p class="text-secondary small mb-0">點擊可查看合格經理線與當月累積 SV 樹狀結構。</p>
+                    </div>
+                    <div class="kpi-value mono-font" id="kpiTotalSv">842,650 <span class="fs-6 fw-normal text-secondary">SV</span></div>
+                    <div class="progress-thin">
+                        <div class="progress-bar progress-bar-purple" style="width: 84.2%;"></div>
+                    </div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary"><i class="fa-solid fa-bullseye"></i> 目標：1,000,000 SV</span>
+                        <span class="text-success fw-bold mono-font"><i class="fa-solid fa-arrow-trend-up"></i> 84.3%</span>
                     </div>
                 </div>
-                <div class="col-12 col-md-4">
-                    <div class="card-custom p-3">
-                        <div class="img-placeholder-container mb-2" style="min-height: 150px;" id="gridImg2">
-                            <span class="img-badge"><i class="fa-solid fa-file-image"></i> 圖片區 B</span>
-                            <div class="text-center p-2 z-1">
-                                <i class="fa-solid fa-building-circle-check fa-2x text-success mb-1"></i>
-                                <div class="small fw-bold text-white">吉隆坡 / 全台營運中心</div>
-                            </div>
+
+                <!-- KPI 2: 創始人損益對拆 (Ray & Jarvis 50/50 對拆淨利) -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>創始人 50/50 當月預估分潤</span>
+                        <div class="kpi-icon-badge bg-pink-subtle">
+                            <i class="fa-solid fa-scale-balanced"></i>
                         </div>
-                        <h6 class="fw-bold text-white mt-2"><i class="fa-solid fa-map-location-dot"></i> 跨國提貨據點</h6>
-                        <p class="text-secondary small mb-0">掌握台北、台中、高雄與馬來西亞提貨點狀態。</p>
+                    </div>
+                    <div class="kpi-value mono-font text-white" id="kpiNetProfit">NT$ 384,200</div>
+                    <div class="progress-thin">
+                        <div class="progress-bar progress-bar-pink" style="width: 92%;"></div>
+                    </div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary">單人實收：<strong class="text-pink">NT$ 192,100</strong></span>
+                        <span class="badge bg-pink-subtle mono-font">50% 對拆</span>
                     </div>
                 </div>
-                <div class="col-12 col-md-4">
-                    <div class="card-custom p-3">
-                        <div class="img-placeholder-container mb-2" style="min-height: 150px;" id="gridImg3">
-                            <span class="img-badge"><i class="fa-solid fa-file-image"></i> 圖片區 C</span>
-                            <div class="text-center p-2 z-1">
-                                <i class="fa-solid fa-scale-balanced fa-2x text-warning mb-1"></i>
-                                <div class="small fw-bold text-white">政府合規與稅務扣繳</div>
-                            </div>
+
+                <!-- KPI 3: 合格經理門檻調度監控 (Ray 戰術 12,000 SV 攻防) -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>★Ray戰術：合格經理衝刺</span>
+                        <div class="kpi-icon-badge bg-gold-subtle">
+                            <i class="fa-solid fa-ranking-star"></i>
                         </div>
-                        <h6 class="fw-bold text-white mt-2"><i class="fa-solid fa-landmark-flag"></i> 50 執行業務所得</h6>
-                        <p class="text-secondary small mb-0">多層次傳銷法規備查與二代健保補充保費精算。</p>
+                    </div>
+                    <div class="kpi-value mono-font" id="kpiQualifiedManagers">18 <span class="fs-6 fw-normal text-secondary">/ 22 位</span></div>
+                    <div class="progress-thin">
+                        <div class="progress-bar bg-warning" style="width: 81.8%;"></div>
+                    </div>
+                    <div class="kpi-subtext">
+                        <span class="text-warning"><i class="fa-solid fa-triangle-exclamation"></i> 4 位差額 &lt; 2,000 SV</span>
+                        <a href="org-dispatch.html" class="text-decoration-none text-info small fw-bold">排程調度 <i class="fa-solid fa-chevron-right"></i></a>
                     </div>
                 </div>
+
+                <!-- KPI 4: 庫存低水位與 90 天近效期警示 (表 308) -->
+                <div class="kpi-card glass-panel">
+                    <div class="kpi-header">
+                        <span>PSI 倉儲警示與效期告警</span>
+                        <div class="kpi-icon-badge bg-emerald-subtle">
+                            <i class="fa-solid fa-warehouse"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value mono-font text-white" id="kpiStockAlerts">3 <span class="fs-6 fw-normal text-secondary">件緊急</span></div>
+                    <div class="progress-thin">
+                        <div class="progress-bar bg-danger" style="width: 60%;"></div>
+                    </div>
+                    <div class="kpi-subtext">
+                        <span class="text-secondary"><i class="fa-solid fa-clock-rotate-left"></i> 90天近效期：2 品項</span>
+                        <span class="badge bg-danger-subtle text-danger mono-font">需補貨</span>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="row">
-                <div class="col-12">
-                    <div class="card-custom p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold text-white mb-0">
-                                <i class="fa-solid fa-table-list text-purple-light"></i> 即時產品庫存與 SV 換算動態看板
-                            </h5>
-                            <span class="badge bg-secondary font-monospace"><i class="fa-solid fa-link-slash"></i> Field Decoupled</span>
+            <!-- 雙軌戰術中樞 (Two-Tier Tactical Operations) -->
+            <div class="row g-4 mb-4">
+                
+                <!-- 左側：SV 總量與組織成長趨勢圖表 (Chart.js) -->
+                <div class="col-lg-8">
+                    <div class="glass-panel p-4 h-100">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-chart-area text-purple"></i> 全團隊 SV 業績動態與營收走勢</h5>
+                                <span class="text-secondary small">結合公域推廣、直屬組織與經理小組業績整合分析</span>
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-light active px-3" id="btnTrendMonth">近 6 個月</button>
+                                <button type="button" class="btn btn-outline-light px-3" id="btnTrendDay">當月日走勢</button>
+                            </div>
                         </div>
+                        
+                        <!-- Chart.js 畫布容器 -->
+                        <div style="position: relative; height: 320px; width: 100%;">
+                            <canvas id="svPerformanceChart"></canvas>
+                        </div>
+
+                        <!-- 底部細部統計條 -->
+                        <div class="row text-center mt-3 pt-3 border-top border-secondary border-opacity-25 g-2">
+                            <div class="col-4">
+                                <div class="text-secondary small">直屬第一代貢獻</div>
+                                <div class="fw-bold text-white mono-font">312,400 SV (37%)</div>
+                            </div>
+                            <div class="col-4 border-start border-end border-secondary border-opacity-25">
+                                <div class="text-secondary small">深度小組裂變</div>
+                                <div class="fw-bold text-secondary-purple mono-font" style="color: var(--uvaco-secondary);">489,150 SV (58%)</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-secondary small">馬來西亞跨境點數</div>
+                                <div class="fw-bold text-pink mono-font" style="color: var(--uvaco-accent);">41,100 SV (5%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：★Ray 戰術調度雷達 & 轉點催收沙盒 -->
+                <div class="col-lg-4">
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-wand-magic-sparkles text-accent"></i> ★Ray 戰術調度雷達</h5>
+                                <span class="badge bg-gold-subtle text-warning">保級衝刺中</span>
+                            </div>
+                            <p class="text-secondary small mb-3">即時監控小組成員合格經理 (12,000 SV) 與維持個人 (160 SV) 缺口，協調下單排程：</p>
+                            
+                            <ul class="tactical-dispatch-list mb-3">
+                                <li class="tactical-dispatch-item">
+                                    <div>
+                                        <div class="fw-bold text-light">陳經理（台北第一組）</div>
+                                        <div class="small text-secondary mono-font">目前 10,850 / 12,000 SV</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="tactical-tag bg-danger-subtle text-danger">缺 1,150 SV</span>
+                                        <div class="small text-info mt-1"><a href="org-dispatch.html" class="text-decoration-none text-info">協調客戶先買</a></div>
+                                    </div>
+                                </li>
+
+                                <li class="tactical-dispatch-item">
+                                    <div>
+                                        <div class="fw-bold text-light">林經理（台中旗艦組）</div>
+                                        <div class="small text-secondary mono-font">目前 11,400 / 12,000 SV</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="tactical-tag bg-warning-subtle text-warning">缺 600 SV</span>
+                                        <div class="small text-info mt-1"><a href="org-loans.html" class="text-decoration-none text-warning">轉點支援借貸</a></div>
+                                    </div>
+                                </li>
+
+                                <li class="tactical-dispatch-item">
+                                    <div>
+                                        <div class="fw-bold text-light">張主任（高雄發展組）</div>
+                                        <div class="small text-secondary mono-font">個人維持未達 160 SV</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="tactical-tag bg-pink-subtle text-accent">缺 60 SV</span>
+                                        <div class="small text-info mt-1"><a href="crm-reorder.html" class="text-decoration-none text-accent">發送復購提醒</a></div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 快捷進入最佳化求解器 -->
+                        <div class="p-3 rounded-4 mt-2" style="background: rgba(139, 92, 246, 0.12); border: 1px dashed rgba(192, 132, 252, 0.4);">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="small text-white">
+                                    <i class="fa-solid fa-microchip text-secondary"></i> <strong>H46000 智慧求解器</strong>
+                                    <div class="text-secondary" style="font-size: 0.75rem;">智慧推演利潤最大化落點</div>
+                                </div>
+                                <a href="org-sv-optimizer.html" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1">啟動求解</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 下方戰略區塊：庫存預警表格 + 馬來西亞拓荒戰備 + 快捷軍備導航 -->
+            <div class="row g-4">
+                
+                <!-- 表格區塊：庫存低水位與 90 天近效期即時動態 (DataTable.js 整合) -->
+                <div class="col-lg-8">
+                    <div class="glass-panel p-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-triangle-exclamation text-warning"></i> 營運中心現有量與近效期預警 (PSI Alerts)</h5>
+                                <span class="text-secondary small">對應資料表：<code>psi_alerts</code>, <code>psi_stocks</code>（支援解耦欄位即時映射）</span>
+                            </div>
+                            <a href="psi-stock.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3 text-light">
+                                <i class="fa-solid fa-boxes-stacked"></i> 完整庫存總表
+                            </a>
+                        </div>
+
                         <div class="table-responsive">
-                            <table id="inventoryTable" class="table table-custom table-hover width-100">
+                            <table id="psiAlertTable" class="table table-custom-dark w-100">
                                 <thead>
                                     <tr>
-                                        <th>產品編號</th>
-                                        <th>產品名稱</th>
-                                        <th>產品類別</th>
-                                        <th>實體庫存</th>
-                                        <th>單品 PV</th>
-                                        <th>單品 SV</th>
-                                        <th>庫存狀態</th>
+                                        <th>營運中心 / 倉別</th>
+                                        <th>產品品項 (SKU)</th>
+                                        <th>批號 (Batch No)</th>
+                                        <th>現有庫存</th>
+                                        <th>保存期限 / 效期</th>
+                                        <th>預警狀態</th>
+                                        <th>戰術建議</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    </tbody>
+                                    <!-- 資料由 DataTable.js 與解耦適配器動態注入 -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
+                <!-- 右側：馬來西亞拓荒專區 + 核心軍備導流 -->
+                <div class="col-lg-4">
+                    <div class="d-flex flex-column gap-3">
+                        
+                        <!-- 馬來西亞跨境戰備卡 (HM0000 模組連動) -->
+                        <div class="my-mission-card glass-panel">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold text-white mb-0"><i class="fa-solid fa-earth-asia text-pink"></i> 吉隆坡開拓出差戰備</h6>
+                                <span class="badge rounded-pill px-2 py-1 text-white" style="background: var(--uvaco-accent); font-size: 0.72rem;">HM0000 專區</span>
+                            </div>
+                            <div class="text-secondary small mb-3">距創始人跨國考察出發日倒數：</div>
+
+                            <!-- 倒數計時器 -->
+                            <div class="countdown-digits justify-content-center mb-3">
+                                <div class="countdown-box">
+                                    <div class="countdown-num mono-font" id="cdDays">14</div>
+                                    <div class="countdown-label">Days</div>
+                                </div>
+                                <div class="countdown-box">
+                                    <div class="countdown-num mono-font" id="cdHours">09</div>
+                                    <div class="countdown-label">Hours</div>
+                                </div>
+                                <div class="countdown-box">
+                                    <div class="countdown-num mono-font" id="cdMins">42</div>
+                                    <div class="countdown-label">Mins</div>
+                                </div>
+                                <div class="countdown-box">
+                                    <div class="countdown-num mono-font text-pink" id="cdSecs">18</div>
+                                    <div class="countdown-label">Secs</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between small text-secondary border-top border-secondary border-opacity-25 pt-2">
+                                <span><i class="fa-solid fa-clipboard-check text-success"></i> 樣品戰備檢核：85%</span>
+                                <a href="my-trips.html" class="text-pink text-decoration-none fw-bold">任務大盤 <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- 核心軍備庫快捷跳轉矩陣 -->
+                        <div class="glass-panel p-3">
+                            <h6 class="fw-bold text-white mb-3"><i class="fa-solid fa-compass text-secondary"></i> 核心極密模組快速直達</h6>
+                            <div class="d-grid gap-2">
+                                <a href="fin-settlement.html" class="quick-action-btn">
+                                    <i class="fa-solid fa-sack-dollar text-warning fa-lg"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="text-white">創始人損益對拆</div>
+                                        <div class="text-secondary" style="font-size: 0.72rem;">Ray & Jarvis 50/50 雙向核銷</div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right small text-secondary"></i>
+                                </a>
+
+                                <a href="org-dormant-radar.html" class="quick-action-btn">
+                                    <i class="fa-solid fa-user-clock text-accent fa-lg"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="text-white">夥伴預警與沉睡雷達</div>
+                                        <div class="text-secondary" style="font-size: 0.72rem;">經理斷代、合格缺口與三階挽回</div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right small text-secondary"></i>
+                                </a>
+
+                                <a href="tool-bonus.html" class="quick-action-btn">
+                                    <i class="fa-solid fa-calculator text-secondary fa-lg"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="text-white">雙國獎金推演沙盒</div>
+                                        <div class="text-secondary" style="font-size: 0.72rem;">台馬制度精算、向上緊縮歸併模擬</div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right small text-secondary"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
         </div>

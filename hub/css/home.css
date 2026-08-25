@@ -1,129 +1,404 @@
 :root {
-    --bg-primary: #0f0a1c;
-    --bg-card: #1e1740;
-    --bg-card-hover: #2a1f59;
-    --accent-purple: #a855f7;
-    --accent-purple-light: #c084fc;
-    --accent-gold: #f59e0b;
-    --accent-blue: #38bdf8;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border-color: #332663;
+    /* 核心版紫色系 Dark Purple Tokens */
+    --uvaco-primary: #8b5cf6;
+    --uvaco-primary-rgb: 139, 92, 246;
+    --uvaco-secondary: #c084fc;
+    --uvaco-secondary-rgb: 192, 132, 252;
+    --uvaco-accent: #ec4899;
+    --uvaco-accent-rgb: 236, 72, 153;
+    --uvaco-warning: #fbbf24;
+    --uvaco-warning-rgb: 251, 191, 36;
+    --uvaco-success: #10b981;
+    --uvaco-success-rgb: 16, 185, 129;
+    --uvaco-danger: #f43f5e;
+    --uvaco-muted: #a1a1aa;
+    
+    --uvaco-bg-body: #0a0518;
+    --uvaco-bg-card: #130924;
+    --uvaco-bg-card-glass: rgba(19, 9, 36, 0.75);
+    --uvaco-bg-card-secondary: #1c0f35;
+    --uvaco-border-glow: rgba(139, 92, 246, 0.28);
+    --uvaco-border-highlight: rgba(192, 132, 252, 0.5);
+    
+    --uvaco-gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+    --uvaco-gradient-accent: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+    --uvaco-gradient-dark: linear-gradient(180deg, rgba(28, 15, 53, 0.6) 0%, rgba(10, 5, 24, 0.95) 100%);
+    --uvaco-gradient-card: linear-gradient(145deg, rgba(28, 15, 53, 0.5) 0%, rgba(19, 9, 36, 0.8) 100%);
 }
 
 body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--uvaco-bg-body);
+    color: #f3f4f6;
+    font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
     overflow-x: hidden;
+    background-image: 
+        radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.04) 0%, transparent 60%);
+    background-attachment: fixed;
 }
 
-/* 導覽列與邊框 */
-.navbar-custom {
-    background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
+.mono-font {
+    font-family: 'JetBrains Mono', monospace;
 }
 
-.card-custom {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    transition: all 0.3s ease;
+/* 戰術控制台整體容器 */
+.dashboard-container {
+    padding: 1.5rem 1.25rem 3rem 1.25rem;
+    max-width: 1720px;
+    margin: 0 auto;
 }
 
-.card-custom:hover {
-    border-color: var(--accent-purple);
-    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
-}
-
-/* 預留圖片容器樣式 */
-.img-placeholder-container {
+/* 霓虹玻璃質感面板 */
+.glass-panel {
+    background: var(--uvaco-bg-card-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--uvaco-border-glow);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    background: linear-gradient(135deg, #1e1740 0%, #2e1d66 100%);
-    border: 2px dashed var(--accent-purple);
-    border-radius: 12px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 220px;
-    transition: all 0.3s ease;
 }
 
-.img-placeholder-container:hover {
-    border-color: var(--accent-gold);
-    background: linear-gradient(135deg, #251b54 0%, #3a2282 100%);
-}
-
-.img-placeholder-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.glass-panel::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
-    opacity: 0.85;
-    transition: opacity 0.3s;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.5), transparent);
 }
 
-.img-placeholder-container:hover img {
-    opacity: 1;
+.glass-panel:hover {
+    border-color: var(--uvaco-border-highlight);
+    box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.2);
+    transform: translateY(-2px);
 }
 
-.img-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background-color: rgba(15, 10, 28, 0.85);
-    border: 1px solid var(--accent-purple);
-    color: var(--accent-purple-light);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    z-index: 2;
+/* 頂部戰術指揮列 HUD */
+.command-bar {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
-/* KPI 卡片 */
+.command-title-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.command-badge-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: var(--uvaco-gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+.brand-gradient-text {
+    background: var(--uvaco-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.status-pill {
+    padding: 0.35rem 0.85rem;
+    border-radius: 50rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #e9d5ff;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--uvaco-success);
+    box-shadow: 0 0 10px var(--uvaco-success);
+    animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 14px var(--uvaco-success); }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* 靈活戰術指標矩陣 (Kinetic KPI Matrix) */
+.kpi-matrix {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
 .kpi-card {
-    border-left: 4px solid var(--accent-purple);
+    padding: 1.25rem;
+    border-radius: 18px;
+    background: var(--uvaco-gradient-card);
+    border: 1px solid var(--uvaco-border-glow);
+    position: relative;
 }
 
-.kpi-card.gold {
-    border-left-color: var(--accent-gold);
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--uvaco-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
 }
 
-.kpi-card.blue {
-    border-left-color: var(--accent-blue);
+.kpi-value {
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #ffffff;
+    line-height: 1.2;
 }
 
-/* DataTables 深色主題客製化 */
-.dataTables_wrapper {
-    color: var(--text-primary) !important;
+.kpi-subtext {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.table-custom {
-    color: var(--text-primary) !important;
-    border-color: var(--border-color) !important;
+.kpi-icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
 }
 
-.table-custom th {
-    background-color: #150f30 !important;
-    color: var(--accent-purple-light) !important;
-    border-color: var(--border-color) !important;
+.bg-purple-subtle {
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--uvaco-secondary);
 }
 
-.table-custom td {
-    background-color: var(--bg-card) !important;
-    border-color: var(--border-color) !important;
+.bg-pink-subtle {
+    background: rgba(236, 72, 153, 0.2);
+    color: var(--uvaco-accent);
 }
 
-.page-link {
-    background-color: var(--bg-card) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-primary) !important;
+.bg-gold-subtle {
+    background: rgba(251, 191, 36, 0.2);
+    color: var(--uvaco-warning);
 }
 
-.page-item.active .page-link {
-    background-color: var(--accent-purple) !important;
-    border-color: var(--accent-purple) !important;
+.bg-emerald-subtle {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--uvaco-success);
+}
+
+/* 戰術進度環與進度條 */
+.progress-thin {
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.65rem;
+}
+
+.progress-bar-purple {
+    background: var(--uvaco-gradient-primary);
+}
+
+.progress-bar-pink {
+    background: var(--uvaco-gradient-accent);
+}
+
+/* Ray 戰術調度雷達面板 */
+.tactical-dispatch-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tactical-dispatch-item {
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: rgba(28, 15, 53, 0.5);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.tactical-dispatch-item:hover {
+    background: rgba(139, 92, 246, 0.18);
+    border-color: var(--uvaco-secondary);
+    transform: translateX(4px);
+}
+
+.tactical-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+/* 馬來西亞跨境戰備倒數 */
+.my-mission-card {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(139, 92, 246, 0.2) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    border-radius: 18px;
+    padding: 1.25rem;
+}
+
+.countdown-digits {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.countdown-box {
+    background: rgba(10, 5, 24, 0.8);
+    border: 1px solid rgba(192, 132, 252, 0.3);
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    min-width: 54px;
+}
+
+.countdown-num {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.countdown-label {
+    font-size: 0.65rem;
+    color: var(--uvaco-muted);
+    text-transform: uppercase;
+}
+
+/* DataTables 深色紫色系訂製 */
+.table-custom-dark {
+    --bs-table-bg: transparent;
+    --bs-table-color: #f3f4f6;
+    --bs-table-border-color: rgba(139, 92, 246, 0.15);
+    border-collapse: separate;
+    border-spacing: 0 0.35rem;
+}
+
+.table-custom-dark thead th {
+    background-color: rgba(28, 15, 53, 0.85);
+    color: #c084fc;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 0.85rem 1rem;
+}
+
+.table-custom-dark thead th:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+.table-custom-dark thead th:last-child {
+    border-radius: 0 10px 10px 0;
+}
+
+.table-custom-dark tbody tr {
+    background-color: rgba(28, 15, 53, 0.45);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.table-custom-dark tbody tr:hover {
+    background-color: rgba(139, 92, 246, 0.22) !important;
+    transform: scale(1.002);
+}
+
+.table-custom-dark tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    border-top: none;
+    border-bottom: none;
+    font-size: 0.88rem;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    background-color: rgba(28, 15, 53, 0.8);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--uvaco-gradient-primary) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+/* 快速動作 Action Hub */
+.quick-action-btn {
+    background: rgba(28, 15, 53, 0.7);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    color: #e9d5ff;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.25s ease;
+}
+
+.quick-action-btn:hover {
+    background: var(--uvaco-gradient-primary);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+/* RWD 響應式佈局適配 */
+@media (max-width: 992px) {
+    .dashboard-container {
+        padding: 1rem 0.75rem 2.5rem 0.75rem;
+    }
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+    .command-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
