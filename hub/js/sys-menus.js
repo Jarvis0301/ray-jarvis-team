@@ -124,8 +124,9 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步選單...', '載入最新結構');
     try {
         const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-            const res = await fetch(url);
+            // 加入時間戳記避免 GViz 快取舊資料
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+            const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
             const text = await res.text();
 
@@ -546,18 +547,50 @@ async function saveMenuItem() {
         nowStr
     ];
 
+    const updatedNodeObj = {
+        menu_id: menuId,
+        app_track: $('#fieldAppTrack').val(),
+        menu_name_zh: $('#fieldMenuNameZh').val().trim(),
+        menu_name_en: $('#fieldMenuNameEn').val().trim(),
+        menu_level: parseInt($('#fieldMenuLevel').val(), 10) || 0,
+        parent_id: $('#fieldParentId').val(),
+        sort_order: parseInt($('#fieldSortOrder').val(), 10) || 10,
+        route_url: $('#fieldRouteUrl').val().trim() || '#',
+        fa_icon: $('#fieldFaIcon').val().trim() || 'fa-solid fa-circle',
+        is_active: $('#fieldIsActive').is(':checked') ? 'Y' : 'N',
+        dev_status: $('#fieldDevStatus').val(),
+        related_tables: $('#fieldRelatedTables').val().trim(),
+        function_desc: $('#fieldFunctionDesc').val().trim(),
+        created_by: createdBy,
+        created_at: createdAt,
+        updated_by: currentUser,
+        updated_at: nowStr
+    };
+
     const $btnSave = $('button[onclick="saveMenuItem()"]');
     try {
         $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow('選單架構', menuId, rowDataArray);
+            appState.menus.push(updatedNodeObj);
         } else {
             await SheetAdapter.updateRow('選單架構', menuId, rowDataArray);
+            const index = appState.menus.findIndex(m => m.menu_id === menuId);
+            if (index !== -1) {
+                appState.menus[index] = updatedNodeObj;
+            }
         }
 
-        bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
-        await fetchGoogleSheetsData();
+        appState.selectedMenuId = menuId;
+        refreshView();
+
+        const modalEl = document.getElementById('menuModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+
         AppToast.success(`節點【${menuId}】雲端儲存成功！`);
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
@@ -579,7 +612,15 @@ async function deleteMenuItem(menuId) {
 
     try {
         await SheetAdapter.deleteRow('選單架構', menuId);
-        await fetchGoogleSheetsData();
+
+        // 即時自本地狀態移除並更新視圖
+        appState.menus = appState.menus.filter(m => m.menu_id !== menuId);
+        if (appState.selectedMenuId === menuId) {
+            const nextNode = appState.menus.find(m => m.app_track === appState.currentPortal);
+            appState.selectedMenuId = nextNode ? nextNode.menu_id : '';
+        }
+        refreshView();
+
         AppToast.success(`節點【${menuId}】已自雲端試算表刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗：" + err.message);
