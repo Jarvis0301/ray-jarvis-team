@@ -1,9 +1,55 @@
 .loading-spinner {
     text-align: center;
     padding: 40px 0;
-    color: var(--uvaco-primary);
+    color: var(--uvaco-primary, #8b5cf6);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 300px;
+}
+
+/* 全域 C/U/D 異步鎖定遮罩 (支援 Bootstrap 5 深色主題與可視範圍置中) */
+.uvaco-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--uvaco-overlay-bg, rgba(10, 5, 24, 0.8));
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.uvaco-loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.uvaco-loading-card {
+    background-color: var(--uvaco-bg-card, #170b28);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-main, #faf5ff);
+    border-radius: 16px;
+    padding: 28px 36px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85), 0 0 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    text-align: center;
+    min-width: 280px;
+    max-width: 90vw;
+}
+
+.toast-container-custom {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000000;
+    min-width: 320px;
+    max-width: 90vw;
 }

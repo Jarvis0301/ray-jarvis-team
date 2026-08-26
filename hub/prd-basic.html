@@ -1236,7 +1236,7 @@
              * 載入並同步試算表數據管線
              */
             function loadAndSyncAllData() {
-                $('#syncStatusBadge').html('<i class="fa-solid fa-spinner fa-spin text-primary"></i> 正在透過 GViz/PapaParse 串流解析...');
+                $('#syncStatusBadge').html('<i class="fa-solid fa-spinner text-primary"></i> 正在透過 GViz/PapaParse 串流解析...');
 
                 fetchGoogleSheetData(SPREADSHEET_CONFIG.sheets.items, function (err, fetchedItems) {
                     if (!err && fetchedItems && fetchedItems.length > 0) {

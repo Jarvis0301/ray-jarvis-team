@@ -1,61 +1,16 @@
-:root, [data-bs-theme="dark-purple"] {
-    /* 基礎區塊背景與容器 Token */
-    --uvaco-bg-dark: #0a0518;
-    --uvaco-bg-card: #150a2a;
-    --uvaco-bg-card-hover: #1e0f3d;
-    --uvaco-bg-input: #170b2e;
-    --uvaco-bg-card-inner: #0d061f;
-
-    /* 邊框與光澤 Token */
-    --uvaco-border-color: rgba(139, 92, 246, 0.35);
-    --uvaco-border-glow: rgba(139, 92, 246, 0.25);
-    --uvaco-border-highlight: rgba(192, 132, 252, 0.85);
-
-    /* 全局文字色彩 Token */
-    --text-main: #faf5ff;
-    --text-muted: #9e8eb3;
-
-    /* 核心語意強調色 Token */
-    --accent-primary: #8b5cf6;
-    --accent-purple: #8b5cf6;
-    --accent-secondary: #c084fc;
-    --accent-pink: #ec4899;
-    --accent-cyan: #38bdf8;
-    --accent-gold: #fde047;
-    --accent-green: #34d399;
-    --accent-red: #f43f5e;
-}
-
 html, body {
     min-height: 100%;
     margin: 0;
     padding: 0;
-    background-color: var(--uvaco-bg-dark);
-    color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    padding-bottom: 100px; /* 留出充足底端緩衝空間，防止與外層頁尾重疊裁切 */
+    background-color: var(--uvaco-bg-base, #0a0518);
+    color: var(--uvaco-text-main, #faf5ff);
+    padding-bottom: 100px;
 }
 
-/* 頂部標題 Header */
-.page-header {
-    background: linear-gradient(135deg, #1e0f37 0%, #120824 100%);
-    border-bottom: 1px solid var(--uvaco-border-color);
-    padding: 1.25rem 0;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-
-.page-title {
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 1.5rem;
-    letter-spacing: 0.5px;
-}
-
-/* 通用戰情卡片 */
+/* 戰情通用卡片 */
 .war-card {
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
+    background-color: var(--uvaco-bg-card, #150a2a);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
@@ -64,45 +19,45 @@ html, body {
 }
 
 .war-card:hover {
-    border-color: var(--uvaco-border-highlight);
-    box-shadow: 0 6px 20px var(--uvaco-border-glow);
+    border-color: var(--uvaco-primary-light, rgba(192, 132, 252, 0.85));
+    box-shadow: 0 6px 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
 /* 搜尋與過濾區塊 */
 .filter-section {
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
+    background-color: var(--uvaco-bg-card, #150a2a);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
 }
 
 .form-control-custom, .form-select-custom {
-    background-color: var(--uvaco-bg-input);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--text-main);
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-main, #faf5ff);
     border-radius: 8px;
     padding: 0.5rem 0.85rem;
 }
 
 .form-control-custom:focus, .form-select-custom:focus {
-    background-color: var(--uvaco-bg-input);
-    border-color: var(--accent-secondary);
-    color: var(--text-main);
-    box-shadow: 0 0 0 0.25rem rgba(192, 132, 252, 0.25);
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border-color: var(--uvaco-primary-light, #c084fc);
+    color: var(--uvaco-text-main, #faf5ff);
+    box-shadow: 0 0 0 0.25rem var(--uvaco-primary-glow, rgba(192, 132, 252, 0.25));
 }
 
 .type-filter-title {
     font-size: 0.875rem;
-    color: var(--accent-secondary);
+    color: var(--uvaco-primary-light, #c084fc);
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
 .type-btn {
     background-color: rgba(21, 10, 42, 0.85);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--text-muted);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-muted, #9e8eb3);
     border-radius: 20px;
     padding: 0.35rem 0.9rem;
     font-size: 0.85rem;
@@ -112,34 +67,33 @@ html, body {
 }
 
 .type-btn:hover, .type-btn.active {
-    background-color: var(--accent-primary);
+    background-color: var(--uvaco-primary, #8b5cf6);
     color: #ffffff;
     font-weight: 600;
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 10px var(--uvaco-border-glow);
+    border-color: var(--uvaco-primary, #8b5cf6);
+    box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
-/* 檢視模式切換按鈕 */
 .view-switch-btn {
-    background-color: var(--uvaco-bg-input);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--text-muted);
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-muted, #9e8eb3);
     padding: 0.4rem 0.8rem;
     font-size: 0.88rem;
     transition: all 0.2s ease;
 }
 
 .view-switch-btn.active {
-    background-color: var(--accent-primary);
+    background-color: var(--uvaco-primary, #8b5cf6);
     color: #ffffff;
     font-weight: 600;
-    border-color: var(--accent-primary);
+    border-color: var(--uvaco-primary, #8b5cf6);
 }
 
-/* 網格卡片模式 */
+/* 產品網格卡片 */
 .product-item-card {
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
+    background-color: var(--uvaco-bg-card, #150a2a);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     border-radius: 10px;
     padding: 1rem;
     height: 100%;
@@ -151,9 +105,9 @@ html, body {
 
 .product-item-card:hover {
     transform: translateY(-3px);
-    border-color: var(--accent-secondary);
-    background-color: var(--uvaco-bg-card-hover);
-    box-shadow: 0 6px 18px var(--uvaco-border-glow);
+    border-color: var(--uvaco-primary-light, #c084fc);
+    background-color: var(--uvaco-bg-card-hover, #1e0f3d);
+    box-shadow: 0 6px 18px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
 .product-badge {
@@ -161,39 +115,39 @@ html, body {
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     background-color: rgba(139, 92, 246, 0.15);
-    color: var(--accent-secondary);
+    color: var(--uvaco-primary-light, #c084fc);
     border: 1px solid rgba(139, 92, 246, 0.35);
 }
 
 .product-title {
     font-size: 1.05rem;
     font-weight: 600;
-    color: var(--text-main);
+    color: var(--uvaco-text-main, #faf5ff);
     margin-top: 0.4rem;
     margin-bottom: 0.4rem;
 }
 
 .price-num {
-    color: var(--accent-gold);
+    color: var(--uvaco-accent, #fde047);
     font-weight: 700;
     font-size: 1.1rem;
 }
 
 .sv-num {
-    color: var(--accent-secondary);
+    color: var(--uvaco-primary-light, #c084fc);
     font-weight: 600;
 }
 
-/* 表格模式 */
+/* 表格與數量控制器 */
 .table-dark-custom {
     --bs-table-bg: transparent;
-    --bs-table-color: var(--text-main);
+    --bs-table-color: var(--uvaco-text-main, #faf5ff);
     margin-bottom: 0;
 }
 
 .table-dark-custom th {
-    color: var(--accent-secondary);
-    border-bottom: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-primary-light, #c084fc);
+    border-bottom: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     font-weight: 600;
     font-size: 0.9rem;
     white-space: nowrap;
@@ -205,43 +159,6 @@ html, body {
     font-size: 0.9rem;
 }
 
-/* DataTables 暗黑主題覆蓋 */
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate {
-    color: var(--text-muted) !important;
-    margin-bottom: 0.75rem;
-    font-size: 0.85rem;
-}
-
-.dataTables_wrapper .dataTables_filter input {
-    background-color: var(--uvaco-bg-input) !important;
-    border: 1px solid var(--uvaco-border-color) !important;
-    color: var(--text-main) !important;
-    border-radius: 6px;
-    padding: 0.375rem 0.75rem;
-}
-
-.dataTables_wrapper .dataTables_filter input:focus {
-    border-color: var(--accent-secondary) !important;
-    box-shadow: 0 0 0 0.25rem rgba(192, 132, 252, 0.25) !important;
-}
-
-.page-item.active .page-link {
-    background-color: var(--accent-primary) !important;
-    border-color: var(--accent-primary) !important;
-    color: #ffffff !important;
-    font-weight: 600;
-}
-
-.page-link {
-    background-color: var(--uvaco-bg-card) !important;
-    border-color: var(--uvaco-border-color) !important;
-    color: var(--text-main) !important;
-}
-
-/* 數量控制器 */
 .qty-control {
     display: flex;
     align-items: center;
@@ -256,9 +173,9 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--uvaco-bg-input);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--accent-secondary);
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-primary-light, #c084fc);
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
@@ -266,34 +183,29 @@ html, body {
 }
 
 .btn-qty:hover {
-    background-color: var(--accent-primary);
+    background-color: var(--uvaco-primary, #8b5cf6);
     color: #ffffff;
-    border-color: var(--accent-primary);
+    border-color: var(--uvaco-primary, #8b5cf6);
 }
 
 .qty-input {
     width: 46px;
     height: 30px;
     text-align: center;
-    background-color: var(--uvaco-bg-input);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--text-main);
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-main, #faf5ff);
     border-radius: 6px;
     font-weight: 600;
     font-size: 0.9rem;
 }
 
-/* 針對 Chrome, Safari, Edge, Opera */
 .qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button,
-.form-control-custom::-webkit-outer-spin-button,
-.form-control-custom::-webkit-inner-spin-button {
+.qty-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-
-/* 針對 Firefox */
-.qty-input, .form-control-custom {
+.qty-input {
     -moz-appearance: textfield;
 }
 
@@ -302,11 +214,11 @@ html, body {
     position: sticky;
     top: 20px;
     background: linear-gradient(180deg, #1e0f37 0%, #150a2a 100%);
-    border: 1px solid var(--accent-primary);
+    border: 1px solid var(--uvaco-primary, #8b5cf6);
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px var(--uvaco-border-glow);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
 .cart-item-row {
@@ -319,7 +231,7 @@ html, body {
 }
 
 .cart-item-title {
-    color: var(--text-main);
+    color: var(--uvaco-text-main, #faf5ff);
     font-weight: 500;
     min-width: 0;
     white-space: nowrap;
@@ -332,7 +244,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: var(--uvaco-text-muted, #9e8eb3);
     font-size: 0.82rem;
     white-space: nowrap;
     line-height: 1;
@@ -347,7 +259,7 @@ html, body {
 
 .progress-shipping {
     height: 8px;
-    background-color: var(--uvaco-bg-input);
+    background-color: var(--uvaco-bg-surface, #170b2e);
     border-radius: 4px;
     overflow: hidden;
     margin-top: 0.4rem;
@@ -363,27 +275,8 @@ html, body {
     background-color: rgba(13, 6, 31, 0.75);
     border-radius: 8px;
     padding: 0.75rem;
-    border: 1px solid var(--uvaco-border-color);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     margin-bottom: 0.75rem;
-}
-
-.shipping-alert-box {
-    font-size: 0.82rem;
-    border-radius: 6px;
-    padding: 0.4rem 0.6rem;
-    margin-top: 0.5rem;
-}
-
-.shipping-alert-warning {
-    background-color: rgba(253, 224, 71, 0.12);
-    color: var(--accent-gold);
-    border: 1px solid rgba(253, 224, 71, 0.35);
-}
-
-.shipping-alert-success {
-    background-color: rgba(52, 211, 153, 0.12);
-    color: var(--accent-green);
-    border: 1px solid rgba(52, 211, 153, 0.35);
 }
 
 /* 操作按鈕群 */
@@ -423,8 +316,8 @@ html, body {
 
 .btn-action-clear {
     background-color: transparent;
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--text-muted);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-muted, #9e8eb3);
     border-radius: 8px;
     padding: 0.5rem;
     width: 100%;
@@ -434,11 +327,11 @@ html, body {
 
 .btn-action-clear:hover {
     background-color: rgba(244, 63, 94, 0.15);
-    color: var(--accent-red);
-    border-color: var(--accent-red);
+    color: var(--uvaco-danger, #f43f5e);
+    border-color: var(--uvaco-danger, #f43f5e);
 }
 
-/* 統計圖表專用獨立卡片區塊 */
+/* 戰情圖表獨立卡片區塊 */
 .analytics-section-title {
     font-size: 1.25rem;
     font-weight: 700;
@@ -446,15 +339,15 @@ html, body {
     margin-top: 1.5rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--uvaco-border-color);
+    border-bottom: 2px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .chart-standalone-card {
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
+    background-color: var(--uvaco-bg-card, #150a2a);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
     border-radius: 12px;
     padding: 1.25rem;
     height: 100%;
@@ -463,8 +356,8 @@ html, body {
 }
 
 .chart-standalone-card:hover {
-    border-color: var(--uvaco-border-highlight);
-    box-shadow: 0 6px 20px var(--uvaco-border-glow);
+    border-color: var(--uvaco-primary-light, rgba(192, 132, 252, 0.85));
+    box-shadow: 0 6px 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
 .chart-header-title {
@@ -476,9 +369,7 @@ html, body {
     justify-content: space-between;
 }
 
-/* ========================================== */
-/* ✨ 懸浮島 (Floating Island) - 核心版微光紫透 */
-/* ========================================== */
+/* 懸浮島 (Floating Island) */
 .floating-island-bar {
     position: fixed;
     bottom: 16px;
@@ -490,40 +381,19 @@ html, body {
     border: 1px solid rgba(139, 92, 246, 0.5);
     border-radius: 16px;
     padding: 0.75rem 1.25rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px var(--uvaco-border-glow);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 隱藏狀態 */
 .floating-island-bar.is-hidden {
     display: none !important;
 }
 
-.floating-bar-flex {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.floating-kpi-group {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.floating-kpi-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
 .floating-kpi-label {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--uvaco-text-muted, #9e8eb3);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -536,8 +406,8 @@ html, body {
 
 .btn-toggle-floating {
     background: rgba(139, 92, 246, 0.15);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--accent-secondary);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-primary-light, #c084fc);
     border-radius: 20px;
     padding: 0.35rem 0.85rem;
     font-size: 0.82rem;
@@ -551,12 +421,11 @@ html, body {
 }
 
 .btn-toggle-floating:hover {
-    background-color: var(--accent-primary);
+    background-color: var(--uvaco-primary, #8b5cf6);
     color: #ffffff;
-    box-shadow: 0 0 12px var(--uvaco-border-glow);
+    box-shadow: 0 0 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
-/* 浮動喚醒按鈕 */
 .floating-wake-btn {
     position: fixed;
     bottom: 25px;
@@ -564,12 +433,12 @@ html, body {
     z-index: 999998;
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
     color: #ffffff;
-    border: 1px solid var(--accent-secondary);
+    border: 1px solid var(--uvaco-primary-light, #c084fc);
     border-radius: 30px;
     padding: 0.6rem 1.1rem;
     font-size: 0.88rem;
     font-weight: 600;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 14px var(--uvaco-border-glow);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 14px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     cursor: pointer;
     display: none;
     transition: all 0.25s ease;
@@ -581,7 +450,6 @@ html, body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 18px rgba(192, 132, 252, 0.5);
 }
 
-/* 電腦版 (>= 1200px) 訂購明細卡片跟隨滾動 */
 @media (min-width: 1200px) {
     .cart-summary-card {
         position: sticky;
@@ -601,9 +469,6 @@ html, body {
         left: 45%;
         width: 70%;
         padding: 0.6rem 0.85rem;
-    }
-    .floating-kpi-group {
-        gap: 0.75rem;
     }
     .floating-kpi-val {
         font-size: 0.95rem;

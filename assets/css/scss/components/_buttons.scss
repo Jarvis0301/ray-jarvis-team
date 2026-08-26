@@ -85,7 +85,7 @@ $expanded-theme-colors: (
     $contrast-text: get-wcag-contrast($color);
     $subtle-bg: if($color == #ffffff, #f8f9fa, color.mix(#ffffff, $color, 85%));
     $subtle-border: if($color == #ffffff, #dee2e6, color.mix(#ffffff, $color, 60%));
-    $emphasis-text: if($color == #ffffff, #495057, if(gget-wcag-contrast($color) == #ffffff, color.mix(#000000, $color, 30%), color.mix(#000000, $color, 50%)));
+    $emphasis-text: if($color == #ffffff, #495057, if(get-wcag-contrast($color) == #ffffff, color.mix(#000000, $color, 30%), color.mix(#000000, $color, 50%)));
 
     // --- Buttons (.btn-*, .btn-outline-*, .btn-*-subtle, .btn-outline-*-subtle) ---
     .btn {

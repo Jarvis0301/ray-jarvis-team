@@ -1,31 +1,23 @@
 // ==========================================
 // 全域列印與手機版 PDF/明細下載模組 (order-printer.js)
-// 支援電腦原生預覽列印，以及手機版/LINE/FB 內建瀏覽器專用明細下載
 // ==========================================
 
 function printOrderReceipt(orderData) {
     const { items, subtotal, shipping, grandTotal, totalSV, rebate, currencySymbol, dateStr } = orderData;
 
     if (!items || items.length === 0) {
-        if (typeof AppDialog !== 'undefined') {
-            AppDialog.alert("請先選擇至少一項商品後再進行列印 / 匯出！");
-        } else {
-            alert("請先選擇至少一項商品後再進行列印 / 匯出！");
-        }
+        AppToast.warning("請先選擇至少一項商品後再進行列印 / 匯出！");
         return;
     }
 
-    // 判斷是否為行動裝置或內建 App 瀏覽器 (LINE, FB, IG 等)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isInAppBrowser = /Line|FBAN|FBAV|Instagram|MicroMessenger/i.test(navigator.userAgent);
 
-    // 1. 如果是手機版或內建 APP 瀏覽器，開啟手機專用對話框
     if (isMobile || isInAppBrowser) {
         showMobileReceiptModal(orderData);
         return;
     }
 
-    // 2. 電腦版原生列印處理 (#printableArea)
     let printArea = document.getElementById('printableArea');
     if (!printArea) {
         printArea = document.createElement('div');
@@ -127,9 +119,6 @@ function printOrderReceipt(orderData) {
     window.print();
 }
 
-// ==========================================
-// 手機版專用明細對話框 (解決 LINE/FB 禁用列印問題)
-// ==========================================
 function showMobileReceiptModal(orderData) {
     const { items, subtotal, shipping, grandTotal, totalSV, rebate, currencySymbol, dateStr } = orderData;
 
@@ -201,7 +190,6 @@ function showMobileReceiptModal(orderData) {
     const bsModal = bootstrap.Modal.getOrCreateInstance(modalElem);
     bsModal.show();
 
-    // 1. 下載 HTML 電子單據
     document.getElementById('btnDownloadReceiptHtml').onclick = function () {
         const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>訂購試算單_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style></head><body><h2>葡眾團隊 - 訂購試算單</h2><p>日期：${new Date().toLocaleString('zh-TW')}</p><hr><pre style="font-size:14px;background:#f4f4f4;padding:15px;border-radius:8px;">${textSummary}</pre></body></html>`;
         const blob = new Blob([fullHtml], { type: 'text/html' });
@@ -213,18 +201,14 @@ function showMobileReceiptModal(orderData) {
         URL.revokeObjectURL(url);
     };
 
-    // 2. 複製文字明細
     document.getElementById('btnCopyReceiptText').onclick = function () {
         navigator.clipboard.writeText(textSummary).then(() => {
-            if (typeof AppDialog !== 'undefined') {
-                AppDialog.alert("訂購明細已複製到剪貼簿！可以貼到 LINE 或記事本中。");
-            } else {
-                alert("訂購明細已複製到剪貼簿！");
-            }
+            AppToast.success("訂購明細已複製到剪貼簿！");
+        }).catch(() => {
+            AppToast.error("複製失敗，請手動複製");
         });
     };
 
-    // 3. 嘗試原生列印
     document.getElementById('btnTryMobilePrint').onclick = function () {
         bsModal.hide();
         setTimeout(() => {
@@ -233,10 +217,6 @@ function showMobileReceiptModal(orderData) {
     };
 }
 
-// ==========================================
-// 全域戰情圖表 PDF / 列印模組 (order-printer.js)
-// 白底高質感排版 + 圖表數據直標呈現
-// ==========================================
 function printAnalyticsReport(reportData) {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isInAppBrowser = /Line|FBAN|FBAV|Instagram|MicroMessenger/i.test(navigator.userAgent);
@@ -353,7 +333,6 @@ function printAnalyticsReport(reportData) {
     window.print();
 }
 
-// 手機版專用預覽對話框 (白底明亮風格)
 function showMobileAnalyticsModal(reportData) {
     const { dateStr, chart1, chart2, chart3, chart4, chart5 } = reportData;
 

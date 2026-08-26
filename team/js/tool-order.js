@@ -1,7 +1,7 @@
 // ==========================================
 // 1. Google 雲端硬碟試算表設定與核心轉接器
 // ==========================================
-let SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I"; // 公開的 Google Sheet ID
+const SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";
 
 function getVal(row, colIndex, defaultVal = '') {
     if (!row || !Array.isArray(row)) return defaultVal;
@@ -12,7 +12,7 @@ function getVal(row, colIndex, defaultVal = '') {
 }
 
 // ==========================================
-// 2. 系統狀態管理 (不使用預設靜態資料庫)
+// 2. 系統狀態管理
 // ==========================================
 let appState = {
     country: 'TW',
@@ -31,11 +31,9 @@ let appState = {
 let cartState = {}; // { productId: qty }
 let currentView = "card";
 let dataTableInstance = null;
-let clearModalInstance = null;
+let isInitialized = false;
 
-// ==========================================
 // 圖表全域變數與切換狀態
-// ==========================================
 let chart1Metric = 'TWD';
 let chartBarMetric = 'TWD';
 let chart4Metric = 'TWD';
@@ -46,11 +44,10 @@ let chartSeriesCombinedBarInstance = null;
 let chartTypeQtyInstance = null;
 let chartTopItemsInstance = null;
 let chartTypeSvRadarInstance = null;
-
 let chartSubInstances = {};
 
 // ==========================================
-// 3. 頁面初始化與事件監聽
+// 3. 頁面初始化與生命週期監聽
 // ==========================================
 window.addEventListener('AppReady', async () => {
     initAllCharts();
@@ -58,7 +55,6 @@ window.addEventListener('AppReady', async () => {
     setupIframeFloatingPositionEngine();
 });
 
-let isInitialized = false;
 async function initApp() {
     if (isInitialized) return;
     isInitialized = true;
@@ -68,17 +64,7 @@ async function initApp() {
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetsData();
     } else {
-        const syncElem = document.getElementById('syncStatus');
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 未設定試算表 ID';
-        
-        if (typeof AppDialog !== 'undefined') {
-            AppDialog.alert("未設定 Google 試算表 ID，無法讀取產品資料！", {
-                title: "資料讀取失敗",
-                icon: "fa-solid fa-triangle-exclamation text-danger"
-            });
-        } else {
-            alert("未設定 Google 試算表 ID，無法讀取產品資料！");
-        }
+        AppToast.error("未設定 Google 試算表 ID，無法讀取產品資料！");
     }
 
     renderProducts();
@@ -86,17 +72,15 @@ async function initApp() {
 }
 
 // ==========================================
-// 4. 解析 Google Sheets 數據 (無連線備援資料，連線失敗時觸發 AppDialog.alert)
+// 4. 解析 Google Sheets 數據 (AppLoading 遮罩託管)
 // ==========================================
 async function fetchGoogleSheetsData() {
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品資料...', '載入即時價目與規格主檔');
     try {
-        const syncElem = document.getElementById('syncStatus');
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 產品資訊同步中...';
-
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
             const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP 錯誤狀態: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 錯誤狀態碼: ${res.status}`);
             const text = await res.text();
             
             const parsed = Papa.parse(text, {
@@ -126,7 +110,7 @@ async function fetchGoogleSheetsData() {
         if (mainCategoriesData && mainCategoriesData.length > 0) {
             appState.seriesList = buildSeriesTree(mainCategoriesData, subcategoriesData || []);
             updateSeriesDropdowns();
-            renderSubSeriesChartCards(); // ✨【新增】資料載入完成後，動態建立子系列圖表 Canvas 與實例
+            renderSubSeriesChartCards();
         }
 
         if (productTypesData && productTypesData.length > 0) {
@@ -151,20 +135,15 @@ async function fetchGoogleSheetsData() {
             throw new Error("Google 試算表中未找到任何有效的產品資料。");
         }
 
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-circle-check"></i> 雲端資料同步完成';
+        AppToast.success(`產品資料庫同步完成 (共 ${appState.products.TW.length + appState.products.MY.length} 筆商品)`);
     } catch (err) {
         console.error("無法連線至 Google 試算表或讀取失敗:", err);
-        const syncElem = document.getElementById('syncStatus');
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 雲端同步失敗';
-
-        if (typeof AppDialog !== 'undefined') {
-            AppDialog.alert("無法連線至雲端試算表或讀取資料，請檢查網路連線或 Google 試算表設定！", {
-                title: "資料同步失敗",
-                icon: "fa-solid fa-circle-exclamation text-danger"
-            });
-        } else {
-            alert("無法連線至雲端試算表或讀取資料，請檢查網路連線或 Google 試算表設定！");
-        }
+        AppDialog.alert("無法連線至雲端試算表或讀取資料，請檢查網路連線或試算表共用設定！", {
+            title: "資料同步失敗",
+            icon: "fa-solid fa-triangle-exclamation text-danger"
+        });
+    } finally {
+        AppLoading.hide();
     }
 }
 
@@ -391,6 +370,7 @@ function bindEvents() {
         updateSeriesDropdowns();
         renderProducts();
         updateCartSummary();
+        AppToast.info(`已切換銷售地區至【${appState.country === 'MY' ? '馬來西亞' : '台灣'}】`);
     });
 
     $("#displayCurrencySelect").on("change", function () {
@@ -476,20 +456,14 @@ function bindEvents() {
         setupIframeFloatingPositionEngine();
     });
 
-    $("#btn-confirm-clear").on("click", function () {
-        cartState = {};
-        renderProducts();
-        updateCartSummary();
-        if (clearModalInstance) {
-            clearModalInstance.hide();
-        }
-    });
-
     $("#btn-export-excel").on("click", exportOrderToExcel);
     $("#btn-export-pdf").on("click", exportOrderToPDF);
 
     $("#btn-clear-all").on("click", function () {
-        if (Object.keys(cartState).length === 0) return;
+        if (Object.keys(cartState).length === 0) {
+            AppToast.warning("購物車目前為空！");
+            return;
+        }
 
         AppDialog.confirm(
             "您確定要清空目前已選擇的所有商品與訂購數量嗎？",
@@ -497,10 +471,14 @@ function bindEvents() {
                 cartState = {};
                 renderProducts();
                 updateCartSummary();
+                AppToast.success("已清空所有選購商品");
             },
             { title: "確認清空購物車", confirmText: "確認清空" }
         );
     });
+
+    // 託管子系列彈窗 iframe 垂直置中
+    AppDialog.bindIframeAutoCenter('#subSeriesChartsModal');
 }
 
 // ==========================================
@@ -552,30 +530,18 @@ function bindChartControls() {
         }
     });
 
-    // 1. 準備開啟時立即計算位置
-    $('#subSeriesChartsModal').off('show.bs.modal').on('show.bs.modal', function () {
-        centerModalInIframeViewport($(this));
-    });
-
-    // 2. 完全展開後再次精準校正位置、重繪圖表
     $('#subSeriesChartsModal').off('shown.bs.modal').on('shown.bs.modal', function () {
-        const $modal = $(this);
-        
         if (Object.keys(chartSubInstances).length === 0) {
             renderSubSeriesChartCards();
         }
         updateCartSummary();
 
-        // 刷新圖表尺寸
         Object.values(chartSubInstances).forEach(inst => {
             if (inst) {
                 inst.resize();
                 inst.update();
             }
         });
-
-        // 圖表渲染後的高度精準二度置中
-        centerModalInIframeViewport($modal);
     });
 }
 
@@ -778,7 +744,6 @@ function renderProducts() {
 }
 
 function bindQtyEvents() {
-    // 使用事件委派，確保 DataTables 換頁或搜尋後的元素皆可正常觸發
     $(document).off("click", ".btn-plus").on("click", ".btn-plus", function () {
         const id = String($(this).data("id"));
         cartState[id] = (cartState[id] || 0) + 1;
@@ -852,15 +817,12 @@ function updateCartSummary() {
         `);
 
         if (appState.country === 'MY') {
-            $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> RM 800 免運費門檻`);
             $("#shipping-progress-text").text(`0 / 800 RM`);
         } else {
-            $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> 480 SV 免運費門檻`);
             $("#shipping-progress-text").text(`0 / 480 SV`);
         }
 
         $("#shipping-progress-bar").css("width", `0%`);
-
         $("#total-qty-badge").text(`0 件商品`);
         $("#summary-subtotal").text(`${currSymbol}0`);
         $("#summary-shipping").text("-");
@@ -950,9 +912,7 @@ function updateCartSummary() {
         }
 
         shippingPercent = Math.min(100, (subtotalMYR / thresholdMYR) * 100);
-        $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> RM 800 免運費門檻`);
         $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
-
     } else {
         const thresholdSV = 480;
         const baseShippingTWD = 150;
@@ -964,16 +924,26 @@ function updateCartSummary() {
         }
 
         shippingPercent = Math.min(100, (totalSV / thresholdSV) * 100);
-        $("#shipping-threshold-title").html(`<i class="fa-solid fa-truck-fast"></i> 480 SV 免運費門檻`);
         $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 480 SV`);
     }
 
     $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
 
     const grandTotal = subtotalDisplay + shippingFeeInDisplay;
-
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const estimatedRebateDisplay = isTargetMYR ? (totalSV * rankRatio) / rate : Math.round(totalSV * rankRatio);
+
+    // 依地區設定 PV 係數：馬來西亞為 3.5，台灣為 25
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+
+    // 預估回饋金 = 累積總 SV * 階級回饋比率 * PV
+    let estimatedRebateDisplay = totalSV * rankRatio * pvMultiplier;
+
+    // 若遇跨境幣別切換，進行匯率換算
+    if (appState.country === 'TW' && isTargetMYR) {
+        estimatedRebateDisplay = (totalSV * rankRatio * 25) / rate;
+    } else if (appState.country === 'MY' && !isTargetMYR) {
+        estimatedRebateDisplay = (totalSV * rankRatio * 3.5) * rate;
+    }
 
     $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
     $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
@@ -1328,7 +1298,6 @@ function renderSubSeriesChartCards() {
     if (!$container.length) return;
     $container.empty();
 
-    // 1. 銷毀既有的子系列圖表實例，避免記憶體洩漏或無法重繪
     Object.values(chartSubInstances).forEach(inst => {
         if (inst) inst.destroy();
     });
@@ -1337,7 +1306,6 @@ function renderSubSeriesChartCards() {
     const mainCats = getMainCategories();
     if (!mainCats || mainCats.length === 0) return;
 
-    // 2. 動態生成各主系列的 Canvas 卡片
     mainCats.forEach(cat => {
         const canvasId = `chartSub_${cat.code}`;
         const html = `
@@ -1354,7 +1322,6 @@ function renderSubSeriesChartCards() {
         `;
         $container.append(html);
 
-        // 3. 立即實例化各系列的環狀圖
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (ctx) {
             chartSubInstances[cat.code] = new Chart(ctx, {
@@ -1389,10 +1356,7 @@ function renderSubSeriesChartCards() {
 function exportOrderToExcel() {
     const selectedKeys = Object.keys(cartState);
     if (selectedKeys.length === 0) {
-        AppDialog.alert("請先選擇至少一項商品後再下載 Excel！", {
-            title: "未選擇商品",
-            icon: "fa-solid fa-circle-exclamation text-warning"
-        });
+        AppToast.warning("請先選擇至少一項商品後再下載 Excel！");
         return;
     }
 
@@ -1441,7 +1405,14 @@ function exportOrderToExcel() {
 
     const grandTotal = subtotal + shipping;
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const rebate = isTargetMYR ? (totalSV * rankRatio) / rate : Math.round(totalSV * rankRatio);
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+    
+    let rebate = totalSV * rankRatio * pvMultiplier;
+    if (appState.country === 'TW' && isTargetMYR) {
+        rebate = (totalSV * rankRatio * 25) / rate;
+    } else if (appState.country === 'MY' && !isTargetMYR) {
+        rebate = (totalSV * rankRatio * 3.5) * rate;
+    }
 
     excelData.push([]);
     excelData.push(["", "", "", "", "", "產品金額小計：", Math.round(subtotal), totalSV]);
@@ -1455,16 +1426,13 @@ function exportOrderToExcel() {
 
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     XLSX.writeFile(wb, `葡眾團隊訂購試算單_${dateStr}.xlsx`);
+    AppToast.success("訂購試算 Excel 檔案下載成功！");
 }
 
 function exportOrderToPDF() {
     const selectedKeys = Object.keys(cartState);
     if (selectedKeys.length === 0) {
-        AppDialog.alert("請先選擇至少一項商品後再進行列印 / 匯出！", {
-            title: "未選擇商品",
-            icon: "fa-solid fa-circle-exclamation text-warning",
-            btnClass: "btn-warning"
-        });
+        AppToast.warning("請先選擇至少一項商品後再進行列印 / 匯出！");
         return;
     }
 
@@ -1519,7 +1487,14 @@ function exportOrderToPDF() {
 
     const grandTotal = subtotal + shipping;
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
-    const rebate = isTargetMYR ? (totalSV * rankRatio) / rate : Math.round(totalSV * rankRatio);
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+
+    let rebate = totalSV * rankRatio * pvMultiplier;
+    if (appState.country === 'TW' && isTargetMYR) {
+        rebate = (totalSV * rankRatio * 25) / rate;
+    } else if (appState.country === 'MY' && !isTargetMYR) {
+        rebate = (totalSV * rankRatio * 3.5) * rate;
+    }
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
     if (typeof printOrderReceipt === 'function') {
@@ -1534,12 +1509,12 @@ function exportOrderToPDF() {
             dateStr: dateStr
         });
     } else {
-        console.error("未找到 order-printer.js 列印模組！");
+        AppToast.error("未找到 order-printer.js 列印模組！");
     }
 }
 
 // ==========================================
-// 收集戰情圖表數據與畫布影像並送出列印
+// 11. 收集戰情圖表數據與畫布影像並送出列印
 // ==========================================
 function exportAnalyticsReport() {
     const $btn = $('#btnPrintAnalytics');
@@ -1552,7 +1527,6 @@ function exportAnalyticsReport() {
             const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
             const mainCats = getMainCategories();
             const allTypes = getAllTypes();
-
             const showDataLabels = $('#btnGroupShowData button.active').data('value') === true;
 
             let mainCatData = {};
@@ -1643,7 +1617,6 @@ function exportAnalyticsReport() {
 
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
                 ctx.drawImage(srcCanvas, 0, 0);
 
                 if (showData) {
@@ -1735,10 +1708,11 @@ function exportAnalyticsReport() {
             if (typeof printAnalyticsReport === 'function') {
                 printAnalyticsReport(reportData);
             } else {
-                console.error("未找到 printAnalyticsReport 列印模組！");
+                AppToast.error("未找到 printAnalyticsReport 列印模組！");
             }
         } catch (err) {
             console.error("產生戰報時發生錯誤:", err);
+            AppToast.error("產生戰報失敗");
         } finally {
             $btn.prop('disabled', false).html(originalHtml);
         }
@@ -1746,7 +1720,7 @@ function exportAnalyticsReport() {
 }
 
 // ==========================================
-// 11. iframe 視窗滾動動態追蹤定位引擎
+// 12. iframe 視窗滾動動態追蹤定位引擎
 // ==========================================
 function setupIframeFloatingPositionEngine() {
     function updatePosition() {
@@ -1831,9 +1805,7 @@ function setupIframeFloatingPositionEngine() {
             window.parent.addEventListener('scroll', updatePosition, { passive: true });
             window.parent.addEventListener('resize', updatePosition, { passive: true });
         }
-    } catch (e) {
-        console.warn(e);
-    }
+    } catch (e) {}
 
     window.addEventListener('scroll', updatePosition, { passive: true });
     window.addEventListener('resize', updatePosition, { passive: true });
@@ -1841,42 +1813,4 @@ function setupIframeFloatingPositionEngine() {
     updatePosition();
     setTimeout(updatePosition, 300);
     setTimeout(updatePosition, 800);
-}
-
-// 計算父視窗可視高度並將 Modal 定位在中央
-function centerModalInIframeViewport($modal) {
-    try {
-        const isInsideIframe = (window.self !== window.top);
-        if (!isInsideIframe) return;
-
-        const parentWin = window.parent;
-        const frameEl = window.frameElement;
-        if (!parentWin || !frameEl) return;
-
-        const parentScrollY = parentWin.scrollY || parentWin.pageYOffset || 0;
-        const parentInnerHeight = parentWin.innerHeight || document.documentElement.clientHeight;
-        const frameRect = frameEl.getBoundingClientRect();
-        const iframeTopInParent = frameRect.top + parentScrollY;
-
-        // 計算父視窗當前視野中心點在 iframe 內部的相對 Y 座標
-        const parentCenterYInIframe = (parentScrollY + parentInnerHeight / 2) - iframeTopInParent;
-
-        const $dialog = $modal.find('.modal-dialog');
-        // 移除 Bootstrap 預設的垂直置中 class 避免干擾
-        $dialog.removeClass('modal-dialog-centered');
-
-        const dialogHeight = $dialog.outerHeight() || 480;
-        let targetMarginTop = parentCenterYInIframe - (dialogHeight / 2);
-
-        // 邊界防護：避免超出頂部或底部
-        const iframeHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-        targetMarginTop = Math.max(20, Math.min(targetMarginTop, iframeHeight - dialogHeight - 50));
-
-        $dialog.css({
-            'margin-top': targetMarginTop + 'px',
-            'margin-bottom': '30px'
-        });
-    } catch (e) {
-        console.warn("Modal centering notice:", e);
-    }
 }

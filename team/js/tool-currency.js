@@ -1,15 +1,8 @@
 // ==========================================================================
-// 1. Google 雲端試算表設定與資料庫核心轉接器 (Adapter Pattern)
+// 1. Google 雲端試算表設定與核心轉接器
 // ==========================================================================
 const SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";
 
-/**
- * 試算表欄位索引安全取值工具函式
- * @param {Array} row 資料行陣列
- * @param {number} colIndex 欄位索引 (0-based)
- * @param {string} defaultVal 預設值
- * @returns {string} 清洗後的字串
- */
 function getVal(row, colIndex, defaultVal = '') {
     if (!row || !Array.isArray(row)) return defaultVal;
     if (row[colIndex] !== undefined && row[colIndex] !== null && row[colIndex] !== '') {
@@ -19,7 +12,7 @@ function getVal(row, colIndex, defaultVal = '') {
 }
 
 // ==========================================================================
-// 2. 系統狀態管理 (State Management)
+// 2. 系統狀態管理
 // ==========================================================================
 let appState = {
     exchangeRate: 8.00, // 基準匯率 (預設 1 MYR = 8.00 TWD)
@@ -32,9 +25,7 @@ let appState = {
 };
 
 // 跨境現貨對沖沙盒購物車 state: [{ product_code, qty }]
-let swapCart = [
-];
-
+let swapCart = [];
 let matrixTableInstance = null;
 let rawTableInstance = null;
 let chartEfficiencyInstance = null;
@@ -57,10 +48,9 @@ async function initApp() {
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetsData();
     } else {
-        showErrorNotice("未設定 Google 試算表 ID，無法讀取產品主檔資料！");
+        AppToast.error("未設定 Google 試算表 ID，無法讀取產品主檔資料！");
     }
 
-    // 初始化渲染各模組
     triggerConverterFromTWD();
     renderCart();
     recalculateSolver();
@@ -70,17 +60,8 @@ async function initApp() {
 // 4. PapaParse + GViz 資料讀取引擎 (表 104 prd_items 讀取)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    const $syncTag = $('#syncStatusTag');
-    const $btnSync = $('#btnSyncGoogleSheets');
-
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品與匯率數據...', '載入台馬產品主檔與雙向價目');
     try {
-        if ($syncTag.length) {
-            $syncTag.html('<i class="fa-solid fa-spinner fa-spin"></i> 雲端數據同步中...');
-        }
-        if ($btnSync.length) {
-            $btnSync.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
-        }
-
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
             const res = await fetch(url);
@@ -92,7 +73,7 @@ async function fetchGoogleSheetsData() {
                 skipEmptyLines: true
             });
 
-            return parsed.data.slice(1); // 略過第一行標頭
+            return parsed.data.slice(1);
         };
 
         const rawRows = await fetchSheet('產品主檔');
@@ -106,33 +87,21 @@ async function fetchGoogleSheetsData() {
         appState.products.TW = parsedProducts.filter(p => p.region_code === 'TW');
         appState.products.MY = parsedProducts.filter(p => p.region_code === 'MY');
 
-        // 提取全站唯一 base_code
         appState.baseCodes = Array.from(new Set(parsedProducts.map(p => p.base_code).filter(Boolean))).sort();
 
-        // 數據加載完成後刷新各視圖
         refreshAllViews();
-
-        if ($syncTag.length) {
-            $syncTag.html(`<i class="fa-solid fa-circle-check text-success"></i> 已同步載入 ${parsedProducts.length} 筆產品資料`);
-        }
-        if ($btnSync.length) {
-            $btnSync.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 同步試算表');
-        }
+        AppToast.success(`已成功同步 ${parsedProducts.length} 筆台馬跨國產品主檔`);
     } catch (err) {
         console.error("Google Sheets 產品主檔讀取失敗:", err);
-        if ($syncTag.length) {
-            $syncTag.html('<i class="fa-solid fa-triangle-exclamation text-danger"></i> 雲端同步失敗');
-        }
-        if ($btnSync.length) {
-            $btnSync.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 重新同步');
-        }
-        showErrorNotice("無法連線至 Google 試算表讀取資料，請檢查網路連線或共用權限！");
+        AppDialog.alert("無法連線至 Google 試算表讀取資料，請檢查網路連線或共用權限！", {
+            title: "資料載入失敗",
+            icon: "fa-solid fa-triangle-exclamation text-danger"
+        });
+    } finally {
+        AppLoading.hide();
     }
 }
 
-/**
- * 依據資料庫表 104 prd_items 定義進行精準索引映射
- */
 function parseProductsTable(rows) {
     return rows.map((r, idx) => {
         const rawId = getVal(r, 0, String(idx + 1));
@@ -145,12 +114,9 @@ function parseProductsTable(rows) {
 
         let baseCode = getVal(r, 2, productCode.replace(/^(TW|MY)/, ''));
 
-        // 特殊產品貨號映射
-        // YaYa 雙向綁定 (台灣 TW0302003 / 大馬 MY0302002)
         if (productCode === 'TW0302003' || productCode === 'MY0302002') {
             baseCode = '0302003';
         }
-        // 欣悅康 雙向綁定 (台灣 TW0105005 / 大馬 MY0105001)
         if (productCode === 'TW0105005' || productCode === 'MY0105001') {
             baseCode = '0105005';
         }
@@ -180,10 +146,9 @@ function parseProductsTable(rows) {
 }
 
 // ==========================================
-// 5. 介面事件綁定 (UI Event Binding)
+// 5. 介面事件綁定
 // ==========================================
 function bindUIEvents() {
-    // 匯率統一更新處理函式 (限制 7.00 ~ 9.00)
     function handleRateChange(val) {
         let rate = parseFloat(val);
         if (isNaN(rate) || rate <= 0) rate = 8.00;
@@ -194,24 +159,20 @@ function bindUIEvents() {
         $('#fxRateRange').val(rate);
         $('#fxRateInput').val(rate.toFixed(2));
 
-        // 連鎖重算各模組
         triggerConverterFromTWD();
         renderCart();
         refreshAllViews();
         recalculateSolver();
     }
 
-    // 匯率滑桿滑動事件
     $('#fxRateRange').off('input change').on('input change', function () {
         handleRateChange($(this).val());
     });
 
-    // 匯率手動輸入框事件
     $('#fxRateInput').off('change blur').on('change blur', function () {
         handleRateChange($(this).val());
     });
 
-    // 雙向極速算力閥輸入事件
     $('#inputTWD').off('input').on('input', triggerConverterFromTWD);
 
     $('#inputSV').off('input').on('input', function () {
@@ -234,21 +195,18 @@ function bindUIEvents() {
         updateConverterMetrics(twd, sv, myr);
     });
 
-    // 逆向湊單求解器參數監聽
     $('#solverTargetSV, #solverStrategy').off('change input').on('change input', function () {
         recalculateSolver();
     });
 
-    // 報價單話術複製按鈕
     $('#btnCopyQuote').off('click').on('click', copyQuoteToClipboard);
 }
 
-// 快速點選匯率刻度
 window.setQuickRate = function (rate) {
     $('#fxRateRange').val(rate).trigger('input');
+    AppToast.info(`已切換結算匯率至 1 MYR = ${rate.toFixed(2)} TWD`);
 };
 
-// 步進微調匯率 (+ / - 0.05)
 window.adjustRate = function (delta) {
     let current = parseFloat($('#fxRateInput').val()) || appState.exchangeRate;
     let target = Math.round((current + delta) * 100) / 100;
@@ -256,11 +214,11 @@ window.adjustRate = function (delta) {
 };
 
 // ==========================================================================
-// 6. 雙向極速算力閥核心邏輯 (Bidirectional Converter)
+// 6. 雙向極速算力閥核心邏輯
 // ==========================================================================
 function triggerConverterFromTWD() {
     const twd = parseFloat($('#inputTWD').val()) || 0;
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 7.15;
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
     const myr = Math.round(twd / rate);
     const sv = Math.round(twd / 36.46);
 
@@ -278,10 +236,11 @@ window.setQuickSV = function (targetSV) {
     $('#inputSV').val(targetSV).trigger('input');
     $('#solverTargetSV').val(targetSV);
     recalculateSolver();
+    AppToast.info(`已設定快速目標：${targetSV} SV`);
 };
 
 // ==========================================================================
-// 7. 跨境現貨對沖與平帳沙盒 (fin_cross_border_swaps)
+// 7. 跨境現貨對沖與平帳沙盒
 // ==========================================================================
 function renderCart() {
     const $container = $('#cartItemsList');
@@ -295,7 +254,7 @@ function renderCart() {
                 </div>
                 <div class="fw-bold text-white mb-1 fs-6">對沖艙目前無品項</div>
                 <p class="small text-light-emphasis mb-0">
-                    請至下方「產品對照庫」點擊 <span class="badge badge-outline-secondary"><i class="fa-solid fa-plus"></i> 加入</span> 進行跨境平帳試算
+                    請至下方「產品對照庫」點擊 <span class="badge badge-secondary-subtle"><i class="fa-solid fa-plus"></i> 加入</span> 進行跨境平帳試算
                 </p>
             </div>
         `);
@@ -357,16 +316,16 @@ window.updateCartQty = function (index, change) {
 window.removeCartItem = function (index) {
     swapCart.splice(index, 1);
     renderCart();
+    AppToast.info("已自對沖艙移除品項");
 };
 
 function updateCartTotals(totalSV, totalTWD, totalMYR) {
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 7.15;
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
     $('#totalCartSV').text(`${totalSV.toLocaleString()} SV`);
     $('#totalCartTWD').text(`NT$ ${totalTWD.toLocaleString()}`);
     $('#totalCartMYR').text(`RM ${totalMYR.toLocaleString()}`);
 
-    // 對沖平帳現金差額計算：tw_total_cost_twd - (my_order_amount_myr * fx_rate_applied)
     const myrConvertedTwd = totalMYR * rate;
     const cashDifferenceTwd = totalTWD - myrConvertedTwd;
 
@@ -393,7 +352,7 @@ function updateCartTotals(totalSV, totalTWD, totalMYR) {
 function recalculateSolver() {
     const targetSV = parseFloat($('#solverTargetSV').val()) || 160;
     const strategy = $('#solverStrategy').val();
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 7.15;
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
     let candidateProducts = [...(appState.products.TW || [])];
     if (candidateProducts.length === 0) return;
@@ -424,7 +383,7 @@ function recalculateSolver() {
     }
 
     const itemsHtml = packageItems.map(i => `
-        <span class="badge badge-outline-secondary-subtle me-1 mb-1 p-1 px-2">
+        <span class="badge badge-secondary-subtle me-1 mb-1 p-1 px-2">
             ${i.name} × ${i.qty} 盒 (${i.sv} SV)
         </span>
     `).join('');
@@ -432,7 +391,7 @@ function recalculateSolver() {
     $('#solverRecommendationBox').html(`
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold text-primary small"><i class="fa-solid fa-lightbulb"></i> 演算法最佳推薦配置</span>
-            <span class="badge badge-accent-subtle">${accumulatedSV.toLocaleString()} SV 達成</span>
+            <span class="badge badge-warning-subtle">${accumulatedSV.toLocaleString()} SV 達成</span>
         </div>
         <div class="mb-2 d-flex flex-wrap">${itemsHtml}</div>
         <div class="d-flex justify-content-between small pt-2 border-top border-secondary border-opacity-25">
@@ -447,7 +406,6 @@ function recalculateSolver() {
 function refreshAllViews() {
     renderCrossBorderMatrix();
     renderRawProductTable();
-    renderSkuModalGrid();
     updateChartData();
 }
 
@@ -467,22 +425,20 @@ function renderCrossBorderMatrix() {
         const twProd = appState.products.TW.find(p => p.base_code === code);
         const myProd = appState.products.MY.find(p => p.base_code === code);
 
-        // 統一品名與規格樣式
         const twInfo = twProd
             ? `<div class="fw-bold text-secondary">${twProd.name}</div><div class="text-secondary-emphasis small">${twProd.package_spec}</div>`
-            : `<span class="badge badge-danger">台灣未發行</span>`;
+            : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
         const twPrice = twProd 
             ? `<span class="text-secondary fw-bold">NT$ ${twProd.price.toLocaleString()}</span> / <span class="text-warning fw-bold">${twProd.sv_point} SV</span>` 
             : `-`;
 
         const myInfo = myProd
             ? `<div class="fw-bold text-secondary">${myProd.name}</div><div class="text-secondary-emphasis small">${myProd.package_spec}</div>`
-            : `<span class="badge badge-danger">大馬未上市</span>`;
+            : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
         const myPrice = myProd 
             ? `<span class="text-secondary fw-bold">RM ${myProd.price.toLocaleString()}</span> / <span class="text-warning fw-bold">${myProd.sv_point} SV</span>` 
             : `-`;
 
-        // 統一每 SV 現金成本樣式
         const twCostPerSv = twProd ? (twProd.price / twProd.sv_point).toFixed(2) : null;
         const myCostPerSv = myProd ? (myProd.price / myProd.sv_point).toFixed(2) : null;
         let costCompare = `-`;
@@ -494,19 +450,17 @@ function renderCrossBorderMatrix() {
             costCompare = `<span class="text-secondary small">${myCostPerSv} RM/SV</span>`;
         }
 
-        // 統一價差標籤
         let diffText = `<span class="text-light-emphasis">-</span>`;
         if (twProd && myProd) {
             const myConvertedTwd = myProd.price * rate;
             const diff = myConvertedTwd - twProd.price;
             diffText = diff >= 0
-                ? `<span class="badge bg-warning">+NT$ ${Math.round(diff).toLocaleString()}</span>`
-                : `<span class="badge bg-warning">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+                ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+                : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
         }
 
-        // 統一操作按鈕
         const actionBtn = twProd
-            ? `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus"></i> 加入</button>`
+            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus"></i> 加入</button>`
             : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban"></i> 無貨</button>`;
 
         $tbody.append(`
@@ -525,9 +479,6 @@ function renderCrossBorderMatrix() {
 
     if ($.fn.DataTable) {
         matrixTableInstance = $('#crossBorderMatrixTable').DataTable({
-            dom: "<'row mb-3 align-items-center'<'col-12 col-md-6'l><'col-12 col-md-6 d-flex justify-content-md-end'f>>" +
-                "<'row'<'col-12'tr>>" +
-                "<'row mt-3 align-items-center'<'col-12 col-md-5 text-light-emphasis small'i><'col-12 col-md-7 d-flex justify-content-md-end'p>>",
             searching: true,
             responsive: true,
             retrieve: true
@@ -549,13 +500,12 @@ function renderRawProductTable() {
         const costPerSv = prod.sv_point > 0 ? (prod.price / prod.sv_point).toFixed(2) : '0.00';
         const isTW = prod.region_code === 'TW';
         const regionBadge = isTW
-            ? `<span class="badge badge-secondary">台灣 TW</span>`
-            : `<span class="badge badge-secondary">大馬 MY</span>`;
+            ? `<span class="badge badge-blue">台灣 TW</span>`
+            : `<span class="badge badge-green">大馬 MY</span>`;
         const currPrefix = isTW ? 'NT$ ' : 'RM ';
         const costUnit = isTW ? 'NT$/SV' : 'RM/SV';
-        const priceClass = isTW ? 'text-secondary' : 'text-secondary';
+        const priceClass = 'text-secondary';
 
-        // 統一品名與規格、售價、單點成本格式
         const prodInfo = `<div class="fw-bold text-secondary">${prod.name}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
         const priceDisplay = `<span class="${priceClass} fw-bold">${currPrefix}${prod.price.toLocaleString()}</span>`;
         const svDisplay = `<span class="text-warning fw-bold">${prod.sv_point} SV</span>`;
@@ -569,7 +519,7 @@ function renderRawProductTable() {
                 <td>${priceDisplay} / ${svDisplay}</td>
                 <td>${costDisplay}</td>
                 <td>
-                    <button type="button" class="btn btn-sm btn-outline-info py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="加入跨境對沖沙盒">
+                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="加入跨境對沖沙盒">
                         <i class="fa-solid fa-plus"></i> 加入
                     </button>
                 </td>
@@ -579,9 +529,6 @@ function renderRawProductTable() {
 
     if ($.fn.DataTable) {
         rawTableInstance = $('#rawProductTable').DataTable({
-            dom: "<'row mb-3 align-items-center'<'col-12 col-md-6'l><'col-12 col-md-6 d-flex justify-content-md-end'f>>" +
-                "<'row'<'col-12'tr>>" +
-                "<'row mt-3 align-items-center'<'col-12 col-md-5 text-light-emphasis small'i><'col-12 col-md-7 d-flex justify-content-md-end'p>>",
             searching: true,
             responsive: true,
             retrieve: true
@@ -590,33 +537,8 @@ function renderRawProductTable() {
 }
 
 // ==========================================================================
-// 10. 模態框與購物車操作
+// 10. 購物車操作
 // ==========================================================================
-function renderSkuModalGrid() {
-    const $grid = $('#skuGridContainer');
-    if (!$grid.length) return;
-    $grid.empty();
-
-    const twList = appState.products.TW;
-    twList.forEach(prod => {
-        $grid.append(`
-            <div class="col-12 col-md-6">
-                <div class="p-2 border border-secondary border-opacity-25 rounded-3 d-flex justify-content-between align-items-center" style="background: #060d19;">
-                    <div>
-                        <div class="fw-bold text-white small">${prod.name}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">
-                            ${prod.product_code} ‧ ${prod.sv_point} SV ‧ NT$ ${prod.price.toLocaleString()}
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-info" onclick="addSkuToCart('${prod.product_code}')">
-                        <i class="fa-solid fa-plus"></i> 加入
-                    </button>
-                </div>
-            </div>
-        `);
-    });
-}
-
 window.addSkuToCart = function (productCode) {
     const existing = swapCart.find(i => i.product_code === productCode);
     if (existing) {
@@ -625,12 +547,7 @@ window.addSkuToCart = function (productCode) {
         swapCart.push({ product_code: productCode, qty: 1 });
     }
     renderCart();
-
-    const modalEl = document.getElementById('skuSelectorModal');
-    if (modalEl && typeof bootstrap !== 'undefined') {
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) modalInstance.hide();
-    }
+    AppToast.success(`已將品項加入對沖沙盒`);
 };
 
 // ==========================================================================
@@ -655,7 +572,7 @@ function initChart() {
             }]
         },
         options: {
-            indexAxis: 'y', // 橫向長條圖，便於閱讀品名
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
@@ -696,7 +613,6 @@ function updateChartData() {
     if (!chartEfficiencyInstance) return;
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
-    // 嚴格篩選台馬兩地皆有上市 (TW 與 MY 均存在且有售價) 的品項
     const pairedDiffList = [];
     appState.baseCodes.forEach(code => {
         const tw = appState.products.TW.find(p => p.base_code === code);
@@ -712,14 +628,12 @@ function updateChartData() {
         }
     });
 
-    // 依價差絕對值由大至小排序取 Top 5
     pairedDiffList.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
     const top5 = pairedDiffList.slice(0, 5);
 
     chartEfficiencyInstance.data.labels = top5.map(i => i.name);
     chartEfficiencyInstance.data.datasets[0].data = top5.map(i => i.diff);
 
-    // 正值 (+) 為綠色、負值 (-) 為紅色
     chartEfficiencyInstance.data.datasets[0].backgroundColor = top5.map(i => 
         i.diff >= 0 ? 'rgba(34, 197, 94, 0.65)' : 'rgba(239, 68, 68, 0.65)'
     );
@@ -731,18 +645,18 @@ function updateChartData() {
 }
 
 // ==========================================================================
-// 12. 報價單與對帳字串產生器 (Quote Script Exporter)
+// 12. 報價單與對帳字串產生器
 // ==========================================================================
 function copyQuoteToClipboard() {
     if (swapCart.length === 0) {
-        showErrorNotice("請先添加品項至對沖艙！");
+        AppToast.warning("請先添加品項至對沖艙！");
         return;
     }
 
     let totalSV = 0;
     let totalTWD = 0;
     let lines = [];
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 7.15;
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
     swapCart.forEach(item => {
         const p = appState.products.ALL.find(x => x.product_code === item.product_code);
@@ -760,8 +674,7 @@ function copyQuoteToClipboard() {
     const diffTwd = totalTWD - myrConvertedTwd;
 
     const quoteText =
-`
-🌟【UVACO 葡眾 榮祥團隊 跨境現貨對沖與平帳單】🌟
+`🌟【UVACO 葡眾 榮祥團隊 跨境現貨對沖與平帳單】🌟
 --------------------------------------
 📦 台灣交付現貨明細：
 ${lines.join('\n')}
@@ -770,26 +683,11 @@ ${lines.join('\n')}
 💰 台灣交付出貨成本：NT$ ${totalTWD.toLocaleString()}
 🇲🇾 大馬官網應下單額：約 RM ${estimatedMYR.toLocaleString()}
 📊 結算匯率基準：1 MYR ≈ ${rate.toFixed(2)} TWD
-⚖️ 兩地現貨平帳差額：NT$ ${Math.abs(Math.round(diffTwd)).toLocaleString()} (${diffTwd >= 0 ? '大馬受領人補貼' : '台灣出貨人退款'})
-`;
+⚖️ 兩地現貨平帳差額：NT$ ${Math.abs(Math.round(diffTwd)).toLocaleString()} (${diffTwd >= 0 ? '大馬受領人補貼' : '台灣出貨人退款'})`;
 
     navigator.clipboard.writeText(quoteText).then(() => {
-        const $btn = $('#btnCopyQuote');
-        const originHtml = $btn.html();
-        $btn.removeClass('btn-cyber-accent').addClass('btn-success').html('<i class="fa-solid fa-check"></i> 已複製報價單！');
-        setTimeout(() => {
-            $btn.removeClass('btn-success').addClass('btn-cyber-accent').html(originHtml);
-        }, 2500);
+        AppToast.success("已複製 LINE / WhatsApp 報價單至剪貼簿！");
+    }).catch(() => {
+        AppToast.error("複製失敗，請手動複製");
     });
-}
-
-function showErrorNotice(msg) {
-    if (typeof AppDialog !== 'undefined') {
-        AppDialog.alert(msg, {
-            title: "系統提示",
-            icon: "fa-solid fa-circle-exclamation text-danger"
-        });
-    } else {
-        alert(msg);
-    }
 }

@@ -1,9 +1,67 @@
 // ==========================================
-// 全域通用彈窗模組 (app-dialog.js)
-// 支援 Callback 模式（無需寫 async/await/then）與 Promise 模式
+// 榮祥團隊 全域 UI 回饋中樞模組 (app-dialog.js)
+// 包含：AppDialog (彈窗/置中)、AppToast (輕量通知)、AppLoading (視窗垂直置中加載)
 // ==========================================
 
 class AppDialog {
+    /**
+     * 計算父視窗可視高度並將元素精準定位在目前視窗中央 (支援 iframe)
+     * @param {jQuery|HTMLElement} targetDialog - 需要置中的 .modal-dialog 或 .uvaco-loading-card
+     * @param {number} defaultHeight - 預設高度
+     */
+    static centerInViewport(targetDialog, defaultHeight = 480) {
+        try {
+            const isInsideIframe = (window.self !== window.top);
+            if (!isInsideIframe) return;
+
+            const parentWin = window.parent;
+            const frameEl = window.frameElement;
+            if (!parentWin || !frameEl) return;
+
+            const parentScrollY = parentWin.scrollY || parentWin.pageYOffset || 0;
+            const parentInnerHeight = parentWin.innerHeight || document.documentElement.clientHeight;
+            const frameRect = frameEl.getBoundingClientRect();
+            const iframeTopInParent = frameRect.top + parentScrollY;
+
+            // 計算父視窗當前視野中心點在 iframe 內部的相對 Y 座標
+            const parentCenterYInIframe = (parentScrollY + parentInnerHeight / 2) - iframeTopInParent;
+
+            const $dialog = $(targetDialog);
+            $dialog.removeClass('modal-dialog-centered');
+
+            const dialogHeight = $dialog.outerHeight() || defaultHeight;
+            let targetMarginTop = parentCenterYInIframe - (dialogHeight / 2);
+
+            // 邊界防護：避免超出頂部或底部
+            const iframeHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+            targetMarginTop = Math.max(20, Math.min(targetMarginTop, iframeHeight - dialogHeight - 50));
+
+            $dialog.css({
+                'margin-top': targetMarginTop + 'px',
+                'margin-bottom': '30px'
+            });
+        } catch (e) {
+            console.warn("Iframe viewport centering notice:", e);
+        }
+    }
+
+    /**
+     * 為任意 Bootstrap Modal 綁定 iframe 視窗動態追蹤置中事件
+     * @param {string|HTMLElement} modalSelector - Modal DOM 或選擇器
+     */
+    static bindIframeAutoCenter(modalSelector) {
+        const $modal = $(modalSelector);
+        if (!$modal.length) return;
+
+        $modal.off('show.bs.modal.autoCenter').on('show.bs.modal.autoCenter', function () {
+            AppDialog.centerInViewport($(this).find('.modal-dialog'));
+        });
+
+        $modal.off('shown.bs.modal.autoCenter').on('shown.bs.modal.autoCenter', function () {
+            AppDialog.centerInViewport($(this).find('.modal-dialog'));
+        });
+    }
+
     static _getOrCreateModal() {
         let modalElem = document.getElementById('globalAppModal');
         if (!modalElem) {
@@ -28,61 +86,13 @@ class AppDialog {
             </div>`;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
             modalElem = document.getElementById('globalAppModal');
-
-            // iframe 自動精準居中定位
-            modalElem.addEventListener('show.bs.modal', function () {
-                const $modal = $(this);
-                const $dialog = $modal.find('.modal-dialog');
-                const isInsideIframe = (window.self !== window.top);
-
-                if (isInsideIframe) {
-                    try {
-                        const parentWin = window.parent;
-                        const frameEl = window.frameElement;
-                        if (parentWin && frameEl) {
-                            const parentScrollY = parentWin.scrollY || parentWin.pageYOffset || 0;
-                            const parentInnerHeight = parentWin.innerHeight || document.documentElement.clientHeight;
-                            const frameRect = frameEl.getBoundingClientRect();
-                            const iframeTopInParent = frameRect.top + parentScrollY;
-
-                            const viewportCenterInIframe = (parentScrollY + parentInnerHeight / 2) - iframeTopInParent;
-
-                            $modal.css({
-                                'position': 'absolute',
-                                'top': '0',
-                                'left': '0',
-                                'height': '100%',
-                                'width': '100%',
-                                'overflow': 'visible'
-                            });
-
-                            $dialog.css({
-                                'position': 'absolute',
-                                'top': Math.max(120, viewportCenterInIframe) + 'px',
-                                'left': '50%',
-                                'transform': 'translate(-50%, -50%)',
-                                'margin': '0',
-                                'width': '90%',
-                                'max-width': '480px'
-                            });
-                        }
-                    } catch (e) {
-                        console.warn("Modal iframe positioning fallback:", e);
-                    }
-                } else {
-                    $modal.css({ 'position': '', 'top': '', 'left': '', 'height': '', 'width': '', 'overflow': '' });
-                    $dialog.css({ 'position': '', 'top': '', 'left': '', 'transform': '', 'margin': '' });
-                }
-            });
+            AppDialog.bindIframeAutoCenter(modalElem);
         }
         return modalElem;
     }
 
     /**
      * 全域 Alert 提示彈窗
-     * @param {string} message 訊息內容
-     * @param {function|object} onConfirmOrOptions 點擊確定時執行的 Function 或參數物件
-     * @param {object} options 自訂參數
      */
     static alert(message, onConfirmOrOptions, options = {}) {
         let onConfirm = null;
@@ -135,9 +145,6 @@ class AppDialog {
 
     /**
      * 全域 Confirm 確認詢問彈窗
-     * @param {string} message 訊息內容
-     * @param {function|object} onConfirmOrOptions 點擊確認時執行的 Function 或參數物件
-     * @param {object} options 自訂參數
      */
     static confirm(message, onConfirmOrOptions, options = {}) {
         let onConfirm = null;
@@ -191,5 +198,122 @@ class AppDialog {
 
             bsModal.show();
         });
+    }
+}
+
+// ==========================================
+// 全域通用 Toast 通知模組 (AppToast)
+// ==========================================
+class AppToast {
+    static _ensureContainer() {
+        let container = document.getElementById('globalToastContainer');
+        if (!container) {
+            const html = `<div id="globalToastContainer" class="toast-container-custom"></div>`;
+            document.body.insertAdjacentHTML('beforeend', html);
+            container = document.getElementById('globalToastContainer');
+        }
+        return container;
+    }
+
+    /**
+     * 觸發 Toast 通知
+     * @param {string} message 訊息文字或 HTML
+     * @param {string} type 類型 ('success' | 'info' | 'warning' | 'danger')
+     * @param {number} duration 顯示時間 (毫秒)
+     */
+    static show(message, type = 'success', duration = 3000) {
+        const container = this._ensureContainer();
+        const toastId = 'toast_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+        let iconHtml = '<i class="fa-solid fa-circle-check text-success me-2"></i> ';
+        let borderClass = 'border-success-subtle';
+
+        if (type === 'info') {
+            iconHtml = '<i class="fa-solid fa-circle-info text-info me-2"></i> ';
+            borderClass = 'border-info-subtle';
+        } else if (type === 'warning') {
+            iconHtml = '<i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> ';
+            borderClass = 'border-warning-subtle';
+        } else if (type === 'danger' || type === 'error') {
+            iconHtml = '<i class="fa-solid fa-circle-xmark text-danger me-2"></i> ';
+            borderClass = 'border-danger-subtle';
+        }
+
+        const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-dark border ${borderClass} shadow-lg mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center">
+                    ${iconHtml}
+                    <span>${message}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>`;
+
+        container.insertAdjacentHTML('beforeend', toastHtml);
+        const toastEl = document.getElementById(toastId);
+        const bsToast = new bootstrap.Toast(toastEl, { delay: duration });
+
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            toastEl.remove();
+        });
+
+        bsToast.show();
+    }
+
+    static success(msg, duration) { this.show(msg, 'success', duration); }
+    static info(msg, duration) { this.show(msg, 'info', duration); }
+    static warning(msg, duration) { this.show(msg, 'warning', duration); }
+    static error(msg, duration) { this.show(msg, 'danger', duration); }
+}
+
+// ==========================================
+// 全域通用 Loading 遮罩模組 (AppLoading) - 視窗可視範圍垂直置中
+// ==========================================
+class AppLoading {
+    static _ensureLoadingOverlay() {
+        let $overlay = $('#globalLoadingOverlay');
+        if (!$overlay.length) {
+            $('body').append(`
+                <div id="globalLoadingOverlay" class="uvaco-loading-overlay">
+                    <div class="uvaco-loading-card" id="globalLoadingCard">
+                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h6 class="text-light fw-bold mb-1" id="globalLoadingTitle">
+                            <i class="fa-solid fa-spinner fa-spin"></i> 資料處理中...
+                        </h6>
+                        <div class="text-muted small" id="globalLoadingDesc">正在與雲端安全通訊，請稍候</div>
+                    </div>
+                </div>
+            `);
+            $overlay = $('#globalLoadingOverlay');
+        }
+        return $overlay;
+    }
+
+    /**
+     * 啟動 Loading 遮罩並垂直置中於可視範圍
+     * @param {string} title 標題 HTML
+     * @param {string} desc 說明文字
+     */
+    static show(title = '', desc = '') {
+        const $overlay = this._ensureLoadingOverlay();
+        const $card = $('#globalLoadingCard');
+
+        if (title) $('#globalLoadingTitle').html(title);
+        if (desc) $('#globalLoadingDesc').text(desc);
+
+        $overlay.addClass('active');
+
+        // 在可視範圍內精準垂直置中卡片
+        AppDialog.centerInViewport($card, 180);
+    }
+
+    /**
+     * 隱藏 Loading 遮罩
+     */
+    static hide() {
+        $('#globalLoadingOverlay').removeClass('active');
     }
 }

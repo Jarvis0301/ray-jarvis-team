@@ -1,31 +1,6 @@
-:root {
-    /* 核心版暗夜魅影紫 Design Tokens */
-    --core-primary: #8b5cf6;
-    --core-secondary: #c084fc;
-    --core-accent: #ec4899;
-    --core-gold: #fbbf24;
-    --core-gold-rgb: 251, 191, 36;
-    --core-success: #10b981;
-    --core-danger: #f43f5e;
-    --core-muted: #9e8eb3;
-    
-    --core-bg-body: #0a0518;
-    --core-bg-card: #150a2a;
-    --core-bg-card-glass: rgba(21, 10, 42, 0.78);
-    --core-bg-secondary: #120824;
-    --core-border-glow: rgba(139, 92, 246, 0.25);
-    --core-border-highlight: rgba(192, 132, 252, 0.45);
-    
-    --core-gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
-    --core-gradient-accent: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
-    --core-gradient-gold: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
-    --core-gradient-card: linear-gradient(145deg, rgba(18, 8, 36, 0.6) 0%, rgba(21, 10, 42, 0.9) 100%);
-}
-
 body {
-    background-color: var(--core-bg-body);
-    color: #f8fafc;
-    font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    background-color: var(--uvaco-bg-base, #0a0518);
+    color: var(--uvaco-text-main, #f8fafc);
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -44,10 +19,10 @@ body {
 
 /* 戰術玻璃擬態容器 */
 .glass-panel {
-    background: var(--core-bg-card-glass);
+    background: var(--uvaco-bg-glass, rgba(21, 10, 42, 0.78));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid var(--core-border-glow);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
     border-radius: 18px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -66,39 +41,8 @@ body {
 }
 
 .glass-panel:hover {
-    border-color: var(--core-border-highlight);
-    box-shadow: 0 12px 35px rgba(139, 92, 246, 0.25);
-}
-
-/* 頂部戰術指揮 HUD */
-.command-bar {
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.command-badge-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 14px;
-    background: var(--core-gradient-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    color: #ffffff;
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.45);
-}
-
-.brand-gradient-text {
-    background: var(--core-gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
+    border-color: var(--uvaco-primary-light, rgba(192, 132, 252, 0.45));
+    box-shadow: 0 12px 35px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
 /* KPI 戰術指標方塊 */
@@ -112,8 +56,8 @@ body {
 .kpi-card {
     padding: 1.25rem;
     border-radius: 16px;
-    background: var(--core-gradient-card);
-    border: 1px solid var(--core-border-glow);
+    background: linear-gradient(145deg, rgba(18, 8, 36, 0.6) 0%, rgba(21, 10, 42, 0.9) 100%);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
     position: relative;
 }
 
@@ -121,7 +65,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--core-muted);
+    color: var(--uvaco-text-muted, #9e8eb3);
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.6rem;
@@ -142,35 +86,35 @@ body {
     justify-content: space-between;
 }
 
-/* 表單控制項暗黑客製 */
+/* 表單控制項自訂 */
 .form-label {
-    color: var(--core-secondary);
+    color: var(--uvaco-primary-light, #c084fc);
     font-weight: 600;
     font-size: 0.88rem;
     margin-bottom: 0.35rem;
 }
 
-.form-control, .form-select {
-    background-color: rgba(18, 8, 36, 0.85);
-    border: 1px solid var(--core-border-glow);
-    color: #ffffff;
+.form-control-custom, .form-select-custom {
+    background-color: var(--uvaco-bg-surface, #170b2e);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
+    color: var(--uvaco-text-main, #ffffff);
     border-radius: 10px;
     padding: 0.6rem 0.9rem;
     font-size: 0.92rem;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control-custom:focus, .form-select-custom:focus {
     background-color: rgba(21, 10, 42, 0.98);
-    border-color: var(--core-primary);
-    box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+    border-color: var(--uvaco-primary, #8b5cf6);
+    box-shadow: 0 0 0 0.25rem var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     color: #ffffff;
 }
 
 /* 預設範例按鈕群組 */
 .btn-preset {
     background: rgba(30, 15, 61, 0.7);
-    border: 1px solid var(--core-border-glow);
-    color: var(--core-secondary);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
+    color: var(--uvaco-primary-light, #c084fc);
     border-radius: 8px;
     padding: 0.35rem 0.75rem;
     font-size: 0.8rem;
@@ -179,10 +123,10 @@ body {
 }
 
 .btn-preset:hover, .btn-preset.active {
-    background: var(--core-gradient-primary);
+    background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
     color: #ffffff;
     border-color: transparent;
-    box-shadow: 0 2px 12px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 2px 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.35));
 }
 
 /* 進度條與標籤 */
@@ -194,7 +138,9 @@ body {
 }
 
 .progress-bar-purple {
-    background: var(--core-gradient-primary);
+    background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+    height: 100%;
+    transition: width 0.4s ease;
 }
 
 .badge-right-pill {
@@ -202,7 +148,7 @@ body {
     align-items: center;
     gap: 0.35rem;
     background: rgba(139, 92, 246, 0.15);
-    color: var(--core-secondary);
+    color: var(--uvaco-primary-light, #c084fc);
     border: 1px solid rgba(192, 132, 252, 0.3);
     border-radius: 8px;
     padding: 0.4rem 0.75rem;
@@ -213,14 +159,8 @@ body {
 
 .badge-right-pill.gold {
     background: rgba(251, 191, 36, 0.12);
-    color: var(--core-gold);
+    color: var(--uvaco-accent, #fbbf24);
     border-color: rgba(251, 191, 36, 0.35);
-}
-
-.badge-right-pill.accent {
-    background: rgba(236, 72, 153, 0.15);
-    color: var(--core-accent);
-    border-color: rgba(236, 72, 153, 0.35);
 }
 
 /* 缺口警示盒 */
@@ -236,41 +176,41 @@ body {
     border: 1px dashed rgba(16, 185, 129, 0.4);
 }
 
-/* DataTables 深色精準適配 */
-.table-custom-dark {
+/* 表格專屬樣式 */
+.table-dark-custom {
     --bs-table-bg: transparent;
-    --bs-table-color: #f8fafc;
-    --bs-table-border-color: rgba(139, 92, 246, 0.15);
+    --bs-table-color: var(--uvaco-text-main, #f8fafc);
+    border-color: var(--uvaco-border, rgba(139, 92, 246, 0.15));
 }
 
-.table-custom-dark thead th {
+.table-dark-custom th {
     background-color: rgba(30, 15, 61, 0.9) !important;
-    color: var(--core-secondary) !important;
-    border-bottom: 2px solid var(--core-primary) !important;
+    color: var(--uvaco-primary-light, #c084fc) !important;
+    border-bottom: 2px solid var(--uvaco-primary, #8b5cf6) !important;
     font-size: 0.85rem;
     padding: 0.8rem 1rem !important;
 }
 
-.table-custom-dark tbody td {
+.table-dark-custom td {
     background-color: rgba(21, 10, 42, 0.45) !important;
     padding: 0.75rem 1rem !important;
     vertical-align: middle;
     font-size: 0.88rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1) !important;
 }
 
-.table-custom-dark tbody tr:hover td {
+.table-dark-custom tbody tr:hover td {
     background-color: rgba(139, 92, 246, 0.12) !important;
 }
 
 .section-header {
-    border-left: 4px solid var(--core-primary);
+    border-left: 4px solid var(--uvaco-primary, #8b5cf6);
     padding-left: 10px;
     margin-bottom: 1.25rem;
     font-weight: 700;
     color: #ffffff;
 }
 
-/* 手機端 RWD 適配增強 */
 @media (max-width: 576px) {
     .kpi-matrix {
         grid-template-columns: 1fr;

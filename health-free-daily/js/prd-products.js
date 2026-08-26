@@ -47,7 +47,7 @@ async function initApp() {
 async function fetchGoogleSheetsData() {
     try {
         const syncElem = document.getElementById('syncStatus');
-        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> 產品資訊同步中...';
+        if (syncElem) syncElem.innerHTML = '<i class="fa-solid fa-spinner me-1"></i> 產品資訊同步中...';
 
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
