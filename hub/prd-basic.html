@@ -1,1296 +1,477 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="dark-purple">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>產品資料維護中台 | 榮祥團隊極密戰情室</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>產品資料維護中台 | 榮祥團隊極密戰情室</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap">
+        <!-- 認證守衛 -->
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <!-- 第三方函式庫加載器 -->
+        <script src="../assets/js/vendor-loader.js"></script>
 
-    <style>
-        :root, [data-bs-theme="dark-purple"] {
-            --uvaco-primary: #8b5cf6;
-            --uvaco-primary-hover: #7c3aed;
-            --uvaco-primary-glow: rgba(139, 92, 246, 0.35);
-            --uvaco-secondary: #c084fc;
-            --uvaco-secondary-hover: #a855f7;
-            --uvaco-accent: #ec4899;
-            --uvaco-accent-hover: #db2777;
-            --uvaco-muted: #a1a1aa;
-            --uvaco-success: #10b981;
-            --uvaco-warning: #f59e0b;
-            --uvaco-danger: #ef4444;
-            --uvaco-info: #06b6d4;
-            --uvaco-bg-primary: #0a0518;
-            --uvaco-bg-secondary: #160d29;
-            --uvaco-bg-card: #1a122d;
-            --uvaco-bg-tertiary: #24143d;
-            --uvaco-text-primary: #f5f3ff;
-            --uvaco-text-secondary: #c084fc;
-            --uvaco-text-muted: #a1a1aa;
-            --uvaco-border-color: rgba(192, 132, 252, 0.2);
+        <!-- 團隊共用核心模組 (載入 utils.js, dialog.js, sheet-adapter.js 並觸發 AppReady) -->
+        <script src="../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-            --bs-body-bg: var(--uvaco-bg-primary);
-            --bs-body-color: var(--uvaco-text-primary);
-            --bs-card-bg: var(--uvaco-bg-card);
-            --bs-card-border-color: var(--uvaco-border-color);
-            --bs-border-color: var(--uvaco-border-color);
-            --bs-tertiary-bg: var(--uvaco-bg-tertiary);
-            --bs-primary: var(--uvaco-primary);
-            --bs-secondary: var(--uvaco-secondary);
-        }
+        <!-- 模組專屬腳本與樣式 -->
+        <script src="./js/prd-basic.js" defer></script>
+        <link rel="stylesheet" href="./css/prd-basic.css">
+    </head>
 
-        body {
-            background-color: var(--bs-body-bg);
-            color: var(--bs-body-color);
-            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 0.92rem;
-            min-height: 100vh;
-        }
+    <body>
+        <!-- 主內容容器 -->
+        <main class="container-fluid px-3 px-lg-4 py-3 mb-5 pb-4" style="min-height: calc(100vh - 120px);">
 
-        .navbar-hub {
-            background: linear-gradient(180deg, #160d29 0%, #0a0518 100%);
-            border-bottom: 1px solid var(--uvaco-border-color);
-        }
-
-        .card-custom {
-            background-color: var(--uvaco-bg-card);
-            border: 1px solid var(--uvaco-border-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        /* 標籤頁 (Nav Tabs) 核心版紫色美化 */
-        .nav-tabs-hub {
-            border-bottom: 2px solid var(--uvaco-border-color);
-            gap: 6px;
-        }
-        .nav-tabs-hub .nav-link {
-            color: var(--uvaco-text-muted);
-            border: 1px solid transparent;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            padding: 0.65rem 1.25rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        .nav-tabs-hub .nav-link:hover {
-            color: var(--uvaco-secondary);
-            border-color: rgba(192, 132, 252, 0.3) rgba(192, 132, 252, 0.3) transparent;
-            background-color: rgba(139, 92, 246, 0.05);
-        }
-        .nav-tabs-hub .nav-link.active {
-            color: #ffffff;
-            background-color: var(--uvaco-bg-card);
-            border-color: var(--uvaco-border-color) var(--uvaco-border-color) var(--uvaco-bg-card);
-            border-top: 3px solid var(--uvaco-primary);
-            font-weight: 700;
-        }
-
-        /* 表格微光樣式 */
-        .table-dark-custom {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--uvaco-text-primary);
-            --bs-table-border-color: var(--uvaco-border-color);
-            --bs-table-hover-bg: rgba(139, 92, 246, 0.08);
-            --bs-table-hover-color: #ffffff;
-        }
-        .table-dark-custom thead th {
-            background-color: var(--uvaco-bg-secondary);
-            color: var(--uvaco-secondary);
-            border-bottom: 2px solid var(--uvaco-border-color);
-            font-weight: 600;
-            font-size: 0.84rem;
-        }
-        .table-dark-custom td {
-            vertical-align: middle;
-            border-bottom: 1px solid rgba(192, 132, 252, 0.1);
-        }
-
-        .img-thumb-preview {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-            border-radius: 6px;
-            background-color: #ffffff;
-            border: 1px solid var(--uvaco-border-color);
-            padding: 2px;
-        }
-
-        .badge-type {
-            font-weight: 500;
-            padding: 0.3em 0.6em;
-            border-radius: 6px;
-            font-size: 0.76rem;
-            border: 1px solid transparent;
-        }
-
-        .badge-sv {
-            background-color: rgba(192, 132, 252, 0.15);
-            color: #c084fc;
-            border: 1px solid rgba(192, 132, 252, 0.4);
-            font-family: monospace;
-            font-weight: 700;
-            padding: 0.3em 0.6em;
-            border-radius: 6px;
-        }
-
-        .badge-price {
-            background-color: rgba(236, 72, 153, 0.12);
-            color: #f472b6;
-            border: 1px solid rgba(236, 72, 153, 0.35);
-            font-family: monospace;
-            font-weight: 700;
-            padding: 0.3em 0.6em;
-            border-radius: 6px;
-        }
-
-        .chart-card-container {
-            position: relative;
-            height: 280px;
-            width: 100%;
-        }
-
-        .form-control, .form-select {
-            background-color: var(--uvaco-bg-secondary);
-            border: 1px solid var(--uvaco-border-color);
-            color: var(--uvaco-text-primary);
-        }
-        .form-control:focus, .form-select:focus {
-            background-color: var(--uvaco-bg-secondary);
-            border-color: var(--uvaco-secondary);
-            color: var(--uvaco-text-primary);
-            box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
-        }
-
-        .btn-hub-primary {
-            background-color: var(--uvaco-primary);
-            border-color: var(--uvaco-primary);
-            color: #ffffff;
-        }
-        .btn-hub-primary:hover {
-            background-color: var(--uvaco-primary-hover);
-            border-color: var(--uvaco-primary-hover);
-            color: #ffffff;
-            box-shadow: 0 0 12px var(--uvaco-primary-glow);
-        }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-hub sticky-top">
-        <div class="container-fluid px-3 px-lg-4">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="home.html">
-                <i class="fa-solid fa-boxes-stacked text-primary me-2"></i> 榮祥團隊戰情室
-            </a>
-            <span class="badge bg-primary bg-opacity-25 text-secondary border border-primary border-opacity-50 ms-2 d-none d-sm-inline-block">
-                <i class="fa-solid fa-shield-halved"></i> 核心中樞 (/hub)
-            </span>
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <button class="btn btn-outline-secondary btn-sm" id="btnSyncGoogleSheet">
-                    <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
-                </button>
-                <button class="btn btn-hub-primary btn-sm" id="btnOpenNewProductModal">
-                    <i class="fa-solid fa-plus"></i> 新增產品主檔
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <main class="container-fluid px-3 px-lg-4 py-3">
-
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-1">
-                        <li class="breadcrumb-item"><a href="home.html" class="text-decoration-none text-muted"><i class="fa-solid fa-house"></i> 首頁</a></li>
-                        <li class="breadcrumb-item text-muted">產品管理</li>
-                        <li class="breadcrumb-item active text-secondary fw-bold" aria-current="page">產品資料 (H11000)</li>
-                    </ol>
-                </nav>
+            <!-- 頁面標題區（移除原「新增產品主檔」按鈕） -->
+            <section class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold mb-0 text-light">
                     <i class="fa-solid fa-box-open text-primary"></i> 產品資料與規格維護中台
                 </h4>
-            </div>
-            <div class="mt-2 mt-md-0 d-flex align-items-center gap-2">
-                <span class="badge bg-dark border border-secondary border-opacity-50 text-muted small" id="syncStatusBadge">
-                    <i class="fa-solid fa-cloud-arrow-down text-info"></i> 資料來源：Google 試算表連線中
-                </span>
-            </div>
-        </div>
+            </section>
 
-        <ul class="nav nav-tabs nav-tabs-hub mb-3" id="productCrudTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tab-master-link" data-bs-toggle="tab" data-bs-target="#tab-master" type="button" role="tab" aria-selected="true">
-                    <i class="fa-solid fa-boxes-stacked"></i> 產品主檔與規格詳情 (表04+05)
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-taxonomy-link" data-bs-toggle="tab" data-bs-target="#tab-taxonomy" type="button" role="tab" aria-selected="false">
-                    <i class="fa-solid fa-tags"></i> 系列與型態體系維護 (表01~03)
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-batch-link" data-bs-toggle="tab" data-bs-target="#tab-batch" type="button" role="tab" aria-selected="false">
-                    <i class="fa-solid fa-calculator"></i> 跨國批次定價與 SV (表04)
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-analytics-link" data-bs-toggle="tab" data-bs-target="#tab-analytics" type="button" role="tab" aria-selected="false">
-                    <i class="fa-solid fa-chart-pie"></i> 產品數據統計與分析
-                </button>
-            </li>
-        </ul>
+            <ul class="nav nav-tabs nav-tabs-hub mb-3" id="productCrudTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-master-link" data-bs-toggle="tab" data-bs-target="#tab-master" type="button" role="tab">
+                        <i class="fa-solid fa-boxes-stacked"></i> 產品主檔與詳細資料
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-taxonomy-link" data-bs-toggle="tab" data-bs-target="#tab-taxonomy" type="button" role="tab">
+                        <i class="fa-solid fa-tags"></i> 系列與型態維護
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-batch-link" data-bs-toggle="tab" data-bs-target="#tab-batch" type="button" role="tab">
+                        <i class="fa-solid fa-calculator"></i> 跨國批次定價與 SV
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-analytics-link" data-bs-toggle="tab" data-bs-target="#tab-analytics" type="button" role="tab">
+                        <i class="fa-solid fa-chart-pie"></i> 產品數據統計與分析
+                    </button>
+                </li>
+            </ul>
 
-        <div class="tab-content" id="productCrudTabsContent">
+            <section class="tab-content" id="productCrudTabsContent">
 
-            <div class="tab-pane fade show active" id="tab-master" role="tabpanel" aria-labelledby="tab-master-link">
-                <div class="card card-custom">
-                    <div class="card-body p-3 p-lg-4">
+                <!-- Tab 1: 主檔與詳細資料 -->
+                <div class="tab-pane fade show active" id="tab-master" role="tabpanel" aria-labelledby="tab-master-link">
+                    <div class="card card-custom">
+                        <div class="card-body p-3 p-lg-4">
 
-                        <div class="row g-2 mb-3 align-items-center">
-                            <div class="col-6 col-md-2">
-                                <select class="form-select form-select-sm" id="filterMasterRegion">
-                                    <option value="">全部營運地區</option>
-                                    <option value="TW">台灣 (TW)</option>
-                                    <option value="MY">馬來西亞 (MY)</option>
-                                </select>
+                            <!-- 篩選器與操作按鈕區（調整條件、移除重設按鈕、納入新增按鈕） -->
+                            <div class="row g-2 mb-3 align-items-center">
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="filterMasterRegion">
+                                        <option value="">全部營運地區</option>
+                                        <option value="TW">台灣 (TW)</option>
+                                        <option value="MY">馬來西亞 (MY)</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="filterMasterCategory">
+                                        <option value="">全部主系列</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="filterMasterSubcategory">
+                                        <option value="">全部次系列</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="filterMasterType">
+                                        <option value="">全部產品型態</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="filterMasterStock">
+                                        <option value="">全部庫存狀態</option>
+                                        <option value="IN_STOCK">現貨 (IN_STOCK)</option>
+                                        <option value="OUT_OF_STOCK">缺貨 (OUT_OF_STOCK)</option>
+                                        <option value="PRE_ORDER">預購 (PRE_ORDER)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-2 text-md-end">
+                                    <button class="btn btn-hub-primary btn-sm w-100" id="btnOpenNewProductModal">
+                                        <i class="fa-solid fa-plus"></i> 新增產品主檔
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-6 col-md-2">
-                                <select class="form-select form-select-sm" id="filterMasterType">
-                                    <option value="">全部產品型態</option>
-                                </select>
+
+                            <!-- 表格結構（調整為 11 個欄位） -->
+                            <div class="table-responsive">
+                                <table id="tableMasterProducts" class="table table-dark-custom align-middle w-100 nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" style="width: 46px;">縮圖</th>
+                                            <th>地區/編號</th>
+                                            <th>產品名稱</th>
+                                            <th>主系列</th>
+                                            <th>次系列</th>
+                                            <th>產品型態</th>
+                                            <th>包裝規格</th>
+                                            <th class="text-end">價格</th>
+                                            <th class="text-end">全球 SV</th>
+                                            <th class="text-center">庫存狀態</th>
+                                            <th class="text-center" style="width: 100px;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: 系列與型態體系維護 -->
+                <div class="tab-pane fade" id="tab-taxonomy" role="tabpanel" aria-labelledby="tab-taxonomy-link">
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-4">
+                            <div class="card card-custom h-100">
+                                <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-folder-tree text-primary"></i> 表 01 主系列</span>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="table-responsive" style="max-height: 520px;">
+                                        <table class="table table-dark-custom table-sm align-middle" id="tableCategories">
+                                            <thead>
+                                                <tr>
+                                                    <th>代碼</th>
+                                                    <th>中文系列名稱</th>
+                                                    <th>英文名稱</th>
+                                                    <th class="text-center">標籤顏色</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-4">
+                            <div class="card card-custom h-100">
+                                <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-layer-group text-secondary"></i> 表 02 次系列</span>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="table-responsive" style="max-height: 520px;">
+                                        <table class="table table-dark-custom table-sm align-middle" id="tableSubcategories">
+                                            <thead>
+                                                <tr>
+                                                    <th>代碼</th>
+                                                    <th>次系列名稱</th>
+                                                    <th>標籤顏色</th>
+                                                    <th class="text-center">操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-4">
+                            <div class="card card-custom h-100">
+                                <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-shapes text-info"></i> 表 03 產品型態</span>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="table-responsive" style="max-height: 520px;">
+                                        <table class="table table-dark-custom table-sm align-middle" id="tableTypes">
+                                            <thead>
+                                                <tr>
+                                                    <th>代碼</th>
+                                                    <th>產品型態名稱</th>
+                                                    <th>圖示與標籤</th>
+                                                    <th class="text-center">操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: 批次編輯 -->
+                <div class="tab-pane fade" id="tab-batch" role="tabpanel" aria-labelledby="tab-batch-link">
+                    <div class="card card-custom">
+                        <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-2 gap-2">
+                            <div>
+                                <span class="fw-bold text-light"><i class="fa-solid fa-pen-to-square text-accent"></i> 跨國價格、幣別與 SV 點數批次調整</span>
+                                <span class="text-muted small ms-2 d-none d-md-inline-block">修改完成後點擊右方批次儲存</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-hub-primary btn-sm" id="btnSaveBatchPrices">
+                                    <i class="fa-solid fa-floppy-disk"></i> 批次寫入儲存
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="table-responsive">
+                                <table class="table table-dark-custom table-sm align-middle w-100" id="tableBatchEditor">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 110px;">地區/貨號</th>
+                                            <th>官方品名</th>
+                                            <th>型態</th>
+                                            <th style="width: 140px;">經理價 (售價)</th>
+                                            <th style="width: 90px;">幣別</th>
+                                            <th style="width: 110px;">全球 SV 點數</th>
+                                            <th style="width: 130px;">供應狀態</th>
+                                            <th class="text-center" style="width: 80px;">有效上架</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: 統計圖表 -->
+                <div class="tab-pane fade" id="tab-analytics" role="tabpanel" aria-labelledby="tab-analytics-link">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card card-custom h-100 p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-primary"></i> 主系列分布</span>
+                                    <span class="badge badge-purple">表 01</span>
+                                </div>
+                                <div class="chart-card-container">
+                                    <canvas id="chartCategoryDist"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card card-custom h-100 p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-success"></i> 次系列分布</span>
+                                    <span class="badge badge-green">表 02</span>
+                                </div>
+                                <div class="chart-card-container">
+                                    <canvas id="chartSubcategoryDist"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card card-custom h-100 p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-info"></i> 產品型態分布</span>
+                                    <span class="badge badge-blue">表 03</span>
+                                </div>
+                                <div class="chart-card-container">
+                                    <canvas id="chartTypeDist"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card card-custom h-100 p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-arrow-down-wide-short text-danger"></i> 產品售價排行 (Top 5)</span>
+                                    <span class="badge badge-danger-subtle">價格維度</span>
+                                </div>
+                                <div class="chart-card-container">
+                                    <canvas id="chartPriceRank"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card card-custom h-100 p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-star text-warning"></i> 全球 SV 點數排行 (Top 5)</span>
+                                    <span class="badge badge-warning-subtle">SV 核心</span>
+                                </div>
+                                <div class="chart-card-container">
+                                    <canvas id="chartTopSvRank"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card card-custom h-100 p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light"><i class="fa-solid fa-cubes-stacked text-secondary"></i> 產品供應狀態統計</span>
+                                    <span class="badge badge-secondary-subtle">庫存維度</span>
+                                </div>
+                                <div class="chart-card-container">
+                                    <canvas id="chartStatusDist"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 統計指標摘要卡片 -->
+                    <div class="card card-custom p-3">
+                        <div class="row g-3 text-center">
+                            <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small"><i class="fa-solid fa-layer-group"></i> 總品項 SKU</div>
+                                <h4 class="fw-bold text-light mt-1 mb-0" id="statTotalSku">0</h4>
+                            </div>
+                            <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small"><i class="fa-solid fa-star text-warning"></i> 平均 SV 積分</div>
+                                <h4 class="fw-bold text-warning mt-1 mb-0" id="statAvgSv">0</h4>
+                            </div>
+                            <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small"><i class="fa-solid fa-globe text-primary"></i> 台灣 / 馬來西亞 SKU</div>
+                                <h4 class="fw-bold text-secondary mt-1 mb-0" id="statRegionRatio">-</h4>
                             </div>
                             <div class="col-6 col-md-3">
-                                <select class="form-select form-select-sm" id="filterMasterSubcategory">
-                                    <option value="">全部次系列</option>
-                                </select>
+                                <div class="text-muted small"><i class="fa-solid fa-boxes-packing text-success"></i> 現貨供應率</div>
+                                <h4 class="fw-bold text-success mt-1 mb-0" id="statStockRate">0%</h4>
                             </div>
-                            <div class="col-6 col-md-2">
-                                <select class="form-select form-select-sm" id="filterMasterStock">
-                                    <option value="">全部庫存狀態</option>
-                                    <option value="IN_STOCK">現貨 (IN_STOCK)</option>
-                                    <option value="OUT_OF_STOCK">缺貨 (OUT_OF_STOCK)</option>
-                                    <option value="PRE_ORDER">預購 (PRE_ORDER)</option>
-                                </select>
-                            </div>
-                            <div class="col-6 col-md-3 text-end">
-                                <button class="btn btn-outline-secondary btn-sm w-100" id="btnResetMasterFilters">
-                                    <i class="fa-solid fa-filter-circle-xmark"></i> 重設篩選條件
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table id="tableMasterProducts" class="table table-dark-custom align-middle w-100 nowrap">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center" style="width: 46px;">縮圖</th>
-                                        <th>地區/貨號</th>
-                                        <th>官方完整品名</th>
-                                        <th>產品型態</th>
-                                        <th>次系列歸屬</th>
-                                        <th>包裝規格</th>
-                                        <th class="text-end">經理價</th>
-                                        <th class="text-end">全球 SV</th>
-                                        <th class="text-center">狀態</th>
-                                        <th class="text-center" style="width: 100px;">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="tab-taxonomy" role="tabpanel" aria-labelledby="tab-taxonomy-link">
-                <div class="row g-3">
-
-                    <div class="col-12 col-lg-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
-                                <span class="fw-bold text-light"><i class="fa-solid fa-folder-tree text-primary"></i> 表 01 主系列</span>
-                                <button class="btn btn-outline-primary btn-sm py-0 px-2" id="btnAddCategory">
-                                    <i class="fa-solid fa-plus"></i> 新增
-                                </button>
-                            </div>
-                            <div class="card-body p-2">
-                                <div class="table-responsive" style="max-height: 520px;">
-                                    <table class="table table-dark-custom table-sm align-middle" id="tableCategories">
-                                        <thead>
-                                            <tr>
-                                                <th>代碼</th>
-                                                <th>中文系列名稱</th>
-                                                <th>英文名稱</th>
-                                                <th class="text-center">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
-                                <span class="fw-bold text-light"><i class="fa-solid fa-layer-group text-secondary"></i> 表 02 次系列</span>
-                                <button class="btn btn-outline-secondary btn-sm py-0 px-2" id="btnAddSubcategory">
-                                    <i class="fa-solid fa-plus"></i> 新增
-                                </button>
-                            </div>
-                            <div class="card-body p-2">
-                                <div class="table-responsive" style="max-height: 520px;">
-                                    <table class="table table-dark-custom table-sm align-middle" id="tableSubcategories">
-                                        <thead>
-                                            <tr>
-                                                <th>代碼</th>
-                                                <th>次系列名稱</th>
-                                                <th>標籤顏色</th>
-                                                <th class="text-center">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
-                                <span class="fw-bold text-light"><i class="fa-solid fa-shapes text-info"></i> 表 03 產品型態 (內外用)</span>
-                                <button class="btn btn-outline-info btn-sm py-0 px-2" id="btnAddType">
-                                    <i class="fa-solid fa-plus"></i> 新增
-                                </button>
-                            </div>
-                            <div class="card-body p-2">
-                                <div class="table-responsive" style="max-height: 520px;">
-                                    <table class="table table-dark-custom table-sm align-middle" id="tableTypes">
-                                        <thead>
-                                            <tr>
-                                                <th>代碼</th>
-                                                <th>產品型態名稱</th>
-                                                <th>圖示與標籤</th>
-                                                <th class="text-center">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="tab-batch" role="tabpanel" aria-labelledby="tab-batch-link">
-                <div class="card card-custom">
-                    <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-2 gap-2">
-                        <div>
-                            <span class="fw-bold text-light"><i class="fa-solid fa-pen-to-square text-accent"></i> 跨國價格、幣別與 SV 點數批次調整</span>
-                            <span class="text-muted small ms-2 d-none d-md-inline-block">修改完成後點擊右方批次儲存</span>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-secondary btn-sm" id="btnBatchCalcRate">
-                                <i class="fa-solid fa-calculator"></i> 依匯率推算 MYR
-                            </button>
-                            <button class="btn btn-hub-primary btn-sm" id="btnSaveBatchPrices">
-                                <i class="fa-solid fa-floppy-disk"></i> 批次寫入儲存
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="table-responsive">
-                            <table class="table table-dark-custom table-sm align-middle w-100" id="tableBatchEditor">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 110px;">地區/貨號</th>
-                                        <th>官方品名</th>
-                                        <th>型態</th>
-                                        <th style="width: 140px;">經理價 (售價)</th>
-                                        <th style="width: 90px;">幣別</th>
-                                        <th style="width: 110px;">全球 SV 點數</th>
-                                        <th style="width: 130px;">供應狀態</th>
-                                        <th class="text-center" style="width: 80px;">有效上架</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="tab-pane fade" id="tab-analytics" role="tabpanel" aria-labelledby="tab-analytics-link">
-                <div class="row g-3">
+            </section>
+        </main>
 
-                    <div class="col-12 col-md-6 col-xl-4">
-                        <div class="card card-custom h-100 p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-primary"></i> 產品次系列分佈</span>
-                                <span class="badge bg-primary bg-opacity-25 text-secondary border border-primary">品類結構</span>
-                            </div>
-                            <div class="chart-card-container">
-                                <canvas id="chartSubcategoryDist"></canvas>
-                            </div>
-                        </div>
+        <!-- 編輯彈窗 Modal (表 04 + 表 05 垂直分割維護) -->
+        <div class="modal fade" id="modalProductFullEdit" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content card-custom border-0 shadow-lg">
+                    <div class="modal-header border-bottom border-secondary border-opacity-25" style="background-color: var(--uvaco-bg-surface);">
+                        <h5 class="modal-title fw-bold text-light" id="productModalHeading">
+                            <i class="fa-solid fa-pen-to-square text-primary"></i> 編輯產品資料與規格詳情
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <div class="modal-body p-4">
+                        <form id="formFullProduct">
+                            <h6 class="text-secondary fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                                <i class="fa-solid fa-box"></i> 表 04 核心主檔 (prd_items)
+                            </h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">營運地區</label>
+                                    <select class="form-select form-select-sm" name="region_code" required>
+                                        <option value="TW">台灣 (TW)</option>
+                                        <option value="MY">馬來西亞 (MY)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">完整產品編號 (SKU)</label>
+                                    <input type="text" class="form-control form-control-sm" name="product_code" placeholder="例：TW0303001" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">跨國基本編號 (Base Code)</label>
+                                    <input type="text" class="form-control form-control-sm" name="base_code" placeholder="例：0303001" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">產品型態 (內外用)</label>
+                                    <select class="form-select form-select-sm" name="type_id" id="modalSelectType" required></select>
+                                </div>
 
-                    <div class="col-12 col-md-6 col-xl-4">
-                        <div class="card card-custom h-100 p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-light"><i class="fa-solid fa-shapes text-info"></i> 產品型態 (內外用) 統計</span>
-                                <span class="badge bg-info bg-opacity-10 text-info border border-info">型態分流</span>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">官方完整品名</label>
+                                    <input type="text" class="form-control form-control-sm" name="name" placeholder="例：貝益潔護效牙膏" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">產品簡稱 (卡片用)</label>
+                                    <input type="text" class="form-control form-control-sm" name="short_name" placeholder="例：貝益潔">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">次系列歸屬</label>
+                                    <select class="form-select form-select-sm" name="subcategory_id" id="modalSelectSubcategory" required></select>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">包裝規格</label>
+                                    <input type="text" class="form-control form-control-sm" name="package_spec" placeholder="例：140g x 3 盒／組">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">當地經理價 (售價)</label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm" name="price" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">幣別代碼</label>
+                                    <input type="text" class="form-control form-control-sm" name="currency" value="TWD" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">全球統一 SV 積分</label>
+                                    <input type="number" class="form-control form-control-sm" name="sv_point" required>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">列表專用縮圖網址 (Primary Image URL)</label>
+                                    <input type="url" class="form-control form-control-sm" name="primary_image_url" placeholder="https://...">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small fw-bold">供貨狀態</label>
+                                    <select class="form-select form-select-sm" name="stock_status">
+                                        <option value="IN_STOCK">現貨 (IN_STOCK)</option>
+                                        <option value="OUT_OF_STOCK">缺貨 (OUT_OF_STOCK)</option>
+                                        <option value="PRE_ORDER">預購 (PRE_ORDER)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3 d-flex align-items-end gap-3 pb-1">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="is_featured" id="modalIsFeatured">
+                                        <label class="form-check-label small fw-bold" for="modalIsFeatured">明星商品</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="modalIsActive" checked>
+                                        <label class="form-check-label small fw-bold" for="modalIsActive">有效上架</label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="chart-card-container">
-                                <canvas id="chartTypeDist"></canvas>
+
+                            <h6 class="text-secondary fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                                <i class="fa-solid fa-file-lines"></i> 表 05 1:1 垂直分割詳細資料 (prd_details)
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">1:1 高解析大圖網址 (HD Image URL)</label>
+                                    <input type="url" class="form-control form-control-sm" name="hd_image_url" placeholder="https://...">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">葡眾官方產品連結 (Official Site URL)</label>
+                                    <input type="url" class="form-control form-control-sm" name="official_site_url" placeholder="https://www.uvaco.com.tw/...">
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">官方認證字號 / SNQ 標章 (Certifications)</label>
+                                    <input type="text" class="form-control form-control-sm" name="certifications" placeholder="例：衛部健食字第A00000號">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">亮點短語標籤 (以半形逗號分隔)</label>
+                                    <input type="text" class="form-control form-control-sm" name="phrase_tags" placeholder="例：專利菌株,調整體質,無防腐劑">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">建議食用 / 使用情境 (Usage Scenarios)</label>
+                                    <textarea class="form-control form-control-sm" name="usage_scenarios" rows="2" placeholder="例：早晚各一次，搭配溫開水..."></textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">完整原料與主成分清單 (Ingredients)</label>
+                                    <textarea class="form-control form-control-sm" name="ingredients" rows="3" placeholder="例：植物乳桿菌、雙歧桿菌..."></textarea>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
-
-                    <div class="col-12 col-md-12 col-xl-4">
-                        <div class="card card-custom h-100 p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-light"><i class="fa-solid fa-star text-warning"></i> 全球 SV 考核點數排行</span>
-                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Top 5 核心</span>
-                            </div>
-                            <div class="chart-card-container">
-                                <canvas id="chartTopSvRank"></canvas>
-                            </div>
-                        </div>
+                    <div class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-hub-primary btn-sm" id="btnSaveFullProduct">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存所有異動
+                        </button>
                     </div>
-
-                    <div class="col-12">
-                        <div class="card card-custom p-3">
-                            <div class="row g-3 text-center">
-                                <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
-                                    <div class="text-muted small"><i class="fa-solid fa-layer-group"></i> 總品項 SKU</div>
-                                    <h4 class="fw-bold text-light mt-1 mb-0" id="statTotalSku">0</h4>
-                                </div>
-                                <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
-                                    <div class="text-muted small"><i class="fa-solid fa-star text-warning"></i> 平均 SV 積分</div>
-                                    <h4 class="fw-bold text-warning mt-1 mb-0" id="statAvgSv">0</h4>
-                                </div>
-                                <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
-                                    <div class="text-muted small"><i class="fa-solid fa-globe text-primary"></i> 台灣 / 馬來西亞 SKU</div>
-                                    <h4 class="fw-bold text-secondary mt-1 mb-0" id="statRegionRatio">-</h4>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="text-muted small"><i class="fa-solid fa-boxes-packing text-success"></i> 現貨供應率</div>
-                                    <h4 class="fw-bold text-success mt-1 mb-0" id="statStockRate">0%</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-    </main>
-
-    <div class="modal fade" id="modalProductFullEdit" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content card-custom border-0 shadow-lg">
-                <div class="modal-header border-bottom border-secondary border-opacity-25" style="background-color: var(--uvaco-bg-secondary);">
-                    <h5 class="modal-title fw-bold text-light" id="productModalHeading">
-                        <i class="fa-solid fa-pen-to-square text-primary"></i> 編輯產品資料與規格詳情
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form id="formFullProduct">
-                        <h6 class="text-secondary fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                            <i class="fa-solid fa-box"></i> 表 04 核心主檔 (prd_items)
-                        </h6>
-                        <div class="row g-3 mb-4">
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">營運地區</label>
-                                <select class="form-select form-select-sm" name="region_code" required>
-                                    <option value="TW">台灣 (TW)</option>
-                                    <option value="MY">馬來西亞 (MY)</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">完整產品編號 (SKU)</label>
-                                <input type="text" class="form-control form-control-sm" name="product_code" placeholder="例：TW0303001" required>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">跨國基本編號 (Base Code)</label>
-                                <input type="text" class="form-control form-control-sm" name="base_code" placeholder="例：0303001" required>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">產品型態 (內外用)</label>
-                                <select class="form-select form-select-sm" name="type_id" id="modalSelectType" required></select>
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold">官方完整品名</label>
-                                <input type="text" class="form-control form-control-sm" name="name" placeholder="例：貝益潔護效牙膏" required>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">產品簡稱 (卡片用)</label>
-                                <input type="text" class="form-control form-control-sm" name="short_name" placeholder="例：貝益潔">
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">次系列歸屬</label>
-                                <select class="form-select form-select-sm" name="subcategory_id" id="modalSelectSubcategory" required></select>
-                            </div>
-
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">包裝規格</label>
-                                <input type="text" class="form-control form-control-sm" name="package_spec" placeholder="例：140g x 3 盒／組">
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">當地經理價 (售價)</label>
-                                <input type="number" step="0.01" class="form-control form-control-sm" name="price" required>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">幣別代碼</label>
-                                <input type="text" class="form-control form-control-sm" name="currency" value="TWD" required>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">全球統一 SV 積分</label>
-                                <input type="number" class="form-control form-control-sm" name="sv_point" required>
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold">列表專用縮圖網址 (Primary Image URL)</label>
-                                <input type="url" class="form-control form-control-sm" name="primary_image_url" placeholder="https://...">
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small fw-bold">供貨狀態</label>
-                                <select class="form-select form-select-sm" name="stock_status">
-                                    <option value="IN_STOCK">現貨 (IN_STOCK)</option>
-                                    <option value="OUT_OF_STOCK">缺貨 (OUT_OF_STOCK)</option>
-                                    <option value="PRE_ORDER">預購 (PRE_ORDER)</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3 d-flex align-items-end gap-3 pb-1">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="is_featured" id="modalIsFeatured">
-                                    <label class="form-check-label small fw-bold" for="modalIsFeatured">明星商品</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="is_active" id="modalIsActive" checked>
-                                    <label class="form-check-label small fw-bold" for="modalIsActive">有效上架</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h6 class="text-secondary fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                            <i class="fa-solid fa-file-lines"></i> 表 05 1:1 垂直分割詳細資料 (prd_details)
-                        </h6>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold">1:1 高解析大圖網址 (HD Image URL)</label>
-                                <input type="url" class="form-control form-control-sm" name="hd_image_url" placeholder="https://...">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold">葡眾官方產品連結 (Official Site URL)</label>
-                                <input type="url" class="form-control form-control-sm" name="official_site_url" placeholder="https://www.uvaco.com.tw/...">
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold">官方認證字號 / SNQ 標章 (Certifications)</label>
-                                <input type="text" class="form-control form-control-sm" name="certifications" placeholder="例：衛部健食字第A00000號">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small fw-bold">亮點短語標籤 (以半形逗號分隔)</label>
-                                <input type="text" class="form-control form-control-sm" name="phrase_tags" placeholder="例：專利菌株,調整體質,無防腐劑">
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label small fw-bold">建議食用 / 使用情境 (Usage Scenarios)</label>
-                                <textarea class="form-control form-control-sm" name="usage_scenarios" rows="2" placeholder="例：早晚各一次，搭配溫開水..."></textarea>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label small fw-bold">完整原料與主成分清單 (Ingredients)</label>
-                                <textarea class="form-control form-control-sm" name="ingredients" rows="3" placeholder="例：植物乳桿菌、雙歧桿菌..."></textarea>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-secondary);">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                        <i class="fa-solid fa-xmark"></i> 取消
-                    </button>
-                    <button type="button" class="btn btn-hub-primary btn-sm" id="btnSaveFullProduct">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存所有異動
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-    <script>
-        /**
-         * 榮祥團隊 產品資料中台 (ProductWorkspaceApp)
-         * 整合 Google 試算表 GViz / PapaParse 解耦抓取、4 頁籤 CRUD 與 Chart.js 獨立圖表
-         */
-        const ProductWorkspaceApp = (function ($) {
-            'use strict';
-
-            // Google 試算表設定 (若要直接讀取外部試算表，替換 SPREADSHEET_ID 即可)
-            const SPREADSHEET_CONFIG = {
-                sheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms', // 範例/預留 ID
-                sheets: {
-                    items: 'prd_items',
-                    categories: 'prd_categories',
-                    subcategories: 'prd_subcategories',
-                    types: 'prd_types'
-                }
-            };
-
-            // 欄位解耦對照字典 (sys_api_configs 模式)
-            const FIELD_MAPPINGS = {
-                id: ['ID', '序號', 'id'],
-                region_code: ['地區代碼', '地區', 'region_code', '國家'],
-                base_code: ['跨國基本編號', '基本貨號', 'base_code'],
-                product_code: ['產品編號', 'SKU', 'product_code', '貨號'],
-                name: ['產品名稱', '官方品名', 'name', '品名'],
-                short_name: ['產品簡稱', '簡稱', 'short_name'],
-                type_id: ['型態ID', 'type_id', '產品型態ID'],
-                subcategory_id: ['次系列ID', 'subcategory_id', '系列ID'],
-                package_spec: ['包裝規格', '規格', 'package_spec'],
-                price: ['售價', '經理價', 'price', '價格'],
-                currency: ['幣別', 'currency'],
-                sv_point: ['全球 SV', 'SV', 'sv_point', 'SV點數'],
-                primary_image_url: ['圖片網址', '縮圖', 'primary_image_url'],
-                is_featured: ['是否明星商品', '明星商品', 'is_featured'],
-                stock_status: ['庫存狀態', 'stock_status', '供應狀態'],
-                is_active: ['是否有效', '有效', 'is_active', '上架狀態'],
-                hd_image_url: ['高清大圖', 'hd_image_url'],
-                official_site_url: ['官方連結', 'official_site_url'],
-                certifications: ['認證字號', 'certifications', 'SNQ'],
-                phrase_tags: ['短語標籤', 'phrase_tags'],
-                usage_scenarios: ['食用情境', '使用方法', 'usage_scenarios'],
-                ingredients: ['成分原料', 'ingredients', '原料清單']
-            };
-
-            // 預設/備援種子資料 (Fallback Data)
-            let categories = [
-                { id: 1, category_code: '01', name_zh: '保健食品', name_en: 'Nutritional Supplements', icon_class: 'fa-solid fa-heart-pulse' },
-                { id: 2, category_code: '02', name_zh: '寵愛毛孩', name_en: 'Pet Care', icon_class: 'fa-solid fa-paw' },
-                { id: 3, category_code: '03', name_zh: '健康生活', name_en: 'Wellness Lifestyle', icon_class: 'fa-solid fa-spa' },
-                { id: 4, category_code: '04', name_zh: '個人保養', name_en: 'Personal Care', icon_class: 'fa-solid fa-spray-can-sparkles' }
-            ];
-
-            let subcategories = [
-                { id: 1, category_id: 1, subcategory_code: '0101', name_zh: '全能防護', text_color: '#02BB36', icon_class: 'fa-solid fa-shield-halved' },
-                { id: 2, category_id: 1, subcategory_code: '0102', name_zh: '關鍵調理', text_color: '#01769A', icon_class: 'fa-solid fa-dna' },
-                { id: 3, category_id: 1, subcategory_code: '0103', name_zh: '順暢保衛', text_color: '#045DB1', icon_class: 'fa-solid fa-arrows-rotate' },
-                { id: 4, category_id: 1, subcategory_code: '0104', name_zh: '強健靈活', text_color: '#FB5503', icon_class: 'fa-solid fa-bone' },
-                { id: 5, category_id: 1, subcategory_code: '0105', name_zh: '活力丰采', text_color: '#772DB5', icon_class: 'fa-solid fa-sun' },
-                { id: 13, category_id: 3, subcategory_code: '0303', name_zh: '口腔護理', text_color: '#38AFDB', icon_class: 'fa-solid fa-tooth' },
-                { id: 12, category_id: 3, subcategory_code: '0302', name_zh: '身體護理', text_color: '#44BEAA', icon_class: 'fa-solid fa-hand-holding-heart' }
-            ];
-
-            let productTypes = [
-                { id: 1, type_code: '0101', name_zh: '益生菌', name_en: 'Probiotics', icon_class: 'fa-solid fa-bacteria', text_color: '#34d399' },
-                { id: 2, type_code: '0201', name_zh: '膠囊', name_en: 'Capsules', icon_class: 'fa-solid fa-capsules', text_color: '#38bdf8' },
-                { id: 3, type_code: '0301', name_zh: '沖泡飲', name_en: 'Powder Drinks', icon_class: 'fa-solid fa-mug-saucer', text_color: '#fbbf24' },
-                { id: 4, type_code: '0302', name_zh: '液態飲', name_en: 'Liquid Drinks', icon_class: 'fa-solid fa-droplet', text_color: '#60a5fa' },
-                { id: 5, type_code: '0401', name_zh: '外用保養', name_en: 'Skincare', icon_class: 'fa-solid fa-leaf', text_color: '#f472b6' },
-                { id: 6, type_code: '0402', name_zh: '清潔', name_en: 'Cleansers', icon_class: 'fa-solid fa-pump-soap', text_color: '#22d3ee' },
-                { id: 7, type_code: '0403', name_zh: '口腔照護', name_en: 'Oral Care', icon_class: 'fa-solid fa-tooth', text_color: '#818cf8' },
-                { id: 8, type_code: '0501', name_zh: '特殊', name_en: 'Specialty', icon_class: 'fa-solid fa-boxes-packing', text_color: '#f87171' }
-            ];
-
-            let products = [
-                {
-                    id: 1, region_code: 'TW', base_code: '0101001', product_code: 'TW0101001', name: '995生技營養品', short_name: '995',
-                    type_id: 4, subcategory_id: 1, package_spec: '180ml x 24 瓶／箱', price: 5980, currency: 'TWD', sv_point: 164,
-                    primary_image_url: 'https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/assets/images/product/imagery/TW0101001_995_20260205_1.png',
-                    is_featured: true, stock_status: 'IN_STOCK', is_active: true,
-                    hd_image_url: '', certifications: 'SNQ國家品質標章認證', usage_scenarios: '每日1~2次，飯前溫飲',
-                    phrase_tags: '生技營養,體力滋補,專利大豆發酵', ingredients: '大豆發酵液、綜合胺基酸、靈芝菌絲體'
-                },
-                {
-                    id: 2, region_code: 'TW', base_code: '0101003', product_code: 'TW0101003', name: '康爾喜乳酸菌顆粒', short_name: '康爾喜',
-                    type_id: 1, subcategory_id: 1, package_spec: '90 條／盒', price: 1890, currency: 'TWD', sv_point: 52,
-                    primary_image_url: 'https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/assets/images/product/imagery/TW0101003_康爾喜_20251016_1.png',
-                    is_featured: true, stock_status: 'IN_STOCK', is_active: true,
-                    hd_image_url: '', certifications: '專利菌株字號', usage_scenarios: '每日1~3包，直接倒入口中',
-                    phrase_tags: '13株複合菌,專利包埋技術', ingredients: '乳酸菌複合粉、異麥芽寡醣'
-                },
-                {
-                    id: 3, region_code: 'TW', base_code: '0303001', product_code: 'TW0303001', name: '貝益潔護效牙膏', short_name: '貝益潔',
-                    type_id: 7, subcategory_id: 13, package_spec: '140g x 3 盒／組', price: 700, currency: 'TWD', sv_point: 20,
-                    primary_image_url: 'https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/assets/images/product/imagery/TW0303001_貝益潔護效牙膏_20260504_1.png',
-                    is_featured: false, stock_status: 'IN_STOCK', is_active: true,
-                    hd_image_url: '', certifications: '無三氯沙安全檢驗', usage_scenarios: '配合正確刷牙習慣，每日至少2次',
-                    phrase_tags: '溫和亮白,口氣清新,無刺激界面活性劑', ingredients: '單氟磷酸鈉、生物萃取物、木糖醇'
-                },
-                {
-                    id: 4, region_code: 'MY', base_code: '0102001', product_code: 'MY0102001', name: 'Liprofac', short_name: 'Liprofac',
-                    type_id: 2, subcategory_id: 2, package_spec: '120 caps / btl', price: 416, currency: 'MYR', sv_point: 83,
-                    primary_image_url: 'https://cdn.jsdelivr.net/gh/Jarvis0301/ray-jarvis-team@main/assets/images/product/imagery/MY0102001_Liprofac_20260521_1.png',
-                    is_featured: true, stock_status: 'IN_STOCK', is_active: true,
-                    hd_image_url: '', certifications: '馬來西亞KKM認證', usage_scenarios: 'Daily 2 capsules after meals',
-                    phrase_tags: 'Targeted Care,Metabolic Balance', ingredients: 'Plant extracts, Probiotics'
-                }
-            ];
-
-            let dtMaster = null;
-            let chartInstances = {};
-
-            /**
-             * 字典取值工具
-             */
-            function getTypeById(id) {
-                return productTypes.find(t => t.id === Number(id)) || { name_zh: '未指定', icon_class: 'fa-tag', text_color: '#a1a1aa' };
-            }
-            function getSubcatById(id) {
-                return subcategories.find(s => s.id === Number(id)) || { name_zh: '未分類', text_color: '#c084fc', icon_class: 'fa-folder' };
-            }
-
-            /**
-             * 欄位解耦中介轉換器 (Decoupled Transformer)
-             */
-            function normalizeRawObject(rawObj) {
-                const canonical = {};
-                for (const [key, aliases] of Object.entries(FIELD_MAPPINGS)) {
-                    canonical[key] = null;
-                    for (const alias of aliases) {
-                        if (rawObj[alias] !== undefined && rawObj[alias] !== null && rawObj[alias] !== '') {
-                            canonical[key] = rawObj[alias];
-                            break;
-                        }
-                    }
-                }
-                canonical.id = Number(canonical.id) || Date.now();
-                canonical.price = parseFloat(canonical.price) || 0.0;
-                canonical.sv_point = parseInt(canonical.sv_point, 10) || 0;
-                canonical.type_id = Number(canonical.type_id) || 1;
-                canonical.subcategory_id = Number(canonical.subcategory_id) || 1;
-                canonical.is_active = (canonical.is_active === 'Y' || canonical.is_active === 'TRUE' || canonical.is_active === true);
-                canonical.is_featured = (canonical.is_featured === 'Y' || canonical.is_featured === 'TRUE' || canonical.is_featured === true);
-                canonical.stock_status = canonical.stock_status || 'IN_STOCK';
-                canonical.primary_image_url = canonical.primary_image_url || 'https://via.placeholder.com/150/1a122d/c084fc?text=No+Image';
-                return canonical;
-            }
-
-            /**
-             * 透過 PapaParse 與 GViz 抓取 Google 試算表
-             */
-            function fetchGoogleSheetData(sheetName, callback) {
-                const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_CONFIG.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-
-                Papa.parse(gvizUrl, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function (results) {
-                        if (results.data && results.data.length > 0) {
-                            const normalized = results.data.map(normalizeRawObject);
-                            callback(null, normalized);
-                        } else {
-                            callback(new Error('試算表內容為空'));
-                        }
-                    },
-                    error: function (err) {
-                        callback(err);
-                    }
-                });
-            }
-
-            /**
-             * 裝填下拉選單
-             */
-            function populateSelects() {
-                const $filterMasterType = $('#filterMasterType');
-                const $modalSelectType = $('#modalSelectType');
-                $filterMasterType.find('option:not(:first)').remove();
-                $modalSelectType.empty();
-
-                productTypes.forEach(t => {
-                    $filterMasterType.append(`<option value="${t.id}">${t.name_zh} (${t.name_en || ''})</option>`);
-                    $modalSelectType.append(`<option value="${t.id}">${t.name_zh} (${t.name_en || ''})</option>`);
-                });
-
-                const $filterMasterSubcategory = $('#filterMasterSubcategory');
-                const $modalSelectSubcategory = $('#modalSelectSubcategory');
-                $filterMasterSubcategory.find('option:not(:first)').remove();
-                $modalSelectSubcategory.empty();
-
-                subcategories.forEach(s => {
-                    $filterMasterSubcategory.append(`<option value="${s.id}">${s.name_zh}</option>`);
-                    $modalSelectSubcategory.append(`<option value="${s.id}">${s.name_zh}</option>`);
-                });
-            }
-
-            /**
-             * Tab 1: 初始化產品主檔 DataTable
-             */
-            function initMasterTable() {
-                if ($.fn.DataTable.isDataTable('#tableMasterProducts')) {
-                    $('#tableMasterProducts').DataTable().destroy();
-                }
-
-                dtMaster = $('#tableMasterProducts').DataTable({
-                    data: products,
-                    responsive: true,
-                    pageLength: 10,
-                    order: [[1, 'asc']],
-                    language: {
-                        url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-TW.json'
-                    },
-                    columns: [
-                        {
-                            data: 'primary_image_url',
-                            className: 'text-center',
-                            orderable: false,
-                            render: function (data, type, row) {
-                                return `<img src="${data}" alt="${row.name}" class="img-thumb-preview" onerror="this.src='https://via.placeholder.com/42/1a122d/c084fc?text=NA'">`;
-                            }
-                        },
-                        {
-                            data: 'product_code',
-                            render: function (data, type, row) {
-                                const badgeClass = row.region_code === 'TW' ? 'border-primary text-secondary' : 'border-danger text-danger';
-                                return `<div>
-                                            <span class="badge bg-dark border ${badgeClass} me-1">${row.region_code}</span>
-                                            <span class="fw-bold font-monospace text-light">${data}</span>
-                                        </div>
-                                        <div class="text-muted small">基本號: ${row.base_code || '-'}</div>`;
-                            }
-                        },
-                        {
-                            data: 'name',
-                            render: function (data, type, row) {
-                                const star = row.is_featured ? ' <i class="fa-solid fa-star text-warning" title="明星商品"></i>' : '';
-                                return `<div class="fw-bold text-light">${data}${star}</div>
-                                        <div class="text-muted small">${row.short_name ? `簡稱: ${row.short_name}` : ''}</div>`;
-                            }
-                        },
-                        {
-                            data: 'type_id',
-                            render: function (data) {
-                                const t = getTypeById(data);
-                                return `<span class="badge badge-type" style="color: ${t.text_color}; background-color: ${t.text_color}18; border-color: ${t.text_color}40;">
-                                            <i class="${t.icon_class}"></i> ${t.name_zh}
-                                        </span>`;
-                            }
-                        },
-                        {
-                            data: 'subcategory_id',
-                            render: function (data) {
-                                const s = getSubcatById(data);
-                                return `<span class="badge" style="color: ${s.text_color}; background-color: ${s.text_color}18; border: 1px solid ${s.text_color}40;">
-                                            <i class="${s.icon_class}"></i> ${s.name_zh}
-                                        </span>`;
-                            }
-                        },
-                        {
-                            data: 'package_spec',
-                            render: data => `<span class="text-muted small font-monospace">${data || '-'}</span>`
-                        },
-                        {
-                            data: 'price',
-                            className: 'text-end',
-                            render: (data, type, row) => `<span class="badge-price">${row.currency} $${Number(data).toLocaleString()}</span>`
-                        },
-                        {
-                            data: 'sv_point',
-                            className: 'text-end',
-                            render: data => `<span class="badge-sv">${data} SV</span>`
-                        },
-                        {
-                            data: 'stock_status',
-                            className: 'text-center',
-                            render: function (data, type, row) {
-                                let stockBadge = '';
-                                if (data === 'IN_STOCK') stockBadge = '<span class="badge bg-success bg-opacity-25 text-success border border-success">現貨</span>';
-                                else if (data === 'OUT_OF_STOCK') stockBadge = '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger">缺貨</span>';
-                                else stockBadge = '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning">預購</span>';
-
-                                const activeBadge = row.is_active
-                                    ? '<span class="text-success ms-1" title="有效上架"><i class="fa-solid fa-circle-check"></i></span>'
-                                    : '<span class="text-muted ms-1" title="已封存"><i class="fa-solid fa-circle-xmark"></i></span>';
-
-                                return `<div>${stockBadge}${activeBadge}</div>`;
-                            }
-                        },
-                        {
-                            data: null,
-                            className: 'text-center',
-                            orderable: false,
-                            render: function () {
-                                return `<button class="btn btn-outline-secondary btn-sm btn-edit-full" title="完整維護主檔與 1:1 規格">
-                                            <i class="fa-solid fa-pen-to-square text-primary"></i> 編輯
-                                        </button>`;
-                            }
-                        }
-                    ]
-                });
-
-                $('#tableMasterProducts tbody').on('click', '.btn-edit-full', function () {
-                    const rowData = dtMaster.row($(this).parents('tr')).data();
-                    if (!rowData) return;
-                    openProductEditModal(rowData);
-                });
-            }
-
-            /**
-             * Tab 2: 渲染系列與型態體系 (表 01 ~ 03)
-             */
-            function renderTaxonomyTables() {
-                const $catTbody = $('#tableCategories tbody').empty();
-                categories.forEach(c => {
-                    $catTbody.append(`
-                        <tr>
-                            <td><span class="font-monospace text-secondary">${c.category_code}</span></td>
-                            <td class="fw-bold text-light"><i class="${c.icon_class || 'fa-solid fa-folder'} text-primary me-1"></i> ${c.name_zh}</td>
-                            <td class="text-muted small">${c.name_en || '-'}</td>
-                            <td class="text-center">
-                                <button class="btn btn-link btn-sm text-primary p-0" onclick="alert('開啟表 01 編輯：${c.name_zh}')"><i class="fa-solid fa-pen"></i></button>
-                            </td>
-                        </tr>
-                    `);
-                });
-
-                const $subcatTbody = $('#tableSubcategories tbody').empty();
-                subcategories.forEach(s => {
-                    $subcatTbody.append(`
-                        <tr>
-                            <td><span class="font-monospace text-secondary">${s.subcategory_code}</span></td>
-                            <td class="fw-bold text-light">${s.name_zh}</td>
-                            <td>
-                                <span class="badge" style="color: ${s.text_color}; background-color: ${s.text_color}20; border: 1px solid ${s.text_color};">
-                                    <i class="${s.icon_class}"></i> ${s.text_color}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-link btn-sm text-secondary p-0" onclick="alert('開啟表 02 編輯：${s.name_zh}')"><i class="fa-solid fa-pen"></i></button>
-                            </td>
-                        </tr>
-                    `);
-                });
-
-                const $typeTbody = $('#tableTypes tbody').empty();
-                productTypes.forEach(t => {
-                    $typeTbody.append(`
-                        <tr>
-                            <td><span class="font-monospace text-secondary">${t.type_code}</span></td>
-                            <td class="fw-bold text-light">${t.name_zh}</td>
-                            <td>
-                                <span class="badge badge-type" style="color: ${t.text_color}; background-color: ${t.text_color}20; border-color: ${t.text_color};">
-                                    <i class="${t.icon_class}"></i> ${t.name_en || t.name_zh}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-link btn-sm text-info p-0" onclick="alert('開啟表 03 型態編輯：${t.name_zh}')"><i class="fa-solid fa-pen"></i></button>
-                            </td>
-                        </tr>
-                    `);
-                });
-            }
-
-            /**
-             * Tab 3: 渲染跨國批次調價與 SV 編輯器
-             */
-            function renderBatchEditorTable() {
-                const $tbody = $('#tableBatchEditor tbody').empty();
-                products.forEach(p => {
-                    const typeObj = getTypeById(p.type_id);
-                    $tbody.append(`
-                        <tr data-product-id="${p.id}">
-                            <td>
-                                <span class="badge bg-dark border ${p.region_code === 'TW' ? 'border-primary text-secondary' : 'border-danger text-danger'} me-1">${p.region_code}</span>
-                                <span class="font-monospace fw-bold text-light">${p.product_code}</span>
-                            </td>
-                            <td class="fw-bold text-light">${p.name}</td>
-                            <td><span class="badge badge-type" style="color: ${typeObj.text_color}; background-color: ${typeObj.text_color}18;">${typeObj.name_zh}</span></td>
-                            <td>
-                                <input type="number" step="0.01" class="form-control form-control-sm batch-input-price font-monospace text-end" value="${p.price}">
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm batch-input-currency font-monospace text-center" value="${p.currency}">
-                            </td>
-                            <td>
-                                <input type="number" class="form-control form-control-sm batch-input-sv font-monospace text-end" value="${p.sv_point}">
-                            </td>
-                            <td>
-                                <select class="form-select form-select-sm batch-select-stock">
-                                    <option value="IN_STOCK" ${p.stock_status === 'IN_STOCK' ? 'selected' : ''}>現貨</option>
-                                    <option value="OUT_OF_STOCK" ${p.stock_status === 'OUT_OF_STOCK' ? 'selected' : ''}>缺貨</option>
-                                    <option value="PRE_ORDER" ${p.stock_status === 'PRE_ORDER' ? 'selected' : ''}>預購</option>
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <input class="form-check-input batch-check-active" type="checkbox" ${p.is_active ? 'checked' : ''}>
-                            </td>
-                        </tr>
-                    `);
-                });
-            }
-
-            /**
-             * Tab 4: 渲染獨立統計圖表 (Chart.js)
-             */
-            function renderAnalyticsCharts() {
-                // 1. 摘要指標計算
-                const total = products.length;
-                const totalSv = products.reduce((sum, p) => sum + p.sv_point, 0);
-                const avgSv = total > 0 ? (totalSv / total).toFixed(1) : 0;
-                const twCount = products.filter(p => p.region_code === 'TW').length;
-                const inStockCount = products.filter(p => p.stock_status === 'IN_STOCK').length;
-                const stockRate = total > 0 ? Math.round((inStockCount / total) * 100) : 0;
-
-                $('#statTotalSku').text(total);
-                $('#statAvgSv').text(`${avgSv} SV`);
-                $('#statRegionRatio').text(`TW: ${twCount} / MY: ${total - twCount}`);
-                $('#statStockRate').text(`${stockRate}%`);
-
-                // 2. 次系列統計甜甜圈圖
-                const subcatCounts = {};
-                products.forEach(p => {
-                    const s = getSubcatById(p.subcategory_id);
-                    subcatCounts[s.name_zh] = (subcatCounts[s.name_zh] || 0) + 1;
-                });
-
-                if (chartInstances.subcat) chartInstances.subcat.destroy();
-                const ctxSubcat = document.getElementById('chartSubcategoryDist').getContext('2d');
-                chartInstances.subcat = new Chart(ctxSubcat, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(subcatCounts),
-                        datasets: [{
-                            data: Object.values(subcatCounts),
-                            backgroundColor: ['#02BB36', '#01769A', '#045DB1', '#FB5503', '#772DB5', '#38AFDB'],
-                            borderColor: '#1a122d',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: '#c084fc', boxWidth: 10, font: { family: "'Noto Sans TC', sans-serif", size: 10 } }
-                            }
-                        }
-                    }
-                });
-
-                // 3. 產品型態 (內外用) 佔比長條圖
-                const typeCounts = {};
-                products.forEach(p => {
-                    const t = getTypeById(p.type_id);
-                    typeCounts[t.name_zh] = (typeCounts[t.name_zh] || 0) + 1;
-                });
-
-                if (chartInstances.type) chartInstances.type.destroy();
-                const ctxType = document.getElementById('chartTypeDist').getContext('2d');
-                chartInstances.type = new Chart(ctxType, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(typeCounts),
-                        datasets: [{
-                            label: '品項數量',
-                            data: Object.values(typeCounts),
-                            backgroundColor: '#8b5cf6',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            x: { ticks: { color: '#a1a1aa', font: { size: 10 } }, grid: { display: false } },
-                            y: { ticks: { color: '#a1a1aa', stepSize: 1 }, grid: { color: 'rgba(192, 132, 252, 0.1)' } }
-                        }
-                    }
-                });
-
-                // 4. Top 5 SV 考核排行
-                const topProducts = [...products].sort((a, b) => b.sv_point - a.sv_point).slice(0, 5);
-                if (chartInstances.topSv) chartInstances.topSv.destroy();
-                const ctxTopSv = document.getElementById('chartTopSvRank').getContext('2d');
-                chartInstances.topSv = new Chart(ctxTopSv, {
-                    type: 'bar',
-                    data: {
-                        labels: topProducts.map(p => p.short_name || p.name),
-                        datasets: [{
-                            label: 'SV 點數',
-                            data: topProducts.map(p => p.sv_point),
-                            backgroundColor: '#ec4899',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                            y: { ticks: { color: '#c084fc', font: { size: 10 } }, grid: { display: false } }
-                        }
-                    }
-                });
-            }
-
-            /**
-             * 開啟編輯 Modal
-             */
-            function openProductEditModal(item) {
-                const form = document.getElementById('formFullProduct');
-                form.reset();
-
-                if (item) {
-                    $('#productModalHeading').html(`<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯產品：${item.name} (${item.product_code})`);
-                    form.elements['region_code'].value = item.region_code;
-                    form.elements['product_code'].value = item.product_code;
-                    form.elements['base_code'].value = item.base_code;
-                    form.elements['type_id'].value = item.type_id;
-                    form.elements['name'].value = item.name;
-                    form.elements['short_name'].value = item.short_name || '';
-                    form.elements['subcategory_id'].value = item.subcategory_id;
-                    form.elements['package_spec'].value = item.package_spec || '';
-                    form.elements['price'].value = item.price;
-                    form.elements['currency'].value = item.currency;
-                    form.elements['sv_point'].value = item.sv_point;
-                    form.elements['primary_image_url'].value = item.primary_image_url || '';
-                    form.elements['stock_status'].value = item.stock_status || 'IN_STOCK';
-                    form.elements['is_featured'].checked = item.is_featured;
-                    form.elements['is_active'].checked = item.is_active;
-
-                    form.elements['hd_image_url'].value = item.hd_image_url || '';
-                    form.elements['official_site_url'].value = item.official_site_url || '';
-                    form.elements['certifications'].value = item.certifications || '';
-                    form.elements['phrase_tags'].value = item.phrase_tags || '';
-                    form.elements['usage_scenarios'].value = item.usage_scenarios || '';
-                    form.elements['ingredients'].value = item.ingredients || '';
-                } else {
-                    $('#productModalHeading').html(`<i class="fa-solid fa-plus text-primary"></i> 新增產品主檔與規格`);
-                }
-
-                const modal = new bootstrap.Modal(document.getElementById('modalProductFullEdit'));
-                modal.show();
-            }
-
-            /**
-             * 多維度篩選器
-             */
-            function bindMasterFilters() {
-                $('#filterMasterRegion, #filterMasterType, #filterMasterSubcategory, #filterMasterStock').on('change', function () {
-                    applyMasterFilters();
-                });
-
-                $('#btnResetMasterFilters').on('click', function () {
-                    $('#filterMasterRegion').val('');
-                    $('#filterMasterType').val('');
-                    $('#filterMasterSubcategory').val('');
-                    $('#filterMasterStock').val('');
-                    applyMasterFilters();
-                });
-            }
-
-            function applyMasterFilters() {
-                const reg = $('#filterMasterRegion').val();
-                const type = $('#filterMasterType').val();
-                const subcat = $('#filterMasterSubcategory').val();
-                const stock = $('#filterMasterStock').val();
-
-                const filtered = products.filter(p => {
-                    const matchReg = !reg || p.region_code === reg;
-                    const matchType = !type || p.type_id === Number(type);
-                    const matchSubcat = !subcat || p.subcategory_id === Number(subcat);
-                    const matchStock = !stock || p.stock_status === stock;
-                    return matchReg && matchType && matchSubcat && matchStock;
-                });
-
-                dtMaster.clear().rows.add(filtered).draw();
-            }
-
-            /**
-             * 載入並同步試算表數據管線
-             */
-            function loadAndSyncAllData() {
-                $('#syncStatusBadge').html('<i class="fa-solid fa-spinner text-primary"></i> 正在透過 GViz/PapaParse 串流解析...');
-
-                fetchGoogleSheetData(SPREADSHEET_CONFIG.sheets.items, function (err, fetchedItems) {
-                    if (!err && fetchedItems && fetchedItems.length > 0) {
-                        products = fetchedItems;
-                        $('#syncStatusBadge').html('<i class="fa-solid fa-circle-check text-success"></i> Google 試算表連線即時同步中');
-                    } else {
-                        // 啟動 Fallback 種子資料並警示
-                        $('#syncStatusBadge').html('<i class="fa-solid fa-circle-exclamation text-warning"></i> 試算表讀取超時，已載入本地快取數據');
-                    }
-
-                    populateSelects();
-                    initMasterTable();
-                    renderTaxonomyTables();
-                    renderBatchEditorTable();
-                    renderAnalyticsCharts();
-                });
-            }
-
-            return {
-                init: function () {
-                    loadAndSyncAllData();
-                    bindMasterFilters();
-
-                    // Tab 切換至統計圖表時觸發 Chart.js 重繪與 Resize
-                    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                        if (e.target.id === 'tab-analytics-link') {
-                            renderAnalyticsCharts();
-                        }
-                    });
-
-                    $('#btnOpenNewProductModal').on('click', function () {
-                        openProductEditModal(null);
-                    });
-
-                    $('#btnSaveFullProduct').on('click', function () {
-                        alert('已透過 GAS API 同時原子化寫入表 04 (prd_items) 與表 05 (prd_details)！');
-                        bootstrap.Modal.getInstance(document.getElementById('modalProductFullEdit')).hide();
-                    });
-
-                    $('#btnSaveBatchPrices').on('click', function () {
-                        alert('已完成跨國批次價格與 SV 點數更新寫入！');
-                    });
-
-                    $('#btnSyncGoogleSheet').on('click', function () {
-                        loadAndSyncAllData();
-                    });
-                }
-            };
-
-        })(jQuery);
-
-        $(document).ready(function () {
-            ProductWorkspaceApp.init();
-        });
-    </script>
-</body>
+    </body>
 </html>
