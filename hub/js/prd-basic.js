@@ -158,7 +158,7 @@ function initIframeAutoResize() {
 }
 
 // ==========================================================================
-// 4. 資料讀取與 5 表解析引擎 (嚴格對齊 Schema 欄位順序)
+// 4. 資料讀取與 5 表解析引擎 (嚴格依欄位順序解析)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品資料庫...', '載入 5 表架構');
@@ -215,7 +215,7 @@ async function fetchGoogleSheetsData() {
 }
 
 /**
- * 產品主檔: prd_items (26 欄位嚴格對齊)
+ * 產品主檔: prd_items (26 欄位順序)
  */
 function parseItemsTable(rows) {
     return rows.map((r, idx) => ({
@@ -249,7 +249,7 @@ function parseItemsTable(rows) {
 }
 
 /**
- * 產品詳細資料: prd_item_details (13 欄位嚴格對齊)
+ * 產品詳細資料: prd_item_details (13 欄位順序)
  */
 function parseDetailsTable(rows) {
     return rows.map((r, idx) => ({
@@ -270,8 +270,7 @@ function parseDetailsTable(rows) {
 }
 
 /**
- * 產品主系列: prd_categories (12 欄位 Schema)
- * 欄位：[0: category_code, 1: name_zh, 2: name_en, 3: icon_class, 4: text_color, 5: bg_color, 6: sort_order, 7: is_valid, 8: created_by, 9: created_at, 10: modified_by, 11: modified_at]
+ * 產品主系列: prd_categories (12 欄位順序)
  */
 function parseCategoriesTable(rows) {
     return rows.map((r, idx) => ({
@@ -291,8 +290,7 @@ function parseCategoriesTable(rows) {
 }
 
 /**
- * 產品次系列: prd_subcategories (13 欄位 Schema)
- * 欄位：[0: subcategory_code, 1: category_code, 2: name_zh, 3: name_en, 4: icon_class, 5: text_color, 6: bg_color, 7: sort_order, 8: is_valid, 9: created_by, 10: created_at, 11: modified_by, 12: modified_at]
+ * 產品次系列: prd_subcategories (13 欄位順序)
  */
 function parseSubcategoriesTable(rows) {
     return rows.map((r, idx) => ({
@@ -313,8 +311,7 @@ function parseSubcategoriesTable(rows) {
 }
 
 /**
- * 產品型態: prd_types (12 欄位 Schema)
- * 欄位：[0: type_code, 1: name_zh, 2: name_en, 3: icon_class, 4: text_color, 5: bg_color, 6: sort_order, 7: is_valid, 8: created_by, 9: created_at, 10: modified_by, 11: modified_at]
+ * 產品型態: prd_types (12 欄位順序)
  */
 function parseTypesTable(rows) {
     return rows.map((r, idx) => ({
@@ -651,7 +648,6 @@ function renderTaxonomyTables() {
     // 產品次系列
     const $subcatTbody = $('#tableSubcategories tbody').empty();
     appState.subcategories.forEach(s => {
-        const parentCat = getCategoryByCode(s.category_code);
         $subcatTbody.append(`
             <tr>
                 <td><span class="font-monospace text-secondary">${s.subcategory_code}</span></td>
@@ -931,7 +927,7 @@ async function saveBatchPrices() {
 }
 
 // ==========================================================================
-// 10. Tab 4：統計分析與 10 張視覺化圖表
+// 10. Tab 4：統計分析與視覺化圖表
 // ==========================================================================
 function getDoughnutTooltipOptions() {
     return {
@@ -1217,7 +1213,7 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 9. SV 貢獻率排行 (Top 5，TWD 為每千元產出、MYR 為每百元產出)
+    // 9. SV 貢獻率排行 (Top 5)
     const isMyr = currentAnalyticsRegion === 'MY';
     const multiplier = isMyr ? 100 : 1000;
     const unitText = isMyr ? 'SV / 百元 (MYR)' : 'SV / 千元 (TWD)';
@@ -1266,7 +1262,7 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 10. 產品重量 Top 5 (條形圖) - 僅使用「產品重量」欄位運算
+    // 10. 產品重量 Top 5
     const weightList = dataset
         .map(p => {
             const raw = (p.product_weight || '').trim().toLowerCase();
@@ -1322,7 +1318,7 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 11. 各年度上市品項趨勢 (折線圖)
+    // 11. 各年度上市品項趨勢
     const yearCounts = {};
     dataset.forEach(p => {
         const year = p.launch_date ? p.launch_date.slice(0, 4) : '未設定';
@@ -1493,7 +1489,7 @@ async function saveProductItem() {
         isActive ? 'Y' : 'N',                                                                    // 18: 是否有效
         form.elements['launch_date'] ? form.elements['launch_date'].value : '',                 // 19: 上市日期
         form.elements['discontinue_date'] ? form.elements['discontinue_date'].value : '',       // 20: 下市日期
-        officialUpdateDateVal,                                                                   // 21: 官方最新異動/更新日期
+        officialUpdateDateVal,                                                                   // 21: 官方最新異動日期
         createdBy,                                                                               // 22: 建立者
         createdAt,                                                                               // 23: 建立日期
         currentUser,                                                                             // 24: 編輯者
