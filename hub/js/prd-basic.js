@@ -57,7 +57,6 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
     const lDate = parseDate(launchDateStr);
     const dDate = parseDate(discontinueDateStr);
 
-    // 1. 若上市日期晚於今天 -> 即將上市
     if (lDate) {
         lDate.setHours(0, 0, 0, 0);
         if (lDate.getTime() > today.getTime()) {
@@ -69,7 +68,6 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
         }
     }
 
-    // 2. 若下市日期早於今天 -> 已下市
     if (dDate) {
         dDate.setHours(0, 0, 0, 0);
         if (dDate.getTime() < today.getTime()) {
@@ -81,7 +79,6 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
         }
     }
 
-    // 3. 正常販售中
     return {
         code: 'ACTIVE',
         text: '販售中',
@@ -99,7 +96,7 @@ let appState = {
     types: []              // prd_types (產品型態)
 };
 
-let currentAnalyticsRegion = 'ALL'; // 統計全域地區：'ALL' | 'TW' | 'MY'
+let currentAnalyticsRegion = 'ALL';
 let masterDataTableInstance = null;
 let chartInstances = {};
 let isInitialized = false;
@@ -108,7 +105,9 @@ let isInitialized = false;
 // 3. 系統生命週期與事件初始化
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
-    SheetAdapter.init("AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H");
+    if (window.SheetAdapter && typeof SheetAdapter.init === 'function') {
+        SheetAdapter.init("AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H");
+    }
     initIframeAutoResize();
     await initApp();
 });
@@ -127,9 +126,6 @@ async function initApp() {
     }
 }
 
-/**
- * 監聽 iframe 內容高度變化並通知外層母視窗調整高度
- */
 function initIframeAutoResize() {
     const notifyParent = () => {
         const height = Math.max(
@@ -158,7 +154,7 @@ function initIframeAutoResize() {
 }
 
 // ==========================================================================
-// 4. 資料讀取與 5 表解析引擎 (嚴格依欄位順序解析)
+// 4. 資料讀取與 5 表解析引擎 (依欄位順序解析)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品資料庫...', '載入 5 表架構');
@@ -193,7 +189,6 @@ async function fetchGoogleSheetsData() {
         const items = parseItemsTable(rawItems);
         const details = parseDetailsTable(rawDetails);
 
-        // 1:1 外鍵關聯主表 (prd_items) 與詳情表 (prd_item_details)
         appState.products = items.map(item => {
             const detail = details.find(d => String(d.product_id) === String(item.product_code)) || {};
             return {
@@ -214,9 +209,6 @@ async function fetchGoogleSheetsData() {
     }
 }
 
-/**
- * 產品主檔: prd_items (26 欄位順序)
- */
 function parseItemsTable(rows) {
     return rows.map((r, idx) => ({
         product_code: getVal(r, 0, `SKU_${idx + 1}`),
@@ -248,9 +240,6 @@ function parseItemsTable(rows) {
     })).filter(item => item.product_code && item.name !== '未命名產品');
 }
 
-/**
- * 產品詳細資料: prd_item_details (13 欄位順序)
- */
 function parseDetailsTable(rows) {
     return rows.map((r, idx) => ({
         product_id: getVal(r, 0, `SKU_${idx + 1}`),
@@ -269,9 +258,6 @@ function parseDetailsTable(rows) {
     }));
 }
 
-/**
- * 產品主系列: prd_categories (12 欄位順序)
- */
 function parseCategoriesTable(rows) {
     return rows.map((r, idx) => ({
         category_code: getVal(r, 0, `0${idx + 1}`),
@@ -289,9 +275,6 @@ function parseCategoriesTable(rows) {
     })).filter(c => c.category_code && c.name_zh !== '未命名主系列');
 }
 
-/**
- * 產品次系列: prd_subcategories (13 欄位順序)
- */
 function parseSubcategoriesTable(rows) {
     return rows.map((r, idx) => ({
         subcategory_code: getVal(r, 0, `0${idx + 1}01`),
@@ -310,9 +293,6 @@ function parseSubcategoriesTable(rows) {
     })).filter(s => s.subcategory_code && s.name_zh !== '未命名次系列');
 }
 
-/**
- * 產品型態: prd_types (12 欄位順序)
- */
 function parseTypesTable(rows) {
     return rows.map((r, idx) => ({
         type_code: getVal(r, 0, `0${idx + 1}01`),
@@ -331,7 +311,7 @@ function parseTypesTable(rows) {
 }
 
 // ==========================================================================
-// 5. 外鍵關聯與多語系名稱解析 (TW：中文、MY：英文)
+// 5. 外鍵關聯與多語系名稱解析
 // ==========================================================================
 function getCategoryByCode(code) {
     if (!code) return { category_code: '', name_zh: '未分類主系列', name_en: 'Uncategorized', icon_class: 'fa-solid fa-folder', text_color: '#8b5cf6', bg_color: '#1a122d' };
@@ -395,18 +375,18 @@ function bindUIEvents() {
         applyMasterFilters();
     });
 
-    // 產品 Modal 地區切換時重新渲染次系列與型態的多語系標籤
+    // 產品 Modal 地區切換時重新渲染主/次系列與型態選項
     $('select[name="region_code"]').on('change', function () {
         const reg = $(this).val();
         populateModalTaxonomySelects(reg);
     });
 
-    // 次系列變更時自動同步主系列代碼
-    $('select[name="subcategory_code"], #modalSelectSubcategory').on('change', function () {
+    // 次系列變更時自動同步主系列下拉值
+    $('#modalSelectSubcategory, select[name="subcategory_code"]').on('change', function () {
         const subcatCode = $(this).val();
         const subcat = getSubcategoryByCode(subcatCode);
         if (subcat && subcat.category_code) {
-            $('input[name="category_code"]').val(subcat.category_code);
+            $('#modalSelectCategory, select[name="category_code"]').val(subcat.category_code);
         }
     });
 
@@ -425,8 +405,11 @@ function bindUIEvents() {
         }
     });
 
-    AppDialog.bindIframeAutoCenter('#modalProductFullEdit');
-    AppDialog.bindIframeAutoCenter('#modalTaxonomyEdit');
+    if (window.AppDialog && typeof AppDialog.bindIframeAutoCenter === 'function') {
+        AppDialog.bindIframeAutoCenter('#modalProductFullEdit');
+        AppDialog.bindIframeAutoCenter('#modalTaxonomyEdit');
+        AppDialog.bindIframeAutoCenter('#modalProductDetailView');
+    }
 }
 
 function refreshView() {
@@ -441,9 +424,6 @@ function refreshView() {
     }, 200);
 }
 
-/**
- * 格式化篩選器標籤文字：如果沒有英文，就不顯示英文與「()」
- */
 function formatFilterOptionText(nameZh, nameEn) {
     const zh = (nameZh || '').trim();
     const en = (nameEn || '').trim();
@@ -473,21 +453,28 @@ function populateSelects() {
 }
 
 function populateModalTaxonomySelects(regionCode = 'TW') {
-    const $modalType = $('#modalSelectType, select[name="type_code"]');
+    const $modalCat = $('#modalSelectCategory, select[name="category_code"]');
     const $modalSubcat = $('#modalSelectSubcategory, select[name="subcategory_code"]');
+    const $modalType = $('#modalSelectType, select[name="type_code"]');
 
-    $modalType.empty();
-    appState.types.forEach(t => {
-        const name = getLocalizedName(t, regionCode);
-        $modalType.append(`<option value="${t.type_code}">${name} (${t.type_code})</option>`);
+    $modalCat.empty().append('<option value="">請選擇產品主系列</option>');
+    appState.categories.forEach(c => {
+        const name = getLocalizedName(c, regionCode);
+        $modalCat.append(`<option value="${c.category_code}">${name} (${c.category_code})</option>`);
     });
 
-    $modalSubcat.empty();
+    $modalSubcat.empty().append('<option value="">請選擇產品次系列</option>');
     appState.subcategories.forEach(s => {
         const name = getLocalizedName(s, regionCode);
         const parentCat = getCategoryByCode(s.category_code);
         const catName = getLocalizedName(parentCat, regionCode);
         $modalSubcat.append(`<option value="${s.subcategory_code}">[${catName}] ${name} (${s.subcategory_code})</option>`);
+    });
+
+    $modalType.empty().append('<option value="">請選擇產品型態</option>');
+    appState.types.forEach(t => {
+        const name = getLocalizedName(t, regionCode);
+        $modalType.append(`<option value="${t.type_code}">${name} (${t.type_code})</option>`);
     });
 }
 
@@ -536,7 +523,6 @@ function formatMasterTableRow(p) {
         categoryCode = sub.category_code;
     }
 
-    // 庫存狀態
     let stockBadge = '';
     if (p.stock_status === 'IN_STOCK') {
         stockBadge = '<span class="badge badge-success"><i class="fa-solid fa-box"></i> 現貨</span>';
@@ -546,15 +532,12 @@ function formatMasterTableRow(p) {
         stockBadge = '<span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 預購</span>';
     }
 
-    // 上市狀態
     const launchStatus = getLaunchStatus(p.launch_date, p.discontinue_date);
 
-    // 價格格式化 (NT$0 / RM0)
     const formattedPrice = (p.currency === 'MYR' || p.region_code === 'MY')
         ? `RM${Number(p.price).toLocaleString()}`
         : `NT$${Number(p.price).toLocaleString()}`;
 
-    // 簡稱或短評
     const subTitle = p.short_name || p.short_summary || '';
 
     return {
@@ -574,12 +557,17 @@ function formatMasterTableRow(p) {
         launch_status: `<div>${launchStatus.badge}</div>`,
         stock_status: `<div>${stockBadge}</div>`,
         actions: `
-            <button class="btn btn-outline-primary btn-sm py-1 px-2" onclick="openEditModal('${p.product_code}')" title="完整維護主檔與詳細資料">
-                <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-sm py-1 px-2 ms-1" onclick="deleteProductItem('${p.product_code}')" title="刪除產品">
-                <i class="fa-solid fa-trash-alt"></i>
-            </button>
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-info py-1 px-2" onclick="openDetailModal('${p.product_code}')" title="查看完整產品詳情">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="btn btn-outline-primary py-1 px-2" onclick="openEditModal('${p.product_code}')" title="完整維護主檔與詳細資料">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-outline-danger py-1 px-2" onclick="deleteProductItem('${p.product_code}')" title="刪除產品">
+                    <i class="fa-solid fa-trash-alt"></i>
+                </button>
+            </div>
         `
     };
 }
@@ -615,10 +603,88 @@ function applyMasterFilters() {
 }
 
 // ==========================================================================
-// 8. Tab 2：系列與型態體系維護
+// 8. 產品完整資訊檢視彈窗 (Detail Modal)
+// ==========================================================================
+function openDetailModal(productCode) {
+    const item = appState.products.find(p => p.product_code === String(productCode));
+    if (!item) {
+        AppToast.warning("找不到該產品資料！");
+        return;
+    }
+
+    let categoryCode = item.category_code;
+    if (!categoryCode && item.subcategory_code) {
+        categoryCode = getSubcategoryByCode(item.subcategory_code).category_code;
+    }
+
+    const priceText = (item.currency === 'MYR' || item.region_code === 'MY')
+        ? `RM${Number(item.price).toLocaleString()}`
+        : `NT$${Number(item.price).toLocaleString()}`;
+
+    let stockText = '現貨 (IN_STOCK)';
+    let stockBadgeClass = 'badge-success';
+    if (item.stock_status === 'OUT_OF_STOCK') {
+        stockText = '缺貨 (OUT_OF_STOCK)';
+        stockBadgeClass = 'badge-danger';
+    } else if (item.stock_status === 'PRE_ORDER') {
+        stockText = '預購 (PRE_ORDER)';
+        stockBadgeClass = 'badge-warning';
+    }
+
+    const imgSrc = item.hd_image_url || item.primary_image_url || 'https://via.placeholder.com/300x300/1a122d/c084fc?text=No+Image';
+    $('#viewPrdImage').attr('src', imgSrc).attr('alt', item.name);
+
+    $('#viewPrdName').text(item.name || '-');
+    $('#viewPrdShortName').text(item.short_name ? `(${item.short_name})` : '');
+    $('#viewPrdCode').text(item.product_code || '-');
+    $('#viewPrdRegion').text(item.region_code || 'TW');
+    $('#viewPrdBaseCode').text(item.base_code || '-');
+    $('#viewPrdSummary').text(item.short_summary || '暫無簡介');
+
+    // 主系列、次系列、型態套用彩色 Badge 標籤函式
+    $('#viewPrdCategory').html(buildCategoryBadge(categoryCode, item.region_code));
+    $('#viewPrdSubcategory').html(buildSubcategoryBadge(item.subcategory_code, item.region_code));
+    $('#viewPrdType').html(buildTypeBadge(item.type_code, item.region_code));
+
+    $('#viewPrdSpec').text(item.package_spec || '-');
+    $('#viewPrdWeight').text(item.product_weight || '-');
+    $('#viewPrdPrice').text(priceText);
+    $('#viewPrdSv').text(`${item.sv_point} SV`);
+
+    $('#viewPrdFeatured').html(item.is_featured ? '<span class="badge badge-warning"><i class="fa-solid fa-star"></i> 明星商品</span>' : '<span class="text-muted">否</span>');
+    $('#viewPrdStock').html(`<span class="badge ${stockBadgeClass}">${stockText}</span>`);
+    $('#viewPrdIsValid').html(item.is_valid === 'Y' ? '<span class="badge badge-success">有效 (Y)</span>' : '<span class="badge badge-secondary">下架/無效 (N)</span>');
+
+    $('#viewPrdLaunchDate').text(item.launch_date || '-');
+    $('#viewPrdDiscontinueDate').text(item.discontinue_date || '-');
+    $('#viewPrdOfficialUpdateDate').text(item.official_update_date || '-');
+    $('#viewPrdCertifications').text(item.certifications || '無特別標註');
+
+    if (item.phrase_tags) {
+        const tagBadges = item.phrase_tags.split(',').map(t => `<span class="badge badge-dark me-1 mb-1"># ${t.trim()}</span>`).join('');
+        $('#viewPrdPhraseTags').html(tagBadges);
+    } else {
+        $('#viewPrdPhraseTags').html('<span class="text-muted">暫無短語標籤</span>');
+    }
+
+    $('#viewPrdDescription').html(item.detailed_description ? item.detailed_description.replace(/\n/g, '<br>') : '<span class="text-muted">暫無詳細介紹</span>');
+    $('#viewPrdUsageScenarios').html(item.usage_scenarios ? item.usage_scenarios.replace(/\n/g, '<br>') : '<span class="text-muted">請參照專業建議或包裝指示</span>');
+    $('#viewPrdFeatures').html(item.features_and_functions ? item.features_and_functions.replace(/\n/g, '<br>') : '<span class="text-muted">暫無特色與功能資料</span>');
+    $('#viewPrdIngredients').html(item.ingredients ? item.ingredients.replace(/\n/g, '<br>') : '<span class="text-muted">請參閱產品外包裝標示</span>');
+
+    if (item.official_site_url && item.official_site_url.startsWith('http')) {
+        $('#viewPrdOfficialSite').html(`<a href="${item.official_site_url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> 前往官方產品頁面</a>`);
+    } else {
+        $('#viewPrdOfficialSite').html('<span class="text-muted">未設定官方網站連結</span>');
+    }
+
+    new bootstrap.Modal(document.getElementById('modalProductDetailView')).show();
+}
+
+// ==========================================================================
+// 9. Tab 2：系列與型態體系維護
 // ==========================================================================
 function renderTaxonomyTables() {
-    // 產品主系列
     const $catTbody = $('#tableCategories tbody').empty();
     appState.categories.forEach(c => {
         $catTbody.append(`
@@ -645,7 +711,6 @@ function renderTaxonomyTables() {
         `);
     });
 
-    // 產品次系列
     const $subcatTbody = $('#tableSubcategories tbody').empty();
     appState.subcategories.forEach(s => {
         $subcatTbody.append(`
@@ -672,7 +737,6 @@ function renderTaxonomyTables() {
         `);
     });
 
-    // 產品型態
     const $typeTbody = $('#tableTypes tbody').empty();
     appState.types.forEach(t => {
         $typeTbody.append(`
@@ -839,7 +903,7 @@ function deleteTaxonomyItem(type, code) {
 }
 
 // ==========================================================================
-// 9. Tab 3：跨國批次定價與 SV 點數編輯
+// 10. Tab 3：跨國批次定價與 SV 點數編輯
 // ==========================================================================
 function renderBatchEditorTable() {
     const $tbody = $('#tableBatchEditor tbody').empty();
@@ -856,7 +920,10 @@ function renderBatchEditorTable() {
                     <input type="number" step="0.01" class="form-control form-control-sm batch-input-price font-monospace text-end" value="${p.price}">
                 </td>
                 <td>
-                    <input type="text" class="form-control form-control-sm batch-input-currency font-monospace text-center" value="${p.currency}">
+                    <select class="form-select form-select-sm batch-select-currency font-monospace text-center">
+                        <option value="TWD" ${p.currency === 'TWD' ? 'selected' : ''}>TWD</option>
+                        <option value="MYR" ${p.currency === 'MYR' ? 'selected' : ''}>MYR</option>
+                    </select>
                 </td>
                 <td>
                     <input type="number" class="form-control form-control-sm batch-input-sv font-monospace text-end" value="${p.sv_point}">
@@ -895,7 +962,7 @@ async function saveBatchPrices() {
             if (!item) return;
 
             item.price = parseFloat($(this).find('.batch-input-price').val()) || 0;
-            item.currency = $(this).find('.batch-input-currency').val().trim();
+            item.currency = $(this).find('.batch-select-currency').val() || 'TWD';
             item.sv_point = parseInt($(this).find('.batch-input-sv').val(), 10) || 0;
             item.is_featured = $(this).find('.batch-check-featured').is(':checked');
             item.stock_status = $(this).find('.batch-select-stock').val();
@@ -927,7 +994,7 @@ async function saveBatchPrices() {
 }
 
 // ==========================================================================
-// 10. Tab 4：統計分析與視覺化圖表
+// 11. Tab 4：統計分析與視覺化圖表
 // ==========================================================================
 function getDoughnutTooltipOptions() {
     return {
@@ -973,13 +1040,11 @@ function renderAnalyticsCharts() {
     const validCount = dataset.filter(p => p.is_valid === 'Y').length;
     const validRate = total > 0 ? Math.round((validCount / total) * 100) : 0;
 
-    // 最新上市產品
     const sortedByLaunch = [...dataset]
         .filter(p => p.launch_date)
         .sort((a, b) => new Date(b.launch_date) - new Date(a.launch_date));
     const latestItem = sortedByLaunch[0] || null;
 
-    // 1. 更新 4 張置頂 KPI 指標卡片
     $('#statTotalSku').text(total);
     $('#statRegionBreakdown').text(`台灣: ${twProducts.length} / 馬來西亞: ${myProducts.length}`);
 
@@ -1005,7 +1070,6 @@ function renderAnalyticsCharts() {
         $('#statLatestProductDate').text('-');
     }
 
-    // 2. 主系列分布
     const catMap = {};
     appState.categories.forEach(c => {
         catMap[c.name_zh] = { count: 0, color: c.text_color || '#8b5cf6' };
@@ -1037,7 +1101,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 3. 次系列分布
     const subcatMap = {};
     appState.subcategories.forEach(s => {
         subcatMap[s.name_zh] = { count: 0, color: s.text_color || '#c084fc' };
@@ -1065,7 +1128,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 4. 產品型態分布
     const typeMap = {};
     appState.types.forEach(t => {
         typeMap[t.name_zh] = { count: 0, color: t.text_color || '#38bdf8' };
@@ -1093,7 +1155,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 5. 上市狀態占比
     const launchStatusMap = { '販售中': 0, '即將上市': 0, '已下市': 0 };
     dataset.forEach(p => {
         const st = getLaunchStatus(p.launch_date, p.discontinue_date);
@@ -1118,7 +1179,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 6. 產品供應狀態統計
     const statusCounts = { '現貨': 0, '缺貨': 0, '預購': 0 };
     dataset.forEach(p => {
         if (p.stock_status === 'IN_STOCK') statusCounts['現貨']++;
@@ -1144,7 +1204,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 7. 產品售價排行 (Top 5)
     const topPriceProducts = [...dataset].sort((a, b) => b.price - a.price).slice(0, 5);
     if (chartInstances.priceRank) chartInstances.priceRank.destroy();
     const ctxPriceRank = document.getElementById('chartPriceRank')?.getContext('2d');
@@ -1184,7 +1243,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 8. 全球 SV 點數排行 (Top 5)
     const topSvProducts = [...dataset].sort((a, b) => b.sv_point - a.sv_point).slice(0, 5);
     if (chartInstances.topSv) chartInstances.topSv.destroy();
     const ctxTopSv = document.getElementById('chartTopSvRank')?.getContext('2d');
@@ -1213,7 +1271,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 9. SV 貢獻率排行 (Top 5)
     const isMyr = currentAnalyticsRegion === 'MY';
     const multiplier = isMyr ? 100 : 1000;
     const unitText = isMyr ? 'SV / 百元 (MYR)' : 'SV / 千元 (TWD)';
@@ -1262,7 +1319,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 10. 產品重量 Top 5
     const weightList = dataset
         .map(p => {
             const raw = (p.product_weight || '').trim().toLowerCase();
@@ -1318,7 +1374,6 @@ function renderAnalyticsCharts() {
         });
     }
 
-    // 11. 各年度上市品項趨勢
     const yearCounts = {};
     dataset.forEach(p => {
         const year = p.launch_date ? p.launch_date.slice(0, 4) : '未設定';
@@ -1369,7 +1424,7 @@ function renderAnalyticsCharts() {
 }
 
 // ==========================================================================
-// 11. Modal 產品主檔與規格彈窗維護
+// 12. Modal 產品主檔與規格彈窗維護
 // ==========================================================================
 function openAddModal() {
     $('#productModalHeading').html('<i class="fa-solid fa-plus text-primary"></i> 新增產品資料與規格詳情');
@@ -1392,27 +1447,30 @@ function openEditModal(productCode) {
 
     populateModalTaxonomySelects(item.region_code);
 
-    // prd_items 主檔數值綁定
     form.elements['region_code'].value = item.region_code;
     form.elements['product_code'].value = item.product_code;
     $('input[name="product_code"]').prop('readonly', true);
     form.elements['base_code'].value = item.base_code;
 
     if (form.elements['type_code']) form.elements['type_code'].value = item.type_code;
-    else if (form.elements['type_id']) form.elements['type_id'].value = item.type_code;
 
     form.elements['name'].value = item.name;
     form.elements['short_name'].value = item.short_name || '';
     if (form.elements['short_summary']) form.elements['short_summary'].value = item.short_summary || '';
 
-    if (form.elements['subcategory_code']) form.elements['subcategory_code'].value = item.subcategory_code;
-    else if (form.elements['subcategory_id']) form.elements['subcategory_id'].value = item.subcategory_code;
+    // 繫結產品主系列與次系列
+    let catCode = item.category_code;
+    if (!catCode && item.subcategory_code) {
+        catCode = getSubcategoryByCode(item.subcategory_code).category_code;
+    }
+    if (form.elements['category_code']) form.elements['category_code'].value = catCode || '';
+    if (form.elements['subcategory_code']) form.elements['subcategory_code'].value = item.subcategory_code || '';
 
     form.elements['package_spec'].value = item.package_spec || '';
     if (form.elements['product_weight']) form.elements['product_weight'].value = item.product_weight || '';
 
     form.elements['price'].value = item.price;
-    form.elements['currency'].value = item.currency;
+    form.elements['currency'].value = item.currency || 'TWD';
     form.elements['sv_point'].value = item.sv_point;
     form.elements['primary_image_url'].value = item.primary_image_url || '';
     form.elements['stock_status'].value = item.stock_status || 'IN_STOCK';
@@ -1426,13 +1484,15 @@ function openEditModal(productCode) {
     if (form.elements['discontinue_date']) form.elements['discontinue_date'].value = item.discontinue_date || '';
     if (form.elements['official_update_date']) form.elements['official_update_date'].value = item.official_update_date || '';
 
-    // prd_item_details 規格數值綁定
+    // 詳細資料
     form.elements['hd_image_url'].value = item.hd_image_url || '';
     form.elements['official_site_url'].value = item.official_site_url || '';
     form.elements['certifications'].value = item.certifications || '';
     form.elements['phrase_tags'].value = item.phrase_tags || '';
     form.elements['usage_scenarios'].value = item.usage_scenarios || '';
+    form.elements['features_and_functions'].value = item.features_and_functions || '';
     form.elements['ingredients'].value = item.ingredients || '';
+    form.elements['detailed_description'].value = item.detailed_description || '';
 
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }
@@ -1454,8 +1514,8 @@ async function saveProductItem() {
     const createdBy = (mode === 'edit' && existingNode) ? (existingNode.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existingNode) ? (existingNode.created_at || nowStr) : nowStr;
 
-    const subcategoryCode = (form.elements['subcategory_code'] ? form.elements['subcategory_code'].value : (form.elements['subcategory_id'] ? form.elements['subcategory_id'].value : '')).trim();
-    const typeCode = (form.elements['type_code'] ? form.elements['type_code'].value : (form.elements['type_id'] ? form.elements['type_id'].value : '')).trim();
+    const subcategoryCode = (form.elements['subcategory_code'] ? form.elements['subcategory_code'].value : '').trim();
+    const typeCode = (form.elements['type_code'] ? form.elements['type_code'].value : '').trim();
 
     let categoryCode = (form.elements['category_code'] ? form.elements['category_code'].value : '').trim();
     if (!categoryCode && subcategoryCode) {
@@ -1466,51 +1526,51 @@ async function saveProductItem() {
     const sortOrderVal = form.elements['sort_order'] ? (parseInt(form.elements['sort_order'].value, 10) || 0) : (existingNode && existingNode.sort_order !== undefined ? existingNode.sort_order : 0);
     const officialUpdateDateVal = form.elements['official_update_date'] ? form.elements['official_update_date'].value : (existingNode ? existingNode.official_update_date : '');
 
-    // 1. prd_items 主檔陣列 (26 欄位順序)
+    // 1. prd_items 主檔陣列 (26 欄位)
     const itemsRowArray = [
-        productCode,                                                                             // 0: 產品編號
-        form.elements['region_code'].value.trim() || 'TW',                                       // 1: 地區代碼
-        form.elements['base_code'].value.trim(),                                                 // 2: 跨國基本編號
-        form.elements['name'].value.trim(),                                                      // 3: 產品名稱
-        form.elements['short_name'].value.trim(),                                                // 4: 產品簡稱
-        form.elements['short_summary'] ? form.elements['short_summary'].value.trim() : '',       // 5: 產品簡介
-        categoryCode,                                                                            // 6: 產品主系列
-        subcategoryCode,                                                                         // 7: 產品次系列
-        typeCode,                                                                                // 8: 產品型態
-        form.elements['package_spec'].value.trim(),                                              // 9: 包裝規格
-        form.elements['product_weight'] ? form.elements['product_weight'].value.trim() : '',     // 10: 產品重量
-        parseFloat(form.elements['price'].value) || 0,                                           // 11: 售價
-        form.elements['currency'].value.trim() || 'TWD',                                         // 12: 幣別
-        parseInt(form.elements['sv_point'].value, 10) || 0,                                      // 13: 全球 SV
-        form.elements['primary_image_url'].value.trim(),                                         // 14: 圖片網址
-        form.elements['is_featured'].checked ? 'TRUE' : 'FALSE',                                 // 15: 明星產品
-        form.elements['stock_status'].value,                                                     // 16: 庫存狀態
-        sortOrderVal,                                                                            // 17: 前端顯示排序
-        isActive ? 'Y' : 'N',                                                                    // 18: 是否有效
-        form.elements['launch_date'] ? form.elements['launch_date'].value : '',                 // 19: 上市日期
-        form.elements['discontinue_date'] ? form.elements['discontinue_date'].value : '',       // 20: 下市日期
-        officialUpdateDateVal,                                                                   // 21: 官方最新異動日期
-        createdBy,                                                                               // 22: 建立者
-        createdAt,                                                                               // 23: 建立日期
-        currentUser,                                                                             // 24: 編輯者
-        nowStr                                                                                   // 25: 編輯日期
+        productCode,
+        form.elements['region_code'].value.trim() || 'TW',
+        form.elements['base_code'].value.trim(),
+        form.elements['name'].value.trim(),
+        form.elements['short_name'].value.trim(),
+        form.elements['short_summary'] ? form.elements['short_summary'].value.trim() : '',
+        categoryCode,
+        subcategoryCode,
+        typeCode,
+        form.elements['package_spec'].value.trim(),
+        form.elements['product_weight'] ? form.elements['product_weight'].value.trim() : '',
+        parseFloat(form.elements['price'].value) || 0,
+        form.elements['currency'].value.trim() || 'TWD',
+        parseInt(form.elements['sv_point'].value, 10) || 0,
+        form.elements['primary_image_url'].value.trim(),
+        form.elements['is_featured'].checked ? 'TRUE' : 'FALSE',
+        form.elements['stock_status'].value,
+        sortOrderVal,
+        isActive ? 'Y' : 'N',
+        form.elements['launch_date'] ? form.elements['launch_date'].value : '',
+        form.elements['discontinue_date'] ? form.elements['discontinue_date'].value : '',
+        officialUpdateDateVal,
+        createdBy,
+        createdAt,
+        currentUser,
+        nowStr
     ];
 
-    // 2. prd_item_details 規格陣列 (13 欄位順序)
+    // 2. prd_item_details 規格陣列 (13 欄位)
     const detailsRowArray = [
-        productCode,                                                                             // 0: product_id
-        form.elements['hd_image_url'].value.trim(),                                              // 1: hd_image_url
-        form.elements['certifications'].value.trim(),                                            // 2: certifications
-        form.elements['detailed_description'] ? form.elements['detailed_description'].value.trim() : '', // 3: detailed_description
-        form.elements['usage_scenarios'].value.trim(),                                           // 4: usage_scenarios
-        form.elements['phrase_tags'].value.trim(),                                               // 5: phrase_tags
-        form.elements['features_and_functions'] ? form.elements['features_and_functions'].value.trim() : '', // 6: features_and_functions
-        form.elements['ingredients'].value.trim(),                                               // 7: ingredients
-        form.elements['official_site_url'].value.trim(),                                         // 8: official_site_url
-        createdBy,                                                                               // 9: created_by
-        createdAt,                                                                               // 10: created_at
-        currentUser,                                                                             // 11: modified_by
-        nowStr                                                                                   // 12: modified_at
+        productCode,
+        form.elements['hd_image_url'].value.trim(),
+        form.elements['certifications'].value.trim(),
+        form.elements['detailed_description'] ? form.elements['detailed_description'].value.trim() : '',
+        form.elements['usage_scenarios'].value.trim(),
+        form.elements['phrase_tags'].value.trim(),
+        form.elements['features_and_functions'] ? form.elements['features_and_functions'].value.trim() : '',
+        form.elements['ingredients'].value.trim(),
+        form.elements['official_site_url'].value.trim(),
+        createdBy,
+        createdAt,
+        currentUser,
+        nowStr
     ];
 
     const $btnSave = $('#btnSaveFullProduct');

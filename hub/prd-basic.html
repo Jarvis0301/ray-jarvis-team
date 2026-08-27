@@ -11,7 +11,7 @@
         <!-- 第三方函式庫加載器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
-        <!-- 團隊共用核心模組 (載入 utils.js, dialog.js, sheet-adapter.js 並觸發 AppReady) -->
+        <!-- 團隊共用核心模組 -->
         <script src="../assets/js/common.js"></script>
         <link rel="stylesheet" href="../assets/css/common.css">
 
@@ -92,8 +92,8 @@
                                 <div class="col-6 col-md-1">
                                     <select class="form-select form-select-sm" id="filterMasterLaunchStatus">
                                         <option value="">上市狀態</option>
-                                        <option value="ON_SALE">販售中</option>
-                                        <option value="UPCOMING">即將上市</option>
+                                        <option value="ACTIVE">販售中</option>
+                                        <option value="COMING_SOON">即將上市</option>
                                         <option value="DISCONTINUED">已下市</option>
                                     </select>
                                 </div>
@@ -106,7 +106,7 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-2 text-md-end">
-                                    <button class="btn btn-hub-primary btn-sm w-100" id="btnOpenNewProductModal">
+                                    <button class="btn btn-secondary btn-sm w-100" id="btnOpenNewProductModal">
                                         <i class="fa-solid fa-plus"></i> 新增產品主檔
                                     </button>
                                 </div>
@@ -128,7 +128,7 @@
                                             <th class="text-end">全球 SV</th>
                                             <th class="text-center">上市狀態</th>
                                             <th class="text-center">庫存狀態</th>
-                                            <th class="text-center" style="width: 100px;">操作</th>
+                                            <th class="text-center" style="width: 120px;">操作</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -146,12 +146,12 @@
                             <article class="card card-custom h-100">
                                 <header class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
                                     <span class="fw-bold text-light"><i class="fa-solid fa-folder-tree text-primary"></i> 產品主系列</span>
-                                    <button class="btn btn-hub-primary btn-sm" onclick="openTaxonomyModal('category')">
+                                    <button class="btn btn-secondary btn-sm" onclick="openTaxonomyModal('category')">
                                         <i class="fa-solid fa-plus"></i> 新增
                                     </button>
                                 </header>
                                 <div class="card-body p-2">
-                                    <div class="table-responsive" style="max-height: 520px;">
+                                    <div class="table-responsive" style="max-height: 600px;">
                                         <table class="table table-dark-custom table-sm align-middle" id="tableCategories">
                                             <thead>
                                                 <tr>
@@ -172,12 +172,12 @@
                             <article class="card card-custom h-100">
                                 <header class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
                                     <span class="fw-bold text-light"><i class="fa-solid fa-layer-group text-secondary"></i> 產品次系列</span>
-                                    <button class="btn btn-hub-primary btn-sm" onclick="openTaxonomyModal('subcategory')">
+                                    <button class="btn btn-secondary btn-sm" onclick="openTaxonomyModal('subcategory')">
                                         <i class="fa-solid fa-plus"></i> 新增
                                     </button>
                                 </header>
                                 <div class="card-body p-2">
-                                    <div class="table-responsive" style="max-height: 520px;">
+                                    <div class="table-responsive" style="max-height: 600px;">
                                         <table class="table table-dark-custom table-sm align-middle" id="tableSubcategories">
                                             <thead>
                                                 <tr>
@@ -198,12 +198,12 @@
                             <article class="card card-custom h-100">
                                 <header class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center py-2">
                                     <span class="fw-bold text-light"><i class="fa-solid fa-shapes text-info"></i> 產品型態</span>
-                                    <button class="btn btn-hub-primary btn-sm" onclick="openTaxonomyModal('type')">
+                                    <button class="btn btn-secondary btn-sm" onclick="openTaxonomyModal('type')">
                                         <i class="fa-solid fa-plus"></i> 新增
                                     </button>
                                 </header>
                                 <div class="card-body p-2">
-                                    <div class="table-responsive" style="max-height: 520px;">
+                                    <div class="table-responsive" style="max-height: 600px;">
                                         <table class="table table-dark-custom table-sm align-middle" id="tableTypes">
                                             <thead>
                                                 <tr>
@@ -227,11 +227,11 @@
                     <article class="card card-custom">
                         <header class="card-header bg-transparent border-bottom border-secondary border-opacity-25 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-2 gap-2">
                             <div>
-                                <span class="fw-bold text-light"><i class="fa-solid fa-pen-to-square text-accent"></i> 跨國價格、幣別與 SV 點數批次調整</span>
+                                <span class="fw-bold text-light"><i class="fa-solid fa-pen-to-square text-accent"></i> 價格、幣別與 SV 批次調整</span>
                                 <span class="text-muted small ms-2 d-none d-md-inline-block">修改完成後點擊右方批次儲存</span>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-hub-primary btn-sm" id="btnSaveBatchPrices">
+                                <button class="btn btn-secondary btn-sm" id="btnSaveBatchPrices">
                                     <i class="fa-solid fa-floppy-disk"></i> 批次寫入儲存
                                 </button>
                             </div>
@@ -241,15 +241,15 @@
                                 <table class="table table-dark-custom table-sm align-middle w-100" id="tableBatchEditor">
                                     <thead>
                                         <tr>
-                                            <th style="width: 110px;">地區/貨號</th>
+                                            <th>地區/貨號</th>
                                             <th>官方品名</th>
                                             <th>型態</th>
-                                            <th style="width: 140px;">售價</th>
-                                            <th style="width: 90px;">幣別</th>
-                                            <th style="width: 110px;">全球 SV</th>
-                                            <th class="text-center" style="width: 80px;">明星商品</th>
-                                            <th style="width: 130px;">供應狀態</th>
-                                            <th class="text-center" style="width: 80px;">有效上架</th>
+                                            <th>售價</th>
+                                            <th style="min-width: 100px;">幣別</th>
+                                            <th>全球 SV</th>
+                                            <th class="text-center">明星商品</th>
+                                            <th>供應狀態</th>
+                                            <th class="text-center">是否有效</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -261,8 +261,6 @@
 
                 <!-- Tab 4: 統計圖表 -->
                 <section class="tab-pane fade" id="tab-analytics" role="tabpanel" aria-labelledby="tab-analytics-link">
-
-                    <!-- 全域統計地區切換列 -->
                     <header class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                         <div class="fw-bold text-light">
                             <i class="fa-solid fa-chart-line text-primary"></i> 產品維度即時統計看板
@@ -272,15 +270,14 @@
                                 <i class="fa-solid fa-earth-asia"></i> 全部營運地區
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm" data-region="TW">
-                                <i class="fa-solid fa-flag"></i> 台灣 (TW)
+                                台灣 (TW)
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm" data-region="MY">
-                                <i class="fa-solid fa-flag"></i> 馬來西亞 (MY)
+                                馬來西亞 (MY)
                             </button>
                         </nav>
                     </header>
 
-                    <!-- 1. 統計指標摘要卡片 -->
                     <section class="card card-custom p-3 mb-4" aria-label="KPI 摘要卡片">
                         <div class="row g-3 text-center">
                             <div class="col-12 col-sm-6 col-xl-3 border-end border-secondary border-opacity-25">
@@ -306,9 +303,7 @@
                         </div>
                     </section>
 
-                    <!-- 2. 圖表網格區 -->
                     <section class="row g-3 mb-3" aria-label="圖表分析網格">
-                        <!-- 主系列分布圖 -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -320,7 +315,6 @@
                             </div>
                         </article>
 
-                        <!-- 次系列分布圖 -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -332,7 +326,6 @@
                             </div>
                         </article>
 
-                        <!-- 產品型態分布圖 -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -344,7 +337,6 @@
                             </div>
                         </article>
 
-                        <!-- 上市狀態占比圖 -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -356,7 +348,6 @@
                             </div>
                         </article>
 
-                        <!-- 產品供應狀態統計 -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -368,7 +359,6 @@
                             </div>
                         </article>
 
-                        <!-- 產品售價排行 (Top 5) -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -380,7 +370,6 @@
                             </div>
                         </article>
 
-                        <!-- 全球 SV 點數排行 (Top 5) -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -392,7 +381,6 @@
                             </div>
                         </article>
 
-                        <!-- SV 點數貢獻率排行 (Top 5) -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -404,7 +392,6 @@
                             </div>
                         </article>
 
-                        <!-- 產品重量 Top 5 -->
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -416,7 +403,6 @@
                             </div>
                         </article>
 
-                        <!-- 各年度上市品項趨勢 -->
                         <article class="col-12">
                             <div class="card card-custom h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -447,7 +433,7 @@
                         <form id="formFullProduct">
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                                    <i class="fa-solid fa-box"></i> 產品主檔 (prd_items)
+                                    <i class="fa-solid fa-box"></i> 產品主檔
                                 </legend>
                                 <div class="row g-3">
                                     <div class="col-12 col-md-3">
@@ -458,11 +444,11 @@
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label small fw-bold">完整產品編號 (SKU)</label>
+                                        <label class="form-label small fw-bold">完整產品編號</label>
                                         <input type="text" class="form-control form-control-sm font-monospace" name="product_code" placeholder="例：TW0303001" required>
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label small fw-bold">跨國基本編號 (Base Code)</label>
+                                        <label class="form-label small fw-bold">跨國基本編號</label>
                                         <input type="text" class="form-control form-control-sm font-monospace" name="base_code" placeholder="例：0303001" required>
                                     </div>
                                     <div class="col-12 col-md-3">
@@ -474,17 +460,22 @@
                                         <label class="form-label small fw-bold">官方完整品名</label>
                                         <input type="text" class="form-control form-control-sm" name="name" placeholder="例：貝益潔護效牙膏" required>
                                     </div>
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label small fw-bold">產品簡稱 (卡片用)</label>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small fw-bold">產品簡稱</label>
                                         <input type="text" class="form-control form-control-sm" name="short_name" placeholder="例：貝益潔">
                                     </div>
-                                    <div class="col-12 col-md-3">
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small fw-bold">主系列歸屬</label>
+                                        <select class="form-select form-select-sm" name="category_code" id="modalSelectCategory" required></select>
+                                    </div>
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold">次系列歸屬</label>
                                         <select class="form-select form-select-sm" name="subcategory_code" id="modalSelectSubcategory" required></select>
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold">產品簡介／一行短評 (short_summary)</label>
+                                        <label class="form-label small fw-bold">產品簡介</label>
                                         <input type="text" class="form-control form-control-sm" name="short_summary" placeholder="例：草本植萃防護，維護牙齦健康">
                                     </div>
 
@@ -493,7 +484,7 @@
                                         <input type="text" class="form-control form-control-sm" name="package_spec" placeholder="例：140g x 3 盒／組">
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label small fw-bold">產品重量／淨重 (物流計重)</label>
+                                        <label class="form-label small fw-bold">產品重量／淨重</label>
                                         <input type="text" class="form-control form-control-sm font-monospace" name="product_weight" placeholder="例：140g 或 0.15kg">
                                     </div>
                                     <div class="col-12 col-md-2">
@@ -502,7 +493,10 @@
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label class="form-label small fw-bold">幣別代碼</label>
-                                        <input type="text" class="form-control form-control-sm font-monospace" name="currency" value="TWD" required>
+                                        <select class="form-select form-select-sm font-monospace" name="currency" required>
+                                            <option value="TWD">TWD (新台幣)</option>
+                                            <option value="MYR">MYR (馬幣)</option>
+                                        </select>
                                     </div>
                                     <div class="col-12 col-md-2">
                                         <label class="form-label small fw-bold">全球統一 SV</label>
@@ -510,7 +504,7 @@
                                     </div>
 
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label small fw-bold">列表縮圖網址 (Primary Image URL)</label>
+                                        <label class="form-label small fw-bold">列表縮圖網址</label>
                                         <input type="url" class="form-control form-control-sm" name="primary_image_url" placeholder="https://...">
                                     </div>
                                     <div class="col-12 col-md-3">
@@ -522,7 +516,7 @@
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <label class="form-label small fw-bold">前端顯示排序權重</label>
+                                        <label class="form-label small fw-bold">顯示排序權重</label>
                                         <input type="number" class="form-control form-control-sm" name="sort_order" value="0">
                                     </div>
 
@@ -545,7 +539,7 @@
                                         </div>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" name="is_valid" id="modalIsValid" checked>
-                                            <label class="form-check-label small fw-bold" for="modalIsValid">有效上架</label>
+                                            <label class="form-check-label small fw-bold" for="modalIsValid">是否有效</label>
                                         </div>
                                     </div>
                                 </div>
@@ -553,20 +547,20 @@
 
                             <fieldset>
                                 <legend class="h6 text-secondary fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                                    <i class="fa-solid fa-file-lines"></i> 產品詳細資料 (prd_details)
+                                    <i class="fa-solid fa-file-lines"></i> 產品詳細資料
                                 </legend>
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label small fw-bold">1:1 高解析大圖網址 (HD Image URL)</label>
+                                        <label class="form-label small fw-bold">高解析大圖網址</label>
                                         <input type="url" class="form-control form-control-sm" name="hd_image_url" placeholder="https://...">
                                     </div>
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label small fw-bold">葡眾官方產品連結 (Official Site URL)</label>
+                                        <label class="form-label small fw-bold">葡眾官方產品連結</label>
                                         <input type="url" class="form-control form-control-sm" name="official_site_url" placeholder="https://www.uvaco.com.tw/...">
                                     </div>
 
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label small fw-bold">官方認證字號 / SNQ 標章 (Certifications)</label>
+                                        <label class="form-label small fw-bold">官方認證字號 / SNQ 標章</label>
                                         <input type="text" class="form-control form-control-sm" name="certifications" placeholder="例：衛部健食字第A00000號">
                                     </div>
                                     <div class="col-12 col-md-6">
@@ -575,24 +569,173 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold">建議食用 / 使用情境 (Usage Scenarios)</label>
+                                        <label class="form-label small fw-bold">建議食用 / 使用情境</label>
                                         <textarea class="form-control form-control-sm" name="usage_scenarios" rows="2" placeholder="例：早晚各一次，搭配溫開水..."></textarea>
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold">完整原料與主成分清單 (Ingredients)</label>
+                                        <label class="form-label small fw-bold">特色與主要功能</label>
+                                        <textarea class="form-control form-control-sm" name="features_and_functions" rows="2" placeholder="例：維持消化道機能..."></textarea>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">完整原料與主成分清單</label>
                                         <textarea class="form-control form-control-sm" name="ingredients" rows="3" placeholder="例：植物乳桿菌、雙歧桿菌..."></textarea>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">產品詳細介紹 / 文案</label>
+                                        <textarea class="form-control form-control-sm" name="detailed_description" rows="3" placeholder="例：產品詳細說明..."></textarea>
                                     </div>
                                 </div>
                             </fieldset>
                         </form>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-muted btn-sm" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-hub-primary btn-sm" id="btnSaveFullProduct">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnSaveFullProduct">
                             <i class="fa-solid fa-floppy-disk"></i> 儲存所有異動
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </div>
+
+        <!-- 產品完整資訊檢視彈窗 (Detail Modal) -->
+        <div class="modal fade" id="modalProductDetailView" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <section class="modal-content card-custom border-0 shadow-lg">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25" style="background-color: var(--uvaco-bg-surface);">
+                        <h5 class="modal-title fw-bold text-light">
+                            <i class="fa-solid fa-circle-info text-info"></i> 產品完整詳細資訊
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
+                            <!-- 產品圖片與代碼 (電腦版佔 3 欄) -->
+                            <div class="col-12 col-lg-3 text-center">
+                                <div class="p-2 rounded-3 border border-secondary border-opacity-25 bg-black bg-opacity-40 mb-3">
+                                    <img id="viewPrdImage" src="" alt="產品圖片" class="img-fluid rounded" style="max-height: 240px; object-fit: contain;">
+                                </div>
+                                <div class="d-flex justify-content-center gap-2 mb-2">
+                                    <span class="badge bg-dark border border-secondary" id="viewPrdRegion">TW</span>
+                                    <span class="badge badge-secondary" id="viewPrdCode">CODE</span>
+                                </div>
+                                <div class="text-muted">跨國基本編號：<span class="font-monospace text-light" id="viewPrdBaseCode">-</span></div>
+                            </div>
+
+                            <!-- 產品主要規格資訊 (電腦版佔 9 欄) -->
+                            <div class="col-12 col-lg-9">
+                                <h4 class="fw-bold text-light mb-1">
+                                    <span id="viewPrdName">-</span>
+                                    <small class="text-muted fs-6 ms-1" id="viewPrdShortName"></small>
+                                </h4>
+                                <p class="text-secondary mb-3" id="viewPrdSummary">-</p>
+
+                                <!-- 電腦版改為 1 行 4 欄 (col-md-3) -->
+                                <div class="row g-3 border-top border-bottom border-secondary border-opacity-25 py-3 mb-3">
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">主系列：</strong>
+                                        <span id="viewPrdCategory">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">次系列：</strong>
+                                        <span id="viewPrdSubcategory">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">型態：</strong>
+                                        <span id="viewPrdType">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">規格：</strong>
+                                        <span id="viewPrdSpec" class="font-monospace text-light">-</span>
+                                    </div>
+
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">售價：</strong>
+                                        <span id="viewPrdPrice" class="text-danger fw-bold fs-6">0</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">全球 SV：</strong>
+                                        <span id="viewPrdSv" class="text-warning fw-bold fs-6">0 SV</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">重量／淨重：</strong>
+                                        <span id="viewPrdWeight" class="font-monospace text-light">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">庫存狀態：</strong>
+                                        <span id="viewPrdStock">-</span>
+                                    </div>
+
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">明星商品：</strong>
+                                        <span id="viewPrdFeatured">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">有效上架：</strong>
+                                        <span id="viewPrdIsValid">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">上市日期：</strong>
+                                        <span id="viewPrdLaunchDate" class="font-monospace text-light">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">下市日期：</strong>
+                                        <span id="viewPrdDiscontinueDate" class="font-monospace text-light">-</span>
+                                    </div>
+
+                                    <div class="col-6 col-md-3">
+                                        <strong class="text-muted d-block mb-1">官方最新異動：</strong>
+                                        <span id="viewPrdOfficialUpdateDate" class="font-monospace text-light">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-9">
+                                        <strong class="text-muted d-block mb-1">品質認證：</strong>
+                                        <span class="badge badge-info" id="viewPrdCertifications">無</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <strong class="text-muted d-block mb-1">短語標籤：</strong>
+                                    <div id="viewPrdPhraseTags"></div>
+                                </div>
+                            </div>
+
+                            <!-- 深入介紹區塊 -->
+                            <div class="col-12 border-top border-secondary border-opacity-25 pt-3">
+                                <div class="mb-3">
+                                    <h6 class="fw-bold text-primary mb-1"><i class="fa-solid fa-align-left me-1"></i> 產品介紹</h6>
+                                    <div class="text-light-subtle bg-dark bg-opacity-50 p-3 rounded border border-secondary border-opacity-25" id="viewPrdDescription">-</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="fw-bold text-success mb-1"><i class="fa-solid fa-list-check me-1"></i> 特色與主要功能</h6>
+                                    <div class="text-light-subtle bg-dark bg-opacity-50 p-3 rounded border border-secondary border-opacity-25" id="viewPrdFeatures">-</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="fw-bold text-danger mb-1"><i class="fa-solid fa-heart me-1"></i> 使用情境與食用建議</h6>
+                                    <div class="text-light-subtle bg-dark bg-opacity-50 p-3 rounded border border-secondary border-opacity-25" id="viewPrdUsageScenarios">-</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="fw-bold text-warning mb-1"><i class="fa-solid fa-flask me-1"></i> 主要成分與完整配方</h6>
+                                    <div class="text-light-subtle bg-dark bg-opacity-50 p-3 rounded border border-secondary border-opacity-25" id="viewPrdIngredients">-</div>
+                                </div>
+
+                                <div>
+                                    <h6 class="fw-bold text-info mb-1"><i class="fa-solid fa-globe me-1"></i> 官方網站</h6>
+                                    <div id="viewPrdOfficialSite">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 關閉視窗
                         </button>
                     </footer>
                 </section>
@@ -613,46 +756,48 @@
                         <form id="formTaxonomy">
                             <input type="hidden" name="taxonomy_type" id="taxType">
                             <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold">唯一代碼 (Code)</label>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">唯一代碼</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="code" id="taxCode" placeholder="例：01 或 0101" required>
                                 </div>
-                                <div class="col-12" id="taxParentCategoryGroup" style="display: none;">
+                                <div class="col-12 col-md-6" id="taxParentCategoryGroup" style="display: none;">
                                     <label class="form-label small fw-bold">歸屬主系列</label>
                                     <select class="form-select form-select-sm" name="category_code" id="taxParentCategory"></select>
                                 </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">中文名稱 (TW)</label>
+                                    <label class="form-label small fw-bold">中文名稱</label>
                                     <input type="text" class="form-control form-control-sm" name="name_zh" id="taxNameZh" placeholder="例：保健食品" required>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">英文名稱 (MY)</label>
+                                    <label class="form-label small fw-bold">英文名稱</label>
                                     <input type="text" class="form-control form-control-sm" name="name_en" id="taxNameEn" placeholder="例：Health Foods">
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold">Font Awesome 圖示 Class</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="icon_class" id="taxIconClass" placeholder="例：fa-solid fa-heart-pulse">
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold">顯示排序權重</label>
+                                    <input type="number" class="form-control form-control-sm" name="sort_order" id="taxSortOrder" value="0">
+                                </div>
+                                <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold">標籤文字顏色</label>
                                     <input type="color" class="form-control form-control-sm form-control-color w-100" name="text_color" id="taxTextColor" value="#8b5cf6">
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold">標籤背景顏色</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="bg_color" id="taxBgColor" placeholder="#1a122d">
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">展演排序權重</label>
-                                    <input type="number" class="form-control form-control-sm" name="sort_order" id="taxSortOrder" value="0">
                                 </div>
                             </div>
                         </form>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-muted btn-sm" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-hub-primary btn-sm" id="btnSaveTaxonomy">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnSaveTaxonomy">
                             <i class="fa-solid fa-floppy-disk"></i> 儲存設定
                         </button>
                     </footer>
