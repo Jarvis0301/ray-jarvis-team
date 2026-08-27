@@ -3,44 +3,39 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>產品詳細資訊</title>
+        <title>產品詳細資訊 - 榮祥葡眾團隊</title>
 
+        <!-- 認證守衛 -->
         <script src="../assets/js/auth-guard.js"></script>
         
+        <!-- 第三方函式庫加載器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
+        <!-- 團隊共用核心模組與樣式 -->
         <script src="../assets/js/common.js"></script>
-
         <link rel="stylesheet" href="../assets/css/common.css">
 
+        <!-- 模組專屬腳本與樣式 -->
         <script src="./js/prd-detail.js" defer></script>
-
         <link rel="stylesheet" href="./css/prd-detail.css">
     </head>
 
     <body>
-
-        <div class="container py-4">
-
-            <div id="loadingSpinner" class="loading-spinner d-flex justify-content-center align-items-center py-5">
-                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
-                    <span class="visually-hidden">資料載入中...</span>
-                </div>
-            </div>
-
+        <main class="container py-4">
             <div id="productContainer" class="d-none">
 
-                <div class="mb-3 d-flex justify-content-start align-items-center d-none">
+                <div class="mb-3 d-flex justify-content-start align-items-center">
                     <button onclick="closeOrReturn()" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold">
                         <i class="fa-solid fa-arrow-left"></i> 返回產品列表
                     </button>
                 </div>
 
-                <div class="content-card p-4 mb-4">
+                <!-- 產品大卡片 -->
+                <section class="content-card p-4 mb-4">
                     <div class="row g-4 align-items-center">
                         <div class="col-lg-5 text-center">
-                            <div class="product-img-box position-relative bg-dark rounded-3">
-                                <img id="productImg" src="" class="img-fluid rounded shadow product-detail-img" alt="" loading="lazy" onerror="window.imgError ? imgError(this, 'fa-solid fa-box-open', '350px') : (this.style.opacity='0')">
+                            <div class="product-img-box position-relative bg-dark rounded-3" id="productImgWrapper">
+                                <img id="productImg" src="" class="img-fluid rounded shadow product-detail-img" alt="" loading="lazy">
                             </div>
                         </div>
 
@@ -55,26 +50,7 @@
 
                                 <div id="phraseTagsContainer" class="mb-3 d-flex flex-wrap gap-1 align-items-center d-none"></div>
 
-                                <div class="specs-list mb-4">
-                                    <p class="mb-2 text-muted">
-                                        <i class="fa-solid fa-tags text-warning"></i> 建議售價：<span id="productPrice" class="text-warning fw-bold fs-5"></span>
-                                    </p>
-                                    <p class="mb-2 text-muted">
-                                        <i class="fa-solid fa-star text-info"></i> 全球積分：<span id="productSV" class="text-info fw-bold"></span>
-                                    </p>
-                                    <p class="mb-2 text-muted">
-                                        <i class="fa-solid fa-box text-success"></i> 包裝規格：<span id="productSpec" class="text-light"></span>
-                                    </p>
-                                    <p class="mb-2 text-muted">
-                                        <i class="fa-solid fa-barcode text-secondary"></i> 產品編號：<span id="productID" class="text-light"></span>
-                                    </p>
-                                    <p class="mb-2 text-muted">
-                                        <i class="fa-solid fa-calendar-day text-primary"></i> 上市日期：<span id="launchDate" class="text-light"></span>
-                                    </p>
-                                    <p class="mb-0 text-muted">
-                                        <i class="fa-solid fa-certificate text-danger"></i> 品質認證：<span id="certInfo" class="text-light"></span>
-                                    </p>
-                                </div>
+                                <div class="specs-list mb-4"></div>
 
                                 <div class="d-flex flex-wrap gap-2">
                                     <a id="officialBtn" href="#" target="_blank" class="btn btn-outline-primary fw-bold px-4 rounded-pill">
@@ -87,10 +63,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="col-12 mb-4">
-
+                <!-- 規格詳情摺疊區塊 -->
+                <section class="col-12 mb-4">
                     <div class="content-card p-0 mb-3 overflow-hidden">
                         <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
                             <h5 class="fw-bold text-light mb-0">
@@ -138,11 +114,10 @@
                             <div class="p-4 text-light-subtle lh-lg" id="usageScenarios"></div>
                         </div>
                     </div>
+                </section>
 
-                </div>
-
-                <div class="col-12 mb-4">
-
+                <!-- 文案與 FAQ 區塊 -->
+                <section class="col-12 mb-4">
                     <div id="copywritingContainer" class="content-card p-0 mb-3 overflow-hidden d-none">
                         <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#collapseCopywriting" aria-expanded="false" aria-controls="collapseCopywriting">
                             <h5 class="fw-bold text-light mb-0">
@@ -154,20 +129,6 @@
                             <div class="p-4">
                                 <ul class="nav nav-pills mb-3" id="copywritingTabs" role="tablist"></ul>
                                 <div class="tab-content" id="copywritingTabContent"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="testimonialContainer" class="content-card p-0 mb-3 overflow-hidden d-none">
-                        <div class="p-3 bg-dark border-bottom border-secondary-subtle d-flex justify-content-between align-items-center collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#collapseTestimonial" aria-expanded="false" aria-controls="collapseTestimonial">
-                            <h5 class="fw-bold text-light mb-0">
-                                <i class="fa-solid fa-comments text-info"></i> 使用者真實體驗與見證
-                            </h5>
-                            <i class="fa-solid fa-chevron-down text-muted"></i>
-                        </div>
-                        <div id="collapseTestimonial" class="collapse">
-                            <div class="p-4">
-                                <div id="testimonialList" class="row g-3"></div>
                             </div>
                         </div>
                     </div>
@@ -185,10 +146,10 @@
                             </div>
                         </div>
                     </div>
+                </section>
 
-                </div>
-
-                <div class="content-card p-4 text-center rounded-3">
+                <!-- 底部諮詢卡片 -->
+                <section class="content-card p-4 text-center rounded-3">
                     <h5 class="fw-bold mb-2 text-success">
                         <i class="fa-solid fa-seedling me-1"></i> 想了解更多產品搭配與專屬建議？
                     </h5>
@@ -201,11 +162,8 @@
                             <i class="fa-solid fa-comments"></i> 立即預約一對一諮詢
                         </a>
                     </div>
-                </div>
-
+                </section>
             </div>
-
-        </div>
-
+        </main>
     </body>
 </html>

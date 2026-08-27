@@ -107,15 +107,16 @@ function setDataTable() {
             pagingType: "full_numbers",     // 分頁按鈕樣式 (前後頁 + 數字頁碼)
 
             // --- 3. 功能開關預設值 ---
-            searching: false,              // 全域預設關閉表格自帶搜尋框 (改由外部搜尋框控制)
-            ordering: true,                // 開放欄位點擊排序
-            info: true,                    // 顯示「顯示第 X 至 Y 筆」的統計資訊
-            paging: true,                  // 開啟分頁
-            autoWidth: false,              // 關閉自動寬度計算 (避免欄位擠壓，改由 CSS 控制)
-            stateSave: false,              // 重新整理時是否記憶目前的頁碼/排序 (預設關閉)
+            searching: true,                // 全域預設關閉表格自帶搜尋框 (改由外部搜尋框控制)
+            ordering: true,                 // 開放欄位點擊排序
+            info: true,                     // 顯示「顯示第 X 至 Y 筆」的統計資訊
+            paging: true,                   // 開啟分頁
+            autoWidth: false,               // 關閉自動寬度計算 (避免欄位擠壓，改由 CSS 控制)
+            stateSave: false,               // 重新整理時是否記憶目前的頁碼/排序 (預設關閉)
+            destroy: true,                  // 銷毀舊表格，重新建立
 
             // --- 4. 效能優化 ---
-            deferRender: true,             // 延遲渲染 (當資料量大時能顯著提升速度)
+            deferRender: true,              // 延遲渲染 (當資料量大時能顯著提升速度)
             processing: true,               // 讀取/排序時顯示「處理中」提示
             responsive: true                // RWD
 

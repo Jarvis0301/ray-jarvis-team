@@ -1,36 +1,19 @@
-/* :root {
-    --uvaco-bg-primary: #192821;
-    --uvaco-bg-card: #10231d;
-    --uvaco-bg-card-primary: #0b1a15;
-    --uvaco-secondary: #34d399;
-    --uvaco-primary: #10b981;
-    --uvaco-primary-hover: #059669;
-    --uvaco-text-primary: #f0fdf4;
-    --uvaco-text-secondary: #a7f3d0;
-    --uvaco-text-muted: #9ca3af;
-    --uvaco-border-glow: rgba(52, 211, 153, 0.18);
+body {
+    background-color: var(--uvaco-bg-base, #192821);
+    color: var(--uvaco-text-main, #f0fdf4);
+    min-height: 100vh;
 }
 
-body {
-    background-color: var(--uvaco-bg-primary);
-    color: var(--uvaco-text-primary);
-    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
-    padding-top: 2rem;
-    padding-bottom: 3.5rem;
-} */
-
-/* 主卡片通用樣式 (深色發光邊框) */
 .content-card {
-    background-color: var(--uvaco-bg-card);
+    background-color: var(--uvaco-bg-card, #10231d);
     border-radius: 20px;
-    border: 1px solid var(--uvaco-border-glow);
+    border: 1px solid var(--uvaco-border, rgba(52, 211, 153, 0.18));
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     overflow: hidden;
 }
 
-/* 官方產品照片區 */
-.product-image-box {
-    background-color: var(--uvaco-bg-card-primary);
+.product-img-box {
+    background-color: var(--uvaco-bg-surface, #0b1a15);
     border-radius: 16px;
     border: 1px solid rgba(52, 211, 153, 0.1);
     display: flex;
@@ -40,38 +23,26 @@ body {
     min-height: 360px;
 }
 
-.product-image-box img {
+.product-detail-img {
     max-height: 300px;
     object-fit: contain;
     transition: transform 0.3s ease;
 }
 
-.product-image-box img:hover {
+.product-detail-img:hover {
     transform: scale(1.03);
 }
 
-/* Badge 標籤與價格 */
-/* .custom-badge {
-    align-items: center;
-    padding: 0.4rem 0.85rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid transparent;
-} */
-
 .price-tag {
-    color: var(---uvaco-secondary);
+    color: var(--uvaco-secondary, #34d399);
     font-size: 2.1rem;
     font-weight: 700;
-    text-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+    text-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(52, 211, 153, 0.2));
 }
 
 .sv-tag {
     background-color: rgba(52, 211, 153, 0.12);
-    color: var(---uvaco-secondary);
+    color: var(--uvaco-secondary, #34d399);
     border: 1px solid rgba(52, 211, 153, 0.25);
     font-weight: 600;
     padding: 0.25rem 0.75rem;
@@ -79,70 +50,23 @@ body {
     font-size: 0.95rem;
 }
 
-/* 重構區塊：直式廣告圖片與文案混排區 */
-.ad-showcase-card {
-    background-color: var(--uvaco-bg-card);
-    border-radius: 20px;
-    border: 1px solid var(--uvaco-border-glow);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    overflow: hidden;
-}
-
-.vertical-poster-wrapper {
-    background-color: var(--uvaco-bg-card-primary);
-    border-radius: 16px;
-    border: 1px solid rgba(52, 211, 153, 0.1);
-    padding: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-.vertical-poster-img {
-    width: 100%;
-    max-height: 480px;
-    object-fit: contain;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease;
-}
-
-.vertical-poster-img:hover {
-    transform: scale(1.02);
-}
-
-.target-group-badge {
-    background-color: rgba(52, 211, 153, 0.12);
-    color: var(---uvaco-secondary);
-    border: 1px solid rgba(52, 211, 153, 0.25);
-    padding: 0.35rem 0.85rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: inline-block;
-    margin-right: 0.4rem;
-    margin-bottom: 0.5rem;
-}
-
-/* Accordion 可摺疊規格卡 (深色主題) */
 .accordion-custom .accordion-item {
     border: 1px solid rgba(52, 211, 153, 0.2);
     border-radius: 12px !important;
     margin-bottom: 0.75rem;
-    background-color: var(--uvaco-bg-card-primary);
+    background-color: var(--uvaco-bg-surface, #0b1a15);
     overflow: hidden;
 }
 
 .accordion-custom .accordion-button {
-    background-color: var(--uvaco-bg-card-primary);
-    color: var(---uvaco-secondary);
+    background-color: var(--uvaco-bg-surface, #0b1a15);
+    color: var(--uvaco-secondary, #34d399);
     font-weight: 600;
 }
 
 .accordion-custom .accordion-button:not(.collapsed) {
     background-color: rgba(52, 211, 153, 0.15);
-    color: var(--uvaco-text-primary);
+    color: var(--uvaco-text-main, #f0fdf4);
     box-shadow: none;
 }
 
@@ -151,48 +75,6 @@ body {
 }
 
 .accordion-custom .accordion-body {
-    background-color: var(--uvaco-bg-card-primary);
-    color: var(--uvaco-text-secondary);
+    background-color: var(--uvaco-bg-surface, #0b1a15);
+    color: var(--uvaco-text-muted, #a7f3d0);
 }
-
-/* 轉化 CTA 按鈕 */
-/* .btn-cta-green {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: #ffffff;
-    font-weight: 600;
-    padding: 0.85rem 2rem;
-    border-radius: 30px;
-    border: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
-}
-
-.btn-cta-green:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 22px rgba(16, 185, 129, 0.45);
-}
-
-.btn-outline-green {
-    border: 2px solid var(---uvaco-secondary);
-    color: var(---uvaco-secondary);
-    font-weight: 600;
-    padding: 0.85rem 2rem;
-    border-radius: 30px;
-    background-color: transparent;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-green:hover {
-    background-color: rgba(52, 211, 153, 0.15);
-    color: var(--uvaco-text-primary);
-} */
-
-/* Loading Spinner */
-/* #loadingSpinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 450px;
-} */

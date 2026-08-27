@@ -1,179 +1,69 @@
-/* 核心色彩與變數系統 (UVACO Emerald Green Palette) */
-:root {
-/*     --uvaco-bg-primary: #192821;
-    --uvaco-bg-card: #163529;
-    --uvaco-bg-card-hover: #1e4738;
-    --bg-input: #10261d;
-    --uvaco-border-color: #235240;
-    --uvaco-primary: #52b788;
-    --uvaco-primary-hover: #74c69d;
-    --uvaco-text-primary: #e8f5e9;
-    --uvaco-text-muted: #94a3b8;
-    --uvaco-accent: #f59e0b; */
-    --radius: 12px;
-    --shadow: 0 8px 24px rgba(7, 4, 4, 0.4);
+body {
+    background-color: var(--uvaco-bg-base, #192821);
+    color: var(--uvaco-text-main, #e8f5e9);
+    min-height: 100vh;
 }
 
-/* 全域品牌綠色系環境適應 */
-/* html, body {
-    background-color: transparent;
-    color: var(--uvaco-text-primary);
-    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    -webkit-font-smoothing: antialiased;
-} */
-
-/* 篩選控制面板 */
 .filter-section {
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
-    border-radius: var(--radius);
+    background-color: var(--uvaco-bg-card, #163529);
+    border: 1px solid var(--uvaco-border, #235240);
+    border-radius: 14px;
     padding: 24px;
     margin-bottom: 24px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 24px rgba(7, 4, 4, 0.4);
 }
 
 .form-group label {
     font-size: 0.88rem;
     font-weight: 700;
     margin-bottom: 8px;
-    color: var(--uvaco-primary);
+    color: var(--uvaco-primary, #52b788);
 }
 
-/* 表單元件 - 深色模式全域消除白底 */
-select.form-control {
-    width: 100%;
-    padding: 11px 38px 11px 14px;
-    background-color: var(--uvaco-bg-primary) !important;
-    color: var(--uvaco-text-primary) !important;
-    border: 1px solid var(--uvaco-border-color) !important;
+.form-control-custom {
+    background-color: var(--uvaco-bg-surface, #10261d) !important;
+    color: var(--uvaco-text-main, #e8f5e9) !important;
+    border: 1px solid var(--uvaco-border, #235240) !important;
     border-radius: 8px;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.2s ease;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    color-scheme: dark !important;
-    background-image: url("data:image/svg+xml;utf8,<svg fill='%2352b788' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") !important;
-    background-repeat: no-repeat !important;
-    background-position: right 12px center !important;
-    background-size: 18px !important;
+    padding: 0.55rem 0.85rem;
 }
 
-input.form-control {
-    width: 100%;
-    padding: 11px 38px 11px 14px;
-    background-color: var(--uvaco-bg-primary) !important;
-    color: var(--uvaco-text-primary) !important;
-    border: 1px solid var(--uvaco-border-color) !important;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.2s ease;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    color-scheme: dark !important;
+.form-control-custom:focus {
+    border-color: var(--uvaco-primary, #52b788) !important;
+    box-shadow: 0 0 0 0.25rem var(--uvaco-primary-glow, rgba(82, 183, 136, 0.25)) !important;
 }
 
-select.form-control option,
-.form-control option,
-optgroup {
-    background-color: #10261d !important;
-    color: #e8f5e9 !important;
-    padding: 10px;
-    color-scheme: dark !important;
-}
-
-.form-control:focus {
-    border-color: var(--uvaco-primary) !important;
-    box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.25) !important;
-}
-
-.form-control:disabled {
-    background-color: #163529 !important;
-    color: #52796f !important;
-    opacity: 0.65;
-    cursor: not-allowed;
-    border-color: var(--uvaco-border-color) !important;
-}
-
-input.form-control:-webkit-autofill,
-input.form-control:-webkit-autofill:hover,
-input.form-control:-webkit-autofill:focus,
-select.form-control:-webkit-autofill {
-    -webkit-text-fill-color: var(--uvaco-text-primary) !important;
-    -webkit-box-shadow: 0 0 0px 1000px #10261d inset !important;
-    transition: background-color 5000s ease-in-out 0s !important;
-}
-
-/* 型態篩選按鈕列 */
 .type-filter-title {
     font-size: 0.88rem;
     font-weight: 700;
     margin-bottom: 12px;
-    color: var(--uvaco-primary);
+    color: var(--uvaco-primary, #52b788);
 }
 
-/* .type-btn {
-    background-color: var(--bg-input);
-    border: 1px solid var(--uvaco-border-color);
-    border-radius: 20px;
-    padding: 8px 18px;
-    font-size: 0.88rem;
-    font-weight: 500;
-    color: var(--uvaco-text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    align-items: center;
-}
-
-.type-btn:hover {
-    background-color: var(--uvaco-border-color);
-    color: var(--uvaco-primary-hover);
-}
-
-.type-btn.active {
-    background-color: var(--uvaco-primary);
-    color: #05130d;
-    border-color: var(--uvaco-primary);
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(82, 183, 136, 0.3);
-} */
-
-/* 狀態統計資訊 */
 .info-bar {
-    background-color: rgba(22, 53, 41, 0.6);
+    background-color: var(--uvaco-bg-surface, rgba(22, 53, 41, 0.6));
     border-radius: 8px;
-    border: 1px solid var(--uvaco-border-color);
+    border: 1px solid var(--uvaco-border, #235240);
 }
 
 .results-count {
     font-size: 0.92rem;
-    color: var(--uvaco-text-muted);
+    color: var(--uvaco-text-muted, #94a3b8);
 }
 
-.sync-status {
-    font-size: 0.85rem;
-    color: var(--uvaco-primary);
-}
-
-/* 產品卡片 */
 .product-card {
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color) !important;
-    border-radius: var(--radius);
+    background-color: var(--uvaco-bg-card, #163529);
+    border: 1px solid var(--uvaco-border, #235240) !important;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 24px rgba(7, 4, 4, 0.4);
     transition: transform 0.25s ease, border-color 0.25s ease;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    border-color: var(--uvaco-primary) !important;
-    background-color: var(--uvaco-bg-card-hover);
+    border-color: var(--uvaco-primary, #52b788) !important;
+    background-color: var(--uvaco-bg-card-hover, #1e4738);
 }
 
 .card-img-wrapper {
@@ -198,50 +88,14 @@ select.form-control:-webkit-autofill {
     transform: scale(1.06);
 }
 
-.img-placeholder-icon {
-    font-size: 3rem;
-    color: #1B4D36;
-}
-
-/* 雙 Tag 橫向排列 */
-.card-badges {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    z-index: 2;
-}
-
-.badge {
-    font-size: 0.75rem;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: 700;
-    align-items: center;
-    white-space: nowrap;
-    backdrop-filter: blur(4px);
-    border: 1px solid currentColor;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease;
-}
-
-.badge:hover {
-    transform: scale(1.05);
-}
-
 .product-title {
-    color: var(--uvaco-text-primary);
+    color: var(--uvaco-text-main, #e8f5e9);
     line-height: 1.4;
 }
 
 .product-desc {
-    color: var(--uvaco-text-muted);
+    color: var(--uvaco-text-muted, #94a3b8);
     display: -webkit-box;
-    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -249,49 +103,28 @@ select.form-control:-webkit-autofill {
 }
 
 .price-sv-block {
-    background-color: var(--uvaco-bg-primary);
-    border: 1px solid var(--uvaco-border-color);
+    background-color: var(--uvaco-bg-surface, #10261d);
+    border: 1px solid var(--uvaco-border, #235240);
 }
 
 .price-tag {
     font-size: 1.15rem;
-    color: var(--uvaco-primary);
+    color: var(--uvaco-primary, #52b788);
 }
 
 .sv-tag {
     font-size: 0.85rem;
-    color: var(--uvaco-accent);
+    color: var(--uvaco-accent, #f59e0b);
     background-color: rgba(245, 158, 11, 0.15);
     border: 1px solid rgba(245, 158, 11, 0.3);
     padding: 2px 8px;
     border-radius: 12px;
 }
 
-/* .btn-detail {
-    background-color: var(--uvaco-primary);
-    color: #05130d;
-    border: none;
-    border-radius: 8px;
-    padding: 11px;
-    font-size: 0.92rem;
-    transition: background-color 0.2s ease;
-}
-
-.btn-detail:hover {
-    background-color: var(--uvaco-primary-hover);
-    color: #05130d;
-} */
-
 .no-data {
     text-align: center;
     padding: 60px 20px;
-    background-color: var(--uvaco-bg-card);
-    border: 1px solid var(--uvaco-border-color);
-    color: var(--uvaco-text-muted);
-}
-
-.no-data i {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    color: var(--uvaco-border-color);
+    background-color: var(--uvaco-bg-card, #163529);
+    border: 1px solid var(--uvaco-border, #235240);
+    color: var(--uvaco-text-muted, #94a3b8);
 }

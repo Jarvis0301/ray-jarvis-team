@@ -8,8 +8,8 @@ const SPREADSHEET_ID = "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw";
  */
 function getVal(row, colIndex, defaultVal = '') {
     if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && row[colIndex] !== '') {
-        return row[colIndex].toString().trim();
+    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
+        return String(row[colIndex]).trim();
     }
     return defaultVal;
 }
@@ -118,13 +118,12 @@ function applyUIPermissions() {
 }
 
 // ==========================================================================
-// 4. 資料讀取引擎 (表 sys_menus 選單主檔讀取)
+// 4. 資料讀取引擎 (依 Schema 索引順序讀取選單架構)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步選單...', '載入最新結構');
     try {
         const fetchSheet = async (sheetName) => {
-            // 加入時間戳記避免 GViz 快取舊資料
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
@@ -135,7 +134,7 @@ async function fetchGoogleSheetsData() {
                 skipEmptyLines: true
             });
 
-            return parsed.data.slice(1);
+            return (parsed.data || []).slice(1);
         };
 
         const rawRows = await fetchSheet('選單架構');
@@ -200,7 +199,6 @@ function bindUIEvents() {
         $('#iconPreview').html(`<i class="${icon || 'fa-solid fa-bars'}"></i>`);
     });
 
-    // 由 AppDialog 統一託管彈窗在 iframe 中的垂直置中
     AppDialog.bindIframeAutoCenter('#menuModal');
 }
 
@@ -382,7 +380,7 @@ function renderNavbarSandbox() {
     visibleRoots.forEach(r => {
         $sandbox.append(`
             <div class="sandbox-nav-pill">
-                <i class="${r.fa_icon} me-1 text-primary"></i> ${r.menu_name_zh}
+                <i class="${r.fa_icon} text-primary"></i> ${r.menu_name_zh}
             </div>
         `);
     });
@@ -613,7 +611,6 @@ async function deleteMenuItem(menuId) {
     try {
         await SheetAdapter.deleteRow('選單架構', menuId);
 
-        // 即時自本地狀態移除並更新視圖
         appState.menus = appState.menus.filter(m => m.menu_id !== menuId);
         if (appState.selectedMenuId === menuId) {
             const nextNode = appState.menus.find(m => m.app_track === appState.currentPortal);

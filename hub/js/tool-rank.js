@@ -801,11 +801,10 @@ function renderRankDataTable() {
 
     if ($.fn.DataTable) {
         rankDataTableInstance = $('#tableRankDictionary').DataTable({
+            searching: false,
             ordering: false,
             info: false,
-            paging: false,
-            responsive: true,
-            retrieve: true
+            paging: false
         });
     }
 }
