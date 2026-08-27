@@ -21,207 +21,209 @@
     </head>
 
     <body>
-        <!-- 主控台頂部宣告與控制列 -->
-        <section class="container-fluid mb-4">
-            <div class="row align-items-center gy-3">
-                <div class="col-lg-6 col-md-12">
-                    <h1 class="page-title mb-1"><i class="fa-solid fa-bars-staggered"></i> 三軌動態選單拓撲與路由控制艙</h1>
-                    <p class="text-muted mb-0 small">全域控制公開版、團隊版與核心版之樹狀拓撲、開發狀態、對應資料表與實體路由。</p>
-                </div>
-                <div class="col-lg-6 col-md-12 text-lg-end">
-                    <div class="portal-switcher me-2 mb-2 mb-sm-0">
-                        <button type="button" class="portal-btn active" data-portal="核心版" onclick="switchPortal('核心版')">
-                            <i class="fa-solid fa-crown"></i> 核心版
-                        </button>
-                        <button type="button" class="portal-btn" data-portal="團隊版" onclick="switchPortal('團隊版')">
-                            <i class="fa-solid fa-users-gear"></i> 團隊版
-                        </button>
-                        <button type="button" class="portal-btn" data-portal="公開版" onclick="switchPortal('公開版')">
-                            <i class="fa-solid fa-leaf"></i> 公開版
+        <main class="container-fluid p-3 p-md-4">
+            <!-- 主控台頂部宣告與控制列 -->
+            <section class="mb-4">
+                <div class="row align-items-center gy-3">
+                    <div class="col-lg-6 col-md-12">
+                        <h1 class="page-title mb-1"><i class="fa-solid fa-bars-staggered"></i> 三軌動態選單拓撲與路由控制艙</h1>
+                        <p class="text-muted mb-0 small">全域控制公開版、團隊版與核心版之樹狀拓撲、開發狀態、對應資料表與實體路由。</p>
+                    </div>
+                    <div class="col-lg-6 col-md-12 text-lg-end">
+                        <div class="portal-switcher me-2 mb-2 mb-sm-0">
+                            <button type="button" class="portal-btn active" data-portal="核心版" onclick="switchPortal('核心版')">
+                                <i class="fa-solid fa-crown"></i> 核心版
+                            </button>
+                            <button type="button" class="portal-btn" data-portal="團隊版" onclick="switchPortal('團隊版')">
+                                <i class="fa-solid fa-users-gear"></i> 團隊版
+                            </button>
+                            <button type="button" class="portal-btn" data-portal="公開版" onclick="switchPortal('公開版')">
+                                <i class="fa-solid fa-leaf"></i> 公開版
+                            </button>
+                        </div>
+                        <button id="btnOpenAddModal" class="btn btn-sm btn-primary" onclick="openAddModal()">
+                            <i class="fa-solid fa-plus"></i> 新增節點
                         </button>
                     </div>
-                    <button id="btnOpenAddModal" class="btn btn-sm btn-primary" onclick="openAddModal()">
-                        <i class="fa-solid fa-plus"></i> 新增節點
-                    </button>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- 指標統計列 -->
-        <section class="container-fluid mb-4">
-            <div class="row g-3">
-                <div class="col-6 col-lg-3">
-                    <div class="quadrant-card quadrant-active">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-circle-check text-success"></i> 已完成節點</span>
-                            <span class="badge badge-success-subtle">已上線</span>
-                        </div>
-                        <div class="fs-3 fw-bold text-white mt-2" id="statCompleted">0</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">正常啟用並可完整存取</div>
-                    </div>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <div class="quadrant-card quadrant-testing">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-flask text-warning"></i> 測試中節點</span>
-                            <span class="badge badge-warning-subtle">Beta 驗收</span>
-                        </div>
-                        <div class="fs-3 fw-bold text-white mt-2" id="statTesting">0</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">邏輯驗收與沙盒測試中</div>
-                    </div>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <div class="quadrant-card quadrant-fixing">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-wrench text-danger"></i> 修復/維護中</span>
-                            <span class="badge badge-danger-subtle">維護中</span>
-                        </div>
-                        <div class="fs-3 fw-bold text-white mt-2" id="statFixing">0</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">暫停對外開放或除錯中</div>
-                    </div>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <div class="quadrant-card quadrant-hidden">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted small"><i class="fa-solid fa-route text-info"></i> 獨立落地頁</span>
-                            <span class="badge badge-info-subtle">階層 -1</span>
-                        </div>
-                        <div class="fs-3 fw-bold text-white mt-2" id="statHiddenLanding">0</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">導覽隱藏，直連落地路由</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 主要操作區：左側樹狀拓撲 vs 右側沙盒預覽與詳細巡檢 -->
-        <section class="container-fluid mb-4">
-            <div class="row g-3">
-                <div class="col-lg-6">
-                    <div class="glass-panel p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fs-6 fw-bold mb-0 text-secondary-emphasis">
-                                <i class="fa-solid fa-sitemap text-primary"></i> 樹狀拓撲視覺畫布
-                                <span class="badge badge-purple ms-2" id="treePortalBadge">核心版</span>
-                            </h5>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="expandAllTree()"><i class="fa-solid fa-angles-down"></i> 展開</button>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="collapseAllTree()"><i class="fa-solid fa-angles-up"></i> 收合</button>
+            <!-- 指標統計列 -->
+            <section class="container-fluid mb-4">
+                <div class="row g-3">
+                    <div class="col-6 col-lg-3">
+                        <div class="quadrant-card quadrant-active">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fa-solid fa-circle-check text-success"></i> 已完成節點</span>
+                                <span class="badge badge-success-subtle">已上線</span>
                             </div>
+                            <div class="fs-3 fw-bold text-white mt-2" id="statCompleted">0</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">正常啟用並可完整存取</div>
                         </div>
-
-                        <div class="topology-container" id="treeContainer"></div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="quadrant-card quadrant-testing">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fa-solid fa-flask text-warning"></i> 測試中節點</span>
+                                <span class="badge badge-warning-subtle">Beta 驗收</span>
+                            </div>
+                            <div class="fs-3 fw-bold text-white mt-2" id="statTesting">0</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">邏輯驗收與沙盒測試中</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="quadrant-card quadrant-fixing">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fa-solid fa-wrench text-danger"></i> 修復/維護中</span>
+                                <span class="badge badge-danger-subtle">維護中</span>
+                            </div>
+                            <div class="fs-3 fw-bold text-white mt-2" id="statFixing">0</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">暫停對外開放或除錯中</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="quadrant-card quadrant-hidden">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fa-solid fa-route text-info"></i> 獨立落地頁</span>
+                                <span class="badge badge-info-subtle">階層 -1</span>
+                            </div>
+                            <div class="fs-3 fw-bold text-white mt-2" id="statHiddenLanding">0</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">導覽隱藏，直連落地路由</div>
+                        </div>
                     </div>
                 </div>
+            </section>
 
-                <div class="col-lg-6">
-                    <div class="d-flex flex-column gap-3 h-100">
-                        <!-- 即時 Navbar 導航沙盒 -->
-                        <div class="glass-panel p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="fs-6 fw-bold mb-0"><i class="fa-solid fa-laptop-code text-info"></i> 即時 Navbar 導航列沙盒預覽</h6>
-                                <span class="badge badge-secondary-subtle">Level 0 & is_active='Y'</span>
-                            </div>
-                            <div class="navbar-sandbox" id="navbarSandbox"></div>
-                        </div>
-
-                        <!-- 節點詳細屬性巡檢儀 -->
-                        <div class="glass-panel p-3 flex-grow-1" id="inspectorPanel">
-                            <div class="d-flex justify-content-between align-items-start mb-3 border-bottom border-secondary-subtle pb-2">
-                                <div>
-                                    <span class="badge badge-purple me-1" id="inspectMenuId">H00000</span>
-                                    <span class="fs-5 fw-bold" id="inspectMenuNameZh">戰情總覽</span>
-                                    <div class="text-muted small" id="inspectMenuNameEn">Executive Dashboard</div>
-                                </div>
+            <!-- 主要操作區：左側樹狀拓撲 vs 右側沙盒預覽與詳細巡檢 -->
+            <section class="container-fluid mb-4">
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="glass-panel p-3 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fs-6 fw-bold mb-0 text-secondary-emphasis">
+                                    <i class="fa-solid fa-sitemap text-primary"></i> 樹狀拓撲視覺畫布
+                                    <span class="badge badge-purple ms-2" id="treePortalBadge">核心版</span>
+                                </h5>
                                 <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary admin-action-btn" onclick="openEditCurrent()"><i class="fa-solid fa-pen-to-square"></i> 編輯</button>
-                                    <button class="btn btn-outline-danger admin-action-btn" onclick="deleteCurrent()"><i class="fa-solid fa-trash"></i> 刪除</button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="expandAllTree()"><i class="fa-solid fa-angles-down"></i> 展開</button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="collapseAllTree()"><i class="fa-solid fa-angles-up"></i> 收合</button>
                                 </div>
                             </div>
 
-                            <div class="row g-2 mb-3">
-                                <div class="col-6">
-                                    <div class="p-2 rounded bg-dark border border-secondary-subtle">
-                                        <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-folder-tree"></i> 父節點 (parent_id)</div>
-                                        <div class="fw-semibold text-light small" id="inspectParentId">root</div>
-                                    </div>
+                            <div class="topology-container" id="treeContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="d-flex flex-column gap-3 h-100">
+                            <!-- 即時 Navbar 導航沙盒 -->
+                            <div class="glass-panel p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fs-6 fw-bold mb-0"><i class="fa-solid fa-laptop-code text-info"></i> 即時 Navbar 導航列沙盒預覽</h6>
+                                    <span class="badge badge-secondary-subtle">Level 0 & is_active='Y'</span>
                                 </div>
-                                <div class="col-6">
-                                    <div class="p-2 rounded bg-dark border border-secondary-subtle">
-                                        <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-link"></i> 路由連結 (route_url)</div>
-                                        <div class="fw-semibold text-info small" id="inspectRouteUrl">home.html</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 rounded bg-dark border border-secondary-subtle">
-                                        <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-icons"></i> 圖示 (fa_icon)</div>
-                                        <div class="fw-semibold text-warning small" id="inspectFaIcon"><i class="fa-solid fa-chart-line"></i> fa-solid fa-chart-line</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 rounded bg-dark border border-secondary-subtle">
-                                        <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-layer-group"></i> 階層深度 (menu_level)</div>
-                                        <div class="fw-semibold text-danger-subtle small" id="inspectMenuLevel">0 (頂層大類)</div>
-                                    </div>
-                                </div>
+                                <div class="navbar-sandbox" id="navbarSandbox"></div>
                             </div>
 
-                            <div class="mb-2">
-                                <label class="text-muted small mb-1"><i class="fa-solid fa-database"></i> 對應實體資料表 (related_tables)：</label>
-                                <div class="p-2 rounded bg-dark border border-secondary-subtle text-info small" id="inspectRelatedTables">自動彙整</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="text-muted small mb-1"><i class="fa-solid fa-file-invoice"></i> 核心功能與業務維護說明 (function_desc)：</label>
-                                <div class="p-2 rounded bg-dark border border-secondary-subtle text-light small" id="inspectFunctionDesc">全站營運戰情大看板、SV 總量、營收目標與即時預警。</div>
-                            </div>
-                            
-                            <div class="p-2 rounded bg-dark border border-secondary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="text-muted small"><i class="fa-solid fa-power-off"></i> 全域狀態：</span>
-                                    <span class="badge badge-success-subtle" id="inspectActiveBadge"><i class="fa-solid fa-circle-check"></i> 啟用中</span>
-                                    <span class="badge badge-success" id="inspectDevStatusBadge">已完成</span>
+                            <!-- 節點詳細屬性巡檢儀 -->
+                            <div class="glass-panel p-3 flex-grow-1" id="inspectorPanel">
+                                <div class="d-flex justify-content-between align-items-start mb-3 border-bottom border-secondary-subtle pb-2">
+                                    <div>
+                                        <span class="badge badge-purple me-1" id="inspectMenuId">H00000</span>
+                                        <span class="fs-5 fw-bold" id="inspectMenuNameZh">戰情總覽</span>
+                                        <div class="text-muted small" id="inspectMenuNameEn">Executive Dashboard</div>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary admin-action-btn" onclick="openEditCurrent()"><i class="fa-solid fa-pen-to-square"></i> 編輯</button>
+                                        <button class="btn btn-outline-danger admin-action-btn" onclick="deleteCurrent()"><i class="fa-solid fa-trash"></i> 刪除</button>
+                                    </div>
                                 </div>
-                                <div class="text-muted" style="font-size: 0.72rem;" id="inspectAuditTrail">最後異動：-</div>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                            <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-folder-tree"></i> 父節點 (parent_id)</div>
+                                            <div class="fw-semibold text-light small" id="inspectParentId">root</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                            <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-link"></i> 路由連結 (route_url)</div>
+                                            <div class="fw-semibold text-info small" id="inspectRouteUrl">home.html</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                            <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-icons"></i> 圖示 (fa_icon)</div>
+                                            <div class="fw-semibold text-warning small" id="inspectFaIcon"><i class="fa-solid fa-chart-line"></i> fa-solid fa-chart-line</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 rounded bg-dark border border-secondary-subtle">
+                                            <div class="text-muted" style="font-size: 0.72rem;"><i class="fa-solid fa-layer-group"></i> 階層深度 (menu_level)</div>
+                                            <div class="fw-semibold text-danger-subtle small" id="inspectMenuLevel">0 (頂層大類)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="text-muted small mb-1"><i class="fa-solid fa-database"></i> 對應實體資料表 (related_tables)：</label>
+                                    <div class="p-2 rounded bg-dark border border-secondary-subtle text-info small" id="inspectRelatedTables">自動彙整</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="text-muted small mb-1"><i class="fa-solid fa-file-invoice"></i> 核心功能與業務維護說明 (function_desc)：</label>
+                                    <div class="p-2 rounded bg-dark border border-secondary-subtle text-light small" id="inspectFunctionDesc">全站營運戰情大看板、SV 總量、營收目標與即時預警。</div>
+                                </div>
+                                
+                                <div class="p-2 rounded bg-dark border border-secondary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted small"><i class="fa-solid fa-power-off"></i> 全域狀態：</span>
+                                        <span class="badge badge-success-subtle" id="inspectActiveBadge"><i class="fa-solid fa-circle-check"></i> 啟用中</span>
+                                        <span class="badge badge-success" id="inspectDevStatusBadge">已完成</span>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.72rem;" id="inspectAuditTrail">最後異動：-</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- 底部 DataTable 數據清單 -->
-        <section class="container-fluid">
-            <div class="glass-panel p-3">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                    <h5 class="fs-6 fw-bold mb-0"><i class="fa-solid fa-table-list text-primary"></i> 選單主檔資料表完整清單</h5>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-secondary" onclick="exportJson()"><i class="fa-solid fa-file-code"></i> 匯出 JSON</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="exportCsv()"><i class="fa-solid fa-file-csv"></i> 匯出 CSV</button>
+            <!-- 底部 DataTable 數據清單 -->
+            <section class="container-fluid">
+                <div class="glass-panel p-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <h5 class="fs-6 fw-bold mb-0"><i class="fa-solid fa-table-list text-primary"></i> 選單主檔資料表完整清單</h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="exportJson()"><i class="fa-solid fa-file-code"></i> 匯出 JSON</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="exportCsv()"><i class="fa-solid fa-file-csv"></i> 匯出 CSV</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="menuDataTable" class="table table-dark-custom w-100">
+                            <thead>
+                                <tr>
+                                    <th>選單 ID</th>
+                                    <th>中文 / 英文名稱</th>
+                                    <th>版本</th>
+                                    <th>階層</th>
+                                    <th>父節點</th>
+                                    <th>排序</th>
+                                    <th>路由</th>
+                                    <th>圖示</th>
+                                    <th>狀態</th>
+                                    <th>啟用</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="menuTableBody"></tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div class="table-responsive">
-                    <table id="menuDataTable" class="table table-dark-custom w-100">
-                        <thead>
-                            <tr>
-                                <th>選單 ID</th>
-                                <th>中文 / 英文名稱</th>
-                                <th>版本</th>
-                                <th>階層</th>
-                                <th>父節點</th>
-                                <th>排序</th>
-                                <th>路由</th>
-                                <th>圖示</th>
-                                <th>狀態</th>
-                                <th>啟用</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="menuTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+            </section>
+        </main>
 
         <!-- Modal：新增 / 編輯選單節點 -->
         <div class="modal fade" id="menuModal" tabindex="-1" aria-hidden="true">

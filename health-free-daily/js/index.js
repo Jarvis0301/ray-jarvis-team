@@ -344,30 +344,85 @@ function loadPage(pageUrl) {
 }
 
 /**
- * 動態同步 iFrame 實際 DOM 高度以消弭二次卷軸
+ * 動態同步 iFrame 實際內容高度（全面支援多 section、無 main、DataTable 非同步長出之頁面）
+ * @param {HTMLIFrameElement} frame 
  */
 function autoResizeIframe(frame) {
     try {
-        if (frame && frame.contentWindow && frame.contentWindow.document.body) {
-            const body = frame.contentWindow.document.body;
-            const html = frame.contentWindow.document.documentElement;
-            const contentHeight = Math.max(
-                body.scrollHeight, body.offsetHeight,
-                html.clientHeight, html.scrollHeight, html.offsetHeight
-            );
+        if (!frame || !frame.contentWindow || !frame.contentWindow.document) return;
 
-            frame.style.height = contentHeight + 'px';
+        const doc = frame.contentWindow.document;
+        const win = frame.contentWindow;
 
-            if (frame.contentWindow.ResizeObserver) {
-                const observer = new frame.contentWindow.ResizeObserver(() => {
-                    frame.style.height = frame.contentWindow.document.body.scrollHeight + 'px';
-                });
-                observer.observe(frame.contentWindow.document.body);
+        const calculateRealContentHeight = () => {
+            // 1. 若頁面具備語意化 <main> 容器，優先以 <main> 幾何高度為基準
+            const mainEl = doc.querySelector('main');
+            if (mainEl) {
+                const rect = mainEl.getBoundingClientRect();
+                const style = win.getComputedStyle(mainEl);
+                const mt = parseFloat(style.marginTop) || 0;
+                const mb = parseFloat(style.marginBottom) || 0;
+                return Math.ceil(rect.height + mt + mb + 20);
             }
+
+            // 2. 若頁面無 <main>（直接使用多個 <section>）：遍歷計算所有非 Modal 元素的真實底部 (Max Bottom)
+            let maxBottom = 0;
+            const children = doc.body.children;
+            for (let i = 0; i < children.length; i++) {
+                const el = children[i];
+                // 排除 Bootstrap Modal 遮罩彈窗與隱藏元素
+                if (el.classList.contains('modal') || el.style.display === 'none') continue;
+
+                const rect = el.getBoundingClientRect();
+                const style = win.getComputedStyle(el);
+                const mb = parseFloat(style.marginBottom) || 0;
+                const bottom = el.offsetTop + rect.height + mb;
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
+                }
+            }
+
+            // 3. 雙軌回退：取實體佔位 maxBottom 與 scrollHeight 的安全最大值
+            const scrollH = doc.body.scrollHeight || 0;
+            const finalH = Math.max( maxBottom + 0, scrollH);
+            return finalH > 100 ? finalH : 800; // 最低安全高度 800px
+        };
+
+        const syncHeight = () => {
+            const targetHeight = calculateRealContentHeight();
+            frame.style.height = targetHeight + 'px';
+        };
+
+        // 首次載入立即計算
+        syncHeight();
+
+        // 監聽子頁面整體的 Resize 變動（支援 RWD 視窗縮放）
+        if (win.ResizeObserver) {
+            if (frame._contentResizeObserver) {
+                frame._contentResizeObserver.disconnect();
+            }
+            const observer = new win.ResizeObserver(() => {
+                win.requestAnimationFrame(syncHeight);
+            });
+            observer.observe(doc.body);
+            frame._contentResizeObserver = observer;
         }
+
+        // 監聽子頁面 DOM 節點增刪（專門捕獲 PapaParse 載入完畢與 DataTable.js 生成瞬間）
+        if (win.MutationObserver && !frame._contentMutationObserver) {
+            const mutObserver = new win.MutationObserver(() => {
+                win.requestAnimationFrame(syncHeight);
+            });
+            mutObserver.observe(doc.body, { childList: true, subtree: true, attributes: true });
+            frame._contentMutationObserver = mutObserver;
+        }
+
+        // 監聽圖片與外部字型載入完畢後的補償計算
+        win.addEventListener('load', syncHeight);
+
     } catch (e) {
-        console.warn('iFrame 跨網域高度同步受限，採用預設高度:', e);
-        frame.style.height = '800px';
+        console.warn('iFrame 跨網域高度同步受限，採用安全預設高度:', e);
+        frame.style.height = '1000px';
     }
 }
 
