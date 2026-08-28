@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>產品資料維護 | 榮祥團隊極密戰情室</title>
+        <title>產品資訊維護 - 榮祥團隊核心版</title>
 
         <!-- 認證守衛 -->
         <script src="../assets/js/auth-guard.js"></script>
@@ -46,7 +46,7 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="tab-batch-link" data-bs-toggle="tab" data-bs-target="#tab-batch" type="button" role="tab">
-                            <i class="fa-solid fa-calculator"></i> 批次定價與SV
+                            <i class="fa-solid fa-calculator"></i> 批次定價與積分
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -596,7 +596,7 @@
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm" id="btnSaveFullProduct">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存所有異動
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
                     </footer>
                 </section>
@@ -735,7 +735,7 @@
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 關閉視窗
+                            <i class="fa-solid fa-xmark"></i> 關閉
                         </button>
                     </footer>
                 </section>
@@ -774,6 +774,8 @@
                                     <label class="form-label small fw-bold">英文名稱</label>
                                     <input type="text" class="form-control form-control-sm" name="name_en" id="taxNameEn" placeholder="例：Health Foods">
                                 </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold">Font Awesome 圖示 Class</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="icon_class" id="taxIconClass" placeholder="例：fa-solid fa-heart-pulse">
@@ -782,6 +784,8 @@
                                     <label class="form-label small fw-bold">顯示排序權重</label>
                                     <input type="number" class="form-control form-control-sm" name="sort_order" id="taxSortOrder" value="0">
                                 </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold">標籤文字顏色</label>
                                     <input type="color" class="form-control form-control-sm form-control-color w-100" name="text_color" id="taxTextColor" value="#8b5cf6">
@@ -798,7 +802,7 @@
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm" id="btnSaveTaxonomy">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存設定
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
                     </footer>
                 </section>

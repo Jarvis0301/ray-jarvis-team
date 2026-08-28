@@ -1,65 +1,109 @@
 // ==========================================
 // 榮祥團隊 全域 UI 回饋中樞模組 (app-dialog.js)
-// 包含：AppDialog (彈窗/置中)、AppToast (輕量通知)、AppLoading (視窗垂直置中加載)
+// 包含：AppDialog (彈窗/動態置中)、AppToast (可視角通知)、AppLoading (可視角遮罩)
 // ==========================================
 
 class AppDialog {
     /**
-     * 計算父視窗可視高度並將元素精準定位在目前視窗中央 (支援 iframe)
-     * @param {jQuery|HTMLElement} targetDialog - 需要置中的 .modal-dialog 或 .uvaco-loading-card
-     * @param {number} defaultHeight - 預設高度
+     * 統一量測父視窗可視範圍在 iFrame 內部的精確幾何座標
+     * @returns {Object} { visibleTop, visibleHeight, centerY, isInsideIframe }
      */
-    static centerInViewport(targetDialog, defaultHeight = 480) {
-        try {
-            const isInsideIframe = (window.self !== window.top);
-            if (!isInsideIframe) return;
+    static getViewportMetrics() {
+        const isInsideIframe = (window.self !== window.top);
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const innerH = window.innerHeight || document.documentElement.clientHeight;
 
+        if (!isInsideIframe) {
+            return {
+                isInsideIframe: false,
+                visibleTop: scrollY,
+                visibleHeight: innerH,
+                centerY: scrollY + (innerH / 2)
+            };
+        }
+
+        try {
             const parentWin = window.parent;
             const frameEl = window.frameElement;
-            if (!parentWin || !frameEl) return;
+            if (!parentWin || !frameEl) throw new Error("無法存取父層 frame");
 
-            const parentScrollY = parentWin.scrollY || parentWin.pageYOffset || 0;
-            const parentInnerHeight = parentWin.innerHeight || document.documentElement.clientHeight;
-            const frameRect = frameEl.getBoundingClientRect();
-            const iframeTopInParent = frameRect.top + parentScrollY;
+            const parentInnerH = parentWin.innerHeight || parentWin.document.documentElement.clientHeight;
+            const frameRect = frameEl.getBoundingClientRect(); // iFrame 頂部相對父視窗可視頂部的距離
 
-            // 計算父視窗當前視野中心點在 iframe 內部的相對 Y 座標
-            const parentCenterYInIframe = (parentScrollY + parentInnerHeight / 2) - iframeTopInParent;
+            // 幾何推導：frameRect.top 為負值時表示 iFrame 頂端已被往上捲動
+            const visibleTop = Math.max(0, -frameRect.top);
+            const centerY = visibleTop + (parentInnerH / 2);
 
+            return {
+                isInsideIframe: true,
+                visibleTop: visibleTop,
+                visibleHeight: parentInnerH,
+                centerY: centerY
+            };
+        } catch (e) {
+            return {
+                isInsideIframe: false,
+                visibleTop: scrollY,
+                visibleHeight: innerH,
+                centerY: scrollY + (innerH / 2)
+            };
+        }
+    }
+
+    /**
+     * 將指定的 Modal Dialog 或 Loading Card 動態定位在目前使用者視野中央
+     * @param {jQuery|HTMLElement} targetDialog - 需要置中的 .modal-dialog 或 .uvaco-loading-card
+     * @param {number} defaultHeight - 預設高度緩衝
+     */
+    static centerInViewport(targetDialog, defaultHeight = 400) {
+        try {
+            const vp = this.getViewportMetrics();
             const $dialog = $(targetDialog);
             $dialog.removeClass('modal-dialog-centered');
 
             const dialogHeight = $dialog.outerHeight() || defaultHeight;
-            let targetMarginTop = parentCenterYInIframe - (dialogHeight / 2);
+            let targetMarginTop = vp.centerY - (dialogHeight / 2);
 
-            // 邊界防護：避免超出頂部或底部
-            const iframeHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-            targetMarginTop = Math.max(20, Math.min(targetMarginTop, iframeHeight - dialogHeight - 50));
+            // 邊界防護：避免超出子頁面頂部或底部
+            const maxDocHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+            targetMarginTop = Math.max(20, Math.min(targetMarginTop, maxDocHeight - dialogHeight - 40));
 
             $dialog.css({
                 'margin-top': targetMarginTop + 'px',
                 'margin-bottom': '30px'
             });
         } catch (e) {
-            console.warn("Iframe viewport centering notice:", e);
+            console.warn("Iframe 視野置中計算提示:", e);
         }
     }
 
     /**
-     * 為任意 Bootstrap Modal 綁定 iframe 視窗動態追蹤置中事件
+     * 為任意 Bootstrap Modal 綁定視野動態追蹤置中事件
      * @param {string|HTMLElement} modalSelector - Modal DOM 或選擇器
      */
     static bindIframeAutoCenter(modalSelector) {
         const $modal = $(modalSelector);
         if (!$modal.length) return;
 
-        $modal.off('show.bs.modal.autoCenter').on('show.bs.modal.autoCenter', function () {
-            AppDialog.centerInViewport($(this).find('.modal-dialog'));
-        });
+        const reposition = () => {
+            AppDialog.centerInViewport($modal.find('.modal-dialog'));
+        };
 
-        $modal.off('shown.bs.modal.autoCenter').on('shown.bs.modal.autoCenter', function () {
-            AppDialog.centerInViewport($(this).find('.modal-dialog'));
-        });
+        $modal.off('show.bs.modal.autoCenter shown.bs.modal.autoCenter')
+              .on('show.bs.modal.autoCenter shown.bs.modal.autoCenter', reposition);
+
+        // 當 Modal 開啟期間，若使用者在父頁面滾動或縮放，持續鎖定在視野正中央
+        if (window.self !== window.top) {
+            try {
+                const parentWin = window.parent;
+                $modal.off('shown.bs.modal.scrollTrack').on('shown.bs.modal.scrollTrack', () => {
+                    $(parentWin).off('scroll.modalCenter resize.modalCenter').on('scroll.modalCenter resize.modalCenter', reposition);
+                });
+                $modal.off('hidden.bs.modal.scrollTrack').on('hidden.bs.modal.scrollTrack', () => {
+                    $(parentWin).off('scroll.modalCenter resize.modalCenter');
+                });
+            } catch (e) {}
+        }
     }
 
     static _getOrCreateModal() {
@@ -67,7 +111,7 @@ class AppDialog {
         if (!modalElem) {
             const modalHtml = `
             <div class="modal fade" id="globalAppModal" tabindex="-1" aria-hidden="true" style="z-index: 999999;">
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog">
                     <div class="modal-content bg-dark text-light border-secondary shadow-lg">
                         <div class="modal-header border-secondary">
                             <h5 class="modal-title" id="globalAppModalTitle">
@@ -202,7 +246,7 @@ class AppDialog {
 }
 
 // ==========================================
-// 全域通用 Toast 通知模組 (AppToast)
+// 全域通用 Toast 通知模組 (AppToast) - 自動錨定當前可視角右上角
 // ==========================================
 class AppToast {
     static _ensureContainer() {
@@ -212,17 +256,29 @@ class AppToast {
             document.body.insertAdjacentHTML('beforeend', html);
             container = document.getElementById('globalToastContainer');
         }
+        AppToast._syncPosition(container);
         return container;
     }
 
     /**
+     * 將 Toast 容器校準在當前螢幕可視視野右上角
+     */
+    static _syncPosition(container) {
+        const vp = AppDialog.getViewportMetrics();
+        if (vp.isInsideIframe) {
+            container.style.position = 'absolute';
+            container.style.top = (vp.visibleTop + 24) + 'px';
+            container.style.right = '24px';
+            container.style.zIndex = '9999999';
+        }
+    }
+
+    /**
      * 觸發 Toast 通知
-     * @param {string} message 訊息文字或 HTML
-     * @param {string} type 類型 ('success' | 'info' | 'warning' | 'danger')
-     * @param {number} duration 顯示時間 (毫秒)
      */
     static show(message, type = 'success', duration = 3000) {
         const container = this._ensureContainer();
+        this._syncPosition(container);
         const toastId = 'toast_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
 
         let iconHtml = '<i class="fa-solid fa-circle-check text-success me-2"></i> ';
@@ -268,7 +324,7 @@ class AppToast {
 }
 
 // ==========================================
-// 全域通用 Loading 遮罩模組 (AppLoading) - 視窗可視範圍垂直置中
+// 全域通用 Loading 遮罩模組 (AppLoading) - 自動鎖定當前可視畫面中央
 // ==========================================
 class AppLoading {
     static _ensureLoadingOverlay() {
@@ -293,9 +349,7 @@ class AppLoading {
     }
 
     /**
-     * 啟動 Loading 遮罩並垂直置中於可視範圍
-     * @param {string} title 標題 HTML
-     * @param {string} desc 說明文字
+     * 啟動 Loading 遮罩並置中於當前可視畫面
      */
     static show(title = '', desc = '') {
         const $overlay = this._ensureLoadingOverlay();
@@ -308,12 +362,28 @@ class AppLoading {
 
         // 在可視範圍內精準垂直置中卡片
         AppDialog.centerInViewport($card, 180);
+
+        // 若使用者在載入期間滾動父視窗，持續鎖定在可視中心
+        if (window.self !== window.top) {
+            try {
+                $(window.parent).off('scroll.loadingCenter resize.loadingCenter').on('scroll.loadingCenter resize.loadingCenter', () => {
+                    if ($overlay.hasClass('active')) {
+                        AppDialog.centerInViewport($card, 180);
+                    }
+                });
+            } catch (e) {}
+        }
     }
 
     /**
-     * 隱藏 Loading 遮罩
+     * 隱藏 Loading 遮罩並解除滾動監聽
      */
     static hide() {
         $('#globalLoadingOverlay').removeClass('active');
+        if (window.self !== window.top) {
+            try {
+                $(window.parent).off('scroll.loadingCenter resize.loadingCenter');
+            } catch (e) {}
+        }
     }
 }
