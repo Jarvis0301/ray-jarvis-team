@@ -1,3 +1,8 @@
+/* ==========================================================================
+   組織成員模組專屬樣式 (org-partners.css)
+   其餘 Badge、Modal 置中、Table 樣式均由 common.css / app-dialog.js 託管
+   ========================================================================== */
+
 /* 戰術抬頭玻璃面板 */
 .hud-glass-panel {
     background: linear-gradient(135deg, rgba(25, 18, 51, 0.8) 0%, rgba(19, 14, 36, 0.9) 100%);
@@ -38,26 +43,6 @@
     transform: translateY(-2px);
 }
 
-/* 戰術濾鏡膠囊 */
-.nav-pills-tactical .nav-link {
-    color: var(--uvaco-text-muted, #94a3b8);
-    background: rgba(25, 18, 51, 0.6);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: 9999px;
-    padding: 0.45rem 1.1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.nav-pills-tactical .nav-link.active,
-.nav-pills-tactical .nav-link:hover {
-    color: #fff;
-    background: var(--uvaco-primary, #8b5cf6);
-    border-color: var(--uvaco-primary, #8b5cf6);
-    box-shadow: 0 0 15px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.4));
-}
-
 /* 夥伴卡片 */
 .partner-card {
     background: var(--uvaco-bg-card, #191233);
@@ -79,14 +64,8 @@
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2);
 }
 
-.partner-card.is-core {
-    border-left: 4px solid var(--uvaco-primary, #8b5cf6);
-}
-
-.partner-card.is-cross {
-    border-left: 4px solid var(--uvaco-text-muted, #94a3b8);
-    opacity: 0.88;
-}
+.partner-card.is-core { border-left: 4px solid var(--uvaco-primary, #8b5cf6); }
+.partner-card.is-cross { border-left: 4px solid var(--uvaco-text-muted, #94a3b8); opacity: 0.88; }
 
 .partner-avatar-wrap {
     position: relative;
@@ -104,7 +83,6 @@
     background: #2d1f47;
 }
 
-/* 浮動職級標籤 (深底 + 外框 + 顏色字) */
 .rank-badge-floating {
     position: absolute;
     bottom: -4px;
@@ -117,7 +95,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* 組織樹狀拓撲節點 */
+/* 組織樹狀拓撲連線與節點 */
 .tree-node-card {
     background: rgba(25, 18, 51, 0.85);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
@@ -132,10 +110,20 @@
     background: rgba(33, 24, 66, 0.95);
 }
 
-.tree-level-indent {
-    border-left: 2px dashed rgba(139, 92, 246, 0.3);
-    margin-left: 1.25rem;
-    padding-left: 1.25rem;
+.node-border-purple { border: 2px solid #8b5cf6 !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.35); }
+.node-border-green  { border: 2px solid #10b981 !important; }
+.node-border-orange { border: 2px solid #f97316 !important; }
+.node-border-blue   { border: 2px solid #38bdf8 !important; }
+
+.tree-level-indent.tree-line-solid { border-left: 2px solid rgba(139, 92, 246, 0.4); margin-left: 1.25rem; padding-left: 1.25rem; }
+.tree-level-indent.tree-line-dotted { border-left: 2px dotted rgba(239, 68, 68, 0.5); margin-left: 1.25rem; padding-left: 1.25rem; }
+
+.tree-legend-chip {
+    background: rgba(25, 18, 51, 0.7);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
+    border-radius: 9999px;
+    padding: 0.2rem 0.65rem;
+    color: var(--uvaco-text-muted, #94a3b8);
 }
 
 /* 統計圖表戰情卡片 */
@@ -147,193 +135,74 @@
     height: 100%;
 }
 
-/* DataTables 樣式適配 */
-.table-responsive-custom {
-    background: var(--uvaco-bg-surface, #130e24);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: var(--uvaco-border-radius-lg, 20px);
-    padding: 1rem;
+/* 表單分頁橫向滑動導航 (手機適配) */
+.form-tabs-mobile-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    gap: 0.35rem;
 }
-
-table.dataTable {
-    color: var(--uvaco-text-main, #f8fafc) !important;
-    border-color: var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-}
-
-table.dataTable thead th {
-    background-color: rgba(139, 92, 246, 0.12) !important;
-    color: var(--uvaco-secondary, #a78bfa) !important;
-    border-bottom: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45)) !important;
-    font-size: 0.85rem;
-}
-
-table.dataTable tbody tr {
-    background-color: transparent !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-}
-
-table.dataTable tbody tr:hover {
-    background-color: rgba(139, 92, 246, 0.08) !important;
-}
-
-.dataTables_filter input {
-    background: var(--uvaco-bg-card, #191233) !important;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-    color: #fff !important;
-    border-radius: 9999px !important;
-    padding: 0.35rem 0.85rem !important;
-}
-
-/* 浮動行動抽屜 Offcanvas */
-.offcanvas-tactical {
-    background: #110c22;
-    border-left: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45));
-    color: var(--uvaco-text-main, #f8fafc);
-}
-
-.form-tactical-control {
-    background: #1a1333;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    color: #fff;
-    border-radius: 8px;
-}
-
-.form-tactical-control:focus {
-    background: #20173f;
-    border-color: var(--uvaco-primary, #8b5cf6);
-    color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
-}
-
-.btn-icon-tactical {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--uvaco-text-muted, #94a3b8);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    transition: all 0.2s;
-}
-
-.btn-icon-tactical:hover {
-    color: #fff;
-    background: var(--uvaco-primary, #8b5cf6);
-    border-color: var(--uvaco-primary, #8b5cf6);
-}
-
-/* 組織樹狀圖圖例標籤 */
-.tree-legend-chip {
-    background: rgba(25, 18, 51, 0.7);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
+.form-tabs-mobile-nav::-webkit-scrollbar { display: none; }
+.form-tabs-mobile-nav .nav-link {
+    font-size: 0.84rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 9999px;
-    padding: 0.2rem 0.65rem;
+    background: rgba(25, 18, 51, 0.6);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
     color: var(--uvaco-text-muted, #94a3b8);
 }
-
-/* 組織圖節點 4 種框線配色 (我和榮祥purple、上線green、旁線orange、下線blue) */
-.node-border-purple { border: 2px solid #8b5cf6 !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.35); }
-.node-border-green  { border: 2px solid #10b981 !important; }
-.node-border-orange { border: 2px solid #f97316 !important; }
-.node-border-blue   { border: 2px solid #38bdf8 !important; }
-
-/* 組織層級連線樣式 */
-.tree-level-indent.tree-line-solid {
-    border-left: 2px solid rgba(139, 92, 246, 0.4);
-    margin-left: 1.25rem;
-    padding-left: 1.25rem;
+.form-tabs-mobile-nav .nav-link.active {
+    background: var(--uvaco-primary, #8b5cf6);
+    color: #fff;
+    border-color: var(--uvaco-primary, #8b5cf6);
 }
 
-.tree-level-indent.tree-line-dotted {
-    border-left: 2px dotted rgba(239, 68, 68, 0.5); /* 點虛線 (未知層間隔) */
-    margin-left: 1.25rem;
-    padding-left: 1.25rem;
-}
-
-.tree-level-indent.tree-line-dashed {
-    border-left: 2px dashed rgba(251, 191, 36, 0.5); /* 線虛線 (配偶共享) */
-    margin-left: 1.25rem;
-    padding-left: 1.25rem;
-}
-
-/* 共同經營雙層節點子面板 */
-.tree-coop-sublayer {
-    background: rgba(251, 191, 36, 0.05);
-    border-radius: 6px;
-    padding: 0.35rem 0.5rem;
-}
-
-/* ==========================================================================
-   彈出視窗（Modal & AppDialog）置中適配
-   ========================================================================== */
-.modal {
-    padding: 0 !important;
-}
-
-/* 讓 AppDialog 計算的可視 margin-top 動態平滑過渡 */
-.modal.fade .modal-dialog {
-    transition: margin-top 0.2s ease-out, transform 0.2s ease-out;
-}
-
-.modal-dialog {
-    margin: 1.75rem auto;
-}
-
-/* AppDialog 確認/警告彈窗專用寬度 */
-.modal-dialog.modal-sm,
-#globalAppModal .modal-dialog {
-    max-width: 440px;
-}
-
+/* 彈窗自訂樣式 */
 .modal-content-custom {
     background: #150d2a !important;
     border: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45));
     border-radius: var(--uvaco-border-radius-lg, 18px);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
 }
 
-.modal-content-custom .modal-body {
-    overflow-y: auto;
+.dossier-hero-card {
+    background: linear-gradient(135deg, rgba(32, 17, 66, 0.9) 0%, rgba(19, 14, 36, 0.95) 100%);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
+    border-radius: 16px;
+    padding: 1.25rem;
 }
 
-/* 2. 12 欄位複合篩選器控制項樣式 */
-.form-filter-control {
-    background-color: rgba(25, 18, 51, 0.85);
+.dossier-sub-card {
+    background: rgba(25, 18, 51, 0.65);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    color: #f8fafc;
-    border-radius: 8px;
-    font-size: 0.82rem;
-    padding: 0.35rem 0.6rem;
-    transition: all 0.2s ease;
+    border-radius: 12px;
+    padding: 1rem;
 }
 
-.form-filter-control:focus {
-    background-color: #20173f;
-    border-color: var(--uvaco-primary, #8b5cf6);
-    color: #fff;
-    box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
-}
-
-.form-filter-control optgroup {
-    background-color: #150d2a;
-    color: var(--uvaco-secondary, #a78bfa);
+.dossier-card-header {
+    color: #ffffff;
     font-weight: 700;
+    font-size: 0.86rem;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.18);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-.form-filter-control option {
-    background-color: #150d2a;
-    color: #f8fafc;
+.dossier-text-block {
+    background: rgba(10, 6, 24, 0.5);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    min-height: 2.2rem;
 }
 
-/* ==========================================================================
-   Select2 深色主題樣式適配
-   ========================================================================== */
+/* Select2 深色主題適配 */
 .select2-container--default .select2-selection--single {
     background-color: #1a1333 !important;
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
@@ -342,196 +211,31 @@ table.dataTable tbody tr:hover {
     display: flex !important;
     align-items: center !important;
 }
-
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: var(--uvaco-text-main, #f8fafc) !important;
     padding-left: 0.75rem !important;
     font-size: 0.88rem !important;
-    line-height: normal !important;
 }
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 36px !important;
-    right: 8px !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
-    border-color: #94a3b8 transparent transparent transparent !important;
-}
-
 .select2-dropdown {
     background-color: #150d2a !important;
     border: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45)) !important;
     border-radius: 10px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-    color: #f8fafc !important;
     z-index: 1065 !important;
 }
-
-.select2-container--default .select2-search--dropdown {
-    padding: 6px !important;
-}
-
 .select2-container--default .select2-search--dropdown .select2-search__field {
     background-color: #20173f !important;
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25)) !important;
     color: #ffffff !important;
-    border-radius: 6px !important;
-    padding: 0.4rem 0.6rem !important;
-    font-size: 0.85rem !important;
 }
-
-.select2-container--default .select2-search--dropdown .select2-search__field:focus {
-    outline: none !important;
-    border-color: var(--uvaco-primary, #8b5cf6) !important;
-}
-
-.select2-container--default .select2-results__group {
-    background-color: #110c22 !important;
-    color: var(--uvaco-secondary, #a78bfa) !important;
-    font-size: 0.78rem !important;
-    font-weight: 700 !important;
-    padding: 5px 10px !important;
-}
-
-.select2-container--default .select2-results__option {
-    padding: 6px 12px !important;
-    font-size: 0.85rem !important;
-    color: #f8fafc !important;
-}
-
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
     background-color: var(--uvaco-primary, #8b5cf6) !important;
     color: #ffffff !important;
 }
-
-.select2-container--default .select2-results__option[aria-selected="true"] {
-    background-color: rgba(139, 92, 246, 0.2) !important;
-    color: #c084fc !important;
-}
-
-/* 頂部篩選列專用小型 Select2 樣式 */
 .filter-dock-grid .select2-container--default .select2-selection--single {
     height: 31px !important;
     background-color: rgba(25, 18, 51, 0.85) !important;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-    border-radius: 8px !important;
 }
-
 .filter-dock-grid .select2-container--default .select2-selection--single .select2-selection__rendered {
     line-height: 29px !important;
     font-size: 0.82rem !important;
-    padding-left: 0.5rem !important;
-}
-
-.filter-dock-grid .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 29px !important;
-}
-
-/* ==========================================================================
-   夥伴個人戰情履歷 (Profile Dossier) 排版樣式
-   ========================================================================== */
-
-.profile-hero-banner {
-    background: linear-gradient(135deg, rgba(32, 17, 66, 0.85) 0%, rgba(19, 14, 36, 0.95) 100%);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
-    border-radius: var(--uvaco-border-radius-lg, 18px);
-    padding: 1.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-.profile-avatar-wrap {
-    position: relative;
-    width: 88px;
-    height: 88px;
-}
-
-.profile-avatar-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--uvaco-primary, #8b5cf6);
-    background-color: #170b28;
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
-}
-
-.profile-quote-box {
-    background: rgba(10, 6, 24, 0.6);
-    border-left: 3px solid var(--uvaco-primary, #8b5cf6);
-    border-radius: 6px;
-    padding: 0.6rem 1rem;
-    font-size: 0.88rem;
-    line-height: 1.5;
-}
-
-.profile-section-card {
-    background: rgba(25, 18, 51, 0.65);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: 14px;
-    padding: 1.25rem;
-}
-
-.profile-card-title {
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 0.9rem;
-    margin-bottom: 0.85rem;
-    padding-bottom: 0.45rem;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.18);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.profile-meta-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.45rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    font-size: 0.85rem;
-}
-
-.profile-meta-list li:last-child {
-    border-bottom: none;
-}
-
-.meta-label {
-    color: var(--uvaco-text-muted, #94a3b8);
-}
-
-.meta-value {
-    color: #f8fafc;
-    text-align: right;
-    word-break: break-word;
-}
-
-.profile-story-block {
-    background: rgba(10, 6, 24, 0.5);
-    border: 1px solid rgba(139, 92, 246, 0.12);
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    font-size: 0.88rem;
-    color: #f1f5f9;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    min-height: 3rem;
-}
-
-.profile-memo-card {
-    border-color: rgba(251, 191, 36, 0.25);
-    background: rgba(251, 191, 36, 0.03);
-}
-
-.profile-memo-block {
-    background: rgba(20, 14, 6, 0.6);
-    border: 1px solid rgba(251, 191, 36, 0.2);
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    font-size: 0.86rem;
-    color: #fef08a;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    min-height: 3rem;
 }
