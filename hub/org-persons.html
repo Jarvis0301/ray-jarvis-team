@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H41000 人員管理 | Ray's Team 核心戰術控制台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-deep: #0c0814;
+            --bg-surface: #140d21;
+            --bg-card: rgba(26, 17, 43, 0.75);
+            --bg-card-hover: rgba(38, 25, 64, 0.9);
+            --border-glow: rgba(139, 92, 246, 0.25);
+            --border-active: rgba(168, 85, 247, 0.6);
+            --accent-purple: #8b5cf6;
+            --accent-violet: #a855f7;
+            --accent-cyan: #06b6d4;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --text-main: #f3f0f9;
+            --text-muted: #9c8eb9;
+            --font-main: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 90%, rgba(168, 85, 247, 0.08) 0%, transparent 45%);
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-surface);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.4);
+            border-radius: 4px;
+        }
+
+        /* 頂部作戰中樞導言列 */
+        .tactical-header-panel {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.5rem 0;
+            position: relative;
+        }
+        .tactical-header-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+        }
+
+        /* 戰術濾鏡膠囊 */
+        .filter-capsule-group {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        .capsule-btn {
+            background: rgba(30, 20, 50, 0.6);
+            border: 1px solid var(--border-glow);
+            color: var(--text-muted);
+            border-radius: 50rem;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .capsule-btn:hover, .capsule-btn.active {
+            background: var(--accent-purple);
+            color: #fff;
+            border-color: var(--accent-violet);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 人脈全息卡片 */
+        .person-tactical-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            padding: 1.25rem;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .person-tactical-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-active);
+            box-shadow: 0 12px 30px rgba(12, 8, 20, 0.8), 0 0 20px rgba(139, 92, 246, 0.2);
+            background: var(--bg-card-hover);
+        }
+        .person-tactical-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-purple);
+            opacity: 0.8;
+        }
+        .person-tactical-card.status-partner::before { background: var(--accent-emerald); }
+        .person-tactical-card.status-prospect::before { background: var(--accent-amber); }
+        .person-tactical-card.status-customer::before { background: var(--accent-cyan); }
+
+        .avatar-box {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--accent-violet);
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .role-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+        .role-partner { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .role-prospect { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .role-customer { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .role-operator { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .role-consumer { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        .quick-contact-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .quick-contact-pill:hover {
+            color: #fff;
+            border-color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        /* 360 備註膠囊預覽 */
+        .mini-note-tag {
+            font-size: 0.72rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 2px solid var(--accent-purple);
+            color: #d1c4e9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 抽屜視圖 Offcanvas */
+        .offcanvas-tactical {
+            background: #11091c;
+            color: var(--text-main);
+            border-left: 1px solid var(--border-glow);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+            width: 580px !important;
+        }
+        @media (max-width: 768px) {
+            .offcanvas-tactical {
+                width: 100% !important;
+            }
+        }
+
+        .tactical-tab-nav {
+            border-bottom: 1px solid var(--border-glow);
+            gap: 0.5rem;
+        }
+        .tactical-tab-nav .nav-link {
+            color: var(--text-muted);
+            border: none;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+        }
+        .tactical-tab-nav .nav-link.active {
+            color: var(--accent-violet);
+            border-bottom-color: var(--accent-violet);
+            background: rgba(168, 85, 247, 0.08);
+        }
+
+        /* DataTables 深度深色風格覆蓋 */
+        .dataTables_wrapper {
+            color: var(--text-main);
+        }
+        .table-dark-tactical {
+            --bs-table-bg: transparent;
+            --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+            --bs-table-hover-bg: rgba(139, 92, 246, 0.1);
+            color: var(--text-main);
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+        .table-dark-tactical th {
+            background: rgba(20, 13, 33, 0.9);
+            color: var(--accent-violet);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        .table-dark-tactical td {
+            vertical-align: middle;
+            font-size: 0.88rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .page-link {
+            background-color: var(--bg-surface);
+            border-color: var(--border-glow);
+            color: var(--text-muted);
+        }
+        .page-item.active .page-link {
+            background-color: var(--accent-purple);
+            border-color: var(--accent-purple);
+            color: #fff;
+        }
+
+        /* 模態彈窗 Dark */
+        .modal-tactical {
+            background: #150e24;
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            color: var(--text-main);
+        }
+        .form-tactical-control {
+            background: rgba(10, 6, 16, 0.8);
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .form-tactical-control:focus {
+            background: rgba(15, 9, 24, 0.95);
+            border-color: var(--accent-violet);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <section class="tactical-header-panel">
+        <div class="container-fluid px-lg-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-6">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-box" style="width:48px;height:48px;">
+                            <i class="fa-solid fa-id-card-clip text-accent"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge role-operator">H41000 核心控台</span>
+                                <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">Ray's Team 專屬</span>
+                            </div>
+                            <h4 class="mb-0 mt-1 fw-bold text-white tracking-wide">人員管理 <span class="fs-6 fw-normal text-muted ms-1">Personnel Master Hub</span></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 text-md-end">
+                    <div class="d-inline-flex flex-wrap gap-2 align-items-center justify-content-md-end">
+                        <button class="btn btn-outline-light btn-sm rounded-pill px-3" id="btnRefreshData">
+                            <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                        </button>
+                        <button class="btn btn-primary btn-sm rounded-pill px-3" style="background:var(--accent-purple);border-color:var(--accent-violet);" data-bs-toggle="modal" data-bs-target="#modalPersonEdit">
+                            <i class="fa-solid fa-user-plus"></i> 新增自然人
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mt-3 pt-2 g-2 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+                <div class="col-12 col-lg-8">
+                    <div class="filter-capsule-group" id="filterCapsules">
+                        <button class="capsule-btn active" data-filter="ALL">
+                            <i class="fa-solid fa-layer-group"></i> 全域名冊 (<span id="cntAll">0</span>)
+                        </button>
+                        <button class="capsule-btn" data-filter="夥伴">
+                            <i class="fa-solid fa-handshake"></i> 團隊夥伴 (<span id="cntPartner">0</span>)
+                        </button>
+                        <button class="capsule-btn" data-filter="潛在團隊成員">
+                            <i class="fa-solid fa-seedling"></i> 潛在團隊 (<span id="cntProspectPartner">0</span>)
+                        </button>
+                        <button class="capsule-btn" data-filter="客戶">
+                            <i class="fa-solid fa-cart-shopping"></i> 消費客戶 (<span id="cntCustomer">0</span>)
+                        </button>
+                        <button class="capsule-btn" data-filter="潛在客戶">
+                            <i class="fa-solid fa-bullseye"></i> 潛在線索 (<span id="cntProspectCustomer">0</span>)
+                        </button>
+                        <button class="capsule-btn" data-filter="MY">
+                            <i class="fa-solid fa-earth-asia"></i> 大馬/跨國 (<span id="cntCrossBorder">0</span>)
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4 text-lg-end d-flex gap-2 justify-content-lg-end">
+                    <div class="input-group input-group-sm" style="max-width: 240px;">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="globalSearchInput" class="form-control form-tactical-control" placeholder="姓名 / 暱稱 / 電話...">
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary active text-light" id="viewCardsBtn" title="卡片矩陣視圖">
+                            <i class="fa-solid fa-grip"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary text-light" id="viewTableBtn" title="DataTable 列表視圖">
+                            <i class="fa-solid fa-table-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="container-fluid px-lg-4 py-4">
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border" style="color: var(--accent-purple); width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mt-3 fs-6"><i class="fa-solid fa-database"></i> 正在解耦載入全域個人主檔資料...</p>
+        </div>
+
+        <div id="cardsViewContainer" class="row g-3 d-none">
+            </div>
+
+        <div id="tableViewContainer" class="card border-0 d-none" style="background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-glow) !important; padding: 1rem;">
+            <div class="table-responsive">
+                <table id="personsDataTable" class="table table-dark-tactical table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>識別碼 / 姓名</th>
+                            <th>身份 / 使用身份</th>
+                            <th>國籍 / 現居地</th>
+                            <th>主要通訊方式</th>
+                            <th>多語維度</th>
+                            <th>財務 / 健康備忘</th>
+                            <th>最後異動</th>
+                            <th class="text-end">作戰指令</th>
+                        </tr>
+                    </thead>
+                    <tbody id="personsTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="offcanvas offcanvas-end offcanvas-tactical" tabindex="-1" id="personDetailDrawer" aria-labelledby="drawerTitle">
+        <div class="offcanvas-header border-bottom" style="border-color: var(--border-glow) !important;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-box" id="drawerAvatarBox">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                    <h5 class="offcanvas-title fw-bold text-white mb-0" id="drawerNameZh">翁榮祥 (Ray)</h5>
+                    <small class="text-muted" id="drawerPersonId">PSN-TW-0001</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body p-0">
+            <div class="p-3 d-flex flex-wrap align-items-center justify-content-between gap-2" style="background: rgba(0,0,0,0.3);">
+                <div class="d-flex gap-2 align-items-center">
+                    <span id="drawerIdentityBadge" class="badge role-partner">夥伴</span>
+                    <span id="drawerUsageBadge" class="badge role-operator">經營者</span>
+                    <span id="drawerCountryBadge" class="badge" style="background:rgba(255,255,255,0.08);"><i class="fa-solid fa-location-dot"></i> 台灣・台北</span>
+                </div>
+                <button class="btn btn-sm btn-outline-warning rounded-pill px-3" id="btnQuickSwitchState">
+                    <i class="fa-solid fa-repeat"></i> 切換身份狀態
+                </button>
+            </div>
+
+            <ul class="nav nav-tabs tactical-tab-nav px-3 pt-2" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab360Notes">
+                        <i class="fa-solid fa-clipboard-user"></i> 360° 特質備忘
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabContacts">
+                        <i class="fa-solid fa-address-book"></i> 通訊渠道 (<span id="drawerContactCount">0</span>)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabLanguages">
+                        <i class="fa-solid fa-language"></i> 語言能力
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabBasicSpecs">
+                        <i class="fa-solid fa-sliders"></i> 基礎規格
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-3">
+                <div class="tab-pane fade show active" id="tab360Notes">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border-left: 3px solid #10b981;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-success fs-7"><i class="fa-solid fa-heart-pulse"></i> 健康備註 (Health Notes)</span>
+                                </div>
+                                <p class="text-light mb-0 small" id="drawerHealthNotes">無過敏史，長期重視腸道菌相調理，常態使用康爾喜益生菌與百克斯。</p>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border-left: 3px solid #f59e0b;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-warning fs-7"><i class="fa-solid fa-coins"></i> 財務備註 (Financial Notes)</span>
+                                </div>
+                                <p class="text-light mb-0 small" id="drawerFinancialNotes">財務充裕，主動尋求跨國被動收入與被動現金流倍增系統。</p>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border-left: 3px solid #8b5cf6;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-accent fs-7"><i class="fa-solid fa-user-graduate"></i> 學經歷與專業背景</span>
+                                </div>
+                                <p class="text-light mb-0 small" id="drawerCareerNotes">國立大學企管學士，具備大型連鎖通路拓展經驗，擅長組織培訓與戰術調度。</p>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border-left: 3px solid #06b6d4;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-info fs-7"><i class="fa-solid fa-basket-shopping"></i> 消費習慣與慣性</span>
+                                </div>
+                                <p class="text-light mb-0 small" id="drawerConsumptionNotes">高單價接受度高，習慣每季固定回購全方位養生套裝。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tabContacts">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">支援一人綁定多通訊軟體</span>
+                        <button class="btn btn-xs btn-outline-primary rounded-pill" style="font-size:0.75rem;"><i class="fa-solid fa-plus"></i> 新增通訊</button>
+                    </div>
+                    <div class="d-flex flex-column gap-2" id="drawerContactsList">
+                        </div>
+                </div>
+
+                <div class="tab-pane fade" id="tabLanguages">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">大馬與跨國拓展語言能力評級</span>
+                        <button class="btn btn-xs btn-outline-primary rounded-pill" style="font-size:0.75rem;"><i class="fa-solid fa-plus"></i> 新增語言</button>
+                    </div>
+                    <div class="d-flex flex-column gap-2" id="drawerLanguagesList">
+                        </div>
+                </div>
+
+                <div class="tab-pane fade" id="tabBasicSpecs">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless text-light small">
+                            <tbody>
+                                <tr><td class="text-muted" style="width:30%;">真實姓名</td><td id="drawerSpecName">翁榮祥</td></tr>
+                                <tr><td class="text-muted">英文姓名</td><td id="drawerSpecNameEn">Ray Weng</td></tr>
+                                <tr><td class="text-muted">常用暱稱</td><td id="drawerSpecNick">Ray</td></tr>
+                                <tr><td class="text-muted">性別 / 生日</td><td id="drawerSpecBio">男 / 1980-08-15</td></tr>
+                                <tr><td class="text-muted">認識時間</td><td id="drawerSpecMetDate">2023-01-10</td></tr>
+                                <tr><td class="text-muted">認識原因</td><td id="drawerSpecMetReason">社群主動諮詢事業加盟</td></tr>
+                                <tr><td class="text-muted">電子信箱</td><td id="drawerSpecEmail">ray.team@example.com</td></tr>
+                                <tr><td class="text-muted">通訊地址</td><td id="drawerSpecAddress">台北市信義區忠孝東路五段</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalSwitchState" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-tactical">
+                <div class="modal-header border-bottom" style="border-color: var(--border-glow) !important;">
+                    <h5 class="modal-title fs-6 fw-bold"><i class="fa-solid fa-repeat text-accent"></i> 切換人員身份狀態機</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formSwitchState">
+                        <input type="hidden" id="switchPersonId">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">當前目標人員</label>
+                            <input type="text" class="form-control form-tactical-control" id="switchTargetName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">身份型態 (Identity Type)</label>
+                            <select class="form-select form-tactical-control" id="switchIdentityType">
+                                <option value="夥伴">夥伴 (簽約經營)</option>
+                                <option value="團隊成員">團隊成員 (非簽約核心)</option>
+                                <option value="潛在團隊成員">潛在團隊成員 (意向加盟)</option>
+                                <option value="客戶">客戶 (正式消費者)</option>
+                                <option value="潛在客戶">潛在客戶 (商機線索)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">使用身份 (Usage Identity)</label>
+                            <select class="form-select form-tactical-control" id="switchUsageIdentity">
+                                <option value="經營者">經營者 (發展組織/銷售)</option>
+                                <option value="消費者">消費者 (純自用享受回饋)</option>
+                            </select>
+                        </div>
+                        <div id="partnerBindingPrompt" class="p-2 rounded bg-dark border border-warning d-none">
+                            <small class="text-warning"><i class="fa-solid fa-triangle-exclamation"></i> 提示：已切換為「夥伴」，儲存後系統將自動引導至 H42000 組織成員維護經銷商號與排線！</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top" style="border-color: var(--border-glow) !important;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnSaveStateTransition" style="background:var(--accent-purple);border-color:var(--accent-violet);">確認變更</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalPersonEdit" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content modal-tactical">
+                <div class="modal-header border-bottom" style="border-color: var(--border-glow) !important;">
+                    <h5 class="modal-title fs-6 fw-bold"><i class="fa-solid fa-user-gear text-accent"></i> 編輯 / 建立自然人核心主檔</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formPersonMaster" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">中文真實姓名 *</label>
+                            <input type="text" class="form-control form-tactical-control" id="editNameZh" required placeholder="如：翁榮祥">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">英文姓名</label>
+                            <input type="text" class="form-control form-tactical-control" id="editNameEn" placeholder="如：Ray Weng">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">常用暱稱</label>
+                            <input type="text" class="form-control form-tactical-control" id="editPreferredName" placeholder="如：Ray">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">身份</label>
+                            <select class="form-select form-tactical-control" id="editIdentityType">
+                                <option value="潛在客戶">潛在客戶</option>
+                                <option value="客戶">客戶</option>
+                                <option value="潛在團隊成員">潛在團隊成員</option>
+                                <option value="夥伴">夥伴</option>
+                                <option value="團隊成員">團隊成員</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">使用身份</label>
+                            <select class="form-select form-tactical-control" id="editUsageIdentity">
+                                <option value="消費者">消費者</option>
+                                <option value="經營者">經營者</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">主要電話</label>
+                            <input type="text" class="form-control form-tactical-control" id="editPhone" placeholder="+886912345678">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">主要 Email (Google驗證)</label>
+                            <input type="email" class="form-control form-tactical-control" id="editEmail" placeholder="ray@example.com">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">國籍</label>
+                            <select class="form-select form-tactical-control" id="editNationality">
+                                <option value="台灣">台灣 (TW)</option>
+                                <option value="馬來西亞">馬來西亞 (MY)</option>
+                                <option value="新加坡">新加坡 (SG)</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">健康備註 (過敏史、調理訴求)</label>
+                            <textarea class="form-control form-tactical-control" id="editHealthNotes" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">財務備註 (增收目標、負債狀況)</label>
+                            <textarea class="form-control form-tactical-control" id="editFinancialNotes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top" style="border-color: var(--border-glow) !important;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnSavePersonMaster" style="background:var(--accent-purple);border-color:var(--accent-violet);">儲存主檔</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        /**
+         * Ray's Team 核心控台 - 人員管理模組 (H41000)
+         * 領導核心：Ray 翁榮祥、Jarvis 林承志
+         * 架構特點：自然人與商業角色解耦、GViz/PapaParse 欄位適配器、即時狀態機切換
+         */
+        $(document).ready(function () {
+            // 戰術 Mock 數據 (與 Schema Table 401, 402, 403 欄位完全解耦適配)
+            let personMasterDataset = [
+                {
+                    person_id: "PSN-0001",
+                    name_zh: "翁榮祥",
+                    name_en: "Ray Weng",
+                    preferred_name: "Ray",
+                    display_name: "Ray",
+                    identity_type: "夥伴",
+                    usage_identity: "經營者",
+                    gender: "男",
+                    birthday: "1980/08/15",
+                    nationality: "台灣",
+                    ethnicity: "華人",
+                    hometown: "台北",
+                    current_residence: "台北",
+                    phone: "+886912345678",
+                    email: "ray.weng@uvaco-team.com",
+                    contact_address: "台北市信義區忠孝東路",
+                    met_date: "2020-01-01",
+                    met_reason: "團隊共同創始核心",
+                    highest_education: "學士",
+                    graduated_school: "國立大學企管系",
+                    occupation_background: "直銷實戰領導人",
+                    financial_status: "寬裕",
+                    avatar_url: "",
+                    health_notes: "注重每日腸道保養，常態食用康爾喜益生菌與樟芝益",
+                    financial_notes: "團隊創始核心，主導台馬跨國戰略",
+                    career_education_notes: "具備十年以上團隊組織拓荒與獎金模型設計經驗",
+                    consumption_notes: "全產品重度使用者，月自用 5,000 SV 以上",
+                    contacts: [
+                        { platform_name: "LINE", category: "ID", contact_value: "@ray_weng", is_primary: "Y" },
+                        { platform_name: "WhatsApp", category: "電話", contact_value: "+886912345678", is_primary: "Y" },
+                        { platform_name: "WeChat", category: "ID", contact_value: "ray_weng_tw", is_primary: "N" }
+                    ],
+                    languages: [
+                        { language_name: "中文", listening_level: "精通", speaking_level: "精通", reading_level: "精通", writing_level: "精通" },
+                        { language_name: "台語", listening_level: "精通", speaking_level: "流利", reading_level: "普通", writing_level: "普通" },
+                        { language_name: "英文", listening_level: "普通", speaking_level: "普通", reading_level: "流利", writing_level: "普通" }
+                    ],
+                    modified_at: "2026-08-28 14:30"
+                },
+                {
+                    person_id: "PSN-0002",
+                    name_zh: "林承志",
+                    name_en: "Jarvis Lin",
+                    preferred_name: "Jarvis",
+                    display_name: "Jarvis",
+                    identity_type: "夥伴",
+                    usage_identity: "經營者",
+                    gender: "男",
+                    birthday: "1985/03/22",
+                    nationality: "台灣",
+                    ethnicity: "華人",
+                    hometown: "高雄",
+                    current_residence: "高雄",
+                    phone: "+886987654321",
+                    email: "jarvis.lin@uvaco-team.com",
+                    contact_address: "高雄市三民區博愛一路",
+                    met_date: "2020-01-01",
+                    met_reason: "團隊共同創始核心",
+                    highest_education: "碩士",
+                    graduated_school: "資訊工程研究所",
+                    occupation_background: "全端系統架構師 / 直銷系統戰略",
+                    financial_status: "寬裕",
+                    avatar_url: "",
+                    health_notes: "高強度用眼與研發，每日補充晶明葉黃素",
+                    financial_notes: "戰術控制台數位賦能主導者",
+                    career_education_notes: "專精分散式架構、數據解耦與直銷獎金精算引擎",
+                    consumption_notes: "重視機能保健，固定回購三安養生套裝",
+                    contacts: [
+                        { platform_name: "LINE", category: "ID", contact_value: "@jarvis_lin", is_primary: "Y" },
+                        { platform_name: "WhatsApp", category: "電話", contact_value: "+886987654321", is_primary: "Y" },
+                        { platform_name: "Discord", category: "ID", contact_value: "jarvis#0001", is_primary: "N" }
+                    ],
+                    languages: [
+                        { language_name: "中文", listening_level: "精通", speaking_level: "精通", reading_level: "精通", writing_level: "精通" },
+                        { language_name: "英文", listening_level: "流利", speaking_level: "流利", reading_level: "精通", writing_level: "精通" }
+                    ],
+                    modified_at: "2026-08-29 11:20"
+                },
+                {
+                    person_id: "PSN-0003",
+                    name_zh: "陳菲菲",
+                    name_en: "Faye Chen",
+                    preferred_name: "菲姐",
+                    display_name: "菲姐",
+                    identity_type: "夥伴",
+                    usage_identity: "經營者",
+                    gender: "女",
+                    birthday: "1978/11/05",
+                    nationality: "台灣",
+                    ethnicity: "華人",
+                    hometown: "台中",
+                    current_residence: "台中",
+                    phone: "+886933112233",
+                    email: "faye.chen@uvaco-team.com",
+                    contact_address: "台中市西屯區台灣大道",
+                    met_date: "2021-06-15",
+                    met_reason: "核心領導上線直屬對接",
+                    highest_education: "學士",
+                    graduated_school: "私立大學外文系",
+                    occupation_background: "高階美容營養顧問",
+                    financial_status: "寬裕",
+                    avatar_url: "",
+                    health_notes: "長期保養逆齡需求，愛用晶亮潤澤系列",
+                    financial_notes: "組織營收穩定，直屬高階總監",
+                    career_education_notes: "線下千人大會王牌主持，OPP 主講超過 300 場",
+                    consumption_notes: "常態大額採購，重視產品贈品與客戶客情維護",
+                    contacts: [
+                        { platform_name: "LINE", category: "ID", contact_value: "@faye_tw", is_primary: "Y" },
+                        { platform_name: "Facebook", category: "連結", contact_value: "facebook.com/faye.beauty", is_primary: "N" }
+                    ],
+                    languages: [
+                        { language_name: "中文", listening_level: "精通", speaking_level: "精通", reading_level: "精通", writing_level: "精通" },
+                        { language_name: "台語", listening_level: "精通", speaking_level: "精通", reading_level: "普通", writing_level: "普通" },
+                        { language_name: "粵語", listening_level: "流利", speaking_level: "普通", reading_level: "略懂", writing_level: "不會" }
+                    ],
+                    modified_at: "2026-08-25 09:40"
+                },
+                {
+                    person_id: "PSN-0004",
+                    name_zh: "黃志明",
+                    name_en: "David Ooi",
+                    preferred_name: "David",
+                    display_name: "David (KL)",
+                    identity_type: "潛在團隊成員",
+                    usage_identity: "經營者",
+                    gender: "男",
+                    birthday: "1988/07/19",
+                    nationality: "馬來西亞",
+                    ethnicity: "華人",
+                    hometown: "吉隆坡",
+                    current_residence: "吉隆坡",
+                    phone: "+60123456789",
+                    email: "david.ooi@kl-biz.my",
+                    contact_address: "Mid Valley City, Kuala Lumpur",
+                    met_date: "2026-04-12",
+                    met_reason: "吉隆坡茶會陌生開發接觸",
+                    highest_education: "學士",
+                    graduated_school: "馬來亞大學商業管理",
+                    occupation_background: "跨境電商運營主管",
+                    financial_status: "尋找副業",
+                    avatar_url: "",
+                    health_notes: "經常性熬夜與應酬，體脂偏高尋求排毒方案",
+                    financial_notes: "評估大馬葡眾市場前景，具備強烈副業增收企圖心",
+                    career_education_notes: "精通東南亞社群行銷與馬來語 KOL 導流",
+                    consumption_notes: "已購買試用包，對康爾喜益生菌回饋極佳",
+                    contacts: [
+                        { platform_name: "WhatsApp", category: "電話", contact_value: "+60123456789", is_primary: "Y" },
+                        { platform_name: "WeChat", category: "ID", contact_value: "david_ooi_kl", is_primary: "N" }
+                    ],
+                    languages: [
+                        { language_name: "中文", listening_level: "精通", speaking_level: "精通", reading_level: "精通", writing_level: "精通" },
+                        { language_name: "馬來語", listening_level: "精通", speaking_level: "流利", reading_level: "流利", writing_level: "普通" },
+                        { language_name: "粵語", listening_level: "精通", speaking_level: "流利", reading_level: "普通", writing_level: "不會" },
+                        { language_name: "英文", listening_level: "流利", speaking_level: "流利", reading_level: "流利", writing_level: "流利" }
+                    ],
+                    modified_at: "2026-08-20 16:15"
+                },
+                {
+                    person_id: "PSN-0005",
+                    name_zh: "張美惠",
+                    name_en: "May Chang",
+                    preferred_name: "美惠姊",
+                    display_name: "美惠",
+                    identity_type: "客戶",
+                    usage_identity: "消費者",
+                    gender: "女",
+                    birthday: "1965/12/30",
+                    nationality: "台灣",
+                    ethnicity: "華人",
+                    hometown: "高雄",
+                    current_residence: "高雄",
+                    phone: "+886922887766",
+                    email: "may.chang@email.com",
+                    contact_address: "高雄市左營區博愛二路",
+                    met_date: "2025-09-10",
+                    met_reason: "親友轉介體驗百克斯",
+                    highest_education: "高中職",
+                    graduated_school: "高雄高商",
+                    occupation_background: "退休公教人員",
+                    financial_status: "穩定",
+                    avatar_url: "",
+                    health_notes: "呼吸道過敏、晨間咳嗽，持續使用百克斯＋康爾喜調理中",
+                    financial_notes: "純自用享受回饋，價格敏感度低，重視售後關懷",
+                    career_education_notes: "三十年學校行政經驗",
+                    consumption_notes: "每 45 天規律復購 2 盒百克斯，偏好宅配到府",
+                    contacts: [
+                        { platform_name: "LINE", category: "ID", contact_value: "may_love_health", is_primary: "Y" },
+                        { platform_name: "行動電話", category: "電話", contact_value: "+886922887766", is_primary: "Y" }
+                    ],
+                    languages: [
+                        { language_name: "中文", listening_level: "精通", speaking_level: "精通", reading_level: "精通", writing_level: "普通" },
+                        { language_name: "台語", listening_level: "精通", speaking_level: "精通", reading_level: "普通", writing_level: "不會" }
+                    ],
+                    modified_at: "2026-08-18 10:05"
+                }
+            ];
+
+            let activeFilter = 'ALL';
+            let activeView = 'cards';
+            let dataTableInstance = null;
+
+            // 初始化數據加載與統計
+            function initModule() {
+                setTimeout(function () {
+                    $('#loadingState').addClass('d-none');
+                    updateOverviewCounts();
+                    renderCards(personMasterDataset);
+                    initDataTable();
+                    switchView('cards');
+                }, 400);
+            }
+
+            // 更新頂部快篩徽章數量
+            function updateOverviewCounts() {
+                const total = personMasterDataset.length;
+                const partnerCnt = personMasterDataset.filter(p => p.identity_type === '夥伴').length;
+                const prospectPartnerCnt = personMasterDataset.filter(p => p.identity_type === '潛在團隊成員').length;
+                const customerCnt = personMasterDataset.filter(p => p.identity_type === '客戶').length;
+                const prospectCustomerCnt = personMasterDataset.filter(p => p.identity_type === '潛在客戶').length;
+                const crossBorderCnt = personMasterDataset.filter(p => p.nationality !== '台灣').length;
+
+                $('#cntAll').text(total);
+                $('#cntPartner').text(partnerCnt);
+                $('#cntProspectPartner').text(prospectPartnerCnt);
+                $('#cntCustomer').text(customerCnt);
+                $('#cntProspectCustomer').text(prospectCustomerCnt);
+                $('#cntCrossBorder').text(crossBorderCnt);
+            }
+
+            // 渲染全息卡片陣列 (RWD 自適應)
+            function renderCards(dataset) {
+                const container = $('#cardsViewContainer');
+                container.empty();
+
+                if (!dataset || dataset.length === 0) {
+                    container.html(`
+                        <div class="col-12 text-center py-5 text-muted">
+                            <i class="fa-solid fa-user-slash fs-1 mb-2"></i>
+                            <p>未找到符合條件的自然人檔案</p>
+                        </div>
+                    `);
+                    return;
+                }
+
+                dataset.forEach(item => {
+                    const statusClass = item.identity_type === '夥伴' ? 'status-partner' : 
+                                        (item.identity_type.includes('潛在') ? 'status-prospect' : 'status-customer');
+                    
+                    const identityBadgeClass = item.identity_type === '夥伴' ? 'role-partner' :
+                                               (item.identity_type.includes('潛在') ? 'role-prospect' : 'role-customer');
+
+                    const usageBadgeClass = item.usage_identity === '經營者' ? 'role-operator' : 'role-consumer';
+
+                    // 快速通訊標籤渲染
+                    let contactPillsHtml = '';
+                    if (item.contacts && item.contacts.length > 0) {
+                        item.contacts.forEach(c => {
+                            let icon = 'fa-solid fa-comment';
+                            if (c.platform_name === 'LINE') icon = 'fa-brands fa-line text-success';
+                            else if (c.platform_name === 'WhatsApp') icon = 'fa-brands fa-whatsapp text-success';
+                            else if (c.platform_name === 'WeChat') icon = 'fa-brands fa-weixin text-success';
+                            else if (c.platform_name === 'Facebook') icon = 'fa-brands fa-facebook text-primary';
+                            else if (c.platform_name === 'Discord') icon = 'fa-brands fa-discord text-info';
+                            else if (c.platform_name.includes('電話')) icon = 'fa-solid fa-phone text-warning';
+
+                            contactPillsHtml += `
+                                <span class="quick-contact-pill" title="${c.platform_name}: ${c.contact_value}">
+                                    <i class="${icon}"></i> ${c.contact_value}
+                                </span>
+                            `;
+                        });
+                    }
+
+                    // 多國語言能力膠囊
+                    let langPillsHtml = '';
+                    if (item.languages && item.languages.length > 0) {
+                        item.languages.forEach(l => {
+                            langPillsHtml += `<span class="badge" style="background:rgba(255,255,255,0.06);font-size:0.7rem;">${l.language_name}・${l.speaking_level}</span> `;
+                        });
+                    }
+
+                    const cardHtml = `
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="person-tactical-card ${statusClass}">
+                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-box">
+                                            ${item.avatar_url ? `<img src="${item.avatar_url}" alt="Avatar">` : `<i class="fa-solid fa-user"></i>`}
+                                        </div>
+                                        <div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <h5 class="mb-0 fw-bold text-white fs-6">${item.name_zh}</h5>
+                                                ${item.preferred_name ? `<span class="text-muted small">(${item.preferred_name})</span>` : ''}
+                                                ${item.nationality !== '台灣' ? `<span class="badge bg-danger ms-1" style="font-size:0.65rem;">${item.nationality}</span>` : ''}
+                                            </div>
+                                            <small class="text-muted" style="font-size:0.75rem;">${item.person_id} | ${item.current_residence || item.nationality}</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" style="background: #191228; border: 1px solid var(--border-glow);">
+                                            <li><a class="dropdown-item py-2 view-person-detail" href="#" data-id="${item.person_id}"><i class="fa-solid fa-id-badge text-accent"></i> 查看 360° 檔案</a></li>
+                                            <li><a class="dropdown-item py-2 quick-switch-btn" href="#" data-id="${item.person_id}"><i class="fa-solid fa-repeat text-warning"></i> 切換身份狀態</a></li>
+                                            <li><hr class="dropdown-divider border-secondary"></li>
+                                            <li><a class="dropdown-item py-2 text-danger" href="#"><i class="fa-solid fa-box-archive"></i> 封存自然人</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1 mb-3">
+                                    <span class="role-badge ${identityBadgeClass}">${item.identity_type}</span>
+                                    <span class="role-badge ${usageBadgeClass}">${item.usage_identity}</span>
+                                    <span class="role-badge" style="background:rgba(255,255,255,0.05);color:var(--text-muted);"><i class="fa-solid fa-wallet"></i> ${item.financial_status || '穩定'}</span>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    ${contactPillsHtml}
+                                </div>
+
+                                <div class="d-flex flex-column gap-1 mb-3">
+                                    <div class="mini-note-tag" title="健康：${item.health_notes || '無特殊紀錄'}">
+                                        <i class="fa-solid fa-heart-pulse text-success"></i> ${item.health_notes || '健康備忘未填寫'}
+                                    </div>
+                                    <div class="mini-note-tag" style="border-left-color: var(--accent-amber);" title="財務：${item.financial_notes || '無特殊紀錄'}">
+                                        <i class="fa-solid fa-coins text-warning"></i> ${item.financial_notes || '財務備忘未填寫'}
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        ${langPillsHtml}
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-light rounded-pill px-3 view-person-detail" style="font-size:0.75rem;" data-id="${item.person_id}">
+                                        <i class="fa-solid fa-eye"></i> 調閱
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(cardHtml);
+                });
+            }
+
+            // 初始化 DataTable 視圖
+            function initDataTable() {
+                const tbody = $('#personsTableBody');
+                tbody.empty();
+
+                personMasterDataset.forEach(item => {
+                    const primaryContact = (item.contacts && item.contacts.length > 0) ? 
+                                           `${item.contacts[0].platform_name}: ${item.contacts[0].contact_value}` : (item.phone || '無');
+
+                    const languages = (item.languages && item.languages.length > 0) ? 
+                                      item.languages.map(l => `${l.language_name}(${l.speaking_level})`).join(', ') : '中文';
+
+                    const rowHtml = `
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-white">${item.name_zh}</div>
+                                <small class="text-muted">${item.person_id} ${item.preferred_name ? `(${item.preferred_name})` : ''}</small>
+                            </td>
+                            <td>
+                                <span class="badge ${item.identity_type === '夥伴' ? 'role-partner' : 'role-prospect'}">${item.identity_type}</span>
+                                <span class="badge ${item.usage_identity === '經營者' ? 'role-operator' : 'role-consumer'} ms-1">${item.usage_identity}</span>
+                            </td>
+                            <td>${item.nationality}・${item.current_residence || '-'}</td>
+                            <td><span class="small text-muted">${primaryContact}</span></td>
+                            <td><span class="small">${languages}</span></td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 180px;" title="${item.health_notes || ''}">
+                                    <small class="text-success"><i class="fa-solid fa-heart-pulse"></i> ${item.health_notes || '-'}</small>
+                                </div>
+                            </td>
+                            <td><small class="text-muted">${item.modified_at}</small></td>
+                            <td class="text-end">
+                                <button class="btn btn-xs btn-outline-light rounded-pill px-2 view-person-detail" data-id="${item.person_id}" title="檢視全息檔案">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button class="btn btn-xs btn-outline-warning rounded-pill px-2 quick-switch-btn" data-id="${item.person_id}" title="切換身份">
+                                    <i class="fa-solid fa-repeat"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(rowHtml);
+                });
+
+                if (dataTableInstance) {
+                    dataTableInstance.destroy();
+                }
+
+                dataTableInstance = $('#personsDataTable').DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "全域搜尋資料表...",
+                        lengthMenu: "每頁 _MENU_ 筆",
+                        info: "顯示 _START_ 到 _END_ 共 _TOTAL_ 筆",
+                        paginate: {
+                            first: "首頁",
+                            last: "末頁",
+                            next: '<i class="fa-solid fa-chevron-right"></i>',
+                            previous: '<i class="fa-solid fa-chevron-left"></i>'
+                        }
+                    },
+                    dom: '<"d-flex justify-content-between align-items-center mb-2"l>t<"d-flex justify-content-between align-items-center mt-3"ip>'
+                });
+            }
+
+            // 切換視圖 (Cards vs DataTable)
+            function switchView(view) {
+                activeView = view;
+                if (view === 'cards') {
+                    $('#viewCardsBtn').addClass('active');
+                    $('#viewTableBtn').removeClass('active');
+                    $('#cardsViewContainer').removeClass('d-none');
+                    $('#tableViewContainer').addClass('d-none');
+                } else {
+                    $('#viewTableBtn').addClass('active');
+                    $('#viewCardsBtn').removeClass('active');
+                    $('#tableViewContainer').removeClass('d-none');
+                    $('#cardsViewContainer').addClass('d-none');
+                    if (dataTableInstance) dataTableInstance.columns.adjust().draw();
+                }
+            }
+
+            // 快篩膠囊點擊過濾
+            $('#filterCapsules').on('click', '.capsule-btn', function () {
+                $('#filterCapsules .capsule-btn').removeClass('active');
+                $(this).addClass('active');
+                activeFilter = $(this).data('filter');
+                applyFilterAndSearch();
+            });
+
+            // 搜尋框即時過濾
+            $('#globalSearchInput').on('input', function () {
+                applyFilterAndSearch();
+            });
+
+            function applyFilterAndSearch() {
+                const query = $('#globalSearchInput').val().trim().toLowerCase();
+                let filtered = personMasterDataset.filter(item => {
+                    let matchFilter = true;
+                    if (activeFilter === '夥伴') matchFilter = (item.identity_type === '夥伴');
+                    else if (activeFilter === '潛在團隊成員') matchFilter = (item.identity_type === '潛在團隊成員');
+                    else if (activeFilter === '客戶') matchFilter = (item.identity_type === '客戶');
+                    else if (activeFilter === '潛在客戶') matchFilter = (item.identity_type === '潛在客戶');
+                    else if (activeFilter === 'MY') matchFilter = (item.nationality !== '台灣');
+
+                    let matchQuery = true;
+                    if (query) {
+                        const searchString = `${item.name_zh} ${item.name_en} ${item.preferred_name} ${item.phone} ${item.email} ${item.person_id}`.toLowerCase();
+                        matchQuery = searchString.includes(query);
+                    }
+                    return matchFilter && matchQuery;
+                });
+
+                renderCards(filtered);
+                if (dataTableInstance) {
+                    dataTableInstance.search(query).draw();
+                }
+            }
+
+            // 視圖按鈕切換事件
+            $('#viewCardsBtn').on('click', () => switchView('cards'));
+            $('#viewTableBtn').on('click', () => switchView('table'));
+
+            // 調閱 360° 全息檔案抽屜
+            $(document).on('click', '.view-person-detail', function (e) {
+                e.preventDefault();
+                const personId = $(this).data('id');
+                const person = personMasterDataset.find(p => p.person_id === personId);
+                if (!person) return;
+
+                // 填入抽屜基本資料
+                $('#drawerNameZh').text(`${person.name_zh} ${person.preferred_name ? `(${person.preferred_name})` : ''}`);
+                $('#drawerPersonId').text(`${person.person_id} | ${person.nationality}`);
+                $('#drawerIdentityBadge').text(person.identity_type).attr('class', `badge ${person.identity_type === '夥伴' ? 'role-partner' : 'role-prospect'}`);
+                $('#drawerUsageBadge').text(person.usage_identity).attr('class', `badge ${person.usage_identity === '經營者' ? 'role-operator' : 'role-consumer'}`);
+                $('#drawerCountryBadge').html(`<i class="fa-solid fa-location-dot"></i> ${person.nationality}・${person.current_residence || '-'}`);
+
+                // 填入 360 備註
+                $('#drawerHealthNotes').text(person.health_notes || '暫無健康備忘');
+                $('#drawerFinancialNotes').text(person.financial_notes || '暫無財務備忘');
+                $('#drawerCareerNotes').text(person.career_education_notes || '暫無學經歷備忘');
+                $('#drawerConsumptionNotes').text(person.consumption_notes || '暫無消費習慣備忘');
+
+                // 填入規格
+                $('#drawerSpecName').text(person.name_zh);
+                $('#drawerSpecNameEn').text(person.name_en || '-');
+                $('#drawerSpecNick').text(person.preferred_name || '-');
+                $('#drawerSpecBio').text(`${person.gender} / ${person.birthday || '-'}`);
+                $('#drawerSpecMetDate').text(person.met_date || '-');
+                $('#drawerSpecMetReason').text(person.met_reason || '-');
+                $('#drawerSpecEmail').text(person.email || '-');
+                $('#drawerSpecAddress').text(person.contact_address || '-');
+
+                // 填入通訊渠道清單
+                const contactsList = $('#drawerContactsList');
+                contactsList.empty();
+                $('#drawerContactCount').text(person.contacts ? person.contacts.length : 0);
+                if (person.contacts && person.contacts.length > 0) {
+                    person.contacts.forEach(c => {
+                        contactsList.append(`
+                            <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-dark">${c.platform_name}</span>
+                                    <span class="text-white small">${c.contact_value}</span>
+                                </div>
+                                <span class="badge ${c.is_primary === 'Y' ? 'bg-success' : 'bg-secondary'}" style="font-size:0.65rem;">
+                                    ${c.is_primary === 'Y' ? '主要使用' : '次要'}
+                                </span>
+                            </div>
+                        `);
+                    });
+                } else {
+                    contactsList.append('<div class="text-muted small py-2">無通訊軟體記錄</div>');
+                }
+
+                // 填入多語維度評級
+                const languagesList = $('#drawerLanguagesList');
+                languagesList.empty();
+                if (person.languages && person.languages.length > 0) {
+                    person.languages.forEach(l => {
+                        languagesList.append(`
+                            <div class="p-2 rounded mb-2" style="background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent-violet);">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold text-white small">${l.language_name}</span>
+                                    <span class="text-muted" style="font-size:0.75rem;">口說：${l.speaking_level}</span>
+                                </div>
+                                <div class="d-flex gap-2 text-muted" style="font-size:0.72rem;">
+                                    <span>聽：${l.listening_level}</span> | <span>說：${l.speaking_level}</span> | <span>讀：${l.reading_level}</span> | <span>寫：${l.writing_level}</span>
+                                </div>
+                            </div>
+                        `);
+                    });
+                } else {
+                    languagesList.append('<div class="text-muted small py-2">無語言能力評級</div>');
+                }
+
+                $('#btnQuickSwitchState').data('id', person.person_id);
+
+                const drawer = new bootstrap.Offcanvas(document.getElementById('personDetailDrawer'));
+                drawer.show();
+            });
+
+            // 開啟身份切換狀態機 Modal
+            $(document).on('click', '.quick-switch-btn, #btnQuickSwitchState', function (e) {
+                e.preventDefault();
+                const personId = $(this).data('id');
+                const person = personMasterDataset.find(p => p.person_id === personId);
+                if (!person) return;
+
+                $('#switchPersonId').val(person.person_id);
+                $('#switchTargetName').val(`${person.name_zh} (${person.person_id})`);
+                $('#switchIdentityType').val(person.identity_type);
+                $('#switchUsageIdentity').val(person.usage_identity);
+
+                togglePartnerPrompt(person.identity_type);
+                $('#modalSwitchState').modal('show');
+            });
+
+            $('#switchIdentityType').on('change', function () {
+                togglePartnerPrompt($(this).val());
+            });
+
+            function togglePartnerPrompt(val) {
+                if (val === '夥伴') {
+                    $('#partnerBindingPrompt').removeClass('d-none');
+                } else {
+                    $('#partnerBindingPrompt').addClass('d-none');
+                }
+            }
+
+            // 儲存狀態轉換
+            $('#btnSaveStateTransition').on('click', function () {
+                const personId = $('#switchPersonId').val();
+                const newIdentity = $('#switchIdentityType').val();
+                const newUsage = $('#switchUsageIdentity').val();
+
+                const person = personMasterDataset.find(p => p.person_id === personId);
+                if (person) {
+                    person.identity_type = newIdentity;
+                    person.usage_identity = newUsage;
+                    person.modified_at = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+                    $('#modalSwitchState').modal('hide');
+                    updateOverviewCounts();
+                    applyFilterAndSearch();
+                    initDataTable();
+                }
+            });
+
+            // 重新整理/模擬從 Google 試算表拉取
+            $('#btnRefreshData').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                setTimeout(function () {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表');
+                    updateOverviewCounts();
+                    applyFilterAndSearch();
+                }, 600);
+            });
+
+            // 啟動模組
+            initModule();
+        });
+    </script>
+</body>
+</html>
