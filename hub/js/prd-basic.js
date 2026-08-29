@@ -63,7 +63,7 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
             return {
                 code: 'COMING_SOON',
                 text: '即將上市',
-                badge: '<span class="badge bg-warning text-dark"><i class="fa-solid fa-clock"></i> 即將上市</span>'
+                badge: '<span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>'
             };
         }
     }
@@ -74,7 +74,7 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
             return {
                 code: 'DISCONTINUED',
                 text: '已下市',
-                badge: '<span class="badge bg-danger text-white"><i class="fa-solid fa-ban"></i> 已下市</span>'
+                badge: '<span class="badge badge-danger"><i class="fa-solid fa-ban"></i> 已下市</span>'
             };
         }
     }
@@ -82,7 +82,7 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
     return {
         code: 'ACTIVE',
         text: '販售中',
-        badge: '<span class="badge bg-success text-white"><i class="fa-solid fa-circle-check"></i> 販售中</span>'
+        badge: '<span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> 販售中</span>'
     };
 }
 
@@ -108,7 +108,6 @@ window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter && typeof SheetAdapter.init === 'function') {
         SheetAdapter.init("AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H");
     }
-    initIframeAutoResize();
     await initApp();
 });
 
@@ -124,33 +123,6 @@ async function initApp() {
         AppToast.error("未設定 Google 試算表 ID，無法讀取產品資料！");
         refreshView();
     }
-}
-
-function initIframeAutoResize() {
-    const notifyParent = () => {
-        const height = Math.max(
-            document.body.scrollHeight,
-            document.documentElement.scrollHeight,
-            $('#productCrudTabsContent').outerHeight(true) + 140
-        );
-
-        window.parent.postMessage({
-            type: 'IFRAME_RESIZE',
-            height: height
-        }, '*');
-
-        if (window.parent && window.parent.AppDialog && typeof window.parent.AppDialog.resizeIframe === 'function') {
-            window.parent.AppDialog.resizeIframe(height);
-        }
-    };
-
-    if (window.ResizeObserver) {
-        const resizeObserver = new ResizeObserver(() => notifyParent());
-        resizeObserver.observe(document.body);
-    }
-
-    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', () => setTimeout(notifyParent, 150));
-    $(window).on('resize', () => notifyParent());
 }
 
 // ==========================================================================
@@ -404,12 +376,6 @@ function bindUIEvents() {
             renderAnalyticsCharts();
         }
     });
-
-    if (window.AppDialog && typeof AppDialog.bindIframeAutoCenter === 'function') {
-        AppDialog.bindIframeAutoCenter('#modalProductFullEdit');
-        AppDialog.bindIframeAutoCenter('#modalTaxonomyEdit');
-        AppDialog.bindIframeAutoCenter('#modalProductDetailView');
-    }
 }
 
 function refreshView() {

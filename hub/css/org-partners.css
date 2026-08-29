@@ -2,30 +2,6 @@
    組織成員模組專屬樣式 (org-partners.css)
    其餘 Badge、Modal 置中、Table 樣式均由 common.css / app-dialog.js 託管
    ========================================================================== */
-
-/* 戰術抬頭玻璃面板 */
-.hud-glass-panel {
-    background: linear-gradient(135deg, rgba(25, 18, 51, 0.8) 0%, rgba(19, 14, 36, 0.9) 100%);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: var(--uvaco-border-radius-lg, 20px);
-    padding: 1.25rem 1.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-    margin-bottom: 1.5rem;
-    position: relative;
-}
-
-.hud-glass-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 5%;
-    width: 90%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--uvaco-primary, #8b5cf6), transparent);
-}
-
 .stat-chip {
     background: rgba(139, 92, 246, 0.08);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
@@ -110,11 +86,6 @@
     background: rgba(33, 24, 66, 0.95);
 }
 
-.node-border-purple { border: 2px solid #8b5cf6 !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.35); }
-.node-border-green  { border: 2px solid #10b981 !important; }
-.node-border-orange { border: 2px solid #f97316 !important; }
-.node-border-blue   { border: 2px solid #38bdf8 !important; }
-
 .tree-level-indent.tree-line-solid { border-left: 2px solid rgba(139, 92, 246, 0.4); margin-left: 1.25rem; padding-left: 1.25rem; }
 .tree-level-indent.tree-line-dotted { border-left: 2px dotted rgba(239, 68, 68, 0.5); margin-left: 1.25rem; padding-left: 1.25rem; }
 
@@ -124,15 +95,6 @@
     border-radius: 9999px;
     padding: 0.2rem 0.65rem;
     color: var(--uvaco-text-muted, #94a3b8);
-}
-
-/* 統計圖表戰情卡片 */
-.chart-hud-card {
-    background: var(--uvaco-bg-card, #191233);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: var(--uvaco-border-radius-lg, 20px);
-    padding: 1.25rem;
-    height: 100%;
 }
 
 /* 表單分頁橫向滑動導航 (手機適配) */
@@ -155,14 +117,6 @@
     background: var(--uvaco-primary, #8b5cf6);
     color: #fff;
     border-color: var(--uvaco-primary, #8b5cf6);
-}
-
-/* 彈窗自訂樣式 */
-.modal-content-custom {
-    background: #150d2a !important;
-    border: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45));
-    border-radius: var(--uvaco-border-radius-lg, 18px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
 }
 
 .dossier-hero-card {
@@ -202,40 +156,39 @@
     min-height: 2.2rem;
 }
 
-/* Select2 深色主題適配 */
-.select2-container--default .select2-selection--single {
-    background-color: #1a1333 !important;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-    border-radius: 8px !important;
-    height: 38px !important;
-    display: flex !important;
-    align-items: center !important;
+/* DataTables 樣式適配 */
+.table-responsive-custom {
+    background: var(--uvaco-bg-surface, #130e24);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
+    border-radius: var(--uvaco-border-radius-lg, 20px);
+    padding: 1rem;
 }
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+
+table.dataTable {
     color: var(--uvaco-text-main, #f8fafc) !important;
-    padding-left: 0.75rem !important;
-    font-size: 0.88rem !important;
+    border-color: var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
 }
-.select2-dropdown {
-    background-color: #150d2a !important;
-    border: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45)) !important;
-    border-radius: 10px !important;
-    z-index: 1065 !important;
+
+table.dataTable thead th {
+    background-color: rgba(139, 92, 246, 0.12) !important;
+    color: var(--uvaco-secondary, #a78bfa) !important;
+    border-bottom: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45)) !important;
+    font-size: 0.85rem;
 }
-.select2-container--default .select2-search--dropdown .select2-search__field {
-    background-color: #20173f !important;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25)) !important;
-    color: #ffffff !important;
+
+table.dataTable tbody tr {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
 }
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: var(--uvaco-primary, #8b5cf6) !important;
-    color: #ffffff !important;
+
+table.dataTable tbody tr:hover {
+    background-color: rgba(139, 92, 246, 0.08) !important;
 }
-.filter-dock-grid .select2-container--default .select2-selection--single {
-    height: 31px !important;
-    background-color: rgba(25, 18, 51, 0.85) !important;
-}
-.filter-dock-grid .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 29px !important;
-    font-size: 0.82rem !important;
+
+.dataTables_filter input {
+    background: var(--uvaco-bg-card, #191233) !important;
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
+    color: #fff !important;
+    border-radius: 9999px !important;
+    padding: 0.35rem 0.85rem !important;
 }

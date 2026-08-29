@@ -8,7 +8,7 @@
     document.documentElement.style.display = 'none';
 
     const PROJECT_NAME = 'ray-jarvis-team';   // GitHub 專案名稱
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycby-z80VYrsboxpdjxrIb-vFodL6Pznsjwrq8ApQwZFx8LopmuUi0k2Z3ZN5b4QxZLiu8A/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz_3J3O0uCElz3NG1WKobLQBzkWfdC0YO0I-nCQ662lMCmQVeXSdyaLdS8ui43dfz8v/exec";
     const SESSION_KEY = 'ray_team_auth_session';
     const REVALIDATE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 小時背景靜默複驗
 

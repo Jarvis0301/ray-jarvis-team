@@ -36,7 +36,7 @@
                             <span class="input-group-text bg-dark text-secondary border-secondary border-opacity-50">
                                 <i class="fa-solid fa-scale-balanced me-1"></i> 匯率 (MYR/TWD)
                             </span>
-                            <input type="number" class="form-control form-control-custom mono-font text-end" id="inputExchangeRate" value="8.00" step="0.01" min="0.01" placeholder="8.00">
+                            <input type="number" class="form-control text-end" id="inputExchangeRate" value="8.00" step="0.01" min="0.01" placeholder="8.00">
                         </div>
                         <div class="btn-group" role="group" id="currencyToggleGroup">
                             <button type="button" class="btn btn-sm btn-outline-secondary active" data-currency="TWD">
@@ -70,10 +70,10 @@
                         <span>當前判定實動職級</span>
                         <i class="fa-solid fa-user-check text-primary"></i>
                     </div>
-                    <div class="kpi-value text-secondary mono-font" id="dispCurrentRank">經理</div>
+                    <div class="kpi-value text-secondary" id="dispCurrentRank">經理</div>
                     <div class="kpi-subtext">
                         <span class="text-secondary">個人階差比率：<strong class="text-white" id="dispRebateRate">20%</strong></span>
-                        <span class="badge badge-purple mono-font" id="dispStatusTag">合格經理</span>
+                        <span class="badge badge-purple" id="dispStatusTag">合格經理</span>
                     </div>
                 </div>
 
@@ -83,10 +83,10 @@
                         <span>當月預估綜合收益</span>
                         <i class="fa-solid fa-sack-dollar text-warning"></i>
                     </div>
-                    <div class="kpi-value text-warning mono-font" id="dispTotalIncome">NT$ 24,000</div>
+                    <div class="kpi-value text-warning" id="dispTotalIncome">NT$ 24,000</div>
                     <div class="kpi-subtext">
-                        <span class="text-secondary">生產力基準：<strong class="text-light mono-font" id="dispPvRate">PV = 25</strong></span>
-                        <span class="text-success fw-bold mono-font"><i class="fa-solid fa-calculator"></i> 實戰精算</span>
+                        <span class="text-secondary">生產力基準：<strong class="text-light" id="dispPvRate">PV = 25</strong></span>
+                        <span class="text-success fw-bold"><i class="fa-solid fa-calculator"></i> 實戰精算</span>
                     </div>
                 </div>
 
@@ -96,13 +96,13 @@
                         <span>目標衝刺達成進度</span>
                         <i class="fa-solid fa-bullseye text-danger"></i>
                     </div>
-                    <div class="kpi-value text-white mono-font" id="dispOverallProgress">100%</div>
+                    <div class="kpi-value text-white" id="dispOverallProgress">100%</div>
                     <div class="progress-thin mt-2">
                         <div class="progress-bar-purple" id="dispProgressBar" style="width: 100%;"></div>
                     </div>
                     <div class="kpi-subtext mt-2">
                         <span class="text-secondary">目標：<strong class="text-warning" id="dispTargetRankName">經理</strong></span>
-                        <span class="text-secondary mono-font" id="dispProgressLabel">已完全達標</span>
+                        <span class="text-secondary" id="dispProgressLabel">已完全達標</span>
                     </div>
                 </div>
 
@@ -112,10 +112,10 @@
                         <span>合格經理線 / 實動珍珠</span>
                         <i class="fa-solid fa-sitemap text-success"></i>
                     </div>
-                    <div class="kpi-value text-success mono-font" id="dispOrgLegs">0 <span class="fs-6 fw-normal text-secondary">/ 0 條</span></div>
+                    <div class="kpi-value text-success" id="dispOrgLegs">0 <span class="fs-6 fw-normal text-secondary">/ 0 條</span></div>
                     <div class="kpi-subtext">
                         <span class="text-secondary">領導獎金：<strong class="text-white" id="dispGenDepth">0 代 (各6%)</strong></span>
-                        <span class="badge badge-success-subtle mono-font" id="dispRescueTag">正常合格</span>
+                        <span class="badge badge-success-subtle" id="dispRescueTag">正常合格</span>
                     </div>
                 </div>
             </section>
@@ -136,7 +136,7 @@
                                     <label for="inputPersonalSv" class="form-label">
                                         <i class="fa-solid fa-cart-shopping"></i> 當月個人業績 (SV)
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputPersonalSv" value="160" min="0" step="10">
+                                    <input type="number" class="form-control" id="inputPersonalSv" value="160" min="0" step="10">
                                     <div class="form-text text-muted small">基本盤：需達 160 SV 領取各項獎金。</div>
                                 </div>
 
@@ -144,7 +144,7 @@
                                     <label for="inputMonthGroupSv" class="form-label">
                                         <i class="fa-solid fa-users"></i> 當月小組責任額 (SV)
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputMonthGroupSv" value="3200" min="0" step="100">
+                                    <input type="number" class="form-control" id="inputMonthGroupSv" value="3200" min="0" step="100">
                                     <div class="form-text text-muted small">合格經理責任額門檻 3,200 SV。</div>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                                     <label for="inputTotalOrgSv" class="form-label">
                                         <i class="fa-solid fa-globe"></i> 當月整組總業績 (SV)
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputTotalOrgSv" value="3200" min="0" step="1000">
+                                    <input type="number" class="form-control" id="inputTotalOrgSv" value="3200" min="0" step="1000">
                                     <div class="form-text text-muted small">藍鑽晉升需當月達 100,000 SV。</div>
                                 </div>
 
@@ -162,7 +162,7 @@
                                     <label for="inputCumGroupSv" class="form-label">
                                         <i class="fa-solid fa-boxes-stacked"></i> 整組累計業績 (SV)
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputCumGroupSv" value="12000" min="0" step="100">
+                                    <input type="number" class="form-control" id="inputCumGroupSv" value="12000" min="0" step="100">
                                     <div class="form-text text-muted small">主任 1.2K / 副理 6K / 經理 12K SV。</div>
                                 </div>
                             </div>
@@ -172,19 +172,19 @@
                                     <label for="inputManagerLines" class="form-label">
                                         <i class="fa-solid fa-network-wired"></i> 經理線 (條)
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputManagerLines" value="0" min="0">
+                                    <input type="number" class="form-control" id="inputManagerLines" value="0" min="0">
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label for="inputPearlLines" class="form-label">
                                         <i class="fa-solid fa-gem text-secondary"></i> 珍珠線 (條)
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputPearlLines" value="0" min="0">
+                                    <input type="number" class="form-control" id="inputPearlLines" value="0" min="0">
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label for="inputConsecutiveMonths" class="form-label">
                                         <i class="fa-solid fa-calendar-check"></i> 連續考核月
                                     </label>
-                                    <input type="number" class="form-control form-control-custom mono-font" id="inputConsecutiveMonths" value="1" min="1">
+                                    <input type="number" class="form-control" id="inputConsecutiveMonths" value="1" min="1">
                                 </div>
                             </div>
 
@@ -192,7 +192,7 @@
                                 <label for="selectTargetRank" class="form-label text-warning fw-bold">
                                     <i class="fa-solid fa-crosshairs"></i> 設定目標衝刺職級
                                 </label>
-                                <select class="form-select form-select-custom border-warning mono-font" id="selectTargetRank"></select>
+                                <select class="form-select border-warning" id="selectTargetRank"></select>
                             </div>
                         </form>
                     </div>
@@ -227,7 +227,7 @@
                                 <span class="small text-secondary fw-bold">
                                     <i class="fa-solid fa-calculator text-primary"></i> 預估當月到手總額：
                                 </span>
-                                <span class="fs-5 text-warning fw-bold mono-font" id="dispIncomeQuickTotal">NT$ 24,000</span>
+                                <span class="fs-5 text-warning fw-bold" id="dispIncomeQuickTotal">NT$ 24,000</span>
                             </div>
                         </div>
                     </div>

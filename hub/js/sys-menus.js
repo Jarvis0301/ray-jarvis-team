@@ -198,8 +198,6 @@ function bindUIEvents() {
         const icon = $(this).val().trim();
         $('#iconPreview').html(`<i class="${icon || 'fa-solid fa-bars'}"></i>`);
     });
-
-    AppDialog.bindIframeAutoCenter('#menuModal');
 }
 
 function switchPortal(portal) {

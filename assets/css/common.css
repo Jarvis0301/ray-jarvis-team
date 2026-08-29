@@ -2504,26 +2504,27 @@ body {
 /* ==========================================================================
    Card 卡片元件 (遵循 Bootstrap 5 變數擴充)
    ========================================================================== */
-.card-custom {
+.card {
   background-color: var(--uvaco-bg-card);
   border: 1px solid var(--uvaco-border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--uvaco-border-radius-lg, 20px);
+  padding: 1rem;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-.card-custom .card-header {
+.card .card-header {
   background-color: transparent;
   border-bottom: 1px solid var(--uvaco-border-color);
   color: var(--uvaco-primary);
   font-weight: 600;
   padding: 1rem 1.25rem;
 }
-.card-custom .card-body {
+.card .card-body {
   padding: 1.25rem;
   color: var(--uvaco-text-primary);
 }
-.card-custom:hover {
-  border-color: var(--uvaco-primary);
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.35);
+.card:hover {
+  border-color: var(--uvaco-border-highlight);
+  box-shadow: 0 0 2rem var(--uvaco-border-glow);
 }
 
 /* 1. 先定義國旗圖標的通用外觀（與 Font Awesome 對齊） */
@@ -8782,20 +8783,97 @@ body {
   min-height: 300px;
 }
 
-/* 全域 C/U/D 異步鎖定遮罩 (支援 Bootstrap 5 深色主題與可視範圍置中) */
-.uvaco-loading-overlay {
-  position: fixed;
+/* Modal 遮罩與彈窗定位 (完全適應超長 iFrame 坐標系) */
+.modal {
+  position: absolute !important;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: var(--uvaco-overlay-bg, rgba(10, 5, 24, 0.8));
+  width: 100% !important;
+  min-height: 100% !important;
+  height: auto !important;
+  overflow-y: visible !important;
+  z-index: 1050 !important;
+}
+
+.modal-backdrop {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  background-color: rgba(6, 3, 15, 0.82) !important;
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  z-index: 1040 !important;
+}
+
+.modal-dialog {
+  z-index: 1055 !important;
+  transition: margin-top 0.15s ease-out;
+}
+
+.modal-content {
+  background-color: var(--uvaco-bg-card);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: var(--uvaco-border-radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+  overflow: hidden !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--uvaco-border);
+  padding: 1rem 1.25rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--uvaco-border);
+  padding: 0.85rem 1.25rem;
+}
+
+.modal-dialog .modal-body {
+  overflow-y: auto !important;
+}
+
+/*  全域 Toast 容器：雙軌水平置中與動態視野追蹤 */
+.toast-container-custom {
+  position: absolute !important;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) !important;
   z-index: 999999;
   display: flex;
   flex-direction: column;
   align-items: center;
+  pointer-events: none;
+  width: -moz-max-content;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  transition: top 0.15s ease-out, left 0.15s ease-out;
+}
+
+.toast-container-custom .toast {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 100%;
+  border-radius: var(--uvaco-border-radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* 全域 Loading 遮罩與置中卡片 */
+.uvaco-loading-overlay {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  background: rgba(10, 5, 24, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -8807,25 +8885,360 @@ body {
 }
 
 .uvaco-loading-card {
-  background-color: var(--uvaco-bg-card, #170b28);
-  border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
-  color: var(--uvaco-text-main, #faf5ff);
-  border-radius: 16px;
-  padding: 28px 36px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85), 0 0 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+  background: var(--uvaco-bg-card);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: var(--uvaco-border-radius-lg);
+  padding: 24px 32px;
+  box-shadow: 0px 0px 25px var(--uvaco-primary-glow);
   text-align: center;
-  min-width: 280px;
+  min-width: 260px;
   max-width: 90vw;
+  transition: margin-top 0.15s ease-out;
 }
 
-.toast-container-custom {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000000;
-  min-width: 320px;
-  max-width: 90vw;
+.table-dark-custom {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--uvaco-text-light);
+  --bs-table-border-color: var(--uvaco-border-color);
+  border-color: var(--uvaco-border-glow) !important;
+  color: var(--uvaco-text-primary, #f8fafc) !important;
+}
+.table-dark-custom thead th {
+  background-color: var(--uvaco-bg-card) !important;
+  color: var(--uvaco-secondary) !important;
+  border-bottom: 2px solid var(--uvaco-border-color) !important;
+  font-weight: 600;
+  padding: 1rem;
+  vertical-align: middle;
+}
+.table-dark-custom tbody tr {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: background-color 0.15s ease;
+}
+.table-dark-custom tbody tr td {
+  background-color: transparent !important;
+  vertical-align: middle;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--uvaco-muted);
+}
+.table-dark-custom tbody tr:hover td {
+  background-color: var(--uvaco-bg-card-hover) !important;
+}
+
+.form-label {
+  color: var(--uvaco-secondary, #c084fc);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-control {
+  background-color: var(--uvaco-bg-card-primary);
+  border: 1px solid var(--uvaco-border-glow);
+  color: var(--uvaco-text-primary);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  transition: all 0.2s ease-in-out;
+}
+.form-control:focus {
+  background-color: var(--uvaco-bg-card-primary);
+  border-color: var(--uvaco-secondary);
+  color: var(--uvaco-text-primary);
+  box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow);
+}
+
+.form-check-input {
+  background-color: --uvaco-bg-card-primary;
+  border: 1px solid var(--uvaco-border-glow);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.form-check-input:hover {
+  background-color: var(--uvaco-secondary);
+  opacity: 0.75;
+}
+.form-check-input:checked {
+  background-color: var(--uvaco-primary);
+  border-color: var(--uvaco-primary);
+  opacity: 1;
+  box-shadow: 0 0 10px var(--uvaco-border-glow);
+}
+
+.form-select {
+  background-color: var(--uvaco-bg-card-primary);
+  border: 1px solid var(--uvaco-border-glow);
+  color: var(--uvaco-text-primary);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  transition: all 0.2s ease-in-out;
+}
+.form-select:focus {
+  background-color: var(--uvaco-bg-card-primary);
+  border-color: var(--uvaco-secondary);
+  color: var(--uvaco-text-primary);
+  box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow);
+}
+
+/* ==========================================================================
+   Select2 深度對齊 Bootstrap 5 (.form-select) 戰情控制台深色主題樣式庫
+   ========================================================================== */
+/* --------------------------------------------------------------------------
+   1. 容器外框與排版基礎
+   -------------------------------------------------------------------------- */
+.select2-container {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. 未展開外觀主體（單選：100% 像素級對齊 Bootstrap 5 .form-select）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: calc(1.5em + 1rem + 2px) !important;
+  min-height: calc(1.5em + 1rem + 2px) !important;
+  padding: 0.5rem 2.25rem 0.5rem 0.85rem !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  color: var(--uvaco-text-primary, var(--bs-body-color)) !important;
+  background-color: var(--uvaco-bg-card-primary, var(--bs-body-bg)) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.85rem center !important;
+  background-size: 16px 12px !important;
+  border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. 隱藏 Select2 原生粗糙三角形（防止產生雙箭頭）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. 內部文字排版與單行截斷 (Text Ellipsis)
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: inherit !important;
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex-grow: 1 !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: var(--bs-secondary-color, #6c757d) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. 清除按鈕「叉叉」（Clear Button）高對比度優化
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+  color: var(--uvaco-text-muted, #9ca3af) !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  margin-right: 0.65rem !important;
+  padding: 0.1rem 0.35rem !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+  order: 1;
+}
+.select2-container--default .select2-selection--single .select2-selection__clear:hover {
+  color: var(--uvaco-danger, #ef4444) !important;
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  transform: scale(1.1);
+}
+
+/* --------------------------------------------------------------------------
+   6. 聚焦與展開狀態（同步 Bootstrap 5 Focus Glow 呼吸光暈）
+   -------------------------------------------------------------------------- */
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single {
+  background-color: var(--uvaco-bg-card-primary, var(--bs-body-bg)) !important;
+  border-color: var(--uvaco-secondary, var(--bs-primary)) !important;
+  color: var(--uvaco-text-primary) !important;
+  box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(var(--bs-primary-rgb), 0.25)) !important;
+  outline: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. 禁用狀態 (Disabled State)
+   -------------------------------------------------------------------------- */
+.select2-container--default.select2-container--disabled .select2-selection--single {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--uvaco-border-glow, var(--bs-border-color)) !important;
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. 下拉浮層清單外框與滾動條 (Dropdown Container)
+   -------------------------------------------------------------------------- */
+.select2-dropdown {
+  background-color: var(--uvaco-bg-card-primary, #111827) !important;
+  border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+  z-index: 1065 !important;
+  overflow: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. 下拉內部搜尋框 (Search Field)
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-search--dropdown {
+  padding: 0.5rem !important;
+  background-color: transparent !important;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+  color: var(--uvaco-text-primary, #ffffff) !important;
+  border-radius: 6px !important;
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  outline: 0 !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+  border-color: var(--uvaco-secondary, var(--bs-primary)) !important;
+  box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(var(--bs-primary-rgb), 0.25)) !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. 下拉選單項目狀態（★ 核心修復：解耦選中態與懸浮態，徹底杜絕白底洩漏）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-results__option {
+  background-color: transparent !important;
+  color: var(--uvaco-text-primary, #e2e8f0) !important;
+  padding: 0.5rem 0.85rem !important;
+  font-size: 0.9rem !important;
+  -webkit-user-select: none !important;
+     -moz-user-select: none !important;
+          user-select: none !important;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+  background-color: rgba(var(--uvaco-primary), 0.4) !important;
+  color: var(--uvaco-secondary, var(--bs-primary)) !important;
+  font-weight: 600 !important;
+}
+
+.select2-container--default .select2-results__option--highlighted:not([aria-selected=true]) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected=true] {
+  background-color: var(--uvaco-primary, var(--bs-primary)) !important;
+  color: #ffffff !important;
+}
+
+.select2-container--default .select2-results__option[aria-disabled=true] {
+  color: var(--bs-secondary-color, #6c757d) !important;
+  background-color: transparent !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. 多選模式適配（Multiple Select Badges）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--uvaco-bg-card-primary, var(--bs-body-bg)) !important;
+  border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+  border-radius: 8px !important;
+  min-height: calc(1.5em + 1rem + 2px) !important;
+  padding: 0.25rem 0.5rem !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+  border: 1px solid var(--uvaco-border-glow, var(--bs-primary)) !important;
+  color: var(--uvaco-text-primary, #ffffff) !important;
+  border-radius: 4px !important;
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.82rem !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+  color: var(--uvaco-text-muted, #9ca3af) !important;
+  border: none !important;
+  margin-right: 0.35rem !important;
+  padding: 0 0.2rem !important;
+  font-weight: bold !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+  color: var(--uvaco-danger, #ef4444) !important;
+  background-color: transparent !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. 小型精簡版適配（對齊 .form-select-sm 與懸浮戰略島 Filter Dock）
+   -------------------------------------------------------------------------- */
+.filter-dock-grid .select2-container--default .select2-selection--single,
+.select2-container--sm .select2-selection--single {
+  min-height: calc(1.5em + 0.5rem + 2px) !important;
+  padding: 0.25rem 2rem 0.25rem 0.65rem !important;
+  font-size: 0.85rem !important;
+  border-radius: 6px !important;
+  background-position: right 0.55rem center !important;
+  background-size: 14px 10px !important;
+}
+.filter-dock-grid .select2-container--default .select2-selection--single .select2-selection__rendered,
+.select2-container--sm .select2-selection--single .select2-selection__rendered {
+  font-size: 0.85rem !important;
+}
+.filter-dock-grid .select2-container--default .select2-selection--single .select2-selection__clear,
+.select2-container--sm .select2-selection--single .select2-selection__clear {
+  font-size: 0.95rem !important;
+  margin-right: 0.4rem !important;
+}
+
+.glass-panel {
+  background: var(--uvaco-bg-card, rgba(21, 10, 42, 0.78));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--uvaco-border-color);
+  border-radius: var(--uvaco-border-radius-lg, 16px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.45);
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 5%;
+  width: 90%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--uvaco-primary), transparent);
+}
+.glass-panel:hover {
+  border-color: var(--uvaco-primary-hover);
+  box-shadow: 0 0 40px var(--uvaco-primary-glow);
 }
 
 @keyframes ctaPulseGlow {

@@ -548,8 +548,6 @@ function bindEvents() {
             { title: "確認清空購物車", confirmText: "確認清空" }
         );
     });
-
-    AppDialog.bindIframeAutoCenter('#subSeriesChartsModal');
 }
 
 // ==========================================
@@ -603,7 +601,7 @@ function renderProducts() {
 
         if (filtered.length === 0) {
             $grid.append(`
-                <div class="col-12 text-center text-muted py-5 war-card">
+                <div class="col-12 text-center text-muted py-5 card">
                     <i class="fa-solid fa-magnifying-glass-minus fa-3x mb-3 opacity-50"></i>
                     <p class="mb-0">未找到符合條件的產品，請調整篩選條件或搜尋關鍵字。</p>
                 </div>

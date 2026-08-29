@@ -4,34 +4,6 @@
     margin: 0 auto;
 }
 
-/* 戰術玻璃擬態容器 */
-.glass-panel {
-    background: var(--uvaco-bg-glass, rgba(21, 10, 42, 0.78));
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.glass-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.5), transparent);
-}
-
-.glass-panel:hover {
-    border-color: var(--uvaco-primary-light, rgba(192, 132, 252, 0.45));
-    box-shadow: 0 12px 35px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
-}
-
 /* KPI 戰術指標方塊 */
 .kpi-matrix {
     display: grid;
@@ -71,30 +43,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-/* 表單控制項自訂 */
-.form-label {
-    color: var(--uvaco-primary-light, #c084fc);
-    font-weight: 600;
-    font-size: 0.88rem;
-    margin-bottom: 0.35rem;
-}
-
-.form-control-custom, .form-select-custom {
-    background-color: var(--uvaco-bg-surface, #170b2e);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
-    color: var(--uvaco-text-main, #ffffff);
-    border-radius: 10px;
-    padding: 0.6rem 0.9rem;
-    font-size: 0.92rem;
-}
-
-.form-control-custom:focus, .form-select-custom:focus {
-    background-color: rgba(21, 10, 42, 0.98);
-    border-color: var(--uvaco-primary, #8b5cf6);
-    box-shadow: 0 0 0 0.25rem var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
-    color: #ffffff;
 }
 
 /* 預設範例按鈕群組 */
@@ -161,33 +109,6 @@
 .gap-alert-card.qualified {
     background: rgba(16, 185, 129, 0.08);
     border: 1px dashed rgba(16, 185, 129, 0.4);
-}
-
-/* 表格專屬樣式 */
-.table-dark-custom {
-    --bs-table-bg: transparent;
-    --bs-table-color: var(--uvaco-text-main, #f8fafc);
-    border-color: var(--uvaco-border, rgba(139, 92, 246, 0.15));
-}
-
-.table-dark-custom th {
-    background-color: rgba(30, 15, 61, 0.9) !important;
-    color: var(--uvaco-primary-light, #c084fc) !important;
-    border-bottom: 2px solid var(--uvaco-primary, #8b5cf6) !important;
-    font-size: 0.85rem;
-    padding: 0.8rem 1rem !important;
-}
-
-.table-dark-custom td {
-    background-color: rgba(21, 10, 42, 0.45) !important;
-    padding: 0.75rem 1rem !important;
-    vertical-align: middle;
-    font-size: 0.88rem;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.1) !important;
-}
-
-.table-dark-custom tbody tr:hover td {
-    background-color: rgba(139, 92, 246, 0.12) !important;
 }
 
 .section-header {

@@ -1,0 +1,27 @@
+.glass-panel {
+    background: var(--uvaco-bg-card, rgba(21, 10, 42, 0.78));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--uvaco-border-color);
+    border-radius: var(--uvaco-border-radius-lg, 16px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.45);
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 5%;
+        width: 90%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--uvaco-primary), transparent);
+    }
+
+    &:hover {
+        border-color: var(--uvaco-primary-hover);
+        box-shadow: 0 0 40px var(--uvaco-primary-glow);
+    }
+}

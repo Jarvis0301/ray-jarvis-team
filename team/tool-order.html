@@ -30,8 +30,8 @@
                     <section class="filter-section">
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="countrySelect" class="form-label small text-muted"><i class="fa-solid fa-globe"></i> 選擇地區</label>
-                                <select id="countrySelect" class="form-select form-select-custom">
+                                <label for="countrySelect" class="form-label"><i class="fa-solid fa-globe"></i> 選擇地區</label>
+                                <select id="countrySelect" class="form-select">
                                     <option value="ALL">全部地區</option>
                                     <option value="TW" selected>台灣 (TW)</option>
                                     <option value="MY">馬來西亞 (MY)</option>
@@ -39,8 +39,8 @@
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="mainSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-layer-group"></i> 產品主系列</label>
-                                <select id="mainSeriesSelect" class="form-select form-select-custom">
+                                <label for="mainSeriesSelect" class="form-label"><i class="fa-solid fa-layer-group"></i> 產品主系列</label>
+                                <select id="mainSeriesSelect" class="form-select">
                                     <option value="ALL">全部主系列</option>
                                     <option value="保健食品">保健食品</option>
                                     <option value="個人保養">個人保養</option>
@@ -50,15 +50,15 @@
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="subSeriesSelect" class="form-label small text-muted"><i class="fa-solid fa-sitemap"></i> 產品次系列</label>
-                                <select id="subSeriesSelect" class="form-select form-select-custom" disabled>
+                                <label for="subSeriesSelect" class="form-label"><i class="fa-solid fa-sitemap"></i> 產品次系列</label>
+                                <select id="subSeriesSelect" class="form-select" disabled>
                                     <option value="ALL">請先選擇主系列</option>
                                 </select>
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-3">
-                                <label for="searchInput" class="form-label small text-muted"><i class="fa-solid fa-search"></i> 關鍵字搜尋</label>
-                                <input type="text" id="searchInput" class="form-control form-control-custom" placeholder="搜尋名稱、成分或編號...">
+                                <label for="searchInput" class="form-label"><i class="fa-solid fa-search"></i> 關鍵字搜尋</label>
+                                <input type="text" id="searchInput" class="form-control" placeholder="搜尋名稱、成分或編號...">
                             </div>
                         </div>
 
@@ -79,7 +79,7 @@
                                 <label for="rank-select" class="text-nowrap small text-muted mb-0">
                                     <i class="fa-solid fa-user-graduate text-secondary"></i> 預估回饋職級：
                                 </label>
-                                <select id="rank-select" class="form-select form-select-custom form-select-sm" style="width: auto;">
+                                <select id="rank-select" class="form-select form-select-sm" style="width: auto;">
                                     <option value="0.05">會員 (5% 回饋)</option>
                                     <option value="0.10">主任 (10% 回饋)</option>
                                     <option value="0.15">副理 (15% 回饋)</option>
@@ -105,7 +105,7 @@
                     <div class="row g-3" id="productGrid"></div>
 
                     <!-- 產品展示區：表格模式 -->
-                    <div class="war-card d-none" id="productTableCard">
+                    <div class="card d-none" id="productTableCard">
                         <div class="table-responsive">
                             <table id="productTable" class="table table-dark-custom w-100">
                                 <thead>
@@ -148,7 +148,7 @@
                                             <label for="displayCurrencySelect" class="form-label small text-muted mb-1">
                                                 <i class="fa-solid fa-coins text-warning"></i> 結算幣別
                                             </label>
-                                            <select id="displayCurrencySelect" class="form-select form-select-sm form-select-custom">
+                                            <select id="displayCurrencySelect" class="form-select form-select-sm">
                                                 <option value="TWD" selected>新台幣 (TWD)</option>
                                                 <option value="MYR">馬幣 (MYR)</option>
                                             </select>
@@ -157,7 +157,7 @@
                                             <label for="exchangeRateInput" class="form-label small text-muted mb-1">
                                                 <i class="fa-solid fa-arrow-right-arrow-left text-info"></i> 匯率 (1 MYR = ? TWD)
                                             </label>
-                                            <input type="number" id="exchangeRateInput" class="form-control form-control-sm form-control-custom" value="8.0" step="0.1" min="0.1">
+                                            <input type="number" id="exchangeRateInput" class="form-control form-control-sm" value="8.0" step="0.1" min="0.1">
                                         </div>
                                         <div class="col-12 mt-2 d-none" id="myRegionBlock">
                                             <label class="form-label small text-muted mb-1 d-block">

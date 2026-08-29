@@ -61,10 +61,6 @@ window.addEventListener('AppReady', function () {
     populateRegionDropdowns();
     initSelect2Dropdowns();
 
-    // 依據共用元件 AppDialog 規範綁定兩個 Modal 的視野自動追蹤置中
-    AppDialog.bindIframeAutoCenter('#partnerDetailModal');
-    AppDialog.bindIframeAutoCenter('#partnerViewModal');
-
     // 12 欄位篩選器變更監聽
     $('.form-filter-control').on('change', function () {
         renderAllViews();
@@ -764,17 +760,7 @@ function renderDataTableView(list) {
         $('#partners-table-body').append(rowHtml);
     });
 
-    dataTableInstance = $('#partners-datatable').DataTable({
-        responsive: true,
-        pageLength: 10,
-        language: {
-            search: "名冊搜尋：",
-            lengthMenu: "每頁顯示 _MENU_ 筆",
-            info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆",
-            paginate: { first: "首頁", last: "末頁", next: "下一頁", previous: "上一頁" },
-            zeroRecords: "未找到符合的夥伴檔案"
-        }
-    });
+    dataTableInstance = $('#partners-datatable').DataTable();
 }
 
 function renderBatchEditorTable(list) {
@@ -862,11 +848,11 @@ function renderTreeView() {
 
     function getNodeBorderClass(partner) {
         if (partner.partner_id === 'PTN-TW-001' || partner.partner_id === 'PTN-TW-002' || partner.relation_type === '核心成員') {
-            return 'node-border-purple';
+            return 'border-purple';
         }
-        if (partner.relation_type === '上線') return 'node-border-green';
-        if (partner.relation_type === '旁線') return 'node-border-orange';
-        return 'node-border-blue';
+        if (partner.relation_type === '上線') return 'border-green';
+        if (partner.relation_type === '旁線') return 'border-orange';
+        return 'border-blue';
     }
 
     function buildBranch(partner) {

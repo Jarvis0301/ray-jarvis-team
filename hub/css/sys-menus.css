@@ -1,18 +1,4 @@
 /* 頁面特定佈局與流動設定 */
-.glass-panel {
-    background: var(--uvaco-bg-glass, rgba(28, 13, 46, 0.75));
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.22));
-    border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-    transition: border-color 0.3s ease;
-}
-
-.glass-panel:hover {
-    border-color: var(--uvaco-primary-hover, rgba(168, 85, 247, 0.38));
-}
-
 .page-title {
     font-size: 1.85rem;
     font-weight: 800;
@@ -150,60 +136,4 @@
     align-items: center;
     margin-right: 8px;
     margin-bottom: 8px;
-}
-
-.table-dark-custom {
-    color: var(--uvaco-text-main, #f3e8ff);
-    background-color: transparent !important;
-    border-color: var(--uvaco-border, rgba(168, 85, 247, 0.15));
-}
-
-.table-dark-custom th {
-    background-color: #12071d !important;
-    color: var(--uvaco-primary-light, #d8b4fe) !important;
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid var(--uvaco-border, rgba(168, 85, 247, 0.3)) !important;
-    padding: 12px 10px;
-}
-
-.table-dark-custom td {
-    background-color: transparent !important;
-    border-bottom: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.1)) !important;
-    font-size: 0.88rem;
-    vertical-align: middle;
-    padding: 10px 10px;
-}
-
-.table-dark-custom tr:hover td {
-    background-color: rgba(139, 92, 246, 0.08) !important;
-}
-
-.form-control-custom, .form-select-custom {
-    background-color: rgba(15, 7, 24, 0.85);
-    border: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.22));
-    color: var(--uvaco-text-main, #f3e8ff);
-    border-radius: 8px;
-}
-
-.form-control-custom:focus, .form-select-custom:focus {
-    background-color: #1a0b30;
-    border-color: var(--uvaco-primary-light, #c084fc);
-    color: #ffffff;
-    box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.35));
-}
-
-.modal-content-custom {
-    background: var(--uvaco-bg-surface, #170b28);
-    border: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.4));
-    border-radius: 18px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-content-custom .modal-body {
-    overflow-y: auto;
 }
