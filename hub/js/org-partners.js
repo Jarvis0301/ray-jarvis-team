@@ -997,7 +997,7 @@ function renderTreeView() {
     }
 
     const roots = partnersList.filter(p =>
-        (!p.sponsor_id || p.sponsor_id === 'ROOT' || p.sponsor_id === 'SYSTEM_ROOT' || p.partner_id === 'PTN-TW-001' || p.partner_id === 'PTN-001') &&
+        (!p.sponsor_id || p.sponsor_id === 'ROOT' || p.sponsor_id === 'SYSTEM_ROOT') &&
         p.account_holder_type !== '共同經營者'
     );
 
