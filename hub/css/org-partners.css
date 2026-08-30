@@ -1,6 +1,5 @@
 /* ==========================================================================
    組織成員模組專屬樣式 (org-partners.css)
-   其餘 Badge、Modal 置中、Table 樣式均由 common.css / app-dialog.js 託管
    ========================================================================== */
 .stat-chip {
     background: rgba(139, 92, 246, 0.08);
@@ -71,33 +70,120 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* 組織樹狀拓撲連線與節點 */
-.tree-node-card {
-    background: rgba(25, 18, 51, 0.85);
+/* ==========================================================================
+   全景階層組織圖樣式 (Org Chart Tree Hierarchy)
+   ========================================================================== */
+.org-chart-viewport {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1.5rem 1rem;
+    background: rgba(10, 6, 24, 0.6);
+    border-radius: var(--uvaco-border-radius-lg, 20px);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: var(--uvaco-border-radius-md, 14px);
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    transition: all 0.2s ease;
 }
 
-.tree-node-card:hover {
+.org-chart-root {
+    display: flex;
+    justify-content: center;
+    min-width: max-content;
+    padding-bottom: 2rem;
+}
+
+.org-tree, .org-tree ul {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    position: relative;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+}
+
+.org-tree li {
+    float: left;
+    text-align: center;
+    list-style-type: none;
+    position: relative;
+    padding: 20px 8px 0 8px;
+}
+
+/* 垂直與水平連接線 */
+.org-tree li::before, .org-tree li::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    border-top: 2px solid rgba(139, 92, 246, 0.35);
+    width: 50%;
+    height: 20px;
+}
+
+.org-tree li::after {
+    right: auto;
+    left: 50%;
+    border-left: 2px solid rgba(139, 92, 246, 0.35);
+}
+
+.org-tree li:only-child::after, .org-tree li:only-child::before {
+    display: none;
+}
+
+.org-tree li:only-child {
+    padding-top: 0;
+}
+
+.org-tree li:first-child::before, .org-tree li:last-child::after {
+    border: 0 none;
+}
+
+.org-tree li:last-child::before {
+    border-right: 2px solid rgba(139, 92, 246, 0.35);
+    border-radius: 0 8px 0 0;
+}
+
+.org-tree li:first-child::after {
+    border-radius: 8px 0 0 0;
+}
+
+.org-tree ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border-left: 2px solid rgba(139, 92, 246, 0.35);
+    width: 0;
+    height: 20px;
+}
+
+/* 組織卡片節點 */
+.org-node-card {
+    background: var(--uvaco-bg-card, #191233);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
+    border-radius: 14px;
+    padding: 0.85rem;
+    display: inline-block;
+    min-width: 220px;
+    max-width: 240px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    text-align: left;
+    position: relative;
+    z-index: 2;
+}
+
+.org-node-card:hover {
+    transform: translateY(-3px);
     border-color: var(--uvaco-primary, #8b5cf6);
-    background: rgba(33, 24, 66, 0.95);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
 }
 
-.tree-level-indent.tree-line-solid { border-left: 2px solid rgba(139, 92, 246, 0.4); margin-left: 1.25rem; padding-left: 1.25rem; }
-.tree-level-indent.tree-line-dotted { border-left: 2px dotted rgba(239, 68, 68, 0.5); margin-left: 1.25rem; padding-left: 1.25rem; }
+.org-node-card.border-purple { border-top: 4px solid #8b5cf6; }
+.org-node-card.border-green { border-top: 4px solid #10b981; }
+.org-node-card.border-orange { border-top: 4px solid #f59e0b; }
+.org-node-card.border-blue { border-top: 4px solid #38bdf8; }
 
-.tree-legend-chip {
-    background: rgba(25, 18, 51, 0.7);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: 9999px;
-    padding: 0.2rem 0.65rem;
-    color: var(--uvaco-text-muted, #94a3b8);
-}
-
-/* 表單分頁橫向滑動導航 (手機適配) */
+/* 表單分頁橫向滑動 (手機適配) */
 .form-tabs-mobile-nav {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -156,39 +242,9 @@
     min-height: 2.2rem;
 }
 
-/* DataTables 樣式適配 */
-.table-responsive-custom {
-    background: var(--uvaco-bg-surface, #130e24);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: var(--uvaco-border-radius-lg, 20px);
-    padding: 1rem;
-}
-
-table.dataTable {
-    color: var(--uvaco-text-main, #f8fafc) !important;
-    border-color: var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-}
-
-table.dataTable thead th {
-    background-color: rgba(139, 92, 246, 0.12) !important;
-    color: var(--uvaco-secondary, #a78bfa) !important;
-    border-bottom: 1px solid var(--uvaco-border-bright, rgba(139, 92, 246, 0.45)) !important;
-    font-size: 0.85rem;
-}
-
-table.dataTable tbody tr {
-    background-color: transparent !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-}
-
-table.dataTable tbody tr:hover {
-    background-color: rgba(139, 92, 246, 0.08) !important;
-}
-
-.dataTables_filter input {
-    background: var(--uvaco-bg-card, #191233) !important;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-    color: #fff !important;
-    border-radius: 9999px !important;
-    padding: 0.35rem 0.85rem !important;
+#table-batch-partners thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--uvaco-bg-surface, #1a122d);
 }

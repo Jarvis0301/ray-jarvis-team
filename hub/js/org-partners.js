@@ -2,17 +2,7 @@
  * ============================================================================
  * 組織成員戰術中樞 (org-partners.js)
  * 遵循團隊共用元件規範 (AppLoading, AppToast, AppDialog, SheetAdapter)
- * ============================================================================
- * 模組目錄：
- * 1. 核心常數與全域狀態 (Constants & State)
- * 2. 系統生命週期與初始化 (Lifecycle & Init)
- * 3. 雲端資料同步與解析引擎 (Data Fetch & Parse)
- * 4. 共用資料處理與 UI 標籤產生器 (Helpers & Formatters)
- * 5. 核心視圖切換與過濾器 (View Controllers & Filters)
- * 6. 戰術視圖渲染 (Cards / Table / Batch / Tree)
- * 7. 戰情統計與分析圖表 (Analytics Charts - 22 Charts)
- * 8. 夥伴檔案彈窗控制 (Modal Controllers)
- * 9. 雲端寫入與刪除操作 (CRUD Operations)
+ * 完美契合最新 4 張資料表 Schema (org_person_master, org_partners, contacts, languages)
  * ============================================================================
  */
 
@@ -22,14 +12,13 @@
 const SPREADSHEET_ID = "1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg";
 const GAS_DEPLOY_ID = "AKfycbwCHIswVrVHuvEusFZrg2KjTCCwYhlf-3h-QbWhro8YVekUt1wNa4oDxxBxzPc_z6cd";
 
-// 預設頭像對應
 const DEFAULT_AVATARS = {
     '男': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
     '女': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-    '其他': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
+    '其他': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+    '未填': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
 };
 
-// 台灣 20 縣市與馬來西亞 16 州屬行政區名冊
 const REGIONS_DATABASE = {
     TW: [
         "臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市",
@@ -44,11 +33,12 @@ const REGIONS_DATABASE = {
     ]
 };
 
+let personMasterList = [];
 let partnersList = [];
-let partnerDetailsList = [];
+let personContactsList = [];
+let personLanguagesList = [];
 let ranksDatabase = [];
 let ranksMap = {};
-let currentFilter = 'ALL';
 let dataTableInstance = null;
 let chartInstances = {};
 
@@ -61,14 +51,12 @@ window.addEventListener('AppReady', function () {
     populateRegionDropdowns();
     initSelect2Dropdowns();
 
-    // 12 欄位篩選器變更監聽
     $('.form-filter-control').on('change', function () {
         renderAllViews();
     });
 
     fetchGoogleSheetsData();
 
-    // 視圖切換監聽
     $('input[name="viewMode"]').on('change', function () {
         const mode = $(this).attr('id');
         $('#container-cards-view, #container-table-view, #container-batch-view, #container-tree-view, #container-charts-view').addClass('d-none');
@@ -79,9 +67,6 @@ window.addEventListener('AppReady', function () {
             $('#container-table-view').removeClass('d-none');
             if (dataTableInstance) {
                 dataTableInstance.columns.adjust();
-                if (dataTableInstance.responsive && typeof dataTableInstance.responsive.recalc === 'function') {
-                    dataTableInstance.responsive.recalc();
-                }
             }
         } else if (mode === 'view-batch') {
             $('#container-batch-view').removeClass('d-none');
@@ -93,7 +78,6 @@ window.addEventListener('AppReady', function () {
         }
     });
 
-    // 表單性別切換動態調整預設頭像
     $('#form-gender').on('change', function () {
         const selectedGender = $(this).val();
         const currentUrl = $('#form-avatar-url').val().trim();
@@ -112,31 +96,25 @@ window.addEventListener('AppReady', function () {
     $('#partnerForm').on('submit', savePartnerRecord);
 });
 
-// 初始化篩選器與表單中的行政區選單
 function populateRegionDropdowns() {
-    const filterRegion = $('#filter-primary-region').empty().append('<option value="">全部行政區</option>');
-    const formRegion = $('#form-primary-region').empty().append('<option value="">請選擇行政區</option>');
+    const filterRegion = $('#filter-current-residence').empty().append('<option value="" selected>全部地區</option>');
+    const formRegion = $('#form-current-residence').empty().append('<option value="">請選擇居住地...</option>');
 
-    let twFilterGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
-    let twFormGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
+    let twGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
     REGIONS_DATABASE.TW.forEach(reg => {
-        twFilterGroup.append(`<option value="${reg}">${reg}</option>`);
-        twFormGroup.append(`<option value="${reg}">${reg}</option>`);
+        twGroup.append(`<option value="${reg}">${reg}</option>`);
     });
-    filterRegion.append(twFilterGroup);
-    formRegion.append(twFormGroup);
+    filterRegion.append(twGroup.clone());
+    formRegion.append(twGroup);
 
-    let myFilterGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
-    let myFormGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
+    let myGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
     REGIONS_DATABASE.MY.forEach(reg => {
-        myFilterGroup.append(`<option value="${reg}">${reg}</option>`);
-        myFormGroup.append(`<option value="${reg}">${reg}</option>`);
+        myGroup.append(`<option value="${reg}">${reg}</option>`);
     });
-    filterRegion.append(myFilterGroup);
-    formRegion.append(myFormGroup);
+    filterRegion.append(myGroup.clone());
+    formRegion.append(myGroup);
 }
 
-// 初始化 Select2 元件
 function initSelect2Dropdowns() {
     if (!$.fn.select2) return;
 
@@ -145,20 +123,19 @@ function initSelect2Dropdowns() {
         width: '100%',
         placeholder: '請輸入關鍵字搜尋...',
         allowClear: true,
-        language: { noResults: () => '找不到相符的項目' }
+        language: { noResults: () => '找不到相符項目' }
     });
 
-    $('#filter-primary-region').select2({
+    $('#filter-current-residence').select2({
         width: '100%',
-        placeholder: '全部行政區',
+        placeholder: '全部地區',
         allowClear: true,
-        language: { noResults: () => '找不到相符的項目' }
+        language: { noResults: () => '找不到相符項目' }
     }).on('change', function () {
         renderAllViews();
     });
 }
 
-// 動態填充夥伴與行政區下拉選項
 function populateSelect2Options() {
     const partnerSelects = ['#form-sponsor-id', '#form-placement-id', '#form-known-mentor-id', '#form-spouse-partner-id'];
     partnerSelects.forEach(selId => {
@@ -169,26 +146,13 @@ function populateSelect2Options() {
             $el.append(`<option value="${p.partner_id}">${dispName}${memberNo} (${p.partner_id})</option>`);
         });
     });
-
-    const $regionSelect = $('#form-primary-region').empty().append('<option value="">請選擇或搜尋行政區...</option>');
-    const $twGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
-    REGIONS_DATABASE.TW.forEach(reg => {
-        $twGroup.append(`<option value="${reg}">${reg}</option>`);
-    });
-    $regionSelect.append($twGroup);
-
-    const $myGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
-    REGIONS_DATABASE.MY.forEach(reg => {
-        $myGroup.append(`<option value="${reg}">${reg}</option>`);
-    });
-    $regionSelect.append($myGroup);
 }
 
 // ============================================================================
 // 3. 雲端資料同步與解析引擎 (Data Fetch & Parse)
 // ============================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步組織成員主檔...', '讀取雲端試算表');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步全域組織與個人主檔...', '讀取雲端試算表');
 
     try {
         const fetchSheet = async (sheetName) => {
@@ -200,23 +164,21 @@ async function fetchGoogleSheetsData() {
             return (parsed.data || []).slice(1);
         };
 
-        const [partnersRows, detailsRows, ranksRows] = await Promise.all([
+        const [personRows, partnersRows, contactsRows, langRows, ranksRows] = await Promise.all([
+            fetchSheet('個人主檔').catch(() => []),
             fetchSheet('夥伴主檔').catch(() => []),
-            fetchSheet('夥伴詳細資料').catch(() => []),
+            fetchSheet('通訊資料').catch(() => []),
+            fetchSheet('使用語言').catch(() => []),
             fetchSheet('職級主檔').catch(() => [])
         ]);
 
-        if (ranksRows.length > 0) {
-            ranksDatabase = parseRanksTable(ranksRows);
-        }
+        if (ranksRows.length > 0) ranksDatabase = parseRanksTable(ranksRows);
         updateRanksCacheAndUI();
 
-        if (partnersRows.length > 0) {
-            partnersList = parsePartnersTable(partnersRows);
-        }
-        if (detailsRows.length > 0) {
-            partnerDetailsList = parsePartnerDetailsTable(detailsRows);
-        }
+        if (personRows.length > 0) personMasterList = parsePersonMasterTable(personRows);
+        if (partnersRows.length > 0) partnersList = parsePartnersTable(partnersRows);
+        if (contactsRows.length > 0) personContactsList = parseContactsTable(contactsRows);
+        if (langRows.length > 0) personLanguagesList = parseLanguagesTable(langRows);
 
         populateSelect2Options();
         renderAllViews();
@@ -231,127 +193,136 @@ async function fetchGoogleSheetsData() {
 }
 
 /**
- * 依據 Schema 順序解析『夥伴主檔 (org_partners)』- 共 35 欄位 (以 partner_id 計數，允許多項 Null)
+ * 依據 Schema 解析『個人主檔 (org_person_master)』- 31 欄位
+ */
+function parsePersonMasterTable(rows) {
+    return rows.map((r, idx) => ({
+        person_id: getVal(r, 0, `PSN-${String(idx + 1).padStart(4, '0')}`),
+        name_zh: getVal(r, 1, ''),
+        name_en: getVal(r, 2, ''),
+        preferred_name: getVal(r, 3, ''),
+        display_name: getVal(r, 4, ''),
+        identity_type: getVal(r, 5, '潛在客戶'),
+        usage_identity: getVal(r, 6, '消費者'),
+        gender: getVal(r, 7, '未填'),
+        birthday: getVal(r, 8, ''),
+        nationality: getVal(r, 9, '台灣'),
+        ethnicity: getVal(r, 10, '華人'),
+        hometown: getVal(r, 11, ''),
+        current_residence: getVal(r, 12, ''),
+        phone: getVal(r, 13, ''),
+        email: getVal(r, 14, ''),
+        contact_address: getVal(r, 15, ''),
+        met_date: getVal(r, 16, ''),
+        met_reason: getVal(r, 17, ''),
+        highest_education: getVal(r, 18, ''),
+        graduated_school: getVal(r, 19, ''),
+        occupation_background: getVal(r, 20, ''),
+        health_status: getVal(r, 21, '良好'),
+        financial_status: getVal(r, 22, '穩定'),
+        avatar_url: getVal(r, 23, ''),
+        career_education_notes: getVal(r, 24, ''),
+        health_notes: getVal(r, 25, ''),
+        financial_notes: getVal(r, 26, ''),
+        consumption_notes: getVal(r, 27, ''),
+        created_by: getVal(r, 28, 'SYSTEM'),
+        created_at: getVal(r, 29, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 30, 'SYSTEM'),
+        modified_at: getVal(r, 31, '2026-01-01 00:00:00')
+    })).filter(p => p.person_id && String(p.person_id).trim() !== '');
+}
+
+/**
+ * 依據 Schema 解析『夥伴主檔 (org_partners)』- 31 欄位
  */
 function parsePartnersTable(rows) {
-    return rows.map((r, idx) => {
-        const partnerId = getVal(r, 0, `PTN-TW-${String(idx + 1).padStart(3, '0')}`);
-        return {
-            partner_id: partnerId,
-            member_no: getVal(r, 1, ''),
-            auth_email: getVal(r, 2, ''),
-            name_zh: getVal(r, 3, ''),
-            name_en: getVal(r, 4, ''),
-            preferred_name: getVal(r, 5, ''),
-            display_name: getVal(r, 6, ''),
-            leader_title: getVal(r, 7, ''),
-            account_holder_type: getVal(r, 8, '個人經營者'),
-            official_account_partner_id: getVal(r, 9, ''),
-            operation_mode: getVal(r, 10, '個人經營'),
-            spouse_partner_id: getVal(r, 11, ''),
-            node_nature: getVal(r, 12, '常態夥伴'),
-            activity_level: getVal(r, 13, ''),        // 允許 Null/空
-            member_status: getVal(r, 14, ''),         // 允許 Null/空
-            is_info_complete: getVal(r, 15, 'Y'),
-            sponsor_id: getVal(r, 16, ''),
-            placement_id: getVal(r, 17, ''),
-            known_mentor_id: getVal(r, 18, ''),
-            upline_link_type: getVal(r, 19, '直屬已知'),
-            current_rank_id: getVal(r, 20, ''),       // 允許 Null/空
-            highest_rank_id: getVal(r, 21, ''),       // 允許 Null/空
-            country_code: getVal(r, 22, 'TW'),
-            is_our_team: getVal(r, 23, 'Y').toUpperCase(),
-            relation_type: getVal(r, 24, '下線'),
-            operator_status: getVal(r, 25, ''),       // 允許 Null/空
-            join_date: getVal(r, 26, ''),             // 允許 Null/空
-            renewal_due_date: getVal(r, 27, ''),
-            last_order_date: getVal(r, 28, ''),
-            exit_date: getVal(r, 29, ''),
-            avatar_url: getVal(r, 30, ''),
-            created_by: getVal(r, 31, 'SYSTEM'),
-            created_at: getVal(r, 32, '2026-01-01 00:00:00'),
-            modified_by: getVal(r, 33, 'SYSTEM'),
-            modified_at: getVal(r, 34, '2026-01-01 00:00:00')
-        };
-    }).filter(p => p.partner_id && String(p.partner_id).trim() !== '');
+    return rows.map((r, idx) => ({
+        partner_id: getVal(r, 0, `PTN-TW-${String(idx + 1).padStart(3, '0')}`),
+        person_id: getVal(r, 1, `PSN-${String(idx + 1).padStart(4, '0')}`),
+        member_no: getVal(r, 2, ''),
+        leader_title: getVal(r, 3, ''),
+        account_holder_type: getVal(r, 4, '個人經營者'),
+        official_account_partner_id: getVal(r, 5, ''),
+        operation_mode: getVal(r, 6, '個人經營'),
+        spouse_partner_id: getVal(r, 7, ''),
+        node_nature: getVal(r, 8, '常態夥伴'),
+        sponsor_id: getVal(r, 9, ''),
+        placement_id: getVal(r, 10, ''),
+        known_mentor_id: getVal(r, 11, ''),
+        upline_link_type: getVal(r, 12, '直屬已知'),
+        current_rank_id: getVal(r, 13, ''),
+        highest_rank_id: getVal(r, 14, ''),
+        country_code: getVal(r, 15, 'TW'),
+        is_our_team: getVal(r, 16, 'Y').toUpperCase(),
+        relation_type: getVal(r, 17, '下線'),
+        activity_level: getVal(r, 18, ''),
+        member_status: getVal(r, 19, ''),
+        operator_status: getVal(r, 20, ''),
+        joining_motive: getVal(r, 21, 'PART_TIME'),
+        team_skills: getVal(r, 22, ''),
+        team_notes: getVal(r, 23, ''),
+        join_date: getVal(r, 24, ''),
+        renewal_due_date: getVal(r, 25, ''),
+        last_order_date: getVal(r, 26, ''),
+        exit_date: getVal(r, 27, ''),
+        avatar_url: getVal(r, 28, ''),
+        created_by: getVal(r, 29, 'SYSTEM'),
+        created_at: getVal(r, 30, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 31, 'SYSTEM'),
+        modified_at: getVal(r, 32, '2026-01-01 00:00:00')
+    })).filter(p => p.partner_id && String(p.partner_id).trim() !== '');
 }
 
 /**
- * 依據 Schema 順序解析『夥伴詳細資料』- 共 27 欄位
+ * 依據 Schema 解析『通訊資料 (org_person_contacts)』- 10 欄位
  */
-function parsePartnerDetailsTable(rows) {
-    return rows.map(r => {
-        return {
-            partner_id: getVal(r, 0, ''),
-            gender: getVal(r, 1, '男'),
-            birthday: getVal(r, 2, ''),
-            phone_number: getVal(r, 3, ''),
-            whatsapp_id: getVal(r, 4, ''),
-            whatsapp_name: getVal(r, 5, ''),       // WhatsApp 帳號名稱
-            discord_id: getVal(r, 6, ''),
-            discord_name: getVal(r, 7, ''),         // Discord 使用者名稱
-            line_user_id: getVal(r, 8, ''),
-            line_id_alias: getVal(r, 9, ''),
-            facebook_url: getVal(r, 10, ''),
-            instagram_id: getVal(r, 11, ''),
-            primary_region: getVal(r, 12, ''),
-            contact_address: getVal(r, 13, ''),
-            occupation_type: getVal(r, 14, ''),
-            highest_education: getVal(r, 15, ''),   // 最高學歷
-            graduated_school: getVal(r, 16, ''),    // 最高畢業學校
-            joining_motive: getVal(r, 17, ''),
-            health_goals: getVal(r, 18, ''),
-            team_skills: getVal(r, 19, ''),
-            intro: getVal(r, 20, ''),
-            tactical_notes: getVal(r, 21, ''),
-            is_profile_public: getVal(r, 22, 'Y'),
-            created_by: getVal(r, 23, 'SYSTEM'),
-            created_at: getVal(r, 24, '2026-01-01 00:00:00'),
-            modified_by: getVal(r, 25, 'SYSTEM'),
-            modified_at: getVal(r, 26, '2026-01-01 00:00:00')
-        };
-    });
+function parseContactsTable(rows) {
+    return rows.map((r, idx) => ({
+        contact_id: getVal(r, 0, String(idx + 1)),
+        person_id: getVal(r, 1, ''),
+        platform_name: getVal(r, 2, 'LINE'),
+        category: getVal(r, 3, 'ID'),
+        contact_value: getVal(r, 4, ''),
+        is_primary: getVal(r, 5, 'N'),
+        notes: getVal(r, 6, ''),
+        created_by: getVal(r, 7, 'SYSTEM'),
+        created_at: getVal(r, 8, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 9, 'SYSTEM'),
+        modified_at: getVal(r, 10, '2026-01-01 00:00:00')
+    }));
 }
 
 /**
- * 依據 Schema 順序解析『職級主檔 (org_ranks)』- 共 30 欄位
+ * 依據 Schema 解析『使用語言 (org_person_languages)』- 11 欄位
  */
+function parseLanguagesTable(rows) {
+    return rows.map((r, idx) => ({
+        lang_id: getVal(r, 0, String(idx + 1)),
+        person_id: getVal(r, 1, ''),
+        language_name: getVal(r, 2, '中文'),
+        listening_level: getVal(r, 3, '普通'),
+        speaking_level: getVal(r, 4, '普通'),
+        reading_level: getVal(r, 5, '普通'),
+        writing_level: getVal(r, 6, '普通'),
+        notes: getVal(r, 7, ''),
+        created_by: getVal(r, 8, 'SYSTEM'),
+        created_at: getVal(r, 9, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 10, 'SYSTEM'),
+        modified_at: getVal(r, 11, '2026-01-01 00:00:00')
+    }));
+}
+
 function parseRanksTable(rows) {
-    return rows.map((r, idx) => {
-        const rankId = getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`);
-        return {
-            rank_id: rankId,
-            rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
-            rank_level: parseInt(getVal(r, 2, '10'), 10) || 10,
-            rank_name_zh: getVal(r, 3, '未定義職級'),
-            rank_name_en: getVal(r, 4, 'Undefined'),
-            cum_group_sv_req: parseFloat(getVal(r, 5, '0')) || 0,
-            month_personal_sv_req: parseFloat(getVal(r, 6, '160')) || 160,
-            month_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
-            new_mgr_group_sv_req: parseFloat(getVal(r, 8, '0')) || 0,
-            qualified_lines_req: parseInt(getVal(r, 9, '0'), 10) || 0,
-            pearl_lines_req: parseInt(getVal(r, 10, '0'), 10) || 0,
-            month_org_sv_req: parseFloat(getVal(r, 11, '0')) || 0,
-            consecutive_months_req: parseInt(getVal(r, 12, '1'), 10) || 1,
-            direct_rebate_rate: parseFloat(getVal(r, 13, '0.05')) || 0.05,
-            leadership_gen_depth: parseInt(getVal(r, 14, '0'), 10) || 0,
-            leadership_gen_rate: parseFloat(getVal(r, 15, '0.06')) || 0.06,
-            has_group_bonus: getVal(r, 16, 'N').toUpperCase(),
-            has_manager_bonus: getVal(r, 17, 'N').toUpperCase(),
-            has_pearl_dividend: getVal(r, 18, 'N').toUpperCase(),
-            has_annual_excellence: getVal(r, 19, 'N').toUpperCase(),
-            has_travel_incentive: getVal(r, 20, 'N').toUpperCase(),
-            has_car_fund: getVal(r, 21, 'N').toUpperCase(),
-            badge_icon_class: getVal(r, 22, 'fa-solid fa-award'),
-            badge_color_hex: getVal(r, 23, '#8b5cf6'),
-            sort_order: parseInt(getVal(r, 24, String((idx + 1) * 10)), 10) || ((idx + 1) * 10),
-            is_active: getVal(r, 25, 'Y').toUpperCase(),
-            created_by: getVal(r, 26, 'SYSTEM'),
-            created_at: getVal(r, 27, '2026-01-01 00:00:00'),
-            modified_by: getVal(r, 28, 'SYSTEM'),
-            modified_at: getVal(r, 29, '2026-01-01 00:00:00')
-        };
-    }).filter(rk => rk.rank_name_zh !== '未定義職級' && rk.is_active === 'Y');
+    return rows.map((r, idx) => ({
+        rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
+        rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
+        rank_level: parseInt(getVal(r, 2, '10'), 10) || 10,
+        rank_name_zh: getVal(r, 3, '未定義職級'),
+        badge_icon_class: getVal(r, 22, 'fa-solid fa-award'),
+        badge_color_hex: getVal(r, 23, '#8b5cf6'),
+        sort_order: parseInt(getVal(r, 24, String((idx + 1) * 10)), 10) || ((idx + 1) * 10),
+        is_active: getVal(r, 25, 'Y').toUpperCase()
+    })).filter(rk => rk.rank_name_zh !== '未定義職級' && rk.is_active === 'Y');
 }
 
 // ============================================================================
@@ -395,8 +366,7 @@ function isMasterAdmin() {
 }
 
 function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
+    if (!isMasterAdmin()) {
         $('#btn-open-create-modal').hide();
     }
 }
@@ -405,23 +375,20 @@ function getDefaultAvatar(gender = '男') {
     return DEFAULT_AVATARS[gender] || DEFAULT_AVATARS['男'];
 }
 
-/**
- * 依規則依序取得顯示名稱：
- * 1. 前端展示名稱 (display_name)
- * 2. 中文姓名 (name_zh)
- * 3. 英文姓名 (name_en)
- * 4. 常用稱呼/暱稱 (preferred_name)
- * 若皆為空則回傳「（未知姓名）」
- */
+function getPersonMaster(personId) {
+    return personMasterList.find(p => p.person_id === personId) || {};
+}
+
 function getPartnerDisplayName(target) {
     if (!target) return '';
-    const p = typeof target === 'string' 
-        ? partnersList.find(x => x.partner_id === target || x.member_no === target) 
+    const p = typeof target === 'string'
+        ? partnersList.find(x => x.partner_id === target || x.member_no === target)
         : target;
 
     if (!p) return typeof target === 'string' && target !== 'ROOT' ? target : '';
-    
-    const candidates = [p.display_name, p.name_zh, p.name_en, p.preferred_name];
+
+    const person = getPersonMaster(p.person_id);
+    const candidates = [person.display_name, person.name_zh, person.name_en, person.preferred_name];
     for (const name of candidates) {
         if (name && String(name).trim() !== '') {
             return String(name).trim();
@@ -430,22 +397,14 @@ function getPartnerDisplayName(target) {
     return '（未知姓名）';
 }
 
-function getMemberIdentifier(partner) {
-    return partner.member_no || partner.partner_id;
-}
-
 function getRankInfo(rankId) {
-    if (rankId && ranksMap[rankId]) {
-        return ranksMap[rankId];
-    }
+    if (rankId && ranksMap[rankId]) return ranksMap[rankId];
     return {
         rank_id: '',
         rank_code: '—',
         rank_name_zh: '未設定',
-        rank_name_en: 'Unset',
         badge_icon_class: 'fa-solid fa-circle-question',
-        badge_color_hex: '#64748b',
-        rank_level: 0
+        badge_color_hex: '#64748b'
     };
 }
 
@@ -468,7 +427,6 @@ function updateRanksCacheAndUI() {
     });
 }
 
-// 國家市場標籤 (TW / MY)
 function getCountryBadge(countryCode) {
     const code = (countryCode || 'TW').toUpperCase().trim();
     if (code === 'MY') {
@@ -477,11 +435,8 @@ function getCountryBadge(countryCode) {
     return `<span class="badge badge-info-subtle font-monospace">TW</span>`;
 }
 
-// 職級標籤
 function buildRankBadge(rank) {
-    if (!rank || !rank.rank_id) {
-        return `<span class="badge badge-muted-subtle">未設定職級</span>`;
-    }
+    if (!rank || !rank.rank_id) return `<span class="badge badge-muted-subtle">未設定職級</span>`;
     const hex = rank.badge_color_hex || '#8b5cf6';
     const icon = rank.badge_icon_class || 'fa-solid fa-award';
     return `<span class="badge" style="background-color: #130e24; border: 1px solid ${hex}; color: ${hex}; font-weight: 600;">
@@ -489,16 +444,12 @@ function buildRankBadge(rank) {
     </span>`;
 }
 
-// 共同經營與會員編號標籤
 function renderMemberIdentifierBadge(partner) {
     let opBadge = '';
     const spouseId = partner.spouse_partner_id || partner.official_account_partner_id;
     let coOpPartner = null;
     if (spouseId) {
         coOpPartner = partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId);
-    }
-    if (!coOpPartner && partner.partner_id) {
-        coOpPartner = partnersList.find(x => x.spouse_partner_id === partner.partner_id);
     }
     const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
 
@@ -518,7 +469,6 @@ function renderMemberIdentifierBadge(partner) {
     return [memberNoHtml, opBadge].filter(Boolean).join(' ');
 }
 
-// 組織關係屬性標籤
 function getRelationBadge(relation, partnerId = '') {
     if (partnerId === 'PTN-TW-001' || partnerId === 'PTN-TW-002' || relation === '核心成員') {
         return `<span class="badge badge-outline-purple"><i class="fa-solid fa-crown me-1"></i>核心成員</span>`;
@@ -531,7 +481,6 @@ function getRelationBadge(relation, partnerId = '') {
     }
 }
 
-// 營運狀態標籤 (Null 容錯)
 function getOperatorStatusBadge(status) {
     switch (status) {
         case '活躍': return `<span class="badge badge-outline-success-subtle">活躍</span>`;
@@ -542,7 +491,6 @@ function getOperatorStatusBadge(status) {
     }
 }
 
-// 官方會籍狀態標籤 (Null 容錯)
 function getMemberStatusBadge(status) {
     switch (status) {
         case '有效且領獎金': return `<span class="badge badge-success">有效且領獎金</span>`;
@@ -552,17 +500,43 @@ function getMemberStatusBadge(status) {
     }
 }
 
-// 團隊參與度標籤 (Null 容錯)
+// 團隊參與度標籤
 function getActivityLevelBadge(level) {
     switch (level) {
-        case '積極參與': return `<span class="badge badge-success-subtle">積極參與</span>`;
-        case '參與': return `<span class="badge badge-warning-subtle">參與</span>`;
-        case '不參與': return `<span class="badge badge-danger-subtle">不參與</span>`;
-        case '自用消費': return `<span class="badge badge-info-subtle">自用消費</span>`;
-        case '操作人頭': return `<span class="badge badge-purple-subtle">操作人頭</span>`;
-        case '失聯': return `<span class="badge badge-muted-subtle">失聯</span>`;
-        case '個資未知': return `<span class="badge badge-muted-subtle">個資未知</span>`;
-        default: return `<span class="badge badge-muted-subtle">未設定</span>`;
+        case '積極參與': return '<span class="badge badge-success-subtle">積極參與</span>';
+        case '參與': return '<span class="badge badge-warning-subtle">參與</span>';
+        case '不參與': return '<span class="badge badge-danger-subtle">不參與</span>';
+        case '自用消費': return '<span class="badge badge-info-subtle">自用消費</span>';
+        case '操作人頭': return '<span class="badge badge-purple-subtle">操作人頭</span>';
+        case '失聯': return '<span class="badge badge-muted-subtle">失聯</span>';
+        case '個資未知': return '<span class="badge badge-muted-subtle">個資未知</span>';
+        case '非團隊成員': return '<span class="badge badge-dark">非團隊成員</span>';
+        default: return '<span class="badge badge-muted-subtle">未設定</span>';
+    }
+}
+
+// 健康狀況標籤
+function getHealthStatusBadge(status) {
+    switch (status) {
+        case '良好': return '<span class="badge badge-success-subtle">良好</span>';
+        case '亞健康': return '<span class="badge badge-warning-subtle">亞健康</span>';
+        case '慢性體質': return '<span class="badge badge-danger-subtle">慢性體質</span>';
+        case '調養中': return '<span class="badge badge-info-subtle">調養中</span>';
+        case '罹患疾病': return '<span class="badge badge-danger">罹患疾病</span>';
+        case '待了解': return '<span class="badge badge-muted-subtle">待了解</span>';
+        default: return '<span class="badge badge-muted-subtle">未設定</span>';
+    }
+}
+
+// 財務狀況標籤
+function getFinancialStatusBadge(status) {
+    switch (status) {
+        case '寬裕': return '<span class="badge badge-success-subtle">寬裕</span>';
+        case '穩定': return '<span class="badge badge-info-subtle">穩定</span>';
+        case '吃緊': return '<span class="badge badge-warning-subtle">吃緊</span>';
+        case '高負債': return '<span class="badge badge-danger-subtle">高負債</span>';
+        case '尋找副業': return '<span class="badge badge-purple-subtle">尋找副業</span>';
+        default: return '<span class="badge badge-muted-subtle">未設定</span>';
     }
 }
 
@@ -570,34 +544,34 @@ function getActivityLevelBadge(level) {
 // 5. 核心視圖切換與過濾器 (View Controllers & Filters)
 // ============================================================================
 function getFilteredPartners() {
-    const fAccountType = $('#filter-account-holder-type').val();
-    const fOpMode = $('#filter-operation-mode').val();
-    const fActivity = $('#filter-activity-level').val();
-    const fMemberStatus = $('#filter-member-status').val();
-    const fUplineLink = $('#filter-upline-link-type').val();
-    const fCurrentRank = $('#filter-current-rank-id').val();
-    const fHighestRank = $('#filter-highest-rank-id').val();
     const fCountry = $('#filter-country-code').val();
+    const fResidence = $('#filter-current-residence').val();
+    const fHighestRank = $('#filter-highest-rank-id').val();
     const fIsOurTeam = $('#filter-is-our-team').val();
+    const fActivity = $('#filter-activity-level').val();
     const fRelation = $('#filter-relation-type').val();
+    const fMemberStatus = $('#filter-member-status').val();
     const fOperatorStatus = $('#filter-operator-status').val();
-    const fRegion = $('#filter-primary-region').val();
+    const fIdentityType = $('#filter-identity-type').val();
+    const fUsageIdentity = $('#filter-usage-identity').val();
+    const fHealthStatus = $('#filter-health-status').val();
+    const fFinancialStatus = $('#filter-financial-status').val();
 
     return partnersList.filter(p => {
-        const detail = partnerDetailsList.find(d => d.partner_id === p.partner_id) || {};
+        const person = getPersonMaster(p.person_id);
 
-        if (fAccountType && p.account_holder_type !== fAccountType) return false;
-        if (fOpMode && p.operation_mode !== fOpMode) return false;
-        if (fActivity && p.activity_level !== fActivity) return false;
-        if (fMemberStatus && p.member_status !== fMemberStatus) return false;
-        if (fUplineLink && p.upline_link_type !== fUplineLink) return false;
-        if (fCurrentRank && p.current_rank_id !== fCurrentRank) return false;
-        if (fHighestRank && p.highest_rank_id !== fHighestRank) return false;
         if (fCountry && p.country_code !== fCountry) return false;
+        if (fResidence && person.current_residence !== fResidence) return false;
+        if (fHighestRank && p.highest_rank_id !== fHighestRank) return false;
         if (fIsOurTeam && p.is_our_team !== fIsOurTeam) return false;
+        if (fActivity && p.activity_level !== fActivity) return false;
         if (fRelation && p.relation_type !== fRelation) return false;
+        if (fMemberStatus && p.member_status !== fMemberStatus) return false;
         if (fOperatorStatus && p.operator_status !== fOperatorStatus) return false;
-        if (fRegion && detail.primary_region !== fRegion) return false;
+        if (fIdentityType && person.identity_type !== fIdentityType) return false;
+        if (fUsageIdentity && person.usage_identity !== fUsageIdentity) return false;
+        if (fHealthStatus && person.health_status !== fHealthStatus) return false;
+        if (fFinancialStatus && person.financial_status !== fFinancialStatus) return false;
 
         return true;
     });
@@ -633,9 +607,9 @@ function renderCardsView(list) {
     }
 
     list.forEach(p => {
-        const detail = partnerDetailsList.find(d => d.partner_id === p.partner_id) || {};
-        const gender = detail.gender || '男';
-        const avatarUrl = p.avatar_url || getDefaultAvatar(gender);
+        const person = getPersonMaster(p.person_id);
+        const gender = person.gender || '男';
+        const avatarUrl = p.avatar_url || person.avatar_url || getDefaultAvatar(gender);
         const currentRank = getRankInfo(p.current_rank_id);
         const highestRank = getRankInfo(p.highest_rank_id);
         const cardBorderClass = (p.partner_id === 'PTN-TW-001' || p.partner_id === 'PTN-TW-002') ? 'is-core' : (p.relation_type === '旁線' ? 'is-cross' : '');
@@ -675,7 +649,7 @@ function renderCardsView(list) {
 
                         <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-award text-warning"></i> 葡眾官方職級</span>
+                                <span class="text-secondary"><i class="fa-solid fa-award text-warning"></i> 葡眾官方最高職級</span>
                                 ${buildRankBadge(highestRank)}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -687,11 +661,11 @@ function renderCardsView(list) {
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-person-chalkboard text-info"></i> 實質輔導上線</span>
-                                <span class="text-white">${mentorName || '（無設定）'}</span>
+                                <span class="text-white">${mentorName || '（無特定指派）'}</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-map-pin text-danger"></i> 行政區 / 職業</span>
-                                <span class="text-light">${detail.primary_region || '未填'} ‧ ${detail.occupation_type || '未填'}</span>
+                                <span class="text-secondary"><i class="fa-solid fa-map-pin text-danger"></i> 現居地 / 職業</span>
+                                <span class="text-light">${person.current_residence || '未填'} ‧ ${person.occupation_background || '未填'}</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-secondary"><i class="fa-solid fa-bolt text-accent"></i> 團隊參與度</span>
@@ -699,10 +673,10 @@ function renderCardsView(list) {
                             </div>
                         </div>
 
-                        ${detail.team_skills ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i> ${detail.team_skills}</span></div>` : ''}
+                        ${p.team_skills ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i> ${p.team_skills}</span></div>` : ''}
 
                         <p class="text-secondary small mb-0 text-truncate-2" style="font-size: 0.82rem;">
-                            ${detail.tactical_notes || detail.intro || '暫無特定戰術備註記錄。'}
+                            ${p.team_notes || person.financial_notes || '暫無戰術備註記錄。'}
                         </p>
                     </div>
                 </div>
@@ -719,9 +693,9 @@ function renderDataTableView(list) {
     }
 
     list.forEach(p => {
-        const detail = partnerDetailsList.find(d => d.partner_id === p.partner_id) || {};
-        const gender = detail.gender || '男';
-        const avatarUrl = p.avatar_url || getDefaultAvatar(gender);
+        const person = getPersonMaster(p.person_id);
+        const gender = person.gender || '男';
+        const avatarUrl = p.avatar_url || person.avatar_url || getDefaultAvatar(gender);
         const currentRank = getRankInfo(p.current_rank_id);
         const highestRank = getRankInfo(p.highest_rank_id);
         const mentorName = getPartnerDisplayName(p.known_mentor_id);
@@ -743,8 +717,11 @@ function renderDataTableView(list) {
                 <td>${buildRankBadge(currentRank)}</td>
                 <td>${buildRankBadge(highestRank)}</td>
                 <td><span class="text-white">${mentorName || '—'}</span></td>
-                <td><span class="text-light">${detail.primary_region || '—'}</span></td>
-                <td><span class="text-light">${detail.occupation_type || '—'}</span></td>
+                <td><span class="text-light">${person.current_residence || '—'}</span></td>
+                <td><span class="text-light">${person.highest_education || '—'}</span></td>
+                <td><span class="text-light">${person.occupation_background || '—'}</span></td>
+                <td>${getHealthStatusBadge(person.health_status)}</td>
+                <td>${getFinancialStatusBadge(person.financial_status)}</td>
                 <td>${getRelationBadge(p.relation_type, p.partner_id)}</td>
                 <td>${getActivityLevelBadge(p.activity_level)}</td>
                 <td>${getMemberStatusBadge(p.member_status)}</td>
@@ -843,8 +820,8 @@ function renderBatchEditorTable(list) {
 }
 
 function renderTreeView() {
-    const container = $('#lineage-tree-root').empty();
-    const renderedCoOpPartnerIds = new Set();
+    const $container = $('#org-chart-container').empty();
+    const renderedSpouseIds = new Set();
 
     function getNodeBorderClass(partner) {
         if (partner.partner_id === 'PTN-TW-001' || partner.partner_id === 'PTN-TW-002' || partner.relation_type === '核心成員') {
@@ -855,136 +832,93 @@ function renderTreeView() {
         return 'border-blue';
     }
 
-    function buildBranch(partner) {
-        if (renderedCoOpPartnerIds.has(partner.partner_id)) {
-            return '';
-        }
+    function buildOrgChartBranch(partner) {
+        if (renderedSpouseIds.has(partner.partner_id)) return '';
 
-        const detail = partnerDetailsList.find(d => d.partner_id === partner.partner_id) || {};
-        const gender = detail.gender || '男';
-        const avatarUrl = partner.avatar_url || getDefaultAvatar(gender);
+        const person = getPersonMaster(partner.person_id);
+        const gender = person.gender || '男';
+        const avatarUrl = partner.avatar_url || person.avatar_url || getDefaultAvatar(gender);
         const currentRank = getRankInfo(partner.current_rank_id);
         const highestRank = getRankInfo(partner.highest_rank_id);
-        const borderClass = getNodeBorderClass(partner);
         const dispName = getPartnerDisplayName(partner);
+        const borderClass = getNodeBorderClass(partner);
         const identifierHtml = renderMemberIdentifierBadge(partner);
 
-        let spouseNodeHtml = '';
+        let spouseHtml = '';
         const spouseId = partner.spouse_partner_id;
         if (spouseId) {
             const spouse = partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId);
             if (spouse) {
-                renderedCoOpPartnerIds.add(spouse.partner_id);
-
-                const spouseDetail = partnerDetailsList.find(d => d.partner_id === spouse.partner_id) || {};
-                const spouseGender = spouseDetail.gender || '女';
-                const spouseAvatar = spouse.avatar_url || getDefaultAvatar(spouseGender);
-                const spouseCurRank = getRankInfo(spouse.current_rank_id);
-                const spouseHighRank = getRankInfo(spouse.highest_rank_id);
-                const spouseDispName = getPartnerDisplayName(spouse);
-                const spouseIdentifier = renderMemberIdentifierBadge(spouse);
-
-                spouseNodeHtml = `
-                    <div class="d-flex align-items-center justify-content-between border-top border-primary mt-2 pt-2">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="partner-avatar-wrap" style="width: 44px; height: 44px;">
-                                <img src="${spouseAvatar}" class="rounded-circle border border-primary" width="44" height="44" onerror="this.src='${getDefaultAvatar(spouseGender)}'">
-                                <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${spouseCurRank.badge_color_hex}; color: ${spouseCurRank.badge_color_hex}; font-size: 0.55rem;">
-                                    <i class="${spouseCurRank.badge_icon_class}"></i> ${spouseCurRank.rank_name_zh}
-                                </span>
-                            </div>
-                            <div>
-                                <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <span class="fw-bold text-white fs-6">${spouseDispName}</span>
-                                    ${getCountryBadge(spouse.country_code)}
-                                    ${spouseIdentifier}
-                                    ${getRelationBadge(spouse.relation_type, spouse.partner_id)}
-                                </div>
-                                <div class="d-flex align-items-center gap-2 mt-1">
-                                    <span class="small text-secondary">最高職級：</span>
-                                    ${buildRankBadge(spouseHighRank)}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${spouse.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
-                            <button class="btn btn-outline-secondary py-1 px-2" onclick="openPartnerModalForEdit('${spouse.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn btn-outline-danger py-1 px-2" onclick="deletePartnerRecord('${spouse.partner_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
+                renderedSpouseIds.add(spouse.partner_id);
+                const spPerson = getPersonMaster(spouse.person_id);
+                spouseHtml = `
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 small text-secondary">
+                        <i class="fa-solid fa-user-group text-info me-1"></i> 配偶: <strong class="text-white">${getPartnerDisplayName(spouse)}</strong>
                     </div>
                 `;
             }
         }
 
-        const children = partnersList.filter(p => 
+        const children = partnersList.filter(p =>
             (p.sponsor_id === partner.partner_id || (spouseId && p.sponsor_id === spouseId)) &&
             p.partner_id !== spouseId &&
-            !renderedCoOpPartnerIds.has(p.partner_id)
+            !renderedSpouseIds.has(p.partner_id)
         );
 
-        let lineStyleClass = 'tree-line-solid';
-        if (partner.upline_link_type === '中間未知' || partner.node_nature === '中繼失聯節點') {
-            lineStyleClass = 'tree-line-dotted';
-        }
-
         let html = `
-            <div class="tree-node-card ${borderClass}">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="partner-avatar-wrap" style="width: 44px; height: 44px;">
-                            <img src="${avatarUrl}" class="rounded-circle border border-primary" width="44" height="44" onerror="this.src='${getDefaultAvatar(gender)}'">
-                            <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${currentRank.badge_color_hex}; color: ${currentRank.badge_color_hex}; font-size: 0.58rem;">
-                                <i class="${currentRank.badge_icon_class}"></i> ${currentRank.rank_name_zh}
-                            </span>
+            <li>
+                <div class="org-node-card ${borderClass}">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="partner-avatar-wrap" style="width: 38px; height: 38px;">
+                            <img src="${avatarUrl}" class="rounded-circle border border-primary" width="38" height="38" onerror="this.src='${getDefaultAvatar(gender)}'">
                         </div>
-                        <div>
-                            <div class="d-flex flex-wrap align-items-center gap-2">
-                                <span class="fw-bold text-white fs-6">${dispName}</span>
+                        <div class="overflow-hidden">
+                            <div class="fw-bold text-white text-truncate">${dispName}</div>
+                            <div class="d-flex gap-1 align-items-center">
                                 ${getCountryBadge(partner.country_code)}
-                                ${identifierHtml}
-                                ${getRelationBadge(partner.relation_type, partner.partner_id)}
-                            </div>
-                            <div class="d-flex align-items-center gap-2 mt-1">
-                                <span class="small text-secondary">最高職級：</span>
-                                ${buildRankBadge(highestRank)}
+                                <span class="badge badge-dark" style="font-size: 0.65rem;">${currentRank.rank_name_zh}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${partner.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <button class="btn btn-outline-secondary py-1 px-2" onclick="openPartnerModalForEdit('${partner.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="btn btn-outline-danger py-1 px-2" onclick="deletePartnerRecord('${partner.partner_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
+                    <div class="small text-secondary mb-1">
+                        <div>最高: <strong class="text-light">${highestRank.rank_name_zh}</strong></div>
+                        <div>卡號: <span class="font-monospace text-light">${partner.member_no || '無'}</span></div>
+                    </div>
+                    ${identifierHtml}
+                    ${spouseHtml}
+                    <div class="d-flex justify-content-end gap-1 mt-2 pt-1 border-top border-secondary border-opacity-25">
+                        <button class="btn btn-outline-info btn-sm py-0 px-2" onclick="openPartnerModalForView('${partner.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="openPartnerModalForEdit('${partner.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
                     </div>
                 </div>
-                ${spouseNodeHtml}
-            </div>
         `;
 
         if (children.length > 0) {
-            html += `<div class="tree-level-indent ${lineStyleClass}">`;
-            children.forEach(child => {
-                html += buildBranch(child);
-            });
-            html += `</div>`;
+            html += `<ul>`;
+            children.forEach(c => { html += buildOrgChartBranch(c); });
+            html += `</ul>`;
         }
 
+        html += `</li>`;
         return html;
     }
 
-    const roots = partnersList.filter(p => 
+    const roots = partnersList.filter(p =>
         (!p.sponsor_id || p.sponsor_id === 'ROOT' || p.sponsor_id === 'SYSTEM_ROOT' || p.partner_id === 'PTN-TW-001') &&
         p.account_holder_type !== '共同經營者'
     );
 
-    if (roots.length === 0 && partnersList.length > 0) {
-        roots.push(partnersList[0]);
-    }
+    if (roots.length === 0 && partnersList.length > 0) roots.push(partnersList[0]);
 
-    roots.forEach(r => container.append(buildBranch(r)));
+    let treeHtml = `<ul class="org-tree">`;
+    roots.forEach(r => { treeHtml += buildOrgChartBranch(r); });
+    treeHtml += `</ul>`;
+
+    $container.append(treeHtml);
 }
 
 // ============================================================================
-// 7. 戰情統計與分析圖表 (Analytics Charts - 22 Charts)
+// 7. 戰情統計與分析圖表 (Analytics Charts)
 // ============================================================================
 const getPieTooltipOptions = () => ({
     plugins: {
@@ -1003,6 +937,68 @@ const getPieTooltipOptions = () => ({
         }
     }
 });
+
+window.changeLanguageAnalysis = function (selectedLang) {
+    const dataset = getFilteredPartners();
+    renderLanguageSectionCharts(selectedLang, dataset);
+};
+
+function renderLanguageSectionCharts(targetLang, dataset) {
+    const langChartKeys = ['langListening', 'langSpeaking', 'langReading', 'langWriting'];
+    langChartKeys.forEach(k => {
+        if (chartInstances[k]) {
+            chartInstances[k].destroy();
+            delete chartInstances[k];
+        }
+    });
+
+    const activePersonIds = new Set(dataset.map(p => p.person_id));
+    const langRecords = personLanguagesList.filter(l =>
+        l.language_name === targetLang && activePersonIds.has(l.person_id)
+    );
+
+    const levels = ['精通', '流利', '普通', '略懂', '不會'];
+    const levelColors = ['#10b981', '#38bdf8', '#fbbf24', '#f97316', '#64748b'];
+
+    const countProficiency = (levelKey) => {
+        const counts = { '精通': 0, '流利': 0, '普通': 0, '略懂': 0, '不會': 0 };
+        langRecords.forEach(r => {
+            const val = r[levelKey] || '普通';
+            if (counts[val] !== undefined) counts[val]++;
+            else counts['普通']++;
+        });
+        return levels.map(l => counts[l]);
+    };
+
+    const dimensions = [
+        { id: 'chart-lang-listening', key: 'langListening', field: 'listening_level' },
+        { id: 'chart-lang-speaking', key: 'langSpeaking', field: 'speaking_level' },
+        { id: 'chart-lang-reading', key: 'langReading', field: 'reading_level' },
+        { id: 'chart-lang-writing', key: 'langWriting', field: 'writing_level' }
+    ];
+
+    dimensions.forEach(dim => {
+        const ctx = document.getElementById(dim.id);
+        if (ctx) {
+            chartInstances[dim.key] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: levels,
+                    datasets: [{
+                        data: countProficiency(dim.field),
+                        backgroundColor: levelColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    ...getPieTooltipOptions()
+                }
+            });
+        }
+    });
+}
 
 function calculatePartnerGenDepth(partnerId, allList, visited = new Set()) {
     if (!partnerId || visited.has(partnerId)) return 0;
@@ -1026,14 +1022,193 @@ function renderChartsView(filteredDataset = null) {
         const map = {};
         defaultKeys.forEach(k => { map[k] = 0; });
         dataset.forEach(p => {
-            const detail = partnerDetailsList.find(d => d.partner_id === p.partner_id) || {};
-            const val = p[key] || detail[key] || '未設定';
+            const person = getPersonMaster(p.person_id);
+            const val = p[key] || person[key] || '未設定';
             map[val] = (map[val] || 0) + 1;
         });
         return map;
     };
 
-    // 1. 所屬國家市場圓餅圖
+    // 區塊 A：語言專區 (聽、說、讀、寫)
+    const currentSelectedLang = $('#select-lang-filter').val() || '中文';
+    renderLanguageSectionCharts(currentSelectedLang, dataset);
+
+    // =========================================================================
+    // 區塊 B：個人資訊 (依指定順序 12 張圓餅圖)
+    // =========================================================================
+
+    // 1. 身份 (identity_type)
+    const idTypeCounts = createCountMap('identity_type', ['夥伴', '團隊成員', '潛在團隊成員', '客戶', '潛在客戶']);
+    const ctxIdType = document.getElementById('chart-identity-type-split');
+    if (ctxIdType) {
+        chartInstances.idType = new Chart(ctxIdType, {
+            type: 'pie',
+            data: { labels: Object.keys(idTypeCounts), datasets: [{ data: Object.values(idTypeCounts), backgroundColor: ['#8b5cf6', '#3b82f6', '#06b6d4', '#10b981', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 2. 使用身份 (usage_identity)
+    const usageCounts = createCountMap('usage_identity', ['經營者', '消費者']);
+    const ctxUsage = document.getElementById('chart-usage-identity-split');
+    if (ctxUsage) {
+        chartInstances.usageId = new Chart(ctxUsage, {
+            type: 'pie',
+            data: { labels: Object.keys(usageCounts), datasets: [{ data: Object.values(usageCounts), backgroundColor: ['#a855f7', '#38bdf8'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 3. 年齡分佈 (8 個指定區間)
+    const ageCategories = ['17歲以下', '18-29歲', '30-39歲', '40-49歲', '50-59歲', '60-69歲', '70-79歲', '80歲以上'];
+    const ageCounts = {};
+    ageCategories.forEach(c => { ageCounts[c] = 0; });
+    dataset.forEach(p => {
+        const person = getPersonMaster(p.person_id);
+        if (person.birthday && person.birthday.length >= 4) {
+            const birthYear = parseInt(person.birthday.slice(0, 4), 10);
+            if (!isNaN(birthYear)) {
+                const age = 2026 - birthYear;
+                if (age <= 17) ageCounts['17歲以下']++;
+                else if (age <= 29) ageCounts['18-29歲']++;
+                else if (age <= 39) ageCounts['30-39歲']++;
+                else if (age <= 49) ageCounts['40-49歲']++;
+                else if (age <= 59) ageCounts['50-59歲']++;
+                else if (age <= 69) ageCounts['60-69歲']++;
+                else if (age <= 79) ageCounts['70-79歲']++;
+                else ageCounts['80歲以上']++;
+            }
+        }
+    });
+    const ctxAge = document.getElementById('chart-age-distribution');
+    if (ctxAge) {
+        chartInstances.age = new Chart(ctxAge, {
+            type: 'pie',
+            data: { labels: ageCategories, datasets: [{ data: ageCategories.map(c => ageCounts[c]), backgroundColor: ['#38bdf8', '#34d399', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316', '#a78bfa'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 4. 生理性別
+    const genderCounts = createCountMap('gender', ['男', '女', '其他', '未填']);
+    const ctxGender = document.getElementById('chart-gender-split');
+    if (ctxGender) {
+        chartInstances.gender = new Chart(ctxGender, {
+            type: 'pie',
+            data: { labels: Object.keys(genderCounts), datasets: [{ data: Object.values(genderCounts), backgroundColor: ['#38bdf8', '#f472b6', '#a78bfa', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 5. 國籍 (指定 9 項)
+    const natCategories = ['中華民國', '馬來西亞', '中國', '日本', '韓國', '泰國', '新加坡', '印尼', '其他'];
+    const natCounts = {};
+    natCategories.forEach(c => { natCounts[c] = 0; });
+    dataset.forEach(p => {
+        const person = getPersonMaster(p.person_id);
+        let n = person.nationality || '中華民國';
+        if (n === '台灣' || n === 'TW') n = '中華民國';
+        if (natCounts[n] !== undefined) natCounts[n]++;
+        else natCounts['其他']++;
+    });
+    const ctxNat = document.getElementById('chart-nationality-split');
+    if (ctxNat) {
+        chartInstances.nationality = new Chart(ctxNat, {
+            type: 'pie',
+            data: { labels: natCategories, datasets: [{ data: natCategories.map(c => natCounts[c]), backgroundColor: ['#0284c7', '#f59e0b', '#dc2626', '#ec4899', '#8b5cf6', '#10b981', '#06b6d4', '#f97316', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 6. 種族 (指定 5 項)
+    const ethCategories = ['華人', '原住民', '馬來人', '印度人', '其他'];
+    const ethCounts = createCountMap('ethnicity', ethCategories);
+    const ctxEth = document.getElementById('chart-ethnicity-split');
+    if (ctxEth) {
+        chartInstances.ethnicity = new Chart(ctxEth, {
+            type: 'pie',
+            data: { labels: ethCategories, datasets: [{ data: ethCategories.map(c => ethCounts[c] || 0), backgroundColor: ['#f43f5e', '#3b82f6', '#fbbf24', '#10b981', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 7. 家鄉城市
+    const homeCounts = createCountMap('hometown');
+    const ctxHome = document.getElementById('chart-hometown-split');
+    if (ctxHome) {
+        chartInstances.hometown = new Chart(ctxHome, {
+            type: 'pie',
+            data: { labels: Object.keys(homeCounts), datasets: [{ data: Object.values(homeCounts), backgroundColor: ['#6366f1', '#14b8a6', '#f97316', '#eab308', '#ec4899', '#a855f7', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 8. 現居地
+    const resCounts = createCountMap('current_residence');
+    const ctxRes = document.getElementById('chart-residence-split');
+    if (ctxRes) {
+        chartInstances.residence = new Chart(ctxRes, {
+            type: 'pie',
+            data: { labels: Object.keys(resCounts), datasets: [{ data: Object.values(resCounts), backgroundColor: ['#0284c7', '#38bdf8', '#34d399', '#facc15', '#f472b6', '#a78bfa', '#fb7185', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 9. 認識年份
+    const metYearCounts = {};
+    dataset.forEach(p => {
+        const person = getPersonMaster(p.person_id);
+        const y = (person.met_date && person.met_date.length >= 4) ? person.met_date.slice(0, 4) + '年' : '未記錄';
+        metYearCounts[y] = (metYearCounts[y] || 0) + 1;
+    });
+    const ctxMetYear = document.getElementById('chart-met-year-split');
+    if (ctxMetYear) {
+        chartInstances.metYear = new Chart(ctxMetYear, {
+            type: 'pie',
+            data: { labels: Object.keys(metYearCounts), datasets: [{ data: Object.values(metYearCounts), backgroundColor: ['#10b981', '#38bdf8', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 10. 最高學歷
+    const eduCounts = createCountMap('highest_education', ['博士', '碩士', '學士', '副學士', '高中職', '國中', '國小']);
+    const ctxEdu = document.getElementById('chart-education-distribution');
+    if (ctxEdu) {
+        chartInstances.education = new Chart(ctxEdu, {
+            type: 'pie',
+            data: { labels: Object.keys(eduCounts), datasets: [{ data: Object.values(eduCounts), backgroundColor: ['#8b5cf6', '#0284c7', '#38bdf8', '#34d399', '#fbbf24', '#f97316', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 11. 健康狀況 (指定 6 項)
+    const healthCategories = ['良好', '亞健康', '慢性體質', '調養中', '罹患疾病', '待了解'];
+    const healthCounts = createCountMap('health_status', healthCategories);
+    const ctxHealth = document.getElementById('chart-health-status-split');
+    if (ctxHealth) {
+        chartInstances.healthStatus = new Chart(ctxHealth, {
+            type: 'pie',
+            data: { labels: healthCategories, datasets: [{ data: healthCategories.map(c => healthCounts[c] || 0), backgroundColor: ['#10b981', '#fbbf24', '#f97316', '#38bdf8', '#ef4444', '#64748b'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // 12. 財務狀況 (指定 5 項)
+    const finCounts = createCountMap('financial_status', ['富裕', '穩定', '吃緊', '高負債', '尋找副業']);
+    const ctxFin = document.getElementById('chart-financial-status-split');
+    if (ctxFin) {
+        chartInstances.finStatus = new Chart(ctxFin, {
+            type: 'pie',
+            data: { labels: Object.keys(finCounts), datasets: [{ data: Object.values(finCounts), backgroundColor: ['#10b981', '#38bdf8', '#fbbf24', '#ef4444', '#c084fc'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
+        });
+    }
+
+    // =========================================================================
+    // 區塊 C：組織體系 (精簡後 18 張戰術指標圖表)
+    // =========================================================================
+
+    // 1. 國家市場
     const twCount = dataset.filter(p => p.country_code === 'TW').length;
     const ctxMarket = document.getElementById('chart-market-split');
     if (ctxMarket) {
@@ -1044,18 +1219,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 2. 所在一級行政區圓餅圖
-    const regCounts = createCountMap('primary_region');
-    const ctxRegion = document.getElementById('chart-region-distribution');
-    if (ctxRegion) {
-        chartInstances.region = new Chart(ctxRegion, {
-            type: 'pie',
-            data: { labels: Object.keys(regCounts), datasets: [{ data: Object.values(regCounts), backgroundColor: ['#0284c7', '#38bdf8', '#34d399', '#facc15', '#f472b6', '#a78bfa', '#fb7185', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
-
-    // 3. 當前實際職級圓餅圖 (職級顏色)
+    // 2. 當前實際職級
     const curRankLabels = []; const curRankData = []; const curRankColors = [];
     ranksDatabase.forEach(rk => {
         const count = dataset.filter(p => p.current_rank_id === rk.rank_id).length;
@@ -1076,7 +1240,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 4. 官方最高職級圓餅圖 (職級顏色)
+    // 3. 官方最高職級
     const highRankLabels = []; const highRankData = []; const highRankColors = [];
     ranksDatabase.forEach(rk => {
         const count = dataset.filter(p => p.highest_rank_id === rk.rank_id).length;
@@ -1097,7 +1261,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 5. 團隊直轄/旁線圓餅圖
+    // 4. 直轄 vs 旁線
     const ourTeamCount = dataset.filter(p => p.is_our_team === 'Y').length;
     const ctxTeam = document.getElementById('chart-team-split');
     if (ctxTeam) {
@@ -1108,18 +1272,19 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 6. 團隊參與狀態圓餅圖
-    const actCounts = createCountMap('activity_level', ['積極參與', '參與', '不參與', '自用消費', '操作人頭', '失聯']);
+    // 5. 團隊參與狀態 (指定 8 項)
+    const actCategories = ['積極參與', '參與', '不參與', '自用消費', '操作人頭', '失聯', '個資未知', '非團隊成員'];
+    const actCounts = createCountMap('activity_level', actCategories);
     const ctxActivity = document.getElementById('chart-activity-distribution');
     if (ctxActivity) {
         chartInstances.activity = new Chart(ctxActivity, {
             type: 'pie',
-            data: { labels: Object.keys(actCounts), datasets: [{ data: Object.values(actCounts), backgroundColor: ['#34d399', '#38bdf8', '#ef4444', '#0284c7', '#c084fc', '#64748b'], borderWidth: 0 }] },
+            data: { labels: actCategories, datasets: [{ data: actCategories.map(c => actCounts[c] || 0), backgroundColor: ['#34d399', '#38bdf8', '#ef4444', '#0284c7', '#c084fc', '#f59e0b', '#94a3b8', '#475569'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
 
-    // 7. 官方會籍狀態圓餅圖
+    // 6. 官方會籍狀態
     const memCounts = createCountMap('member_status', ['有效且領獎金', '維持160SV續約', '失效']);
     const ctxMemberPie = document.getElementById('chart-member-status-pie');
     if (ctxMemberPie) {
@@ -1130,7 +1295,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 8. 上線連結模式圓餅圖
+    // 7. 上線連結模式
     const uplineCounts = createCountMap('upline_link_type', ['直屬已知', '中間未知', '體系頂層']);
     const ctxUpline = document.getElementById('chart-upline-link-distribution');
     if (ctxUpline) {
@@ -1141,7 +1306,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 9. 組織關係屬性圓餅圖
+    // 8. 組織關係屬性
     const relCounts = createCountMap('relation_type', ['核心成員', '下線', '上線', '旁線', '中繼層']);
     const ctxRel = document.getElementById('chart-relation-split');
     if (ctxRel) {
@@ -1152,7 +1317,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 10. 營運狀態圓餅圖
+    // 9. 營運狀態
     const opCounts = createCountMap('operator_status', ['活躍', '停滯', '沉睡', '凍結']);
     const ctxOp = document.getElementById('chart-operator-status');
     if (ctxOp) {
@@ -1163,7 +1328,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 11. 經營身分類型圓餅圖
+    // 10. 經營身分類型
     const holderCounts = createCountMap('account_holder_type', ['個人經營者', '主要經營者', '共同經營者']);
     const ctxHolder = document.getElementById('chart-account-holder-distribution');
     if (ctxHolder) {
@@ -1174,7 +1339,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 12. 經營權模式圓餅圖
+    // 11. 經營權模式
     const modeCounts = createCountMap('operation_mode', ['個人經營', '共同經營', '獨立經營']);
     const ctxMode = document.getElementById('chart-mode-distribution');
     if (ctxMode) {
@@ -1185,102 +1350,43 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 13. 最高學歷圓餅圖
-    const eduCounts = createCountMap('highest_education', ['博士', '碩士', '學士', '副學士', '高中職', '國中', '國小']);
-    const ctxEdu = document.getElementById('chart-education-distribution');
-    if (ctxEdu) {
-        chartInstances.education = new Chart(ctxEdu, {
-            type: 'pie',
-            data: { labels: Object.keys(eduCounts), datasets: [{ data: Object.values(eduCounts), backgroundColor: ['#8b5cf6', '#0284c7', '#38bdf8', '#34d399', '#fbbf24', '#f97316', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
-
-    // 14. 入會動機圓餅圖
-    const motiveCounts = createCountMap('joining_motive', ['體質調養', '兼職副業', '全職創業']);
+    // 12. 入會動機
+    const motiveCounts = createCountMap('joining_motive', ['HEALTH', 'PART_TIME', 'FULL_TIME', 'RELATION']);
+    const motiveLabels = { 'HEALTH': '體質調養', 'PART_TIME': '兼職副業', 'FULL_TIME': '全職創業', 'RELATION': '人情支持', '未設定': '未設定' };
     const ctxMotive = document.getElementById('chart-motive-distribution');
     if (ctxMotive) {
         chartInstances.motive = new Chart(ctxMotive, {
             type: 'pie',
-            data: { labels: Object.keys(motiveCounts), datasets: [{ data: Object.values(motiveCounts), backgroundColor: ['#ec4899', '#f59e0b', '#10b981'], borderWidth: 0 }] },
+            data: { labels: Object.keys(motiveCounts).map(k => motiveLabels[k] || k), datasets: [{ data: Object.values(motiveCounts), backgroundColor: ['#ec4899', '#f59e0b', '#10b981', '#38bdf8', '#64748b'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
 
-    // 15. 生理性別圓餅圖
-    const genderCounts = createCountMap('gender', ['男', '女', '其他']);
-    const ctxGender = document.getElementById('chart-gender-split');
-    if (ctxGender) {
-        chartInstances.gender = new Chart(ctxGender, {
-            type: 'pie',
-            data: { labels: Object.keys(genderCounts), datasets: [{ data: Object.values(genderCounts), backgroundColor: ['#38bdf8', '#f472b6', '#a78bfa'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
-
-    // 16. 節點性質圓餅圖
-    const nodeCounts = createCountMap('node_nature', ['常態夥伴', '中繼失聯節點', '幽靈節點', '虛擬佔位']);
-    const ctxNode = document.getElementById('chart-node-nature-distribution');
-    if (ctxNode) {
-        chartInstances.nodeNature = new Chart(ctxNode, {
-            type: 'pie',
-            data: { labels: Object.keys(nodeCounts), datasets: [{ data: Object.values(nodeCounts), backgroundColor: ['#34d399', '#f59e0b', '#ef4444', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
-
-    // 17. 有效代數深度 Top 10 長條圖
+    // 13. 有效代數深度 Top 10
     const depthData = [];
     dataset.forEach(p => {
         const depth = calculatePartnerGenDepth(p.partner_id, partnersList);
-        if (depth > 0) {
-            depthData.push({
-                name: getPartnerDisplayName(p) || p.partner_id,
-                depth: depth
-            });
-        }
+        if (depth > 0) depthData.push({ name: getPartnerDisplayName(p) || p.partner_id, depth });
     });
     const sortedDepth = depthData.sort((a, b) => b.depth - a.depth).slice(0, 10);
     const ctxDepth = document.getElementById('chart-gen-depth-top10');
     if (ctxDepth) {
         chartInstances.genDepth = new Chart(ctxDepth, {
             type: 'bar',
-            data: {
-                labels: sortedDepth.map(x => x.name),
-                datasets: [{
-                    label: '有效代數深度',
-                    data: sortedDepth.map(x => x.depth),
-                    backgroundColor: '#8b5cf6',
-                    borderRadius: 4
-                }]
-            },
+            data: { labels: sortedDepth.map(x => x.name), datasets: [{ label: '有效代數深度', data: sortedDepth.map(x => x.depth), backgroundColor: '#8b5cf6', borderRadius: 4 }] },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` 有效代數深度: ${ctx.parsed.y} 代`
-                        }
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, color: '#94a3b8' },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    },
-                    x: {
-                        ticks: { color: '#94a3b8', font: { size: 10 } },
-                        grid: { display: false }
-                    }
+                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
                 }
             }
         });
     }
 
-    // 18. 實務輔導下線人數 Top 10 長條圖
+    // 14. 輔導下線人數 Top 10
     const mentorCounts = {};
     dataset.forEach(p => {
         if (p.known_mentor_id && p.known_mentor_id !== 'ROOT' && p.known_mentor_id !== 'SYSTEM_ROOT') {
@@ -1288,50 +1394,25 @@ function renderChartsView(filteredDataset = null) {
             mentorCounts[mName] = (mentorCounts[mName] || 0) + 1;
         }
     });
-    const sortedMentors = Object.entries(mentorCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-
+    const sortedMentors = Object.entries(mentorCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
     const ctxMentor = document.getElementById('chart-mentor-mentees-top10');
     if (ctxMentor) {
         chartInstances.mentor = new Chart(ctxMentor, {
             type: 'bar',
-            data: {
-                labels: sortedMentors.map(x => x[0]),
-                datasets: [{
-                    label: '輔導下線人數',
-                    data: sortedMentors.map(x => x[1]),
-                    backgroundColor: '#10b981',
-                    borderRadius: 4
-                }]
-            },
+            data: { labels: sortedMentors.map(x => x[0]), datasets: [{ label: '輔導下線人數', data: sortedMentors.map(x => x[1]), backgroundColor: '#10b981', borderRadius: 4 }] },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` 輔導下線人數: ${ctx.parsed.y} 人`
-                        }
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, color: '#94a3b8' },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    },
-                    x: {
-                        ticks: { color: '#94a3b8', font: { size: 10 } },
-                        grid: { display: false }
-                    }
+                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
                 }
             }
         });
     }
 
-    // 19. 夥伴簽約加入年份趨勢折線圖
+    // 15. 簽約加入年份趨勢
     const joinYearCounts = {};
     dataset.forEach(p => {
         if (p.join_date) {
@@ -1349,7 +1430,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 20. 夥伴退出/解約年份趨勢折線圖
+    // 16. 退出解約年份趨勢
     const exitYearCounts = {};
     dataset.forEach(p => {
         if (p.exit_date) {
@@ -1367,7 +1448,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 21. 夥伴資格截止月份分佈直方圖
+    // 17. 資格截止月份分佈
     const dueMonthCounts = {};
     for (let i = 1; i <= 12; i++) { dueMonthCounts[`${i}月`] = 0; }
     dataset.forEach(p => {
@@ -1385,7 +1466,7 @@ function renderChartsView(filteredDataset = null) {
         });
     }
 
-    // 22. 夥伴官方續約月份分佈直方圖
+    // 18. 官方續約月份分佈
     const renewalMonthCounts = {};
     for (let i = 1; i <= 12; i++) { renewalMonthCounts[`${i}月`] = 0; }
     dataset.forEach(p => {
@@ -1407,96 +1488,138 @@ function renderChartsView(filteredDataset = null) {
 // ============================================================================
 // 8. 夥伴檔案彈窗控制 (Modal Controllers)
 // ============================================================================
+// 動態填充語言矩陣表單行
+function renderLanguageMatrixForm(personId = '') {
+    const $tbody = $('#form-lang-matrix-tbody').empty();
+    const commonLangs = ['中文', '英文', '馬來文', '台語', '粵語', '客家話', '日文', '韓文', '印尼文', '泰文', '越南文'];
+    const levels = ['精通', '流利', '普通', '略懂', '不會'];
+    const personLangs = personLanguagesList.filter(l => l.person_id === personId);
+
+    commonLangs.forEach(lang => {
+        const record = personLangs.find(l => l.language_name === lang) || {};
+        const listening = record.listening_level || '普通';
+        const speaking = record.speaking_level || '普通';
+        const reading = record.reading_level || '普通';
+        const writing = record.writing_level || '普通';
+
+        const buildOptions = (selectedVal) => {
+            return levels.map(lv => `<option value="${lv}" ${lv === selectedVal ? 'selected' : ''}>${lv}</option>`).join('');
+        };
+
+        const rowHtml = `
+            <tr data-lang-name="${lang}">
+                <td class="fw-bold text-light">${lang}</td>
+                <td><select class="form-select form-select-sm lang-select-listening">${buildOptions(listening)}</select></td>
+                <td><select class="form-select form-select-sm lang-select-speaking">${buildOptions(speaking)}</select></td>
+                <td><select class="form-select form-select-sm lang-select-reading">${buildOptions(reading)}</select></td>
+                <td><select class="form-select form-select-sm lang-select-writing">${buildOptions(writing)}</select></td>
+            </tr>
+        `;
+        $tbody.append(rowHtml);
+    });
+}
+
 window.openPartnerModalForEdit = function(partnerId) {
     const partner = partnersList.find(p => p.partner_id === partnerId);
     if (!partner) return;
-    const detail = partnerDetailsList.find(d => d.partner_id === partnerId) || {};
+    const person = getPersonMaster(partner.person_id);
     populateSelect2Options();
 
     $('#partnerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary"></i> 編輯檔案 - ${getPartnerDisplayName(partner)}`);
     $('#form-submit-btn').show();
     $('#form-mode').val('UPDATE');
+
+    $('#form-person-id').prop('readonly', true).val(person.person_id || partner.person_id);
+    $('#form-name-zh').val(person.name_zh || '');
+    $('#form-name-en').val(person.name_en || '');
+    $('#form-preferred-name').val(person.preferred_name || '');
+    $('#form-display-name').val(person.display_name || '');
+    $('#form-identity-type').val(person.identity_type || '夥伴');
+    $('#form-usage-identity').val(person.usage_identity || '消費者');
+    $('#form-gender').val(person.gender || '男');
+    $('#form-birthday').val(person.birthday || '');
+    $('#form-nationality').val(person.nationality === '台灣' || person.nationality === 'TW' ? '中華民國' : (person.nationality || '中華民國'));
+    $('#form-ethnicity').val(person.ethnicity || '華人');
+    $('#form-health-status').val(person.health_status || '良好');
+    $('#form-financial-status').val(person.financial_status || '穩定');
+    $('#form-hometown').val(person.hometown || '');
+    $('#form-current-residence').val(person.current_residence || '').trigger('change');
+    $('#form-contact-address').val(person.contact_address || '');
+    $('#form-met-date').val(person.met_date || '');
+    $('#form-met-reason').val(person.met_reason || '');
+
     $('#form-partner-id').prop('readonly', true).val(partner.partner_id);
-
-    // 頭像處理：若為預設頭像或無自訂網址，輸入框留空
-    const gender = detail.gender || '男';
-    const isCustomAvatar = partner.avatar_url && !Object.values(DEFAULT_AVATARS).includes(partner.avatar_url);
-    $('#form-avatar-url').val(isCustomAvatar ? partner.avatar_url : '');
-    $('#form-preview-avatar').attr('src', partner.avatar_url || getDefaultAvatar(gender));
-
     $('#form-member-no').val(partner.member_no || '');
-    $('#form-name-zh').val(partner.name_zh || '');
-    $('#form-name-en').val(partner.name_en || '');
-    $('#form-preferred-name').val(partner.preferred_name || '');
-    $('#form-display-name').val(partner.display_name || '');
-    $('#form-auth-email').val(partner.auth_email || '');
-    $('#form-leader-title').val(partner.leader_title || '');
-    $('#form-account-holder-type').val(partner.account_holder_type || '個人經營者');
-    $('#form-operation-mode').val(partner.operation_mode || '個人經營');
-    $('#form-node-nature').val(partner.node_nature || '常態夥伴');
-    $('#form-activity-level').val(partner.activity_level || '');
-    $('#form-member-status').val(partner.member_status || '');
-    $('#form-upline-link-type').val(partner.upline_link_type || '直屬已知');
     $('#form-country-code').val(partner.country_code || 'TW');
-    $('#form-current-rank-id').val(partner.current_rank_id || '');
-    $('#form-highest-rank-id').val(partner.highest_rank_id || '');
     $('#form-is-our-team').val(partner.is_our_team || 'Y');
     $('#form-relation-type').val(partner.relation_type || '下線');
-    $('#form-operator-status').val(partner.operator_status || '');
-    $('#form-join-date').val(partner.join_date || '');
-    $('#form-renewal-due-date').val(partner.renewal_due_date || '');
-
+    $('#form-leader-title').val(partner.leader_title || '');
+    $('#form-current-rank-id').val(partner.current_rank_id || '');
+    $('#form-highest-rank-id').val(partner.highest_rank_id || '');
     $('#form-sponsor-id').val(partner.sponsor_id || '').trigger('change');
     $('#form-placement-id').val(partner.placement_id || '').trigger('change');
     $('#form-known-mentor-id').val(partner.known_mentor_id || '').trigger('change');
     $('#form-spouse-partner-id').val(partner.spouse_partner_id || '').trigger('change');
-    $('#form-primary-region').val(detail.primary_region || '').trigger('change');
+    $('#form-activity-level').val(partner.activity_level || '');
+    $('#form-member-status').val(partner.member_status || '');
+    $('#form-operator-status').val(partner.operator_status || '');
+    $('#form-joining-motive').val(partner.joining_motive || 'PART_TIME');
+    $('#form-join-date').val(partner.join_date || '');
+    $('#form-renewal-due-date').val(partner.renewal_due_date || '');
+    $('#form-last-order-date').val(partner.last_order_date || '');
+    $('#form-exit-date').val(partner.exit_date || '');
 
-    $('#form-gender').val(gender);
-    $('#form-birthday').val(detail.birthday || '');
-    $('#form-phone-number').val(detail.phone_number || '');
-    $('#form-whatsapp-id').val(detail.whatsapp_id || '');
-    $('#form-whatsapp-name').val(detail.whatsapp_name || '');
-    $('#form-discord-id').val(detail.discord_id || '');
-    $('#form-discord-name').val(detail.discord_name || '');
-    $('#form-line-user-id').val(detail.line_user_id || '');
-    $('#form-line-id-alias').val(detail.line_id_alias || '');
-    $('#form-facebook-url').val(detail.facebook_url || '');
-    $('#form-instagram-id').val(detail.instagram_id || '');
-    $('#form-contact-address').val(detail.contact_address || '');
-    $('#form-occupation-type').val(detail.occupation_type || '');
-    $('#form-highest-education').val(detail.highest_education || '');
-    $('#form-graduated-school').val(detail.graduated_school || '');
-    $('#form-joining-motive').val(detail.joining_motive || '');
-    $('#form-health-goals').val(detail.health_goals || '');
-    $('#form-team-skills').val(detail.team_skills || '');
-    $('#form-intro').val(detail.intro || '');
-    $('#form-tactical-notes').val(detail.tactical_notes || '');
-    $('#form-is-profile-public').val(detail.is_profile_public || 'Y');
+    const gender = person.gender || '男';
+    const avatar = partner.avatar_url || person.avatar_url || '';
+    $('#form-avatar-url').val(avatar);
+    $('#form-preview-avatar').attr('src', avatar || getDefaultAvatar(gender));
+
+    // 通訊
+    $('#form-phone').val(person.phone || '');
+    $('#form-email').val(person.email || '');
+    const contacts = personContactsList.filter(c => c.person_id === person.person_id);
+    $('#form-line-id').val(contacts.find(c => c.platform_name === 'LINE' && c.category === 'ID')?.contact_value || '');
+    $('#form-line-name').val(contacts.find(c => c.platform_name === 'LINE' && c.category === '顯示名稱')?.contact_value || '');
+    $('#form-whatsapp-id').val(contacts.find(c => c.platform_name === 'WhatsApp' && c.category === 'ID')?.contact_value || '');
+    $('#form-whatsapp-name').val(contacts.find(c => c.platform_name === 'WhatsApp' && c.category === '顯示名稱')?.contact_value || '');
+    $('#form-discord-id').val(contacts.find(c => c.platform_name === 'Discord')?.contact_value || '');
+    $('#form-wechat-id').val(contacts.find(c => c.platform_name === 'WeChat')?.contact_value || '');
+    $('#form-facebook-url').val(contacts.find(c => c.platform_name === 'Facebook')?.contact_value || '');
+    $('#form-instagram-id').val(contacts.find(c => c.platform_name === 'Instagram')?.contact_value || '');
+
+    // 語言矩陣與備忘
+    renderLanguageMatrixForm(person.person_id);
+    $('#form-highest-education').val(person.highest_education || '');
+    $('#form-graduated-school').val(person.graduated_school || '');
+    $('#form-occupation-background').val(person.occupation_background || '');
+    $('#form-team-skills').val(partner.team_skills || '');
+    $('#form-career-education-notes').val(person.career_education_notes || '');
+    $('#form-health-notes').val(person.health_notes || '');
+    $('#form-financial-notes').val(person.financial_notes || '');
+    $('#form-consumption-notes').val(person.consumption_notes || '');
+    $('#form-team-notes').val(partner.team_notes || '');
 
     $('#partnerEditTabs button:first').tab('show');
-
-    const modalEl = document.getElementById('partnerDetailModal');
-    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('partnerDetailModal')).show();
 };
 
 window.openPartnerModalForCreate = function() {
     populateSelect2Options();
-    $('#partnerModalTitle').html('<i class="fa-solid fa-user-plus text-primary"></i> 登錄新夥伴檔案');
+    $('#partnerModalTitle').html('<i class="fa-solid fa-user-plus text-primary"></i> 登錄新成員檔案');
     $('#form-submit-btn').show();
     $('#form-mode').val('CREATE');
     $('#partnerForm')[0].reset();
-    $('#form-partner-id').prop('readonly', false).val(`PTN-TW-${String(partnersList.length + 1).padStart(3, '0')}`);
-    $('#form-gender').val('男');
 
+    const nextIdx = partnersList.length + 1;
+    $('#form-person-id').prop('readonly', false).val(`PSN-${String(nextIdx).padStart(4, '0')}`);
+    $('#form-partner-id').prop('readonly', false).val(`PTN-TW-${String(nextIdx).padStart(3, '0')}`);
+    $('#form-gender').val('男');
     $('#form-avatar-url').val('');
     $('#form-preview-avatar').attr('src', getDefaultAvatar('男'));
 
-    $('#form-sponsor-id, #form-placement-id, #form-known-mentor-id, #form-spouse-partner-id, #form-primary-region').val('').trigger('change');
+    $('#form-sponsor-id, #form-placement-id, #form-known-mentor-id, #form-spouse-partner-id, #form-current-residence').val('').trigger('change');
     $('#partnerEditTabs button:first').tab('show');
-
-    const modalEl = document.getElementById('partnerDetailModal');
-    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('partnerDetailModal')).show();
 };
 
 window.openPartnerModalForView = function(partnerId) {
@@ -1505,21 +1628,20 @@ window.openPartnerModalForView = function(partnerId) {
         AppToast.warning(`找不到夥伴資料：${partnerId}`);
         return;
     }
-    const detail = partnerDetailsList.find(d => d.partner_id === partnerId) || {};
-    const gender = detail.gender || '男';
-    const avatarUrl = partner.avatar_url || getDefaultAvatar(gender);
+    const person = getPersonMaster(partner.person_id);
+    const gender = person.gender || '男';
+    const avatarUrl = partner.avatar_url || person.avatar_url || getDefaultAvatar(gender);
     const currentRank = getRankInfo(partner.current_rank_id);
     const highestRank = getRankInfo(partner.highest_rank_id);
     const dispName = getPartnerDisplayName(partner);
 
-    // 1. 頂部名片與 4 項名稱獨立展示
-    $('#view-header-id').text(`[${partner.partner_id}]`);
+    $('#view-header-id').text(`[${partner.partner_id} / ${person.person_id}]`);
     $('#view-avatar').attr('src', avatarUrl);
     $('#view-name-title').text(dispName);
-    $('#view-name-display').text(partner.display_name || '—');
-    $('#view-name-zh').text(partner.name_zh || '—');
-    $('#view-name-en').text(partner.name_en || '—');
-    $('#view-name-pref').text(partner.preferred_name || '—');
+    $('#view-name-display').text(person.display_name || '—');
+    $('#view-name-zh').text(person.name_zh || '—');
+    $('#view-name-en').text(person.name_en || '—');
+    $('#view-name-pref').text(person.preferred_name || '—');
 
     $('#view-country-badge').html(getCountryBadge(partner.country_code));
     $('#view-current-rank-badge').html(`<i class="${currentRank.badge_icon_class}"></i> ${currentRank.rank_name_zh}`).css({
@@ -1539,63 +1661,65 @@ window.openPartnerModalForView = function(partnerId) {
         $('#view-leader-title').hide();
     }
 
-    // 2. 個人屬性與組織體系 (分行展示學歷與學校、屬性模式)
-    $('#view-gender-birthday').text(`${gender} ‧ ${detail.birthday || '未填寫生日'}`);
-    $('#view-region').text(detail.primary_region || '未設定');
-    $('#view-education').text(detail.highest_education || '未填寫');
-    $('#view-school').text(detail.graduated_school || '未填寫');
-    $('#view-occupation').text(detail.occupation_type || '未填寫');
-    $('#view-motive').html(detail.joining_motive ? `<span class="badge badge-info-subtle">${detail.joining_motive}</span>` : '<span class="text-secondary">未填寫</span>');
-    $('#view-account-holder-type').text(partner.account_holder_type || '個人經營者');
-    $('#view-operation-mode-text').text(partner.operation_mode || '個人經營');
-    $('#view-node-nature').text(partner.node_nature || '常態夥伴');
-    $('#view-relation-type-text').text(partner.relation_type || '下線');
-    $('#view-mentor').text(partner.known_mentor_id ? `${getPartnerDisplayName(partner.known_mentor_id)} (${partner.known_mentor_id})` : '無特定指派');
+    // 個人自然人畫像
+    $('#view-gender-birthday').text(`${gender} ‧ ${person.birthday || '未填生日'}`);
+    $('#view-nationality-ethnicity').text(`${person.nationality || '台灣'} ‧ ${person.ethnicity || '華人'}`);
+    $('#view-residence').text(`${person.hometown ? person.hometown + ' → ' : ''}${person.current_residence || '未設定'}`);
+    $('#view-education-school').text(`${person.highest_education || '未填'} ${person.graduated_school ? '(' + person.graduated_school + ')' : ''}`);
+    $('#view-occupation').text(person.occupation_background || '未填寫');
+    $('#view-financial-status').text(person.financial_status || '穩定');
+    $('#view-met-info').text(`${person.met_date || '未記錄日期'} ‧ ${person.met_reason || '未備註機緣'}`);
 
-    // 3. 官方營運與會籍時間脈絡
+    // 組織排線
     $('#view-member-no-field').text(partner.member_no || '無會員卡號');
     $('#view-sponsor').text(partner.sponsor_id ? `${getPartnerDisplayName(partner.sponsor_id)} (${partner.sponsor_id})` : '無 (頂層節點)');
-    $('#view-placement').text(partner.placement_id ? `${getPartnerDisplayName(partner.placement_id)} (${partner.placement_id})` : '無 (頂層節點)');
+    $('#view-placement').text(partner.placement_id ? `${getPartnerDisplayName(partner.placement_id)} (${partner.placement_id})` : '無');
+    $('#view-mentor').text(partner.known_mentor_id ? `${getPartnerDisplayName(partner.known_mentor_id)} (${partner.known_mentor_id})` : '無特定指派');
     $('#view-spouse').text(partner.spouse_partner_id ? `${getPartnerDisplayName(partner.spouse_partner_id)} (${partner.spouse_partner_id})` : '無');
-    $('#view-upline-link').text(partner.upline_link_type || '直屬已知');
     $('#view-join-date').text(partner.join_date || '—');
     $('#view-renewal-due-date').text(partner.renewal_due_date || '—');
-    $('#view-last-order-date').text(partner.last_order_date || '—');
-    $('#view-exit-date').text(partner.exit_date || '—');
-    $('#view-is-public').html(detail.is_profile_public === 'Y' ? '<span class="text-success">公開 (Y)</span>' : '<span class="text-secondary">隱藏 (N)</span>');
-    $('#view-is-our-team').html(partner.is_our_team === 'Y' ? '<span class="text-success">⭐️ 直轄團隊</span>' : '<span class="text-secondary">🌐 旁線支援</span>');
 
-    // 4. 通訊與社群管道 (FB/IG 各自分行)
-    $('#view-phone').html(detail.phone_number ? `<a href="tel:${detail.phone_number}" class="text-info text-decoration-none">${detail.phone_number}</a>` : '<span class="text-secondary">未填</span>');
-    $('#view-email').html(partner.auth_email ? `<a href="mailto:${partner.auth_email}" class="text-info text-decoration-none">${partner.auth_email}</a>` : '<span class="text-secondary">未填</span>');
-    $('#view-line-info').text(`${detail.line_user_id || '未設定'} / ${detail.line_id_alias || '未設定'}`);
-    $('#view-whatsapp-info').text(`${detail.whatsapp_id || '未設定'} / ${detail.whatsapp_name || '未設定'}`);
-    $('#view-discord-info').text(`${detail.discord_id || '未設定'} / ${detail.discord_name || '未設定'}`);
+    // 通訊管道
+    $('#view-phone').html(person.phone ? `<a href="tel:${person.phone}" class="text-info text-decoration-none">${person.phone}</a>` : '<span class="text-secondary">未填</span>');
+    $('#view-email').html(person.email ? `<a href="mailto:${person.email}" class="text-info text-decoration-none">${person.email}</a>` : '<span class="text-secondary">未填</span>');
     
-    $('#view-facebook-link').html(detail.facebook_url ? `<a href="${detail.facebook_url}" target="_blank" class="badge badge-info-subtle text-decoration-none"><i class="fa-brands fa-facebook me-1"></i>前往專頁</a>` : '<span class="text-secondary">未提供</span>');
-    $('#view-instagram-link').html(detail.instagram_id ? `<span class="badge badge-purple-subtle"><i class="fa-brands fa-instagram me-1"></i>${detail.instagram_id}</span>` : '<span class="text-secondary">未提供</span>');
-    $('#view-contact-address').text(detail.contact_address || '未填寫');
+    const contacts = personContactsList.filter(c => c.person_id === person.person_id);
+    const lineId = contacts.find(c => c.platform_name === 'LINE' && c.category === 'ID')?.contact_value;
+    const lineName = contacts.find(c => c.platform_name === 'LINE' && c.category === '顯示名稱')?.contact_value;
+    $('#view-line-info').text(`${lineId || '未設'} / ${lineName || '未設'}`);
 
-    // 5. 健康訴求、專長、簡介與備忘
-    $('#view-health-goals').text(detail.health_goals || '暫無個人主要健康調養訴求註記。');
+    const waId = contacts.find(c => c.platform_name === 'WhatsApp' && c.category === 'ID')?.contact_value;
+    const waName = contacts.find(c => c.platform_name === 'WhatsApp' && c.category === '顯示名稱')?.contact_value;
+    $('#view-whatsapp-info').text(`${waId || '未設'} / ${waName || '未設'}`);
 
-    if (detail.team_skills) {
-        const skillsHtml = detail.team_skills.split(',').map(s => `<span class="badge badge-purple-subtle">${s.trim()}</span>`).join(' ');
-        $('#view-skills-tags').html(skillsHtml);
+    const discord = contacts.find(c => c.platform_name === 'Discord')?.contact_value || '未設';
+    const wechat = contacts.find(c => c.platform_name === 'WeChat')?.contact_value || '未設';
+    $('#view-discord-wechat-info').text(`${discord} / ${wechat}`);
+
+    const fbUrl = contacts.find(c => c.platform_name === 'Facebook')?.contact_value;
+    const igId = contacts.find(c => c.platform_name === 'Instagram')?.contact_value;
+    let socialHtml = [];
+    if (fbUrl) socialHtml.push(`<a href="${fbUrl}" target="_blank" class="badge badge-info-subtle text-decoration-none"><i class="fa-brands fa-facebook me-1"></i>FB</a>`);
+    if (igId) socialHtml.push(`<span class="badge badge-purple-subtle"><i class="fa-brands fa-instagram me-1"></i>${igId}</span>`);
+    $('#view-social-links').html(socialHtml.length ? socialHtml.join(' ') : '<span class="text-secondary">未提供</span>');
+    $('#view-contact-address').text(person.contact_address || '未填寫');
+
+    // 專長與備忘
+    if (partner.team_skills) {
+        $('#view-skills-tags').html(partner.team_skills.split(',').map(s => `<span class="badge badge-purple-subtle">${s.trim()}</span>`).join(' '));
     } else {
         $('#view-skills-tags').html('<span class="text-secondary small">無專長標籤</span>');
     }
-
-    $('#view-intro-full').text(detail.intro || '暫無個人願景宣言。');
-    $('#view-tactical-notes').text(detail.tactical_notes || '暫無戰術備忘註記。');
+    $('#view-health-notes').text(person.health_notes || '暫無健康備忘。');
+    $('#view-financial-notes').text(person.financial_notes || '暫無財務備註。');
+    $('#view-team-notes').text(partner.team_notes || '暫無團隊戰術備忘。');
 
     $('#btn-view-to-edit').off('click').on('click', function () {
         bootstrap.Modal.getInstance(document.getElementById('partnerViewModal'))?.hide();
         setTimeout(() => { openPartnerModalForEdit(partnerId); }, 250);
     });
 
-    const modalEl = document.getElementById('partnerViewModal');
-    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('partnerViewModal')).show();
 };
 
 // ============================================================================
@@ -1609,86 +1733,95 @@ function getFormTrimVal(selector, defaultVal = '') {
 async function savePartnerRecord(e) {
     e.preventDefault();
     const mode = $('#form-mode').val();
+    const personId = getFormTrimVal('#form-person-id');
     const partnerId = getFormTrimVal('#form-partner-id');
-    if (!partnerId) {
-        AppToast.warning('夥伴系統唯一識別碼為必填欄位！');
+
+    if (!personId || !partnerId) {
+        AppToast.warning('個人識別碼 (person_id) 與夥伴代碼 (partner_id) 為必填欄位！');
         return;
     }
 
     const currentUser = getCurrentUser();
     const nowStr = getFormattedNow();
+    const existingPerson = personMasterList.find(p => p.person_id === personId);
     const existingPartner = partnersList.find(p => p.partner_id === partnerId);
-    const createdBy = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_by : currentUser;
-    const createdAt = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_at : nowStr;
 
-    // 1. 夥伴主檔 (org_partners) 35 欄位陣列
-    const partnerRowArray = [
-        partnerId,                                              // 0. partner_id
-        getFormTrimVal('#form-member-no'),                      // 1. member_no
-        getFormTrimVal('#form-auth-email'),                     // 2. auth_email
-        getFormTrimVal('#form-name-zh'),                        // 3. name_zh
-        getFormTrimVal('#form-name-en'),                        // 4. name_en
-        getFormTrimVal('#form-preferred-name'),                 // 5. preferred_name
-        getFormTrimVal('#form-display-name'),                   // 6. display_name
-        getFormTrimVal('#form-leader-title'),                   // 7. leader_title
-        getFormTrimVal('#form-account-holder-type', '個人經營者'), // 8. account_holder_type
-        partnerId,                                              // 9. official_account_partner_id
-        getFormTrimVal('#form-operation-mode', '個人經營'),       // 10. operation_mode
-        getFormTrimVal('#form-spouse-partner-id'),              // 11. spouse_partner_id
-        getFormTrimVal('#form-node-nature', '常態夥伴'),          // 12. node_nature
-        getFormTrimVal('#form-activity-level'),                 // 13. activity_level
-        getFormTrimVal('#form-member-status'),                  // 14. member_status
-        'Y',                                                    // 15. is_info_complete
-        getFormTrimVal('#form-sponsor-id'),                     // 16. sponsor_id
-        getFormTrimVal('#form-placement-id'),                   // 17. placement_id
-        getFormTrimVal('#form-known-mentor-id'),                // 18. known_mentor_id
-        getFormTrimVal('#form-upline-link-type', '直屬已知'),     // 19. upline_link_type
-        getFormTrimVal('#form-current-rank-id'),                // 20. current_rank_id
-        getFormTrimVal('#form-highest-rank-id'),                // 21. highest_rank_id
-        getFormTrimVal('#form-country-code', 'TW'),             // 22. country_code
-        getFormTrimVal('#form-is-our-team', 'Y'),               // 23. is_our_team
-        getFormTrimVal('#form-relation-type', '下線'),           // 24. relation_type
-        getFormTrimVal('#form-operator-status'),                // 25. operator_status
-        getFormTrimVal('#form-join-date'),                      // 26. join_date
-        getFormTrimVal('#form-renewal-due-date'),               // 27. renewal_due_date
-        '',                                                     // 28. last_order_date
-        '',                                                     // 29. exit_date
-        getFormTrimVal('#form-avatar-url'),                     // 30. avatar_url
-        createdBy,                                              // 31. created_by
-        createdAt,                                              // 32. created_at
-        currentUser,                                            // 33. modified_by
-        nowStr                                                  // 34. modified_at
+    const personCreatedBy = (mode === 'UPDATE' && existingPerson) ? existingPerson.created_by : currentUser;
+    const personCreatedAt = (mode === 'UPDATE' && existingPerson) ? existingPerson.created_at : nowStr;
+    const partnerCreatedBy = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_by : currentUser;
+    const partnerCreatedAt = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_at : nowStr;
+
+    // 1. 個人主檔 (org_person_master) 31 欄位
+    const personRowArray = [
+        personId,
+        getFormTrimVal('#form-name-zh'),
+        getFormTrimVal('#form-name-en'),
+        getFormTrimVal('#form-preferred-name'),
+        getFormTrimVal('#form-display-name'),
+        getFormTrimVal('#form-identity-type', '夥伴'),
+        getFormTrimVal('#form-usage-identity', '消費者'),
+        getFormTrimVal('#form-gender', '男'),
+        getFormTrimVal('#form-birthday'),
+        getFormTrimVal('#form-nationality', '台灣'),
+        getFormTrimVal('#form-ethnicity', '華人'),
+        getFormTrimVal('#form-hometown'),
+        getFormTrimVal('#form-current-residence'),
+        getFormTrimVal('#form-phone'),
+        getFormTrimVal('#form-email'),
+        getFormTrimVal('#form-contact-address'),
+        getFormTrimVal('#form-met-date'),
+        getFormTrimVal('#form-met-reason'),
+        getFormTrimVal('#form-highest-education'),
+        getFormTrimVal('#form-graduated-school'),
+        getFormTrimVal('#form-occupation-background'),
+        getFormTrimVal('#form-health-status', '良好'),
+        getFormTrimVal('#form-financial-status', '穩定'),
+        getFormTrimVal('#form-avatar-url'),
+        getFormTrimVal('#form-career-education-notes'),
+        getFormTrimVal('#form-health-notes'),
+        getFormTrimVal('#form-financial-notes'),
+        getFormTrimVal('#form-consumption-notes'),
+        personCreatedBy,
+        personCreatedAt,
+        currentUser,
+        nowStr
     ];
 
-    // 2. 夥伴詳細資料 (org_partner_details) 27 欄位陣列
-    const detailsRowArray = [
-        partnerId,                                              // 0. partner_id
-        getFormTrimVal('#form-gender', '男'),                    // 1. gender
-        getFormTrimVal('#form-birthday'),                       // 2. birthday
-        getFormTrimVal('#form-phone-number'),                   // 3. phone_number
-        getFormTrimVal('#form-whatsapp-id'),                    // 4. whatsapp_id
-        getFormTrimVal('#form-whatsapp-name'),                  // 5. whatsapp_name
-        getFormTrimVal('#form-discord-id'),                     // 6. discord_id
-        getFormTrimVal('#form-discord-name'),                   // 7. discord_name
-        getFormTrimVal('#form-line-user-id'),                   // 8. line_user_id
-        getFormTrimVal('#form-line-id-alias'),                  // 9. line_id_alias
-        getFormTrimVal('#form-facebook-url'),                   // 10. facebook_url
-        getFormTrimVal('#form-instagram-id'),                   // 11. instagram_id
-        getFormTrimVal('#form-primary-region'),                 // 12. primary_region
-        getFormTrimVal('#form-contact-address'),                // 13. contact_address
-        getFormTrimVal('#form-occupation-type'),                // 14. occupation_type
-        getFormTrimVal('#form-highest-education'),              // 15. highest_education
-        getFormTrimVal('#form-graduated-school'),               // 16. graduated_school
-        getFormTrimVal('#form-joining-motive'),                 // 17. joining_motive
-        getFormTrimVal('#form-health-goals'),                   // 18. health_goals
-        getFormTrimVal('#form-team-skills'),                    // 19. team_skills
-        getFormTrimVal('#form-intro'),                          // 20. intro
-        getFormTrimVal('#form-tactical-notes'),                 // 21. tactical_notes
-        getFormTrimVal('#form-is-profile-public', 'Y'),          // 22. is_profile_public
-        createdBy,                                              // 23. created_by
-        createdAt,                                              // 24. created_at
-        currentUser,                                            // 25. modified_by
-        nowStr                                                  // 26. modified_at
+    // 2. 夥伴主檔 (org_partners) 33 欄位
+    const partnerRowArray = [
+        partnerId,
+        personId,
+        getFormTrimVal('#form-member-no'),
+        getFormTrimVal('#form-leader-title'),
+        getFormTrimVal('#form-account-holder-type', '個人經營者'),
+        getFormTrimVal('#form-account-holder-type') === '共同經營者' ? getFormTrimVal('#form-spouse-partner-id') : partnerId,
+        getFormTrimVal('#form-operation-mode', '個人經營'),
+        getFormTrimVal('#form-spouse-partner-id'),
+        getFormTrimVal('#form-node-nature', '常態夥伴'),
+        getFormTrimVal('#form-sponsor-id'),
+        getFormTrimVal('#form-placement-id'),
+        getFormTrimVal('#form-known-mentor-id'),
+        getFormTrimVal('#form-upline-link-type', '直屬已知'),
+        getFormTrimVal('#form-current-rank-id'),
+        getFormTrimVal('#form-highest-rank-id'),
+        getFormTrimVal('#form-country-code', 'TW'),
+        getFormTrimVal('#form-is-our-team', 'Y'),
+        getFormTrimVal('#form-relation-type', '下線'),
+        getFormTrimVal('#form-activity-level'),
+        getFormTrimVal('#form-member-status'),
+        getFormTrimVal('#form-operator-status'),
+        getFormTrimVal('#form-joining-motive', 'PART_TIME'),
+        getFormTrimVal('#form-team-skills'),
+        getFormTrimVal('#form-team-notes'),
+        getFormTrimVal('#form-join-date'),
+        getFormTrimVal('#form-renewal-due-date'),
+        getFormTrimVal('#form-last-order-date'),
+        getFormTrimVal('#form-exit-date'),
+        getFormTrimVal('#form-avatar-url'),
+        partnerCreatedBy,
+        partnerCreatedAt,
+        currentUser,
+        nowStr
     ];
 
     const btnSubmit = $('#form-submit-btn');
@@ -1696,24 +1829,20 @@ async function savePartnerRecord(e) {
         btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
 
         if (mode === 'CREATE') {
+            await SheetAdapter.createRow('個人主檔', personId, personRowArray);
             await SheetAdapter.createRow('夥伴主檔', partnerId, partnerRowArray);
-            await SheetAdapter.createRow('夥伴詳細資料', partnerId, detailsRowArray).catch(() => {});
         } else {
+            await SheetAdapter.updateRow('個人主檔', personId, personRowArray);
             await SheetAdapter.updateRow('夥伴主檔', partnerId, partnerRowArray);
-            await SheetAdapter.updateRow('夥伴詳細資料', partnerId, detailsRowArray).catch(() => {});
         }
 
-        const modalEl = document.getElementById('partnerDetailModal');
-        if (modalEl) {
-            bootstrap.Modal.getInstance(modalEl)?.hide();
-        }
-
-        AppToast.success(`夥伴【${partnerId}】檔案已成功儲存至 Google 試算表！`);
+        bootstrap.Modal.getInstance(document.getElementById('partnerDetailModal'))?.hide();
+        AppToast.success(`成員【${getFormTrimVal('#form-name-zh')}】檔案已成功儲存至雲端！`);
         await fetchGoogleSheetsData();
     } catch (err) {
         AppToast.error('寫入試算表失敗: ' + err.message);
     } finally {
-        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存寫入');
     }
 }
 
@@ -1744,16 +1873,15 @@ async function saveBatchPartners() {
             item.modified_at = nowStr;
 
             const partnerRowArray = [
-                item.partner_id, item.member_no, item.auth_email, item.name_zh, item.name_en,
-                item.preferred_name, item.display_name, item.leader_title, item.account_holder_type,
-                item.official_account_partner_id || item.partner_id, item.operation_mode,
-                item.spouse_partner_id, item.node_nature, item.activity_level, item.member_status,
-                item.is_info_complete || 'Y', item.sponsor_id, item.placement_id, item.known_mentor_id,
-                item.upline_link_type, item.current_rank_id, item.highest_rank_id, item.country_code,
-                item.is_our_team, item.relation_type, item.operator_status, item.join_date,
-                item.renewal_due_date, item.last_order_date || '', item.exit_date || '',
-                item.avatar_url || '', item.created_by || currentUser, item.created_at || nowStr,
-                item.modified_by, item.modified_at
+                item.partner_id, item.person_id, item.member_no, item.leader_title,
+                item.account_holder_type, item.official_account_partner_id || item.partner_id,
+                item.operation_mode, item.spouse_partner_id, item.node_nature, item.sponsor_id,
+                item.placement_id, item.known_mentor_id, item.upline_link_type, item.current_rank_id,
+                item.highest_rank_id, item.country_code, item.is_our_team, item.relation_type,
+                item.activity_level, item.member_status, item.operator_status, item.joining_motive,
+                item.team_skills, item.team_notes, item.join_date, item.renewal_due_date,
+                item.last_order_date || '', item.exit_date || '', item.avatar_url || '',
+                item.created_by || currentUser, item.created_at || nowStr, item.modified_by, item.modified_at
             ];
 
             updatePromises.push(SheetAdapter.updateRow('夥伴主檔', item.partner_id, partnerRowArray));
@@ -1771,14 +1899,19 @@ async function saveBatchPartners() {
 }
 
 window.deletePartnerRecord = function (partnerId) {
+    const partner = partnersList.find(p => p.partner_id === partnerId);
+    const personId = partner ? partner.person_id : null;
+
     AppDialog.confirm(
-        `確定要自雲端試算表中刪除夥伴【${partnerId}】之主檔與詳細資料嗎？`,
+        `確定要自雲端試算表中刪除夥伴【${partnerId}】之組織主檔與個人資料嗎？`,
         async function () {
             AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger"></i> 正在刪除檔案...', '雲端同步處理');
             try {
                 await SheetAdapter.deleteRow('夥伴主檔', partnerId);
-                await SheetAdapter.deleteRow('夥伴詳細資料', partnerId).catch(() => {});
-                AppToast.success(`夥伴【${partnerId}】已成功移除！`);
+                if (personId) {
+                    await SheetAdapter.deleteRow('個人主檔', personId).catch(() => {});
+                }
+                AppToast.success(`成員【${partnerId}】已成功移除！`);
                 await fetchGoogleSheetsData();
             } catch (err) {
                 AppToast.error('刪除失敗: ' + err.message);
