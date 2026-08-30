@@ -293,9 +293,10 @@
                 <div id="container-tree-view" class="d-none">
                     <article class="glass-panel p-3">
                         <header class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-25">
-                            <div class="d-flex align-items-center gap-2">
+                            <!-- 左側標題與縮放控制器 -->
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <h5 class="mb-0 fw-bold text-white"><i class="fa-solid fa-network-wired text-primary"></i> 組織拓撲結構圖</h5>
-                                <div class="btn-group btn-group-sm ms-2" role="group">
+                                <div class="btn-group btn-group-sm ms-md-2" role="group">
                                     <button type="button" class="btn btn-outline-secondary" onclick="zoomOrgChart(0.1)" title="放大">
                                         <i class="fa-solid fa-magnifying-glass-plus"></i>
                                     </button>
@@ -310,12 +311,31 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="d-flex flex-wrap gap-2 small">
-                                <span class="tree-legend-chip legend-core"><i class="fa-solid fa-square text-purple"></i> 核心成員</span>
-                                <span class="tree-legend-chip legend-upline"><i class="fa-solid fa-square text-success"></i> 上線</span>
-                                <span class="tree-legend-chip legend-cross"><i class="fa-solid fa-square text-warning"></i> 旁線</span>
-                                <span class="tree-legend-chip legend-downline"><i class="fa-solid fa-square text-info"></i> 下線</span>
-                                <span class="tree-legend-chip"><i class="fa-solid fa-ellipsis text-secondary"></i> 虛線: 中間未知</span>
+
+                            <!-- 右側戰術控制群組：根節點選擇 + 線路模式切換（已移除圖例標籤） -->
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <!-- 自訂根節點 Select2 下拉選單 -->
+                                <div class="tree-root-selector-wrap" style="width: 220px;">
+                                    <select class="form-select form-select-sm select2-tree-root" id="select-tree-root"></select>
+                                </div>
+
+                                <!-- 三軌線路切換器 (預設：安置線) -->
+                                <div class="btn-group btn-group-sm bg-black bg-opacity-40 border border-secondary border-opacity-25 rounded-pill p-1" role="group" id="tree-line-mode-group">
+                                    <input type="radio" class="btn-check" name="treeLineMode" id="line-mode-placement" value="placement" autocomplete="off" checked>
+                                    <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="line-mode-placement">
+                                        <i class="fa-solid fa-sitemap"></i> 安置線
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="treeLineMode" id="line-mode-sponsor" value="sponsor" autocomplete="off">
+                                    <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="line-mode-sponsor">
+                                        <i class="fa-solid fa-people-arrows"></i> 推薦線
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="treeLineMode" id="line-mode-mentor" value="mentor" autocomplete="off">
+                                    <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="line-mode-mentor">
+                                        <i class="fa-solid fa-person-chalkboard"></i> 輔導線
+                                    </label>
+                                </div>
                             </div>
                         </header>
 

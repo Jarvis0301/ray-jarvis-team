@@ -1,6 +1,10 @@
 /* ==========================================================================
-   組織成員模組專屬樣式 (org-partners.css)
+   榮祥團隊戰術控制台 - 組織成員與拓撲結構樣式庫 (org-partners.css)
    ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 頂部戰術指揮 HUD 數據膠囊 (Command & Filter HUD)
+   -------------------------------------------------------------------------- */
 .stat-chip {
     background: rgba(139, 92, 246, 0.08);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
@@ -10,14 +14,52 @@
     align-items: center;
     gap: 0.75rem;
     transition: all 0.25s ease;
+
+    &:hover {
+        border-color: var(--uvaco-primary, #8b5cf6);
+        background: rgba(139, 92, 246, 0.15);
+        transform: translateY(-2px);
+    }
 }
 
-.stat-chip:hover {
-    border-color: var(--uvaco-primary, #8b5cf6);
-    background: rgba(139, 92, 246, 0.15);
-    transform: translateY(-2px);
+/* --------------------------------------------------------------------------
+   2. 戰術控制列與 Select2 根節點搜尋器
+   -------------------------------------------------------------------------- */
+.tree-root-selector-wrap {
+    width: 220px;
+    max-width: 240px;
+    flex-shrink: 0;
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-selection--single {
+        height: 31px !important;
+        padding: 2px 8px !important;
+        background-color: rgba(0, 0, 0, 0.45) !important;
+        border: 1px solid rgba(139, 92, 246, 0.3) !important;
+        border-radius: 9999px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .select2-selection__rendered {
+        color: #ffffff !important;
+        font-size: 0.82rem !important;
+        line-height: 25px !important;
+        padding-left: 4px !important;
+    }
+
+    .select2-selection__arrow {
+        height: 29px !important;
+        right: 6px !important;
+    }
 }
 
+/* --------------------------------------------------------------------------
+   3. 夥伴卡片視圖 (Partner Cards View)
+   -------------------------------------------------------------------------- */
 .partner-card {
     background: var(--uvaco-bg-card, #191233);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
@@ -29,58 +71,58 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
 
-.partner-card:hover {
-    border-color: var(--uvaco-border-bright, rgba(139, 92, 246, 0.45));
-    background: #211842;
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2);
-}
+    &:hover {
+        border-color: var(--uvaco-border-bright, rgba(139, 92, 246, 0.45));
+        background: #211842;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2);
+    }
 
-.partner-card.is-core { border-left: 4px solid var(--uvaco-primary, #8b5cf6); }
-.partner-card.is-cross { border-left: 4px solid var(--uvaco-text-muted, #94a3b8); opacity: 0.88; }
+    &.is-core {
+        border-left: 4px solid var(--uvaco-primary, #8b5cf6);
+    }
+
+    &.is-cross {
+        border-left: 4px solid var(--uvaco-text-muted, #94a3b8);
+        opacity: 0.88;
+    }
+}
 
 .partner-avatar-wrap {
     position: relative;
     width: 58px;
     height: 58px;
     flex-shrink: 0;
+
+    .partner-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--uvaco-primary, #8b5cf6);
+        background: #2d1f47;
+    }
+
+    .rank-badge-floating {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.15rem 0.45rem;
+        border-radius: 9999px;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    }
 }
 
-.partner-avatar {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--uvaco-primary, #8b5cf6);
-    background: #2d1f47;
-}
-
-.rank-badge-floating {
-    position: absolute;
-    bottom: -4px;
-    right: -4px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.15rem 0.45rem;
-    border-radius: 9999px;
-    white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-}
-
-.tree-legend-chip {
-    background: rgba(25, 18, 51, 0.7);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: 9999px;
-    padding: 0.2rem 0.65rem;
-    color: var(--uvaco-text-muted, #94a3b8);
-}
-
-/* 組織拓撲圖視圖樣式 */
+/* --------------------------------------------------------------------------
+   4. 組織拓撲樹狀圖畫布與多樹森林 (Org Chart Canvas & Forest)
+   -------------------------------------------------------------------------- */
 .org-chart-viewport {
     width: 100%;
-    max-height: 75vh;
+    max-height: 65vh;
     overflow-x: auto;
     overflow-y: auto;
     padding: 2.5rem 1.5rem;
@@ -88,6 +130,17 @@
     border-radius: var(--uvaco-border-radius-lg, 20px);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
     position: relative;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
+    &.is-dragging {
+        cursor: grabbing !important;
+    }
 }
 
 .org-chart-root {
@@ -99,7 +152,26 @@
     padding-bottom: 2rem;
 }
 
-.org-tree, .org-tree ul {
+.org-forest-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3.5rem;
+    min-width: max-content;
+}
+
+.org-tree-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   5. 拓撲結構連接線幾何引擎 (全路徑動態虛實線路)
+   -------------------------------------------------------------------------- */
+.org-tree, 
+.org-tree ul {
     display: flex;
     justify-content: center;
     padding-top: 24px;
@@ -109,70 +181,191 @@
     list-style-type: none;
 }
 
-.org-tree li {
-    float: left;
-    text-align: center;
-    list-style-type: none;
-    position: relative;
-    padding: 24px 12px 0 12px;
-}
-
-.org-tree li::before, .org-tree li::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 50%;
-    border-top: 2px solid rgba(139, 92, 246, 0.4);
-    width: 50%;
-    height: 24px;
-}
-
-.org-tree li::after {
-    right: auto;
-    left: 50%;
-    border-left: 2px solid rgba(139, 92, 246, 0.4);
-}
-
-.org-tree li:only-child::after, .org-tree li:only-child::before { display: none; }
-.org-tree li:only-child { padding-top: 0; }
-.org-tree li:first-child::before, .org-tree li:last-child::after { border: 0 none; }
-.org-tree li:last-child::before {
-    border-right: 2px solid rgba(139, 92, 246, 0.4);
-    border-radius: 0 8px 0 0;
-}
-.org-tree li:first-child::after { border-radius: 8px 0 0 0; }
-
-.org-tree ul::before {
+/* 父節點向下實線主幹 (存在已知直屬下線時) */
+.org-tree ul.trunk-solid::before,
+.org-tree ul:not(.trunk-dashed)::before {
     content: '';
     position: absolute;
     top: 0;
     left: 50%;
-    border-left: 2px solid rgba(139, 92, 246, 0.4);
+    border-left: 2px solid rgba(139, 92, 246, 0.45);
     width: 0;
     height: 24px;
+    transform: translateX(-50%);
+    z-index: 1;
 }
 
-/* 中間未知：點狀虛線且設為 secondary 灰階顏色 */
-.org-tree li.link-unknown::before,
-.org-tree li.link-unknown::after {
-    border-top: 2px dotted rgba(148, 163, 184, 0.6) !important;
-    border-left: 2px dotted rgba(148, 163, 184, 0.6) !important;
-}
-
-.org-tree li.link-unknown::before {
-    border-right: 2px dotted rgba(148, 163, 184, 0.6) !important;
-}
-
-.org-tree li.link-unknown > .org-node-wrapper::before {
+/* 父節點向下虛線主幹 (當傘下全為未知斷層時) */
+.org-tree ul.trunk-dashed::before {
     content: '';
     position: absolute;
-    top: -24px;
+    top: 0;
     left: 50%;
-    border-left: 2px dotted rgba(148, 163, 184, 0.6);
+    border-left: 2px dashed rgba(148, 163, 184, 0.85);
+    width: 0;
     height: 24px;
+    transform: translateX(-50%);
+    z-index: 1;
 }
 
-/* 節點卡片 (單人與夫妻合一雙欄) */
+/* 子節點容器基礎 */
+.org-tree li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 24px 12px 0 12px;
+    list-style-type: none;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 24px;
+    }
+
+    &::before {
+        left: 0;
+    }
+
+    &::after {
+        right: 0;
+    }
+}
+
+/* 頂層根節點：清除所有向上垂直引線與頂部間距 */
+.org-tree > li {
+    padding-top: 0 !important;
+
+    &::before,
+    &::after,
+    & > .org-node-wrapper::before,
+    & > .org-gap-badge {
+        display: none !important;
+    }
+}
+
+/* 直屬已知子節點 (實線水平桿與實線垂直落線) */
+.org-tree li.link-direct {
+    &::before {
+        border-top: 2px solid rgba(139, 92, 246, 0.45);
+    }
+
+    &::after {
+        border-top: 2px solid rgba(139, 92, 246, 0.45);
+        border-left: 2px solid rgba(139, 92, 246, 0.45);
+    }
+}
+
+/* 中間未知斷層子節點 (虛線水平桿與虛線垂直落線) */
+.org-tree li.link-unknown {
+    padding-top: 50px !important;
+
+    &::before {
+        border-top: 2px dashed rgba(148, 163, 184, 0.85) !important;
+        height: 50px;
+    }
+
+    &::after {
+        border-top: 2px dashed rgba(148, 163, 184, 0.85) !important;
+        border-left: 2px dashed rgba(148, 163, 184, 0.85) !important;
+        height: 50px;
+    }
+}
+
+/* 邊緣子節點橫線防凸出處理 */
+.org-tree li:first-child:not(:only-child) {
+    &::before {
+        display: none !important;
+    }
+
+    &.link-direct::after,
+    &.link-unknown::after {
+        border-top-left-radius: 8px;
+    }
+}
+
+.org-tree li:last-child:not(:only-child) {
+    &::after {
+        border-top: 0 none !important;
+    }
+
+    &.link-direct::before,
+    &.link-unknown::before {
+        border-top-right-radius: 8px;
+    }
+}
+
+/* 唯一子節點處理 */
+.org-tree li:only-child {
+    padding-top: 24px;
+
+    &::before,
+    &::after {
+        display: none !important;
+    }
+
+    /* 唯一已知直屬子節點垂直貫穿實線 */
+    &.link-direct > .org-node-wrapper::before {
+        content: '';
+        position: absolute;
+        top: -24px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 2px solid rgba(139, 92, 246, 0.45);
+        height: 24px;
+        z-index: 1;
+    }
+
+    /* 唯一未知斷層子節點垂直貫穿虛線 */
+    &.link-unknown {
+        padding-top: 50px !important;
+
+        & > .org-node-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 2px dashed rgba(148, 163, 184, 0.85) !important;
+            height: 26px;
+            z-index: 1;
+        }
+    }
+}
+
+/* 斷層提示標籤 */
+.org-gap-badge {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 16, 48, 0.95);
+    border: 1px dashed rgba(245, 158, 11, 0.85);
+    color: #fbbf24;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 9999px;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. 節點卡片 (單人卡片與夫妻雙核雙欄卡片)
+   -------------------------------------------------------------------------- */
+.org-node-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
 .org-node-card {
     background: var(--uvaco-bg-card, #191233);
     border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
@@ -186,27 +379,41 @@
     text-align: left;
     position: relative;
     z-index: 2;
-}
 
-.org-node-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--uvaco-primary, #8b5cf6);
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
-}
+    &:hover {
+        transform: translateY(-3px);
+        border-color: var(--uvaco-primary, #8b5cf6);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+    }
 
-.org-node-card.border-purple { border-top: 4px solid #8b5cf6; }
-.org-node-card.border-green { border-top: 4px solid #10b981; }
-.org-node-card.border-orange { border-top: 4px solid #f59e0b; }
-.org-node-card.border-blue { border-top: 4px solid #38bdf8; }
+    /* 關係屬性頂部邊框指示色 */
+    &.border-purple { border-top: 4px solid #8b5cf6; }
+    &.border-green  { border-top: 4px solid #10b981; }
+    &.border-orange { border-top: 4px solid #f59e0b; }
+    &.border-blue   { border-top: 4px solid #38bdf8; }
+    &.border-gray   { border-top: 4px solid #64748b; }
 
-.org-node-card.org-couple-card {
-    min-width: 440px;
-    max-width: 480px;
-    display: inline-flex;
-    flex-direction: row;
-    align-items: stretch;
-    padding: 0.85rem;
-    gap: 0;
+    /* 低參與度、自用消費、操作人頭、失聯節點弱化 */
+    &.node-activity-muted {
+        opacity: 0.78;
+        background: rgba(18, 14, 34, 0.7);
+        border-color: rgba(148, 163, 184, 0.25);
+
+        .partner-avatar {
+            filter: grayscale(0.4);
+        }
+    }
+
+    /* 夫妻雙核經營權卡片 */
+    &.org-couple-card {
+        min-width: 460px;
+        max-width: 500px;
+        display: inline-flex;
+        flex-direction: row;
+        align-items: stretch;
+        padding: 0.85rem;
+        gap: 0;
+    }
 }
 
 .org-couple-col {
@@ -221,46 +428,75 @@
     position: relative;
 }
 
+/* 查看檔案按鈕 (與組織關係標籤同列靠右) */
 .org-card-view-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
     color: var(--uvaco-text-muted, #94a3b8);
-    font-size: 0.85rem;
-    padding: 2px 6px;
-    border-radius: 6px;
+    font-size: 0.78rem;
+    padding: 2px 5px;
+    border-radius: 4px;
     transition: all 0.2s;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 5;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+
+    &:hover {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.2);
+        border-color: rgba(56, 189, 248, 0.5);
+    }
 }
 
-.org-card-view-btn:hover {
-    color: #38bdf8;
-    background: rgba(56, 189, 248, 0.15);
-    border-color: rgba(56, 189, 248, 0.4);
+/* --------------------------------------------------------------------------
+   7. 篩選聯動高亮與弱化特效 (Filter Match & Dimming)
+   -------------------------------------------------------------------------- */
+.org-node-card.tree-node-matched {
+    border-color: var(--uvaco-primary, #8b5cf6) !important;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 10px rgba(56, 189, 248, 0.4) !important;
+    transform: translateY(-4px) scale(1.02);
 }
 
-/* 表單分頁導航與履歷卡片 */
+.org-node-card.tree-node-dimmed {
+    opacity: 0.28 !important;
+    filter: grayscale(0.85) blur(0.5px);
+    transition: all 0.3s ease;
+
+    &:hover {
+        opacity: 0.9 !important;
+        filter: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   8. 夥伴 360° 檔案編輯器與全景戰術視窗 (Modal & Dossier)
+   -------------------------------------------------------------------------- */
 .form-tabs-mobile-nav {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
     gap: 0.35rem;
-}
-.form-tabs-mobile-nav::-webkit-scrollbar { display: none; }
-.form-tabs-mobile-nav .nav-link {
-    font-size: 0.84rem;
-    padding: 0.4rem 0.85rem;
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    color: var(--uvaco-text-muted, #94a3b8);
-}
-.form-tabs-mobile-nav .nav-link.active {
-    background: var(--uvaco-primary, #8b5cf6);
-    color: #fff;
-    border-color: var(--uvaco-primary, #8b5cf6);
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-link {
+        font-size: 0.84rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
+        color: var(--uvaco-text-muted, #94a3b8);
+
+        &.active {
+            background: var(--uvaco-primary, #8b5cf6);
+            color: #fff;
+            border-color: var(--uvaco-primary, #8b5cf6);
+        }
+    }
 }
 
 .dossier-hero-card {
@@ -300,6 +536,9 @@
     min-height: 2.2rem;
 }
 
+/* --------------------------------------------------------------------------
+   9. 動態子表格與批次維護視圖 (DataTables & Batch Editor)
+   -------------------------------------------------------------------------- */
 .table-dynamic-action-btn {
     padding: 0.2rem 0.45rem;
     font-size: 0.78rem;
@@ -311,4 +550,37 @@
     top: 0;
     z-index: 2;
     background-color: var(--uvaco-bg-surface, #1a122d);
+}
+
+@media (max-width: 768px) {
+    /* 組織拓撲頂部工具列：手機端滿版分行排布 */
+    #container-tree-view header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    #container-tree-view header > div {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* 根節點選擇器與線路切換按鈕在手機端自適應滿版 */
+    .tree-root-selector-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    #tree-line-mode-group {
+        width: 100%;
+        display: flex;
+    }
+    #tree-line-mode-group .btn {
+        flex: 1;
+        text-align: center;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        font-size: 0.76rem;
+    }
+
 }
