@@ -635,27 +635,27 @@
                             <ul class="nav nav-pills nav-fill nav-pills-tactical form-tabs-mobile-nav flex-nowrap" id="partnerEditTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active text-nowrap" id="tab-btn-person" data-bs-toggle="tab" data-bs-target="#tab-pane-person" type="button" role="tab">
-                                        <i class="fa-solid fa-user me-1"></i> 1. 個人主檔 (Master)
+                                        <i class="fa-solid fa-user me-1"></i> 1. 個人基本主檔
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link text-nowrap" id="tab-btn-org" data-bs-toggle="tab" data-bs-target="#tab-pane-org" type="button" role="tab">
-                                        <i class="fa-solid fa-sitemap me-1"></i> 2. 夥伴組織 (Org)
+                                        <i class="fa-solid fa-sitemap me-1"></i> 2. 組織排線與職級
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link text-nowrap" id="tab-btn-contacts" data-bs-toggle="tab" data-bs-target="#tab-pane-contacts" type="button" role="tab">
-                                        <i class="fa-solid fa-address-book me-1"></i> 3. 通訊與社群 (Contacts)
+                                        <i class="fa-solid fa-address-book me-1"></i> 3. 多管道通訊資料
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link text-nowrap" id="tab-btn-languages" data-bs-toggle="tab" data-bs-target="#tab-pane-languages" type="button" role="tab">
-                                        <i class="fa-solid fa-language me-1"></i> 4. 語言矩陣 (Languages)
+                                        <i class="fa-solid fa-language me-1"></i> 4. 語言溝通矩陣
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link text-nowrap" id="tab-btn-notes" data-bs-toggle="tab" data-bs-target="#tab-pane-notes" type="button" role="tab">
-                                        <i class="fa-solid fa-clipboard-list me-1"></i> 5. 備忘註記 (Notes)
+                                        <i class="fa-solid fa-clipboard-list me-1"></i> 5. 願景背景與備忘
                                     </button>
                                 </li>
                             </ul>
@@ -667,20 +667,20 @@
                             <input type="hidden" id="form-mode" value="CREATE">
 
                             <div class="tab-content" id="partnerEditTabContent">
-                                <!-- 分頁 1：個人主檔 (org_person_master) -->
+                                <!-- 分頁 1：個人主檔 (ID 無預設值，完全開放自由異動) -->
                                 <div class="tab-pane fade show active" id="tab-pane-person" role="tabpanel">
                                     <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-black bg-opacity-30 rounded-3 border border-secondary border-opacity-25">
                                         <img src="" id="form-preview-avatar" class="rounded-circle border border-primary" width="64" height="64" alt="頭像">
                                         <div class="flex-grow-1">
-                                            <label class="text-secondary small">個人頭像自訂網址 (留空自動採用性別預設圖像)</label>
+                                            <label class="text-secondary small">個人頭像圖片網址 (留空自動採用性別預設圖像)</label>
                                             <input type="url" class="form-control form-control-sm" id="form-avatar-url" placeholder="https://...">
                                         </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">個人唯一識別碼 (person_id) *</label>
-                                            <input type="text" class="form-control font-monospace" id="form-person-id" required placeholder="如：PSN-0001">
+                                            <label class="form-label">個人識別碼 (person_id) *</label>
+                                            <input type="text" class="form-control font-monospace" id="form-person-id" required placeholder="如：PSN-0001 (自行輸入)">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">中文真實姓名 *</label>
@@ -698,8 +698,8 @@
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">前端展示名稱 (個資隱私)</label>
-                                            <input type="text" class="form-control" id="form-display-name" placeholder="對外展示稱呼">
+                                            <label class="form-label">前端展示名稱 (保護個資)</label>
+                                            <input type="text" class="form-control" id="form-display-name" placeholder="對外展示用暱稱">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">身份類型 *</label>
@@ -789,33 +789,33 @@
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">現居住地 / 行政區</label>
                                             <select class="form-select select2-region-search" id="form-current-residence">
-                                                <option value="">請選擇或搜尋居住地...</option>
+                                                <option value="">請選擇居住地...</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-6">
                                             <label class="form-label">主要通訊 / 寄件詳細地址</label>
-                                            <input type="text" class="form-control" id="form-contact-address" placeholder="郵遞區號與詳細收件地址">
+                                            <input type="text" class="form-control" id="form-contact-address" placeholder="詳細收件地址">
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">認識時間 (首次接觸)</label>
+                                            <label class="form-label">認識時間</label>
                                             <input type="date" class="form-control" id="form-met-date">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-9">
                                             <label class="form-label">認識原因 / 機緣</label>
-                                            <input type="text" class="form-control" id="form-met-reason" placeholder="如：高中同學、舊同事介紹、社群陌開">
+                                            <input type="text" class="form-control" id="form-met-reason" placeholder="如：舊同事介紹、社群陌開">
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 分頁 2：夥伴組織與排線 (org_partners) -->
+                                <!-- 分頁 2：夥伴組織與排線 (ID 無預設值，完全開放自由異動) -->
                                 <div class="tab-pane fade" id="tab-pane-org" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">夥伴唯一識別碼 (partner_id) *</label>
-                                            <input type="text" class="form-control font-monospace" id="form-partner-id" required placeholder="如：PTN-TW-001">
+                                            <label class="form-label">夥伴識別碼 (partner_id) *</label>
+                                            <input type="text" class="form-control font-monospace" id="form-partner-id" required placeholder="如：PTN-TW-001 (自行輸入)">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">葡眾會員卡號 (member_no)</label>
@@ -862,25 +862,61 @@
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">團隊內部職銜</label>
-                                            <input type="text" class="form-control" id="form-leader-title" placeholder="如：雙創始人、核心領袖、總監">
+                                            <input type="text" class="form-control" id="form-leader-title" placeholder="如：雙創始人、總監">
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">實質引薦人 (Sponsor)</label>
+                                            <label class="form-label">經營身分類型 *</label>
+                                            <select class="form-select" id="form-account-holder-type">
+                                                <option value="個人經營者" selected>個人經營者</option>
+                                                <option value="主要經營者">主要經營者</option>
+                                                <option value="共同經營者">共同經營者</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">經營權模式 *</label>
+                                            <select class="form-select" id="form-operation-mode">
+                                                <option value="個人經營" selected>個人經營</option>
+                                                <option value="共同經營">共同經營</option>
+                                                <option value="獨立經營">獨立經營</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">上線連結模式 *</label>
+                                            <select class="form-select" id="form-upline-link-type">
+                                                <option value="直屬已知" selected>直屬已知</option>
+                                                <option value="中間未知">中間未知</option>
+                                                <option value="體系頂層">體系頂層</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">節點性質 *</label>
+                                            <select class="form-select" id="form-node-nature">
+                                                <option value="常態夥伴" selected>常態夥伴</option>
+                                                <option value="中繼失聯節點">中繼失聯節點</option>
+                                                <option value="幽靈節點">幽靈節點</option>
+                                                <option value="虛擬佔位">虛擬佔位</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mt-1">
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">實質引薦人</label>
                                             <select class="form-select select2-partner-search" id="form-sponsor-id">
                                                 <option value="">(無)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">官方安置人 (Placement)</label>
+                                            <label class="form-label">官方安置人</label>
                                             <select class="form-select select2-partner-search" id="form-placement-id">
                                                 <option value="">(無)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">實務輔導上線 (Mentor)</label>
+                                            <label class="form-label">實務輔導上線</label>
                                             <select class="form-select select2-partner-search" id="form-known-mentor-id">
                                                 <option value="">(無)</option>
                                             </select>
@@ -958,9 +994,9 @@
                                     </div>
                                 </div>
 
-                                <!-- 分頁 3：多管道通訊 (org_person_contacts) -->
+                                <!-- 3. 通訊分頁：基本電話信箱 + 動態增刪表格 -->
                                 <div class="tab-pane fade" id="tab-pane-contacts" role="tabpanel">
-                                    <div class="row g-3">
+                                    <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">主要通訊電話 (含國碼)</label>
                                             <input type="tel" class="form-control" id="form-phone" placeholder="如：+886912345678">
@@ -970,68 +1006,59 @@
                                             <input type="email" class="form-control" id="form-email" placeholder="example@gmail.com">
                                         </div>
                                     </div>
-                                    <div class="row g-3 mt-1">
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">LINE ID</label>
-                                            <input type="text" class="form-control" id="form-line-id" placeholder="LINE ID">
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">LINE 顯示名稱</label>
-                                            <input type="text" class="form-control" id="form-line-name" placeholder="LINE 暱稱">
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">WhatsApp 號碼</label>
-                                            <input type="text" class="form-control" id="form-whatsapp-id" placeholder="+60123456789">
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">WhatsApp 名稱</label>
-                                            <input type="text" class="form-control" id="form-whatsapp-name" placeholder="WhatsApp 暱稱">
-                                        </div>
-                                    </div>
-                                    <div class="row g-3 mt-1">
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">Discord 帳號</label>
-                                            <input type="text" class="form-control" id="form-discord-id" placeholder="discord_id">
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">WeChat ID (微信)</label>
-                                            <input type="text" class="form-control" id="form-wechat-id" placeholder="WeChat ID">
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">Facebook 個人主頁網址</label>
-                                            <input type="url" class="form-control" id="form-facebook-url" placeholder="https://facebook.com/...">
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">Instagram 帳號</label>
-                                            <input type="text" class="form-control" id="form-instagram-id" placeholder="ig_username">
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <!-- 分頁 4：語言矩陣 (org_person_languages) -->
-                                <div class="tab-pane fade" id="tab-pane-languages" role="tabpanel">
-                                    <div class="alert alert-dark border border-secondary border-opacity-25 small mb-3">
-                                        <i class="fa-solid fa-circle-info text-info me-1"></i> 請設定該成員主要使用語言之熟練度（精通、流利、普通、略懂、不會）：
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light small"><i class="fa-solid fa-share-nodes text-primary"></i> 多社群與通訊軟體管道 (動態表格)</span>
+                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="addContactTableRow()">
+                                            <i class="fa-solid fa-plus"></i> 新增通訊項目
+                                        </button>
                                     </div>
+
                                     <div class="table-responsive">
                                         <table class="table table-dark-custom table-sm align-middle mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>語言項目</th>
-                                                    <th style="width: 18%;">聽 (Listening)</th>
-                                                    <th style="width: 18%;">說 (Speaking)</th>
-                                                    <th style="width: 18%;">讀 (Reading)</th>
-                                                    <th style="width: 18%;">寫 (Writing)</th>
+                                                    <th style="width: 22%;">平台名稱</th>
+                                                    <th style="width: 18%;">分類類別</th>
+                                                    <th>通訊內容 / 帳號 / 網址</th>
+                                                    <th style="width: 12%;">主要通訊</th>
+                                                    <th style="width: 20%;">備註</th>
+                                                    <th style="width: 48px;" class="text-center">操作</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="form-lang-matrix-tbody">
-                                                <!-- JS 動態生成中文、英文、馬來文等列 -->
-                                            </tbody>
+                                            <tbody id="form-contacts-dynamic-tbody"></tbody>
                                         </table>
                                     </div>
                                 </div>
 
-                                <!-- 分頁 5：背景願景與備忘註記 (org_person_master & org_partners) -->
+                                <!-- 4. 語言分頁：動態增刪表格 -->
+                                <div class="tab-pane fade" id="tab-pane-languages" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light small"><i class="fa-solid fa-language text-info"></i> 使用語言與溝通程度矩陣 (動態表格)</span>
+                                        <button type="button" class="btn btn-outline-info btn-sm rounded-pill" onclick="addLanguageTableRow()">
+                                            <i class="fa-solid fa-plus"></i> 新增語言項目
+                                        </button>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-dark-custom table-sm align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 20%;">使用語言</th>
+                                                    <th style="width: 14%;">聽 (Listening)</th>
+                                                    <th style="width: 14%;">說 (Speaking)</th>
+                                                    <th style="width: 14%;">讀 (Reading)</th>
+                                                    <th style="width: 14%;">寫 (Writing)</th>
+                                                    <th>特殊備註</th>
+                                                    <th style="width: 48px;" class="text-center">操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="form-languages-dynamic-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- 分頁 5：願景背景與備忘註記 -->
                                 <div class="tab-pane fade" id="tab-pane-notes" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-3">
@@ -1061,7 +1088,7 @@
                                     <div class="row g-3 mt-1">
                                         <div class="col-12">
                                             <label class="form-label">團隊專長標籤 (逗號分隔)</label>
-                                            <input type="text" class="form-control" id="form-team-skills" placeholder="OPP主講, 產品見證, 會議主持, 簡報製作, 美編設計">
+                                            <input type="text" class="form-control" id="form-team-skills" placeholder="OPP主講, 產品見證, 會議主持, 簡報製作">
                                         </div>
                                     </div>
 
@@ -1098,14 +1125,14 @@
 
                             <div class="modal-footer mt-4 pb-0 border-top border-secondary border-opacity-25 d-flex justify-content-between">
                                 <span class="text-secondary small d-none d-md-inline-block">
-                                    <i class="fa-solid fa-circle-info me-1"></i> 儲存時將自動同步寫入個人主檔、夥伴主檔、通訊與語言表
+                                    <i class="fa-solid fa-circle-info me-1"></i> 儲存時將自動同步寫入個人主檔、夥伴主檔、通訊表與語言表
                                 </span>
                                 <div class="d-flex gap-2 ms-auto">
                                     <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                                         <i class="fa-solid fa-xmark"></i> 取消
                                     </button>
                                     <button type="submit" class="btn btn-secondary btn-sm rounded-pill px-4" id="form-submit-btn">
-                                        <i class="fa-solid fa-floppy-disk"></i> 儲存寫入
+                                        <i class="fa-solid fa-floppy-disk"></i> 儲存
                                     </button>
                                 </div>
                             </div>
@@ -1305,7 +1332,7 @@
                             <i class="fa-solid fa-xmark"></i> 關閉
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btn-view-to-edit">
-                            <i class="fa-solid fa-pen-to-square"></i> 編輯此成員
+                            <i class="fa-solid fa-pen-to-square"></i> 編輯
                         </button>
                     </div>
                 </div>
