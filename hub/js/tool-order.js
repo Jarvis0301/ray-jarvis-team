@@ -17,17 +17,18 @@ function getVal(row, colIndex, defaultVal = '') {
 // ==========================================
 let appState = {
     country: 'TW',
-    myRegion: 'WEST', // 'WEST' | 'EAST'
+    twRegion: 'PICKUP', // 'PICKUP' | 'DELIVERY'
+    myRegion: 'PICKUP', // 'PICKUP' | 'WEST' | 'EAST'
     displayCurrency: 'TWD', // 'TWD' | 'MYR'
     exchangeRate: 8.0,
-    mainSeries: 'ALL', // category_code
-    subSeries: 'ALL',  // subcategory_code
-    productType: 'ALL', // type_code
+    mainSeries: 'ALL',
+    subSeries: 'ALL',
+    productType: 'ALL',
     searchKeyword: '',
     products: { TW: [], MY: [] },
-    categories: {},    // category_code -> Category Object
-    subcategories: {}, // subcategory_code -> Subcategory Object
-    types: {},         // type_code -> Type Object
+    categories: {},
+    subcategories: {},
+    types: {},
     categoryList: [],
     subcategoryList: [],
     typeList: []
@@ -431,10 +432,12 @@ function bindEvents() {
             appState.displayCurrency = 'MYR';
             $("#displayCurrencySelect").val('MYR');
             $("#myRegionBlock").removeClass('d-none');
+            $("#twRegionBlock").addClass('d-none');
         } else {
             appState.displayCurrency = 'TWD';
             $("#displayCurrencySelect").val('TWD');
             $("#myRegionBlock").addClass('d-none');
+            $("#twRegionBlock").removeClass('d-none');
         }
 
         updateSeriesDropdowns();
@@ -445,13 +448,18 @@ function bindEvents() {
         AppToast.info(`已切換銷售地區至【${appState.country === 'MY' ? '馬來西亞' : '台灣'}】`);
     });
 
+    $('input[name="twRegion"]').on("change", function () {
+        appState.twRegion = $(this).val();
+        updateCartSummary();
+    });
+
+    $('input[name="myRegion"]').on("change", function () {
+        appState.myRegion = $(this).val();
+        updateCartSummary();
+    });
+
     $("#displayCurrencySelect").on("change", function () {
         appState.displayCurrency = $(this).val();
-        if (appState.displayCurrency === 'MYR' || appState.country === 'MY') {
-            $("#myRegionBlock").removeClass('d-none');
-        } else {
-            $("#myRegionBlock").addClass('d-none');
-        }
         updateCartSummary();
     });
 
@@ -751,15 +759,17 @@ function renderProducts() {
 }
 
 function bindQtyEvents() {
+    // 1. 卡片與表格「+」按鈕
     $(document).off("click", ".btn-plus").on("click", ".btn-plus", function () {
-        const id = String($(this).data("id"));
+        const id = String($(this).attr("data-id") || $(this).data("id")).trim();
         cartState[id] = (cartState[id] || 0) + 1;
         updateQtyInputsUI(id);
         updateCartSummary();
     });
 
+    // 2. 卡片與表格「-」按鈕
     $(document).off("click", ".btn-minus").on("click", ".btn-minus", function () {
-        const id = String($(this).data("id"));
+        const id = String($(this).attr("data-id") || $(this).data("id")).trim();
         if (cartState[id] && cartState[id] > 0) {
             cartState[id] -= 1;
             if (cartState[id] === 0) delete cartState[id];
@@ -768,28 +778,104 @@ function bindQtyEvents() {
         }
     });
 
-    $(document).off("change input", ".qty-input").on("change input", function () {
-        const id = String($(this).data("id"));
-        let val = parseInt($(this).val(), 10) || 0;
-        if (val < 0) val = 0;
+    // 3. 所有數量輸入框「即時手動輸入（input）」
+    $(document).off("input", ".qty-input").on("input", ".qty-input", function () {
+        const id = String($(this).attr("data-id") || $(this).data("id")).trim();
+        const rawVal = $(this).val();
+
+        // 允許使用者先清空輸入框以便重新鍵入數字，不立即強制覆蓋為 0
+        if (rawVal === '') {
+            return;
+        }
+
+        let val = parseInt(rawVal, 10);
+        if (isNaN(val) || val < 0) val = 0;
+
         if (val === 0) {
             delete cartState[id];
         } else {
             cartState[id] = val;
         }
+
+        updateQtyInputsUI(id, this);
+
+        // 若當前是在明細卡片內輸入，直接更新統計，避免完全清空 DOM 導致失去輸入焦點
+        if ($(this).hasClass('cart-qty-input')) {
+            if (val === 0) {
+                updateCartSummary();
+            } else {
+                updateCartSummaryTotalsOnly();
+            }
+        } else {
+            updateCartSummary();
+        }
+    });
+
+    // 4. 輸入框「完成輸入或離開焦點（change / blur）」：校正空值與無效值
+    $(document).off("change blur", ".qty-input").on("change blur", function () {
+        const id = String($(this).attr("data-id") || $(this).data("id")).trim();
+        const rawVal = $(this).val().trim();
+        let val = parseInt(rawVal, 10);
+
+        if (isNaN(val) || val <= 0) {
+            delete cartState[id];
+            $(this).val(0);
+        } else {
+            cartState[id] = val;
+            $(this).val(val);
+        }
+
         updateQtyInputsUI(id);
         updateCartSummary();
     });
+
+    // 5. 訂購明細「+」按鈕
+    $(document).off("click", ".btn-cart-plus").on("click", ".btn-cart-plus", function () {
+        const id = String($(this).attr("data-id")).trim();
+        cartState[id] = (cartState[id] || 0) + 1;
+        updateQtyInputsUI(id);
+        updateCartSummary();
+    });
+
+    // 6. 訂購明細「-」按鈕
+    $(document).off("click", ".btn-cart-minus").on("click", ".btn-cart-minus", function () {
+        const id = String($(this).attr("data-id")).trim();
+        if (cartState[id] && cartState[id] > 0) {
+            cartState[id] -= 1;
+            if (cartState[id] === 0) delete cartState[id];
+            updateQtyInputsUI(id);
+            updateCartSummary();
+        }
+    });
+
+    // 7. 訂購明細「刪除品項」垃圾桶按鈕
+    $(document).off("click", ".btn-remove-cart-item").on("click", ".btn-remove-cart-item", function () {
+        const id = String($(this).attr("data-id")).trim();
+        delete cartState[id];
+        updateQtyInputsUI(id);
+        updateCartSummary();
+        AppToast.info("已從訂購清單移除該品項");
+    });
 }
 
-function updateQtyInputsUI(id) {
-    const qty = cartState[id] || 0;
-    $(`.qty-input[data-id="${id}"]`).val(qty);
-}
-
+// 強化商品比對，避免型別不一致或空白問題
 function findProductByCode(code) {
+    if (!code) return null;
+    const targetCode = String(code).trim();
     const all = [...(appState.products.TW || []), ...(appState.products.MY || [])];
-    return all.find(p => p.product_code === code);
+    return all.find(p => String(p.product_code).trim() === targetCode);
+}
+
+// 同步所有相同商品編號的輸入框值（卡片、表格、明細）
+function updateQtyInputsUI(id, activeInput = null) {
+    const safeId = String(id).trim();
+    const qty = cartState[safeId] !== undefined ? cartState[safeId] : 0;
+    $('.qty-input').each(function () {
+        if (this === activeInput) return; // 避免打字中途被強制覆寫
+        if (String($(this).attr('data-id')).trim() === safeId) {
+            $(this).val(qty);
+        }
+    });
 }
 
 // ==========================================
@@ -808,20 +894,31 @@ function updateCartSummary() {
     const isTargetMYR = targetCurr === 'MYR';
     const currSymbol = isTargetMYR ? 'RM ' : 'NT$ ';
 
+    // 判斷是否為「配送」模式（非自取）
+    const isDelivery = (appState.country === 'MY')
+        ? (appState.myRegion === 'WEST' || appState.myRegion === 'EAST')
+        : (appState.twRegion === 'DELIVERY');
+
+    // 依模式控制免運門檻進度條的顯示與隱藏
+    if (isDelivery) {
+        $("#shipping-progress-container").removeClass("d-none");
+    } else {
+        $("#shipping-progress-container").addClass("d-none");
+    }
+
     const selectedKeys = Object.keys(cartState);
 
     if (selectedKeys.length === 0) {
         $container.html(`
             <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
-                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50"></i>
-                尚未選擇任何商品，請點擊數量增減選擇。
+                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50"></i> 尚未選擇任何商品，請點擊數量增減選擇。
             </div>
         `);
 
         if (appState.country === 'MY') {
             $("#shipping-progress-text").text(`0 / 800 RM`);
         } else {
-            $("#shipping-progress-text").text(`0 / 480 SV`);
+            $("#shipping-progress-text").text(`0 / 400 SV`);
         }
 
         $("#shipping-progress-bar").css("width", `0%`);
@@ -862,18 +959,31 @@ function updateCartSummary() {
             totalSV += itemTotalSV;
             totalItemsCount += qty;
 
+            // 優先採用產品簡稱 short_name
+            const displayName = product.short_name || product.name;
+
+            // 訂購明細調整為單行排版
             $container.append(`
-                <div class="cart-item-row">
-                    <div class="cart-item-title" title="${product.name}">
-                        <i class="fa-solid fa-box text-info"></i> ${product.name}
+                <div class="cart-item-row" data-row-id="${product.product_code}">
+                    <div class="cart-item-title" title="${product.name} (${product.product_code})">
+                        <i class="fa-solid fa-box text-info"></i> ${displayName}
                     </div>
-                    <div class="cart-item-qty">
-                        x ${qty}
+                    <div class="qty-control">
+                        <button type="button" class="btn-qty btn-cart-minus" data-id="${product.product_code}">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <input type="number" class="qty-input cart-qty-input" value="${qty}" min="0" data-id="${product.product_code}">
+                        <button type="button" class="btn-qty btn-cart-plus" data-id="${product.product_code}">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
                     </div>
                     <div class="cart-item-price-block">
-                        <div class="text-warning font-weight-bold">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
-                        <div class="text-info" style="font-size: 0.75rem;">${itemTotalSV.toLocaleString()} SV</div>
+                        <div class="text-warning font-weight-bold" data-field="price">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
+                        <div class="text-info" data-field="sv" style="font-size: 0.72rem;">${itemTotalSV.toLocaleString()} SV</div>
                     </div>
+                    <button type="button" class="btn-remove-cart-item" data-id="${product.product_code}" title="刪除品項">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
                 </div>
             `);
         }
@@ -885,9 +995,17 @@ function updateCartSummary() {
     if (appState.country === 'MY') {
         let subtotalMYR = isTargetMYR ? subtotalDisplay : subtotalDisplay / rate;
         const thresholdMYR = 800;
-        const baseShippingMYR = appState.myRegion === 'EAST' ? 35 : 15;
+        let baseShippingMYR = 0;
 
-        if (subtotalMYR >= thresholdMYR) {
+        if (appState.myRegion === 'EAST') {
+            baseShippingMYR = 35;
+        } else if (appState.myRegion === 'WEST') {
+            baseShippingMYR = 15;
+        } else {
+            baseShippingMYR = 0; // 自取免運
+        }
+
+        if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
             shippingFeeInDisplay = 0;
         } else {
             shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : baseShippingMYR * rate;
@@ -896,17 +1014,17 @@ function updateCartSummary() {
         shippingPercent = Math.min(100, (subtotalMYR / thresholdMYR) * 100);
         $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
     } else {
-        const thresholdSV = 480;
-        const baseShippingTWD = 150;
+        const thresholdSV = 400;
+        const baseShippingTWD = appState.twRegion === 'PICKUP' ? 0 : 150;
 
-        if (totalSV >= thresholdSV) {
+        if (totalSV >= thresholdSV || appState.twRegion === 'PICKUP') {
             shippingFeeInDisplay = 0;
         } else {
             shippingFeeInDisplay = isTargetMYR ? baseShippingTWD / rate : baseShippingTWD;
         }
 
         shippingPercent = Math.min(100, (totalSV / thresholdSV) * 100);
-        $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 480 SV`);
+        $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 400 SV`);
     }
 
     $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
@@ -1425,12 +1543,12 @@ function exportOrderToExcel() {
     let shipping = 0;
     if (appState.country === 'MY') {
         let subtotalMYR = isTargetMYR ? subtotal : subtotal / rate;
-        if (subtotalMYR < 800) {
+        if (subtotalMYR < 800 && appState.myRegion !== 'PICKUP') {
             const baseMYR = appState.myRegion === 'EAST' ? 35 : 15;
             shipping = isTargetMYR ? baseMYR : baseMYR * rate;
         }
     } else {
-        if (totalSV < 480) {
+        if (totalSV < 400 && appState.twRegion !== 'PICKUP') {
             shipping = isTargetMYR ? 150 / rate : 150;
         }
     }
@@ -1507,12 +1625,12 @@ function exportOrderToPDF() {
     let shipping = 0;
     if (appState.country === 'MY') {
         let subtotalMYR = isTargetMYR ? subtotal : subtotal / rate;
-        if (subtotalMYR < 800) {
+        if (subtotalMYR < 800 && appState.myRegion !== 'PICKUP') {
             const baseMYR = appState.myRegion === 'EAST' ? 35 : 15;
             shipping = isTargetMYR ? baseMYR : baseMYR * rate;
         }
     } else {
-        if (totalSV < 480) {
+        if (totalSV < 400 && appState.twRegion !== 'PICKUP') {
             shipping = isTargetMYR ? 150 / rate : 150;
         }
     }
@@ -1841,4 +1959,100 @@ function setupIframeFloatingPositionEngine() {
     updatePosition();
     setTimeout(updatePosition, 300);
     setTimeout(updatePosition, 800);
+}
+
+function updateCartSummaryTotalsOnly() {
+    let totalItemsCount = 0;
+    let totalSV = 0;
+    let subtotalDisplay = 0;
+
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
+    const targetCurr = appState.displayCurrency;
+    const isTargetMYR = targetCurr === 'MYR';
+    const currSymbol = isTargetMYR ? 'RM ' : 'NT$ ';
+
+    Object.keys(cartState).forEach(code => {
+        const qty = cartState[code];
+        const product = findProductByCode(code);
+        if (product && qty > 0) {
+            const itemPriceOrig = product.price || 0;
+            const itemCurr = product.currency || (product.region_code === 'MY' ? 'MYR' : 'TWD');
+            const sv = product.sv_point || 0;
+
+            let itemPriceInDisplay = itemPriceOrig;
+            if (itemCurr === 'TWD' && targetCurr === 'MYR') {
+                itemPriceInDisplay = itemPriceOrig / rate;
+            } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
+                itemPriceInDisplay = itemPriceOrig * rate;
+            }
+
+            const itemTotalPrice = itemPriceInDisplay * qty;
+            const itemTotalSV = sv * qty;
+
+            subtotalDisplay += itemTotalPrice;
+            totalSV += itemTotalSV;
+            totalItemsCount += qty;
+
+            const $row = $(`.cart-item-row[data-row-id="${code}"]`);
+            if ($row.length) {
+                $row.find('[data-field="price"]').text(`${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}`);
+                $row.find('[data-field="sv"]').text(`${itemTotalSV.toLocaleString()} SV`);
+            }
+        }
+    });
+
+    let shippingFeeInDisplay = 0;
+    let shippingPercent = 0;
+
+    if (appState.country === 'MY') {
+        let subtotalMYR = isTargetMYR ? subtotalDisplay : subtotalDisplay / rate;
+        const thresholdMYR = 800;
+        let baseShippingMYR = 0;
+        if (appState.myRegion === 'EAST') baseShippingMYR = 35;
+        else if (appState.myRegion === 'WEST') baseShippingMYR = 15;
+
+        if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
+            shippingFeeInDisplay = 0;
+        } else {
+            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : baseShippingMYR * rate;
+        }
+        shippingPercent = Math.min(100, (subtotalMYR / thresholdMYR) * 100);
+        $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
+    } else {
+        const thresholdSV = 400;
+        const baseShippingTWD = appState.twRegion === 'PICKUP' ? 0 : 150;
+        if (totalSV >= thresholdSV || appState.twRegion === 'PICKUP') {
+            shippingFeeInDisplay = 0;
+        } else {
+            shippingFeeInDisplay = isTargetMYR ? baseShippingTWD / rate : baseShippingTWD;
+        }
+        shippingPercent = Math.min(100, (totalSV / thresholdSV) * 100);
+        $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 400 SV`);
+    }
+
+    $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
+
+    const grandTotal = subtotalDisplay + shippingFeeInDisplay;
+    const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
+    const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+    let estimatedRebateDisplay = totalSV * rankRatio * pvMultiplier;
+
+    if (appState.country === 'TW' && isTargetMYR) {
+        estimatedRebateDisplay = (totalSV * rankRatio * 25) / rate;
+    } else if (appState.country === 'MY' && !isTargetMYR) {
+        estimatedRebateDisplay = (totalSV * rankRatio * 3.5) * rate;
+    }
+
+    $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
+    $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
+    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : "免運費");
+    $("#summary-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
+    $("#summary-total-sv").text(`${totalSV.toLocaleString()} SV`);
+    $("#summary-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
+
+    $("#sticky-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
+    $("#sticky-total-sv").text(`${totalSV.toLocaleString()} SV`);
+    $("#sticky-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
+
+    updateAllChartsData();
 }

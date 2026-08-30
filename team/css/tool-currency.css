@@ -105,3 +105,13 @@
     color: var(--uvaco-secondary, #38bdf8);
     border-color: rgba(56, 189, 248, 0.4);
 }
+
+/* 移除清單數量輸入框原生箭頭微調鈕 */
+.cart-qty-input::-webkit-outer-spin-button,
+.cart-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.cart-qty-input {
+    -moz-appearance: textfield;
+}

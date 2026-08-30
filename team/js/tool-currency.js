@@ -245,6 +245,30 @@ function bindUIEvents() {
     });
 
     $('#btnCopyQuote').off('click').on('click', copyQuoteToClipboard);
+
+    // 清單數量手動輸入（即時輸入）
+    $(document).off('input', '.cart-qty-input').on('input', '.cart-qty-input', function () {
+        const index = parseInt($(this).data('index'), 10);
+        const rawVal = $(this).val();
+        if (rawVal === '') return; // 允許暫時清空重打
+
+        let qty = parseInt(rawVal, 10);
+        if (isNaN(qty) || qty <= 0) qty = 1;
+        swapCart[index].qty = qty;
+        recalculateCartTotals();
+    });
+
+    // 清單數量手動輸入（離開焦點或確認後校正）
+    $(document).off('change blur', '.cart-qty-input').on('change blur', function () {
+        const index = parseInt($(this).data('index'), 10);
+        let qty = parseInt($(this).val(), 10);
+        if (isNaN(qty) || qty <= 0) {
+            qty = 1;
+            $(this).val(1);
+        }
+        swapCart[index].qty = qty;
+        recalculateCartTotals();
+    });
 }
 
 window.setQuickRate = function (rate) {
@@ -307,25 +331,11 @@ function renderCart() {
         return;
     }
 
-    let totalSV = 0;
-    let totalTWD = 0;
-    let totalMYR = 0;
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
     swapCart.forEach((item, index) => {
         const prod = appState.products.ALL.find(p => p.product_code === item.product_code);
         if (!prod) return;
-
-        const itemSV = prod.sv_point * item.qty;
-        const itemTWD = (prod.currency === 'TWD' ? prod.price : prod.price * rate) * item.qty;
-
-        // 依跨國產品編號 (base_code) 查找對應的大馬商品
-        const myProd = appState.products.MY.find(p => p.base_code === prod.base_code);
-        const itemMYR = myProd ? (myProd.price * item.qty) : Math.round(itemTWD / rate);
-
-        totalSV += itemSV;
-        totalTWD += itemTWD;
-        totalMYR += itemMYR;
 
         $container.append(`
             <div class="sku-card-item p-2 px-3 d-flex justify-content-between align-items-center">
@@ -336,21 +346,45 @@ function renderCart() {
                         <span class="text-light-emphasis small">(${prod.package_spec})</span>
                     </div>
                     <div class="text-light-emphasis" style="font-size: 0.75rem;">
-                        品號：${prod.product_code} ‧ 單價：NT$ ${prod.price.toLocaleString()} ‧ 單品 SV：<span class="text-warning">${prod.sv_point} SV</span> ‧ 單重 ${prod.weight}kg
+                        品號：${prod.product_code} ‧ 單價：<span class="text-info">NT$ ${prod.price.toLocaleString()}</span> ‧ 單品 SV：<span class="text-warning">${prod.sv_point} SV</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <div class="input-group input-group-sm" style="width: 100px;">
-                        <button class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, -1)">-</button>
-                        <input type="text" class="form-control text-center bg-dark text-white p-0" value="${item.qty}" readonly>
-                        <button class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, 1)">+</button>
+                        <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, -1)">-</button>
+                        <input type="number" min="1" class="form-control text-center bg-dark text-white p-0 cart-qty-input" value="${item.qty}" data-index="${index}">
+                        <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, 1)">+</button>
                     </div>
-                    <button class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="removeCartItem(${index})">
+                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="removeCartItem(${index})" title="移除品項">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
             </div>
         `);
+    });
+
+    recalculateCartTotals();
+}
+
+function recalculateCartTotals() {
+    let totalSV = 0;
+    let totalTWD = 0;
+    let totalMYR = 0;
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
+
+    swapCart.forEach(item => {
+        const prod = appState.products.ALL.find(p => p.product_code === item.product_code);
+        if (!prod) return;
+
+        const itemSV = prod.sv_point * item.qty;
+        const itemTWD = (prod.currency === 'TWD' ? prod.price : prod.price * rate) * item.qty;
+
+        const myProd = appState.products.MY.find(p => p.base_code === prod.base_code);
+        const itemMYR = myProd ? (myProd.price * item.qty) : Math.round(itemTWD / rate);
+
+        totalSV += itemSV;
+        totalTWD += itemTWD;
+        totalMYR += itemMYR;
     });
 
     updateCartTotals(totalSV, totalTWD, totalMYR);
@@ -361,6 +395,15 @@ window.updateCartQty = function (index, change) {
     if (swapCart[index].qty <= 0) {
         swapCart.splice(index, 1);
     }
+    renderCart();
+};
+
+window.setCartQty = function (index, val) {
+    let qty = parseInt(val, 10);
+    if (isNaN(qty) || qty <= 0) {
+        qty = 1;
+    }
+    swapCart[index].qty = qty;
     renderCart();
 };
 
