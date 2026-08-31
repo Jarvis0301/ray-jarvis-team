@@ -367,13 +367,13 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-7">
                             <label class="form-label"><i class="fa-solid fa-tag me-1"></i> 專案/活動名稱</label>
-                            <input type="text" class="form-control" id="forgeTitle" placeholder="例如：995生技營養液 中秋特惠" required>
+                            <input type="text" class="form-control form-control-sm" id="forgeTitle" placeholder="例如：995生技營養液 中秋特惠" required>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label"><i class="fa-solid fa-slash-forward me-1"></i> 自訂短碼 (Slug)</label>
                             <div class="input-group">
                                 <span class="input-group-text code-font">/r/</span>
-                                <input type="text" class="form-control code-font" id="forgeSlug" placeholder="ray-995" required>
+                                <input type="text" class="form-control form-control-sm code-font" id="forgeSlug" placeholder="ray-995" required>
                             </div>
                         </div>
                     </div>
@@ -383,7 +383,7 @@
                             <label class="form-label mb-0"><i class="fa-solid fa-bullseye me-1"></i> 目標長網址 (Target Landing Page)</label>
                             <span class="text-muted small">或點選快速範本：</span>
                         </div>
-                        <select class="form-select mb-2" id="quickPresetSelector" style="font-size: 0.83rem;">
+                        <select class="form-select form-select-sm mb-2" id="quickPresetSelector" style="font-size: 0.83rem;">
                             <option value="" selected>-- 快速選擇常用公開版/團隊版目標頁面 --</option>
                             <option value="https://ray-jarvis-team.github.io/health-free-daily/index.html">《健康生活與自由日常》公開版首頁</option>
                             <option value="https://ray-jarvis-team.github.io/health-free-daily/product-995.html">995 生技營養液 產品科普專案頁</option>
@@ -391,13 +391,13 @@
                             <option value="https://ray-jarvis-team.github.io/health-free-daily/join-us.html">成為葡眾事業經營夥伴 招商報名頁</option>
                             <option value="https://ray-jarvis-team.github.io/team/portal.html">榮祥團隊內部夥伴門戶</option>
                         </select>
-                        <input type="url" class="form-control code-font" id="forgeTargetUrl" placeholder="https://ray-jarvis-team.github.io/health-free-daily/..." required>
+                        <input type="url" class="form-control form-control-sm code-font" id="forgeTargetUrl" placeholder="https://ray-jarvis-team.github.io/health-free-daily/..." required>
                     </div>
 
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label class="form-label"><i class="fa-solid fa-user-shield me-1"></i> 歸屬夥伴 (Partner ID)</label>
-                            <select class="form-select" id="forgePartnerId">
+                            <select class="form-select form-select-sm" id="forgePartnerId">
                                 <option value="P00001" selected>P00001 - Ray (創始總監)</option>
                                 <option value="P00002">P00002 - Jarvis (技術顧問)</option>
                                 <option value="P00003">P00003 - 陳珍珠 (藍鑽領袖)</option>
@@ -406,7 +406,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label"><i class="fa-solid fa-share-nodes me-1"></i> 主要發布通路 (Channel)</label>
-                            <select class="form-select" id="forgeChannel">
+                            <select class="form-select form-select-sm" id="forgeChannel">
                                 <option value="LINE_GROUP" selected>LINE 群組 / 個人分享</option>
                                 <option value="INSTAGRAM">Instagram (Bio / 限動)</option>
                                 <option value="FACEBOOK">Facebook 粉絲頁 / 社團</option>
@@ -461,7 +461,7 @@
                         </div>
 
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control code-font text-warning fw-bold" id="previewShortUrl" readonly value="https://ray-jarvis-team.github.io/r/ray-995">
+                            <input type="text" class="form-control form-control-sm code-font text-warning fw-bold" id="previewShortUrl" readonly value="https://ray-jarvis-team.github.io/r/ray-995">
                             <button class="btn btn-tactical" type="button" id="btnCopyShortUrl" title="複製短鏈">
                                 <i class="fa-regular fa-copy me-1"></i> 複製短網址
                             </button>
@@ -563,11 +563,11 @@
                     <div class="row g-2 text-start mb-3">
                         <div class="col-6">
                             <label class="form-label">前景色 (碼點色彩)</label>
-                            <input type="color" class="form-control form-control-color w-100" id="qrColorDark" value="#1c0d2e">
+                            <input type="color" class="form-control form-control-sm form-control-color w-100" id="qrColorDark" value="#1c0d2e">
                         </div>
                         <div class="col-6">
                             <label class="form-label">背景色</label>
-                            <input type="color" class="form-control form-control-color w-100" id="qrColorLight" value="#ffffff">
+                            <input type="color" class="form-control form-control-sm form-control-color w-100" id="qrColorLight" value="#ffffff">
                         </div>
                     </div>
 

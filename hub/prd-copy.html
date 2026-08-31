@@ -239,19 +239,19 @@
                 <div class="col-md-3">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-dark text-light border-secondary">夥伴姓名</span>
-                        <input type="text" class="form-control bg-dark text-light border-secondary" id="tokenPartnerName" value="榮祥顧問">
+                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="tokenPartnerName" value="榮祥顧問">
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-dark text-light border-secondary">LINE ID</span>
-                        <input type="text" class="form-control bg-dark text-light border-secondary" id="tokenPartnerLine" value="ray_uvaco">
+                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="tokenPartnerLine" value="ray_uvaco">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-dark text-light border-secondary">推廣短網址</span>
-                        <input type="text" class="form-control bg-dark text-light border-secondary" id="tokenPartnerLink" value="https://uvaco.tw/ray995">
+                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="tokenPartnerLink" value="https://uvaco.tw/ray995">
                     </div>
                 </div>
             </div>
@@ -287,7 +287,7 @@
                         <option value="PRD-005">衛傑 (消化保衛)</option>
                     </select>
                     <div class="input-group input-group-sm w-auto ms-auto">
-                        <input type="text" class="form-control bg-dark text-light border-secondary" id="searchKeyword" placeholder="搜尋標題或關鍵字...">
+                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="searchKeyword" placeholder="搜尋標題或關鍵字...">
                         <button class="btn btn-outline-secondary" type="button" id="btnResetSearch"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
@@ -380,11 +380,11 @@
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label class="form-label small text-muted">文案標題 (title) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-dark text-light border-secondary" id="inputCopyTitle" required placeholder="例如：熬夜加班族必備的體力充電寶！">
+                                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="inputCopyTitle" required placeholder="例如：熬夜加班族必備的體力充電寶！">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small text-muted">關聯產品 (product_id)</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="inputCopyProduct">
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="inputCopyProduct">
                                     <option value="PRD-001">995 超級營養液</option>
                                     <option value="PRD-002">樟芝益菌絲體</option>
                                     <option value="PRD-003">康爾喜乳酸菌</option>
@@ -395,7 +395,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small text-muted">目標受眾標籤 (target_audience)</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="inputCopyAudience">
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="inputCopyAudience">
                                     <option value="上班族">上班族 / 爆肝熬夜</option>
                                     <option value="銀髮族">銀髮長輩 / 行動靈活</option>
                                     <option value="媽媽族">產後媽咪 / 育兒調理</option>
@@ -405,7 +405,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small text-muted">傳播渠道類型 (copy_type)</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="inputCopyType">
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="inputCopyType">
                                     <option value="LINE_SHORT">LINE 1對1破冰短訊</option>
                                     <option value="SOCIAL_POST">FB/IG 深度圖文卡片</option>
                                     <option value="15S_QUOTE">15秒短影音/限動金句</option>
@@ -424,18 +424,18 @@
                                     <span class="badge bg-secondary cursor-pointer btn-insert-token" data-token="{PARTNER_LINE}">+ 插入LINE ID</span>
                                     <span class="badge bg-secondary cursor-pointer btn-insert-token" data-token="{RECOMMEND_LINK}">+ 插入推廣連結</span>
                                 </div>
-                                <textarea class="form-control bg-dark text-light border-secondary" id="inputCopyContent" rows="6" required placeholder="請輸入行銷文案內文..."></textarea>
+                                <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="inputCopyContent" rows="6" required placeholder="請輸入行銷文案內文..."></textarea>
                                 <div class="form-text text-muted small">
                                     字數：<span id="textCharCount">0</span> 字 | 嚴禁包含「療效、抗癌、消炎、根治、排毒」等違反食安法宣稱詞彙。
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <label class="form-label small text-muted">情境配圖 URL (image_url)</label>
-                                <input type="url" class="form-control bg-dark text-light border-secondary" id="inputCopyImageUrl" placeholder="https://example.com/promo.jpg">
+                                <input type="url" class="form-control form-control-sm bg-dark text-light border-secondary" id="inputCopyImageUrl" placeholder="https://example.com/promo.jpg">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label small text-muted">排序 (sort_order)</label>
-                                <input type="number" class="form-control bg-dark text-light border-secondary" id="inputCopyOrder" value="10">
+                                <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="inputCopyOrder" value="10">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label small text-muted">狀態</label>

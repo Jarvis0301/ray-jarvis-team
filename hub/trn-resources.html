@@ -398,7 +398,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <div class="position-relative flex-grow-1">
                             <i class="fa-solid fa-magnifying-glass position-absolute top-50 translate-middle-y text-secondary" style="left: 14px;"></i>
-                            <input type="text" id="resourceSearchInput" class="form-control custom-search-input" placeholder="輸入關鍵字或教材標題快速檢索...">
+                            <input type="text" id="resourceSearchInput" class="form-control form-control-sm custom-search-input" placeholder="輸入關鍵字或教材標題快速檢索...">
                         </div>
                         <div class="btn-group" role="group" aria-label="View Switcher">
                             <button type="button" class="btn btn-purple-outline active" id="btnViewGrid" onclick="toggleView('GRID')">
@@ -497,12 +497,12 @@
                     <form id="uploadResourceForm">
                         <div class="mb-3">
                             <label class="form-label text-secondary small">教材名稱 / 標題 (res_title)</label>
-                            <input type="text" class="form-control custom-search-input" id="formTitle" placeholder="例如：2026 新版葡眾招商說明簡報" required>
+                            <input type="text" class="form-control form-control-sm custom-search-input" id="formTitle" placeholder="例如：2026 新版葡眾招商說明簡報" required>
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="form-label text-secondary small">素材分類 (res_cat)</label>
-                                <select class="form-select custom-search-input" id="formCategory">
+                                <select class="form-select form-select-sm custom-search-input" id="formCategory">
                                     <option value="PPT">PPT 招商簡報</option>
                                     <option value="PDF">PDF 產品講義</option>
                                     <option value="GRAPHIC">GRAPHIC 社群圖文</option>
@@ -512,7 +512,7 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label text-secondary small">檔案格式 (res_format)</label>
-                                <select class="form-select custom-search-input" id="formFormat">
+                                <select class="form-select form-select-sm custom-search-input" id="formFormat">
                                     <option value="PPTX">PPTX</option>
                                     <option value="PDF">PDF</option>
                                     <option value="MP4">MP4</option>
@@ -524,7 +524,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="form-label text-secondary small">門檻職級 (res_min_rank)</label>
-                                <select class="form-select custom-search-input" id="formMinRank">
+                                <select class="form-select form-select-sm custom-search-input" id="formMinRank">
                                     <option value="MEM">MEM 會員</option>
                                     <option value="MGR">MGR 經理</option>
                                     <option value="DIR" selected>DIR 總監</option>
@@ -533,16 +533,16 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label text-secondary small">檔案大小 MB (res_size_mb)</label>
-                                <input type="number" step="0.01" class="form-control custom-search-input" id="formSize" placeholder="12.5">
+                                <input type="number" step="0.01" class="form-control form-control-sm custom-search-input" id="formSize" placeholder="12.5">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-secondary small">Google Drive 下載網址 (res_drive_url)</label>
-                            <input type="url" class="form-control custom-search-input" id="formDriveUrl" placeholder="https://drive.google.com/..." required>
+                            <input type="url" class="form-control form-control-sm custom-search-input" id="formDriveUrl" placeholder="https://drive.google.com/..." required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-secondary small">預覽縮圖 URL (res_preview)</label>
-                            <input type="url" class="form-control custom-search-input" id="formPreview" placeholder="https://images.unsplash.com/...">
+                            <input type="url" class="form-control form-control-sm custom-search-input" id="formPreview" placeholder="https://images.unsplash.com/...">
                         </div>
                     </form>
                 </div>

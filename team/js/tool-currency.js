@@ -352,7 +352,7 @@ function renderCart() {
                 <div class="d-flex align-items-center gap-2">
                     <div class="input-group input-group-sm" style="width: 100px;">
                         <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, -1)">-</button>
-                        <input type="number" min="1" class="form-control text-center bg-dark text-white p-0 cart-qty-input" value="${item.qty}" data-index="${index}">
+                        <input type="number" min="1" class="form-control form-control-sm text-center bg-dark text-white p-0 cart-qty-input" value="${item.qty}" data-index="${index}">
                         <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, 1)">+</button>
                     </div>
                     <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="removeCartItem(${index})" title="移除品項">

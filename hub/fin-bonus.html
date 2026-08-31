@@ -627,83 +627,83 @@
                     <form id="formNewPayoutSlip">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">水單編號 (Payout No) *</label>
-                                <input type="text" class="form-control mono-num" id="formPayoutNo" value="BP-20260820-003" readonly>
+                                <label class="form-label small text-muted">水單編號 (Payout No) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm mono-num" id="formPayoutNo" value="BP-20260820-003" readonly>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">業績結算期 (Calc Month) *</label>
-                                <input type="month" class="form-control mono-num" id="formCalcMonth" value="2026-07" required>
+                                <label class="form-label small text-muted">業績結算期 (Calc Month) <span class="text-danger">*</span></label>
+                                <input type="month" class="form-control form-control-sm mono-num" id="formCalcMonth" value="2026-07" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">官方入帳日 (Payout Date) *</label>
-                                <input type="date" class="form-control mono-num" id="formPayoutDate" value="2026-08-20" required>
+                                <label class="form-label small text-muted">官方入帳日 (Payout Date) <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm mono-num" id="formPayoutDate" value="2026-08-20" required>
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">領款夥伴 (Partner) *</label>
-                                <select class="form-select" id="formPartnerId" required>
+                                <label class="form-label small text-muted">領款夥伴 (Partner) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formPartnerId" required>
                                     <option value="RAY" selected>Ray 翁榮祥 (台灣領導人)</option>
                                     <option value="JARVIS">Jarvis 林承志 (大馬領導人)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">市場代碼 (Country) *</label>
-                                <select class="form-select" id="formCountryCode" required>
+                                <label class="form-label small text-muted">市場代碼 (Country) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formCountryCode" required>
                                     <option value="TW" selected>🇹🇼 TW (台灣市場 / TWD)</option>
                                     <option value="MY">🇲🇾 MY (馬來西亞市場 / MYR)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">結算匯率 (Exchange Rate) *</label>
-                                <input type="number" step="0.0001" class="form-control mono-num" id="formExchangeRate" value="1.0000" required>
+                                <label class="form-label small text-muted">結算匯率 (Exchange Rate) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.0001" class="form-control form-control-sm mono-num" id="formExchangeRate" value="1.0000" required>
                             </div>
 
                             <!-- 獎金三大項 -->
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">個人業績獎金 (Personal) *</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formPersonalBonus" value="0.00" required>
+                                <label class="form-label small text-muted">個人業績獎金 (Personal) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formPersonalBonus" value="0.00" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">組織差額獎金 (Differential) *</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formDifferentialBonus" value="0.00" required>
+                                <label class="form-label small text-muted">組織差額獎金 (Differential) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formDifferentialBonus" value="0.00" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">領導培育獎金 (Leadership) *</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formLeadershipBonus" value="0.00" required>
+                                <label class="form-label small text-muted">領導培育獎金 (Leadership) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formLeadershipBonus" value="0.00" required>
                             </div>
 
                             <!-- 應發總毛額 (自動計算) -->
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">應發獎金總額 (Gross Bonus)</label>
-                                <input type="text" class="form-control mono-num text-primary fw-bold" id="formGrossBonus" value="0.00" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-primary fw-bold" id="formGrossBonus" value="0.00" readonly>
                             </div>
 
                             <!-- 法定扣除款項 -->
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">法定預扣所得稅 (TW 10% / MY 107D 2%)</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formWithholdingTax" value="0.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formWithholdingTax" value="0.00">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">二代健保補充保費 (TW 2.11%)</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formNhiFee" value="0.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formNhiFee" value="0.00">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">銀行跨行匯費 (Bank Wire Fee)</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formBankWireFee" value="30.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formBankWireFee" value="30.00">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">其他扣款 (Other Deductions)</label>
-                                <input type="number" step="0.01" class="form-control mono-num form-bonus-calc" id="formOtherDeductions" value="0.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num form-bonus-calc" id="formOtherDeductions" value="0.00">
                             </div>
 
                             <!-- 實收金額與折台幣結算 -->
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">實際入帳金額 (Net Payout Amount)</label>
-                                <input type="text" class="form-control mono-num text-success fw-bold fs-6" id="formNetPayoutAmount" value="0.00" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-success fw-bold fs-6" id="formNetPayoutAmount" value="0.00" readonly>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">折合台幣實收 (Net Payout TWD)</label>
-                                <input type="text" class="form-control mono-num text-accent fw-bold fs-6" id="formNetPayoutTwd" value="NT$ 0" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-accent fw-bold fs-6" id="formNetPayoutTwd" value="NT$ 0" readonly>
                             </div>
 
                             <div class="col-12">
@@ -712,7 +712,7 @@
                                     <span class="input-group-text bg-dark-purple border-purple-subtle text-muted">
                                         <i class="fa-solid fa-paperclip"></i>
                                     </span>
-                                    <input type="text" class="form-control" id="formPayoutSlipUrl" placeholder="https://drive.google.com/... 或水單 PDF 連結">
+                                    <input type="text" class="form-control form-control-sm" id="formPayoutSlipUrl" placeholder="https://drive.google.com/... 或水單 PDF 連結">
                                 </div>
                             </div>
                         </div>

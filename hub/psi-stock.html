@@ -639,7 +639,7 @@
                     <form id="formStockAdjust">
                         <div class="mb-3">
                             <label class="form-label small text-muted">選擇調整品項與批號</label>
-                            <select class="form-select bg-dark text-light border-secondary" id="adjustSelectStock" required>
+                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="adjustSelectStock" required>
                                 <option value="">請選擇批號...</option>
                                 <option value="STK-001">995 生技營養品 [批號: B260819-01] (台北倉)</option>
                                 <option value="STK-002">樟芝益菌絲體 [批號: B260715-02] (台北倉)</option>
@@ -649,7 +649,7 @@
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="form-label small text-muted">異動類型</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="adjustType" required>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="adjustType" required>
                                     <option value="ADJUST_GAIN">盤盈 (+)</option>
                                     <option value="ADJUST_LOSS">盤虧 (-)</option>
                                     <option value="SCRAP">破損報廢 (-)</option>
@@ -657,12 +657,12 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label small text-muted">調整盒數 (數量)</label>
-                                <input type="number" class="form-control bg-dark text-light border-secondary mono" id="adjustQty" min="1" placeholder="輸入數量" required>
+                                <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary mono" id="adjustQty" min="1" placeholder="輸入數量" required>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">原因備註 / 盤點人</label>
-                            <textarea class="form-control bg-dark text-light border-secondary" id="adjustRemark" rows="2" placeholder="請填寫盤點人員及異動事由..."></textarea>
+                            <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="adjustRemark" rows="2" placeholder="請填寫盤點人員及異動事由..."></textarea>
                         </div>
                     </form>
                 </div>
@@ -689,14 +689,14 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small text-muted">調出倉儲 (Source)</label>
-                            <select class="form-select bg-dark text-light border-secondary">
+                            <select class="form-select form-select-sm bg-dark text-light border-secondary">
                                 <option value="WH-TPE-01">台北運籌中心</option>
                                 <option value="WH-TYN-01">榮祥行動私倉</option>
                             </select>
                         </div>
                         <div class="col-6">
                             <label class="form-label small text-muted">調入據點 (Target)</label>
-                            <select class="form-select bg-dark text-light border-secondary">
+                            <select class="form-select form-select-sm bg-dark text-light border-secondary">
                                 <option value="WH-KUL-01">吉隆坡前進基地</option>
                                 <option value="WH-KHH-01">高雄戰術倉</option>
                             </select>
@@ -704,14 +704,14 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted">調撥品項批號</label>
-                        <select class="form-select bg-dark text-light border-secondary">
+                        <select class="form-select form-select-sm bg-dark text-light border-secondary">
                             <option>995 生技營養品 (批號: B260819-01) - 可用 240</option>
                             <option>樟芝益 (批號: B260715-02) - 可用 180</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted">調撥盒數</label>
-                        <input type="number" class="form-control bg-dark text-light border-secondary mono" placeholder="請輸入調撥盒數" min="1" value="20">
+                        <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary mono" placeholder="請輸入調撥盒數" min="1" value="20">
                     </div>
                 </div>
                 <div class="modal-footer border-top border-secondary border-opacity-25">

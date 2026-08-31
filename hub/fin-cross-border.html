@@ -620,20 +620,20 @@
                     <form id="formNewSwap">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">對沖單號 (Swap No) *</label>
-                                <input type="text" class="form-control mono-num" id="formSwapNo" value="SWAP-20260821-006" readonly>
+                                <label class="form-label small text-muted">對沖單號 (Swap No) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm mono-num" id="formSwapNo" value="SWAP-20260821-006" readonly>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">台灣出貨夥伴 (TW Partner) *</label>
-                                <select class="form-select" id="formTwPartnerId" required>
+                                <label class="form-label small text-muted">台灣出貨夥伴 (TW Partner) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formTwPartnerId" required>
                                     <option value="RAY" selected>Ray 翁榮祥</option>
                                     <option value="JARVIS">Jarvis 林承志</option>
                                     <option value="TEAM_LEAD">其他核心幹部</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">大馬受領夥伴 (MY Partner) *</label>
-                                <input type="text" class="form-control" id="formMyPartnerId" placeholder="例如：MY-8801 Alvin" value="MY-8801 Alvin" required>
+                                <label class="form-label small text-muted">大馬受領夥伴 (MY Partner) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="formMyPartnerId" placeholder="例如：MY-8801 Alvin" value="MY-8801 Alvin" required>
                             </div>
 
                             <!-- 台灣現貨端 -->
@@ -643,24 +643,24 @@
                                 </h6>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">台灣交付產品品項 (tw_product_id) *</label>
-                                <select class="form-select" id="formTwProduct" required>
+                                <label class="form-label small text-muted">台灣交付產品品項 (tw_product_id) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formTwProduct" required>
                                     <option value="995" data-sv="1030" data-price="5040" selected>995 超級營養液 (單盒 SV: 1030 / NT$ 5,040)</option>
                                     <option value="LACTO" data-sv="650" data-price="1764">康爾喜乳酸菌 (單盒 SV: 650 / NT$ 1,764)</option>
                                     <option value="HERB" data-sv="820" data-price="4200">樟芝益 (單盒 SV: 820 / NT$ 4,200)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-2">
-                                <label class="form-label small text-muted">交付數量 (盒) *</label>
-                                <input type="number" class="form-control mono-num" id="formTwQty" value="2" min="1" required>
+                                <label class="form-label small text-muted">交付數量 (盒) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm mono-num" id="formTwQty" value="2" min="1" required>
                             </div>
                             <div class="col-12 col-md-2">
                                 <label class="form-label small text-muted">目標 SV (Total SV)</label>
-                                <input type="text" class="form-control mono-num text-info fw-bold" id="formTwTotalSv" value="2060.00" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-info fw-bold" id="formTwTotalSv" value="2060.00" readonly>
                             </div>
                             <div class="col-12 col-md-2">
                                 <label class="form-label small text-muted">總成本 (NT$)</label>
-                                <input type="text" class="form-control mono-num text-light" id="formTwTotalCost" value="10080" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-light" id="formTwTotalCost" value="10080" readonly>
                             </div>
 
                             <!-- 大馬下單端 -->
@@ -671,15 +671,15 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">大馬官網訂單號 (my_order_no)</label>
-                                <input type="text" class="form-control mono-num" id="formMyOrderNo" placeholder="如：MY-ORD-202608-992">
+                                <input type="text" class="form-control form-control-sm mono-num" id="formMyOrderNo" placeholder="如：MY-ORD-202608-992">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">大馬實際下單 SV (my_actual_sv)</label>
-                                <input type="number" step="0.01" class="form-control mono-num" id="formMyActualSv" value="2060.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num" id="formMyActualSv" value="2060.00">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">大馬下單總金額 (MYR)</label>
-                                <input type="number" step="0.01" class="form-control mono-num" id="formMyOrderAmountMyr" value="1410.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num" id="formMyOrderAmountMyr" value="1410.00">
                             </div>
 
                             <!-- 差額與平帳 -->
@@ -690,19 +690,19 @@
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label small text-muted">套用匯率 (MYR/TWD)</label>
-                                <input type="number" step="0.0001" class="form-control mono-num" id="formFxRate" value="7.1500" required>
+                                <input type="number" step="0.0001" class="form-control form-control-sm mono-num" id="formFxRate" value="7.1500" required>
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label small text-muted">SV 差額 (Target - Actual)</label>
-                                <input type="text" class="form-control mono-num text-success fw-bold" id="formSvDifference" value="0.00" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-success fw-bold" id="formSvDifference" value="0.00" readonly>
                             </div>
                             <div class="col-12 col-md-3">
                                 <label class="form-label small text-muted">價差台幣補退 (NT$)</label>
-                                <input type="text" class="form-control mono-num text-warning fw-bold" id="formCashDiffTwd" value="NT$ -1" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-warning fw-bold" id="formCashDiffTwd" value="NT$ -1" readonly>
                             </div>
                             <div class="col-12 col-md-3">
-                                <label class="form-label small text-muted">對沖進度階段 (Stage) *</label>
-                                <select class="form-select" id="formSwapStage" required>
+                                <label class="form-label small text-muted">對沖進度階段 (Stage) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formSwapStage" required>
                                     <option value="STAGE1_TW_DELIVERED">STAGE 1: 台灣交貨</option>
                                     <option value="STAGE2_MY_ORDERED" selected>STAGE 2: 大馬下單</option>
                                     <option value="STAGE3_BALANCED">STAGE 3: 帳目兩平</option>
@@ -712,7 +712,7 @@
 
                             <div class="col-12">
                                 <label class="form-label small text-muted">航班攜帶批號與對沖備忘 (Notes)</label>
-                                <input type="text" class="form-control" id="formNotes" placeholder="例：Ray 8/18 航班隨身攜帶、批號 B202608、吉隆坡現貨交割">
+                                <input type="text" class="form-control form-control-sm" id="formNotes" placeholder="例：Ray 8/18 航班隨身攜帶、批號 B202608、吉隆坡現貨交割">
                             </div>
                         </div>
                     </form>

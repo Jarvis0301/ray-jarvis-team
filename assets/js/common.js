@@ -114,6 +114,7 @@ function setDataTable() {
             autoWidth: false,               // 關閉自動寬度計算 (避免欄位擠壓，改由 CSS 控制)
             stateSave: false,               // 重新整理時是否記憶目前的頁碼/排序 (預設關閉)
             destroy: true,                  // 銷毀舊表格，重新建立
+            scrollX: true,                  // 開啟橫向滾動軸
 
             // --- 4. 效能優化 ---
             deferRender: true,              // 延遲渲染 (當資料量大時能顯著提升速度)
@@ -153,6 +154,8 @@ function setDataTable() {
             scrollX (true / "100%")：開啟橫向滾動軸，當表格欄位過多爆出畫面時非常有用。
 
             scrollY (字串，如 "400px")：固定表格高度並開啟縱向滾動軸。
+
+            scrollCollapse (true / false)：控制當表格內容很少、不足以佔滿設定的最大高度時，表格本身的高度是否要跟著縮小。
 
             deferRender (true / false)：資料量大時僅繪製目前頁面的 DOM，顯著提升載入速度。
 

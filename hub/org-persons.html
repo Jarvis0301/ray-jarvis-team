@@ -338,7 +338,7 @@
                 <div class="col-12 col-lg-4 text-lg-end d-flex gap-2 justify-content-lg-end">
                     <div class="input-group input-group-sm" style="max-width: 240px;">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" id="globalSearchInput" class="form-control form-tactical-control" placeholder="姓名 / 暱稱 / 電話...">
+                        <input type="text" id="globalSearchInput" class="form-control form-control-sm form-tactical-control" placeholder="姓名 / 暱稱 / 電話...">
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
                         <button type="button" class="btn btn-outline-secondary active text-light" id="viewCardsBtn" title="卡片矩陣視圖">
@@ -523,11 +523,11 @@
                         <input type="hidden" id="switchPersonId">
                         <div class="mb-3">
                             <label class="form-label text-muted small">當前目標人員</label>
-                            <input type="text" class="form-control form-tactical-control" id="switchTargetName" readonly>
+                            <input type="text" class="form-control form-control-sm form-tactical-control" id="switchTargetName" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small">身份型態 (Identity Type)</label>
-                            <select class="form-select form-tactical-control" id="switchIdentityType">
+                            <select class="form-select form-select-sm form-tactical-control" id="switchIdentityType">
                                 <option value="夥伴">夥伴 (簽約經營)</option>
                                 <option value="團隊成員">團隊成員 (非簽約核心)</option>
                                 <option value="潛在團隊成員">潛在團隊成員 (意向加盟)</option>
@@ -537,7 +537,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small">使用身份 (Usage Identity)</label>
-                            <select class="form-select form-tactical-control" id="switchUsageIdentity">
+                            <select class="form-select form-select-sm form-tactical-control" id="switchUsageIdentity">
                                 <option value="經營者">經營者 (發展組織/銷售)</option>
                                 <option value="消費者">消費者 (純自用享受回饋)</option>
                             </select>
@@ -565,20 +565,20 @@
                 <div class="modal-body p-4">
                     <form id="formPersonMaster" class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label text-muted small">中文真實姓名 *</label>
-                            <input type="text" class="form-control form-tactical-control" id="editNameZh" required placeholder="如：翁榮祥">
+                            <label class="form-label text-muted small">中文真實姓名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm form-tactical-control" id="editNameZh" required placeholder="如：翁榮祥">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small">英文姓名</label>
-                            <input type="text" class="form-control form-tactical-control" id="editNameEn" placeholder="如：Ray Weng">
+                            <input type="text" class="form-control form-control-sm form-tactical-control" id="editNameEn" placeholder="如：Ray Weng">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small">常用暱稱</label>
-                            <input type="text" class="form-control form-tactical-control" id="editPreferredName" placeholder="如：Ray">
+                            <input type="text" class="form-control form-control-sm form-tactical-control" id="editPreferredName" placeholder="如：Ray">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">身份</label>
-                            <select class="form-select form-tactical-control" id="editIdentityType">
+                            <select class="form-select form-select-sm form-tactical-control" id="editIdentityType">
                                 <option value="潛在客戶">潛在客戶</option>
                                 <option value="客戶">客戶</option>
                                 <option value="潛在團隊成員">潛在團隊成員</option>
@@ -588,22 +588,22 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">使用身份</label>
-                            <select class="form-select form-tactical-control" id="editUsageIdentity">
+                            <select class="form-select form-select-sm form-tactical-control" id="editUsageIdentity">
                                 <option value="消費者">消費者</option>
                                 <option value="經營者">經營者</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small">主要電話</label>
-                            <input type="text" class="form-control form-tactical-control" id="editPhone" placeholder="+886912345678">
+                            <input type="text" class="form-control form-control-sm form-tactical-control" id="editPhone" placeholder="+886912345678">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small">主要 Email (Google驗證)</label>
-                            <input type="email" class="form-control form-tactical-control" id="editEmail" placeholder="ray@example.com">
+                            <input type="email" class="form-control form-control-sm form-tactical-control" id="editEmail" placeholder="ray@example.com">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small">國籍</label>
-                            <select class="form-select form-tactical-control" id="editNationality">
+                            <select class="form-select form-select-sm form-tactical-control" id="editNationality">
                                 <option value="台灣">台灣 (TW)</option>
                                 <option value="馬來西亞">馬來西亞 (MY)</option>
                                 <option value="新加坡">新加坡 (SG)</option>
@@ -612,11 +612,11 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted small">健康備註 (過敏史、調理訴求)</label>
-                            <textarea class="form-control form-tactical-control" id="editHealthNotes" rows="2"></textarea>
+                            <textarea class="form-control form-control-sm form-tactical-control" id="editHealthNotes" rows="2"></textarea>
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted small">財務備註 (增收目標、負債狀況)</label>
-                            <textarea class="form-control form-tactical-control" id="editFinancialNotes" rows="2"></textarea>
+                            <textarea class="form-control form-control-sm form-tactical-control" id="editFinancialNotes" rows="2"></textarea>
                         </div>
                     </form>
                 </div>

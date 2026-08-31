@@ -239,11 +239,11 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-fingerprint"></i> 選單 ID (menu_id)</label>
-                                    <input type="text" class="form-control" id="fieldMenuId" placeholder="如: H74000, T51000" required>
+                                    <input type="text" class="form-control form-control-sm" id="fieldMenuId" placeholder="如: H74000, T51000" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-layer-group"></i> 所屬版本 (app_track)</label>
-                                    <select class="form-select" id="fieldAppTrack" required>
+                                    <select class="form-select form-select-sm" id="fieldAppTrack" required>
                                         <option value="核心版">核心版</option>
                                         <option value="團隊版">團隊版</option>
                                         <option value="公開版">公開版</option>
@@ -251,7 +251,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-sitemap"></i> 所屬階層 (menu_level)</label>
-                                    <select class="form-select" id="fieldMenuLevel" required>
+                                    <select class="form-select form-select-sm" id="fieldMenuLevel" required>
                                         <option value="0">0: 頂層大類</option>
                                         <option value="1">1: 二級子功能</option>
                                         <option value="-1">-1: 隱藏落地頁</option>
@@ -260,27 +260,27 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label"><i class="fa-solid fa-language"></i> 中文名稱 (menu_name_zh)</label>
-                                    <input type="text" class="form-control" id="fieldMenuNameZh" placeholder="如: 選單管理 (4~5字)" required>
+                                    <input type="text" class="form-control form-control-sm" id="fieldMenuNameZh" placeholder="如: 選單管理 (4~5字)" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"><i class="fa-solid fa-font"></i> 英文名稱 (menu_name_en)</label>
-                                    <input type="text" class="form-control" id="fieldMenuNameEn" placeholder="如: Dynamic Menu Engine">
+                                    <input type="text" class="form-control form-control-sm" id="fieldMenuNameEn" placeholder="如: Dynamic Menu Engine">
                                 </div>
 
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-network-wired"></i> 父節點 (parent_id)</label>
-                                    <select class="form-select" id="fieldParentId">
+                                    <select class="form-select form-select-sm" id="fieldParentId">
                                         <option value="root">root (最頂層根節點)</option>
                                         <option value="hide">hide (隱藏落地頁)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-arrow-down-1-9"></i> 排序權重 (sort_order)</label>
-                                    <input type="number" class="form-control" id="fieldSortOrder" value="10" required>
+                                    <input type="number" class="form-control form-control-sm" id="fieldSortOrder" value="10" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-traffic-light"></i> 開發進度 (dev_status)</label>
-                                    <select class="form-select" id="fieldDevStatus">
+                                    <select class="form-select form-select-sm" id="fieldDevStatus">
                                         <option value="已完成">已完成</option>
                                         <option value="測試中">測試中</option>
                                         <option value="修復中">修復中</option>
@@ -289,19 +289,19 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label"><i class="fa-solid fa-link"></i> 路由路徑 (route_url)</label>
-                                    <input type="text" class="form-control" id="fieldRouteUrl" placeholder="如: sys-menus.html 或 #" required>
+                                    <input type="text" class="form-control form-control-sm" id="fieldRouteUrl" placeholder="如: sys-menus.html 或 #" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"><i class="fa-solid fa-icons"></i> Font Awesome 圖示 (fa_icon)</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-dark border-secondary-subtle text-primary" id="iconPreview"><i class="fa-solid fa-bars"></i></span>
-                                        <input type="text" class="form-control" id="fieldFaIcon" placeholder="fa-solid fa-bars-staggered">
+                                        <input type="text" class="form-control form-control-sm" id="fieldFaIcon" placeholder="fa-solid fa-bars-staggered">
                                     </div>
                                 </div>
 
                                 <div class="col-md-8">
                                     <label class="form-label"><i class="fa-solid fa-database"></i> 對應資料表 (related_tables)</label>
-                                    <input type="text" class="form-control" id="fieldRelatedTables" placeholder="如: prd_items, prd_details">
+                                    <input type="text" class="form-control form-control-sm" id="fieldRelatedTables" placeholder="如: prd_items, prd_details">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="fa-solid fa-toggle-on"></i> 全域啟用開關 (is_active)</label>
@@ -313,7 +313,7 @@
 
                                 <div class="col-12">
                                     <label class="form-label"><i class="fa-solid fa-file-lines"></i> 核心功能與業務說明 (function_desc)</label>
-                                    <textarea class="form-control" id="fieldFunctionDesc" rows="2" placeholder="詳細說明此節點職責、資料流與維護指引..."></textarea>
+                                    <textarea class="form-control form-control-sm" id="fieldFunctionDesc" rows="2" placeholder="詳細說明此節點職責、資料流與維護指引..."></textarea>
                                 </div>
                             </div>
                         </form>

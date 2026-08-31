@@ -387,7 +387,7 @@
                             <span class="input-group-text bg-dark border-purple text-secondary" style="border-color: rgba(139, 92, 246, 0.25);">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="quick-search" class="form-control bg-dark text-white border-purple" placeholder="過濾代碼 / 名稱..." style="border-color: rgba(139, 92, 246, 0.25);">
+                            <input type="text" id="quick-search" class="form-control form-control-sm bg-dark text-white border-purple" placeholder="過濾代碼 / 名稱..." style="border-color: rgba(139, 92, 246, 0.25);">
                         </div>
                         
                         <div class="btn-group btn-group-sm">
@@ -501,13 +501,13 @@
             <form id="form-quick-dispatch">
                 <div class="mb-3">
                     <label class="form-label text-secondary small fw-bold">調撥單號 (自動生成)</label>
-                    <input type="text" class="form-control bg-dark text-white mono-num border-purple" value="TR-20260819-003" readonly style="border-color: rgba(139, 92, 246, 0.25);">
+                    <input type="text" class="form-control form-control-sm bg-dark text-white mono-num border-purple" value="TR-20260819-003" readonly style="border-color: rgba(139, 92, 246, 0.25);">
                 </div>
 
                 <div class="row g-2 mb-3">
                     <div class="col-6">
                         <label class="form-label text-secondary small fw-bold">來源出庫倉</label>
-                        <select class="form-select bg-dark text-white border-purple" id="dispatch-from-wh" style="border-color: rgba(139, 92, 246, 0.25);">
+                        <select class="form-select form-select-sm bg-dark text-white border-purple" id="dispatch-from-wh" style="border-color: rgba(139, 92, 246, 0.25);">
                             <option value="WH-TW-N01">台北總倉 (WH-TW-N01)</option>
                             <option value="HUB-RAY-01" selected>榮祥核心私倉 (HUB-RAY-01)</option>
                             <option value="WH-MY-KL01">吉隆坡前進基地</option>
@@ -515,7 +515,7 @@
                     </div>
                     <div class="col-6">
                         <label class="form-label text-secondary small fw-bold">目的入庫倉</label>
-                        <select class="form-select bg-dark text-white border-purple" id="dispatch-to-wh" style="border-color: rgba(139, 92, 246, 0.25);">
+                        <select class="form-select form-select-sm bg-dark text-white border-purple" id="dispatch-to-wh" style="border-color: rgba(139, 92, 246, 0.25);">
                             <option value="WH-MY-KL01" selected>吉隆坡前進基地 (WH-MY-KL01)</option>
                             <option value="WH-TW-N01">台北總倉 (WH-TW-N01)</option>
                             <option value="WH-TW-C01">台中營業處自提</option>
@@ -525,7 +525,7 @@
 
                 <div class="mb-3">
                     <label class="form-label text-secondary small fw-bold">調撥品項與規格</label>
-                    <select class="form-select bg-dark text-white border-purple" id="dispatch-product" style="border-color: rgba(139, 92, 246, 0.25);">
+                    <select class="form-select form-select-sm bg-dark text-white border-purple" id="dispatch-product" style="border-color: rgba(139, 92, 246, 0.25);">
                         <option value="0303001">TW0303001 - 葡眾樟芝益 (24包/盒)</option>
                         <option value="0303002">TW0303002 - 康貝兒益生菌 (90包/盒)</option>
                         <option value="0303003">TW0303003 - 995超級營養液 (24包/盒)</option>
@@ -535,11 +535,11 @@
                 <div class="row g-2 mb-3">
                     <div class="col-6">
                         <label class="form-label text-secondary small fw-bold">調撥盒數</label>
-                        <input type="number" class="form-control bg-dark text-white mono-num border-purple" value="20" min="1" max="500" style="border-color: rgba(139, 92, 246, 0.25);">
+                        <input type="number" class="form-control form-control-sm bg-dark text-white mono-num border-purple" value="20" min="1" max="500" style="border-color: rgba(139, 92, 246, 0.25);">
                     </div>
                     <div class="col-6">
                         <label class="form-label text-secondary small fw-bold">運輸管道</label>
-                        <select class="form-select bg-dark text-white border-purple" style="border-color: rgba(139, 92, 246, 0.25);">
+                        <select class="form-select form-select-sm bg-dark text-white border-purple" style="border-color: rgba(139, 92, 246, 0.25);">
                             <option value="AIR">國際航空快遞</option>
                             <option value="SEA">海運貨櫃拼箱</option>
                             <option value="LOCAL">本地專車配送</option>
@@ -550,7 +550,7 @@
 
                 <div class="mb-4">
                     <label class="form-label text-secondary small fw-bold">戰術備註 / 專案代碼</label>
-                    <textarea class="form-control bg-dark text-white border-purple" rows="2" placeholder="如：8/25 吉隆坡招商大會急件備貨..." style="border-color: rgba(139, 92, 246, 0.25);"></textarea>
+                    <textarea class="form-control form-control-sm bg-dark text-white border-purple" rows="2" placeholder="如：8/25 吉隆坡招商大會急件備貨..." style="border-color: rgba(139, 92, 246, 0.25);"></textarea>
                 </div>
 
                 <button type="button" class="btn btn-primary w-100 py-2 fw-bold" id="btn-submit-dispatch" style="background: var(--uvaco-primary-gradient); border: none;">

@@ -627,16 +627,16 @@
                     <form id="formNewFundLog">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">異動單號 (Log No) *</label>
-                                <input type="text" class="form-control mono-num" id="formFundLogNo" value="OF-202608-007" readonly>
+                                <label class="form-label small text-muted">異動單號 (Log No) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm mono-num" id="formFundLogNo" value="OF-202608-007" readonly>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">異動發生日期 *</label>
-                                <input type="date" class="form-control mono-num" id="formFundDate" value="2026-08-21" required>
+                                <label class="form-label small text-muted">異動發生日期 <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm mono-num" id="formFundDate" value="2026-08-21" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">異動類型 (Change Type) *</label>
-                                <select class="form-select" id="formChangeType" required>
+                                <label class="form-label small text-muted">異動類型 (Change Type) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formChangeType" required>
                                     <option value="MONTHLY_RESERVE">MONTHLY_RESERVE (月度利潤提撥)</option>
                                     <option value="EXPENSE_WITHDRAWAL">EXPENSE_WITHDRAWAL (公款核銷支出)</option>
                                     <option value="FOUNDER_INJECTION">FOUNDER_INJECTION (創始人特別注資)</option>
@@ -646,17 +646,17 @@
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">變動金額 (正數撥入，負數提支) *</label>
+                                <label class="form-label small text-muted">變動金額 (正數撥入，負數提支) <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-dark border-secondary text-muted">TWD</span>
-                                    <input type="number" step="0.01" class="form-control mono-num fw-bold" id="formFundAmount" placeholder="+/- 金額" required>
+                                    <input type="number" step="0.01" class="form-control form-control-sm mono-num fw-bold" id="formFundAmount" placeholder="+/- 金額" required>
                                 </div>
                                 <div class="form-text text-muted">範例：提支支出輸入 -25800，利潤提撥輸入 30000</div>
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">經辦 / 申請主管 (Operator Partner) *</label>
-                                <select class="form-select" id="formOperatorPartner" required>
+                                <label class="form-label small text-muted">經辦 / 申請主管 (Operator Partner) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formOperatorPartner" required>
                                     <option value="RAY" selected>Ray 翁榮祥 (台灣戰略)</option>
                                     <option value="JARVIS">Jarvis 林承志 (大馬營運)</option>
                                     <option value="SYSTEM">SYSTEM (自動排程提撥)</option>
@@ -665,27 +665,27 @@
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">關聯日常收支單號 (Trans ID / No)</label>
-                                <input type="text" class="form-control mono-num" id="formFundTransNo" placeholder="如：TX-20260801-005 (無則留空)">
+                                <input type="text" class="form-control form-control-sm mono-num" id="formFundTransNo" placeholder="如：TX-20260801-005 (無則留空)">
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">關聯月度對帳單 (Recon ID)</label>
-                                <input type="text" class="form-control mono-num" id="formFundReconId" placeholder="如：REC-2026-08 (無則留空)">
+                                <input type="text" class="form-control form-control-sm mono-num" id="formFundReconId" placeholder="如：REC-2026-08 (無則留空)">
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label small text-muted">提支用途或撥入事由說明 (Purpose Desc) *</label>
-                                <input type="text" class="form-control" id="formPurposeDesc" placeholder="詳細說明款項來源或動支用途..." required>
+                                <label class="form-label small text-muted">提支用途或撥入事由說明 (Purpose Desc) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="formPurposeDesc" placeholder="詳細說明款項來源或動支用途..." required>
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">存儲專戶銀行或保管人資訊</label>
-                                <input type="text" class="form-control" id="formBankAccount" value="國泰世華銀行專戶 (8821)" required>
+                                <input type="text" class="form-control form-control-sm" id="formBankAccount" value="國泰世華銀行專戶 (8821)" required>
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">簽呈與額外備註 (Notes)</label>
-                                <input type="text" class="form-control" id="formNotes" placeholder="如：雙創始人已簽核第 12 號決議案">
+                                <input type="text" class="form-control form-control-sm" id="formNotes" placeholder="如：雙創始人已簽核第 12 號決議案">
                             </div>
                         </div>
                     </form>
@@ -720,12 +720,12 @@
 
                     <div class="mb-3">
                         <label class="form-label small text-muted">當月團隊淨利潤 (Net Profit TWD)</label>
-                        <input type="number" class="form-control mono-num fw-bold fs-5" id="calcNetProfit" value="480000">
+                        <input type="number" class="form-control form-control-sm mono-num fw-bold fs-5" id="calcNetProfit" value="480000">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small text-muted">約定提撥比例 (%)</label>
-                        <select class="form-select mono-num" id="calcReservePercent">
+                        <select class="form-select form-select-sm mono-num" id="calcReservePercent">
                             <option value="0.05" selected>5.0% (標準公積金比例)</option>
                             <option value="0.08">8.0% (擴大拓點儲備)</option>
                             <option value="0.10">10.0% (年度盛典衝刺)</option>

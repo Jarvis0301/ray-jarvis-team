@@ -350,7 +350,7 @@
                             <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="healthSearchInput" class="form-control border-0" placeholder="搜尋顧客姓名、體質標籤、推薦方案或夥伴..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                            <input type="text" id="healthSearchInput" class="form-control form-control-sm border-0" placeholder="搜尋顧客姓名、體質標籤、推薦方案或夥伴..." style="background: rgba(255,255,255,0.06); color: #fff;">
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-neon-ghost active px-3" id="btnViewTiles" title="卡片全息流視圖">
@@ -533,16 +533,16 @@
                     <form id="formNewAssessment">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">受測顧客姓名 *</label>
-                                <input type="text" class="form-control" name="customer_name" required placeholder="如：張雅雯">
+                                <label class="form-label small text-muted">受測顧客姓名 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="customer_name" required placeholder="如：張雅雯">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">聯絡電話 / LINE ID *</label>
-                                <input type="text" class="form-control" name="contact_info" required placeholder="0912-345-678">
+                                <label class="form-label small text-muted">聯絡電話 / LINE ID <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="contact_info" required placeholder="0912-345-678">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">主訴體質弱項類別 *</label>
-                                <select class="form-select" name="primary_concern" required>
+                                <label class="form-label small text-muted">主訴體質弱項類別 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="primary_concern" required>
                                     <option value="DIGESTIVE">腸道消化 / 胃酸逆流 / 便秘</option>
                                     <option value="IMMUNE">呼吸道敏弱 / 換季哈啾</option>
                                     <option value="LIVER">經常熬夜 / 體力透支 / 肝火</option>
@@ -551,27 +551,27 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">體質困擾嚴重度 *</label>
-                                <select class="form-select" name="severity_level" required>
+                                <label class="form-label small text-muted">體質困擾嚴重度 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="severity_level" required>
                                     <option value="MODERATE">🟡 中度困擾 (已有明顯體感影響)</option>
                                     <option value="SEVERE">🔴 重度困擾 (長期反覆困擾多年)</option>
                                     <option value="MILD">🟢 輕微保養 (日常預防保健)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">系統配對推薦方案 *</label>
-                                <input type="text" class="form-control" name="recommended_bundle" required placeholder="例如：康爾喜 2 盒 + 衛傑 1 瓶">
+                                <label class="form-label small text-muted">系統配對推薦方案 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="recommended_bundle" required placeholder="例如：康爾喜 2 盒 + 衛傑 1 瓶">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">跟進負責夥伴 *</label>
-                                <select class="form-select" name="partner_name" required>
+                                <label class="form-label small text-muted">跟進負責夥伴 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="partner_name" required>
                                     <option value="Ray 翁榮祥">Ray 翁榮祥 (核心創始)</option>
                                     <option value="Jarvis 林承志">Jarvis 林承志 (技術總監)</option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label small text-muted">受測者自述症狀與生活作息摘要 *</label>
-                                <textarea class="form-control" name="health_notes" rows="3" required placeholder="記錄飲食習慣、排便頻率、過敏病史、預算考量等..."></textarea>
+                                <label class="form-label small text-muted">受測者自述症狀與生活作息摘要 <span class="text-danger">*</span></label>
+                                <textarea class="form-control form-control-sm" name="health_notes" rows="3" required placeholder="記錄飲食習慣、排便頻率、過敏病史、預算考量等..."></textarea>
                             </div>
                         </div>
                     </form>

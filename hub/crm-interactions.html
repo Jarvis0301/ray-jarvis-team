@@ -394,7 +394,7 @@
                             <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="interactionSearchInput" class="form-control border-0" placeholder="搜尋顧客姓名、產品品項、負責夥伴或關鍵字..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                            <input type="text" id="interactionSearchInput" class="form-control form-control-sm border-0" placeholder="搜尋顧客姓名、產品品項、負責夥伴或關鍵字..." style="background: rgba(255,255,255,0.06); color: #fff;">
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-neon-ghost active px-3" id="btnViewTimeline" title="時間軸瀑布流視圖">
@@ -608,19 +608,19 @@
                     <form id="formNewInteraction">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">對象顧客姓名 *</label>
-                                <input type="text" class="form-control" name="customer_name" required placeholder="如：林美珠 (台中)">
+                                <label class="form-label small text-muted">對象顧客姓名 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="customer_name" required placeholder="如：林美珠 (台中)">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">負責夥伴 / 錄入者 *</label>
-                                <select class="form-select" name="partner_name" required>
+                                <label class="form-label small text-muted">負責夥伴 / 錄入者 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="partner_name" required>
                                     <option value="Ray 翁榮祥">Ray 翁榮祥 (核心創始)</option>
                                     <option value="Jarvis 林承志">Jarvis 林承志 (技術總監)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">關懷溝通渠道 *</label>
-                                <select class="form-select" name="channel_type" required>
+                                <label class="form-label small text-muted">關懷溝通渠道 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="channel_type" required>
                                     <option value="LINE">LINE 訊息 / 語音</option>
                                     <option value="PHONE">電話通話</option>
                                     <option value="IN_PERSON">實體到府 / 面談拜訪</option>
@@ -629,8 +629,8 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">關懷主題類別 *</label>
-                                <select class="form-select" name="interaction_type" required>
+                                <label class="form-label small text-muted">關懷主題類別 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="interaction_type" required>
                                     <option value="HEALTH_CHECK">體感食用關懷 (食用第3/7/14天)</option>
                                     <option value="REORDER_NUDGE">週期續購與特惠提醒</option>
                                     <option value="OPP_SHARING">葡眾事業制度與經理價分享</option>
@@ -639,8 +639,8 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">體感回饋等級 (Sentiment) *</label>
-                                <select class="form-select" name="health_sentiment" required>
+                                <label class="form-label small text-muted">體感回饋等級 (Sentiment) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="health_sentiment" required>
                                     <option value="EXCELLENT">✨ 體感顯著好轉 (高滿意度)</option>
                                     <option value="STABLE">👍 改善穩定 (持續調理中)</option>
                                     <option value="REACTION">⚡ 好轉/暝眩反應處理中 (需密集安撫)</option>
@@ -649,19 +649,19 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">涉及/食用產品 (逗號分隔)</label>
-                                <input type="text" class="form-control" name="products_mentioned" placeholder="例如：康爾喜, 995, 樟芝益">
+                                <input type="text" class="form-control form-control-sm" name="products_mentioned" placeholder="例如：康爾喜, 995, 樟芝益">
                             </div>
                             <div class="col-12">
-                                <label class="form-label small text-muted">對話重點與顧客反應摘要 *</label>
-                                <textarea class="form-control" name="summary" rows="3" required placeholder="詳細記錄顧客反應、食用瓶數/包數、排便次數、睡眠精神變化等..."></textarea>
+                                <label class="form-label small text-muted">對話重點與顧客反應摘要 <span class="text-danger">*</span></label>
+                                <textarea class="form-control form-control-sm" name="summary" rows="3" required placeholder="詳細記錄顧客反應、食用瓶數/包數、排便次數、睡眠精神變化等..."></textarea>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">約定下次跟進日期</label>
-                                <input type="date" class="form-control" name="next_follow_date" value="2026-08-25">
+                                <input type="date" class="form-control form-control-sm" name="next_follow_date" value="2026-08-25">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">下一步跟進行動 (Next Action)</label>
-                                <input type="text" class="form-control" name="next_action_plan" placeholder="例如：追蹤暝眩反應消退情況、寄送經理方案目錄">
+                                <input type="text" class="form-control form-control-sm" name="next_action_plan" placeholder="例如：追蹤暝眩反應消退情況、寄送經理方案目錄">
                             </div>
                         </div>
                     </form>

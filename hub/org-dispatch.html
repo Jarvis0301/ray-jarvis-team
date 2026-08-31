@@ -280,7 +280,7 @@
                 <div class="d-flex flex-wrap align-items-center justify-content-xl-end gap-2">
                     <div class="input-group" style="max-width: 200px;">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-calendar-day"></i></span>
-                        <input type="month" class="form-control" id="targetMonth" value="2026-08">
+                        <input type="month" class="form-control form-control-sm" id="targetMonth" value="2026-08">
                     </div>
                     <button class="btn btn-outline-light border-secondary" id="btnRefreshData">
                         <i class="fa-solid fa-arrows-rotate me-1"></i> 同步試算表
@@ -514,7 +514,7 @@
 
                     <div>
                         <label class="form-label text-muted small">調度戰術執行備忘 (Action Plan)</label>
-                        <textarea class="form-control" id="tacticalActionPlanText" rows="2" placeholder="例：已電聯張小姐將 2 盒 995 提前於 26 號下單..."></textarea>
+                        <textarea class="form-control form-control-sm" id="tacticalActionPlanText" rows="2" placeholder="例：已電聯張小姐將 2 盒 995 提前於 26 號下單..."></textarea>
                     </div>
 
                 </div>
@@ -540,13 +540,13 @@
                     <div class="mb-3">
                         <label class="form-label text-white">當前待分配總進貨 SV</label>
                         <div class="input-group">
-                            <input type="number" class="form-control" id="optInputSv" value="6500">
+                            <input type="number" class="form-control form-control-sm" id="optInputSv" value="6500">
                             <span class="input-group-text bg-dark text-muted">SV</span>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label text-white">求解戰術策略偏好</label>
-                        <select class="form-select" id="optStrategy">
+                        <select class="form-select form-select-sm" id="optStrategy">
                             <option value="PREVENT_BREAKAWAY" selected>優先防斷代（補足 12,000 SV 邊緣名單）</option>
                             <option value="MAX_BONUS">獲利最大化（衝刺高代數獎金線）</option>
                             <option value="BALANCED">平衡配置</option>

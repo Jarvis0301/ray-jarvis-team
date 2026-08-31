@@ -347,7 +347,7 @@
 
                         <div class="mb-3">
                             <label class="form-label text-white small fw-bold"><i class="fa-solid fa-user-tag me-1"></i> 綁定分發夥伴 (試算表同步)</label>
-                            <select class="form-select studio-select" id="partnerSelect">
+                            <select class="form-select form-select-sm studio-select" id="partnerSelect">
                                 <option value="PTN-RAY01|Ray 榮祥|領袖經銷商">PTN-RAY01 · Ray 榮祥 (領袖經銷商)</option>
                                 <option value="PTN-JAR02|Jarvis 佳威|核心創始人">PTN-JAR02 · Jarvis 佳威 (核心創始人)</option>
                                 <option value="PTN-TW9901|陳小明|珍珠經理">PTN-TW9901 · 陳小明 (珍珠經理)</option>
@@ -356,7 +356,7 @@
 
                         <div class="mb-3">
                             <label class="form-label text-white small fw-bold"><i class="fa-solid fa-tag me-1"></i> 機密溯源標籤</label>
-                            <input type="text" class="form-control studio-input" id="customTag" value="CONFIDENTIAL_SV_TREE_2026">
+                            <input type="text" class="form-control form-control-sm studio-input" id="customTag" value="CONFIDENTIAL_SV_TREE_2026">
                         </div>
 
                         <div class="mb-3">
@@ -377,18 +377,18 @@
                     <div class="tab-pane fade" id="tabWatermark" role="tabpanel">
                         <div class="mb-3">
                             <label class="form-label text-white small fw-bold"><i class="fa-solid fa-font me-1"></i> 水印主標題</label>
-                            <input type="text" class="form-control studio-input" id="inputWatermarkText" value="葡眾合格經銷商・榮祥體系">
+                            <input type="text" class="form-control form-control-sm studio-input" id="inputWatermarkText" value="葡眾合格經銷商・榮祥體系">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label text-white small fw-bold"><i class="fa-solid fa-address-card me-1"></i> 聯絡資訊 (次行)</label>
-                            <input type="text" class="form-control studio-input" id="inputSubText" value="諮詢專線：0912-345-678 ｜ LINE: ray-jarvis">
+                            <input type="text" class="form-control form-control-sm studio-input" id="inputSubText" value="諮詢專線：0912-345-678 ｜ LINE: ray-jarvis">
                         </div>
 
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="form-label text-white small fw-bold"><i class="fa-solid fa-location-crosshairs me-1"></i> 烙印位置</label>
-                                <select class="form-select studio-select" id="selectWatermarkPosition">
+                                <select class="form-select form-select-sm studio-select" id="selectWatermarkPosition">
                                     <option value="bottom-right" selected>右下角</option>
                                     <option value="bottom-left">左下角</option>
                                     <option value="top-right">右上角</option>
@@ -397,7 +397,7 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label text-white small fw-bold"><i class="fa-solid fa-palette me-1"></i> 顏色</label>
-                                <select class="form-select studio-select" id="selectWatermarkColor">
+                                <select class="form-select form-select-sm studio-select" id="selectWatermarkColor">
                                     <option value="rgba(255, 255, 255, 0.85)" selected>純白光芒</option>
                                     <option value="rgba(192, 132, 252, 0.9)">魅影淺紫</option>
                                     <option value="rgba(251, 191, 36, 0.9)">日光琥珀</option>
@@ -705,7 +705,7 @@
                 // 拖曳上傳支援
                 const dropZone = document.getElementById('viewportWrapper');
                 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); $('#dropZonePrompt').addClass('dragover'); });
-                dropZone.addEventListener('dragleave', () => $('#dropZonePrompt').removeClass('dragover'); );
+                dropZone.addEventListener('dragleave', () => $('#dropZonePrompt').removeClass('dragover') );
                 dropZone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     $('#dropZonePrompt').removeClass('dragover');

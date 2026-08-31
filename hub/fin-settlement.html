@@ -353,7 +353,7 @@
                             <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--core-text-muted);">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="reconSearchInput" class="form-control border-0" placeholder="搜尋單號、摘要或科目..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                            <input type="text" id="reconSearchInput" class="form-control form-control-sm border-0" placeholder="搜尋單號、摘要或科目..." style="background: rgba(255,255,255,0.06); color: #fff;">
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-neon-ghost active px-3" id="btnViewFlow" title="雙核清算流動艙視圖">
@@ -578,12 +578,12 @@
                     <form id="formNewSettlement">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">結算期數月份 (Period Month) *</label>
-                                <input type="month" class="form-control mono-num" name="period_month" value="2026-08" required>
+                                <label class="form-label small text-muted">結算期數月份 (Period Month) <span class="text-danger">*</span></label>
+                                <input type="month" class="form-control form-control-sm mono-num" name="period_month" value="2026-08" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">結算官方匯率 (MYR to TWD) *</label>
-                                <input type="number" step="0.0001" class="form-control mono-num" name="fx_rate" value="7.1500" required>
+                                <label class="form-label small text-muted">結算官方匯率 (MYR to TWD) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.0001" class="form-control form-control-sm mono-num" name="fx_rate" value="7.1500" required>
                             </div>
 
                             <div class="col-12">
@@ -592,12 +592,12 @@
                                 </h6>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">台灣實收金額 (已扣 10%稅 + 2.11%健保) *</label>
-                                <input type="number" class="form-control mono-num" name="ray_tw_net" value="225450" required>
+                                <label class="form-label small text-muted">台灣實收金額 (已扣 10%稅 + 2.11%健保) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm mono-num" name="ray_tw_net" value="225450" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">大馬實收金額 (MYR 原幣，已扣 2% 107D) *</label>
-                                <input type="number" class="form-control mono-num" name="ray_my_net" value="6000" required>
+                                <label class="form-label small text-muted">大馬實收金額 (MYR 原幣，已扣 2% 107D) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm mono-num" name="ray_my_net" value="6000" required>
                             </div>
 
                             <div class="col-12">
@@ -606,12 +606,12 @@
                                 </h6>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">台灣實收金額 (已扣 10%稅 + 2.11%健保) *</label>
-                                <input type="number" class="form-control mono-num" name="jarvis_tw_net" value="182550" required>
+                                <label class="form-label small text-muted">台灣實收金額 (已扣 10%稅 + 2.11%健保) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm mono-num" name="jarvis_tw_net" value="182550" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">大馬實收金額 (MYR 原幣，已扣 2% 107D) *</label>
-                                <input type="number" class="form-control mono-num" name="jarvis_my_net" value="9930" required>
+                                <label class="form-label small text-muted">大馬實收金額 (MYR 原幣，已扣 2% 107D) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm mono-num" name="jarvis_my_net" value="9930" required>
                             </div>
 
                             <div class="col-12">
@@ -621,15 +621,15 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">Ray 本期代墊款 (NT$)</label>
-                                <input type="number" class="form-control mono-num" name="ray_advance" value="15800">
+                                <input type="number" class="form-control form-control-sm mono-num" name="ray_advance" value="15800">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">Jarvis 本期代墊款 (NT$)</label>
-                                <input type="number" class="form-control mono-num" name="jarvis_advance" value="6200">
+                                <input type="number" class="form-control form-control-sm mono-num" name="jarvis_advance" value="6200">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">公基金提撥比率 (%)</label>
-                                <input type="number" class="form-control mono-num" name="reserve_rate" value="5.0" min="0" max="20" step="0.5">
+                                <input type="number" class="form-control form-control-sm mono-num" name="reserve_rate" value="5.0" min="0" max="20" step="0.5">
                             </div>
                         </div>
                     </form>

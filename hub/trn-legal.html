@@ -404,7 +404,7 @@
                     <span class="input-group-text bg-dark border-secondary text-muted">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </span>
-                    <input type="text" id="globalSearchInput" class="form-control form-control-custom" placeholder="快速檢索公文字號、主旨、法規摘要..." onkeyup="handleSearchFilter()">
+                    <input type="text" id="globalSearchInput" class="form-control form-control-sm form-control-custom" placeholder="快速檢索公文字號、主旨、法規摘要..." onkeyup="handleSearchFilter()">
                 </div>
                 <div class="btn-group">
                     <button class="btn btn-outline-secondary active" id="btnModeGrid" onclick="toggleViewLayout('grid')" title="憑證認證網格">
@@ -483,20 +483,20 @@
                 <form id="formCreateLegal">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small" style="color: var(--core-secondary);">公平會報備公文字號 (UK) *</label>
-                            <input type="text" class="form-control form-control-custom" id="inputFilingNo" placeholder="例：公參字第1120054321號" required>
+                            <label class="form-label small" style="color: var(--core-secondary);">公平會報備公文字號 (UK) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm form-control-custom" id="inputFilingNo" placeholder="例：公參字第1120054321號" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small" style="color: var(--core-secondary);">主管機關名稱 *</label>
-                            <input type="text" class="form-control form-control-custom" id="inputAuthority" value="行政院公平交易委員會" required>
+                            <label class="form-label small" style="color: var(--core-secondary);">主管機關名稱 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm form-control-custom" id="inputAuthority" value="行政院公平交易委員會" required>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label small" style="color: var(--core-secondary);">法律聲明或報備主題全銜 *</label>
-                            <input type="text" class="form-control form-control-custom" id="inputTitle" placeholder="例：葡眾企業多層次傳銷經營管理辦法修正案" required>
+                            <label class="form-label small" style="color: var(--core-secondary);">法律聲明或報備主題全銜 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm form-control-custom" id="inputTitle" placeholder="例：葡眾企業多層次傳銷經營管理辦法修正案" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small" style="color: var(--core-secondary);">法規類別 *</label>
-                            <select class="form-select form-select-custom" id="inputLegalCategory">
+                            <label class="form-label small" style="color: var(--core-secondary);">法規類別 <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm form-select-custom" id="inputLegalCategory">
                                 <option value="COMPLIANCE">COMPLIANCE - 公平會備查</option>
                                 <option value="CONTRACT">CONTRACT - 定型化契約</option>
                                 <option value="PRIVACY">PRIVACY - 個資聲明</option>
@@ -504,23 +504,23 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small" style="color: var(--core-secondary);">官方生效實施日期 *</label>
-                            <input type="date" class="form-control form-control-custom" id="inputFilingDate" required>
+                            <label class="form-label small" style="color: var(--core-secondary);">官方生效實施日期 <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control form-control-sm form-control-custom" id="inputFilingDate" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small" style="color: var(--core-secondary);">法規效力狀態 *</label>
-                            <select class="form-select form-select-custom" id="inputStatus">
+                            <label class="form-label small" style="color: var(--core-secondary);">法規效力狀態 <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm form-select-custom" id="inputStatus">
                                 <option value="EFFECTIVE">EFFECTIVE - 現行有效</option>
                                 <option value="SUPERSEDED">SUPERSEDED - 歷史封存</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small" style="color: var(--core-secondary);">官方報備 PDF 檔案雲端 URL *</label>
-                            <input type="url" class="form-control form-control-custom" id="inputPdfUrl" placeholder="https://drive.google.com/... 或官方 CDN 載點" required>
+                            <label class="form-label small" style="color: var(--core-secondary);">官方報備 PDF 檔案雲端 URL <span class="text-danger">*</span></label>
+                            <input type="url" class="form-control form-control-sm form-control-custom" id="inputPdfUrl" placeholder="https://drive.google.com/... 或官方 CDN 載點" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label small" style="color: var(--core-secondary);">法律核心要點與合規說明</label>
-                            <textarea class="form-control form-control-custom" id="inputSummary" rows="3" placeholder="簡述本次報備修正要點、多層次傳銷管理法第6條/第7條適用規範、解除契約退貨扣減規定等..."></textarea>
+                            <textarea class="form-control form-control-sm form-control-custom" id="inputSummary" rows="3" placeholder="簡述本次報備修正要點、多層次傳銷管理法第6條/第7條適用規範、解除契約退貨扣減規定等..."></textarea>
                         </div>
                     </div>
                 </form>

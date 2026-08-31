@@ -39,7 +39,7 @@
             <section class="glass-panel mb-3">
                 <div class="row g-3 align-items-center">
                     <!-- 戰情指標 -->
-                    <div class="col-12 col-xl-4">
+                    <div class="col-12 col-xl-6">
                         <div class="d-flex flex-wrap gap-3">
                             <div class="stat-chip">
                                 <span class="text-secondary"><i class="fa-solid fa-users text-primary"></i> 夥伴總數</span>
@@ -57,7 +57,7 @@
                     </div>
 
                     <!-- 操作按鈕群與視圖切換器 -->
-                    <div class="col-12 col-xl-8 d-flex flex-wrap gap-2 justify-content-start justify-content-xl-end align-items-center mt-2 mt-xl-0">
+                    <div class="col-12 col-xl-6 d-flex flex-wrap gap-2 justify-content-start justify-content-xl-end align-items-center mt-2 mt-xl-0">
                         <div class="btn-group btn-group-sm p-1 bg-black bg-opacity-40 border border-secondary border-opacity-25 rounded-pill flex-wrap flex-sm-nowrap" role="group">
                             <input type="radio" class="btn-check" name="viewMode" id="view-cards" autocomplete="off" checked>
                             <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="view-cards">
@@ -221,33 +221,32 @@
                     <div class="row g-3" id="partner-cards-grid"></div>
                 </div>
 
-                <!-- 2. 夥伴列表視圖 (卡片包覆 + 橫向捲軸 + 14 欄位) -->
+                <!-- 2. 夥伴列表視圖 -->
                 <div id="container-table-view" class="d-none">
                     <article class="glass-panel p-3">
                         <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                             <div>
                                 <span class="fw-bold text-light"><i class="fa-solid fa-list-check text-primary"></i> 組織夥伴總覽名單</span>
-                                <span class="text-secondary small ms-2 d-none d-md-inline-block">支援多欄位即時排序、關鍵字快搜與橫向滾動</span>
                             </div>
                         </header>
-                        <div class="table-responsive" style="overflow-x: auto; width: 100%;">
-                            <table id="partners-datatable" class="table table-hover align-middle w-100 nowrap">
+                        <div class="table-container-wrapper w-100">
+                            <table id="partners-datatable" class="table table-dark-custom table-hover align-middle w-100 nowrap">
                                 <thead>
                                     <tr>
-                                        <th>姓名</th>
-                                        <th>市場</th>
-                                        <th>實際職級</th>
-                                        <th>官方職級</th>
-                                        <th>輔導上線</th>
-                                        <th>現居地</th>
-                                        <th>最高學歷</th>
-                                        <th>職業背景</th>
-                                        <th>健康狀況</th>
-                                        <th>財務狀況</th>
-                                        <th>組織關係</th>
-                                        <th>參與狀態</th>
-                                        <th>會籍狀態</th>
-                                        <th class="text-end">操作</th>
+                                        <th style="min-width: 150px;">姓名</th>
+                                        <th style="width: 70px;" class="text-center">市場</th>
+                                        <th style="min-width: 110px;">實際職級</th>
+                                        <th style="min-width: 110px;">官方職級</th>
+                                        <th style="min-width: 110px;">輔導上線</th>
+                                        <th style="min-width: 90px;">現居地</th>
+                                        <th style="min-width: 90px;">最高學歷</th>
+                                        <th style="min-width: 110px;">職業背景</th>
+                                        <th style="width: 85px;" class="text-center">健康狀況</th>
+                                        <th style="width: 85px;" class="text-center">財務狀況</th>
+                                        <th style="width: 85px;" class="text-center">組織關係</th>
+                                        <th style="width: 95px;" class="text-center">參與狀態</th>
+                                        <th style="width: 110px;" class="text-center">會籍狀態</th>
+                                        <th style="width: 100px;" class="text-end">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="partners-table-body"></tbody>
@@ -272,8 +271,8 @@
                             <table class="table table-dark-custom table-sm align-middle w-100 nowrap" id="table-batch-partners">
                                 <thead>
                                     <tr>
-                                        <th style="width: 140px;">夥伴代碼 / 會員編號</th>
-                                        <th style="min-width: 140px;">中文姓名 / 展示名</th>
+                                        <th style="width: 140px;">代碼 / 編號</th>
+                                        <th style="min-width: 140px;">姓名</th>
                                         <th style="width: 140px;">目前實際職級</th>
                                         <th style="width: 140px;">官方最高職級</th>
                                         <th style="width: 130px;">團隊參與度</th>
@@ -659,31 +658,31 @@
 
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">個人識別碼 (person_id) *</label>
-                                            <input type="text" class="form-control font-monospace" id="form-person-id" required placeholder="如：PSN-0001">
+                                            <label class="form-label">個人識別碼 (person_id) <span class="text-danger"></span>*</span></label>
+                                            <input type="text" class="form-control form-control-sm font-monospace" id="form-person-id" required placeholder="如：PSN-0001">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">中文真實姓名 *</label>
-                                            <input type="text" class="form-control" id="form-name-zh" required placeholder="如：翁榮祥、林承志">
+                                            <label class="form-label">中文真實姓名 <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control form-control-sm" id="form-name-zh" required placeholder="如：翁榮祥、林承志">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">英文姓名</label>
-                                            <input type="text" class="form-control" id="form-name-en" placeholder="如：Ray Weng, Jarvis Lin">
+                                            <input type="text" class="form-control form-control-sm" id="form-name-en" placeholder="如：Ray Weng, Jarvis Lin">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">常用稱呼 / 暱稱</label>
-                                            <input type="text" class="form-control" id="form-preferred-name" placeholder="如：Ray、Jarvis、菲姐">
+                                            <input type="text" class="form-control form-control-sm" id="form-preferred-name" placeholder="如：Ray、Jarvis、菲姐">
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">前端展示名稱</label>
-                                            <input type="text" class="form-control" id="form-display-name" placeholder="對外展示用稱呼">
+                                            <input type="text" class="form-control form-control-sm" id="form-display-name" placeholder="對外展示用稱呼">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">身份類型 *</label>
-                                            <select class="form-select" id="form-identity-type">
+                                            <label class="form-label">身份類型 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-identity-type">
                                                 <option value="夥伴" selected>夥伴</option>
                                                 <option value="團隊成員">團隊成員</option>
                                                 <option value="潛在團隊成員">潛在團隊成員</option>
@@ -692,15 +691,15 @@
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">使用身份 *</label>
-                                            <select class="form-select" id="form-usage-identity">
+                                            <label class="form-label">使用身份 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-usage-identity">
                                                 <option value="經營者">經營者</option>
                                                 <option value="消費者" selected>消費者</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">生理性別 *</label>
-                                            <select class="form-select" id="form-gender">
+                                            <label class="form-label">生理性別 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-gender">
                                                 <option value="男" selected>男</option>
                                                 <option value="女">女</option>
                                                 <option value="其他">其他</option>
@@ -711,12 +710,13 @@
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">出生年月日</label>
-                                            <input type="date" class="form-control" id="form-birthday">
+                                            <label class="form-label" for="form-birthday"><i class="fa-solid fa-cake-candles text-warning"></i> 出生年月日</label>
+                                            <input type="text" class="form-control form-control-sm font-monospace" id="form-birthday" placeholder="如：1988 或 1988/06/15" pattern="^\d{4}([\/-]\d{1,2}[\/-]\d{1,2})?$" title="請輸入西元出生年份（如：1988）或完整年月日（如：1988/06/15）">
+                                            <div class="form-text text-secondary small">支援「YYYY」或「YYYY/MM/DD」雙模式</div>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">國籍</label>
-                                            <select class="form-select" id="form-nationality">
+                                            <select class="form-select form-select-sm" id="form-nationality">
                                                 <option value="中華民國" selected>中華民國</option>
                                                 <option value="馬來西亞">馬來西亞</option>
                                                 <option value="中國">中國</option>
@@ -730,7 +730,7 @@
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-2">
                                             <label class="form-label">種族</label>
-                                            <select class="form-select" id="form-ethnicity">
+                                            <select class="form-select form-select-sm" id="form-ethnicity">
                                                 <option value="華人" selected>華人</option>
                                                 <option value="原住民">原住民</option>
                                                 <option value="馬來人">馬來人</option>
@@ -740,7 +740,7 @@
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-2">
                                             <label class="form-label">健康狀況</label>
-                                            <select class="form-select" id="form-health-status">
+                                            <select class="form-select form-select-sm" id="form-health-status">
                                                 <option value="良好" selected>良好</option>
                                                 <option value="亞健康">亞健康</option>
                                                 <option value="慢性體質">慢性體質</option>
@@ -751,7 +751,7 @@
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-2">
                                             <label class="form-label">財務狀況</label>
-                                            <select class="form-select" id="form-financial-status">
+                                            <select class="form-select form-select-sm" id="form-financial-status">
                                                 <option value="穩定" selected>穩定</option>
                                                 <option value="寬裕">寬裕</option>
                                                 <option value="吃緊">吃緊</option>
@@ -764,75 +764,83 @@
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">家鄉城市</label>
-                                            <input type="text" class="form-control" id="form-hometown" placeholder="如：台北、高雄、吉隆坡">
+                                            <input type="text" class="form-control form-control-sm" id="form-hometown" placeholder="如：台北、高雄、吉隆坡">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">現居地</label>
-                                            <select class="form-select select2-region-search" id="form-current-residence">
+                                            <select class="form-select form-select-sm select2-region-search" id="form-current-residence">
                                                 <option value="">請選擇居住地...</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-6">
                                             <label class="form-label">主要通訊地址</label>
-                                            <input type="text" class="form-control" id="form-contact-address" placeholder="郵遞區號與詳細收件地址">
+                                            <input type="text" class="form-control form-control-sm" id="form-contact-address" placeholder="郵遞區號與詳細收件地址">
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">認識時間</label>
-                                            <input type="date" class="form-control" id="form-met-date">
+                                            <input type="date" class="form-control form-control-sm" id="form-met-date">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-9">
                                             <label class="form-label">認識原因 / 機緣</label>
-                                            <input type="text" class="form-control" id="form-met-reason" placeholder="如：舊同事介紹、社群陌開">
+                                            <input type="text" class="form-control form-control-sm" id="form-met-reason" placeholder="如：舊同事介紹、社群陌開">
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- 分頁 2：夥伴組織 -->
                                 <div class="tab-pane fade" id="tab-pane-org" role="tabpanel">
+                                    <!-- 區塊 1：基礎識別與所屬市場 -->
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">夥伴識別碼 (partner_id) *</label>
-                                            <input type="text" class="form-control font-monospace" id="form-partner-id" required placeholder="如：PTN-001">
+                                            <label class="form-label">夥伴識別碼 (partner_id) <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-black bg-opacity-40 text-secondary border-secondary border-opacity-25"><i class="fa-solid fa-id-badge"></i></span>
+                                                <input type="text" class="form-control form-control-sm font-monospace" id="form-partner-id" required placeholder="如：PTN-001">
+                                            </div>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">葡眾會員編號 (member_no)</label>
-                                            <input type="text" class="form-control font-monospace" id="form-member-no" placeholder="如：W031648">
+                                            <label class="form-label">葡眾會員編號</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-black bg-opacity-40 text-secondary border-secondary border-opacity-25"><i class="fa-solid fa-hashtag"></i></span>
+                                                <input type="text" class="form-control form-control-sm font-monospace" id="form-member-no" placeholder="如：W031648（共用經營權副配偶可為空）">
+                                            </div>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">所屬國家市場 *</label>
-                                            <select class="form-select" id="form-country-code">
+                                            <label class="form-label">所屬國家市場 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-country-code" required>
                                                 <option value="TW" selected>🇹🇼 台灣 (TW)</option>
                                                 <option value="MY">🇲🇾 馬來西亞 (MY)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">團隊直轄體系 *</label>
-                                            <select class="form-select" id="form-is-our-team">
+                                            <label class="form-label">團隊直轄體系 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-is-our-team" required>
                                                 <option value="Y" selected>⭐️ Ray & Jarvis 直轄團隊</option>
-                                                <option value="N">🌐 旁線 / 友軍體系</option>
+                                                <option value="N">🌐 旁線 / 體系友軍節點</option>
                                             </select>
                                         </div>
                                     </div>
 
+                                    <!-- 區塊 2：職級位階與團隊內部角色 -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">目前實際職級</label>
-                                            <select class="form-select" id="form-current-rank-id">
+                                            <label class="form-label">當前結算職級</label>
+                                            <select class="form-select form-select-sm" id="form-current-rank-id">
                                                 <option value="" selected>(未設定 / 未知)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">葡眾官方最高職級</label>
-                                            <select class="form-select" id="form-highest-rank-id">
+                                            <label class="form-label">官方最高職級</label>
+                                            <select class="form-select form-select-sm" id="form-highest-rank-id">
                                                 <option value="" selected>(未設定 / 未知)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">組織關係屬性 *</label>
-                                            <select class="form-select" id="form-relation-type">
+                                            <label class="form-label">組織關係屬性 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-relation-type" required>
                                                 <option value="核心成員">核心成員</option>
                                                 <option value="下線" selected>下線</option>
                                                 <option value="上線">上線</option>
@@ -842,78 +850,93 @@
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">團隊內部職銜</label>
-                                            <input type="text" class="form-control" id="form-leader-title" placeholder="如：雙創始人、總監">
+                                            <input type="text" class="form-control form-control-sm" id="form-leader-title" placeholder="如：核心成員、顧問">
                                         </div>
                                     </div>
 
+                                    <!-- 區塊 3：經營權與配偶雙核模式 -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">經營身分類型 *</label>
-                                            <select class="form-select" id="form-account-holder-type">
+                                            <label class="form-label">經營身分類型 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-account-holder-type" required>
                                                 <option value="個人經營者" selected>個人經營者</option>
                                                 <option value="主要經營者">主要經營者</option>
-                                                <option value="共同經營者">共同經營者</option>
+                                                <option value="共同經營者">共同經營者（業績掛點配偶）</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">經營權模式 *</label>
-                                            <select class="form-select" id="form-operation-mode">
+                                            <label class="form-label">經營權模式 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-operation-mode" required>
                                                 <option value="個人經營" selected>個人經營</option>
-                                                <option value="共同經營">共同經營</option>
-                                                <option value="獨立經營">獨立經營</option>
+                                                <option value="共同經營">共同經營（夫妻共用經營權）</option>
+                                                <option value="獨立經營">獨立經營（夫妻各自獨立編號）</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">上線連結模式 *</label>
-                                            <select class="form-select" id="form-upline-link-type">
-                                                <option value="直屬已知" selected>直屬已知</option>
-                                                <option value="中間未知">中間未知</option>
-                                                <option value="體系頂層">體系頂層</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">節點性質 *</label>
-                                            <select class="form-select" id="form-node-nature">
+                                            <label class="form-label">節點性質 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-node-nature" required>
                                                 <option value="常態夥伴" selected>常態夥伴</option>
                                                 <option value="中繼失聯節點">中繼失聯節點</option>
                                                 <option value="幽靈節點">幽靈節點</option>
                                                 <option value="虛擬佔位">虛擬佔位</option>
                                             </select>
                                         </div>
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">關聯配偶</label>
+                                            <select class="form-select form-select-sm select2-partner-search" id="form-spouse-partner-id">
+                                                <option value="">(無關聯配偶)</option>
+                                            </select>
+                                        </div>
                                     </div>
 
+                                    <!-- 區塊 4：組織排線、推薦與實務輔導上線 (閉包表 Ancestor 設定) -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">實質引薦人</label>
-                                            <select class="form-select select2-partner-search" id="form-sponsor-id">
-                                                <option value="">(無)</option>
+                                            <label class="form-label">官方安置人</label>
+                                            <select class="form-select form-select-sm select2-partner-search" id="form-placement-id">
+                                                <option value="">(無 / 頂層節點)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">官方安置人</label>
-                                            <select class="form-select select2-partner-search" id="form-placement-id">
-                                                <option value="">(無)</option>
+                                            <label class="form-label">實質引薦人</label>
+                                            <select class="form-select form-select-sm select2-partner-search" id="form-sponsor-id">
+                                                <option value="">(無 / 最頂層推薦人)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">實務輔導上線</label>
-                                            <select class="form-select select2-partner-search" id="form-known-mentor-id">
-                                                <option value="">(無)</option>
+                                            <select class="form-select form-select-sm select2-partner-search" id="form-known-mentor-id">
+                                                <option value="">(無 / 跨斷層直接對接導師)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">關聯配偶 Partner ID</label>
-                                            <select class="form-select select2-partner-search" id="form-spouse-partner-id">
-                                                <option value="">(無)</option>
+                                            <label class="form-label">血緣線路型態 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-relation-line" required>
+                                                <option value="安置排線" selected>安置排線（組織架構樹）</option>
+                                                <option value="推薦線">推薦線（引薦血緣樹）</option>
                                             </select>
                                         </div>
                                     </div>
 
+                                    <!-- 區塊 5：斷層黑盒、間隔人數與營運狀態 -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">團隊參與度 *</label>
-                                            <select class="form-select" id="form-activity-level">
-                                                <option value="" selected>(未設定)</option>
+                                            <label class="form-label">上線連結模式 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-upline-link-type" required>
+                                                <option value="直屬已知" selected>直屬已知 (間隔 0 人)</option>
+                                                <option value="已知人數斷層">已知人數斷層 (間隔 N 人)</option>
+                                                <option value="中間未知">未知人數黑盒 (人數不詳)</option>
+                                                <option value="體系頂層">體系頂層 (無上線)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-3" id="gap-count-container" style="display: none;">
+                                            <label class="form-label text-warning"><i class="fa-solid fa-arrows-split-up-and-left"></i> 中間間隔人數 (人) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control form-control-sm border-warning" id="form-gap-count" min="1" max="50" placeholder="例如：4（代表中間間隔 4 人）">
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">團隊參與度 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="form-activity-level" required>
+                                                <option value="" selected>(請選擇參與度)</option>
                                                 <option value="積極參與">積極參與</option>
                                                 <option value="參與">參與</option>
                                                 <option value="不參與">不參與</option>
@@ -925,17 +948,8 @@
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">官方會籍狀態</label>
-                                            <select class="form-select" id="form-member-status">
-                                                <option value="" selected>(未設定)</option>
-                                                <option value="有效且領獎金">有效且領獎金</option>
-                                                <option value="維持160SV續約">維持160SV續約</option>
-                                                <option value="失效">失效</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">營運狀態</label>
-                                            <select class="form-select" id="form-operator-status">
+                                            <select class="form-select form-select-sm" id="form-operator-status">
                                                 <option value="" selected>(未設定)</option>
                                                 <option value="活躍">活躍</option>
                                                 <option value="停滯">停滯</option>
@@ -943,34 +957,60 @@
                                                 <option value="凍結">凍結</option>
                                             </select>
                                         </div>
+                                    </div>
+
+                                    <!-- 區塊 6：官方會籍、入會動機與專長 -->
+                                    <div class="row g-3 mt-1">
+                                        <div class="col-12 col-md-6 col-xl-3">
+                                            <label class="form-label">官方會籍狀態</label>
+                                            <select class="form-select form-select-sm" id="form-member-status">
+                                                <option value="" selected>(未設定)</option>
+                                                <option value="有效且領獎金">有效且領獎金</option>
+                                                <option value="維持160SV續約">維持160SV續約</option>
+                                                <option value="失效">失效</option>
+                                            </select>
+                                        </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">入會動機</label>
-                                            <select class="form-select" id="form-joining-motive">
+                                            <select class="form-select form-select-sm" id="form-joining-motive">
                                                 <option value="" selected>(未設定)</option>
-                                                <option value="PART_TIME">兼職副業 (PART_TIME)</option>
                                                 <option value="HEALTH">體質調養 (HEALTH)</option>
+                                                <option value="PART_TIME">兼職副業 (PART_TIME)</option>
                                                 <option value="FULL_TIME">全職創業 (FULL_TIME)</option>
                                                 <option value="RELATION">人情支持 (RELATION)</option>
                                             </select>
                                         </div>
+                                        <div class="col-12 col-md-6 col-xl-6">
+                                            <label class="form-label">團隊專長標籤</label>
+                                            <input type="text" class="form-control form-control-sm" id="form-team-skills" placeholder="如：OPP主講, 產品見證, 會議主持, 簡報製作, 跨境拓荒（以逗號分隔）">
+                                        </div>
                                     </div>
 
+                                    <!-- 區塊 7：會籍生命週期與關鍵日期 -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">簽約加入生效日</label>
-                                            <input type="date" class="form-control" id="form-join-date">
+                                            <input type="date" class="form-control form-control-sm" id="form-join-date">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">年度續約截止日</label>
-                                            <input type="date" class="form-control" id="form-renewal-due-date">
+                                            <input type="date" class="form-control form-control-sm" id="form-renewal-due-date">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">最後訂購日期</label>
-                                            <input type="date" class="form-control" id="form-last-order-date">
+                                            <input type="date" class="form-control form-control-sm" id="form-last-order-date">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">退出 / 解約年月</label>
-                                            <input type="date" class="form-control" id="form-exit-date">
+                                            <input type="date" class="form-control form-control-sm" id="form-exit-date">
+                                        </div>
+                                    </div>
+
+                                    <!-- 區塊 8：組織戰術備忘與排線調度 -->
+                                    <div class="row g-3 mt-1">
+                                        <div class="col-12">
+                                            <label class="form-label">團隊戰術備註</label>
+                                            <textarea class="form-control form-control-sm" id="form-team-notes" rows="3" placeholder="記錄排線調度特殊決策、跨斷層輔導重點、雙創始人指示與戰術配合要點..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -980,17 +1020,17 @@
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">主要通訊電話 (含國碼)</label>
-                                            <input type="tel" class="form-control" id="form-phone" placeholder="如：+886912345678">
+                                            <input type="tel" class="form-control form-control-sm" id="form-phone" placeholder="如：+886912345678">
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">主要電子信箱 / 驗證帳號</label>
-                                            <input type="email" class="form-control" id="form-email" placeholder="example@gmail.com">
+                                            <input type="email" class="form-control form-control-sm" id="form-email" placeholder="example@gmail.com">
                                         </div>
                                     </div>
 
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="fw-bold text-light small"><i class="fa-solid fa-share-nodes text-primary"></i> 社群與通訊軟體管道</span>
-                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="addContactTableRow()">
+                                        <span class="fw-bold text-light small"><i class="fa-solid fa-share-nodes text-info"></i> 社群與通訊軟體管道</span>
+                                        <button type="button" class="btn btn-outline-info btn-sm rounded-pill" onclick="addContactTableRow()">
                                             <i class="fa-solid fa-plus"></i> 新增通訊項目
                                         </button>
                                     </div>
@@ -1044,7 +1084,7 @@
                                     <div class="row g-3">
                                         <div class="col-12 col-md-3">
                                             <label class="form-label">最高學歷</label>
-                                            <select class="form-select" id="form-highest-education">
+                                            <select class="form-select form-select-sm" id="form-highest-education">
                                                 <option value="" selected>(未填寫)</option>
                                                 <option value="博士">博士</option>
                                                 <option value="碩士">碩士</option>
@@ -1058,66 +1098,67 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="form-label">最高畢業學校</label>
-                                            <input type="text" class="form-control" id="form-graduated-school" placeholder="如：國立成功大學">
+                                            <input type="text" class="form-control form-control-sm" id="form-graduated-school" placeholder="如：國立成功大學">
                                         </div>
                                         <div class="col-12 col-md-5">
                                             <label class="form-label">本業職業背景</label>
-                                            <input type="text" class="form-control" id="form-occupation-background" placeholder="如：資深軟體工程師、護理師">
+                                            <input type="text" class="form-control form-control-sm" id="form-occupation-background" placeholder="如：資深軟體工程師、護理師">
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12">
                                             <label class="form-label">團隊專長標籤 (逗號分隔)</label>
-                                            <input type="text" class="form-control" id="form-team-skills" placeholder="OPP主講, 產品見證, 會議主持, 簡報製作">
+                                            <input type="text" class="form-control form-control-sm" id="form-team-skills" placeholder="OPP主講, 產品見證, 會議主持, 簡報製作">
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">學經歷備註 (專業歷練與產業人脈)</label>
-                                            <textarea class="form-control" id="form-career-education-notes" rows="2" placeholder="記錄過往專業歷練、產業人脈與專長..."></textarea>
+                                            <textarea class="form-control form-control-sm" id="form-career-education-notes" rows="2" placeholder="記錄過往專業歷練、產業人脈與專長..."></textarea>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">健康備註 (過敏史、慢性體質、調養重點)</label>
-                                            <textarea class="form-control" id="form-health-notes" rows="2" placeholder="記錄個人健康調養重點、產品調理見證..."></textarea>
+                                            <textarea class="form-control form-control-sm" id="form-health-notes" rows="2" placeholder="記錄個人健康調養重點、產品調理見證..."></textarea>
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">財務備註 (收支現況、貸款壓力、增收動機)</label>
-                                            <textarea class="form-control" id="form-financial-notes" rows="2" placeholder="記錄財務現況與創富需求..."></textarea>
+                                            <textarea class="form-control form-control-sm" id="form-financial-notes" rows="2" placeholder="記錄財務現況與創富需求..."></textarea>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="form-label">消費備註 (價格敏感度、常購系列、自用週期)</label>
-                                            <textarea class="form-control" id="form-consumption-notes" rows="2" placeholder="自用消費偏好與訂購週期..."></textarea>
+                                            <textarea class="form-control form-control-sm" id="form-consumption-notes" rows="2" placeholder="自用消費偏好與訂購週期..."></textarea>
                                         </div>
                                     </div>
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12">
                                             <label class="form-label">團隊備註 (排線調度、領導特質、戰術配合注意事項)</label>
-                                            <textarea class="form-control" id="form-team-notes" rows="2" placeholder="記錄排線調度特別註記與戰術配合要點..."></textarea>
+                                            <textarea class="form-control form-control-sm" id="form-team-notes" rows="2" placeholder="記錄排線調度特別註記與戰術配合要點..."></textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="modal-footer mt-4 pb-0 border-top border-secondary border-opacity-25 d-flex justify-content-between">
-                                <span class="text-secondary small d-none d-md-inline-block">
-                                    <i class="fa-solid fa-circle-info me-1"></i> 儲存時將自動同步寫入個人主檔、夥伴主檔、通訊表、語言表、組織關係
-                                </span>
-                                <div class="d-flex gap-2 ms-auto">
-                                    <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                                        <i class="fa-solid fa-xmark"></i> 取消
-                                    </button>
-                                    <button type="submit" class="btn btn-secondary btn-sm rounded-pill px-4" id="form-submit-btn">
-                                        <i class="fa-solid fa-floppy-disk"></i> 儲存
-                                    </button>
-                                </div>
-                            </div>
                         </form>
+                    </div>
+
+                    <!-- 底部按鈕區 -->
+                    <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between p-3">
+                        <span class="text-secondary small d-none d-md-inline-block">
+                            <i class="fa-solid fa-circle-info me-1"></i> 儲存時將自動同步寫入個人主檔、夥伴主檔、通訊表、語言表、組織關係
+                        </span>
+                        <div class="d-flex gap-2 ms-auto">
+                            <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                                <i class="fa-solid fa-xmark"></i> 取消
+                            </button>
+                            <button type="submit" form="partnerForm" class="btn btn-secondary btn-sm rounded-pill px-4" id="form-submit-btn">
+                                <i class="fa-solid fa-floppy-disk"></i> 儲存
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

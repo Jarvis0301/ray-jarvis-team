@@ -362,7 +362,7 @@
             </div>
             <div class="col-12 col-sm-4 col-md-2">
                 <div class="input-group input-group-sm">
-                    <input type="text" class="form-control bg-dark text-light border-secondary" id="filterKeyword" placeholder="搜尋標題/內文...">
+                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="filterKeyword" placeholder="搜尋標題/內文...">
                     <button class="btn btn-cyber-outline" type="button" id="btnResetFilters" title="重設條件">
                         <i class="fa-solid fa-arrows-rotate"></i>
                     </button>
@@ -417,7 +417,7 @@
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">適用國家市場</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formCountry" required>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formCountry" required>
                                     <option value="ALL">ALL (全區通用)</option>
                                     <option value="TW">TW (台灣市場)</option>
                                     <option value="MY">MY (馬來西亞市場)</option>
@@ -425,14 +425,14 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">發佈單位</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formPublisher" required>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formPublisher" required>
                                     <option value="COMPANY">COMPANY (葡眾官方)</option>
                                     <option value="TEAM" selected>TEAM (團隊自營)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">公告類型</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formCategory" required>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formCategory" required>
                                     <option value="PROMOTION">PROMOTION (促銷活動)</option>
                                     <option value="TEAM">TEAM (團隊活動)</option>
                                     <option value="PRICE">PRICE (調價通知)</option>
@@ -442,19 +442,19 @@
 
                             <div class="col-12">
                                 <label class="form-label text-muted small">公告主標題 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-dark text-light border-secondary" id="formTitle" placeholder="請輸入吸睛且精確的公告標題..." required>
+                                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="formTitle" placeholder="請輸入吸睛且精確的公告標題..." required>
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label text-muted small">摘要 / 跑馬燈廣播文字 (Summary)</label>
-                                <textarea class="form-control bg-dark text-light border-secondary" id="formSummary" rows="2" placeholder="簡述重點，將顯示於列表摘要與前台跑馬燈..."></textarea>
+                                <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="formSummary" rows="2" placeholder="簡述重點，將顯示於列表摘要與前台跑馬燈..."></textarea>
                             </div>
 
                             <div class="col-12 col-md-8">
                                 <label class="form-label text-muted small">封面圖片 URL (Cover Image)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-image"></i></span>
-                                    <input type="url" class="form-control bg-dark text-light border-secondary" id="formCoverUrl" placeholder="https://images.unsplash.com/...">
+                                    <input type="url" class="form-control form-control-sm bg-dark text-light border-secondary" id="formCoverUrl" placeholder="https://images.unsplash.com/...">
                                 </div>
                             </div>
 
@@ -462,18 +462,18 @@
                                 <label class="form-label text-muted small">外連網址 (填 # 為彈窗)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-link"></i></span>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="formLinkUrl" value="#" placeholder="# 或 https://...">
+                                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="formLinkUrl" value="#" placeholder="# 或 https://...">
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label text-muted small">公告詳細富文本內容 (HTML 格式支援) <span class="text-danger">*</span></label>
-                                <textarea class="form-control bg-dark text-light border-secondary font-monospace" id="formContentHtml" rows="5" placeholder="<p>請輸入 HTML 排版內容或段落...</p>" required></textarea>
+                                <textarea class="form-control form-control-sm bg-dark text-light border-secondary font-monospace" id="formContentHtml" rows="5" placeholder="<p>請輸入 HTML 排版內容或段落...</p>" required></textarea>
                             </div>
 
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">發布對象門禁</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formTargetScope" required>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formTargetScope" required>
                                     <option value="ALL">ALL (全站公開)</option>
                                     <option value="TEAM">TEAM (僅團隊夥伴)</option>
                                     <option value="CORE">CORE (僅核心幹部)</option>
@@ -481,7 +481,7 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label text-muted small">狀態 (Status)</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formStatus" required>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formStatus" required>
                                     <option value="PUBLISHED">PUBLISHED (已發布)</option>
                                     <option value="DRAFT">DRAFT (草稿中)</option>
                                     <option value="SCHEDULED">SCHEDULED (排程中)</option>
@@ -499,11 +499,11 @@
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label text-muted small">上架生效時間 (Start At)</label>
-                                <input type="datetime-local" class="form-control bg-dark text-light border-secondary" id="formPublishStart">
+                                <input type="datetime-local" class="form-control form-control-sm bg-dark text-light border-secondary" id="formPublishStart">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label text-muted small">下架失效時間 (留空為永久有效)</label>
-                                <input type="datetime-local" class="form-control bg-dark text-light border-secondary" id="formPublishEnd">
+                                <input type="datetime-local" class="form-control form-control-sm bg-dark text-light border-secondary" id="formPublishEnd">
                             </div>
                         </div>
                     </form>

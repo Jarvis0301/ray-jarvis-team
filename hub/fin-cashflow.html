@@ -613,16 +613,16 @@
                     <form id="formNewTransaction">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">收支單號 (Trans No) *</label>
-                                <input type="text" class="form-control mono-num" id="formTransNo" value="TX-20260821-009" readonly>
+                                <label class="form-label small text-muted">收支單號 (Trans No) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm mono-num" id="formTransNo" value="TX-20260821-009" readonly>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">交易發生日期 (Date) *</label>
-                                <input type="date" class="form-control mono-num" id="formTransDate" value="2026-08-21" required>
+                                <label class="form-label small text-muted">交易發生日期 (Date) <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm mono-num" id="formTransDate" value="2026-08-21" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">收支型態 (Type) *</label>
-                                <select class="form-select" id="formTransType" required>
+                                <label class="form-label small text-muted">收支型態 (Type) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formTransType" required>
                                     <option value="EXPENSE" selected>EXPENSE (營運支出)</option>
                                     <option value="INCOME">INCOME (團隊收入)</option>
                                     <option value="TRANSFER">TRANSFER (內部調撥)</option>
@@ -630,8 +630,8 @@
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">會計科目 (Category) *</label>
-                                <select class="form-select" id="formCategory" required>
+                                <label class="form-label small text-muted">會計科目 (Category) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formCategory" required>
                                     <option value="VENUE_RENTAL">VENUE_RENTAL (會場包場租金)</option>
                                     <option value="MARKETING_PRINT">MARKETING_PRINT (宣傳素材/印刷)</option>
                                     <option value="CLOUD_HOSTING">CLOUD_HOSTING (伺服器/軟體授權)</option>
@@ -643,35 +643,35 @@
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">受款廠商 / 對象 (Payee Name) *</label>
-                                <input type="text" class="form-control" id="formPayeeName" placeholder="例如：台北國際會議中心、印刷工廠、AWS..." required>
+                                <label class="form-label small text-muted">受款廠商 / 對象 (Payee Name) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="formPayeeName" placeholder="例如：台北國際會議中心、印刷工廠、AWS..." required>
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">原始金額 (Amount) *</label>
-                                <input type="number" step="0.01" class="form-control mono-num" id="formAmount" placeholder="0.00" required>
+                                <label class="form-label small text-muted">原始金額 (Amount) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num" id="formAmount" placeholder="0.00" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">交易幣別 (Currency) *</label>
-                                <select class="form-select mono-num" id="formCurrency" required>
+                                <label class="form-label small text-muted">交易幣別 (Currency) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm mono-num" id="formCurrency" required>
                                     <option value="TWD" selected>TWD (新台幣)</option>
                                     <option value="MYR">MYR (馬來西亞令吉)</option>
                                     <option value="USD">USD (美元)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">匯率基準 (Exchange Rate) *</label>
-                                <input type="number" step="0.0001" class="form-control mono-num" id="formExchangeRate" value="1.0000" required>
+                                <label class="form-label small text-muted">匯率基準 (Exchange Rate) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.0001" class="form-control form-control-sm mono-num" id="formExchangeRate" value="1.0000" required>
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">折合台幣總額 (Amount TWD)</label>
-                                <input type="text" class="form-control mono-num text-success fw-bold" id="formAmountTwd" value="NT$ 0" readonly>
+                                <input type="text" class="form-control form-control-sm mono-num text-success fw-bold" id="formAmountTwd" value="NT$ 0" readonly>
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">支付/代墊人 (Payer Partner)</label>
-                                <select class="form-select" id="formPayerPartner">
+                                <select class="form-select form-select-sm" id="formPayerPartner">
                                     <option value="RAY">Ray 翁榮祥 (台灣戰略)</option>
                                     <option value="JARVIS">Jarvis 林承志 (大馬營運)</option>
                                     <option value="FUND_POOL">團隊公款池直付 (無代墊人)</option>
@@ -681,7 +681,7 @@
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">支付方式 (Payment Method)</label>
-                                <select class="form-select" id="formPaymentMethod">
+                                <select class="form-select form-select-sm" id="formPaymentMethod">
                                     <option value="BANK_TRANSFER">BANK_TRANSFER (銀行匯款)</option>
                                     <option value="CREDIT_CARD">CREDIT_CARD (信用卡代刷)</option>
                                     <option value="OPERATING_FUND">OPERATING_FUND (公款池直接撥付)</option>
@@ -701,8 +701,8 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label small text-muted">收支事由與品名備註 (Description) *</label>
-                                <input type="text" class="form-control" id="formDescription" placeholder="詳細說明費用開銷內容..." required>
+                                <label class="form-label small text-muted">收支事由與品名備註 (Description) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="formDescription" placeholder="詳細說明費用開銷內容..." required>
                             </div>
 
                             <div class="col-12">
@@ -711,7 +711,7 @@
                                     <span class="input-group-text bg-dark-purple border-purple-subtle text-muted">
                                         <i class="fa-solid fa-paperclip"></i>
                                     </span>
-                                    <input type="text" class="form-control" id="formReceiptUrl" placeholder="https://drive.google.com/... 或憑證圖片檔名">
+                                    <input type="text" class="form-control form-control-sm" id="formReceiptUrl" placeholder="https://drive.google.com/... 或憑證圖片檔名">
                                 </div>
                             </div>
                         </div>

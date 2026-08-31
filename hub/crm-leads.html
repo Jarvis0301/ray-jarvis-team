@@ -519,7 +519,7 @@
                             <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="leadSearchInput" class="form-control border-0" placeholder="搜尋姓名、電話、LINE、體質痛點或來源..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                            <input type="text" id="leadSearchInput" class="form-control form-control-sm border-0" placeholder="搜尋姓名、電話、LINE、體質痛點或來源..." style="background: rgba(255,255,255,0.06); color: #fff;">
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-neon-ghost active px-3" id="viewModePipeline" title="五階漏斗看板視圖">
@@ -830,26 +830,26 @@
 
                     <form id="formConvertPartner">
                         <div class="mb-3">
-                            <label class="form-label small text-muted">簽約加入日期 *</label>
-                            <input type="date" class="form-control" name="conversion_date" value="2026-08-21" required>
+                            <label class="form-label small text-muted">簽約加入日期 <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control form-control-sm" name="conversion_date" value="2026-08-21" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">初始職級 (Initial Rank)</label>
-                            <select class="form-select" name="initial_rank_id">
+                            <select class="form-select form-select-sm" name="initial_rank_id">
                                 <option value="MEMBER">會員 (Member / 自用經理價)</option>
                                 <option value="MANAGER">經理 (Manager / 當月合格領小組獎金)</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small text-muted">轉化推薦人 (Sponsor Partner) *</label>
-                            <select class="form-select" name="sponsor_partner_id">
+                            <label class="form-label small text-muted">轉化推薦人 (Sponsor Partner) <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm" name="sponsor_partner_id">
                                 <option value="PARTNER-001">Ray 翁榮祥 (核心創始)</option>
                                 <option value="PARTNER-002">Jarvis 林承志 (技術總監)</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">轉化主要動機 (Conversion Trigger)</label>
-                            <select class="form-select" name="conversion_trigger">
+                            <select class="form-select form-select-sm" name="conversion_trigger">
                                 <option value="BUSINESS_OPP">事業商機與被動收入</option>
                                 <option value="PRODUCT_LOVE">產品愛用自用省錢</option>
                                 <option value="HEALTH_IMPROVED">體質顯著改善主動分享</option>
@@ -857,11 +857,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">葡眾官方直銷商編號 (Official Member No)</label>
-                            <input type="text" class="form-control" name="official_member_no" placeholder="如：TW-987654321">
+                            <input type="text" class="form-control form-control-sm" name="official_member_no" placeholder="如：TW-987654321">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">轉化交接與戰略備忘</label>
-                            <textarea class="form-control" name="conversion_notes" rows="2" placeholder="備註此夥伴未來的衝刺目標、主力產品線或輔導重點..."></textarea>
+                            <textarea class="form-control form-control-sm" name="conversion_notes" rows="2" placeholder="備註此夥伴未來的衝刺目標、主力產品線或輔導重點..."></textarea>
                         </div>
                         <button type="button" class="btn btn-neon-accent w-100 py-2" id="btnExecuteConversion">
                             <i class="fa-solid fa-file-signature"></i> 確認簽約並生成夥伴帳號
@@ -895,27 +895,27 @@
                     <form id="formNewLead">
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">姓名 / 社群稱呼 *</label>
-                                <input type="text" class="form-control" name="lead_name" required placeholder="如：許雅婷 (芳療師)">
+                                <label class="form-label small text-muted">姓名 / 社群稱呼 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="lead_name" required placeholder="如：許雅婷 (芳療師)">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">手機號碼</label>
-                                <input type="tel" class="form-control" name="lead_phone" placeholder="09xx-xxx-xxx">
+                                <input type="tel" class="form-control form-control-sm" name="lead_phone" placeholder="09xx-xxx-xxx">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">LINE ID</label>
-                                <input type="text" class="form-control" name="lead_line" placeholder="用於快速發起對話">
+                                <input type="text" class="form-control form-control-sm" name="lead_line" placeholder="用於快速發起對話">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">意向類別 (Customer Type) *</label>
-                                <select class="form-select" name="lead_type" required>
+                                <label class="form-label small text-muted">意向類別 (Customer Type) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" name="lead_type" required>
                                     <option value="PROSPECT_CUSTOMER">潛在產品客戶 (注重健康調理)</option>
                                     <option value="PROSPECT_TEAM">潛在事業夥伴 (評估副業加盟)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">名單來源 (Lead Source)</label>
-                                <select class="form-select" name="lead_source">
+                                <select class="form-select form-select-sm" name="lead_source">
                                     <option value="HEALTH_QUIZ">體質測評問卷引流</option>
                                     <option value="SOCIAL_MEDIA">社群短網址 (IG/FB)</option>
                                     <option value="REFERRAL">親友口碑轉介紹</option>
@@ -926,7 +926,7 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">意向溫度評級 (Temperature)</label>
-                                <select class="form-select" name="lead_temp">
+                                <select class="form-select form-select-sm" name="lead_temp">
                                     <option value="HOT">🔥 炙熱 (Hot - 24hr內跟進)</option>
                                     <option value="WARM">⚡ 溫暖 (Warm - 3天內跟進)</option>
                                     <option value="COOL">❄️ 冷淡/觀望 (Cool - 培育中)</option>
@@ -934,11 +934,11 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label small text-muted">主要健康訴求 / 創業意向描述</label>
-                                <textarea class="form-control" name="lead_concerns" rows="2" placeholder="記錄此潛在名單的主要困擾或想了解的葡萄王/葡眾制度..."></textarea>
+                                <textarea class="form-control form-control-sm" name="lead_concerns" rows="2" placeholder="記錄此潛在名單的主要困擾或想了解的葡萄王/葡眾制度..."></textarea>
                             </div>
                             <div class="col-12">
                                 <label class="form-label small text-muted">標籤 (以逗號分隔)</label>
-                                <input type="text" class="form-control" name="lead_tags" placeholder="例如：芳療師, 睡眠障礙, 評估經理價, 寶媽">
+                                <input type="text" class="form-control form-control-sm" name="lead_tags" placeholder="例如：芳療師, 睡眠障礙, 評估經理價, 寶媽">
                             </div>
                         </div>
                     </form>
@@ -965,7 +965,7 @@
                     <form id="formLeadQuickCare">
                         <div class="mb-3">
                             <label class="form-label small text-muted">溝通管道</label>
-                            <select class="form-select" name="channel_type">
+                            <select class="form-select form-select-sm" name="channel_type">
                                 <option value="LINE">LINE 訊息 / 語音</option>
                                 <option value="PHONE">電話通話</option>
                                 <option value="IN_PERSON">實體面談拜訪</option>
@@ -974,7 +974,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">溝通主題</label>
-                            <select class="form-select" name="interaction_topic">
+                            <select class="form-select form-select-sm" name="interaction_topic">
                                 <option value="QUIZ_EXPLAIN">體質問卷報告解析</option>
                                 <option value="PRODUCT_SHARE">主力產品體驗分享 (995/康爾喜)</option>
                                 <option value="BUSINESS_OPP">葡眾事業與制度解析</option>
@@ -982,12 +982,12 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small text-muted">對話摘要與客戶反應 *</label>
-                            <textarea class="form-control" name="content_summary" rows="3" required placeholder="記錄本次溝通重點與客戶態度反饋..."></textarea>
+                            <label class="form-label small text-muted">對話摘要與客戶反應 <span class="text-danger">*</span></label>
+                            <textarea class="form-control form-control-sm" name="content_summary" rows="3" required placeholder="記錄本次溝通重點與客戶態度反饋..."></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">約定下次跟進日期</label>
-                            <input type="date" class="form-control" name="next_follow_up_date">
+                            <input type="date" class="form-control form-control-sm" name="next_follow_up_date">
                         </div>
                     </form>
                 </div>

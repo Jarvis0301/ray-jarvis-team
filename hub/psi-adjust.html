@@ -642,7 +642,7 @@
                 <div class="row g-2 mb-3">
                     <div class="col-6">
                         <label class="form-label small text-secondary">調撥數量 (盒)</label>
-                        <input type="number" class="form-control bg-dark border-secondary text-white mono-font" id="tr-qty" value="10" min="1">
+                        <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white mono-font" id="tr-qty" value="10" min="1">
                     </div>
                     <div class="col-6">
                         <label class="form-label small text-secondary">調撥類型 / 運輸途徑</label>
@@ -657,7 +657,7 @@
 
                 <div class="mb-3">
                     <label class="form-label small text-secondary">在途物流追蹤號 / 備註說明</label>
-                    <input type="text" class="form-control bg-dark border-secondary text-light" id="tr-tracking-no" placeholder="例：DHL-884920412 或 8/25 榮祥親自帶往吉隆坡">
+                    <input type="text" class="form-control form-control-sm bg-dark border-secondary text-light" id="tr-tracking-no" placeholder="例：DHL-884920412 或 8/25 榮祥親自帶往吉隆坡">
                 </div>
 
                 <div class="p-3 rounded-3 mb-3" style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25);">
@@ -761,7 +761,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label small text-secondary">盤點計畫名稱</label>
-                        <input type="text" class="form-control bg-dark border-secondary text-light" id="new-audit-title" value="2026年8月例行全據點盲盤覆核">
+                        <input type="text" class="form-control form-control-sm bg-dark border-secondary text-light" id="new-audit-title" value="2026年8月例行全據點盲盤覆核">
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
@@ -774,7 +774,7 @@
                         </div>
                         <div class="col-6">
                             <label class="form-label small text-secondary">指派負責盤點人</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-light" id="new-audit-auditor" value="Ray (榮祥) / 執行總監">
+                            <input type="text" class="form-control form-control-sm bg-dark border-secondary text-light" id="new-audit-auditor" value="Ray (榮祥) / 執行總監">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -1297,4 +1297,77 @@
             const toWh = $('#tr-to-wh').val();
             const qty = parseInt($('#tr-qty').val()) || 0;
 
-            if (fromWh === toWh)
+            if (fromWh === toWh) {
+                alert('調出倉與調入倉不能相同！請重新選擇。');
+                return;
+            }
+            if (qty <= 0) {
+                alert('請輸入大於 0 的調撥數量！');
+                return;
+            }
+
+            const newTransfer = {
+                transfer_id: `TR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(10 + Math.random() * 90)}`,
+                from_wh: fromWh,
+                from_name: $("#tr-from-wh option:selected").text(),
+                to_wh: toWh,
+                to_name: $("#tr-to-wh option:selected").text(),
+                product_name: $("#tr-product-select option:selected").text().split(' (')[0],
+                batch_no: 'B260715',
+                qty: qty,
+                type: $('#tr-type').val(),
+                type_name: $("#tr-type option:selected").text(),
+                status: 'IN_TRANSIT',
+                status_name: '在途運送中',
+                sender: 'Ray (榮祥)',
+                created_at: '剛剛',
+                tracking_no: $('#tr-tracking-no').val() || 'AUTO-TRANSFER-99'
+            };
+
+            mockTransferList.unshift(newTransfer);
+            dtTransfer.clear().rows.add(mockTransferList).draw();
+            alert(`【戰術調撥建立】調撥單號 ${newTransfer.transfer_id} 已建立，調出在庫已凍結鎖定！`);
+        }
+
+        function receiveTransfer(trId) {
+            const tr = mockTransferList.find(t => t.transfer_id === trId);
+            if (tr) {
+                tr.status = 'RECEIVED';
+                tr.status_name = '已入庫結案';
+                dtTransfer.clear().rows.add(mockTransferList).draw();
+                alert(`【驗收入庫成功】單號 ${trId} 已完成清點入庫，調入倉在庫已正式增加！`);
+            }
+        }
+
+        function syncWithGoogleSheet() {
+            const btn = $('#btn-sync-gviz');
+            btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin"></i> 同步中...');
+            
+            setTimeout(() => {
+                btn.prop('disabled', false).html('<i class="fa-solid fa-rotate"></i> 同步試算表');
+                $('#lbl-last-sync-time').text(new Date().toLocaleString());
+                alert('已透過 PapaParse 與 GViz 中介層完成與 Google 試算表之雙向數據同步！');
+            }, 800);
+        }
+
+        function createStocktakePlan() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalAuditMaster'));
+            modal.hide();
+            alert('已成功建立週期性全盤任務！所有據點盤點工作台已同步鎖定。');
+        }
+
+        function batchApproveAudit() {
+            alert('已批次完成審核！所有盤盈盤虧明細已自動寫入 psi_adjustments 並平帳完成。');
+        }
+
+        function exportAuditReport() {
+            alert('正在生成盤點審計 PDF 報告與 Excel 總表...');
+        }
+
+        function resetAuditForm() {
+            $('#input-physical-qty').val(45);
+            calculateVariance();
+        }
+    </script>
+</body>
+</html>

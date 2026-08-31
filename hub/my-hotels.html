@@ -885,3 +885,226 @@
                             return `<span class="badge bg-info-subtle text-info">${data} 晚</span>`;
                         }
                     },
+                    { 
+                        data: 'room_type',
+                        render: function(data) {
+                            return `<span class="small text-light">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'price_myr',
+                        render: function(data) {
+                            return `<span class="fw-bold text-warning font-monospace">RM ${Number(data).toLocaleString()}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'payer',
+                        render: function(data) {
+                            const badgeClass = data === 'Ray' ? 'bg-primary-subtle text-primary' : 'bg-danger-subtle text-danger';
+                            return `<span class="badge ${badgeClass} border">${data} 代墊</span>`;
+                        }
+                    },
+                    { 
+                        data: 'booking_ref',
+                        render: function(data) {
+                            return `<span class="font-monospace small text-muted">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: null,
+                        orderable: false,
+                        render: function(data) {
+                            return `
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-info p-1 px-2" onclick="showVoucherModalByRef('${data.hotel_name_zh}', '${data.booking_ref}')" title="檢視憑證 QR">
+                                        <i class="fa-solid fa-qrcode"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-light p-1 px-2" onclick="activateHotelCard('${data.hotel_id}')" title="設為主房卡">
+                                        <i class="fa-solid fa-id-card"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // 2. 渲染主智慧房卡與頂部 HUD
+        function renderActiveHotelKeycard(hotel) {
+            if (!hotel) return;
+
+            $('#cardHotelZh').text(hotel.hotel_name_zh);
+            $('#cardHotelEn').text(hotel.hotel_name_en);
+            $('#cardBookingRef').text(hotel.booking_ref);
+            $('#cardRoomType').text(hotel.room_type);
+            $('#cardRoomNo').text(hotel.room_no || 'Room 2308 (23F)');
+
+            $('#stayDurationBadge').text(`共 ${hotel.stay_nights} 晚 (${hotel.check_in_date} - ${hotel.check_out_date})`);
+            $('#statTotalPrice').text(`RM ${Number(hotel.price_myr).toLocaleString()}`);
+            $('#statTotalPriceTwd').text(`折合 NT$ ${Number(hotel.price_twd).toLocaleString()}`);
+            $('#statPayer').text(`${hotel.payer} 代墊 (待平帳)`);
+            $('#statDeposit').text(hotel.deposit);
+
+            if (hotel.map_url) {
+                $('#btnGoogleMapLink').attr('href', hotel.map_url);
+            }
+        }
+
+        // 3. 設為當前房卡
+        window.activateHotelCard = function(hotelId) {
+            const found = rawAccommodationsData.find(h => h.hotel_id === hotelId);
+            if (found) {
+                renderActiveHotelKeycard(found);
+                $('html, body').animate({ scrollTop: 0 }, 400);
+            }
+        };
+
+        // 4. 初始化房費成本分佈 Chart.js
+        function initExpenseChart() {
+            const ctx = document.getElementById('chartHotelExpenses').getContext('2d');
+            
+            const labels = rawAccommodationsData.map(h => h.hotel_name_zh.replace('吉隆坡', '').replace('酒店', ''));
+            const dataValues = rawAccommodationsData.map(h => h.price_myr);
+
+            expenseChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: [
+                            'rgba(139, 92, 246, 0.85)',
+                            'rgba(236, 72, 153, 0.85)',
+                            'rgba(56, 189, 248, 0.85)'
+                        ],
+                        borderColor: '#120924',
+                        borderWidth: 3,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 11
+                                },
+                                padding: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: RM ${Number(context.raw).toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // 5. 事件監聽綁定
+        function bindEventListeners() {
+            // 專案篩選下拉
+            $('#selTripFilter').on('change', function () {
+                const val = $(this).val();
+                if (val === 'ALL') {
+                    dataTableInstance.column(1).search('').draw();
+                } else {
+                    dataTableInstance.column(1).search(val).draw();
+                    const matched = rawAccommodationsData.find(h => h.trip_id === val);
+                    if (matched) renderActiveHotelKeycard(matched);
+                }
+            });
+
+            // GViz / 試算表同步按鈕
+            $('#btnSyncGviz').on('click', function () {
+                const $btn = $(this);
+                const originalHtml = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 數據同步中...');
+
+                setTimeout(() => {
+                    $btn.prop('disabled', false).html(originalHtml);
+                    alert('已成功自 Google 試算表 (my_accommodations) 解耦同步最新房源與憑證數據！');
+                }, 1000);
+            });
+
+            // 新增住宿資料儲存
+            $('#btnSaveHotel').on('click', function () {
+                const newHotel = {
+                    hotel_id: `HTL-${Date.now().toString().slice(-6)}`,
+                    trip_id: $('#inTripId').val(),
+                    hotel_name_zh: $('#inHotelZh').val(),
+                    hotel_name_en: $('#inHotelEn').val() || $('#inHotelZh').val(),
+                    platform: $('#inPlatform').val(),
+                    booking_ref: $('#inBookingRef').val(),
+                    check_in_date: $('#inCheckIn').val(),
+                    check_out_date: $('#inCheckOut').val(),
+                    stay_nights: 3,
+                    room_type: $('#inRoomType').val() || '標準套房',
+                    room_no: '待分配',
+                    price_myr: parseFloat($('#inPriceMyr').val()) || 0,
+                    price_twd: (parseFloat($('#inPriceMyr').val()) || 0) * 7,
+                    payer: $('#inPayer').val(),
+                    deposit: $('#inDeposit').val() || '無押金',
+                    wifi_ssid: $('#inWifi').val() || 'Hotel-WiFi',
+                    wifi_pass: '12345678',
+                    address: $('#inAddress').val() || '市區中心',
+                    map_url: $('#inMapUrl').val() || 'https://maps.google.com',
+                    status: 'CONFIRMED'
+                };
+
+                if (!newHotel.hotel_name_zh || !newHotel.booking_ref) {
+                    alert('請填寫飯店中文名稱與訂房編號！');
+                    return;
+                }
+
+                rawAccommodationsData.unshift(newHotel);
+                dataTableInstance.clear().rows.add(rawAccommodationsData).draw();
+                renderActiveHotelKeycard(newHotel);
+
+                // 更新圖表
+                expenseChartInstance.data.labels.unshift(newHotel.hotel_name_zh);
+                expenseChartInstance.data.datasets[0].data.unshift(newHotel.price_myr);
+                expenseChartInstance.update();
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalAddHotel'));
+                modal.hide();
+                $('#formHotel')[0].reset();
+                alert(`已成功登記「${newHotel.hotel_name_zh}」並同步排入差旅戰情報表！`);
+            });
+        }
+
+        // 6. 一鍵複製小工具
+        window.copyText = function(text, label) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`已複製 ${label}：${text}`);
+            }).catch(err => {
+                console.error('複製失敗', err);
+            });
+        };
+
+        // 7. 彈出電子入住憑證 QR 燈箱
+        window.showVoucherModal = function() {
+            const currentHotel = rawAccommodationsData[0];
+            showVoucherModalByRef(currentHotel.hotel_name_zh, currentHotel.booking_ref);
+        };
+
+        window.showVoucherModalByRef = function(hotelZh, bookingRef) {
+            $('#modalQrHotelTitle').text(hotelZh);
+            $('#modalQrBookingCode').text(bookingRef);
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(bookingRef)}`;
+            $('#imgQrCode').attr('src', qrUrl);
+            const modal = new bootstrap.Modal(document.getElementById('modalVoucherQr'));
+            modal.show();
+        };
+    </script>
+</body>
+</html>

@@ -385,7 +385,7 @@
                             <span class="input-group-text border-0" style="background: rgba(255,255,255,0.06); color: var(--uvaco-text-muted);">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="globalSearchInput" class="form-control border-0" placeholder="搜尋客戶姓名、電話、LINE ID、病史標籤..." style="background: rgba(255,255,255,0.06); color: #fff;">
+                            <input type="text" id="globalSearchInput" class="form-control form-control-sm border-0" placeholder="搜尋客戶姓名、電話、LINE ID、病史標籤..." style="background: rgba(255,255,255,0.06); color: #fff;">
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-neon-ghost active px-3" id="viewModeCard" title="360° 畫像卡片視圖">
@@ -689,16 +689,16 @@
                         <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-id-card"></i> 基本資料 (Schema 501)</h6>
                         <div class="row g-3 mb-4">
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">客戶真實姓名 / 社群暱稱 *</label>
-                                <input type="text" class="form-control" name="customer_name" required placeholder="如：張美玲 (陳媽媽)">
+                                <label class="form-label small text-muted">客戶真實姓名 / 社群暱稱 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="customer_name" required placeholder="如：張美玲 (陳媽媽)">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">手機號碼 *</label>
-                                <input type="tel" class="form-control" name="mobile_phone" required placeholder="0912-345-678">
+                                <label class="form-label small text-muted">手機號碼 <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control form-control-sm" name="mobile_phone" required placeholder="0912-345-678">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">性別</label>
-                                <select class="form-select" name="gender">
+                                <select class="form-select form-select-sm" name="gender">
                                     <option value="FEMALE">女性 (Female)</option>
                                     <option value="MALE">男性 (Male)</option>
                                     <option value="UNKNOWN">不便提供</option>
@@ -706,11 +706,11 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">LINE ID</label>
-                                <input type="text" class="form-control" name="line_user_id" placeholder="用於快速發起對話">
+                                <input type="text" class="form-control form-control-sm" name="line_user_id" placeholder="用於快速發起對話">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">名單來源 (Lead Source)</label>
-                                <select class="form-select" name="lead_source">
+                                <select class="form-select form-select-sm" name="lead_source">
                                     <option value="HEALTH_QUIZ">體質測評問卷</option>
                                     <option value="REFERRAL">親友轉介紹</option>
                                     <option value="SOCIAL_MEDIA">社群短網址</option>
@@ -724,15 +724,15 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label small text-muted">主要健康訴求 / 調養目標</label>
-                                <textarea class="form-control" name="health_concerns" rows="2" placeholder="如：經常脹氣、胃酸過多、想要增強體力與免疫..."></textarea>
+                                <textarea class="form-control form-control-sm" name="health_concerns" rows="2" placeholder="如：經常脹氣、胃酸過多、想要增強體力與免疫..."></textarea>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">已知過敏史</label>
-                                <input type="text" class="form-control" name="allergy_history" placeholder="如：大豆、海鮮、乳糖不耐">
+                                <input type="text" class="form-control form-control-sm" name="allergy_history" placeholder="如：大豆、海鮮、乳糖不耐">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">月度保健預算</label>
-                                <select class="form-select" name="budget_preference">
+                                <select class="form-select form-select-sm" name="budget_preference">
                                     <option value="MEDIUM">一般養生 (3,000 ~ 8,000 元)</option>
                                     <option value="LOW">基礎保養 (3,000 元以下)</option>
                                     <option value="HIGH">高階調理 (8,000 元以上)</option>
@@ -763,7 +763,7 @@
                     <form id="formQuickCare">
                         <div class="mb-3">
                             <label class="form-label small text-muted">溝通管道</label>
-                            <select class="form-select" name="channel_type">
+                            <select class="form-select form-select-sm" name="channel_type">
                                 <option value="LINE">LINE 訊息 / 語音</option>
                                 <option value="PHONE">電話通話</option>
                                 <option value="IN_PERSON">當面拜訪面談</option>
@@ -772,7 +772,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">關懷主題</label>
-                            <select class="form-select" name="interaction_topic">
+                            <select class="form-select form-select-sm" name="interaction_topic">
                                 <option value="REACTION_CHECK">食用體感與好轉反應追蹤</option>
                                 <option value="REORDER_REMIND">產品即將耗盡回購提醒</option>
                                 <option value="ROUTINE_CARE">日常問候與生活關懷</option>
@@ -780,12 +780,12 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small text-muted">客戶回饋反饋與摘要 *</label>
-                            <textarea class="form-control" name="content_summary" rows="3" required placeholder="記錄客戶的主觀感受、產品反應與約定事項..."></textarea>
+                            <label class="form-label small text-muted">客戶回饋反饋與摘要 <span class="text-danger">*</span></label>
+                            <textarea class="form-control form-control-sm" name="content_summary" rows="3" required placeholder="記錄客戶的主觀感受、產品反應與約定事項..."></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted">預計下一次跟進日期</label>
-                            <input type="date" class="form-control" name="next_follow_up_date">
+                            <input type="date" class="form-control form-control-sm" name="next_follow_up_date">
                         </div>
                     </form>
                 </div>

@@ -503,7 +503,7 @@
                                 <span>夥伴領取身份型態</span>
                                 <span class="text-info small" id="sandboxIdentityDesc">個人自然人 (扣稅+健保)</span>
                             </label>
-                            <select class="form-select" id="sandboxIdentityType">
+                            <select class="form-select form-select-sm" id="sandboxIdentityType">
                                 <option value="INDIVIDUAL" selected>個人 / 自然人夥伴 (依法扣繳所得稅與健保)</option>
                                 <option value="CORPORATE">行號 / 有限公司 / 統編法人 (免代扣所得與補充保費)</option>
                                 <option value="NON_RESIDENT">非境內居住者 / 外籍人士 (所得稅 18% 或 20%)</option>
@@ -517,7 +517,7 @@
                             </div>
                             <div class="input-group mb-2">
                                 <span class="input-group-text bg-dark border-secondary border-opacity-25 mono-num text-light" id="sandboxCurrencySymbol">NT$</span>
-                                <input type="number" class="form-control mono-num fs-5 fw-bold text-white" id="sandboxBonusInput" value="120000" step="1000">
+                                <input type="number" class="form-control form-control-sm mono-num fs-5 fw-bold text-white" id="sandboxBonusInput" value="120000" step="1000">
                             </div>
                             <input type="range" class="form-range" id="sandboxBonusRange" min="5000" max="1000000" step="5000" value="120000">
                         </div>
@@ -719,16 +719,16 @@
                     <form id="formTaxConfig">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">國家/地區代碼 (country_code) *</label>
-                                <select class="form-select" id="formCountryCode" required>
+                                <label class="form-label small text-muted">國家/地區代碼 (country_code) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formCountryCode" required>
                                     <option value="TW" selected>TW (台灣)</option>
                                     <option value="MY">MY (馬來西亞)</option>
                                     <option value="GLOBAL">GLOBAL (全球/通用)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">參數型態 (tax_type) *</label>
-                                <select class="form-select" id="formTaxType" required>
+                                <label class="form-label small text-muted">參數型態 (tax_type) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formTaxType" required>
                                     <option value="TW_INCOME_TAX">TW_INCOME_TAX (台灣所得稅)</option>
                                     <option value="TW_NHI_2ND">TW_NHI_2ND (台灣二代健保)</option>
                                     <option value="MY_WITHHOLDING_107D">MY_WITHHOLDING_107D (大馬107D扣繳)</option>
@@ -736,35 +736,35 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">參數名稱 (tax_name) *</label>
-                                <input type="text" class="form-control" id="formTaxName" placeholder="例如：台灣二代健保補充保費" required>
+                                <label class="form-label small text-muted">參數名稱 (tax_name) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="formTaxName" placeholder="例如：台灣二代健保補充保費" required>
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">稅率/費率比率 (tax_rate) *</label>
-                                <input type="number" step="0.0001" class="form-control mono-num" id="formTaxRate" placeholder="0.0211" required>
+                                <label class="form-label small text-muted">稅率/費率比率 (tax_rate) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.0001" class="form-control form-control-sm mono-num" id="formTaxRate" placeholder="0.0211" required>
                                 <div class="form-text small text-muted">小數表示（如 0.0211 代表 2.11%）</div>
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">單筆起扣門檻 (threshold_amount)</label>
-                                <input type="number" step="0.01" class="form-control mono-num" id="formThresholdAmount" value="20000.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num" id="formThresholdAmount" value="20000.00">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">單筆扣費上限 (upper_limit_amount)</label>
-                                <input type="number" step="0.01" class="form-control mono-num" id="formUpperLimitAmount" placeholder="10000000.00">
+                                <input type="number" step="0.01" class="form-control form-control-sm mono-num" id="formUpperLimitAmount" placeholder="10000000.00">
                             </div>
 
                             <div class="col-12 col-md-4">
                                 <label class="form-label small text-muted">兌新台幣匯率 (fx_rate_to_twd)</label>
-                                <input type="number" step="0.0001" class="form-control mono-num" id="formFxRateToTwd" value="1.0000" required>
+                                <input type="number" step="0.0001" class="form-control form-control-sm mono-num" id="formFxRateToTwd" value="1.0000" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">生效開始日期 (effective_date) *</label>
-                                <input type="date" class="form-control mono-num" id="formEffectiveDate" value="2026-08-01" required>
+                                <label class="form-label small text-muted">生效開始日期 (effective_date) <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm mono-num" id="formEffectiveDate" value="2026-08-01" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">是否啟用 (is_active) *</label>
-                                <select class="form-select" id="formIsActive" required>
+                                <label class="form-label small text-muted">是否啟用 (is_active) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="formIsActive" required>
                                     <option value="Y" selected>Y (生效啟用中)</option>
                                     <option value="N">N (停用/歷史紀錄)</option>
                                 </select>
@@ -772,7 +772,7 @@
 
                             <div class="col-12">
                                 <label class="form-label small text-muted">稅規法源條文、計算說明與備註 (description)</label>
-                                <textarea class="form-control" id="formDescription" rows="2" placeholder="註明法令依據條號、適用之身分別或結算備忘..."></textarea>
+                                <textarea class="form-control form-control-sm" id="formDescription" rows="2" placeholder="註明法令依據條號、適用之身分別或結算備忘..."></textarea>
                             </div>
                         </div>
                     </form>
