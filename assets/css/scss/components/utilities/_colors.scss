@@ -96,7 +96,7 @@ $uvaco-contrast-fallbacks: (
             --bs-btn-active-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
             --bs-btn-active-bg: var(--uvaco-#{$key}-hover);
             --bs-btn-active-border-color: var(--uvaco-#{$key}-hover);
-            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
             --bs-btn-disabled-bg: var(--uvaco-#{$key});
             --bs-btn-disabled-border-color: var(--uvaco-#{$key});
         }
@@ -128,7 +128,7 @@ $uvaco-contrast-fallbacks: (
             --bs-btn-active-color: #ffffff;
             --bs-btn-active-bg: var(--uvaco-#{$key}-hover);
             --bs-btn-active-border-color: var(--uvaco-#{$key}-hover);
-            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
             --bs-btn-disabled-bg: var(--bs-#{$key}-bg-subtle, var(--uvaco-bg-#{$key}));
             --bs-btn-disabled-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
         }
@@ -144,7 +144,7 @@ $uvaco-contrast-fallbacks: (
             --bs-btn-active-color: #ffffff;
             --bs-btn-active-bg: var(--uvaco-#{$key});
             --bs-btn-active-border-color: var(--uvaco-#{$key});
-            --bs-btn-disabled-color: var(--uvaco-text-muted);
+            --bs-btn-disabled-color: var(--uvaco-#{$key}-contrast, #{$default-contrast});
             --bs-btn-disabled-bg: transparent;
             --bs-btn-disabled-border-color: var(--bs-#{$key}-border-subtle, var(--uvaco-border-color));
         }

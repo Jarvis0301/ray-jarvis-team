@@ -38,10 +38,15 @@ const SheetAdapter = (function() {
     }
 
     /**
-     * 向 GAS 發送 C/U/D 寫入請求 (加入自動 Loading 生命週期)
+     * 向 GAS 發送 C/U/D 寫入請求
      */
-    async function mutateSheet(action, sheetName, pkValue, rowDataArray, customDeployId = null) {
-        showLoading(action, sheetName); // 🚀 啟動 Loading 遮罩
+    async function mutateSheet(action, sheetName, pkValue, rowDataArray, customDeployId = null, options = {}) {
+        const isSilent = options.silent === true;
+        
+        // 若非靜默模式，才由 SheetAdapter 接管 Loading
+        if (!isSilent) {
+            showLoading(action, sheetName);
+        }
 
         try {
             const apiUrl = resolveEndpoint(customDeployId);
@@ -74,22 +79,18 @@ const SheetAdapter = (function() {
             console.error(`試算表寫入失敗 [${action}]:`, err);
             throw err;
         } finally {
-            hideLoading(); // 🏁 關閉 Loading 遮罩 (無論成功或失敗均釋放)
+            if (!isSilent) {
+                hideLoading();
+            }
         }
     }
 
     return {
-        /**
-         * 全域設定當前系統的 GAS 部署 ID
-         * @param {string} deployId - 您的 GAS 部署 ID (如 AKfycby...)
-         */
         init: function(deployId) {
             defaultDeployId = deployId;
         },
-
-        // C / U / D 操作介面 (customDeployId 為可選參數)
-        createRow: (sheet, pk, dataArr, customDeployId) => mutateSheet("CREATE", sheet, pk, dataArr, customDeployId),
-        updateRow: (sheet, pk, dataArr, customDeployId) => mutateSheet("UPDATE", sheet, pk, dataArr, customDeployId),
-        deleteRow: (sheet, pk, customDeployId) => mutateSheet("DELETE", sheet, pk, [], customDeployId)
+        createRow: (sheet, pk, dataArr, customDeployId, options) => mutateSheet("CREATE", sheet, pk, dataArr, customDeployId, options),
+        updateRow: (sheet, pk, dataArr, customDeployId, options) => mutateSheet("UPDATE", sheet, pk, dataArr, customDeployId, options),
+        deleteRow: (sheet, pk, customDeployId, options) => mutateSheet("DELETE", sheet, pk, [], customDeployId, options)
     };
 })();

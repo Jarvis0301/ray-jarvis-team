@@ -76,12 +76,12 @@
 
                             <input type="radio" class="btn-check" name="viewMode" id="view-tree" autocomplete="off">
                             <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="view-tree">
-                                <i class="fa-solid fa-network-wired"></i> 組織樹狀
+                                <i class="fa-solid fa-network-wired"></i> 組織拓譜
                             </label>
 
                             <input type="radio" class="btn-check" name="viewMode" id="view-charts" autocomplete="off">
                             <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="view-charts">
-                                <i class="fa-solid fa-chart-pie"></i> 戰情圖表
+                                <i class="fa-solid fa-chart-pie"></i> 統計圖表
                             </label>
                         </div>
 
@@ -355,19 +355,21 @@
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <label for="select-lang-filter" class="text-secondary small text-nowrap"><i class="fa-solid fa-earth-asia text-info"></i> 分析語言：</label>
-                                <select class="form-select form-select-sm bg-black bg-opacity-50 text-white border-secondary border-opacity-50 rounded-pill px-3 py-1" id="select-lang-filter" style="width: 140px;" onchange="changeLanguageAnalysis(this.value)">
-                                    <option value="中文" selected>中文</option>
-                                    <option value="英文">英文</option>
-                                    <option value="馬來文">馬來文</option>
-                                    <option value="台語">台語</option>
-                                    <option value="粵語">粵語</option>
-                                    <option value="客家話">客家話</option>
-                                    <option value="日文">日文</option>
-                                    <option value="韓文">韓文</option>
-                                    <option value="印尼文">印尼文</option>
-                                    <option value="泰文">泰文</option>
-                                    <option value="越南文">越南文</option>
-                                </select>
+                                <div class="lang-selector-wrap" style="min-width: 150px;">
+                                    <select class="form-select form-select-sm select2-lang-filter" id="select-lang-filter">
+                                        <option value="中文" selected>中文</option>
+                                        <option value="英文">英文</option>
+                                        <option value="馬來文">馬來文</option>
+                                        <option value="台語">台語</option>
+                                        <option value="粵語">粵語</option>
+                                        <option value="客家話">客家話</option>
+                                        <option value="日文">日文</option>
+                                        <option value="韓文">韓文</option>
+                                        <option value="印尼文">印尼文</option>
+                                        <option value="泰文">泰文</option>
+                                        <option value="越南文">越南文</option>
+                                    </select>
+                                </div>
                             </div>
                         </header>
 
@@ -710,27 +712,29 @@
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-birthday"><i class="fa-solid fa-cake-candles text-warning"></i> 出生年月日</label>
+                                            <label class="form-label" for="form-birthday">生日</label>
                                             <input type="text" class="form-control form-control-sm font-monospace" id="form-birthday" placeholder="如：1988 或 1988/06/15" pattern="^\d{4}([\/-]\d{1,2}[\/-]\d{1,2})?$" title="請輸入西元出生年份（如：1988）或完整年月日（如：1988/06/15）">
-                                            <div class="form-text text-secondary small">支援「YYYY」或「YYYY/MM/DD」雙模式</div>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">國籍</label>
-                                            <select class="form-select form-select-sm" id="form-nationality">
+                                            <label class="form-label" for="form-nationality"><i class="fa-solid fa-flag"></i> 國籍</label>
+                                            <select class="form-select select2-tags-single" id="form-nationality">
+                                                <option value="">請選擇或輸入國籍...</option>
                                                 <option value="中華民國" selected>中華民國</option>
                                                 <option value="馬來西亞">馬來西亞</option>
                                                 <option value="中國">中國</option>
+                                                <option value="新加坡">新加坡</option>
                                                 <option value="日本">日本</option>
                                                 <option value="韓國">韓國</option>
                                                 <option value="泰國">泰國</option>
-                                                <option value="新加坡">新加坡</option>
                                                 <option value="印尼">印尼</option>
+                                                <option value="越南">越南</option>
                                                 <option value="其他">其他</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-2">
-                                            <label class="form-label">種族</label>
-                                            <select class="form-select form-select-sm" id="form-ethnicity">
+                                            <label class="form-label" for="form-ethnicity"><i class="fa-solid fa-people-group"></i> 種族</label>
+                                            <select class="form-select select2-tags-single" id="form-ethnicity">
+                                                <option value="">請選擇或輸入種族...</option>
                                                 <option value="華人" selected>華人</option>
                                                 <option value="原住民">原住民</option>
                                                 <option value="馬來人">馬來人</option>
@@ -763,13 +767,15 @@
 
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">家鄉城市</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-hometown" placeholder="如：台北、高雄、吉隆坡">
+                                            <label class="form-label" for="form-hometown"><i class="fa-solid fa-house-user"></i> 家鄉城市</label>
+                                            <select class="form-select select2-tags-region" id="form-hometown">
+                                                <option value="">請選擇或輸入家鄉...</option>
+                                            </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">現居地</label>
-                                            <select class="form-select form-select-sm select2-region-search" id="form-current-residence">
-                                                <option value="">請選擇居住地...</option>
+                                            <label class="form-label" for="form-current-residence"><i class="fa-solid fa-map-location-dot"></i> 現居地 / 行政區</label>
+                                            <select class="form-select select2-tags-region" id="form-current-residence">
+                                                <option value="">請選擇或輸入居住地...</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-6">
@@ -892,7 +898,7 @@
                                     <!-- 區塊 4：組織排線、推薦與實務輔導上線 (閉包表 Ancestor 設定) -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">官方安置人</label>
+                                            <label class="form-label">官方安置人上線</label>
                                             <select class="form-select form-select-sm select2-partner-search" id="form-placement-id">
                                                 <option value="">(無 / 頂層節點)</option>
                                             </select>
@@ -1039,12 +1045,12 @@
                                         <table class="table table-dark-custom table-sm align-middle mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 22%;">平台名稱</th>
+                                                    <th style="width: 20%;">平台名稱</th>
                                                     <th style="width: 18%;">分類類別</th>
                                                     <th>通訊內容 / 帳號 / 網址</th>
                                                     <th style="width: 12%;">主要通訊</th>
                                                     <th style="width: 20%;">備註</th>
-                                                    <th style="width: 48px;" class="text-center">操作</th>
+                                                    <th style="width: 50px;" class="text-center"></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="form-contacts-dynamic-tbody"></tbody>
@@ -1065,13 +1071,13 @@
                                         <table class="table table-dark-custom table-sm align-middle mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 20%;">使用語言</th>
+                                                    <th style="width: 10%;">使用語言</th>
                                                     <th style="width: 14%;">聽</th>
                                                     <th style="width: 14%;">說</th>
                                                     <th style="width: 14%;">讀</th>
                                                     <th style="width: 14%;">寫</th>
                                                     <th>特殊備註</th>
-                                                    <th style="width: 48px;" class="text-center">操作</th>
+                                                    <th style="width: 50px;" class="text-center"></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="form-languages-dynamic-tbody"></tbody>
@@ -1101,7 +1107,7 @@
                                             <input type="text" class="form-control form-control-sm" id="form-graduated-school" placeholder="如：國立成功大學">
                                         </div>
                                         <div class="col-12 col-md-5">
-                                            <label class="form-label">本業職業背景</label>
+                                            <label class="form-label">職業背景</label>
                                             <input type="text" class="form-control form-control-sm" id="form-occupation-background" placeholder="如：資深軟體工程師、護理師">
                                         </div>
                                     </div>
