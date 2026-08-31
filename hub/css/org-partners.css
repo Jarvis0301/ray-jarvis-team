@@ -554,13 +554,6 @@
     border-radius: 6px;
 }
 
-#table-batch-partners thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background-color: var(--uvaco-bg-surface, #1a122d);
-}
-
 @media (max-width: 768px) {
     /* 組織拓撲頂部工具列：手機端滿版分行排布 */
     #container-tree-view header {
@@ -591,5 +584,34 @@
         padding-right: 0.25rem;
         font-size: 0.76rem;
     }
+}
 
+/* ==========================================================================
+   動態表格拖曳排序抓手與視覺回饋樣式
+   ========================================================================== */
+.row-drag-handle {
+    cursor: grab;
+    color: var(--uvaco-text-muted, #94a3b8);
+    padding: 4px 6px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.row-drag-handle:hover {
+    color: var(--uvaco-primary, #8b5cf6);
+    background: rgba(139, 92, 246, 0.15);
+}
+
+.row-drag-handle:active {
+    cursor: grabbing;
+}
+
+tr.is-dragging-row {
+    opacity: 0.45 !important;
+    background: rgba(139, 92, 246, 0.25) !important;
+    border: 1px dashed var(--uvaco-primary, #8b5cf6) !important;
 }

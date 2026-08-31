@@ -59,6 +59,8 @@ window.addEventListener('AppReady', function () {
     initSelect2ScrollGuard();
     initOrgTreeControls();
     initOrgChartPan();
+    initDynamicTableDragAndDrop('#form-contacts-dynamic-tbody');
+    initDynamicTableDragAndDrop('#form-languages-dynamic-tbody');
 
     // 12 欄位篩選器變更監聽
     $('.form-filter-control').on('change', function () {
@@ -71,7 +73,7 @@ window.addEventListener('AppReady', function () {
     // 五大視圖切換器監聽
     $('input[name="viewMode"]').on('change', function () {
         const mode = $(this).attr('id');
-        $('#container-cards-view, #container-table-view, #container-batch-view, #container-tree-view, #container-charts-view').addClass('d-none');
+        $('#container-cards-view, #container-table-view, #container-tree-view, #container-charts-view').addClass('d-none');
 
         if (mode === 'view-cards') {
             $('#container-cards-view').removeClass('d-none');
@@ -82,8 +84,6 @@ window.addEventListener('AppReady', function () {
                     dataTableInstance.columns.adjust().draw(false);
                 }, 100);
             }
-        } else if (mode === 'view-batch') {
-            $('#container-batch-view').removeClass('d-none');
         } else if (mode === 'view-tree') {
             $('#container-tree-view').removeClass('d-none');
         } else if (mode === 'view-charts') {
@@ -125,6 +125,10 @@ window.addEventListener('AppReady', function () {
             $('#form-gap-count').val('');
         }
     });
+
+    $('#form-placement-id, #form-sponsor-id, #form-node-nature').on('change', function () {
+        updateFormAutoCalculatedFields();
+    });
 });
 
 function initSelect2ScrollGuard() {
@@ -134,6 +138,34 @@ function initSelect2ScrollGuard() {
         if ($('.select2-container--open').length > 0) {
             $('select.select2-hidden-accessible').select2('close');
         }
+    });
+}
+
+function initDynamicTableDragAndDrop(tbodySelector) {
+    const $tbody = $(tbodySelector);
+    let draggingRow = null;
+
+    $tbody.off('dragstart', 'tr').on('dragstart', 'tr', function (e) {
+        draggingRow = this;
+        $(this).addClass('is-dragging-row');
+        e.originalEvent.dataTransfer.effectAllowed = 'move';
+        e.originalEvent.dataTransfer.setData('text/plain', '');
+    });
+
+    $tbody.off('dragover', 'tr').on('dragover', 'tr', function (e) {
+        e.preventDefault();
+        e.originalEvent.dataTransfer.dropEffect = 'move';
+        const targetRow = this;
+        if (targetRow && targetRow !== draggingRow) {
+            const rect = targetRow.getBoundingClientRect();
+            const isAfter = (e.originalEvent.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+            $tbody[0].insertBefore(draggingRow, isAfter ? targetRow.nextSibling : targetRow);
+        }
+    });
+
+    $tbody.off('dragend', 'tr').on('dragend', 'tr', function () {
+        $(this).removeClass('is-dragging-row');
+        draggingRow = null;
     });
 }
 
@@ -370,6 +402,86 @@ function initOrgChartPan() {
         viewport.scrollLeft = scrollLeft - walkX;
         viewport.scrollTop = scrollTop - walkY;
     });
+}
+
+/**
+ * 依據排線關係自動計算「組織關係 (relation_type)」與「團隊直轄 (is_our_team)」
+ * @param {string} partnerId 當前夥伴識別碼
+ * @param {string} placementId 安置上線 ID
+ * @param {string} sponsorId 推薦人 ID
+ * @param {string} nodeNature 節點性質
+ * @returns {{relationType: string, isOurTeam: string}}
+ */
+function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeNature = '常態夥伴') {
+    // 1. 核心領導雙核判定
+    const CORE_IDS = ['PTN-001', 'PTN-002'];
+    if (CORE_IDS.includes(partnerId)) {
+        return { relationType: '核心成員', isOurTeam: 'Y' };
+    }
+
+    // 2. 中繼層或虛擬佔位判定
+    if (nodeNature === '中繼失聯節點' || nodeNature === '虛擬佔位' || nodeNature === '幽靈節點') {
+        return { relationType: '中繼層', isOurTeam: 'N' };
+    }
+
+    // 3. 上線血緣追溯函式（向上搜尋特定目標祖先）
+    const isAncestorOfCore = (targetId) => {
+        let current = partnersList.find(p => p.partner_id === 'PTN-001');
+        const visited = new Set();
+        while (current && current.partner_id) {
+            const pId = current.placement_id || current.sponsor_id;
+            if (!pId || visited.has(pId)) break;
+            if (pId === targetId) return true;
+            visited.add(pId);
+            current = partnersList.find(p => p.partner_id === pId || p.member_no === pId);
+        }
+        return false;
+    };
+
+    // 4. 下線血緣追溯函式（向上搜尋是否源於 Ray 或 Jarvis）
+    const isDescendantOfCore = (parentId) => {
+        let currentId = parentId;
+        const visited = new Set();
+        while (currentId && !visited.has(currentId)) {
+            if (CORE_IDS.includes(currentId)) return true;
+            visited.add(currentId);
+            const parentNode = partnersList.find(p => p.partner_id === currentId || p.member_no === currentId);
+            currentId = parentNode ? (parentNode.placement_id || parentNode.sponsor_id) : null;
+        }
+        return false;
+    };
+
+    // 5. 執行關係推導
+    const parentId = placementId || sponsorId;
+
+    if (isAncestorOfCore(partnerId)) {
+        return { relationType: '上線', isOurTeam: 'N' };
+    }
+
+    if (isDescendantOfCore(parentId)) {
+        return { relationType: '下線', isOurTeam: 'Y' };
+    }
+
+    return { relationType: '旁線', isOurTeam: 'N' };
+}
+
+/**
+ * 監聽表單排線變更，即時自動更新並鎖定組織關係與團隊直轄
+ */
+function updateFormAutoCalculatedFields() {
+    const partnerId = getFormTrimVal('#form-partner-id');
+    const placementId = $('#form-placement-id').val();
+    const sponsorId = $('#form-sponsor-id').val();
+    const nodeNature = $('#form-node-nature').val();
+
+    const result = calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeNature);
+
+    $('#form-relation-type').val(result.relationType);
+    $('#form-is-our-team').val(result.isOurTeam);
+    
+    // 更新視覺徽章提示
+    $('#badge-calc-relation').text(result.relationType);
+    $('#badge-calc-team').html(result.isOurTeam === 'Y' ? '<i class="fa-solid fa-star text-warning"></i> 直轄團隊' : '<i class="fa-solid fa-globe text-secondary"></i> 旁線/友軍');
 }
 
 // ============================================================================
@@ -788,6 +900,35 @@ function getFinancialStatusBadge(status) {
     }
 }
 
+/**
+ * 取得人脈身分類型之戰術徽章 HTML
+ * @param {string} type 身份類型 (夥伴 / 團隊成員 / 潛在團隊成員 / 客戶 / 潛在客戶)
+ * @returns {string} 徽章 HTML
+ */
+function getIdentityTypeBadge(type) {
+    switch (type) {
+        case '夥伴': return '<span class="badge badge-orange">夥伴</span>';
+        case '團隊成員': return '<span class="badge badge-blue">團隊成員</span>';
+        case '潛在團隊成員': return '<span class="badge badge-blue-subtle">潛在團隊成員</span>';
+        case '客戶': return '<span class="badge badge-green">客戶</span>';
+        case '潛在客戶': return '<span class="badge badge-green-subtle">潛在客戶</span>';
+        default: return '<span class="badge badge-muted-subtle">未設定</span>';
+    }
+}
+
+/**
+ * 取得使用身分類型之戰術徽章 HTML
+ * @param {string} type 使用身分類型 (經營者 / 消費者)
+ * @returns {string} 外框徽章 HTML
+ */
+function getUsageIdentityBadge(type) {
+    switch (type) {
+        case '經營者': return '<span class="badge badge-outline-blue">經營者</span>';
+        case '消費者': return '<span class="badge badge-outline-subtle">消費者</span>';
+        default: return '<span class="badge badge-outline-subtle">未設定</span>';
+    }
+}
+
 // ============================================================================
 // 5. 核心過濾器引擎 (12 欄位精準過濾)
 // ============================================================================
@@ -828,15 +969,28 @@ function getFilteredPartners() {
 function renderAllViews() {
     const list = getFilteredPartners();
 
+    // 1. 榮祥直轄團隊基礎篩選
+    const teamPartners = list.filter(p => p.is_our_team === 'Y');
+    
+    // 2. 榮祥團隊大馬成員 (直轄 + MY)
+    const myTeamPartners = teamPartners.filter(p => p.country_code === 'MY');
+    
+    // 3. 榮祥團隊活躍成員 (直轄 + 積極參與/參與)
+    const activeTeamPartners = teamPartners.filter(p => p.activity_level === '積極參與' || p.activity_level === '參與');
+
     $('#hud-total-partners').text(list.length);
-    $('#hud-core-partners').text(list.filter(p => p.is_our_team === 'Y').length);
-    $('#hud-my-partners').text(list.filter(p => p.country_code === 'MY').length);
+    $('#hud-team-partners').text(teamPartners.length);
+    $('#hud-my-team-partners').text(myTeamPartners.length);
+    $('#hud-active-team-partners').text(activeTeamPartners.length);
 
     renderCardsView(list);
     renderDataTableView(list);
-    renderBatchEditorTable(list);
     renderTreeView();
-    renderChartsView(list);
+
+    // 延遲渲染圖表
+    if (!$('#container-charts-view').hasClass('d-none')) {
+        renderChartsView(list);
+    }
 }
 
 // ============================================================================
@@ -861,6 +1015,46 @@ function renderCardsView(list) {
         const memberNoHtml = renderMemberNoBadge(p);
         const opBadgeHtml = renderOperationModeBadge(p);
 
+        // 實質輔導上線
+        const mentorHtml = mentorName 
+            ? `<span class="text-white">${mentorName}</span>` 
+            : `<span class="text-muted">（無特定指派）</span>`;
+
+        // 1. 性別 / 年齡 / 現居地組合解析 (未填以 text-muted 呈現)
+        let ageStr = '';
+        const rawBirthday = person.birthday ? String(person.birthday).trim() : '';
+        if (rawBirthday.length >= 4) {
+            const birthYear = parseInt(rawBirthday.slice(0, 4), 10);
+            if (!isNaN(birthYear) && birthYear > 1900 && birthYear <= 2026) {
+                ageStr = `${2026 - birthYear} 歲`;
+            }
+        }
+
+        const genderDisplay = (person.gender && person.gender !== '未填') 
+            ? person.gender 
+            : '<span class="text-muted">未填性別</span>';
+
+        const ageDisplay = ageStr 
+            ? ageStr 
+            : '<span class="text-muted">未填年齡</span>';
+
+        const residenceDisplay = (person.current_residence && person.current_residence.trim()) 
+            ? person.current_residence.trim() 
+            : '<span class="text-muted">未填現居地</span>';
+
+        const genderAgeResidenceHtml = `${genderDisplay} ‧ ${ageDisplay} ‧ ${residenceDisplay}`;
+
+        // 專長標籤
+        const skillsHtml = (p.team_skills && p.team_skills.trim()) 
+            ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i> ${p.team_skills}</span></div>` 
+            : `<div class="mb-2"><span class="text-muted small"><i class="fa-solid fa-tags text-secondary me-1"></i> 未設定專長標籤</span></div>`;
+
+        // 戰術備註
+        const notesText = (p.team_notes && p.team_notes.trim()) || (person.financial_notes && person.financial_notes.trim()) || '';
+        const notesHtml = notesText 
+            ? `<p class="text-secondary small mb-0 text-truncate-2" style="font-size: 0.82rem;">${notesText}</p>` 
+            : `<p class="text-muted small mb-0 font-italic" style="font-size: 0.82rem;">暫無戰術備註記錄</p>`;
+
         const cardHtml = `
             <div class="col-12 col-md-6 col-xl-4">
                 <div class="partner-card ${cardBorderClass}">
@@ -880,7 +1074,7 @@ function renderCardsView(list) {
                                     </div>
                                     <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
                                         ${p.leader_title ? `<span class="badge badge-primary">${p.leader_title}</span>` : ''}
-                                        ${memberNoHtml}
+                                        ${memberNoHtml || '<span class="text-muted small font-monospace">（無會員編號）</span>'}
                                         ${opBadgeHtml}
                                     </div>
                                 </div>
@@ -906,23 +1100,23 @@ function renderCardsView(list) {
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-person-chalkboard text-info"></i> 實質輔導上線</span>
-                                <span class="text-white">${mentorName || '（無特定指派）'}</span>
+                                ${mentorHtml}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-map-pin text-danger"></i> 現居地 / 職業</span>
-                                <span class="text-light">${person.current_residence || '未填'} ‧ ${person.occupation_background || '未填'}</span>
+                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary"></i> 性別/年齡/現居地</span>
+                                <div class="text-end text-light small">${genderAgeResidenceHtml}</div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary"><i class="fa-solid fa-bolt text-accent"></i> 團隊參與度</span>
-                                ${getActivityLevelBadge(p.activity_level)}
+                                <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent"></i> 身份 / 使用身份</span>
+                                <div class="d-flex align-items-center gap-1">
+                                    ${getIdentityTypeBadge(person.identity_type)}
+                                    ${getUsageIdentityBadge(person.usage_identity)}
+                                </div>
                             </div>
                         </div>
 
-                        ${p.team_skills ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i> ${p.team_skills}</span></div>` : ''}
-
-                        <p class="text-secondary small mb-0 text-truncate-2" style="font-size: 0.82rem;">
-                            ${p.team_notes || person.financial_notes || '暫無戰術備註記錄。'}
-                        </p>
+                        ${skillsHtml}
+                        ${notesHtml}
                     </div>
                 </div>
             </div>
@@ -1000,86 +1194,6 @@ function renderDataTableView(list) {
             dataTableInstance.columns.adjust();
         }
     }, 50);
-}
-
-function renderBatchEditorTable(list) {
-    const $tbody = $('#batch-partners-tbody').empty();
-    if (!list.length) {
-        $tbody.html('<tr><td colspan="9" class="text-center text-muted py-4">無符合條件的夥伴資料</td></tr>');
-        return;
-    }
-
-    list.forEach(p => {
-        const dispName = getPartnerDisplayName(p);
-        const memberNo = p.member_no || '—';
-
-        let curRankOptions = `<option value="">(未設定)</option>`;
-        let highRankOptions = `<option value="">(未設定)</option>`;
-        ranksDatabase.forEach(rk => {
-            curRankOptions += `<option value="${rk.rank_id}" ${p.current_rank_id === rk.rank_id ? 'selected' : ''}>${rk.rank_name_zh}</option>`;
-            highRankOptions += `<option value="${rk.rank_id}" ${p.highest_rank_id === rk.rank_id ? 'selected' : ''}>${rk.rank_name_zh}</option>`;
-        });
-
-        const rowHtml = `
-            <tr data-partner-id="${p.partner_id}">
-                <td>
-                    <div class="fw-bold text-light font-monospace">${p.partner_id}</div>
-                    <span class="text-secondary small font-monospace">${memberNo}</span>
-                </td>
-                <td class="fw-bold text-light">${dispName}</td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-cur-rank">${curRankOptions}</select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-high-rank">${highRankOptions}</select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-activity">
-                        <option value="" ${!p.activity_level ? 'selected' : ''}>未設定</option>
-                        <option value="積極參與" ${p.activity_level === '積極參與' ? 'selected' : ''}>積極參與</option>
-                        <option value="參與" ${p.activity_level === '參與' ? 'selected' : ''}>參與</option>
-                        <option value="不參與" ${p.activity_level === '不參與' ? 'selected' : ''}>不參與</option>
-                        <option value="自用消費" ${p.activity_level === '自用消費' ? 'selected' : ''}>自用消費</option>
-                        <option value="操作人頭" ${p.activity_level === '操作人頭' ? 'selected' : ''}>操作人頭</option>
-                        <option value="失聯" ${p.activity_level === '失聯' ? 'selected' : ''}>失聯</option>
-                        <option value="非團隊成員" ${p.activity_level === '非團隊成員' ? 'selected' : ''}>非團隊成員</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-member-status">
-                        <option value="" ${!p.member_status ? 'selected' : ''}>未設定</option>
-                        <option value="有效且領獎金" ${p.member_status === '有效且領獎金' ? 'selected' : ''}>有效且領獎金</option>
-                        <option value="維持160SV續約" ${p.member_status === '維持160SV續約' ? 'selected' : ''}>維持160SV續約</option>
-                        <option value="失效" ${p.member_status === '失效' ? 'selected' : ''}>失效</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-operator-status">
-                        <option value="" ${!p.operator_status ? 'selected' : ''}>未設定</option>
-                        <option value="活躍" ${p.operator_status === '活躍' ? 'selected' : ''}>活躍</option>
-                        <option value="停滯" ${p.operator_status === '停滯' ? 'selected' : ''}>停滯</option>
-                        <option value="沉睡" ${p.operator_status === '沉睡' ? 'selected' : ''}>沉睡</option>
-                        <option value="凍結" ${p.operator_status === '凍結' ? 'selected' : ''}>凍結</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-relation">
-                        <option value="核心成員" ${p.relation_type === '核心成員' ? 'selected' : ''}>核心成員</option>
-                        <option value="下線" ${p.relation_type === '下線' ? 'selected' : ''}>下線</option>
-                        <option value="上線" ${p.relation_type === '上線' ? 'selected' : ''}>上線</option>
-                        <option value="旁線" ${p.relation_type === '旁線' ? 'selected' : ''}>旁線</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-is-our-team">
-                        <option value="Y" ${p.is_our_team === 'Y' ? 'selected' : ''}>直轄</option>
-                        <option value="N" ${p.is_our_team === 'N' ? 'selected' : ''}>旁線</option>
-                    </select>
-                </td>
-            </tr>
-        `;
-        $tbody.append(rowHtml);
-    });
 }
 
 // ============================================================================
@@ -2083,7 +2197,6 @@ window.addContactTableRow = function (contact = {}) {
     const currentPlatform = contact.platform_name || 'LINE';
     const categories = ['ID', '顯示名稱', '連結'];
 
-    // 檢查自訂平台名稱是否在預設陣列中
     const allPlatforms = defaultPlatforms.includes(currentPlatform) 
         ? defaultPlatforms 
         : [currentPlatform, ...defaultPlatforms];
@@ -2092,29 +2205,35 @@ window.addContactTableRow = function (contact = {}) {
     const categoryOptions = categories.map(c => `<option value="${c}" ${c === (contact.category || 'ID') ? 'selected' : ''}>${c}</option>`).join('');
 
     const $row = $(`
-        <tr class="dynamic-contact-row">
-            <td style="width: 24%;">
+        <tr class="dynamic-contact-row" draggable="true">
+            <td class="text-center align-middle" style="width: 40px;">
+                <div class="row-drag-handle" title="拖曳排序"><i class="fa-solid fa-grip-vertical"></i></div>
+            </td>
+            <td style="width: 22%;">
                 <select class="form-select form-select-sm contact-input-platform select2-dynamic-platform">${platformOptions}</select>
             </td>
             <td style="width: 18%;"><select class="form-select form-select-sm contact-input-category">${categoryOptions}</select></td>
-            <td><input type="text" class="form-control form-control-sm contact-input-value" value="${contact.contact_value || ''}" placeholder="請輸入帳號/名稱/網址..."></td>
+            <td><input type="text" class="form-control form-control-sm contact-input-value" value="${contact.contact_value || ''}" placeholder="帳號 / 連結..."></td>
             <td style="width: 12%;">
                 <select class="form-select form-select-sm contact-input-primary">
-                    <option value="N" ${contact.is_primary !== 'Y' ? 'selected' : ''}>N (否)</option>
-                    <option value="Y" ${contact.is_primary === 'Y' ? 'selected' : ''}>Y (是)</option>
+                    <option value="N" ${contact.is_primary !== 'Y' ? 'selected' : ''}>N</option>
+                    <option value="Y" ${contact.is_primary === 'Y' ? 'selected' : ''}>Y (主要)</option>
                 </select>
             </td>
-            <td style="width: 20%;"><input type="text" class="form-control form-control-sm contact-input-notes" value="${contact.notes || ''}" placeholder="備註..."></td>
-            <td class="text-center" style="width: 48px;">
-                <button type="button" class="btn btn-outline-danger table-dynamic-action-btn" onclick="$(this).closest('tr').remove()" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
+            <td style="width: 18%;"><input type="text" class="form-control form-control-sm contact-input-notes" value="${contact.notes || ''}" placeholder="備註..."></td>
+            <td class="text-center align-middle" style="width: 45px;">
+                <button type="button" class="btn btn-outline-danger table-dynamic-action-btn" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
             </td>
         </tr>
     `);
 
-    $tbody.append($row);
+    $row.find('.table-dynamic-action-btn').on('click', function () {
+        $row.find('select.select2-hidden-accessible').select2('destroy');
+        $row.remove();
+    });
 
-    // 為該動態列的通訊平台初始化 Select2 Tags
-    $row.find('.select2-dynamic-platform').select2(getSelect2TagsConfig('選擇或輸入平台...'));
+    $tbody.append($row);
+    $row.find('.select2-dynamic-platform').select2(getSelect2TagsConfig('平台...'));
 };
 
 window.addLanguageTableRow = function (lang = {}) {
@@ -2131,8 +2250,11 @@ window.addLanguageTableRow = function (lang = {}) {
     const buildLevelOptions = (selectedVal) => levels.map(lv => `<option value="${lv}" ${lv === (selectedVal || '普通') ? 'selected' : ''}>${lv}</option>`).join('');
 
     const $row = $(`
-        <tr class="dynamic-lang-row">
-            <td style="width: 22%;">
+        <tr class="dynamic-lang-row" draggable="true">
+            <td class="text-center align-middle" style="width: 40px;">
+                <div class="row-drag-handle" title="拖曳排序"><i class="fa-solid fa-grip-vertical"></i></div>
+            </td>
+            <td style="width: 20%;">
                 <select class="form-select form-select-sm lang-input-name select2-dynamic-lang">${langOptions}</select>
             </td>
             <td style="width: 14%;"><select class="form-select form-select-sm lang-input-listening">${buildLevelOptions(lang.listening_level)}</select></td>
@@ -2140,16 +2262,19 @@ window.addLanguageTableRow = function (lang = {}) {
             <td style="width: 14%;"><select class="form-select form-select-sm lang-input-reading">${buildLevelOptions(lang.reading_level)}</select></td>
             <td style="width: 14%;"><select class="form-select form-select-sm lang-input-writing">${buildLevelOptions(lang.writing_level)}</select></td>
             <td><input type="text" class="form-control form-control-sm lang-input-notes" value="${lang.notes || ''}" placeholder="特殊備註..."></td>
-            <td class="text-center" style="width: 48px;">
-                <button type="button" class="btn btn-outline-danger table-dynamic-action-btn" onclick="$(this).closest('tr').remove()" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
+            <td class="text-center align-middle" style="width: 45px;">
+                <button type="button" class="btn btn-outline-danger table-dynamic-action-btn" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
             </td>
         </tr>
     `);
 
-    $tbody.append($row);
+    $row.find('.table-dynamic-action-btn').on('click', function () {
+        $row.find('select.select2-hidden-accessible').select2('destroy');
+        $row.remove();
+    });
 
-    // 為該動態列的語言選擇初始化 Select2 Tags
-    $row.find('.select2-dynamic-lang').select2(getSelect2TagsConfig('選擇或輸入語言...'));
+    $tbody.append($row);
+    $row.find('.select2-dynamic-lang').select2(getSelect2TagsConfig('語言...'));
 };
 
 window.openPartnerModalForCreate = function () {
@@ -2165,7 +2290,12 @@ window.openPartnerModalForCreate = function () {
     $('#form-avatar-url').val('');
     $('#form-preview-avatar').attr('src', getDefaultAvatar('男'));
 
-    // 透過 setSelect2TagVal 設置預設項目
+    // 新增時啟用職級設定
+    $('#form-current-rank-id, #form-highest-rank-id')
+        .prop('disabled', false)
+        .removeClass('bg-black bg-opacity-40 text-muted border-secondary');
+    $('#badge-rank-lock-cur, #badge-rank-lock-high').hide();
+
     setSelect2TagVal('#form-nationality', '中華民國');
     setSelect2TagVal('#form-ethnicity', '華人');
     setSelect2TagVal('#form-current-residence', '');
@@ -2173,8 +2303,6 @@ window.openPartnerModalForCreate = function () {
 
     $('#form-contacts-dynamic-tbody').empty();
     $('#form-languages-dynamic-tbody').empty();
-    //addContactTableRow({ platform_name: 'LINE', category: 'ID', is_primary: 'Y' });
-    //addLanguageTableRow({ language_name: '中文', listening_level: '精通', speaking_level: '精通', reading_level: '精通', writing_level: '精通' });
 
     $('#form-sponsor-id, #form-placement-id, #form-known-mentor-id, #form-spouse-partner-id, #form-current-residence').val('').trigger('change');
     $('#partnerEditTabs button:first').tab('show');
@@ -2193,6 +2321,12 @@ window.openPartnerModalForEdit = function (partnerId) {
 
     $('#form-person-id').prop('readonly', false).val(person.person_id || partner.person_id);
     $('#form-partner-id').prop('readonly', false).val(partner.partner_id);
+
+    // 編輯時鎖定職級下拉選單，防止手動篡改
+    $('#form-current-rank-id, #form-highest-rank-id')
+        .prop('disabled', true)
+        .addClass('bg-black bg-opacity-40 text-muted border-secondary');
+    $('#badge-rank-lock-cur, #badge-rank-lock-high').show();
 
     $('#form-name-zh').val(person.name_zh || '');
     $('#form-name-en').val(person.name_en || '');
@@ -2250,19 +2384,11 @@ window.openPartnerModalForEdit = function (partnerId) {
 
     const $contactTbody = $('#form-contacts-dynamic-tbody').empty();
     const contacts = personContactsList.filter(c => c.person_id === person.person_id);
-    if (contacts.length > 0) {
-        contacts.forEach(c => addContactTableRow(c));
-    } else {
-        //addContactTableRow({ platform_name: 'LINE', category: 'ID', is_primary: 'Y' });
-    }
+    contacts.forEach(c => addContactTableRow(c));
 
     const $langTbody = $('#form-languages-dynamic-tbody').empty();
     const langs = personLanguagesList.filter(l => l.person_id === person.person_id);
-    if (langs.length > 0) {
-        langs.forEach(l => addLanguageTableRow(l));
-    } else {
-        //addLanguageTableRow({ language_name: '中文', listening_level: '精通', speaking_level: '精通', reading_level: '精通', writing_level: '精通' });
-    }
+    langs.forEach(l => addLanguageTableRow(l));
 
     $('#form-highest-education').val(person.highest_education || '');
     $('#form-graduated-school').val(person.graduated_school || '');
@@ -2680,6 +2806,13 @@ async function savePartnerRecord(e) {
     const officialAccountPartnerId = (accountHolderType === '共同經營者')
         ? getFormTrimVal('#form-spouse-partner-id')
         : partnerId;
+    const currentRankVal = (mode === 'UPDATE' && existingPartner) 
+        ? existingPartner.current_rank_id 
+        : getFormTrimVal('#form-current-rank-id');
+
+    const highestRankVal = (mode === 'UPDATE' && existingPartner) 
+        ? existingPartner.highest_rank_id 
+        : getFormTrimVal('#form-highest-rank-id');
 
     const partnerRowArray = [
         partnerId,
@@ -2695,8 +2828,8 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-placement-id'),
         getFormTrimVal('#form-known-mentor-id'),
         getFormTrimVal('#form-upline-link-type', '直屬已知'),
-        getFormTrimVal('#form-current-rank-id'),
-        getFormTrimVal('#form-highest-rank-id'),
+        currentRankVal,
+        highestRankVal,
         getFormTrimVal('#form-country-code', 'TW'),
         getFormTrimVal('#form-is-our-team', 'Y'),
         getFormTrimVal('#form-relation-type', '下線'),
@@ -2888,86 +3021,6 @@ async function savePartnerRecord(e) {
         AppToast.error('寫入試算表失敗: ' + err.message);
     } finally {
         btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
-    }
-}
-
-/**
- * 批次儲存夥伴關鍵組織屬性
- */
-async function saveBatchPartners() {
-    const $btn = $('#btn-save-batch-partners');
-    AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-primary"></i> 正在批次寫入夥伴主檔...', '雲端同步處理');
-
-    try {
-        $btn.prop('disabled', true);
-        const rows = $('#batch-partners-tbody tr[data-partner-id]');
-        const updatePromises = [];
-        const currentUser = getCurrentUser();
-        const nowStr = getFormattedNow();
-
-        rows.each(function () {
-            const partnerId = $(this).data('partner-id');
-            const item = partnersList.find(p => p.partner_id === String(partnerId));
-            if (!item) return;
-
-            item.current_rank_id = $(this).find('.batch-select-cur-rank').val();
-            item.highest_rank_id = $(this).find('.batch-select-high-rank').val();
-            item.activity_level = $(this).find('.batch-select-activity').val();
-            item.member_status = $(this).find('.batch-select-member-status').val();
-            item.operator_status = $(this).find('.batch-select-operator-status').val();
-            item.relation_type = $(this).find('.batch-select-relation').val();
-            item.is_our_team = $(this).find('.batch-select-is-our-team').val();
-            item.modified_by = currentUser;
-            item.modified_at = nowStr;
-
-            const partnerRowArray = [
-                item.partner_id,
-                item.person_id,
-                item.member_no,
-                item.leader_title,
-                item.account_holder_type,
-                item.official_account_partner_id || item.partner_id,
-                item.operation_mode,
-                item.spouse_partner_id,
-                item.node_nature,
-                item.sponsor_id,
-                item.placement_id,
-                item.known_mentor_id,
-                item.upline_link_type,
-                item.current_rank_id,
-                item.highest_rank_id,
-                item.country_code,
-                item.is_our_team,
-                item.relation_type,
-                item.activity_level,
-                item.member_status,
-                item.operator_status,
-                item.joining_motive,
-                item.team_skills,
-                item.team_notes,
-                item.join_date,
-                item.renewal_due_date,
-                item.last_order_date || '',
-                item.exit_date || '',
-                item.avatar_url || '',
-                item.created_by || currentUser,
-                item.created_at || nowStr,
-                item.modified_by,
-                item.modified_at
-            ];
-
-            updatePromises.push(SheetAdapter.updateRow('夥伴主檔', item.partner_id, partnerRowArray));
-        });
-
-        await Promise.all(updatePromises);
-        AppToast.success(`已成功批次更新 ${updatePromises.length} 筆夥伴主檔！`);
-        await fetchGoogleSheetsData();
-    } catch (err) {
-        console.error('批次儲存失敗:', err);
-        AppToast.error('批次儲存失敗：' + err.message);
-    } finally {
-        $btn.prop('disabled', false);
-        AppLoading.hide();
     }
 }
 

@@ -40,18 +40,22 @@
                 <div class="row g-3 align-items-center">
                     <!-- 戰情指標 -->
                     <div class="col-12 col-xl-6">
-                        <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex flex-wrap gap-2 gap-md-3">
                             <div class="stat-chip">
                                 <span class="text-secondary"><i class="fa-solid fa-users text-primary"></i> 夥伴總數</span>
                                 <span class="fw-bold text-white fs-6" id="hud-total-partners">0</span>
                             </div>
                             <div class="stat-chip">
-                                <span class="text-secondary"><i class="fa-solid fa-crown text-warning"></i> 直屬主力</span>
-                                <span class="fw-bold text-warning fs-6" id="hud-core-partners">0</span>
+                                <span class="text-secondary"><i class="fa-solid fa-people-group text-warning"></i> 團隊人數</span>
+                                <span class="fw-bold text-warning fs-6" id="hud-team-partners">0</span>
                             </div>
                             <div class="stat-chip">
-                                <span class="text-secondary"><i class="fa-solid fa-earth-americas text-info"></i> 大馬市場</span>
-                                <span class="fw-bold text-info fs-6" id="hud-my-partners">0</span>
+                                <span class="text-secondary"><i class="fa-solid fa-earth-americas text-info"></i> 大馬團隊</span>
+                                <span class="fw-bold text-info fs-6" id="hud-my-team-partners">0</span>
+                            </div>
+                            <div class="stat-chip">
+                                <span class="text-secondary"><i class="fa-solid fa-bolt text-success"></i> 活躍成員</span>
+                                <span class="fw-bold text-success fs-6" id="hud-active-team-partners">0</span>
                             </div>
                         </div>
                     </div>
@@ -67,11 +71,6 @@
                             <input type="radio" class="btn-check" name="viewMode" id="view-table" autocomplete="off">
                             <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="view-table">
                                 <i class="fa-solid fa-list-check"></i> 夥伴列表
-                            </label>
-
-                            <input type="radio" class="btn-check" name="viewMode" id="view-batch" autocomplete="off">
-                            <label class="btn btn-outline-light border-0 rounded-pill px-2 px-md-3 py-1 text-nowrap" for="view-batch">
-                                <i class="fa-solid fa-table-cells"></i> 批次維護
                             </label>
 
                             <input type="radio" class="btn-check" name="viewMode" id="view-tree" autocomplete="off">
@@ -255,40 +254,7 @@
                     </article>
                 </div>
 
-                <!-- 3. 批次編輯視圖 (卡片包覆 + 橫向捲軸) -->
-                <div id="container-batch-view" class="d-none">
-                    <article class="glass-panel p-3">
-                        <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
-                            <div>
-                                <span class="fw-bold text-light"><i class="fa-solid fa-pen-to-square text-primary"></i> 夥伴關鍵組織屬性批次維護</span>
-                                <span class="text-secondary small ms-2 d-none d-md-inline-block">修改完成後點擊右方按鈕批次寫入雲端試算表</span>
-                            </div>
-                            <button class="btn btn-secondary btn-sm rounded-pill px-3" id="btn-save-batch-partners" onclick="saveBatchPartners()">
-                                <i class="fa-solid fa-floppy-disk"></i> 批次寫入儲存
-                            </button>
-                        </header>
-                        <div class="table-responsive" style="max-height: 65vh; overflow-x: auto; width: 100%;">
-                            <table class="table table-dark-custom table-sm align-middle w-100 nowrap" id="table-batch-partners">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 140px;">代碼 / 編號</th>
-                                        <th style="min-width: 140px;">姓名</th>
-                                        <th style="width: 140px;">目前實際職級</th>
-                                        <th style="width: 140px;">官方最高職級</th>
-                                        <th style="width: 130px;">團隊參與度</th>
-                                        <th style="width: 130px;">官方會籍狀態</th>
-                                        <th style="width: 110px;">營運狀態</th>
-                                        <th style="width: 110px;">組織關係</th>
-                                        <th style="width: 110px;">直轄團隊</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="batch-partners-tbody"></tbody>
-                            </table>
-                        </div>
-                    </article>
-                </div>
-
-                <!-- 4. 組織拓撲樹狀圖視圖 (直橫雙向捲軸 + 縮放機制 + PNG 下載) -->
+                <!-- 3. 組織拓撲樹狀圖視圖 (直橫雙向捲軸 + 縮放機制 + PNG 下載) -->
                 <div id="container-tree-view" class="d-none">
                     <article class="glass-panel p-3">
                         <header class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-25">
@@ -344,7 +310,7 @@
                     </article>
                 </div>
 
-                <!-- 5. 統計圖表視圖 (語言專區 + 個人資訊 12 圓餅圖 + 組織體系 18 戰術圖表) -->
+                <!-- 4. 統計圖表視圖 (語言專區 + 個人資訊 12 圓餅圖 + 組織體系 18 戰術圖表) -->
                 <div id="container-charts-view" class="d-none">
                     <!-- 區塊 A：跨國語言溝通能力矩陣 -->
                     <article class="glass-panel p-3 mb-4 border-primary border-opacity-25">
@@ -822,41 +788,47 @@
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">團隊直轄體系 <span class="text-danger">*</span></label>
-                                            <select class="form-select form-select-sm" id="form-is-our-team" required>
-                                                <option value="Y" selected>⭐️ Ray & Jarvis 直轄團隊</option>
-                                                <option value="N">🌐 旁線 / 體系友軍節點</option>
-                                            </select>
+                                            <label class="form-label">團隊內部職銜</label>
+                                            <input type="text" class="form-control form-control-sm" id="form-leader-title" placeholder="如：核心成員、顧問">
                                         </div>
                                     </div>
 
                                     <!-- 區塊 2：職級位階與團隊內部角色 -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">當前結算職級</label>
+                                            <label class="form-label d-flex justify-content-between align-items-center">
+                                                <span>當前結算職級</span>
+                                                <span class="badge bg-secondary-subtle text-secondary small" id="badge-rank-lock-cur" style="display: none;">唯讀鎖定</span>
+                                            </label>
                                             <select class="form-select form-select-sm" id="form-current-rank-id">
                                                 <option value="" selected>(未設定 / 未知)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">官方最高職級</label>
+                                            <label class="form-label d-flex justify-content-between align-items-center">
+                                                <span>官方最高職級</span>
+                                                <span class="badge bg-secondary-subtle text-secondary small" id="badge-rank-lock-high" style="display: none;">唯讀鎖定</span>
+                                            </label>
                                             <select class="form-select form-select-sm" id="form-highest-rank-id">
                                                 <option value="" selected>(未設定 / 未知)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">組織關係屬性 <span class="text-danger">*</span></label>
-                                            <select class="form-select form-select-sm" id="form-relation-type" required>
+                                            <label class="form-label">組織關係屬性 <span class="badge bg-secondary-subtle text-secondary small">系統自動計算</span></label>
+                                            <select class="form-select form-select-sm bg-black bg-opacity-40 text-muted border-secondary" id="form-relation-type" disabled>
                                                 <option value="核心成員">核心成員</option>
-                                                <option value="下線" selected>下線</option>
+                                                <option value="下線">下線</option>
                                                 <option value="上線">上線</option>
                                                 <option value="旁線">旁線</option>
                                                 <option value="中繼層">中繼層</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">團隊內部職銜</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-leader-title" placeholder="如：核心成員、顧問">
+                                            <label class="form-label">團隊直轄體系 <span class="badge bg-secondary-subtle text-secondary small">系統自動計算</span></label>
+                                            <select class="form-select form-select-sm bg-black bg-opacity-40 text-muted border-secondary" id="form-is-our-team" disabled>
+                                                <option value="Y">⭐️ Ray & Jarvis 直轄團隊</option>
+                                                <option value="N">🌐 旁線 / 體系友軍節點</option>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -898,7 +870,7 @@
                                     <!-- 區塊 4：組織排線、推薦與實務輔導上線 (閉包表 Ancestor 設定) -->
                                     <div class="row g-3 mt-1">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">官方安置人上線</label>
+                                            <label class="form-label">官方安置上線</label>
                                             <select class="form-select form-select-sm select2-partner-search" id="form-placement-id">
                                                 <option value="">(無 / 頂層節點)</option>
                                             </select>
@@ -1045,12 +1017,13 @@
                                         <table class="table table-dark-custom table-sm align-middle mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 20%;">平台名稱</th>
+                                                    <th style="width: 40px;" class="text-center text-secondary"><i class="fa-solid fa-grip-vertical"></i></th>
+                                                    <th style="width: 22%;">平台名稱</th>
                                                     <th style="width: 18%;">分類類別</th>
                                                     <th>通訊內容 / 帳號 / 網址</th>
                                                     <th style="width: 12%;">主要通訊</th>
-                                                    <th style="width: 20%;">備註</th>
-                                                    <th style="width: 50px;" class="text-center"></th>
+                                                    <th style="width: 18%;">備註</th>
+                                                    <th style="width: 45px;" class="text-center">操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="form-contacts-dynamic-tbody"></tbody>
@@ -1071,13 +1044,14 @@
                                         <table class="table table-dark-custom table-sm align-middle mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 10%;">使用語言</th>
+                                                    <th style="width: 40px;" class="text-center text-secondary"><i class="fa-solid fa-grip-vertical"></i></th>
+                                                    <th style="width: 20%;">使用語言</th>
                                                     <th style="width: 14%;">聽</th>
                                                     <th style="width: 14%;">說</th>
                                                     <th style="width: 14%;">讀</th>
                                                     <th style="width: 14%;">寫</th>
                                                     <th>特殊備註</th>
-                                                    <th style="width: 50px;" class="text-center"></th>
+                                                    <th style="width: 45px;" class="text-center">操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="form-languages-dynamic-tbody"></tbody>
