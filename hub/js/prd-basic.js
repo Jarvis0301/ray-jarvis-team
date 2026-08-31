@@ -100,6 +100,9 @@ let currentAnalyticsRegion = 'ALL';
 let masterDataTableInstance = null;
 let chartInstances = {};
 let isInitialized = false;
+let currentFxRate = 8.00;           // 基準結算匯率狀態變數 (預設 1 MYR = 8.00 TWD)
+let matrixTableInstance = null;
+let rawTableInstance = null;
 
 // ==========================================================================
 // 3. 系統生命週期與事件初始化
@@ -339,7 +342,6 @@ function buildTypeBadge(typeCode, regionCode = 'TW') {
 function bindUIEvents() {
     $('#btnOpenNewProductModal').on('click', () => openAddModal());
     $('#btnSaveFullProduct').on('click', () => saveProductItem());
-    $('#btnSaveBatchPrices').on('click', () => saveBatchPrices());
     $('#btnSaveTaxonomy').on('click', () => saveTaxonomyItem());
 
     // 篩選條件聯動
@@ -370,11 +372,31 @@ function bindUIEvents() {
         renderAnalyticsCharts();
     });
 
-    // 頁籤切換監聽
+    // 跨國產品對照表：動態匯率變動監聽
+    $('#crossBorderFxRateInput').off('input change').on('input change', function () {
+        let rate = parseFloat($(this).val());
+        if (isNaN(rate) || rate <= 0) {
+            rate = 8.00;
+        }
+        currentFxRate = rate;
+        renderCrossBorderMatrix();
+    });
+
+    // 頁籤切換至跨國產品對照表時重新校正 DataTable 欄寬
     $('button[data-bs-toggle="tab"]').on('shown.bs.tab', (e) => {
         if (e.target.id === 'tab-analytics-link') {
             renderAnalyticsCharts();
+        } else if (e.target.id === 'tab-crossborder-link') {
+            if (matrixTableInstance) {
+                matrixTableInstance.columns.adjust().draw(false);
+            }
         }
+    });
+
+    // 子頁籤切換時校正寬度
+    $('#matrixViewTabs button[data-bs-toggle="pill"]').on('shown.bs.tab', (e) => {
+        if (matrixTableInstance) matrixTableInstance.columns.adjust().draw(false);
+        if (rawTableInstance) rawTableInstance.columns.adjust().draw(false);
     });
 }
 
@@ -382,7 +404,7 @@ function refreshView() {
     populateSelects();
     renderMasterTable();
     renderTaxonomyTables();
-    renderBatchEditorTable();
+    renderCrossBorderMatrix();
     renderAnalyticsCharts();
 
     setTimeout(() => {
@@ -644,6 +666,18 @@ function openDetailModal(productCode) {
         $('#viewPrdOfficialSite').html('<span class="text-muted">未設定官方網站連結</span>');
     }
 
+    // 綁定「編輯」按鈕
+    $('#btnDetailToEdit').off('click').on('click', function () {
+        const detailModalEl = document.getElementById('modalProductDetailView');
+        const modalInstance = bootstrap.Modal.getInstance(detailModalEl);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        setTimeout(() => {
+            openEditModal(item.product_code);
+        }, 250);
+    });
+
     new bootstrap.Modal(document.getElementById('modalProductDetailView')).show();
 }
 
@@ -869,93 +903,95 @@ function deleteTaxonomyItem(type, code) {
 }
 
 // ==========================================================================
-// 10. Tab 3：跨國批次定價與 SV 點數編輯
+// 10. Tab 3：葡眾全系列產品台馬對照庫渲染
 // ==========================================================================
-function renderBatchEditorTable() {
-    const $tbody = $('#tableBatchEditor tbody').empty();
-    appState.products.forEach(p => {
+function renderCrossBorderMatrix() {
+    const $tbody = $('#crossBorderTableBody');
+    if (!$tbody.length) return;
+
+    if (matrixTableInstance) {
+        matrixTableInstance.destroy();
+        matrixTableInstance = null;
+    }
+    $tbody.empty();
+
+    const twProducts = appState.products.filter(p => p.region_code === 'TW');
+    const myProducts = appState.products.filter(p => p.region_code === 'MY');
+
+    const baseCodes = Array.from(new Set(appState.products.map(p => p.base_code).filter(Boolean))).sort();
+
+    baseCodes.forEach(code => {
+        const twProd = twProducts.find(p => p.base_code === code);
+        const myProd = myProducts.find(p => p.base_code === code);
+
+        const getStatusBadge = (prod) => {
+            if (!prod) return '';
+            const st = getLaunchStatus(prod.launch_date, prod.discontinue_date);
+            if (st.code === 'COMING_SOON') {
+                return ' <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>';
+            } else if (st.code === 'DISCONTINUED') {
+                return ' <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> 已下市</span>';
+            }
+            return '';
+        };
+
+        const twInfo = twProd
+            ? `<div class="fw-bold text-light">${twProd.name}${getStatusBadge(twProd)} <span class="text-muted small font-monospace">(${twProd.product_code})</span></div><div class="text-muted small">${twProd.package_spec || '-'}</div>`
+            : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
+
+        const twPrice = twProd
+            ? `<span class="text-light fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-warning fw-bold">${twProd.sv_point} SV</span>`
+            : `-`;
+
+        const myInfo = myProd
+            ? `<div class="fw-bold text-light">${myProd.name}${getStatusBadge(myProd)} <span class="text-muted small font-monospace">(${myProd.product_code})</span></div><div class="text-muted small">${myProd.package_spec || '-'}</div>`
+            : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
+
+        const myPrice = myProd
+            ? `<span class="text-light fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-warning fw-bold">${myProd.sv_point} SV</span>`
+            : `-`;
+
+        const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;
+        const myCostPerSv = myProd && myProd.sv_point > 0 ? (myProd.price / myProd.sv_point).toFixed(2) : null;
+        let costCompare = `-`;
+        if (twCostPerSv && myCostPerSv) {
+            costCompare = `<span class="text-light small">${twCostPerSv} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small">${myCostPerSv} RM/SV</span>`;
+        } else if (twCostPerSv) {
+            costCompare = `<span class="text-light small">${twCostPerSv} NT$/SV</span>`;
+        } else if (myCostPerSv) {
+            costCompare = `<span class="text-light small">${myCostPerSv} RM/SV</span>`;
+        }
+
+        let diffText = `<span class="text-muted">-</span>`;
+        if (twProd && myProd) {
+            const myConvertedTwd = myProd.price * currentFxRate;
+            const diff = myConvertedTwd - twProd.price;
+            diffText = diff >= 0
+                ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+                : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+        }
+
+        const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
+        const actionBtn = targetCode
+            ? `<button type="button" class="btn btn-sm btn-outline-info py-1 px-2" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass"></i> 詳情</button>`
+            : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban"></i> 無貨</button>`;
+
         $tbody.append(`
-            <tr data-product-code="${p.product_code}">
-                <td>
-                    <span class="badge bg-dark border ${p.region_code === 'TW' ? 'border-primary text-secondary' : 'border-danger text-danger'} me-1">${p.region_code}</span>
-                    <span class="font-monospace fw-bold text-light">${p.product_code}</span>
-                </td>
-                <td class="fw-bold text-light">${p.name}</td>
-                <td>${buildTypeBadge(p.type_code, p.region_code)}</td>
-                <td>
-                    <input type="number" step="0.01" class="form-control form-control-sm batch-input-price font-monospace text-end" value="${p.price}">
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-currency font-monospace text-center">
-                        <option value="TWD" ${p.currency === 'TWD' ? 'selected' : ''}>TWD</option>
-                        <option value="MYR" ${p.currency === 'MYR' ? 'selected' : ''}>MYR</option>
-                    </select>
-                </td>
-                <td>
-                    <input type="number" class="form-control form-control-sm batch-input-sv font-monospace text-end" value="${p.sv_point}">
-                </td>
-                <td class="text-center">
-                    <input class="form-check-input batch-check-featured" type="checkbox" ${p.is_featured ? 'checked' : ''}>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm batch-select-stock">
-                        <option value="IN_STOCK" ${p.stock_status === 'IN_STOCK' ? 'selected' : ''}>現貨</option>
-                        <option value="OUT_OF_STOCK" ${p.stock_status === 'OUT_OF_STOCK' ? 'selected' : ''}>缺貨</option>
-                        <option value="PRE_ORDER" ${p.stock_status === 'PRE_ORDER' ? 'selected' : ''}>預購</option>
-                    </select>
-                </td>
-                <td class="text-center">
-                    <input class="form-check-input batch-check-active" type="checkbox" ${p.is_valid === 'Y' ? 'checked' : ''}>
-                </td>
+            <tr>
+                <td class="text-center"><span class="badge badge-secondary-subtle font-monospace">${code}</span></td>
+                <td>${twInfo}</td>
+                <td>${twPrice}</td>
+                <td>${myInfo}</td>
+                <td>${myPrice}</td>
+                <td>${costCompare}</td>
+                <td>${diffText}</td>
+                <td class="text-center">${actionBtn}</td>
             </tr>
         `);
     });
-}
 
-async function saveBatchPrices() {
-    const $btn = $('#btnSaveBatchPrices');
-    try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 批次儲存中...');
-
-        const rows = $('#tableBatchEditor tbody tr');
-        const updatePromises = [];
-        const currentUser = getCurrentUser();
-        const nowStr = getFormattedNow();
-
-        rows.each(function () {
-            const productCode = $(this).data('product-code');
-            const item = appState.products.find(p => p.product_code === String(productCode));
-            if (!item) return;
-
-            item.price = parseFloat($(this).find('.batch-input-price').val()) || 0;
-            item.currency = $(this).find('.batch-select-currency').val() || 'TWD';
-            item.sv_point = parseInt($(this).find('.batch-input-sv').val(), 10) || 0;
-            item.is_featured = $(this).find('.batch-check-featured').is(':checked');
-            item.stock_status = $(this).find('.batch-select-stock').val();
-            item.is_valid = $(this).find('.batch-check-active').is(':checked') ? 'Y' : 'N';
-            item.modified_by = currentUser;
-            item.modified_at = nowStr;
-
-            const itemsRowArray = [
-                item.product_code, item.region_code, item.base_code, item.name, item.short_name,
-                item.short_summary || '', item.category_code, item.subcategory_code, item.type_code,
-                item.package_spec, item.product_weight || '', item.price, item.currency, item.sv_point,
-                item.primary_image_url, item.is_featured ? 'TRUE' : 'FALSE', item.stock_status,
-                item.sort_order || 0, item.is_valid, item.launch_date || '', item.discontinue_date || '',
-                item.official_update_date || nowStr.slice(0, 10),
-                item.created_by || currentUser, item.created_at || nowStr, item.modified_by, item.modified_at
-            ];
-
-            updatePromises.push(SheetAdapter.updateRow('prd_items', item.product_code, itemsRowArray));
-        });
-
-        await Promise.all(updatePromises);
-        AppToast.success('所有批次價格、SV 點數與明星商品標記已同步更新！');
-        await fetchGoogleSheetsData();
-    } catch (err) {
-        AppToast.error("批次儲存失敗：" + err.message);
-    } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 批次寫入儲存');
+    if ($.fn.DataTable) {
+        matrixTableInstance = $('#crossBorderMatrixTable').DataTable();
     }
 }
 
@@ -1399,6 +1435,10 @@ function openAddModal() {
     $(form).data('mode', 'add').data('code', '');
     $('input[name="product_code"]').prop('readonly', false);
     populateModalTaxonomySelects('TW');
+
+    // 開啟時預設選取第一個分頁（產品主檔）
+    $('#productEditTabs button:first').tab('show');
+
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }
 
@@ -1424,7 +1464,6 @@ function openEditModal(productCode) {
     form.elements['short_name'].value = item.short_name || '';
     if (form.elements['short_summary']) form.elements['short_summary'].value = item.short_summary || '';
 
-    // 繫結產品主系列與次系列
     let catCode = item.category_code;
     if (!catCode && item.subcategory_code) {
         catCode = getSubcategoryByCode(item.subcategory_code).category_code;
@@ -1459,6 +1498,9 @@ function openEditModal(productCode) {
     form.elements['features_and_functions'].value = item.features_and_functions || '';
     form.elements['ingredients'].value = item.ingredients || '';
     form.elements['detailed_description'].value = item.detailed_description || '';
+
+    // 開啟時預設選取第一個分頁（產品主檔）
+    $('#productEditTabs button:first').tab('show');
 
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }

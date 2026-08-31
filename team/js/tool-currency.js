@@ -562,8 +562,8 @@ function renderCrossBorderMatrix() {
             const myConvertedTwd = myProd.price * rate;
             const diff = myConvertedTwd - twProd.price;
             diffText = diff >= 0
-                ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
-                : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+                ? `<span class="badge badge-success-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+                : `<span class="badge badge-danger-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
         }
 
         const actionBtn = twProd
@@ -587,14 +587,7 @@ function renderCrossBorderMatrix() {
     });
 
     if ($.fn.DataTable) {
-        matrixTableInstance = $('#crossBorderMatrixTable').DataTable({
-            responsive: true,
-            language: {
-                search: "矩陣篩選：",
-                lengthMenu: "顯示 _MENU_ 筆",
-                info: "第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆"
-            }
-        });
+        matrixTableInstance = $('#crossBorderMatrixTable').DataTable();
     }
 }
 

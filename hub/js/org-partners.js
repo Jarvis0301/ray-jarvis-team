@@ -900,6 +900,17 @@ function getFinancialStatusBadge(status) {
     }
 }
 
+function getLanguageStatusBadge(status) {
+    switch (status) {
+        case '精通': return '<span class="badge badge-indigo-subtle">精通</span>';
+        case '流利': return '<span class="badge badge-info-subtle">流利</span>';
+        case '普通': return '<span class="badge badge-success-subtle">普通</span>';
+        case '略懂': return '<span class="badge badge-warning-subtle">略懂</span>';
+        case '不會': return '<span class="badge badge-danger-subtle">不會</span>';
+        default: return '<span class="badge badge-muted-subtle">未設定</span>';
+    }
+}
+
 /**
  * 取得人脈身分類型之戰術徽章 HTML
  * @param {string} type 身份類型 (夥伴 / 團隊成員 / 潛在團隊成員 / 客戶 / 潛在客戶)
@@ -924,8 +935,8 @@ function getIdentityTypeBadge(type) {
 function getUsageIdentityBadge(type) {
     switch (type) {
         case '經營者': return '<span class="badge badge-outline-blue">經營者</span>';
-        case '消費者': return '<span class="badge badge-outline-subtle">消費者</span>';
-        default: return '<span class="badge badge-outline-subtle">未設定</span>';
+        case '消費者': return '<span class="badge badge-outline-green">消費者</span>';
+        default: return '<span class="badge badge-outline-green">未設定</span>';
     }
 }
 
@@ -1181,7 +1192,6 @@ function renderDataTableView(list) {
     });
 
     dataTableInstance = $('#partners-datatable').DataTable({
-        scrollCollapse: true,
         columnDefs: [
             { targets: [1, 8, 9, 10, 11, 12], className: 'text-center' },
             { targets: [13], className: 'text-end', orderable: false }
@@ -2532,15 +2542,13 @@ window.openPartnerModalForView = function (partnerId) {
         langs.forEach(l => {
             $langsWrap.append(`
                 <div class="p-2 bg-black bg-opacity-30 rounded border border-secondary border-opacity-10">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="d-flex gap-2">
                         <strong class="text-white">${l.language_name}</strong>
                         ${l.notes ? `<span class="text-muted" style="font-size: 0.72rem;">${l.notes}</span>` : ''}
-                    </div>
-                    <div class="d-flex gap-2 text-secondary" style="font-size: 0.76rem;">
-                        <span>聽: <strong class="text-info">${l.listening_level}</strong></span>
-                        <span>說: <strong class="text-success">${l.speaking_level}</strong></span>
-                        <span>讀: <strong class="text-warning">${l.reading_level}</strong></span>
-                        <span>寫: <strong class="text-danger">${l.writing_level}</strong></span>
+                        <span class="text-secondary">聽: ${getLanguageStatusBadge(l.listening_level)}</span>
+                        <span class="text-secondary">說: ${getLanguageStatusBadge(l.listening_level)}</span>
+                        <span class="text-secondary">讀: ${getLanguageStatusBadge(l.listening_level)}</span>
+                        <span class="text-secondary">寫: ${getLanguageStatusBadge(l.listening_level)}</span>
                     </div>
                 </div>
             `);

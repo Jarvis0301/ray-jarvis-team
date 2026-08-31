@@ -52,9 +52,37 @@
     width: 100%;
 }
 
-#tableBatchEditor thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background-color: var(--uvaco-bg-surface, #1a122d);
+/* ==========================================================================
+   產品編輯彈窗分頁 Pills 樣式（相容手機端 RWD 橫向捲動）
+   ========================================================================== */
+.form-tabs-mobile-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    gap: 0.35rem;
+}
+
+.form-tabs-mobile-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.form-tabs-mobile-nav .nav-link {
+    font-size: 0.84rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
+    color: var(--uvaco-text-muted, #94a3b8);
+    transition: all 0.2s ease;
+}
+
+.form-tabs-mobile-nav .nav-link:hover {
+    color: #ffffff;
+    background: rgba(139, 92, 246, 0.15);
+}
+
+.form-tabs-mobile-nav .nav-link.active {
+    background: var(--uvaco-primary, #8b5cf6);
+    color: #ffffff;
+    border-color: var(--uvaco-primary, #8b5cf6);
 }

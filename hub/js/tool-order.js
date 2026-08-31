@@ -1475,6 +1475,21 @@ function renderSubSeriesChartCards() {
                         legend: {
                             position: 'right',
                             labels: { color: '#94a3b8', font: { size: 10 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    if (label === '無選購項目') {
+                                        return ' 尚無選購項目';
+                                    }
+                                    const val = context.raw || 0;
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + (Number(b) || 0), 0);
+                                    const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+                                    const symbol = chart1Metric === 'SV' ? ' SV' : (chart1Metric === 'MYR' ? ' RM' : ' NT$');
+                                    return ` ${label}: ${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
+                                }
+                            }
                         }
                     }
                 }

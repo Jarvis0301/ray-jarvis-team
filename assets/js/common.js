@@ -115,6 +115,7 @@ function setDataTable() {
             stateSave: false,               // 重新整理時是否記憶目前的頁碼/排序 (預設關閉)
             destroy: true,                  // 銷毀舊表格，重新建立
             scrollX: true,                  // 開啟橫向滾動軸
+            scrollCollapse: true,           // 控制當表格內容很少、不足以佔滿設定的最大高度時，表格本身的高度是否要跟著縮小
 
             // --- 4. 效能優化 ---
             deferRender: true,              // 延遲渲染 (當資料量大時能顯著提升速度)
