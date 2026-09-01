@@ -52,12 +52,29 @@ function generateNextHistoryId() {
 let appState = {
     ranks: [],
     history: [],
+    partners: [], // 來自「夥伴主檔」
+    persons: [],  // 來自「個人主檔」
     selectedRankId: ''
 };
 
 let historyDataTable = null;
 let singlePartnerDataTable = null;
 let partnerRankChartInstance = null;
+
+// 依據夥伴 ID 與關聯個人主檔解析格式化顯示名稱
+function getPartnerDisplayName(partnerId) {
+    if (!partnerId) return '-';
+    const partner = appState.partners.find(ptn => ptn.partner_id === partnerId);
+    if (!partner) return partnerId;
+
+    const person = appState.persons.find(psn => psn.person_id === partner.person_id);
+    const name = (person && (person.name_zh || person.name_en)) 
+        ? (person.name_zh || person.name_en) 
+        : (partner.partner_name_zh || partner.partner_id);
+    const nickname = (person && person.nickname) ? ` (${person.nickname})` : '';
+    
+    return `${name}${nickname} [${partner.partner_id}]`;
+}
 
 // ==========================================================================
 // 系統生命週期 (對接 common.js 廣播之 AppReady)
@@ -91,11 +108,11 @@ function applyUIPermissions() {
 }
 
 // ==========================================================================
-// 資料讀取引擎 (以欄位順序索引為主解析)
+// 資料讀取引擎 (以欄位順序索引為主解析 4 張工作表)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
     try {
-        AppLoading.show("讀取中...", "正在自試算表資料庫同步職級標準與歷程軌跡");
+        AppLoading.show("讀取中...", "正在自試算表資料庫同步職級標準、歷程、夥伴與個人主檔");
 
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
@@ -106,13 +123,17 @@ async function fetchGoogleSheetsData() {
             return (parsed.data || []).slice(1);
         };
 
-        const [rankRows, historyRows] = await Promise.all([
+        const [rankRows, historyRows, partnerRows, personRows] = await Promise.all([
             fetchSheet('職級主檔').catch(() => []),
-            fetchSheet('職級歷程').catch(() => [])
+            fetchSheet('職級歷程').catch(() => []),
+            fetchSheet('夥伴主檔').catch(() => []),
+            fetchSheet('個人主檔').catch(() => [])
         ]);
 
         appState.ranks = parseRanksTable(rankRows);
         appState.history = parseRankHistoryTable(historyRows);
+        appState.partners = parsePartnersTable(partnerRows);
+        appState.persons = parsePersonsTable(personRows);
 
         if (appState.ranks.length > 0) {
             const exists = appState.ranks.some(r => r.rank_id === appState.selectedRankId);
@@ -131,7 +152,7 @@ async function fetchGoogleSheetsData() {
     }
 }
 
-// 依據 org_ranks (30 欄位順序解析)
+// 依據「職級主檔」30 欄位順序解析
 function parseRanksTable(rows) {
     return rows.map((r, idx) => ({
         rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
@@ -167,7 +188,7 @@ function parseRanksTable(rows) {
     })).filter(r => r.rank_name_zh !== '').sort((a, b) => a.sort_order - b.sort_order);
 }
 
-// 依據 org_rank_history (17 欄位順序解析)
+// 依據「職級歷程」17 欄位順序解析
 function parseRankHistoryTable(rows) {
     return rows.map((r, idx) => ({
         history_id: getVal(r, 0, `RANK-HIS-${String(idx + 1).padStart(3, '0')}`),
@@ -188,6 +209,26 @@ function parseRankHistoryTable(rows) {
         modified_by: getVal(r, 15, 'SYSTEM'),
         modified_at: getVal(r, 16, '')
     })).filter(h => h.partner_id !== '');
+}
+
+// 依據「夥伴主檔」順序解析
+function parsePartnersTable(rows) {
+    return rows.map(r => ({
+        partner_id: getVal(r, 0, ''),
+        person_id: getVal(r, 1, ''),
+        member_no: getVal(r, 2, ''),
+        partner_name_zh: getVal(r, 3, '')
+    })).filter(p => p.partner_id !== '');
+}
+
+// 依據「個人主檔」順序解析
+function parsePersonsTable(rows) {
+    return rows.map(r => ({
+        person_id: getVal(r, 0, ''),
+        name_zh: getVal(r, 1, ''),
+        name_en: getVal(r, 2, ''),
+        nickname: getVal(r, 3, '')
+    })).filter(p => p.person_id !== '');
 }
 
 // ==========================================================================
@@ -230,7 +271,6 @@ function selectRank(rankId) {
     const rank = appState.ranks.find(r => r.rank_id === rankId);
     if (!rank) return;
 
-    // 標題與基礎回饋率
     $('#activeRankCode').text(`代碼：${rank.rank_code}`).css('color', rank.badge_color_hex);
     $('#activeRankName').text(`${rank.rank_name_zh} ${rank.rank_name_en ? '(' + rank.rank_name_en + ')' : ''}`);
     $('#activeRebateRate').text(`${(rank.direct_rebate_rate * 100).toFixed(2)}%`);
@@ -286,17 +326,20 @@ function populateRankSelects() {
 // 夥伴專屬戰況與缺口分析
 // ==========================================================================
 function populatePartnerDropdown() {
-    const $select = $('#partnerSelect');
-    const partners = [...new Set(appState.history.map(h => h.partner_id))].filter(Boolean);
-    
-    $select.empty();
-    if (partners.length === 0) {
-        $select.append('<option value="">暫無夥伴歷程</option>');
+    const $select = $('#partnerSelect').empty();
+
+    const partnerList = appState.partners.length > 0 
+        ? appState.partners 
+        : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
+
+    if (partnerList.length === 0) {
+        $select.append('<option value="">暫無夥伴資料</option>');
         return;
     }
 
-    partners.forEach(ptn => {
-        $select.append(`<option value="${ptn}">${ptn}</option>`);
+    partnerList.forEach(p => {
+        const text = getPartnerDisplayName(p.partner_id);
+        $select.append(`<option value="${p.partner_id}">${text}</option>`);
     });
 
     const selectedPtn = $select.val();
@@ -478,9 +521,16 @@ function renderPartnerRankChart(ptnHistory) {
 }
 
 function renderPartnerSingleTable(ptnHistory) {
+    const hasAdminRights = isMasterAdmin();
+
     const formatted = ptnHistory.map(h => {
         const prevRank = appState.ranks.find(r => r.rank_id === h.previous_rank_id);
         const newRank = appState.ranks.find(r => r.rank_id === h.new_rank_id);
+
+        const actionBtns = hasAdminRights ? `
+            <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+        ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
 
         return {
             previous: prevRank ? UIBadges.rank.badge(prevRank) : `<span class="badge badge-gray">${h.previous_rank_id || '-'}</span>`,
@@ -491,7 +541,8 @@ function renderPartnerSingleTable(ptnHistory) {
             manager_legs: `<span class="font-chakra text-center d-block">${h.active_manager_legs_count} 條</span>`,
             pearl_legs: `<span class="font-chakra text-center d-block">${h.active_pearl_legs_count} 條</span>`,
             recognition: h.company_recognition_date || '-',
-            notes: h.notes || '-'
+            notes: h.notes || '-',
+            actions: actionBtns
         };
     });
 
@@ -509,7 +560,8 @@ function renderPartnerSingleTable(ptnHistory) {
                 { data: 'manager_legs' },
                 { data: 'pearl_legs' },
                 { data: 'recognition' },
-                { data: 'notes' }
+                { data: 'notes' },
+                { data: 'actions', orderable: false }
             ],
             pageLength: 5,
             searching: false,
@@ -533,7 +585,7 @@ function renderHistoryTable() {
         ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
 
         return {
-            partner_name: `<strong class="text-white">${h.partner_id}</strong>`,
+            partner_name: `<strong class="text-white">${getPartnerDisplayName(h.partner_id)}</strong>`,
             previous: prevRank ? UIBadges.rank.badge(prevRank) : `<span class="badge badge-gray">${h.previous_rank_id || '-'}</span>`,
             new_rank: newRank ? UIBadges.rank.badge(newRank) : `<span class="badge badge-purple">${h.new_rank_id || '-'}</span>`,
             effective_month: `<span class="font-chakra">${h.effective_month}</span>`,
@@ -548,9 +600,7 @@ function renderHistoryTable() {
     });
 
     if (historyDataTable) {
-        historyDataTable.clear();
-        historyDataTable.rows.add(formatted);
-        historyDataTable.draw();
+        historyDataTable.clear().rows.add(formatted).draw();
     } else {
         historyDataTable = $('#rankHistoryTable').DataTable({
             data: formatted,
@@ -577,11 +627,15 @@ function renderHistoryTable() {
 // ==========================================================================
 function initPartnerSelect2() {
     const $partnerSelect = $('#fieldPartnerId');
-    const partnerList = [...new Set(appState.history.map(h => h.partner_id))].filter(Boolean);
-    
     $partnerSelect.empty().append('<option value="">請選擇或搜尋夥伴...</option>');
-    partnerList.forEach(ptn => {
-        $partnerSelect.append(`<option value="${ptn}">${ptn}</option>`);
+
+    const partnerList = appState.partners.length > 0 
+        ? appState.partners 
+        : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
+
+    partnerList.forEach(p => {
+        const text = getPartnerDisplayName(p.partner_id);
+        $partnerSelect.append(`<option value="${p.partner_id}">${text}</option>`);
     });
 
     if ($.fn.select2) {
@@ -640,7 +694,7 @@ async function saveRankHistoryItem() {
     const partnerId = $('#fieldPartnerId').val().trim();
 
     if (!partnerId) {
-        AppToast.warning("請選擇或輸入夥伴名稱！");
+        AppToast.warning("請選擇夥伴！");
         return;
     }
 
@@ -650,7 +704,7 @@ async function saveRankHistoryItem() {
     const createdBy = (mode === 'edit' && existing) ? existing.created_by : currentUser;
     const createdAt = (mode === 'edit' && existing) ? existing.created_at : nowStr;
 
-    // 依據 org_rank_history (17 欄位順序封裝)
+    // 依據「職級歷程」17 欄位順序封裝
     const rowDataArray = [
         historyId,                                              // [0] history_id
         partnerId,                                              // [1] partner_id
@@ -693,10 +747,10 @@ async function saveRankHistoryItem() {
 
     try {
         if (mode === 'add') {
-            await SheetAdapter.createRow('org_rank_history', historyId, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.createRow('職級歷程', historyId, rowDataArray, GAS_DEPLOY_ID);
             appState.history.unshift(updatedObj);
         } else {
-            await SheetAdapter.updateRow('org_rank_history', historyId, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.updateRow('職級歷程', historyId, rowDataArray, GAS_DEPLOY_ID);
             const idx = appState.history.findIndex(h => h.history_id === historyId);
             if (idx !== -1) appState.history[idx] = updatedObj;
         }
@@ -718,7 +772,7 @@ async function deleteRankHistoryItem(historyId) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow('org_rank_history', historyId, GAS_DEPLOY_ID);
+        await SheetAdapter.deleteRow('職級歷程', historyId, GAS_DEPLOY_ID);
         appState.history = appState.history.filter(h => h.history_id !== historyId);
         refreshView();
         AppToast.success(`晉升紀錄【${historyId}】已成功刪除！`);
