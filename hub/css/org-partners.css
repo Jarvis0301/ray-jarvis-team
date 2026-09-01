@@ -613,3 +613,56 @@ tr.is-dragging-row {
     background: rgba(139, 92, 246, 0.25) !important;
     border: 1px dashed var(--uvaco-primary, #8b5cf6) !important;
 }
+
+/* --------------------------------------------------------------------------
+   四大視圖切換 Nav Tabs 樣式
+   -------------------------------------------------------------------------- */
+.nav-tabs-tactical {
+    gap: 0.5rem;
+
+    .nav-link {
+        color: var(--uvaco-text-muted, #94a3b8);
+        border: 1px solid transparent;
+        border-bottom: none;
+        border-radius: 12px 12px 0 0;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.25s ease;
+
+        &:hover {
+            color: #ffffff;
+            background: rgba(139, 92, 246, 0.12);
+            border-color: rgba(139, 92, 246, 0.25) rgba(139, 92, 246, 0.25) transparent;
+        }
+
+        &.active {
+            color: #ffffff;
+            background: rgba(139, 92, 246, 0.22);
+            border-color: rgba(139, 92, 246, 0.45) rgba(139, 92, 246, 0.45) transparent;
+            border-bottom: 2px solid var(--uvaco-primary, #8b5cf6);
+            box-shadow: 0 -4px 12px rgba(139, 92, 246, 0.15);
+        }
+    }
+}
+
+@media (max-width: 767.98px) {
+    .nav-tabs-tactical {
+        border-bottom: none !important;
+        gap: 0;
+
+        .nav-link {
+            border-radius: 10px;
+            border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
+            padding: 0.55rem 0.5rem;
+            font-size: 0.85rem;
+
+            &.active {
+                border-color: var(--uvaco-primary, #8b5cf6) !important;
+                background: rgba(139, 92, 246, 0.25);
+                box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+            }
+        }
+    }
+}

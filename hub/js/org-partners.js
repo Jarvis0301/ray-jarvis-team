@@ -70,24 +70,17 @@ window.addEventListener('AppReady', function () {
     // 讀取試算表資料
     fetchGoogleSheetsData();
 
-    // 五大視圖切換器監聽
-    $('input[name="viewMode"]').on('change', function () {
-        const mode = $(this).attr('id');
-        $('#container-cards-view, #container-table-view, #container-tree-view, #container-charts-view').addClass('d-none');
+    // 四大視圖切換器監聽
+    $('#viewModeTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const targetId = $(e.target).attr('data-bs-target');
 
-        if (mode === 'view-cards') {
-            $('#container-cards-view').removeClass('d-none');
-        } else if (mode === 'view-table') {
-            $('#container-table-view').removeClass('d-none');
+        if (targetId === '#container-table-view') {
             if (dataTableInstance) {
                 setTimeout(() => {
                     dataTableInstance.columns.adjust().draw(false);
                 }, 100);
             }
-        } else if (mode === 'view-tree') {
-            $('#container-tree-view').removeClass('d-none');
-        } else if (mode === 'view-charts') {
-            $('#container-charts-view').removeClass('d-none');
+        } else if (targetId === '#container-charts-view') {
             $('#select-lang-filter').select2({ width: '100%' });
             renderChartsView();
         }
@@ -998,8 +991,8 @@ function renderAllViews() {
     renderDataTableView(list);
     renderTreeView();
 
-    // 延遲渲染圖表
-    if (!$('#container-charts-view').hasClass('d-none')) {
+    // 延遲渲染圖表 (若當前處於圖表頁籤)
+    if ($('#container-charts-view').hasClass('active')) {
         renderChartsView(list);
     }
 }

@@ -202,7 +202,7 @@ function parseItemsTable(rows) {
         sv_point: parseInt(getVal(r, 13, '0'), 10) || 0,
         primary_image_url: getVal(r, 14, 'https://via.placeholder.com/150/1a122d/c084fc?text=No+Image'),
         is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 15, 'FALSE').toUpperCase()),
-        stock_status: getVal(r, 16, 'IN_STOCK'),
+        stock_status: getVal(r, 16),
         sort_order: parseInt(getVal(r, 17, '0'), 10) || 0,
         is_valid: getVal(r, 18, 'Y').toUpperCase() === 'Y' ? 'Y' : 'N',
         launch_date: getVal(r, 19, ''),
@@ -512,11 +512,11 @@ function formatMasterTableRow(p) {
     }
 
     let stockBadge = '';
-    if (p.stock_status === 'IN_STOCK') {
+    if (p.stock_status === '現貨') {
         stockBadge = '<span class="badge badge-success"><i class="fa-solid fa-box"></i> 現貨</span>';
-    } else if (p.stock_status === 'OUT_OF_STOCK') {
+    } else if (p.stock_status === '缺貨') {
         stockBadge = '<span class="badge badge-danger"><i class="fa-solid fa-circle-xmark"></i> 缺貨</span>';
-    } else {
+    } else if (p.stock_status === '預購') {
         stockBadge = '<span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 預購</span>';
     }
 
@@ -609,13 +609,16 @@ function openDetailModal(productCode) {
         ? `RM${Number(item.price).toLocaleString()}`
         : `NT$${Number(item.price).toLocaleString()}`;
 
-    let stockText = '現貨 (IN_STOCK)';
-    let stockBadgeClass = 'badge-success';
-    if (item.stock_status === 'OUT_OF_STOCK') {
-        stockText = '缺貨 (OUT_OF_STOCK)';
+    let stockText = '未設定';
+    let stockBadgeClass = 'badge-muted';
+    if (item.stock_status === '現貨') {
+        stockText = '現貨';
+        stockBadgeClass = 'badge-success';
+    } else if (item.stock_status === '缺貨') {
+        stockText = '缺貨';
         stockBadgeClass = 'badge-danger';
     } else if (item.stock_status === 'PRE_ORDER') {
-        stockText = '預購 (PRE_ORDER)';
+        stockText = '預購';
         stockBadgeClass = 'badge-warning';
     }
 
@@ -1183,9 +1186,10 @@ function renderAnalyticsCharts() {
 
     const statusCounts = { '現貨': 0, '缺貨': 0, '預購': 0 };
     dataset.forEach(p => {
-        if (p.stock_status === 'IN_STOCK') statusCounts['現貨']++;
-        else if (p.stock_status === 'OUT_OF_STOCK') statusCounts['缺貨']++;
-        else statusCounts['預購']++;
+        if (p.stock_status === '現貨') statusCounts['現貨']++;
+        else if (p.stock_status === '缺貨') statusCounts['缺貨']++;
+        else if (p.stock_status === '預購') statusCounts['預購']++;
+        else statusCounts['未設定']++;
     });
 
     if (chartInstances.statusDist) chartInstances.statusDist.destroy();
@@ -1197,7 +1201,7 @@ function renderAnalyticsCharts() {
                 labels: Object.keys(statusCounts),
                 datasets: [{
                     data: Object.values(statusCounts),
-                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#71717a'],
                     borderColor: '#1a122d',
                     borderWidth: 2
                 }]
@@ -1478,7 +1482,7 @@ function openEditModal(productCode) {
     form.elements['currency'].value = item.currency || 'TWD';
     form.elements['sv_point'].value = item.sv_point;
     form.elements['primary_image_url'].value = item.primary_image_url || '';
-    form.elements['stock_status'].value = item.stock_status || 'IN_STOCK';
+    form.elements['stock_status'].value = item.stock_status || '未設定';
     if (form.elements['sort_order']) form.elements['sort_order'].value = item.sort_order || 0;
     form.elements['is_featured'].checked = item.is_featured;
 

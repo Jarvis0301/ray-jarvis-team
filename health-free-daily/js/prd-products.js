@@ -179,7 +179,7 @@ async function fetchGoogleSheetsData() {
                     sv_point: parseFloat(getVal(row, 13, '0')) || 0,
                     primary_image_url: getVal(row, 14),
                     is_featured: ['TRUE', 'Y', '1'].includes(getVal(row, 15, 'FALSE').toUpperCase()),
-                    stock_status: getVal(row, 16, 'IN_STOCK'),
+                    stock_status: getVal(row, 16),
                     sort_order: parseInt(getVal(row, 17, '0'), 10) || 0,
                     launch_date: launchDate,
                     discontinue_date: discontinueDate,

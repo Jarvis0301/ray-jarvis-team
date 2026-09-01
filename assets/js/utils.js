@@ -115,10 +115,6 @@ class Utils {
     }
 }
 
-if (typeof window !== 'undefined') {
-    window.Utils = Utils;
-}
-
 window.imgError = function(imgElement, config, height, width) {
     if (window.Utils && typeof window.Utils.handleImgError === 'function') {
         window.Utils.handleImgError(imgElement, config, height, width);
@@ -126,3 +122,7 @@ window.imgError = function(imgElement, config, height, width) {
         imgElement.style.opacity = '0';
     }
 };
+
+if (typeof window !== 'undefined') {
+    window.Utils = Utils;
+}

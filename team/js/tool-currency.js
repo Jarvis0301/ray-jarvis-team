@@ -119,7 +119,7 @@ function parseProductsTable(rows) {
         const svNum = parseInt(getVal(r, 13, '0'), 10) || 0;
         const weightNum = parseFloat(getVal(r, 10, '0.5')) || 0.5;
         const isFeatured = getVal(r, 15, 'FALSE').toUpperCase() === 'TRUE';
-        const stockStatus = getVal(r, 16, 'IN_STOCK');
+        const stockStatus = getVal(r, 16);
         const sortOrder = parseInt(getVal(r, 17, '0'), 10) || 0;
         const isValid = getVal(r, 18, 'Y');
         const launchDate = getVal(r, 19);

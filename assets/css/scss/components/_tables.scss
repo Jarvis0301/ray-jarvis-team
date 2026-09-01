@@ -1,17 +1,22 @@
+/* _tables.scss 或 common.css */
+
 .table-dark-custom {
     --bs-table-bg: transparent;
     --bs-table-color: var(--uvaco-text-light);
     --bs-table-border-color: var(--uvaco-border-color);
     border-color: var(--uvaco-border-glow) !important;
     color: var(--uvaco-text-primary, #f8fafc) !important;
+    margin-bottom: 0 !important;
 
     thead th {
         background-color: var(--uvaco-bg-card) !important;
         color: var(--uvaco-secondary) !important;
         border-bottom: 2px solid var(--uvaco-border-color) !important;
         font-weight: 600;
-        padding: 1rem;
+        padding: 0.75rem 1rem !important;   /* 左右 padding 必須與 td 嚴格一致 */
         vertical-align: middle;
+        white-space: nowrap !important;     /* 避免表頭折行造成欄寬計算偏差 */
+        text-align: left;
     }
 
     tbody tr {
@@ -22,12 +27,46 @@
         td {
             background-color: transparent !important;
             vertical-align: middle;
-            padding: 0.5rem;
-            border-bottom: 1px solid  var(--uvaco-muted);
+            padding: 0.75rem 1rem !important;   /* 左右 padding 必須與 th 嚴格一致 */
+            border-bottom: 1px solid var(--uvaco-muted);
+            white-space: nowrap !important;     /* 防止內容折行擠壓寬度 */
         }
 
         &:hover td {
             background-color: var(--uvaco-bg-card-hover) !important;
+        }
+    }
+
+    /* 限制表格內頭像與產品縮圖尺寸，防止非同步加載撐開欄位 */
+    img.avatar-img,
+    img.product-thumb {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        border-radius: 50%;
+        display: inline-block;
+    }
+}
+
+/* 修正 DataTables 拆分雙表時外層容器的寬度計算 */
+.dataTables_wrapper {
+    width: 100%;
+    
+    .dataTables_scrollHead {
+        overflow: hidden !important;
+    }
+
+    .dataTables_scrollHeadInner {
+        box-sizing: content-box !important;
+        
+        table {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    .dataTables_scrollBody {
+        table {
+            margin-bottom: 0 !important;
         }
     }
 }

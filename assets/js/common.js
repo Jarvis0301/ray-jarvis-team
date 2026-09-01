@@ -9,7 +9,8 @@
     const internalModules = [
         '../assets/js/utils.js',
         '../assets/js/dialog.js',
-        '../assets/js/sheet-adapter.js'
+        '../assets/js/sheet-adapter.js',
+        '../assets/js/ui-badges.js'
     ];
 
     /**
@@ -111,16 +112,29 @@ function setDataTable() {
             ordering: true,                 // 開放欄位點擊排序
             info: true,                     // 顯示「顯示第 X 至 Y 筆」的統計資訊
             paging: true,                   // 開啟分頁
-            autoWidth: false,               // 關閉自動寬度計算 (避免欄位擠壓，改由 CSS 控制)
+            autoWidth: true,                // 必須開啟自動欄寬計算，DataTables 才能精確同步雙表像素寬度
             stateSave: false,               // 重新整理時是否記憶目前的頁碼/排序 (預設關閉)
             destroy: true,                  // 銷毀舊表格，重新建立
             scrollX: true,                  // 開啟橫向滾動軸
             scrollCollapse: true,           // 控制當表格內容很少、不足以佔滿設定的最大高度時，表格本身的高度是否要跟著縮小
+            responsive: false,              // 建議關閉 responsive，避免與 scrollX 搶奪欄寬計算
 
             // --- 4. 效能優化 ---
             deferRender: true,              // 延遲渲染 (當資料量大時能顯著提升速度)
             processing: true,               // 讀取/排序時顯示「處理中」提示
-            responsive: true                // RWD
+
+            // --- 5. 自動校準表頭寬度鉤子 ---
+            initComplete: function() {
+                const api = this.api();
+                // 初始化完成後延遲一幀強制校準表頭對齊
+                setTimeout(() => {
+                    api.columns.adjust();
+                }, 50);
+            },
+            drawCallback: function() {
+                // 每次換頁或重新繪製時校準
+                $(this).DataTable().columns.adjust();
+            }
 
             /*
             searching (true / false)：是否開啟表格右上角的搜尋框。
