@@ -186,7 +186,7 @@ const UIBadges = (function () {
                     case '穩定': return '<span class="badge badge-info-subtle">穩定</span>';
                     case '吃緊': return '<span class="badge badge-warning-subtle">吃緊</span>';
                     case '高負債': return '<span class="badge badge-danger-subtle">高負債</span>';
-                    case '尋找副業': return '<span class="badge badge-orange-subtle">尋找副業</span>';
+                    case '尋找副業': return '<span class="badge badge-accent-subtle">尋找副業</span>';
                     default: return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
             },
@@ -270,7 +270,7 @@ const UIBadges = (function () {
                 switch (stockCode) {
                     case '現貨': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-box"></i> 現貨</span>';
                     case '缺貨': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-circle-xmark"></i> 缺貨</span>';
-                    case '預購': return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-clock"></i> 預購</span>';
+                    case '預購': return '<span class="badge badge-accent-subtle"><i class="fa-solid fa-clock"></i> 預購</span>';
                     default: return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-question"></i> 未設定</span>';
                 }
             },

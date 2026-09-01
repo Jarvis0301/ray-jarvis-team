@@ -3,10 +3,6 @@
    職級晉升管理與推演模組專屬樣式 (已對接 common.scss 與 Design Tokens)
    ========================================================================== */
 
-.font-chakra {
-    font-family: 'Chakra Petch', sans-serif;
-}
-
 /* 職級天梯水平軌道 (Stepper) */
 .rank-track-wrapper {
     display: flex;
@@ -59,16 +55,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     margin-bottom: 6px;
-    background: var(--uvaco-bg-accent, rgba(139, 92, 246, 0.15));
-    color: var(--uvaco-secondary, #c084fc);
-    transition: all 0.3s;
+    background: rgba(10, 5, 24, 0.85); /* 深色高對比襯底，解決吃色問題 */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
 }
 
 .rank-node-btn.active .rank-badge-icon {
-    background: var(--uvaco-accent, #ec4899);
-    color: #ffffff;
+    background: rgba(13, 6, 31, 0.95);
+    border-color: currentColor;
+    box-shadow: 0 0 12px currentColor;
 }
 
 /* 核心指標膠囊卡片 */

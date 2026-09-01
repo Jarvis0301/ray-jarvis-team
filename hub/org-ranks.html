@@ -33,13 +33,13 @@
                         </div>
                         <div>
                             <div class="d-flex align-items-center gap-2">
-                                <h3 class="fw-bold mb-0 text-white">職級管理與晉升中台</h3>
+                                <h3 class="fw-bold mb-0 text-white">職級管理與晉升</h3>
                                 <span class="badge badge-purple-subtle border-purple-subtle px-2 py-1">
                                     <i class="fa-solid fa-bolt"></i> 葡眾 10 階不歸零
                                 </span>
                             </div>
                             <p class="text-muted mb-0 small mt-1">
-                                維護職級制度標準與夥伴晉升審核軌跡
+                                職級制度與夥伴晉升軌跡
                             </p>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                     <div class="small text-muted fw-bold">
                         <i class="fa-solid fa-diagram-project text-secondary"></i> 葡眾 10 大職級天梯（點選檢視各階制度門檻）
                     </div>
-                    <div class="small text-muted font-chakra" id="ranksCountBadge">載入中...</div>
+                    <div class="small text-muted" id="ranksCountBadge">載入中...</div>
                 </div>
                 <div class="rank-track-wrapper" id="rankTrackContainer">
                     <!-- 由 JS 動態注入 10 個職級節點 -->
@@ -63,14 +63,14 @@
             <section class="glass-panel p-4 mb-4" aria-label="職級制度標準明細">
                 <div class="d-flex justify-content-between align-items-start border-bottom border-purple-subtle pb-3 mb-3">
                     <div>
-                        <span class="badge px-3 py-1 mb-2 font-chakra" id="activeRankCode" style="background: var(--uvaco-bg-card-inner, #0d061f); border: 1px solid var(--uvaco-secondary, #c084fc); color: var(--uvaco-secondary, #c084fc);">
+                        <span class="badge px-3 py-1 mb-2" id="activeRankCode" style="background: var(--uvaco-bg-card-inner, #0d061f); border: 1px solid var(--uvaco-secondary, #c084fc); color: var(--uvaco-secondary, #c084fc);">
                             代碼：-
                         </span>
                         <h4 class="fw-bold mb-0 text-white" id="activeRankName">-</h4>
                     </div>
                     <div class="text-end">
                         <div class="text-muted small">階差基本回饋率</div>
-                        <div class="h3 fw-bold text-accent font-chakra mb-0" id="activeRebateRate">0.00%</div>
+                        <div class="h3 fw-bold text-accent mb-0" id="activeRebateRate">0.00%</div>
                     </div>
                 </div>
 
@@ -79,53 +79,53 @@
                     <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-user-check text-info"></i> 當月個人業績</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activePersonalSv">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activePersonalSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-users text-primary"></i> 當月小組責任額</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activeMonthGroupSv">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activeMonthGroupSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-chart-pie text-accent"></i> 當月整組總業績</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activeMonthOrgSv">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activeMonthOrgSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-coins text-warning"></i> 整組累計業績</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activeCumSv">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activeCumSv">-</div>
                         </div>
                     </div>
                     <div class="col-4 col-md-4">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-sitemap text-success"></i> 經理線 (合格線)</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activeQualifiedLines">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activeQualifiedLines">-</div>
                         </div>
                     </div>
                     <div class="col-4 col-md-4">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-gem text-accent"></i> 珍珠線 (實動線)</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activePearlLines">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activePearlLines">-</div>
                         </div>
                     </div>
                     <div class="col-4 col-md-4">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-calendar-days text-secondary"></i> 連續考核月</div>
-                            <div class="h6 fw-bold text-white font-chakra mb-0" id="activeConsecutiveMonths">-</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activeConsecutiveMonths">-</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 進階要求與權益特權清單 -->
-                <div class="p-3 bg-secondary-subtle rounded-3 border border-purple-subtle">
+                <div class="p-3 bg-primary-subtle rounded-3 border border-purple-subtle">
                     <h6 class="fw-bold text-secondary mb-2">
                         <i class="fa-solid fa-award"></i> 考核標準與獎金分紅特權
                     </h6>
-                    <div class="row g-2 small" id="privilegeFlagsContainer">
+                    <div class="row g-2" id="privilegeFlagsContainer">
                         <!-- 由 JS 依旗標渲染 -->
                     </div>
                 </div>
@@ -136,45 +136,25 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-bottom border-purple-subtle pb-3 mb-4">
                     <div>
                         <h5 class="fw-bold mb-1 text-white">
-                            <i class="fa-solid fa-user-gear text-secondary"></i> 夥伴職級戰略儀表板
+                            <i class="fa-solid fa-user-gear text-secondary"></i> 夥伴職級儀表板
                         </h5>
-                        <p class="text-muted small mb-0">即時推演個別夥伴的歷程階梯、升降軌跡與達標缺口</p>
+                        <p class="text-muted small mb-0">個別夥伴的歷程階梯、升降軌跡</p>
                     </div>
-                    <div class="d-flex align-items-center gap-2" style="min-width: 280px;">
+                    <div class="d-flex align-items-center gap-2" style="min-width: 300px;">
                         <label class="text-muted small text-nowrap" for="partnerSelect"><i class="fa-solid fa-filter"></i> 選擇夥伴：</label>
-                        <select class="form-select font-chakra" id="partnerSelect" onchange="onPartnerSelected(this.value)">
+                        <select class="form-select" id="partnerSelect" style="width: 100%;">
                             <option value="">載入夥伴清單中...</option>
                         </select>
-                    </div>
-                </div>
-
-                <!-- 上月條件與本月升階缺口雙卡片 -->
-                <div class="row g-3 mb-4">
-                    <div class="col-12 col-lg-6">
-                        <div class="p-3 bg-secondary-subtle rounded-3 border border-purple-subtle h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small fw-bold text-muted"><i class="fa-solid fa-calendar-check text-info"></i> 上個月職級條件狀態</span>
-                                <span id="prevMonthRankBadge" class="badge badge-purple-subtle">-</span>
-                            </div>
-                            <div id="prevMonthConditions" class="small text-muted">尚無歷程資料</div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <div class="p-3 bg-secondary-subtle rounded-3 border border-purple-subtle h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small fw-bold text-muted"><i class="fa-solid fa-arrow-trend-up text-accent"></i> 這個月差多少到下一個職級</span>
-                                <span id="nextRankTargetBadge" class="badge badge-warning-subtle">-</span>
-                            </div>
-                            <div id="nextRankGapDetails" class="small text-muted">請先選擇受測夥伴</div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- 夥伴職級折線圖 -->
                 <div class="mb-4">
                     <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-chart-line"></i> 夥伴職級晉升軌跡折線圖</h6>
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="partnerRankChart"></canvas>
+                    <div class="chart-scroll-wrapper" style="overflow-x: auto; width: 100%;">
+                        <div id="partnerRankChartWrapper" style="position: relative; height: 280px; min-width: 100%;">
+                            <canvas id="partnerRankChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -208,11 +188,11 @@
                         <h5 class="fw-bold mb-1 text-white">
                             <i class="fa-solid fa-timeline text-secondary"></i> 夥伴晉升歷程
                         </h5>
-                        <p class="text-muted small mb-0">即時監控夥伴升階生效年月、連續達標月數、合格線數與官方表揚狀態</p>
+                        <p class="text-muted small mb-0">夥伴升階生效年月、連續達標月數、合格線數與官方表揚狀態</p>
                     </div>
                     <div>
-                        <button class="btn btn-purple btn-sm px-3 text-white fw-bold admin-action-btn" id="btnOpenAddModal" onclick="openAddRankModal()">
-                            <i class="fa-solid fa-plus"></i> 登錄夥伴晉升
+                        <button class="btn btn-purple btn-sm px-3 fw-bold admin-action-btn" id="btnOpenAddModal" onclick="openAddRankModal()">
+                            <i class="fa-solid fa-plus"></i> 新增夥伴晉升
                         </button>
                     </div>
                 </div>
@@ -249,7 +229,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title text-white fw-bold" id="modalHistoryTitle">
-                            <i class="fa-solid fa-medal text-accent"></i> 登錄夥伴職級晉升
+                            <i class="fa-solid fa-medal text-accent"></i> 新增夥伴職級晉升
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -279,29 +259,29 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldEffectiveMonth">生效年月 (YYYY 或 YYYYMM) *</label>
-                                    <input type="text" class="form-control font-chakra" id="fieldEffectiveMonth" placeholder="例如：2026 或 202608" maxlength="7" required>
+                                    <input type="text" class="form-control" id="fieldEffectiveMonth" placeholder="例如：2026 或 202608" maxlength="7" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldConsecutiveMonths">連續達標月數</label>
-                                    <input type="number" class="form-control font-chakra" id="fieldConsecutiveMonths" value="1" min="1">
+                                    <input type="number" class="form-control" id="fieldConsecutiveMonths" value="1" min="1">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldRecognitionDate">表揚日期</label>
-                                    <input type="date" class="form-control font-chakra" id="fieldRecognitionDate">
+                                    <input type="date" class="form-control" id="fieldRecognitionDate">
                                 </div>
                             </div>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldCumSvSnapshot">累積整組 SV 快照</label>
-                                    <input type="number" class="form-control font-chakra" id="fieldCumSvSnapshot" value="0">
+                                    <input type="number" class="form-control" id="fieldCumSvSnapshot" value="0">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldManagerLegsSnapshot">經理線數快照</label>
-                                    <input type="number" class="form-control font-chakra" id="fieldManagerLegsSnapshot" value="0">
+                                    <input type="number" class="form-control" id="fieldManagerLegsSnapshot" value="0">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldPearlLegsSnapshot">珍珠線數快照</label>
-                                    <input type="number" class="form-control font-chakra" id="fieldPearlLegsSnapshot" value="0">
+                                    <input type="number" class="form-control" id="fieldPearlLegsSnapshot" value="0">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -311,9 +291,11 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-sm btn-purple text-white px-3" id="btnSaveHistory" onclick="saveRankHistoryItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存晉升紀錄
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" id="btnSaveHistory" onclick="saveRankHistoryItem()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
                     </div>
                 </div>
