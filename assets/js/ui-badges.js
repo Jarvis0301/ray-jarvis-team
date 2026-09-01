@@ -102,7 +102,7 @@ const UIBadges = (function () {
                 switch (status) {
                     case '有效且領獎金': return `<span class="badge badge-success">有效且領獎金</span>`;
                     case '維持160SV續約': return `<span class="badge badge-warning">維持160SV續約</span>`;
-                    case '失效': return `<span class="badge badge-muted">失效</span>`;
+                    case '失效': return `<span class="badge badge-gray">失效</span>`;
                     default: return `<span class="badge badge-muted">未設定</span>`;
                 }
             },
@@ -115,7 +115,7 @@ const UIBadges = (function () {
                     case '活躍': return `<span class="badge badge-outline-success-subtle">活躍</span>`;
                     case '停滯': return `<span class="badge badge-outline-warning-subtle">停滯</span>`;
                     case '沉睡': return `<span class="badge badge-outline-danger-subtle">沉睡</span>`;
-                    case '凍結': return `<span class="badge badge-outline-muted-subtle">凍結</span>`;
+                    case '凍結': return `<span class="badge badge-outline-gray-subtle">凍結</span>`;
                     default: return `<span class="badge badge-muted-subtle">未設定</span>`;
                 }
             },
@@ -129,9 +129,9 @@ const UIBadges = (function () {
                     case '參與': return '<span class="badge badge-warning-subtle">參與</span>';
                     case '不參與': return '<span class="badge badge-danger-subtle">不參與</span>';
                     case '自用消費': return '<span class="badge badge-info-subtle">自用消費</span>';
-                    case '操作人頭': return '<span class="badge badge-indigo-subtle">操作人頭</span>';
-                    case '失聯': return '<span class="badge badge-muted-subtle">失聯</span>';
-                    case '個資未知': return '<span class="badge badge-muted-subtle">個資未知</span>';
+                    case '操作人頭': return '<span class="badge badge-orange-subtle">操作人頭</span>';
+                    case '失聯': return '<span class="badge badge-red-subtle">失聯</span>';
+                    case '個資未知': return '<span class="badge badge-pink-subtle">個資未知</span>';
                     case '非團隊成員': return '<span class="badge badge-dark-subtle">非團隊成員</span>';
                     default: return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
@@ -186,7 +186,7 @@ const UIBadges = (function () {
                     case '穩定': return '<span class="badge badge-info-subtle">穩定</span>';
                     case '吃緊': return '<span class="badge badge-warning-subtle">吃緊</span>';
                     case '高負債': return '<span class="badge badge-danger-subtle">高負債</span>';
-                    case '尋找副業': return '<span class="badge badge-indigo-subtle">尋找副業</span>';
+                    case '尋找副業': return '<span class="badge badge-orange-subtle">尋找副業</span>';
                     default: return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
             },
@@ -196,10 +196,10 @@ const UIBadges = (function () {
              */
             languageProficiency(level) {
                 switch (level) {
-                    case '精通': return '<span class="badge badge-indigo-subtle">精通</span>';
-                    case '流利': return '<span class="badge badge-info-subtle">流利</span>';
-                    case '普通': return '<span class="badge badge-success-subtle">普通</span>';
-                    case '略懂': return '<span class="badge badge-warning-subtle">略懂</span>';
+                    case '精通': return '<span class="badge badge-info-subtle">精通</span>';
+                    case '流利': return '<span class="badge badge-success-subtle">流利</span>';
+                    case '普通': return '<span class="badge badge-warning-subtle">普通</span>';
+                    case '略懂': return '<span class="badge badge-orange-subtle">略懂</span>';
                     case '不會': return '<span class="badge badge-danger-subtle">不會</span>';
                     default: return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
@@ -225,7 +225,7 @@ const UIBadges = (function () {
              * 產品體系分類標籤 (主系列 / 次系列 / 型態)
              */
             taxonomy(entity, regionCode = 'TW', extraClass = '') {
-                if (!entity) return `<span class="badge badge-secondary">未分類</span>`;
+                if (!entity) return `<span class="badge badge-muted">未分類</span>`;
                 const isMY = clean(regionCode, 'TW').toUpperCase() === 'MY';
                 
                 // 同時相容 tool-order.js 的 .name 與 prd-basic.js 的 .name_zh / .name_en
@@ -320,7 +320,7 @@ const UIBadges = (function () {
              */
             trackClass(track) {
                 switch (track) {
-                    case '核心版': return 'badge-indigo';
+                    case '核心版': return 'badge-purple';
                     case '團隊版': return 'badge-blue';
                     case '公開版': return 'badge-green';
                     default: return 'badge-gray';
@@ -343,7 +343,7 @@ const UIBadges = (function () {
                     case '已完成': return '<span class="badge badge-success">已完成</span>';
                     case '測試中': return '<span class="badge badge-warning">測試中</span>';
                     case '修復中': return '<span class="badge badge-danger">修復中</span>';
-                    default: return `<span class="badge badge-secondary">${clean(status, '開發中')}</span>`;
+                    default: return `<span class="badge badge-muted">${clean(status, '開發中')}</span>`;
                 }
             }
         }
