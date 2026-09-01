@@ -1,0 +1,94 @@
+/* ==========================================================================
+   org-ranks.css
+   職級晉升管理與推演模組專屬樣式 (共用樣式已整合至 common.css)
+   ========================================================================== */
+
+.font-chakra {
+    font-family: 'Chakra Petch', sans-serif;
+}
+
+/* 職級天梯水平軌道 (Stepper) */
+.rank-track-wrapper {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 8px 4px 14px 4px;
+}
+
+.rank-node-btn {
+    flex: 0 0 auto;
+    min-width: 135px;
+    background: var(--uvaco-bg-card-secondary, #120824);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.2));
+    border-radius: var(--uvaco-border-radius-md, 12px);
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.rank-node-btn:hover {
+    background: var(--uvaco-bg-card-hover, #1e0f3d);
+    border-color: var(--uvaco-secondary, #c084fc);
+    transform: translateY(-2px);
+}
+
+.rank-node-btn.active {
+    background: var(--uvaco-bg-card-accent, #2b1022);
+    border-color: var(--uvaco-accent, #ec4899);
+    box-shadow: 0 0 15px var(--uvaco-accent-glow, rgba(236, 72, 153, 0.4));
+}
+
+.rank-node-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: var(--uvaco-accent, #ec4899);
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.rank-badge-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+    background: var(--uvaco-bg-accent, rgba(139, 92, 246, 0.15));
+    color: var(--uvaco-secondary, #c084fc);
+    transition: all 0.3s;
+}
+
+.rank-node-btn.active .rank-badge-icon {
+    background: var(--uvaco-accent, #ec4899);
+    color: #ffffff;
+}
+
+/* 核心指標膠囊卡片 */
+.metric-pill {
+    background: var(--uvaco-bg-card-inner, #0d061f);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.2));
+    border-radius: var(--uvaco-border-radius-md, 10px);
+    padding: 10px 12px;
+}
+
+/* 即時達標進度條 */
+.progress-cyber {
+    height: 10px;
+    background-color: var(--uvaco-bg-card-inner, #0d061f);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.2));
+}
+
+.progress-cyber .progress-bar {
+    background: linear-gradient(90deg, var(--uvaco-primary, #8b5cf6), var(--uvaco-accent, #ec4899));
+    box-shadow: 0 0 10px var(--uvaco-accent-glow, rgba(236, 72, 153, 0.4));
+}
