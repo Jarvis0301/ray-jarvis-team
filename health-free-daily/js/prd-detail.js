@@ -229,39 +229,21 @@ function getMarketStatus(launchDate, delistDate) {
     const lDate = parseDate(launchDate);
     const dDate = parseDate(delistDate);
 
-    // 1. 若上市日期晚於今天 -> 即將上市
     if (lDate) {
         lDate.setHours(0, 0, 0, 0);
         if (lDate.getTime() > today.getTime()) {
-            return {
-                isOnMarket: false,
-                label: '即將上市',
-                badgeClass: 'bg-warning text-dark',
-                icon: 'fa-solid fa-clock'
-            };
+            return { isOnMarket: false, code: 'COMING_SOON', label: '即將上市' };
         }
     }
 
-    // 2. 若下市日期早於或等於今天 -> 已下市
     if (dDate) {
         dDate.setHours(0, 0, 0, 0);
         if (dDate.getTime() <= today.getTime()) {
-            return {
-                isOnMarket: false,
-                label: '已下市',
-                badgeClass: 'bg-danger text-white',
-                icon: 'fa-solid fa-ban'
-            };
+            return { isOnMarket: false, code: 'DISCONTINUED', label: '已下市' };
         }
     }
 
-    // 3. 正常販售中
-    return {
-        isOnMarket: true,
-        label: '販售中',
-        badgeClass: 'bg-success text-white',
-        icon: 'fa-solid fa-circle-check'
-    };
+    return { isOnMarket: true, code: 'ACTIVE', label: '販售中' };
 }
 
 // ==========================================
@@ -304,12 +286,8 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     $('#productShortName').text(product.short_name ? `(${product.short_name})` : '');
 
     $('#productTypeBadge').html(`
-        <span class="badge border" style="color: ${subInfo.color}; border-color: ${subInfo.color} !important; background-color: ${subInfo.bg};">
-            <i class="${subInfo.icon}"></i> ${subInfo.name}
-        </span>
-        <span class="badge border" style="color: ${typeInfo.color}; border-color: ${typeInfo.color} !important; background-color: ${typeInfo.bg};">
-            <i class="${typeInfo.icon}"></i> ${typeInfo.name}
-        </span>
+        ${UIBadges.product.subcategory(subInfo, product.region_code)}
+        ${UIBadges.product.type(typeInfo, product.region_code)}
     `);
 
     if (detail.phrase_tags) {
@@ -369,15 +347,14 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.is_featured) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-crown text-warning"></i> 明星商品：<span class="badge bg-warning text-dark"><i class="fa-solid fa-fire"></i> 明星熱銷推薦</span>
+                <i class="fa-solid fa-crown text-warning"></i> 明星商品：${UIBadges.product.featured(true)}
             </p>
         `);
     }
 
-    // 上市狀態標籤
     specsHtml.push(`
         <p class="mb-2 text-muted">
-            <i class="fa-solid fa-signal text-info"></i> 上市狀態：<span class="badge ${product.market_status.badgeClass}"><i class="${product.market_status.icon}"></i> ${product.market_status.label}</span>
+            <i class="fa-solid fa-signal text-info"></i> 上市狀態：${UIBadges.product.launchStatus(product.market_status.code)}
         </p>
     `);
 

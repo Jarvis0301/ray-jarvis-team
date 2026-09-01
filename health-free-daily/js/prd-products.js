@@ -498,13 +498,17 @@ function renderProducts() {
         const priceNum = Number(item.price) || 0;
         const formattedPrice = item.currency === 'MYR' ? `RM ${priceNum.toLocaleString()}` : `NT$ ${priceNum.toLocaleString()}`;
 
-        // 卡片右上角標籤：優先顯示「即將上市」，若無且為明星商品則顯示「明星商品」
+        // 右上角標籤：即將上市優先，其次為明星商品（外層以 position 容器包覆定位）
         let topRightTag = '';
         if (item.status === 'COMING_SOON') {
-            topRightTag = '<span class="badge badge-warning position-absolute top-0 end-0 m-2 z-2"><i class="fa-solid fa-clock"></i> 即將上市</span>';
+            topRightTag = `<div class="position-absolute top-0 end-0 m-2 z-2">${UIBadges.product.launchStatus('COMING_SOON')}</div>`;
         } else if (item.is_featured) {
-            topRightTag = '<span class="badge badge-danger position-absolute top-0 end-0 m-2 z-2"><i class="fa-solid fa-fire"></i> 明星商品</span>';
+            topRightTag = `<div class="position-absolute top-0 end-0 m-2 z-2">${UIBadges.product.featured(true)}</div>`;
         }
+
+        // 左上角次系列與型態標籤
+        const subcategoryBadge = UIBadges.product.subcategory(subInfo, item.region_code);
+        const typeBadge = UIBadges.product.type(typeInfo, item.region_code);
 
         const col = document.createElement('div');
         col.className = 'col col-12 col-sm-6 col-lg-3 mb-4';
@@ -512,12 +516,8 @@ function renderProducts() {
             <div class="card h-100 product-card border-0 text-light shadow-sm">
                 <div class="card-img-wrapper position-relative overflow-hidden">
                     <div class="card-badges position-absolute top-0 start-0 p-2 d-flex flex-wrap gap-1 z-2">
-                        <span class="badge border" style="color: ${subInfo.color}; border-color: ${subInfo.color} !important; background-color: ${subInfo.bg};">
-                            <i class="${subInfo.icon}"></i> ${subInfo.name}
-                        </span>
-                        <span class="badge border" style="color: ${typeInfo.color}; border-color: ${typeInfo.color} !important; background-color: ${typeInfo.bg};">
-                            <i class="${typeInfo.icon}"></i> ${typeInfo.name}
-                        </span>
+                        ${subcategoryBadge}
+                        ${typeBadge}
                     </div>
                     ${topRightTag}
                     <img src="${item.primary_image_url}" class="card-img-top product-thumbnail" alt="${item.name}" loading="lazy" onerror="window.imgError(this, 'product', 220, 220)">

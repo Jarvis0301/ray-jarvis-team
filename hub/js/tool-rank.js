@@ -461,7 +461,7 @@ function renderTargetRightsPills(target) {
 
     rights.forEach((r, idx) => {
         const isGold = (idx >= 3 || r.includes('分紅') || r.includes('贈車'));
-        $container.append(`<span class="badge-right-pill ${isGold ? 'gold' : ''}"><i class="fa-solid fa-medal"></i> ${r}</span>`);
+        $container.append(UIBadges.rank.rightPill(r, isGold));
     });
 }
 
@@ -788,8 +788,8 @@ function renderRankDataTable() {
 
         $tbody.append(`
             <tr>
-                <td class="fw-bold text-nowrap" style="color: ${colorHex};">
-                    <i class="${iconClass}" style="color: ${colorHex};"></i> ${r.rank_name_zh}
+                <td class="text-nowrap">
+                            ${UIBadges.rank.badge(r)}
                 </td>
                 <td class="text-light small">${condsHtml || `入會資料袋 ${formatMoney(1000)}`}</td>
                 <td class="text-warning fw-bold">${Math.round(r.direct_rebate_rate * 100)}%</td>

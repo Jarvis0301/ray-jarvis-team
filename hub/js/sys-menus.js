@@ -37,21 +37,6 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-/**
- * 依據版本 (app_track) 回傳對應的 Badge 樣式類別
- */
-function getTrackBadgeClass(track) {
-    switch (track) {
-        case '團隊版':
-            return 'badge-blue';
-        case '公開版':
-            return 'badge-green';
-        case '核心版':
-        default:
-            return 'badge-purple';
-    }
-}
-
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
@@ -206,8 +191,8 @@ function switchPortal(portal) {
     $(`.portal-btn[data-portal="${portal}"]`).addClass('active');
 
     $('#treePortalBadge')
-        .removeClass('badge-purple badge-blue badge-green')
-        .addClass(getTrackBadgeClass(portal))
+        .removeClass('badge-indigo badge-blue badge-green badge-gray')
+        .addClass(UIBadges.system.trackClass(portal))
         .text(portal);
 
     const firstNode = appState.menus.find(m => m.app_track === portal);
@@ -334,10 +319,10 @@ function renderInspector() {
     }
 
     $('#inspectMenuId')
-        .removeClass('badge-purple badge-blue badge-green badge-secondary')
-        .addClass(getTrackBadgeClass(node.app_track))
+        .removeClass('badge-indigo badge-blue badge-green badge-gray')
+        .addClass(UIBadges.system.trackClass(node.app_track))
         .text(node.menu_id);
-
+    
     $('#inspectMenuNameZh').text(node.menu_name_zh);
     $('#inspectMenuNameEn').text(node.menu_name_en || 'None');
     $('#inspectParentId').text(node.parent_id);
@@ -423,35 +408,23 @@ function renderMenuDataTable() {
     }
 }
 
-function formatTableRow(m) {
-    let statusBadge = '';
-    if (m.dev_status === '已完成') statusBadge = '<span class="badge badge-success">已完成</span>';
-    else if (m.dev_status === '測試中') statusBadge = '<span class="badge badge-warning">測試中</span>';
-    else statusBadge = '<span class="badge badge-danger">修復中</span>';
-
-    const activePill = m.is_active === 'Y' 
-        ? '<span class="badge badge-success-subtle">啟用</span>'
-        : '<span class="badge badge-danger-subtle">停用</span>';
-
-    const hasAdminRights = isMasterAdmin();
+function formatTableRow(m) {const hasAdminRights = isMasterAdmin();
     const actionButtons = hasAdminRights ? `
         <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="openEditModal('${m.menu_id}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" onclick="deleteMenuItem('${m.menu_id}')"><i class="fa-solid fa-trash-alt"></i></button>
     ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
 
-    const trackBadgeClass = getTrackBadgeClass(m.app_track);
-
     return {
         menu_id: `<span class="fw-bold">${m.menu_id}</span>`,
         names: `<div>${m.menu_name_zh}</div><div class="text-muted small">${m.menu_name_en || ''}</div>`,
-        track: `<span class="badge ${trackBadgeClass}">${m.app_track}</span>`,
+        track: UIBadges.system.track(m.app_track),
         level: `<span class="badge badge-secondary-subtle">${m.menu_level}</span>`,
         parent: `<code class="text-info">${m.parent_id}</code>`,
         sort: m.sort_order,
         url: `<span class="small">${m.route_url}</span>`,
         icon: `<i class="${m.fa_icon}"></i> `,
-        status: statusBadge,
-        active: activePill,
+        status: UIBadges.system.devStatus(m.dev_status),
+        active: UIBadges.common.boolean(m.is_active === 'Y', '啟用', '停用'),
         actions: actionButtons
     };
 }

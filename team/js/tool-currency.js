@@ -522,12 +522,9 @@ function renderCrossBorderMatrix() {
 
         // 在 twInfo 與 myInfo 的品名後加入狀態標籤判定
         const getStatusBadge = (status) => {
-            if (status === 'COMING_SOON') {
-                return ' <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>';
-            } else if (status === 'DISCONTINUED') {
-                return ' <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> 已下市</span>';
-            }
-            return '';
+            return (status === 'COMING_SOON' || status === 'DISCONTINUED')
+                ? ` ${UIBadges.product.launchStatus(status)}`
+                : '';
         };
 
         const twInfo = twProd
@@ -604,20 +601,13 @@ function renderRawProductTable() {
     appState.products.ALL.forEach(prod => {
         const costPerSv = prod.sv_point > 0 ? (prod.price / prod.sv_point).toFixed(2) : '0.00';
         const isTW = prod.region_code === 'TW';
-        const regionBadge = isTW
-            ? `<span class="badge badge-blue">台灣 TW</span>`
-            : `<span class="badge badge-green">大馬 MY</span>`;
+        const regionBadge = UIBadges.common.country(prod.region_code);
         const currPrefix = isTW ? 'NT$ ' : 'RM ';
         const costUnit = isTW ? 'NT$/SV' : 'RM/SV';
         const priceClass = 'text-secondary';
-
-        let statusBadge = '';
-        if (prod.status === 'COMING_SOON') {
-            statusBadge = ' <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>';
-        } else if (prod.status === 'DISCONTINUED') {
-            statusBadge = ' <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> 已下市</span>';
-        }
-
+        const statusBadge = (prod.status === 'COMING_SOON' || prod.status === 'DISCONTINUED')
+            ? ` ${UIBadges.product.launchStatus(prod.status)}`
+            : '';
         const prodInfo = `<div class="fw-bold text-secondary">${prod.name}${statusBadge}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
         const priceDisplay = `<span class="${priceClass} fw-bold">${currPrefix}${prod.price.toLocaleString()}</span>`;
         const svDisplay = `<span class="text-warning fw-bold">${prod.sv_point} SV</span>`;

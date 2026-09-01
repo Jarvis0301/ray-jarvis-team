@@ -57,33 +57,13 @@ function getLaunchStatus(launchDateStr, discontinueDateStr) {
     const lDate = parseDate(launchDateStr);
     const dDate = parseDate(discontinueDateStr);
 
-    if (lDate) {
-        lDate.setHours(0, 0, 0, 0);
-        if (lDate.getTime() > today.getTime()) {
-            return {
-                code: 'COMING_SOON',
-                text: '即將上市',
-                badge: '<span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>'
-            };
-        }
+    if (lDate && lDate.getTime() > today.getTime()) {
+        return { code: 'COMING_SOON', text: '即將上市', badge: UIBadges.product.launchStatus('COMING_SOON') };
     }
-
-    if (dDate) {
-        dDate.setHours(0, 0, 0, 0);
-        if (dDate.getTime() < today.getTime()) {
-            return {
-                code: 'DISCONTINUED',
-                text: '已下市',
-                badge: '<span class="badge badge-danger"><i class="fa-solid fa-ban"></i> 已下市</span>'
-            };
-        }
+    if (dDate && dDate.getTime() < today.getTime()) {
+        return { code: 'DISCONTINUED', text: '已下市', badge: UIBadges.product.launchStatus('DISCONTINUED') };
     }
-
-    return {
-        code: 'ACTIVE',
-        text: '販售中',
-        badge: '<span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> 販售中</span>'
-    };
+    return { code: 'ACTIVE', text: '販售中', badge: UIBadges.product.launchStatus('ACTIVE') };
 }
 
 // ==========================================================================
@@ -315,27 +295,6 @@ function getLocalizedName(entity, regionCode = 'TW') {
     return entity.name_zh || entity.name_en || '';
 }
 
-function buildCategoryBadge(categoryCode, regionCode = 'TW') {
-    const c = getCategoryByCode(categoryCode);
-    const label = getLocalizedName(c, regionCode);
-    const bg = c.bg_color && c.bg_color !== '#1a122d' ? c.bg_color : `${c.text_color}18`;
-    return `<span class="badge" style="color: ${c.text_color}; background-color: ${bg}; border: 1px solid ${c.text_color}40;"><i class="${c.icon_class}"></i> ${label}</span>`;
-}
-
-function buildSubcategoryBadge(subcategoryCode, regionCode = 'TW') {
-    const s = getSubcategoryByCode(subcategoryCode);
-    const label = getLocalizedName(s, regionCode);
-    const bg = s.bg_color && s.bg_color !== '#1a122d' ? s.bg_color : `${s.text_color}18`;
-    return `<span class="badge" style="color: ${s.text_color}; background-color: ${bg}; border: 1px solid ${s.text_color}40;"><i class="${s.icon_class}"></i> ${label}</span>`;
-}
-
-function buildTypeBadge(typeCode, regionCode = 'TW') {
-    const t = getTypeByCode(typeCode);
-    const label = getLocalizedName(t, regionCode);
-    const bg = t.bg_color && t.bg_color !== '#1a122d' ? t.bg_color : `${t.text_color}18`;
-    return `<span class="badge badge-type" style="color: ${t.text_color}; background-color: ${bg}; border: 1px solid ${t.text_color}40;"><i class="${t.icon_class}"></i> ${label}</span>`;
-}
-
 // ==========================================================================
 // 6. 介面事件綁定與視圖渲染中樞
 // ==========================================================================
@@ -511,14 +470,7 @@ function formatMasterTableRow(p) {
         categoryCode = sub.category_code;
     }
 
-    let stockBadge = '';
-    if (p.stock_status === '現貨') {
-        stockBadge = '<span class="badge badge-success"><i class="fa-solid fa-box"></i> 現貨</span>';
-    } else if (p.stock_status === '缺貨') {
-        stockBadge = '<span class="badge badge-danger"><i class="fa-solid fa-circle-xmark"></i> 缺貨</span>';
-    } else if (p.stock_status === '預購') {
-        stockBadge = '<span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 預購</span>';
-    }
+    let stockBadge = UIBadges.product.stockStatus(p.stock_status);
 
     const launchStatus = getLaunchStatus(p.launch_date, p.discontinue_date);
 
@@ -536,9 +488,9 @@ function formatMasterTableRow(p) {
                </div>`,
         name: `<div class="fw-bold text-light">${p.name}${star}</div>
                ${subTitle ? `<div class="text-muted small">${subTitle}</div>` : ''}`,
-        category: buildCategoryBadge(categoryCode, p.region_code),
-        subcategory: buildSubcategoryBadge(p.subcategory_code, p.region_code),
-        type: buildTypeBadge(p.type_code, p.region_code),
+        category: UIBadges.product.category(getCategoryByCode(categoryCode), p.region_code),
+        subcategory: UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code),
+        type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
         spec: `<span class="text-muted small font-monospace">${p.package_spec || '-'}</span>`,
         price: `<span class="badge badge-outline-accent py-2">${formattedPrice}</span>`,
         sv: `<span class="badge badge-outline-secondary py-2">${p.sv_point} SV</span>`,
@@ -609,18 +561,8 @@ function openDetailModal(productCode) {
         ? `RM${Number(item.price).toLocaleString()}`
         : `NT$${Number(item.price).toLocaleString()}`;
 
-    let stockText = '未設定';
-    let stockBadgeClass = 'badge-muted';
-    if (item.stock_status === '現貨') {
-        stockText = '現貨';
-        stockBadgeClass = 'badge-success';
-    } else if (item.stock_status === '缺貨') {
-        stockText = '缺貨';
-        stockBadgeClass = 'badge-danger';
-    } else if (item.stock_status === 'PRE_ORDER') {
-        stockText = '預購';
-        stockBadgeClass = 'badge-warning';
-    }
+    const stockBadge = UIBadges.product.stockStatus(item.stock_status);
+    const launchStatus = getLaunchStatus(item.launch_date, item.discontinue_date);
 
     const imgSrc = item.hd_image_url || item.primary_image_url || 'https://via.placeholder.com/300x300/1a122d/c084fc?text=No+Image';
     $('#viewPrdImage').attr('src', imgSrc).attr('alt', item.name);
@@ -633,9 +575,9 @@ function openDetailModal(productCode) {
     $('#viewPrdSummary').text(item.short_summary || '暫無簡介');
 
     // 主系列、次系列、型態套用彩色 Badge 標籤函式
-    $('#viewPrdCategory').html(buildCategoryBadge(categoryCode, item.region_code));
-    $('#viewPrdSubcategory').html(buildSubcategoryBadge(item.subcategory_code, item.region_code));
-    $('#viewPrdType').html(buildTypeBadge(item.type_code, item.region_code));
+    $('#viewPrdCategory').html(UIBadges.product.category(categoryCode, item.region_code));
+    $('#viewPrdSubcategory').html(UIBadges.product.subcategory(item.subcategory_code, item.region_code));
+    $('#viewPrdType').html(UIBadges.product.type(item.type_code, item.region_code));
 
     $('#viewPrdSpec').text(item.package_spec || '-');
     $('#viewPrdWeight').text(item.product_weight || '-');
@@ -643,8 +585,8 @@ function openDetailModal(productCode) {
     $('#viewPrdSv').text(`${item.sv_point} SV`);
 
     $('#viewPrdFeatured').html(item.is_featured ? '<span class="badge badge-warning"><i class="fa-solid fa-star"></i> 明星商品</span>' : '<span class="text-muted">否</span>');
-    $('#viewPrdStock').html(`<span class="badge ${stockBadgeClass}">${stockText}</span>`);
-    $('#viewPrdIsValid').html(item.is_valid === 'Y' ? '<span class="badge badge-success">有效 (Y)</span>' : '<span class="badge badge-secondary">下架/無效 (N)</span>');
+    $('#viewPrdStock').html(`${stockBadge}`);
+    $('#viewPrdIsValid').html(`<div>${launchStatus.badge}</div>`);
 
     $('#viewPrdLaunchDate').text(item.launch_date || '-');
     $('#viewPrdDiscontinueDate').text(item.discontinue_date || '-');
@@ -930,12 +872,9 @@ function renderCrossBorderMatrix() {
         const getStatusBadge = (prod) => {
             if (!prod) return '';
             const st = getLaunchStatus(prod.launch_date, prod.discontinue_date);
-            if (st.code === 'COMING_SOON') {
-                return ' <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>';
-            } else if (st.code === 'DISCONTINUED') {
-                return ' <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> 已下市</span>';
-            }
-            return '';
+            return (st.code === 'COMING_SOON' || st.code === 'DISCONTINUED')
+                ? ` ${UIBadges.product.launchStatus(st.code)}`
+                : '';
         };
 
         const twInfo = twProd

@@ -771,168 +771,6 @@ function updateRanksCacheAndUI() {
     });
 }
 
-function getCountryBadge(countryCode) {
-    const code = (countryCode || 'TW').toUpperCase().trim();
-    if (code === 'MY') {
-        return `<span class="badge badge-warning-subtle font-monospace">MY</span>`;
-    }
-    return `<span class="badge badge-info-subtle font-monospace">TW</span>`;
-}
-
-function buildRankBadge(rank) {
-    if (!rank || !rank.rank_id) return `<span class="badge badge-muted-subtle">未設定職級</span>`;
-    const hex = rank.badge_color_hex || '#8b5cf6';
-    const icon = rank.badge_icon_class || 'fa-solid fa-award';
-    return `<span class="badge" style="background-color: #130e24; border: 1px solid ${hex}; color: ${hex}; font-weight: 600;">
-        <i class="${icon}"></i> ${rank.rank_name_zh}
-    </span>`;
-}
-
-/**
- * 渲染經營權模式標籤（共同經營 / 獨立經營）
- * @param {Object} partner 夥伴主檔物件
- * @returns {string} HTML 徽章字串
- */
-function renderOperationModeBadge(partner) {
-    if (!partner) return '';
-    const spouseId = partner.spouse_partner_id || partner.official_account_partner_id;
-    let coOpPartner = null;
-    if (spouseId && typeof partnersList !== 'undefined') {
-        coOpPartner = partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId);
-    }
-    const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
-
-    if (partner.operation_mode === '共同經營' || partner.account_holder_type === '共同經營者') {
-        const nameText = coOpName ? `【${coOpName}】` : '';
-        return `<span class="badge badge-info"><i class="fa-solid fa-user-group me-1"></i> 共同經營${nameText}</span>`;
-    } else if (partner.operation_mode === '獨立經營') {
-        const nameText = coOpName ? `【${coOpName}】` : '';
-        return `<span class="badge badge-warning"><i class="fa-solid fa-user-shield me-1"></i> 獨立經營${nameText}</span>`;
-    }
-    return '';
-}
-
-/**
- * 渲染葡眾官方會員編號標籤
- * @param {Object} partner 夥伴主檔物件
- * @returns {string} HTML 字串
- */
-function renderMemberNoBadge(partner) {
-    if (!partner || !partner.member_no || String(partner.member_no).trim() === '') {
-        return '';
-    }
-    return `<span class="text-secondary small font-monospace">${partner.member_no.trim()}</span>`;
-}
-
-function getRelationBadge(relation, partnerId = '') {
-    if (partnerId === 'PTN-001' || partnerId === 'PTN-002' || relation === '核心成員') {
-        return `<span class="badge badge-outline-purple"><i class="fa-solid fa-crown me-1"></i> 核心成員</span>`;
-    }
-    switch (relation) {
-        case '上線': return `<span class="badge badge-outline-green">上線</span>`;
-        case '旁線': return `<span class="badge badge-outline-orange">旁線</span>`;
-        case '下線': return `<span class="badge badge-outline-blue">下線</span>`;
-        case '中繼層': return `<span class="badge badge-outline-gray">中繼層</span>`;
-        default: return `<span class="badge badge-outline-gray">未設定</span>`;
-    }
-}
-
-function getOperatorStatusBadge(status) {
-    switch (status) {
-        case '活躍': return `<span class="badge badge-outline-success-subtle">活躍</span>`;
-        case '停滯': return `<span class="badge badge-outline-warning-subtle">停滯</span>`;
-        case '沉睡': return `<span class="badge badge-outline-danger-subtle">沉睡</span>`;
-        case '凍結': return `<span class="badge badge-outline-muted-subtle">凍結</span>`;
-        default: return `<span class="badge badge-muted-subtle">未設定</span>`;
-    }
-}
-
-function getMemberStatusBadge(status) {
-    switch (status) {
-        case '有效且領獎金': return `<span class="badge badge-success">有效且領獎金</span>`;
-        case '維持160SV續約': return `<span class="badge badge-warning">維持160SV續約</span>`;
-        case '失效': return `<span class="badge badge-muted">失效</span>`;
-        default: return `<span class="badge badge-muted-subtle">未設定</span>`;
-    }
-}
-
-function getActivityLevelBadge(level) {
-    switch (level) {
-        case '積極參與': return '<span class="badge badge-success-subtle">積極參與</span>';
-        case '參與': return '<span class="badge badge-warning-subtle">參與</span>';
-        case '不參與': return '<span class="badge badge-danger-subtle">不參與</span>';
-        case '自用消費': return '<span class="badge badge-info-subtle">自用消費</span>';
-        case '操作人頭': return '<span class="badge badge-purple-subtle">操作人頭</span>';
-        case '失聯': return '<span class="badge badge-muted-subtle">失聯</span>';
-        case '個資未知': return '<span class="badge badge-muted-subtle">個資未知</span>';
-        case '非團隊成員': return '<span class="badge badge-dark">非團隊成員</span>';
-        default: return '<span class="badge badge-muted-subtle">未設定</span>';
-    }
-}
-
-function getHealthStatusBadge(status) {
-    switch (status) {
-        case '良好': return '<span class="badge badge-success-subtle">良好</span>';
-        case '亞健康': return '<span class="badge badge-warning-subtle">亞健康</span>';
-        case '慢性體質': return '<span class="badge badge-danger-subtle">慢性體質</span>';
-        case '調養中': return '<span class="badge badge-info-subtle">調養中</span>';
-        case '罹患疾病': return '<span class="badge badge-danger">罹患疾病</span>';
-        case '待了解': return '<span class="badge badge-muted-subtle">待了解</span>';
-        default: return '<span class="badge badge-muted-subtle">未設定</span>';
-    }
-}
-
-function getFinancialStatusBadge(status) {
-    switch (status) {
-        case '寬裕': return '<span class="badge badge-success-subtle">寬裕</span>';
-        case '穩定': return '<span class="badge badge-info-subtle">穩定</span>';
-        case '吃緊': return '<span class="badge badge-warning-subtle">吃緊</span>';
-        case '高負債': return '<span class="badge badge-danger-subtle">高負債</span>';
-        case '尋找副業': return '<span class="badge badge-purple-subtle">尋找副業</span>';
-        default: return '<span class="badge badge-muted-subtle">未設定</span>';
-    }
-}
-
-function getLanguageStatusBadge(status) {
-    switch (status) {
-        case '精通': return '<span class="badge badge-indigo-subtle">精通</span>';
-        case '流利': return '<span class="badge badge-info-subtle">流利</span>';
-        case '普通': return '<span class="badge badge-success-subtle">普通</span>';
-        case '略懂': return '<span class="badge badge-warning-subtle">略懂</span>';
-        case '不會': return '<span class="badge badge-danger-subtle">不會</span>';
-        default: return '<span class="badge badge-muted-subtle">未設定</span>';
-    }
-}
-
-/**
- * 取得人脈身分類型之戰術徽章 HTML
- * @param {string} type 身份類型 (夥伴 / 團隊成員 / 潛在團隊成員 / 客戶 / 潛在客戶)
- * @returns {string} 徽章 HTML
- */
-function getIdentityTypeBadge(type) {
-    switch (type) {
-        case '夥伴': return '<span class="badge badge-orange">夥伴</span>';
-        case '團隊成員': return '<span class="badge badge-blue">團隊成員</span>';
-        case '潛在團隊成員': return '<span class="badge badge-blue-subtle">潛在團隊成員</span>';
-        case '客戶': return '<span class="badge badge-green">客戶</span>';
-        case '潛在客戶': return '<span class="badge badge-green-subtle">潛在客戶</span>';
-        default: return '<span class="badge badge-muted-subtle">未設定</span>';
-    }
-}
-
-/**
- * 取得使用身分類型之戰術徽章 HTML
- * @param {string} type 使用身分類型 (經營者 / 消費者)
- * @returns {string} 外框徽章 HTML
- */
-function getUsageIdentityBadge(type) {
-    switch (type) {
-        case '經營者': return '<span class="badge badge-outline-blue">經營者</span>';
-        case '消費者': return '<span class="badge badge-outline-green">消費者</span>';
-        default: return '<span class="badge badge-outline-green">未設定</span>';
-    }
-}
-
 // ============================================================================
 // 5. 核心過濾器引擎 (12 欄位精準過濾)
 // ============================================================================
@@ -1016,8 +854,13 @@ function renderCardsView(list) {
         const cardBorderClass = (p.relation_type === '核心成員') ? 'is-core' : (p.relation_type === '旁線' ? 'is-cross' : '');
         const mentorName = getPartnerDisplayName(p.known_mentor_id);
         const dispName = getPartnerDisplayName(p);
-        const memberNoHtml = renderMemberNoBadge(p);
-        const opBadgeHtml = renderOperationModeBadge(p);
+        const spouseId = p.spouse_partner_id || p.official_account_partner_id;
+        const coOpPartner = (spouseId && typeof partnersList !== 'undefined')
+            ? partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId)
+            : null;
+        const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
+        const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
+        const memberNoHtml = UIBadges.partner.memberNo(p);
 
         // 實質輔導上線
         const mentorHtml = mentorName 
@@ -1074,7 +917,7 @@ function renderCardsView(list) {
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
                                         <h6 class="mb-0 fw-bold text-white fs-5">${dispName}</h6>
-                                        ${getCountryBadge(p.country_code)}
+                                        ${UIBadges.common.country(p.country_code)}
                                     </div>
                                     <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
                                         ${p.leader_title ? `<span class="badge badge-primary">${p.leader_title}</span>` : ''}
@@ -1093,13 +936,13 @@ function renderCardsView(list) {
                         <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-award text-warning"></i> 葡眾官方最高職級</span>
-                                ${buildRankBadge(highestRank)}
+                                ${UIBadges.rank.badge(highestRank)}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-people-arrows"></i> 關係屬性 / 營運</span>
                                 <div>
-                                    ${getRelationBadge(p.relation_type, p.partner_id)}
-                                    ${getOperatorStatusBadge(p.operator_status)}
+                                    ${UIBadges.partner.relation(p.relation_type, p.partner_id)}
+                                    ${UIBadges.partner.operatorStatus(p.operator_status)}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -1113,8 +956,8 @@ function renderCardsView(list) {
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent"></i> 身份 / 使用身份</span>
                                 <div class="d-flex align-items-center gap-1">
-                                    ${getIdentityTypeBadge(person.identity_type)}
-                                    ${getUsageIdentityBadge(person.usage_identity)}
+                                    ${UIBadges.partner.identityType(person.identity_type)}
+                                    ${UIBadges.partner.usageIdentity(person.usage_identity)}
                                 </div>
                             </div>
                         </div>
@@ -1143,8 +986,13 @@ function renderDataTableView(list) {
         const highestRank = getRankInfo(p.highest_rank_id);
         const mentorName = getPartnerDisplayName(p.known_mentor_id);
         const dispName = getPartnerDisplayName(p);
-        const memberNoHtml = renderMemberNoBadge(p);
-        const opBadgeHtml = renderOperationModeBadge(p);
+        const spouseId = p.spouse_partner_id || p.official_account_partner_id;
+        const coOpPartner = (spouseId && typeof partnersList !== 'undefined')
+            ? partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId)
+            : null;
+        const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
+        const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
+        const memberNoHtml = UIBadges.partner.memberNo(p);
 
         const rowHtml = `
             <tr>
@@ -1160,18 +1008,18 @@ function renderDataTableView(list) {
                         </div>
                     </div>
                 </td>
-                <td class="text-center">${getCountryBadge(p.country_code)}</td>
-                <td>${buildRankBadge(currentRank)}</td>
-                <td>${buildRankBadge(highestRank)}</td>
+                <td class="text-center">${UIBadges.common.country(p.country_code)}</td>
+                <td>${UIBadges.rank.badge(currentRank)}</td>
+                <td>${UIBadges.rank.badge(highestRank)}</td>
                 <td><span class="text-white">${mentorName || '—'}</span></td>
                 <td><span class="text-light">${person.current_residence || '—'}</span></td>
                 <td><span class="text-light">${person.highest_education || '—'}</span></td>
                 <td><span class="text-light">${person.occupation_background || '—'}</span></td>
-                <td class="text-center">${getHealthStatusBadge(person.health_status)}</td>
-                <td class="text-center">${getFinancialStatusBadge(person.financial_status)}</td>
-                <td class="text-center">${getRelationBadge(p.relation_type, p.partner_id)}</td>
-                <td class="text-center">${getActivityLevelBadge(p.activity_level)}</td>
-                <td class="text-center">${getMemberStatusBadge(p.member_status)}</td>
+                <td class="text-center">${UIBadges.partner.healthStatus(person.health_status)}</td>
+                <td class="text-center">${UIBadges.partner.financialStatus(person.financial_status)}</td>
+                <td class="text-center">${UIBadges.partner.relation(p.relation_type, p.partner_id)}</td>
+                <td class="text-center">${UIBadges.partner.activityLevel(p.activity_level)}</td>
+                <td class="text-center">${UIBadges.partner.memberStatus(p.member_status)}</td>
                 <td class="text-end">
                     <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${p.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -1368,8 +1216,8 @@ function renderPartnerSubColumnHtml(partner, isSpouse = false) {
                     <div class="fw-bold text-white text-truncate">${dispName}${memberNoText}</div>
                     <div class="d-flex justify-content-between align-items-center mt-1">
                         <div class="d-flex gap-1 align-items-center">
-                            ${getCountryBadge(partner.country_code)}
-                            ${getRelationBadge(partner.relation_type, partner.partner_id)}
+                            ${UIBadges.common.country(partner.country_code)}
+                            ${UIBadges.partner.relation(partner.relation_type, partner.partner_id)}
                         </div>
                         <button type="button" class="org-card-view-btn" onclick="openPartnerModalForView('${partner.partner_id}')" title="查看檔案">
                             <i class="fa-solid fa-magnifying-glass"></i>
@@ -1380,11 +1228,11 @@ function renderPartnerSubColumnHtml(partner, isSpouse = false) {
             <div class="d-flex flex-column gap-1 pt-1 border-top border-secondary border-opacity-25 small">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-secondary">實際職級:</span>
-                    ${buildRankBadge(currentRank)}
+                    ${UIBadges.rank.badge(currentRank)}
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-secondary">最高職級:</span>
-                    ${buildRankBadge(highestRank)}
+                    ${UIBadges.rank.badge(highestRank)}
                 </div>
             </div>
         </div>
@@ -2429,17 +2277,17 @@ window.openPartnerModalForView = function (partnerId) {
     $('#view-name-en').html(formatEmpty(person.name_en));
     $('#view-name-pref').html(formatEmpty(person.preferred_name));
 
-    $('#view-country-badge').html(getCountryBadge(partner.country_code));
+    $('#view-country-badge').html(UIBadges.common.country(partner.country_code));
     $('#view-current-rank-badge').html(`<i class="${currentRank.badge_icon_class}"></i> ${currentRank.rank_name_zh}`).css({
         'background-color': '#130e24',
         'border': `1px solid ${currentRank.badge_color_hex}`,
         'color': currentRank.badge_color_hex
     });
 
-    $('#view-relation-badge').html(getRelationBadge(partner.relation_type, partner.partner_id));
-    $('#view-operation-badge').html(renderOperationModeBadge(partner));
-    $('#view-official-rank').html(buildRankBadge(highestRank));
-    $('#view-status-pair').html(`${getMemberStatusBadge(partner.member_status)} ${getOperatorStatusBadge(partner.operator_status)}`);
+    $('#view-relation-badge').html(UIBadges.partner.relation(partner.relation_type, partner.partner_id));
+    $('#view-operation-badge').html(UIBadges.partner.operationMode(partner));
+    $('#view-official-rank').html(UIBadges.rank.badge(highestRank));
+    $('#view-status-pair').html(`${UIBadges.partner.memberStatus(partner.member_status)} ${UIBadges.partner.operatorStatus(partner.operator_status)}`);
 
     if (partner.leader_title) {
         $('#view-leader-title').text(partner.leader_title).show();
@@ -2475,13 +2323,13 @@ window.openPartnerModalForView = function (partnerId) {
     $('#view-met-date').html(formatEmpty(person.met_date, '未記錄'));
     $('#view-met-reason').html(formatEmpty(person.met_reason, '未填寫'));
     
-    $('#view-health-status').html(getHealthStatusBadge(person.health_status));
-    $('#view-financial-status').html(getFinancialStatusBadge(person.financial_status));
+    $('#view-health-status').html(UIBadges.partner.healthStatus(person.health_status));
+    $('#view-financial-status').html(UIBadges.partner.financialStatus(person.financial_status));
 
     // 3. 夥伴組織與會籍
     const memberNoStr = partner.member_no ? `(${partner.member_no})` : '';
     $('#view-partner-member-no').html(`${partner.partner_id} ${memberNoStr}`);
-    $('#view-market-team').html(`${getCountryBadge(partner.country_code)} ${partner.is_our_team === 'Y' ? '<span class="text-success ms-1">⭐️ 直轄</span>' : '<span class="text-secondary ms-1">🌐 旁線</span>'}`);
+    $('#view-market-team').html(`${UIBadges.common.country(partner.country_code)} ${partner.is_our_team === 'Y' ? '<span class="text-success ms-1">⭐️ 直轄</span>' : '<span class="text-secondary ms-1">🌐 旁線</span>'}`);
     $('#view-sponsor').html(partner.sponsor_id ? `${getPartnerDisplayName(partner.sponsor_id)} (${partner.sponsor_id})` : '<span class="text-muted">無 (頂層節點)</span>');
     $('#view-placement').html(partner.placement_id ? `${getPartnerDisplayName(partner.placement_id)} (${partner.placement_id})` : '<span class="text-muted">無</span>');
     $('#view-mentor').html(partner.known_mentor_id ? `${getPartnerDisplayName(partner.known_mentor_id)} (${partner.known_mentor_id})` : '<span class="text-muted">無特定指派</span>');
@@ -2495,7 +2343,7 @@ window.openPartnerModalForView = function (partnerId) {
         'RELATION': '人情支持'
     };
     const motiveText = motiveMap[partner.joining_motive] || partner.joining_motive || '';
-    $('#view-joining-motive').html(motiveText ? `<span class="badge badge-info-subtle">${motiveText}</span>` : '<span class="text-muted">未填寫</span>');
+    $('#view-joining-motive').html(motiveText ? UIBadges.common.custom({ text: motiveText, className: 'badge-info-subtle' }) : '<span class="text-muted">未填寫</span>');
 
     $('#view-join-date').html(formatEmpty(partner.join_date));
     $('#view-renewal-due-date').html(formatEmpty(partner.renewal_due_date));
@@ -2538,10 +2386,10 @@ window.openPartnerModalForView = function (partnerId) {
                     <div class="d-flex gap-2">
                         <strong class="text-white">${l.language_name}</strong>
                         ${l.notes ? `<span class="text-muted" style="font-size: 0.72rem;">${l.notes}</span>` : ''}
-                        <span class="text-secondary">聽: ${getLanguageStatusBadge(l.listening_level)}</span>
-                        <span class="text-secondary">說: ${getLanguageStatusBadge(l.listening_level)}</span>
-                        <span class="text-secondary">讀: ${getLanguageStatusBadge(l.listening_level)}</span>
-                        <span class="text-secondary">寫: ${getLanguageStatusBadge(l.listening_level)}</span>
+                        <span class="text-secondary">聽: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
+                        <span class="text-secondary">說: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
+                        <span class="text-secondary">讀: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
+                        <span class="text-secondary">寫: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
                     </div>
                 </div>
             `);

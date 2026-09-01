@@ -627,11 +627,14 @@ function renderProducts() {
             const subInfo = getSubcategoryInfo(item.subcategory_code, item.region_code);
             const typeInfo = getTypeInfo(item.type_code, item.region_code);
 
-            let bottomTagHtml = '';
+            const subBadgeHtml = UIBadges.product.subcategory(subInfo, item.region_code);
+            const typeBadgeHtml = UIBadges.product.type(typeInfo, item.region_code);
+
+            let tagHtml = '';
             if (item.status === 'COMING_SOON') {
-                bottomTagHtml = '<span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>';
+                tagHtml = UIBadges.product.launchStatus('COMING_SOON');
             } else if (item.is_featured) {
-                bottomTagHtml = '<span class="badge badge-danger"><i class="fa-solid fa-fire"></i> 明星商品</span>';
+                tagHtml = UIBadges.product.featured(true);
             }
 
             const cardHtml = `
@@ -640,12 +643,8 @@ function renderProducts() {
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="product-badge">${item.product_code}</span>
-                                <span class="badge border" style="color: ${subInfo.color}; border-color: ${subInfo.color} !important; background-color: ${subInfo.bg};">
-                                    <i class="${subInfo.icon}"></i> ${subInfo.name}
-                                </span>
-                                <span class="badge border" style="color: ${typeInfo.color}; border-color: ${typeInfo.color} !important; background-color: ${typeInfo.bg};">
-                                    <i class="${typeInfo.icon}"></i> ${typeInfo.name}
-                                </span>
+                                ${subBadgeHtml}
+                                ${typeBadgeHtml}
                             </div>
                             <h6 class="product-title">${item.name}</h6>
                             <p class="small text-muted mb-2 text-truncate-2">${item.short_summary || "暫無產品簡介"}</p>
@@ -666,7 +665,7 @@ function renderProducts() {
                                     </button>
                                 </div>
                                 <div>
-                                    ${bottomTagHtml}
+                                    ${tagHtml}
                                 </div>
                             </div>
                         </div>
