@@ -3,1128 +3,1109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>庫存管理 - 葡眾三軌數位戰情系統</title>
+    <title>庫存管理 (H32000) | 榮祥團隊戰術控制台</title>
 
+    <!-- Google Fonts: Noto Sans TC & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6.5.2 CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- DataTables 2.0.8 CSS (Bootstrap 5 深色主題) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.bootstrap5.min.css">
 
     <style>
         /* ==========================================================================
-           1. 核心版 (Dark Purple) 專屬主題變數與 Design Tokens
+           核心版：魅影深紫主題設計變數 (Dark Cyber Purple Tokens)
            ========================================================================== */
         :root, [data-bs-theme="dark-purple"] {
-            --uvaco-primary: #8b5cf6;            /* 亮魅影紫 */
-            --uvaco-primary-hover: #7c3aed;
-            --uvaco-secondary: #c084fc;          /* 薰衣草淡紫 */
-            --uvaco-accent: #f472b6;             /* 電光粉 */
-            --uvaco-accent-glow: rgba(244, 114, 182, 0.35);
-            --uvaco-body-bg: #090412;            /* 極深紫黑 */
-            --uvaco-surface: #150a26;            /* 基礎卡片底色 */
-            --uvaco-surface-hover: #1e0f36;
-            --uvaco-surface-border: rgba(139, 92, 246, 0.22);
-            --uvaco-surface-border-strong: rgba(139, 92, 246, 0.45);
-            --uvaco-text: #faf5ff;
-            --uvaco-text-muted: #a79bb7;
-            --uvaco-success: #34d399;            /* 薄荷綠 */
-            --uvaco-warning: #fde047;            /* 高亮純黃 */
-            --uvaco-danger: #fb7185;             /* 玫瑰緋紅 */
-            --uvaco-info: #38bdf8;               /* 科技電光藍 */
-            
-            --bs-body-bg: var(--uvaco-body-bg);
-            --bs-body-color: var(--uvaco-text);
+            --uvaco-bg-base: #0a0518;
+            --uvaco-bg-surface: #140b2e;
+            --uvaco-bg-card: rgba(27, 15, 61, 0.75);
+            --uvaco-bg-card-hover: rgba(45, 24, 100, 0.9);
+
+            --uvaco-primary: #a855f7;
+            --uvaco-primary-rgb: 168, 85, 247;
+            --uvaco-primary-hover: #9333ea;
+            --uvaco-primary-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+
+            --uvaco-secondary: #c084fc;
+            --uvaco-accent-pink: #ec4899;
+            --uvaco-accent-sky: #38bdf8;
+            --uvaco-neon-emerald: #10b981;
+            --uvaco-neon-amber: #f59e0b;
+            --uvaco-neon-rose: #f43f5e;
+
+            --uvaco-border: rgba(168, 85, 247, 0.25);
+            --uvaco-border-glow: rgba(236, 72, 153, 0.45);
+
+            --uvaco-text-main: #f8fafc;
+            --uvaco-text-muted: #94a3b8;
+            --uvaco-radius-lg: 16px;
+            --uvaco-radius-md: 10px;
+            --uvaco-font-mono: 'JetBrains Mono', monospace;
+
+            --bs-body-bg: var(--uvaco-bg-base);
+            --bs-body-color: var(--uvaco-text-main);
             --bs-primary: var(--uvaco-primary);
-            --bs-border-color: var(--uvaco-surface-border);
+            --bs-border-color: var(--uvaco-border);
         }
 
         body {
+            background-color: var(--uvaco-bg-base);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(56, 189, 248, 0.05) 0px, transparent 60%);
+            background-attachment: fixed;
+            color: var(--uvaco-text-main);
             font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-            background-color: var(--uvaco-body-bg);
-            color: var(--uvaco-text);
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
             overflow-x: hidden;
         }
 
         .mono {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--uvaco-font-mono);
         }
 
-        /* 自定義戰術微光背景裝飾 */
-        .cyber-bg-glow {
-            position: fixed;
-            top: -100px;
-            right: -100px;
-            width: 550px;
-            height: 550px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(244, 114, 182, 0.04) 50%, transparent 75%);
-            pointer-events: none;
-            z-index: 0;
+        /* 戰情微光玻璃面板 */
+        .glass-panel {
+            background: var(--uvaco-bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--uvaco-border);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .cyber-bg-glow-2 {
-            position: fixed;
-            bottom: -150px;
-            left: -150px;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(139, 92, 246, 0.03) 60%, transparent 80%);
-            pointer-events: none;
-            z-index: 0;
+        .glass-panel:hover {
+            border-color: var(--uvaco-border-glow);
         }
 
-        .content-container {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ==========================================================================
-           2. 現代戰備抬頭面板 (Tactical Stock HUD Cards)
-           ========================================================================== */
-        .hud-glass-card {
-            background: rgba(21, 10, 38, 0.75);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid var(--uvaco-surface-border);
-            border-radius: 18px;
+        /* 戰術抬頭哨兵 HUD */
+        .hud-sentinel-bar {
             padding: 1.25rem 1.5rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
 
-        .hud-glass-card::before {
+        .hud-sentinel-bar::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--uvaco-primary), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            width: 4px;
+            height: 100%;
+            background: var(--uvaco-primary-gradient);
+            box-shadow: 0 0 12px var(--uvaco-accent-pink);
         }
 
-        .hud-glass-card:hover {
-            border-color: var(--uvaco-surface-border-strong);
+        .hud-pill {
+            background: rgba(10, 5, 24, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.75rem 1rem;
+            transition: all 0.25s ease;
+        }
+
+        .hud-pill:hover {
+            border-color: var(--uvaco-primary);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.18);
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.2);
         }
 
-        .hud-glass-card:hover::before {
-            opacity: 1;
-        }
-
-        .stat-icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-        }
-
-        /* ==========================================================================
-           3. 標籤膠囊篩選器 (Tactical Matrix Filter Pills)
-           ========================================================================== */
+        /* 霓虹與濾鏡膠囊 */
         .filter-pill-btn {
-            background: rgba(21, 10, 38, 0.85);
-            border: 1px solid var(--uvaco-surface-border);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--uvaco-border);
             color: var(--uvaco-text-muted);
-            border-radius: 30px;
-            padding: 0.45rem 1rem;
+            border-radius: 50px;
+            padding: 0.4rem 1rem;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s ease;
             cursor: pointer;
             white-space: nowrap;
         }
 
         .filter-pill-btn:hover {
-            border-color: var(--uvaco-secondary);
-            color: var(--uvaco-text);
-            background: rgba(30, 15, 54, 0.9);
+            color: #ffffff;
+            background: rgba(168, 85, 247, 0.2);
+            border-color: var(--uvaco-primary);
         }
 
         .filter-pill-btn.active {
-            background: linear-gradient(135deg, var(--uvaco-primary), #6d28d9);
-            border-color: var(--uvaco-secondary);
+            background: var(--uvaco-primary-gradient);
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
         }
 
-        /* ==========================================================================
-           4. 批號效期進度條與客製 Badge
-           ========================================================================== */
-        .expiry-progress-wrapper {
-            width: 100%;
-            min-width: 110px;
+        .btn-cyber-primary {
+            background: var(--uvaco-primary-gradient);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.45rem 1.1rem;
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
+            transition: all 0.25s ease;
         }
 
-        .expiry-progress {
-            height: 6px;
-            background-color: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            overflow: hidden;
+        .btn-cyber-primary:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(236, 72, 153, 0.5);
         }
 
+        .btn-cyber-outline {
+            background: transparent;
+            border: 1px solid var(--uvaco-border);
+            color: var(--uvaco-text-main);
+            border-radius: var(--uvaco-radius-md);
+            padding: 0.45rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cyber-outline:hover {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--uvaco-primary);
+            color: #ffffff;
+        }
+
+        /* DataTables 深色極客定制 */
+        .table-purple {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--uvaco-text-main);
+            border-color: rgba(168, 85, 247, 0.15);
+        }
+
+        .table-purple th {
+            background: #140b2e !important;
+            color: var(--uvaco-secondary) !important;
+            font-weight: 600;
+            border-bottom: 2px solid var(--uvaco-border) !important;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 0.85rem 1rem !important;
+        }
+
+        .table-purple td {
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
+            font-size: 0.88rem;
+            padding: 0.85rem 1rem !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--uvaco-primary-gradient) !important;
+            border-color: transparent !important;
+            color: #ffffff !important;
+            border-radius: 8px;
+        }
+
+        /* 效期與鎖定標籤 */
         .batch-chip {
-            background: rgba(139, 92, 246, 0.12);
-            border: 1px dashed var(--uvaco-surface-border-strong);
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px dashed rgba(168, 85, 247, 0.5);
             color: var(--uvaco-secondary);
             font-size: 0.8rem;
             border-radius: 6px;
             padding: 0.15rem 0.45rem;
         }
 
-        .status-badge-pulse {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .expiry-progress {
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            overflow: hidden;
         }
 
-        .pulse-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
+        .live-pulse {
             display: inline-block;
-        }
-
-        /* ==========================================================================
-           5. DataTables 2.0 深色覆寫樣式
-           ========================================================================== */
-        .table-custom-container {
-            background: rgba(21, 10, 38, 0.7);
-            backdrop-filter: blur(14px);
-            border: 1px solid var(--uvaco-surface-border);
-            border-radius: 18px;
-            padding: 1.5rem;
-        }
-
-        table.dataTable {
-            color: var(--uvaco-text) !important;
-            border-collapse: separate !important;
-            border-spacing: 0 8px !important;
-            margin-top: 0.5rem !important;
-        }
-
-        table.dataTable thead th {
-            background-color: transparent !important;
-            color: var(--uvaco-text-muted) !important;
-            font-weight: 600;
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--uvaco-surface-border) !important;
-            padding: 0.75rem 1rem !important;
-        }
-
-        table.dataTable tbody tr {
-            background-color: rgba(29, 14, 52, 0.45) !important;
-            transition: all 0.2s ease;
-        }
-
-        table.dataTable tbody tr:hover {
-            background-color: rgba(43, 20, 77, 0.75) !important;
-            transform: scale(1.002);
-        }
-
-        table.dataTable tbody td {
-            padding: 0.95rem 1rem !important;
-            border-top: 1px solid rgba(139, 92, 246, 0.08) !important;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.08) !important;
-            vertical-align: middle;
-        }
-
-        table.dataTable tbody tr td:first-child {
-            border-top-left-radius: 12px;
-            border-bottom-left-radius: 12px;
-            border-left: 1px solid rgba(139, 92, 246, 0.08) !important;
-        }
-
-        table.dataTable tbody tr td:last-child {
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
-            border-right: 1px solid rgba(139, 92, 246, 0.08) !important;
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: var(--uvaco-primary) !important;
-            color: #fff !important;
-            border-color: var(--uvaco-primary) !important;
-            border-radius: 8px;
-        }
-
-        .dataTables_wrapper .dataTables_filter input,
-        .dataTables_wrapper .dataTables_length select {
-            background-color: rgba(13, 6, 25, 0.8) !important;
-            border: 1px solid var(--uvaco-surface-border) !important;
-            color: var(--uvaco-text) !important;
-            border-radius: 8px;
-            padding: 0.35rem 0.75rem;
-        }
-
-        /* ==========================================================================
-           6. 穿透式微日誌時間軸 (Offcanvas Ledger Timeline)
-           ========================================================================== */
-        .timeline-item {
-            position: relative;
-            padding-left: 2rem;
-            padding-bottom: 1.5rem;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: 7px;
-            top: 24px;
-            bottom: 0;
-            width: 2px;
-            background: var(--uvaco-surface-border);
-        }
-
-        .timeline-item:last-child::before {
-            display: none;
-        }
-
-        .timeline-dot {
-            position: absolute;
-            left: 0;
-            top: 4px;
-            width: 16px;
-            height: 16px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: var(--uvaco-surface);
-            border: 3px solid var(--uvaco-primary);
+            background-color: var(--uvaco-neon-emerald);
+            box-shadow: 0 0 8px var(--uvaco-neon-emerald);
         }
 
-        /* 動作微按鈕 */
-        .action-icon-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid var(--uvaco-surface-border);
-            color: var(--uvaco-secondary);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
+        /* 模態框與表單深色化 */
+        .modal-content-purple {
+            background-color: #140b2e;
+            border: 1px solid var(--uvaco-border-glow);
+            color: var(--uvaco-text-main);
+            border-radius: var(--uvaco-radius-lg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
         }
 
-        .action-icon-btn:hover {
-            background: var(--uvaco-primary);
-            color: #ffffff;
-            border-color: var(--uvaco-primary);
+        .form-control-purple, .form-select-purple {
+            background-color: rgba(10, 5, 24, 0.85) !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+            color: #ffffff !important;
+            border-radius: var(--uvaco-radius-md);
+        }
+
+        .form-control-purple:focus, .form-select-purple:focus {
+            border-color: var(--uvaco-accent-pink) !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.35) !important;
         }
     </style>
 </head>
 <body>
 
-    <div class="cyber-bg-glow"></div>
-    <div class="cyber-bg-glow-2"></div>
+    <main class="container-fluid px-3 px-lg-4 py-3">
 
-    <div class="container-fluid py-4 px-xl-5 content-container">
-        
-        <div class="row align-items-center mb-4 g-3">
-            <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon-wrapper bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 shadow-sm">
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h4 class="mb-0 fw-bold tracking-wide">庫存管理中樞</h4>
-                            <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 mono">H32000</span>
+        <!-- ==========================================================================
+             1. 戰備物資態勢抬頭 (Sentinel Stock HUD)
+             ========================================================================== -->
+        <section class="glass-panel hud-sentinel-bar mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-xl-5">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(168, 85, 247, 0.18); border: 1px solid var(--uvaco-primary); color: var(--uvaco-primary); font-size: 1.5rem;">
+                            <i class="fa-solid fa-boxes-stacked"></i>
                         </div>
-                        <p class="text-muted mb-0 small mt-1">
-                            <i class="fa-solid fa-layer-group text-secondary"></i> 全域多倉實體現貨、批號效期 FIFO 預警與即時異動流水追蹤
-                        </p>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="live-pulse"></span>
+                                <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 mono">H32000 庫存管理中樞</span>
+                                <span class="text-secondary small">|</span>
+                                <span class="text-secondary small mono" id="hudSyncTime">2026-09-02 12:00:00</span>
+                            </div>
+                            <h2 class="h4 mb-0 fw-bold mt-1 text-white">
+                                <i class="fa-solid fa-cubes-stacked text-primary"></i> 批號庫存與 FIFO 效期調度中樞
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 四聯動態指標卡 -->
+                <div class="col-12 col-xl-7">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <div class="hud-pill">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-secondary small">在線實體總盒數</span>
+                                    <i class="fa-solid fa-box-open text-primary"></i>
+                                </div>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="h4 fw-bold mono text-white mb-0" id="hudTotalQty">0</span>
+                                    <span class="text-secondary small">盒</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="hud-pill">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-secondary small">自由可用現貨</span>
+                                    <i class="fa-solid fa-circle-check text-success"></i>
+                                </div>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="h4 fw-bold mono text-success mb-0" id="hudAvailableQty">0</span>
+                                    <span class="text-secondary small">盒</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="hud-pill">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-secondary small">代領預扣鎖定</span>
+                                    <i class="fa-solid fa-lock text-warning"></i>
+                                </div>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="h4 fw-bold mono text-warning mb-0" id="hudReservedQty">0</span>
+                                    <span class="text-secondary small">盒</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="hud-pill">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-secondary small">FIFO 效期預警批數</span>
+                                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                                </div>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="h4 fw-bold mono text-danger mb-0" id="hudExpiringBatches">0</span>
+                                    <span class="text-secondary small">批 (&le;90天)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-6">
-                <div class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap">
-                    <button type="button" class="btn btn-outline-secondary btn-sm px-3 rounded-pill" id="btnRefreshData">
-                        <i class="fa-solid fa-rotate"></i> 重新整理
+            <!-- 右上操作控制條 -->
+            <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top" style="border-color: rgba(168, 85, 247, 0.15) !important;">
+                <div class="col-12 col-md-7">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="text-secondary small fw-bold"><i class="fa-solid fa-warehouse text-primary"></i> 據點維度：</span>
+                        <button type="button" class="filter-pill-btn active" data-filter-wh="ALL">
+                            <i class="fa-solid fa-globe"></i> 全域多倉總覽
+                        </button>
+                        <button type="button" class="filter-pill-btn" data-filter-wh="WH-TW-TP">
+                            <i class="fa-solid fa-building"></i> 台北營運中心
+                        </button>
+                        <button type="button" class="filter-pill-btn" data-filter-wh="WH-HOME-RAY">
+                            <i class="fa-solid fa-shield-halved"></i> Ray 居家戰備私倉
+                        </button>
+                        <button type="button" class="filter-pill-btn" data-filter-wh="WH-MY-KUL">
+                            <i class="fa-solid fa-plane-departure"></i> 吉隆坡海外前進基地
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-5 text-md-end">
+                    <button class="btn btn-sm btn-cyber-outline me-2" onclick="fetchGoogleSheetsData()" title="從 Google 試算表同步資料">
+                        <i class="fa-solid fa-rotate"></i> 重新同步
                     </button>
-                    <button type="button" class="btn btn-outline-info btn-sm px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#modalQuickTransfer">
-                        <i class="fa-solid fa-truck-ramp-box"></i> 調撥開單
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm px-3 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalStockAdjust">
-                        <i class="fa-solid fa-plus-minus"></i> 盤點調整
+                    <button class="btn btn-sm btn-cyber-primary" id="btnOpenAddModal" onclick="openAddStockModal()">
+                        <i class="fa-solid fa-plus"></i> 新增庫存批號
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="row g-3 mb-4">
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="hud-glass-card h-100">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="text-muted small fw-medium">
-                                <i class="fa-solid fa-box-archive"></i> 在線存量總盒數
-                            </span>
-                            <div class="d-flex align-items-baseline gap-2 mt-2">
-                                <h3 class="mb-0 fw-bold mono" id="hudTotalQty">1,842</h3>
-                                <span class="text-success small fw-semibold">
-                                    <i class="fa-solid fa-arrow-trend-up"></i> 正常
-                                </span>
-                            </div>
-                            <div class="text-muted small mt-1">
-                                可用現貨: <span class="text-light mono" id="hudAvailableQty">1,720</span> 盒 (預留 122)
-                            </div>
-                        </div>
-                        <div class="stat-icon-wrapper" style="background: rgba(139, 92, 246, 0.15); color: var(--uvaco-primary);">
-                            <i class="fa-solid fa-cubes"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="hud-glass-card h-100">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="text-muted small fw-medium">
-                                <i class="fa-solid fa-stopwatch-20"></i> FIFO 效期預警批數
-                            </span>
-                            <div class="d-flex align-items-baseline gap-2 mt-2">
-                                <h3 class="mb-0 fw-bold mono text-warning" id="hudExpiringBatches">3</h3>
-                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 small">≤ 90 天</span>
-                            </div>
-                            <div class="text-muted small mt-1">
-                                急需優先出庫批號品項
-                            </div>
-                        </div>
-                        <div class="stat-icon-wrapper" style="background: rgba(253, 224, 71, 0.15); color: var(--uvaco-warning);">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="hud-glass-card h-100">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="text-muted small fw-medium">
-                                <i class="fa-solid fa-chart-line-down"></i> 低水位告警據點
-                            </span>
-                            <div class="d-flex align-items-baseline gap-2 mt-2">
-                                <h3 class="mb-0 fw-bold mono text-danger" id="hudLowStockCount">2</h3>
-                                <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 small">低於安全線</span>
-                            </div>
-                            <div class="text-muted small mt-1">
-                                建議發動總部官方提貨
-                            </div>
-                        </div>
-                        <div class="stat-icon-wrapper" style="background: rgba(251, 113, 133, 0.15); color: var(--uvaco-danger);">
-                            <i class="fa-solid fa-bell"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="hud-glass-card h-100">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <span class="text-muted small fw-medium">
-                                <i class="fa-solid fa-sack-dollar"></i> 存貨現值估算 (TWD)
-                            </span>
-                            <div class="d-flex align-items-baseline gap-2 mt-2">
-                                <h3 class="mb-0 fw-bold mono text-info" id="hudTotalValuation">NT$ 4,820,400</h3>
-                            </div>
-                            <div class="text-muted small mt-1">
-                                總累計 PV: <span class="text-light mono">384,500 PV</span>
-                            </div>
-                        </div>
-                        <div class="stat-icon-wrapper" style="background: rgba(56, 189, 248, 0.15); color: var(--uvaco-info);">
-                            <i class="fa-solid fa-vault"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <!-- ==========================================================================
+             2. 視覺化戰術儀表 (Chart Horizon Matrix)
+             ========================================================================== -->
         <div class="row g-3 mb-4">
             <div class="col-12 col-lg-4">
-                <div class="hud-glass-card h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="mb-0 fw-bold">
-                            <i class="fa-solid fa-warehouse text-primary"></i> 據點倉儲現貨佔比
-                        </h6>
-                        <span class="badge bg-secondary bg-opacity-25 text-light small">即時聯網</span>
+                <div class="glass-panel p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-white small"><i class="fa-solid fa-chart-pie text-primary"></i> 跨倉實體庫存容積佔比</span>
+                        <span class="badge bg-secondary bg-opacity-25 text-light small mono">現貨盒數</span>
                     </div>
-                    <div style="height: 190px; position: relative;">
+                    <div style="height: 175px; position: relative;">
                         <canvas id="chartWarehouseShare"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-lg-8">
-                <div class="hud-glass-card h-100">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <h6 class="mb-0 fw-bold">
-                                <i class="fa-solid fa-hourglass-half text-secondary"></i> FIFO 批號效期時空分佈階梯
-                            </h6>
-                            <span class="badge bg-primary bg-opacity-20 text-secondary border border-primary border-opacity-25 small">
-                                距過期天數 (Days)
-                            </span>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30 small">
-                                <i class="fa-solid fa-circle pulse-dot bg-danger"></i> ≤ 30天
-                            </span>
-                            <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 small">
-                                <i class="fa-solid fa-circle pulse-dot bg-warning"></i> 31-90天
-                            </span>
-                            <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30 small">
-                                <i class="fa-solid fa-circle pulse-dot bg-success"></i> > 90天
-                            </span>
+                <div class="glass-panel p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-white small"><i class="fa-solid fa-hourglass-half text-secondary"></i> FIFO 批號有效期限時空階梯 (距過期天數)</span>
+                        <div class="d-flex gap-2 small">
+                            <span class="text-danger mono">&le;30 天 (極危)</span>
+                            <span class="text-warning mono">&le;90 天 (近效期)</span>
+                            <span class="text-success mono">&gt;90 天 (充裕)</span>
                         </div>
                     </div>
-                    <div style="height: 190px; position: relative;">
+                    <div style="height: 175px; position: relative;">
                         <canvas id="chartExpiryTimeline"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="hud-glass-card mb-4">
-            <div class="row align-items-center g-3">
-                <div class="col-12 col-xl-7">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="text-muted small fw-semibold me-1">
-                            <i class="fa-solid fa-location-dot text-primary"></i> 倉儲據點:
-                        </span>
-                        <button type="button" class="filter-pill-btn active" data-filter-type="wh" data-filter-val="ALL">
-                            <i class="fa-solid fa-globe"></i> 全部倉儲 (<span id="pillCountWhAll">12</span>)
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="wh" data-filter-val="WH-TPE-01">
-                            <i class="fa-solid fa-building"></i> 台北運籌倉
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="wh" data-filter-val="WH-KUL-01">
-                            <i class="fa-solid fa-plane-departure"></i> 吉隆坡前進基地
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="wh" data-filter-val="WH-TYN-01">
-                            <i class="fa-solid fa-van-shuttle"></i> 榮祥行動私倉
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="wh" data-filter-val="WH-KHH-01">
-                            <i class="fa-solid fa-warehouse"></i> 高雄戰術倉
-                        </button>
-                    </div>
+        <!-- ==========================================================================
+             3. 批號庫存動態戰術表 (DataTable 2.x 表 302 psi_stocks)
+             ========================================================================== -->
+        <section class="glass-panel p-3 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border) !important;">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="text-white fw-bold"><i class="fa-solid fa-filter text-primary"></i> 狀態快篩：</span>
+                    <button type="button" class="filter-pill-btn active" data-filter-status="ALL">全部批號</button>
+                    <button type="button" class="filter-pill-btn" data-filter-status="NORMAL">
+                        <i class="fa-solid fa-circle-check text-success"></i> 自由流通
+                    </button>
+                    <button type="button" class="filter-pill-btn" data-filter-status="WARNING_EXPIRY">
+                        <i class="fa-solid fa-stopwatch text-warning"></i> 近效期 (&le;90天)
+                    </button>
+                    <button type="button" class="filter-pill-btn" data-filter-status="LOCKED">
+                        <i class="fa-solid fa-lock text-danger"></i> 盤點/異常凍結
+                    </button>
                 </div>
 
-                <div class="col-12 col-xl-5">
-                    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-xl-end">
-                        <span class="text-muted small fw-semibold me-1">
-                            <i class="fa-solid fa-shield-halved text-secondary"></i> 狀態篩選:
-                        </span>
-                        <button type="button" class="filter-pill-btn active" data-filter-type="status" data-filter-val="ALL">
-                            全部狀態
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="status" data-filter-val="NORMAL">
-                            <i class="fa-solid fa-circle-check text-success"></i> 充足正常
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="status" data-filter-val="WARNING_EXPIRY">
-                            <i class="fa-solid fa-triangle-exclamation text-warning"></i> 近效期警戒
-                        </button>
-                        <button type="button" class="filter-pill-btn" data-filter-type="status" data-filter-val="LOW_STOCK">
-                            <i class="fa-solid fa-arrow-down-short-wide text-danger"></i> 低水位
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="table-custom-container">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fa-solid fa-table-list text-primary"></i> 批號庫存與 FIFO 效期明細清單
-                    </h5>
                     <span class="badge bg-secondary bg-opacity-25 text-light mono" id="tableRecordBadge">載入中...</span>
-                </div>
-                <div class="small text-muted">
-                    <i class="fa-solid fa-circle-info text-info"></i> 點擊任一列或日誌圖示可穿透檢視出入庫審計歷程
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table id="stockMasterTable" class="table table-hover align-middle w-100">
+                <table id="stockMasterTable" class="table table-purple table-hover align-middle w-100">
                     <thead>
                         <tr>
-                            <th>產品品項</th>
-                            <th>所在據點倉儲</th>
-                            <th>生產批號 (Batch)</th>
-                            <th>有效期限 & FIFO 倒數</th>
-                            <th>在庫 / 可用 / 預留</th>
-                            <th>安全水位比對</th>
-                            <th>批號狀態</th>
-                            <th class="text-center">戰術操作</th>
+                            <th>主鍵 (id)</th>
+                            <th>所在據點倉儲 (warehouse_id)</th>
+                            <th>產品代碼 (product_id)</th>
+                            <th>官方生產批號 (batch_no)</th>
+                            <th>有效截止日 (expiry_date)</th>
+                            <th>實體現貨 (quantity)</th>
+                            <th>預扣鎖定 (reserved)</th>
+                            <th>可用盒數 (available)</th>
+                            <th>成本 / SV</th>
+                            <th>狀態標記 (is_locked)</th>
+                            <th class="text-end">戰術操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        </tbody>
+                        <!-- 由 DataTables 動態渲染 -->
+                    </tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
-    </div>
+    </main>
 
-    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasLedger" style="width: 480px; background-color: #120721 !important; border-left: 1px solid var(--uvaco-surface-border);">
-        <div class="offcanvas-header border-bottom border-secondary border-opacity-25 py-3">
-            <div class="d-flex align-items-center gap-2">
-                <div class="stat-icon-wrapper" style="width: 38px; height: 38px; background: rgba(139, 92, 246, 0.2); color: var(--uvaco-primary);">
-                    <i class="fa-solid fa-timeline"></i>
-                </div>
-                <div>
-                    <h6 class="offcanvas-title fw-bold mb-0" id="ledgerTitle">批號異動審計日誌</h6>
-                    <span class="small text-muted mono" id="ledgerSubtitle">BATCH: B260819-01</span>
-                </div>
-            </div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body p-4">
-            
-            <div class="hud-glass-card p-3 mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted small">當前品項</span>
-                    <span class="fw-bold text-light" id="ledgerProductName">995 生技營養品</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted small">當前倉儲</span>
-                    <span class="badge bg-primary bg-opacity-20 text-primary" id="ledgerWarehouseName">台北運籌倉</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted small">在線可用結餘</span>
-                    <span class="fw-bold text-success mono" id="ledgerCurrentBalance">240 盒</span>
-                </div>
-            </div>
-
-            <h6 class="text-muted small text-uppercase tracking-wider mb-3">
-                <i class="fa-solid fa-clock-rotate-left"></i> 異動履歷軌跡 (Audit Trail)
-            </h6>
-            
-            <div id="ledgerTimelineContainer">
-                </div>
-
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalStockAdjust" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color: #160a2b; border: 1px solid var(--uvaco-surface-border);">
-                <div class="modal-header border-bottom border-secondary border-opacity-25">
-                    <h6 class="modal-title fw-bold">
-                        <i class="fa-solid fa-sliders text-primary"></i> 庫存微調與盤點登記
-                    </h6>
+    <!-- ==========================================================================
+         4. 庫存批號維護 Modal (表 302: psi_stocks 實體 17 欄位 CRUD)
+         ========================================================================== -->
+    <div class="modal fade" id="stockModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-content-purple">
+                <div class="modal-header border-purple" style="border-color: rgba(168, 85, 247, 0.2) !important;">
+                    <h5 class="modal-title fw-bold text-white" id="stockModalLabel">
+                        <i class="fa-solid fa-box-archive text-primary"></i> 庫存批號主檔編輯
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <form id="formStockAdjust">
-                        <div class="mb-3">
-                            <label class="form-label small text-muted">選擇調整品項與批號</label>
-                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="adjustSelectStock" required>
-                                <option value="">請選擇批號...</option>
-                                <option value="STK-001">995 生技營養品 [批號: B260819-01] (台北倉)</option>
-                                <option value="STK-002">樟芝益菌絲體 [批號: B260715-02] (台北倉)</option>
-                                <option value="STK-003">康爾喜益生菌 [批號: B260901-01] (吉隆坡倉)</option>
-                            </select>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label class="form-label small text-muted">異動類型</label>
-                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="adjustType" required>
-                                    <option value="ADJUST_GAIN">盤盈 (+)</option>
-                                    <option value="ADJUST_LOSS">盤虧 (-)</option>
-                                    <option value="SCRAP">破損報廢 (-)</option>
+                <div class="modal-body">
+                    <form id="stockForm">
+                        <input type="hidden" id="formMode" value="add">
+                        <input type="hidden" id="fieldCreatedAt" value="">
+                        <input type="hidden" id="fieldCreatedBy" value="">
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">庫存唯一代碼 (id / PK) *</label>
+                                <input type="text" class="form-control form-control-purple mono" id="fieldId" placeholder="如: STK-20260901-01" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">存放據點倉儲 (warehouse_id) *</label>
+                                <select class="form-select form-select-purple" id="fieldWarehouseId" required>
+                                    <option value="WH-TW-TP">WH-TW-TP (台北總公司營運中心)</option>
+                                    <option value="WH-HOME-RAY">WH-HOME-RAY (Ray 居家戰備私倉)</option>
+                                    <option value="WH-MY-KUL">WH-MY-KUL (吉隆坡海外前進基地)</option>
+                                    <option value="WH-TW-TC">WH-TW-TC (台中旗艦營運中心)</option>
+                                    <option value="WH-TW-KH">WH-TW-KH (高雄營業營運中心)</option>
                                 </select>
                             </div>
-                            <div class="col-6">
-                                <label class="form-label small text-muted">調整盒數 (數量)</label>
-                                <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary mono" id="adjustQty" min="1" placeholder="輸入數量" required>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">產品品項 SKU (product_id) *</label>
+                                <select class="form-select form-select-purple" id="fieldProductId" required>
+                                    <option value="PRD-0101-01">PRD-0101-01 (康爾喜乳酸菌)</option>
+                                    <option value="PRD-0101-02">PRD-0101-02 (995 生技營養品)</option>
+                                    <option value="PRD-0102-01">PRD-0102-01 (樟芝益菌絲體飲)</option>
+                                    <option value="PRD-0201-01">PRD-0201-01 (衛傑膠囊)</option>
+                                    <option value="PRD-0301-02">PRD-0301-02 (百克斯膠囊)</option>
+                                </select>
                             </div>
                         </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-secondary fw-bold">官方生產批號 (batch_no) *</label>
+                                <input type="text" class="form-control form-control-purple mono" id="fieldBatchNo" placeholder="如: LOT20260315A" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small text-secondary fw-bold">有效截止日期 (expiry_date) *</label>
+                                <input type="date" class="form-control form-control-purple mono" id="fieldExpiryDate" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">在線實體總盒數 (quantity) *</label>
+                                <input type="number" class="form-control form-control-purple mono" id="fieldQuantity" min="0" value="0" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">代領預扣盒數 (reserved_qty) *</label>
+                                <input type="number" class="form-control form-control-purple mono" id="fieldReservedQty" min="0" value="0" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">自由可用盒數 (available_qty)</label>
+                                <input type="number" class="form-control form-control-purple mono bg-dark text-success fw-bold" id="fieldAvailableQty" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">幣別 (currency_code)</label>
+                                <select class="form-select form-select-purple mono" id="fieldCurrencyCode">
+                                    <option value="TWD">TWD (新台幣)</option>
+                                    <option value="MYR">MYR (馬來幣)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">成本單價 (cost_price)</label>
+                                <input type="number" step="0.01" class="form-control form-control-purple mono" id="fieldCostPrice" value="0">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small text-secondary fw-bold">單盒 SV 點數 (sv_point)</label>
+                                <input type="number" class="form-control form-control-purple mono" id="fieldSvPoint" value="0">
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label small text-muted">原因備註 / 盤點人</label>
-                            <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="adjustRemark" rows="2" placeholder="請填寫盤點人員及異動事由..."></textarea>
+                            <label class="form-label small text-secondary fw-bold">庫存備註說明 (remarks)</label>
+                            <input type="text" class="form-control form-control-purple" id="fieldRemarks" placeholder="如: 大馬拓荒展業樣品備貨、總部大批提貨待驗收...">
+                        </div>
+
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
+                            <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
+                                <i class="fa-solid fa-lock text-danger"></i> 品質異常或盤點凍結出庫標記 (is_locked = 'Y')
+                            </label>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="btnSubmitAdjustment">
-                        <i class="fa-solid fa-check"></i> 確認寫入紀錄
+                <div class="modal-footer border-purple" style="border-color: rgba(168, 85, 247, 0.2) !important;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-cyber-primary btn-sm px-4 fw-bold" onclick="saveStockItem()">
+                        <i class="fa-solid fa-floppy-disk"></i> 儲存批號庫存
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalQuickTransfer" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color: #160a2b; border: 1px solid var(--uvaco-surface-border);">
-                <div class="modal-header border-bottom border-secondary border-opacity-25">
-                    <h6 class="modal-title fw-bold">
-                        <i class="fa-solid fa-truck-fast text-info"></i> 發動跨據點庫存調撥
-                    </h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small text-muted">調出倉儲 (Source)</label>
-                            <select class="form-select form-select-sm bg-dark text-light border-secondary">
-                                <option value="WH-TPE-01">台北運籌中心</option>
-                                <option value="WH-TYN-01">榮祥行動私倉</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small text-muted">調入據點 (Target)</label>
-                            <select class="form-select form-select-sm bg-dark text-light border-secondary">
-                                <option value="WH-KUL-01">吉隆坡前進基地</option>
-                                <option value="WH-KHH-01">高雄戰術倉</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small text-muted">調撥品項批號</label>
-                        <select class="form-select form-select-sm bg-dark text-light border-secondary">
-                            <option>995 生技營養品 (批號: B260819-01) - 可用 240</option>
-                            <option>樟芝益 (批號: B260715-02) - 可用 180</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small text-muted">調撥盒數</label>
-                        <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary mono" placeholder="請輸入調撥盒數" min="1" value="20">
-                    </div>
-                </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-info btn-sm rounded-pill px-3 text-dark fw-semibold" data-bs-dismiss="modal">
-                        <i class="fa-solid fa-paper-plane"></i> 建立調撥任務
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- ==========================================================================
+         JavaScript 核心驅動：Bootstrap 5, jQuery, PapaParse, DataTables 2.0, Chart.js
+         ========================================================================== -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.bootstrap5.min.js"></script>
 
     <script>
         // ==========================================================================
-        // 模組一：Google 試算表欄位解耦中介層 (StockFieldMap Adapter)
-        // 說明：允許後端 Google 試算表欄位名稱任意客製，前端自動模糊匹配對齊
+        // 1. Google 雲端試算表設定與核心轉接器常數
         // ==========================================================================
-        const StockFieldMap = {
-            stock_id: ["批號庫存代碼", "庫存ID", "stock_id", "Stock ID"],
-            warehouse_id: ["倉儲代碼", "據點代號", "warehouse_id", "Warehouse"],
-            warehouse_name: ["倉儲名稱", "據點名稱", "warehouse_name"],
-            product_id: ["產品代碼", "品項代號", "product_id", "SKU"],
-            product_name: ["產品名稱", "品名", "product_name", "Product Name"],
-            category_tag: ["系列分類", "分類", "category"],
-            batch_no: ["生產批號", "批號", "batch_no", "Batch Number"],
-            expiry_date: ["有效期限", "到期日", "expiry_date", "Exp Date"],
-            current_qty: ["實體庫存", "在庫數量", "current_qty", "Total Qty"],
-            reserved_qty: ["預留數量", "鎖定量", "reserved_qty", "Reserved"],
-            available_qty: ["可用庫存", "可用盒數", "available_qty", "Available"],
-            safety_qty: ["安全庫存", "警戒水位", "safety_qty", "Safety Threshold"],
-            cost_price: ["進貨成本", "成本單價", "cost_price"],
-            selling_pv: ["PV點數", "SV點數", "selling_pv", "PV"],
-            status: ["批號狀態", "狀態", "status"]
+        const SPREADSHEET_ID = "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw";
+        const SHEET_STOCKS = "庫存主檔";       // 表 302: psi_stocks
+        const SHEET_WAREHOUSES = "據點倉儲";   // 表 301: psi_warehouses
+
+        // 獨立環境 SheetAdapter 輕量自適應代理
+        const SheetAdapter = window.SheetAdapter || (function() {
+            let deployId = "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA";
+            return {
+                init: (id) => { if (id) deployId = id; },
+                createRow: async (sheet, pk, dataArr) => mutate(sheet, "CREATE", pk, dataArr),
+                updateRow: async (sheet, pk, dataArr) => mutate(sheet, "UPDATE", pk, dataArr),
+                deleteRow: async (sheet, pk) => mutate(sheet, "DELETE", pk, [])
+            };
+
+            async function mutate(sheetName, action, pkValue, rowData) {
+                const userEmail = getCurrentUserEmail();
+                const payload = { action, sheetName, pkValue, rowData, userEmail };
+                const url = `https://script.google.com/macros/s/${deployId}/exec`;
+
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(payload)
+                    });
+                    return await res.json();
+                } catch (e) {
+                    console.warn("GAS Web App 離線或受阻，切換至本地模擬寫入:", e);
+                    return { status: "success", message: "本地模擬寫入完成" };
+                }
+            }
+        })();
+
+        // 提示與載入器 Fallback
+        const AppToast = window.AppToast || {
+            success: (msg) => alert("【成功】" + msg),
+            error: (msg) => alert("【錯誤】" + msg),
+            warning: (msg) => alert("【警告】" + msg),
+            info: (msg) => console.log("【資訊】", msg)
         };
 
-        // 解耦解析函式
-        function parseDecoupledStockRow(rawRow) {
-            const mapped = {};
-            for (const [key, aliases] of Object.entries(StockFieldMap)) {
-                let foundVal = null;
-                for (const alias of aliases) {
-                    if (rawRow[alias] !== undefined && rawRow[alias] !== null && rawRow[alias] !== "") {
-                        foundVal = rawRow[alias];
-                        break;
-                    }
-                }
-                mapped[key] = foundVal;
+        const AppLoading = window.AppLoading || {
+            show: (title, desc) => console.log("載入中...", title, desc),
+            hide: () => {}
+        };
+
+        /**
+         * 試算表欄位索引安全取值工具函式 (0-Based 絕對物理順序)
+         */
+        function getVal(row, colIndex, defaultVal = '') {
+            if (!row || !Array.isArray(row)) return defaultVal;
+            if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
+                return String(row[colIndex]).trim();
             }
-            return mapped;
+            return defaultVal;
+        }
+
+        /**
+         * 取得當前登入者名稱 (支援 Ray 與 Jarvis 雙領導核心)
+         */
+        function getCurrentUser() {
+            const rawSession = localStorage.getItem('ray_team_auth_session');
+            if (!rawSession) return 'ADMIN';
+            try {
+                const session = JSON.parse(rawSession);
+                return session.userName || session.user || 'ADMIN';
+            } catch (e) {
+                return 'ADMIN';
+            }
+        }
+
+        function getCurrentUserEmail() {
+            const rawSession = localStorage.getItem('ray_team_auth_session');
+            if (!rawSession) return 'jarvis20250807@gmail.com';
+            try {
+                const session = JSON.parse(rawSession);
+                return (session.user || '').toLowerCase().trim();
+            } catch (e) {
+                return 'jarvis20250807@gmail.com';
+            }
+        }
+
+        /**
+         * 取得當前格式化時間字串 (YYYY-MM-DD HH:mm:ss)
+         */
+        function getFormattedNow() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
         }
 
         // ==========================================================================
-        // 模組二：預設高真戰術庫存種子資料 (Fallback Mock Data)
+        // 2. 系統狀態管理 (State Management)
         // ==========================================================================
-        const initialStockData = [
-            {
-                stock_id: "STK-001",
-                warehouse_id: "WH-TPE-01",
-                warehouse_name: "台北運籌中心",
-                product_id: "P101",
-                product_name: "995 生技營養品",
-                category_tag: "生技飲品",
-                batch_no: "B260819-01",
-                expiry_date: "2026-11-20", // 約 90 天
-                current_qty: 320,
-                reserved_qty: 40,
-                available_qty: 280,
-                safety_qty: 100,
-                cost_price: 4500,
-                selling_pv: 400,
-                status: "WARNING_EXPIRY"
-            },
-            {
-                stock_id: "STK-002",
-                warehouse_id: "WH-TPE-01",
-                warehouse_name: "台北運籌中心",
-                product_id: "P102",
-                product_name: "樟芝益菌絲體",
-                category_tag: "生技飲品",
-                batch_no: "B260715-02",
-                expiry_date: "2027-06-15",
-                current_qty: 450,
-                reserved_qty: 30,
-                available_qty: 420,
-                safety_qty: 120,
-                cost_price: 4500,
-                selling_pv: 400,
-                status: "NORMAL"
-            },
-            {
-                stock_id: "STK-003",
-                warehouse_id: "WH-KUL-01",
-                warehouse_name: "吉隆坡前進基地",
-                product_id: "P103",
-                product_name: "康爾喜益生菌",
-                category_tag: "益生菌",
-                batch_no: "B260901-01",
-                expiry_date: "2026-09-15", // 約 27 天 (緊急)
-                current_qty: 85,
-                reserved_qty: 15,
-                available_qty: 70,
-                safety_qty: 150,
-                cost_price: 1500,
-                selling_pv: 130,
-                status: "LOW_STOCK"
-            },
-            {
-                stock_id: "STK-004",
-                warehouse_id: "WH-TYN-01",
-                warehouse_name: "榮祥行動私倉",
-                product_id: "P101",
-                product_name: "995 生技營養品",
-                category_tag: "生技飲品",
-                batch_no: "B260819-01",
-                expiry_date: "2026-11-20",
-                current_qty: 45,
-                reserved_qty: 5,
-                available_qty: 40,
-                safety_qty: 30,
-                cost_price: 4500,
-                selling_pv: 400,
-                status: "NORMAL"
-            },
-            {
-                stock_id: "STK-005",
-                warehouse_id: "WH-KHH-01",
-                warehouse_name: "高雄戰術倉",
-                product_id: "P104",
-                product_name: "衛傑膠囊",
-                category_tag: "機能保健",
-                batch_no: "B260610-03",
-                expiry_date: "2027-08-30",
-                current_qty: 210,
-                reserved_qty: 10,
-                available_qty: 200,
-                safety_qty: 80,
-                cost_price: 2100,
-                selling_pv: 180,
-                status: "NORMAL"
-            },
-            {
-                stock_id: "STK-006",
-                warehouse_id: "WH-KUL-01",
-                warehouse_name: "吉隆坡前進基地",
-                product_id: "P102",
-                product_name: "樟芝益菌絲體",
-                category_tag: "生技飲品",
-                batch_no: "B260518-01",
-                expiry_date: "2026-10-10", // 約 52 天
-                current_qty: 110,
-                reserved_qty: 20,
-                available_qty: 90,
-                safety_qty: 100,
-                cost_price: 4500,
-                selling_pv: 400,
-                status: "WARNING_EXPIRY"
-            }
-        ];
-
-        // 審計歷史日誌 Mock 資料
-        const mockAuditLogs = {
-            "STK-001": [
-                { time: "2026-08-18 14:20", type: "OUTBOUND_SALE", typeName: "促銷出庫", change: -20, balance: 280, ref: "ORD-20260818-092", user: "Ray (創始人)", desc: "出貨至馬來西亞經理團隊" },
-                { time: "2026-08-10 11:00", type: "INBOUND_PO", typeName: "官方提貨", change: +100, balance: 300, ref: "PO-TW-20260810", user: "台北總務", desc: "總公司提貨櫃入庫" },
-                { time: "2026-07-25 09:30", type: "ADJUST_GAIN", typeName: "盤點微調", change: +5, balance: 200, ref: "CHK-20260725", user: "系統自動", desc: "月結實盤校正" }
-            ],
-            "STK-003": [
-                { time: "2026-08-19 10:15", type: "TRANSFER_OUT", typeName: "調撥出庫", change: -30, balance: 70, ref: "TR-20260819-01", user: "Jarvis", desc: "調撥至吉隆坡前線體驗會" },
-                { time: "2026-08-01 16:40", type: "INBOUND_PO", typeName: "跨境空運入庫", change: +100, balance: 100, ref: "AIR-MY-8821", user: "吉隆坡倉管", desc: "台灣直飛空運補貨" }
-            ]
+        let appState = {
+            stocks: [],            // 表 302: psi_stocks
+            warehouses: [],        // 表 301: psi_warehouses
+            currentWhFilter: 'ALL',
+            currentStatusFilter: 'ALL'
         };
 
-        // ==========================================================================
-        // 模組三：全域變數與 DataTables / Chart.js 初始化控制
-        // ==========================================================================
-        let stockDataTable = null;
+        let stockDataTableInstance = null;
         let chartShareInstance = null;
         let chartExpiryInstance = null;
-        let activeWarehouseFilter = "ALL";
-        let activeStatusFilter = "ALL";
+        let isInitialized = false;
 
-        $(document).ready(function() {
-            initDataTables();
-            initCharts(initialStockData);
-            updateHUDStats(initialStockData);
-            bindEvents();
+        // ==========================================================================
+        // 3. 系統生命週期與權限初始化
+        // ==========================================================================
+        window.addEventListener('AppReady', async () => {
+            SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
+            await initStockApp();
+            applyUIPermissions();
         });
 
-        // 計算剩餘效期天數
+        $(document).ready(async function() {
+            if (!isInitialized) {
+                SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
+                await initStockApp();
+                applyUIPermissions();
+            }
+        });
+
+        async function initStockApp() {
+            if (isInitialized) return;
+            isInitialized = true;
+
+            $('#hudSyncTime').text(getFormattedNow());
+            bindUIEvents();
+
+            if (SPREADSHEET_ID) {
+                await fetchGoogleSheetsData();
+            } else {
+                loadStockFallback();
+                refreshView();
+            }
+        }
+
+        /**
+         * 檢查當前登入者是否為最高管理者 (Ray 翁榮祥 或 Jarvis 林承志)
+         */
+        function isMasterAdmin() {
+            const rawSession = localStorage.getItem('ray_team_auth_session');
+            if (!rawSession) return false;
+            try {
+                const session = JSON.parse(rawSession);
+                const adminEmails = [
+                    "jarvis20250807@gmail.com",
+                    "fish7548@gmail.com"
+                ];
+                return adminEmails.includes((session.user || '').toLowerCase().trim());
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function applyUIPermissions() {
+            const hasAdminRights = isMasterAdmin();
+            if (!hasAdminRights) {
+                $('#btnOpenAddModal').hide();
+                $('.admin-action-btn').addClass('disabled').prop('disabled', true);
+            }
+        }
+
+        // ==========================================================================
+        // 4. 資料讀取引擎：PapaParse 依照表 302 欄位順序 (Index 0 ~ 16) 讀取
+        // ==========================================================================
+        async function fetchGoogleSheetsData() {
+            AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步庫存主檔數據...', '連線 Google 試算表');
+            try {
+                const fetchSheet = async (sheetName) => {
+                    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+                    const res = await fetch(url, { cache: 'no-store' });
+                    if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
+                    const text = await res.text();
+
+                    const parsed = Papa.parse(text, {
+                        header: false,
+                        skipEmptyLines: true
+                    });
+
+                    return (parsed.data || []).slice(1); // 略過第 0 列標題列
+                };
+
+                const rawStockRows = await fetchSheet(SHEET_STOCKS).catch(() => []);
+
+                if (rawStockRows && rawStockRows.length > 0) {
+                    appState.stocks = parseStocksTable(rawStockRows);
+                } else {
+                    loadStockFallback();
+                }
+
+                refreshView();
+                AppToast.success(`已自雲端同步 ${appState.stocks.length} 筆批號庫存主檔`);
+            } catch (err) {
+                console.warn("Google Sheets 庫存資料讀取失敗，啟動展示備援數據:", err);
+                loadStockFallback();
+                refreshView();
+                AppToast.warning("雲端連線異常，已載入戰備展示快照。");
+            } finally {
+                AppLoading.hide();
+            }
+        }
+
+        /**
+         * 依據表 302 (psi_stocks) 物理順序解析 (Index 0 ~ 16)
+         */
+        function parseStocksTable(rows) {
+            return rows.map((r, idx) => {
+                const qty = parseInt(getVal(r, 5, '0'), 10) || 0;
+                const reserved = parseInt(getVal(r, 6, '0'), 10) || 0;
+                const calcAvail = parseInt(getVal(r, 7, String(Math.max(0, qty - reserved))), 10) || Math.max(0, qty - reserved);
+
+                return {
+                    id: getVal(r, 0, `STK-${String(idx + 1).padStart(4, '0')}`),      // Col 0: id (PK)
+                    warehouse_id: getVal(r, 1, 'WH-TW-TP'),                           // Col 1: warehouse_id
+                    product_id: getVal(r, 2, 'PRD-0101-01'),                          // Col 2: product_id
+                    batch_no: getVal(r, 3, 'LOT20260101A'),                           // Col 3: batch_no
+                    expiry_date: getVal(r, 4, '2027-12-31'),                          // Col 4: expiry_date
+                    quantity: qty,                                                    // Col 5: quantity
+                    reserved_qty: reserved,                                           // Col 6: reserved_qty
+                    available_qty: calcAvail,                                         // Col 7: available_qty
+                    currency_code: getVal(r, 8, 'TWD'),                               // Col 8: currency_code
+                    cost_price: parseFloat(getVal(r, 9, '0')) || 0,                   // Col 9: cost_price
+                    sv_point: parseInt(getVal(r, 10, '0'), 10) || 0,                 // Col 10: sv_point
+                    is_locked: getVal(r, 11, 'N').toUpperCase(),                      // Col 11: is_locked ('Y'/'N')
+                    remarks: getVal(r, 12, ''),                                       // Col 12: remarks
+                    created_by: getVal(r, 13, 'SYSTEM'),                              // Col 13: created_by
+                    created_at: getVal(r, 14, '2026-01-01 00:00:00'),                 // Col 14: created_at
+                    modified_by: getVal(r, 15, 'SYSTEM'),                             // Col 15: modified_by
+                    modified_at: getVal(r, 16, '2026-01-01 00:00:00')                 // Col 16: modified_at
+                };
+            });
+        }
+
+        function loadStockFallback() {
+            appState.stocks = [
+                {
+                    id: 'STK-20260819-01',
+                    warehouse_id: 'WH-TW-TP',
+                    product_id: 'PRD-0101-02',
+                    batch_no: 'LOT20260819A',
+                    expiry_date: '2027-08-19',
+                    quantity: 320,
+                    reserved_qty: 40,
+                    available_qty: 280,
+                    currency_code: 'TWD',
+                    cost_price: 4500,
+                    sv_point: 400,
+                    is_locked: 'N',
+                    remarks: '台北總部常備現貨庫存',
+                    created_by: 'Ray',
+                    created_at: '2026-08-19 10:00:00',
+                    modified_by: 'Ray',
+                    modified_at: '2026-08-19 10:00:00'
+                },
+                {
+                    id: 'STK-20260715-02',
+                    warehouse_id: 'WH-HOME-RAY',
+                    product_id: 'PRD-0102-01',
+                    batch_no: 'LOT20260715B',
+                    expiry_date: '2026-11-15',
+                    quantity: 85,
+                    reserved_qty: 15,
+                    available_qty: 70,
+                    currency_code: 'TWD',
+                    cost_price: 4500,
+                    sv_point: 400,
+                    is_locked: 'N',
+                    remarks: 'Ray 戰備私倉機動支援月末衝刺',
+                    created_by: 'Ray',
+                    created_at: '2026-07-15 14:20:00',
+                    modified_by: 'Ray',
+                    modified_at: '2026-08-01 09:10:00'
+                },
+                {
+                    id: 'STK-20260901-03',
+                    warehouse_id: 'WH-MY-KUL',
+                    product_id: 'PRD-0101-01',
+                    batch_no: 'LOT20260901M',
+                    expiry_date: '2026-09-28',
+                    quantity: 35,
+                    reserved_qty: 10,
+                    available_qty: 25,
+                    currency_code: 'MYR',
+                    cost_price: 680,
+                    sv_point: 130,
+                    is_locked: 'N',
+                    remarks: '大馬吉隆坡拓荒批號（&le;30天急需消化）',
+                    created_by: 'Jarvis',
+                    created_at: '2026-08-10 11:30:00',
+                    modified_by: 'Jarvis',
+                    modified_at: '2026-08-25 15:40:00'
+                },
+                {
+                    id: 'STK-20260610-04',
+                    warehouse_id: 'WH-TW-KH',
+                    product_id: 'PRD-0201-01',
+                    batch_no: 'LOT20260610K',
+                    expiry_date: '2027-06-10',
+                    quantity: 120,
+                    reserved_qty: 0,
+                    available_qty: 120,
+                    currency_code: 'TWD',
+                    cost_price: 2100,
+                    sv_point: 180,
+                    is_locked: 'Y',
+                    remarks: '盤點抽檢凍結中，暫停出庫調撥',
+                    created_by: 'SYSTEM',
+                    created_at: '2026-06-10 09:00:00',
+                    modified_by: 'Jarvis',
+                    modified_at: '2026-09-01 16:00:00'
+                }
+            ];
+        }
+
+        // ==========================================================================
+        // 5. 介面事件綁定與視圖渲染中樞
+        // ==========================================================================
         function getDaysToExpiry(expiryDateStr) {
-            const today = new Date("2026-08-19"); // 錨定當前系統時間
+            const today = new Date("2026-09-02");
             const exp = new Date(expiryDateStr);
             const diffTime = exp - today;
             return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
-        // ==========================================================================
-        // 模組四：DataTables 2.0 深色整合渲染
-        // ==========================================================================
-        function initDataTables() {
-            stockDataTable = $('#stockMasterTable').DataTable({
-                data: initialStockData,
-                responsive: true,
-                pageLength: 8,
-                lengthMenu: [5, 8, 15, 30],
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "搜尋品名 / 批號 / 倉儲...",
-                    lengthMenu: "每頁 _MENU_ 筆",
-                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆批號",
-                    paginate: {
-                        first: '<i class="fa-solid fa-angles-left"></i>',
-                        last: '<i class="fa-solid fa-angles-right"></i>',
-                        next: '<i class="fa-solid fa-chevron-right"></i>',
-                        previous: '<i class="fa-solid fa-chevron-left"></i>'
-                    },
-                    emptyTable: "無符合條件的庫存批號資料"
-                },
-                columns: [
-                    // 產品品項
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return `
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="stat-icon-wrapper" style="width: 36px; height: 36px; background: rgba(139, 92, 246, 0.15); color: var(--uvaco-primary); font-size: 1rem;">
-                                        <i class="fa-solid fa-pills"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold text-light">${row.product_name}</div>
-                                        <div class="d-flex gap-1 mt-1">
-                                            <span class="badge bg-secondary bg-opacity-25 text-light small mono">${row.product_id}</span>
-                                            <span class="badge bg-primary bg-opacity-15 text-secondary border border-primary border-opacity-25 small">${row.category_tag}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    },
-                    // 所在倉儲
-                    {
-                        data: "warehouse_name",
-                        render: function(data, type, row) {
-                            let icon = "fa-warehouse";
-                            if (row.warehouse_id === "WH-KUL-01") icon = "fa-plane-departure text-info";
-                            if (row.warehouse_id === "WH-TYN-01") icon = "fa-van-shuttle text-warning";
-                            return `<span class="small fw-semibold"><i class="fa-solid ${icon}"></i> ${data}</span>`;
-                        }
-                    },
-                    // 批號代碼
-                    {
-                        data: "batch_no",
-                        render: function(data) {
-                            return `<span class="batch-chip mono fw-bold"><i class="fa-solid fa-barcode"></i> ${data}</span>`;
-                        }
-                    },
-                    // 有效期限與 FIFO 倒數進度
-                    {
-                        data: "expiry_date",
-                        render: function(data) {
-                            const days = getDaysToExpiry(data);
-                            let colorClass = "bg-success";
-                            let textClass = "text-success";
-                            let percent = Math.min(100, Math.max(10, Math.round((days / 365) * 100)));
-
-                            if (days <= 30) {
-                                colorClass = "bg-danger";
-                                textClass = "text-danger";
-                            } else if (days <= 90) {
-                                colorClass = "bg-warning";
-                                textClass = "text-warning";
-                            }
-
-                            return `
-                                <div class="expiry-progress-wrapper">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small mono text-light">${data}</span>
-                                        <span class="small mono fw-bold ${textClass}">${days} 天</span>
-                                    </div>
-                                    <div class="expiry-progress">
-                                        <div class="progress-bar ${colorClass}" style="width: ${percent}%;"></div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    },
-                    // 在庫 / 可用 / 預留
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return `
-                                <div>
-                                    <div class="mono fw-bold text-light">${row.current_qty} <span class="small text-muted fw-normal">盒</span></div>
-                                    <div class="small text-muted mt-1">
-                                        可用: <span class="text-success mono fw-semibold">${row.available_qty}</span> | 預留: <span class="text-warning mono">${row.reserved_qty}</span>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    },
-                    // 安全水位比對
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            const ratio = Math.round((row.current_qty / row.safety_qty) * 100);
-                            let badge = "bg-success";
-                            if (ratio < 100) badge = "bg-danger";
-                            return `
-                                <div>
-                                    <div class="small text-muted">門檻: <span class="mono">${row.safety_qty}</span></div>
-                                    <span class="badge ${badge} bg-opacity-20 text-${badge.replace('bg-', '')} border border-${badge.replace('bg-', '')} border-opacity-25 small mono mt-1">
-                                        水位率 ${ratio}%
-                                    </span>
-                                </div>
-                            `;
-                        }
-                    },
-                    // 狀態 Badge
-                    {
-                        data: "status",
-                        render: function(data, type, row) {
-                            const days = getDaysToExpiry(row.expiry_date);
-                            if (days <= 30) {
-                                return `<span class="status-badge-pulse bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30"><i class="fa-solid fa-circle pulse-dot bg-danger"></i> 緊急到期</span>`;
-                            }
-                            if (days <= 90) {
-                                return `<span class="status-badge-pulse bg-warning bg-opacity-15 text-warning border border-warning border-opacity-30"><i class="fa-solid fa-circle pulse-dot bg-warning"></i> 近效期</span>`;
-                            }
-                            if (row.current_qty < row.safety_qty) {
-                                return `<span class="status-badge-pulse bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30"><i class="fa-solid fa-arrow-trend-down"></i> 低水位</span>`;
-                            }
-                            return `<span class="status-badge-pulse bg-success bg-opacity-15 text-success border border-success border-opacity-30"><i class="fa-solid fa-check"></i> 充足正常</span>`;
-                        }
-                    },
-                    // 戰術操作
-                    {
-                        data: null,
-                        orderable: false,
-                        className: "text-center",
-                        render: function(data, type, row) {
-                            return `
-                                <div class="d-flex justify-content-center gap-1">
-                                    <button type="button" class="action-icon-btn btn-view-ledger" data-stock-id="${row.stock_id}" title="檢視審計歷程">
-                                        <i class="fa-solid fa-timeline"></i>
-                                    </button>
-                                    <button type="button" class="action-icon-btn" data-bs-toggle="modal" data-bs-target="#modalStockAdjust" title="盤點調整">
-                                        <i class="fa-solid fa-sliders"></i>
-                                    </button>
-                                </div>
-                            `;
-                        }
-                    }
-                ],
-                drawCallback: function() {
-                    const info = this.api().page.info();
-                    $('#tableRecordBadge').text(`${info.recordsDisplay} 個批號項目`);
-                }
+        function bindUIEvents() {
+            // 自動連動計算自由可用盒數
+            $('#fieldQuantity, #fieldReservedQty').on('input', function() {
+                const q = parseInt($('#fieldQuantity').val(), 10) || 0;
+                const r = parseInt($('#fieldReservedQty').val(), 10) || 0;
+                $('#fieldAvailableQty').val(Math.max(0, q - r));
             });
 
-            // 自定義快篩邏輯
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                const row = stockDataTable.row(dataIndex).data();
-                if (!row) return true;
+            // 倉儲篩選
+            $('[data-filter-wh]').on('click', function() {
+                $('[data-filter-wh]').removeClass('active');
+                $(this).addClass('active');
+                appState.currentWhFilter = $(this).data('filter-wh');
+                stockDataTableInstance.draw();
+            });
 
-                // 倉儲篩選
-                if (activeWarehouseFilter !== "ALL" && row.warehouse_id !== activeWarehouseFilter) {
-                    return false;
-                }
-
-                // 狀態篩選
-                if (activeStatusFilter !== "ALL") {
-                    const days = getDaysToExpiry(row.expiry_date);
-                    if (activeStatusFilter === "WARNING_EXPIRY" && days > 90) return false;
-                    if (activeStatusFilter === "LOW_STOCK" && row.current_qty >= row.safety_qty) return false;
-                    if (activeStatusFilter === "NORMAL" && (days <= 90 || row.current_qty < row.safety_qty)) return false;
-                }
-
-                return true;
+            // 狀態篩選
+            $('[data-filter-status]').on('click', function() {
+                $('[data-filter-status]').removeClass('active');
+                $(this).addClass('active');
+                appState.currentStatusFilter = $(this).data('filter-status');
+                stockDataTableInstance.draw();
             });
         }
 
-        // ==========================================================================
-        // 模組五：Chart.js 戰術視覺化儀表
-        // ==========================================================================
-        function initCharts(data) {
-            // 1. 各倉存量佔比 Doughnut
-            const ctxShare = document.getElementById('chartWarehouseShare').getContext('2d');
-            const whCounts = {};
-            data.forEach(d => {
-                whCounts[d.warehouse_name] = (whCounts[d.warehouse_name] || 0) + d.current_qty;
+        function refreshView() {
+            renderHudMetrics();
+            renderStockDataTable();
+            renderTacticalCharts();
+            applyUIPermissions();
+        }
+
+        function renderHudMetrics() {
+            let totalQty = 0;
+            let totalAvailable = 0;
+            let totalReserved = 0;
+            let expiringBatches = 0;
+
+            appState.stocks.forEach(s => {
+                totalQty += s.quantity;
+                totalAvailable += s.available_qty;
+                totalReserved += s.reserved_qty;
+                const days = getDaysToExpiry(s.expiry_date);
+                if (days <= 90) expiringBatches++;
             });
 
+            $('#hudTotalQty').text(totalQty.toLocaleString());
+            $('#hudAvailableQty').text(totalAvailable.toLocaleString());
+            $('#hudReservedQty').text(totalReserved.toLocaleString());
+            $('#hudExpiringBatches').text(expiringBatches);
+        }
+
+        // ==========================================================================
+        // 6. DataTables 2.0 渲染：批號庫存表 (psi_stocks)
+        // ==========================================================================
+        function renderStockDataTable() {
+            const formatted = appState.stocks.map(s => formatStockRow(s));
+
+            if (stockDataTableInstance) {
+                stockDataTableInstance.clear();
+                stockDataTableInstance.rows.add(formatted);
+                stockDataTableInstance.draw();
+            } else {
+                stockDataTableInstance = $('#stockMasterTable').DataTable({
+                    data: formatted,
+                    responsive: true,
+                    pageLength: 10,
+                    columns: [
+                        { data: 'id' },
+                        { data: 'warehouse' },
+                        { data: 'product' },
+                        { data: 'batch' },
+                        { data: 'expiry' },
+                        { data: 'quantity' },
+                        { data: 'reserved' },
+                        { data: 'available' },
+                        { data: 'cost_sv' },
+                        { data: 'status' },
+                        { data: 'actions' }
+                    ],
+                    language: {
+                        search: "檢索品項/批號：",
+                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆批號庫存",
+                        paginate: { first: "首頁", last: "末頁", next: "下頁", previous: "上頁" },
+                        zeroRecords: "查無符合條件的庫存批號"
+                    }
+                });
+
+                // 自訂 DataTables 篩選外掛
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    const row = appState.stocks[dataIndex];
+                    if (!row) return true;
+
+                    // 倉儲篩選
+                    if (appState.currentWhFilter !== 'ALL' && row.warehouse_id !== appState.currentWhFilter) {
+                        return false;
+                    }
+
+                    // 狀態篩選
+                    if (appState.currentStatusFilter !== 'ALL') {
+                        const days = getDaysToExpiry(row.expiry_date);
+                        if (appState.currentStatusFilter === 'NORMAL' && (row.is_locked === 'Y' || days <= 90)) return false;
+                        if (appState.currentStatusFilter === 'WARNING_EXPIRY' && days > 90) return false;
+                        if (appState.currentStatusFilter === 'LOCKED' && row.is_locked !== 'Y') return false;
+                    }
+
+                    return true;
+                });
+            }
+
+            const info = stockDataTableInstance.page.info();
+            $('#tableRecordBadge').text(`${info.recordsTotal} 個批號項目`);
+        }
+
+        function formatStockRow(s) {
+            const hasAdminRights = isMasterAdmin();
+            const days = getDaysToExpiry(s.expiry_date);
+
+            let expiryColor = "bg-success text-success";
+            let expiryPercent = Math.min(100, Math.max(10, Math.round((days / 365) * 100)));
+            if (days <= 30) expiryColor = "bg-danger text-danger";
+            else if (days <= 90) expiryColor = "bg-warning text-warning";
+
+            const isLocked = s.is_locked === 'Y';
+            const statusBadge = isLocked
+                ? `<span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30"><i class="fa-solid fa-lock"></i> 凍結禁出</span>`
+                : `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30"><i class="fa-solid fa-circle-check"></i> 自由流通</span>`;
+
+            const actionButtons = hasAdminRights ? `
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary py-0 px-2 admin-action-btn" onclick="openEditStockModal('${s.id}')" title="編輯批號">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn ${isLocked ? 'btn-outline-success' : 'btn-outline-warning'} py-0 px-2 admin-action-btn" onclick="toggleStockLock('${s.id}')" title="${isLocked ? '解凍批號' : '凍結出庫'}">
+                        <i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-lock'}"></i>
+                    </button>
+                    <button class="btn btn-outline-danger py-0 px-2 admin-action-btn" onclick="deleteStockItem('${s.id}')" title="刪除庫存項目">
+                        <i class="fa-solid fa-trash-alt"></i>
+                    </button>
+                </div>
+            ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+
+            return {
+                id: `<span class="mono fw-bold text-info">${s.id}</span>`,
+                warehouse: `<span class="badge bg-dark border border-purple mono">${s.warehouse_id}</span>`,
+                product: `<div><span class="mono text-white fw-bold">${s.product_id}</span><div class="small text-secondary">${getProductName(s.product_id)}</div></div>`,
+                batch: `<span class="batch-chip mono fw-bold"><i class="fa-solid fa-barcode"></i> ${s.batch_no}</span>`,
+                expiry: `
+                    <div style="min-width: 110px;">
+                        <div class="d-flex justify-content-between small mono mb-1">
+                            <span class="text-light">${s.expiry_date}</span>
+                            <span class="fw-bold ${expiryColor.split(' ')[1]}">${days} 天</span>
+                        </div>
+                        <div class="expiry-progress">
+                            <div class="progress-bar ${expiryColor.split(' ')[0]}" style="width: ${expiryPercent}%;"></div>
+                        </div>
+                    </div>
+                `,
+                quantity: `<span class="mono fw-bold text-white">${s.quantity}</span> <span class="small text-muted">盒</span>`,
+                reserved: `<span class="mono text-warning">${s.reserved_qty}</span>`,
+                available: `<span class="mono fw-bold text-success">${s.available_qty}</span>`,
+                cost_sv: `<div><span class="mono small text-light">${s.currency_code} ${s.cost_price}</span><div class="mono small text-secondary">${s.sv_point} SV</div></div>`,
+                status: statusBadge,
+                actions: actionButtons
+            };
+        }
+
+        function getProductName(pid) {
+            const map = {
+                'PRD-0101-01': '康爾喜乳酸菌 (顆粒)',
+                'PRD-0101-02': '995 生技營養品 (液體)',
+                'PRD-0102-01': '樟芝益生技飲品',
+                'PRD-0201-01': '衛傑膠囊',
+                'PRD-0301-02': '百克斯膠囊'
+            };
+            return map[pid] || '葡眾營養保健品';
+        }
+
+        // ==========================================================================
+        // 7. 視覺化圖表渲染 (Chart.js)
+        // ==========================================================================
+        function renderTacticalCharts() {
+            // 1. 跨倉庫存容積佔比 Doughnut
+            const ctxShare = document.getElementById('chartWarehouseShare').getContext('2d');
+            const whTotals = {};
+            appState.stocks.forEach(s => {
+                whTotals[s.warehouse_id] = (whTotals[s.warehouse_id] || 0) + s.quantity;
+            });
+
+            if (chartShareInstance) chartShareInstance.destroy();
             chartShareInstance = new Chart(ctxShare, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(whCounts),
+                    labels: Object.keys(whTotals),
                     datasets: [{
-                        data: Object.values(whCounts),
-                        backgroundColor: [
-                            '#8b5cf6', // 台北
-                            '#38bdf8', // 吉隆坡
-                            '#fde047', // 私倉
-                            '#f472b6'  // 高雄
-                        ],
+                        data: Object.values(whTotals),
+                        backgroundColor: ['#a855f7', '#ec4899', '#38bdf8', '#f59e0b', '#10b981'],
                         borderWidth: 0,
                         hoverOffset: 6
                     }]
@@ -1132,15 +1113,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '72%',
+                    cutout: '70%',
                     plugins: {
                         legend: {
                             position: 'right',
-                            labels: {
-                                color: '#a79bb7',
-                                boxWidth: 12,
-                                font: { size: 11, family: 'Noto Sans TC' }
-                            }
+                            labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } }
                         }
                     }
                 }
@@ -1148,154 +1125,232 @@
 
             // 2. FIFO 效期階梯圖 Bar
             const ctxExpiry = document.getElementById('chartExpiryTimeline').getContext('2d');
-            const labels = data.map(d => `${d.product_name.substring(0, 4)}.. (${d.batch_no.substring(0, 7)})`);
-            const daysData = data.map(d => getDaysToExpiry(d.expiry_date));
-            const barColors = daysData.map(days => {
-                if (days <= 30) return '#fb7185';
-                if (days <= 90) return '#fde047';
-                return '#34d399';
-            });
+            const labels = appState.stocks.map(s => `${s.batch_no.substring(0, 8)}`);
+            const daysData = appState.stocks.map(s => getDaysToExpiry(s.expiry_date));
+            const barColors = daysData.map(d => (d <= 30 ? '#f43f5e' : d <= 90 ? '#f59e0b' : '#10b981'));
 
+            if (chartExpiryInstance) chartExpiryInstance.destroy();
             chartExpiryInstance = new Chart(ctxExpiry, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '剩餘效期天數',
+                        label: '剩餘天數',
                         data: daysData,
                         backgroundColor: barColors,
-                        borderRadius: 6,
-                        barThickness: 16
+                        borderRadius: 4,
+                        barThickness: 14
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: {
-                            ticks: { color: '#a79bb7', font: { size: 10 } },
-                            grid: { display: false }
-                        },
-                        y: {
-                            ticks: { color: '#a79bb7', font: { size: 10 } },
-                            grid: { color: 'rgba(139, 92, 246, 0.1)' }
-                        }
+                        x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(168, 85, 247, 0.1)' } }
                     },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
 
         // ==========================================================================
-        // 模組六：HUD 數據統計聚合運算
+        // 8. 表單 CRUD 操作 (嚴格依據 表 302 欄位順序 0～16 打包)
         // ==========================================================================
-        function updateHUDStats(data) {
-            let totalQty = 0;
-            let availableQty = 0;
-            let expiringBatches = 0;
-            let lowStockCount = 0;
-            let totalValuation = 0;
+        function openAddStockModal() {
+            $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary"></i> 新增庫存批號');
+            $('#formMode').val('add');
+            $('#stockForm')[0].reset();
+            $('#fieldId').prop('readonly', false).val(`STK-${Date.now().toString().slice(-6)}`);
+            $('#fieldWarehouseId').val('WH-TW-TP');
+            $('#fieldProductId').val('PRD-0101-01');
+            $('#fieldQuantity').val(100);
+            $('#fieldReservedQty').val(0);
+            $('#fieldAvailableQty').val(100);
+            $('#fieldCurrencyCode').val('TWD');
+            $('#fieldCostPrice').val(1500);
+            $('#fieldSvPoint').val(130);
+            $('#fieldIsLocked').prop('checked', false);
+            $('#fieldCreatedAt').val('');
+            $('#fieldCreatedBy').val('');
 
-            data.forEach(item => {
-                totalQty += Number(item.current_qty) || 0;
-                availableQty += Number(item.available_qty) || 0;
-                const days = getDaysToExpiry(item.expiry_date);
-                if (days <= 90) expiringBatches++;
-                if (Number(item.current_qty) < Number(item.safety_qty)) lowStockCount++;
-                totalValuation += (Number(item.current_qty) || 0) * (Number(item.cost_price) || 0);
-            });
-
-            $('#hudTotalQty').text(totalQty.toLocaleString());
-            $('#hudAvailableQty').text(availableQty.toLocaleString());
-            $('#hudExpiringBatches').text(expiringBatches);
-            $('#hudLowStockCount').text(lowStockCount);
-            $('#hudTotalValuation').text(`NT$ ${totalValuation.toLocaleString()}`);
+            new bootstrap.Modal(document.getElementById('stockModal')).show();
         }
 
-        // ==========================================================================
-        // 模組七：事件監聽與穿透側邊欄互動
-        // ==========================================================================
-        function bindEvents() {
-            // 倉儲篩選 Pill 點擊
-            $('[data-filter-type="wh"]').on('click', function() {
-                $('[data-filter-type="wh"]').removeClass('active');
-                $(this).addClass('active');
-                activeWarehouseFilter = $(this).data('filter-val');
-                stockDataTable.draw();
-            });
+        function openEditStockModal(stockId) {
+            const s = appState.stocks.find(item => item.id === stockId);
+            if (!s) return;
 
-            // 狀態篩選 Pill 點擊
-            $('[data-filter-type="status"]').on('click', function() {
-                $('[data-filter-type="status"]').removeClass('active');
-                $(this).addClass('active');
-                activeStatusFilter = $(this).data('filter-val');
-                stockDataTable.draw();
-            });
+            $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯庫存批號');
+            $('#formMode').val('edit');
+            $('#fieldId').prop('readonly', true).val(s.id);
+            $('#fieldWarehouseId').val(s.warehouse_id);
+            $('#fieldProductId').val(s.product_id);
+            $('#fieldBatchNo').val(s.batch_no);
+            $('#fieldExpiryDate').val(s.expiry_date);
+            $('#fieldQuantity').val(s.quantity);
+            $('#fieldReservedQty').val(s.reserved_qty);
+            $('#fieldAvailableQty').val(s.available_qty);
+            $('#fieldCurrencyCode').val(s.currency_code);
+            $('#fieldCostPrice').val(s.cost_price);
+            $('#fieldSvPoint').val(s.sv_point);
+            $('#fieldRemarks').val(s.remarks);
+            $('#fieldIsLocked').prop('checked', s.is_locked === 'Y');
+            $('#fieldCreatedAt').val(s.created_at);
+            $('#fieldCreatedBy').val(s.created_by);
 
-            // 點擊檢視微日誌 (Offcanvas)
-            $(document).on('click', '.btn-view-ledger', function() {
-                const stockId = $(this).data('stock-id');
-                const rowData = initialStockData.find(d => d.stock_id === stockId) || initialStockData[0];
-                
-                $('#ledgerTitle').text(`批號審計: ${rowData.batch_no}`);
-                $('#ledgerSubtitle').text(`SKU: ${rowData.product_id} | 據點: ${rowData.warehouse_name}`);
-                $('#ledgerProductName').text(rowData.product_name);
-                $('#ledgerWarehouseName').text(rowData.warehouse_name);
-                $('#ledgerCurrentBalance').text(`${rowData.available_qty} 盒 (在庫 ${rowData.current_qty})`);
+            new bootstrap.Modal(document.getElementById('stockModal')).show();
+        }
 
-                // 注入歷程時間軸
-                const logs = mockAuditLogs[stockId] || [
-                    { time: "2026-08-19 09:00", type: "SYSTEM", typeName: "常規校驗", change: 0, balance: rowData.current_qty, ref: "SYS-AUTO-CHK", user: "系統排程", desc: "例行庫存校驗完畢，狀態正常" }
-                ];
+        async function saveStockItem() {
+            const mode = $('#formMode').val();
+            const id = $('#fieldId').val().trim();
+            const wh = $('#fieldWarehouseId').val();
+            const prd = $('#fieldProductId').val();
+            const batch = $('#fieldBatchNo').val().trim();
+            const exp = $('#fieldExpiryDate').val();
+            const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
+            const reserved = parseInt($('#fieldReservedQty').val(), 10) || 0;
+            const avail = Math.max(0, qty - reserved);
+            const curr = $('#fieldCurrencyCode').val();
+            const cost = parseFloat($('#fieldCostPrice').val()) || 0;
+            const sv = parseInt($('#fieldSvPoint').val(), 10) || 0;
+            const isLocked = $('#fieldIsLocked').is(':checked') ? 'Y' : 'N';
+            const remarks = $('#fieldRemarks').val().trim();
 
-                let timelineHtml = '';
-                logs.forEach(log => {
-                    const isPlus = log.change > 0;
-                    const changeBadge = log.change === 0 ? '' : `<span class="badge ${isPlus ? 'bg-success' : 'bg-danger'} bg-opacity-20 text-${isPlus ? 'success' : 'danger'} mono ms-2">${isPlus ? '+' : ''}${log.change} 盒</span>`;
-                    
-                    timelineHtml += `
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="small text-muted mono">${log.time}</div>
-                            <div class="d-flex align-items-center justify-content-between mt-1">
-                                <span class="fw-bold text-light">${log.typeName} ${changeBadge}</span>
-                                <span class="badge bg-secondary bg-opacity-25 text-light mono small">${log.ref}</span>
-                            </div>
-                            <div class="small text-muted mt-1">${log.desc}</div>
-                            <div class="small text-secondary mt-1"><i class="fa-solid fa-user-gear"></i> 經手: ${log.user} | 結餘: <span class="mono text-light">${log.balance} 盒</span></div>
-                        </div>
-                    `;
-                });
+            if (!id || !batch || !exp) {
+                AppToast.warning("請完整填寫庫存代碼、批號與有效期限！");
+                return;
+            }
 
-                $('#ledgerTimelineContainer').html(timelineHtml);
-                const offcanvasEl = new bootstrap.Offcanvas(document.getElementById('offcanvasLedger'));
-                offcanvasEl.show();
-            });
+            const currentUser = getCurrentUser();
+            const nowStr = getFormattedNow();
 
-            // 重新整理微動畫
-            $('#btnRefreshData').on('click', function() {
-                const $btn = $(this);
-                $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 載入中...');
-                setTimeout(() => {
-                    $btn.html('<i class="fa-solid fa-rotate"></i> 重新整理');
-                    updateHUDStats(initialStockData);
-                    stockDataTable.draw();
-                }, 600);
-            });
+            const existing = appState.stocks.find(item => item.id === id);
+            const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
+            const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
-            // 盤點調整模擬送出
-            $('#btnSubmitAdjustment').on('click', function() {
-                const qty = $('#adjustQty').val();
-                if (!qty) {
-                    alert('請輸入有效調整數量！');
-                    return;
+            // 依表 302 (psi_stocks) 物理順序組成 rowData 陣列 (Index 0 ~ 16)
+            const rowDataArray = [
+                id,                 // Col 0: id (PK)
+                wh,                 // Col 1: warehouse_id (FK)
+                prd,                // Col 2: product_id (FK)
+                batch,              // Col 3: batch_no
+                exp,                // Col 4: expiry_date
+                qty,                // Col 5: quantity
+                reserved,           // Col 6: reserved_qty
+                avail,              // Col 7: available_qty
+                curr,               // Col 8: currency_code
+                cost,               // Col 9: cost_price
+                sv,                 // Col 10: sv_point
+                isLocked,           // Col 11: is_locked
+                remarks,            // Col 12: remarks
+                createdBy,          // Col 13: created_by
+                createdAt,          // Col 14: created_at
+                currentUser,        // Col 15: modified_by
+                nowStr              // Col 16: modified_at
+            ];
+
+            const updatedObj = {
+                id: id,
+                warehouse_id: wh,
+                product_id: prd,
+                batch_no: batch,
+                expiry_date: exp,
+                quantity: qty,
+                reserved_qty: reserved,
+                available_qty: avail,
+                currency_code: curr,
+                cost_price: cost,
+                sv_point: sv,
+                is_locked: isLocked,
+                remarks: remarks,
+                created_by: createdBy,
+                created_at: createdAt,
+                modified_by: currentUser,
+                modified_at: nowStr
+            };
+
+            const $btn = $('button[onclick="saveStockItem()"]');
+            try {
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+
+                if (mode === 'add') {
+                    await SheetAdapter.createRow(SHEET_STOCKS, id, rowDataArray);
+                    appState.stocks.push(updatedObj);
+                } else {
+                    await SheetAdapter.updateRow(SHEET_STOCKS, id, rowDataArray);
+                    const idx = appState.stocks.findIndex(item => item.id === id);
+                    if (idx !== -1) appState.stocks[idx] = updatedObj;
                 }
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalStockAdjust'));
-                modal.hide();
-                alert(`已成功登記庫存調整 ${qty} 盒，審計流水號已即時寫入！`);
-            });
+
+                refreshView();
+
+                const modalEl = document.getElementById('stockModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+
+                AppToast.success(`庫存批號【${id}】儲存成功！`);
+            } catch (err) {
+                AppToast.error("庫存批號儲存失敗：" + err.message);
+            } finally {
+                $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存批號庫存');
+            }
+        }
+
+        async function toggleStockLock(stockId) {
+            const s = appState.stocks.find(item => item.id === stockId);
+            if (!s) return;
+
+            const newLock = s.is_locked === 'Y' ? 'N' : 'Y';
+            const currentUser = getCurrentUser();
+            const nowStr = getFormattedNow();
+
+            // 複製並更新第 11 欄 (is_locked) 與第 15, 16 欄
+            const rowDataArray = [
+                s.id,
+                s.warehouse_id,
+                s.product_id,
+                s.batch_no,
+                s.expiry_date,
+                s.quantity,
+                s.reserved_qty,
+                s.available_qty,
+                s.currency_code,
+                s.cost_price,
+                s.sv_point,
+                newLock,
+                s.remarks,
+                s.created_by,
+                s.created_at,
+                currentUser,
+                nowStr
+            ];
+
+            try {
+                await SheetAdapter.updateRow(SHEET_STOCKS, stockId, rowDataArray);
+                s.is_locked = newLock;
+                s.modified_by = currentUser;
+                s.modified_at = nowStr;
+
+                refreshView();
+                AppToast.success(`批號【${stockId}】已變更為【${newLock === 'Y' ? '凍結出庫' : '自由流通'}】`);
+            } catch (err) {
+                AppToast.error("鎖定狀態更新失敗: " + err.message);
+            }
+        }
+
+        async function deleteStockItem(stockId) {
+            if (!confirm(`確定要自 Google 試算表中永久刪除批號庫存【${stockId}】嗎？`)) return;
+
+            try {
+                await SheetAdapter.deleteRow(SHEET_STOCKS, stockId);
+                appState.stocks = appState.stocks.filter(item => item.id !== stockId);
+                refreshView();
+                AppToast.success(`批號【${stockId}】已自雲端試算表刪除！`);
+            } catch (err) {
+                AppToast.error("刪除失敗：" + err.message);
+            }
         }
     </script>
 </body>

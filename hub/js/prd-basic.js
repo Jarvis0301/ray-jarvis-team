@@ -824,7 +824,7 @@ async function saveTaxonomyItem() {
     } catch (err) {
         AppToast.error("儲存失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存設定');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 
@@ -1549,7 +1549,7 @@ async function saveProductItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存所有異動');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 

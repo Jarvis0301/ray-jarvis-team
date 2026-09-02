@@ -88,8 +88,8 @@ function getPartnerDisplayName(partnerId) {
     if (!partner) return partnerId;
 
     const person = appState.persons.find(psn => psn.person_id === partner.person_id);
-    const name = (person && (person.name_zh || person.name_en)) 
-        ? (person.name_zh || person.name_en) 
+    const name = (person && (person.name_zh || person.name_en || person.nickname)) 
+        ? (person.name_zh || person.name_en || person.nickname) 
         : (partner.partner_name_zh || partner.partner_id);
     const memberNo = (partner && partner.member_no) ? ` (${partner.member_no})` : '';
     
@@ -326,6 +326,21 @@ function selectRank(rankId) {
     addFlag(`購車基金 3.5% (頭款+分期)`, rank.has_car_fund === 'Y', 'fa-solid fa-car');
 }
 
+// 依據新職級自動推算前一階原職級
+function autoCalcPrevRank(newRankId) {
+    if (!newRankId || !appState.ranks.length) return;
+    const currentIndex = appState.ranks.findIndex(r => r.rank_id === newRankId || r.rank_code === newRankId);
+    
+    if (currentIndex > 0) {
+        // 取天梯前一階職級
+        const prevRank = appState.ranks[currentIndex - 1];
+        $('#fieldPrevRankId').val(prevRank.rank_id);
+    } else {
+        // 若選中首階（會員），原職級維持會員
+        $('#fieldPrevRankId').val(appState.ranks[0].rank_id);
+    }
+}
+
 function populateRankSelects() {
     const $prev = $('#fieldPrevRankId').empty();
     const $new = $('#fieldNewRankId').empty();
@@ -333,6 +348,11 @@ function populateRankSelects() {
     appState.ranks.forEach(r => {
         $prev.append(`<option value="${r.rank_id}">${r.rank_code} - ${r.rank_name_zh}</option>`);
         $new.append(`<option value="${r.rank_id}">${r.rank_code} - ${r.rank_name_zh}</option>`);
+    });
+
+    // 當新晉升職級變更時，立即自動計算原職級
+    $('#fieldNewRankId').off('change.autoPrev').on('change.autoPrev', function() {
+        autoCalcPrevRank($(this).val());
     });
 }
 
@@ -407,56 +427,76 @@ function renderPartnerRankChart(ptnHistory) {
 
     const currentPartnerId = $('#partnerSelect').val();
     const partnerInfo = appState.partners.find(p => p.partner_id === currentPartnerId);
-    const memberRank = appState.ranks.find(r => r.rank_level === 10) || { rank_name_zh: '會員', badge_color_hex: '#84a3be' };
 
-    // 1. 整理所有節點資料 (包含加入葡眾日與歷程)
+    // 從「職級主檔」動態取得會員職級資料與專屬代表色
+    const memberRank = appState.ranks.find(r => 
+        r.rank_level === 10 || 
+        r.rank_code === 'R10' || 
+        r.rank_name_zh === '會員' || 
+        r.rank_id === 'RANK_01_MEMBER'
+    );
+    const memberColor = (memberRank && memberRank.badge_color_hex) ? memberRank.badge_color_hex : '#a1a1aa';
+
     const chartNodes = [];
 
-    // 若有加入葡眾日，建立「會員」初始節點
-    if (partnerInfo && partnerInfo.join_date) {
-        const joinDateStr = partnerInfo.join_date;
-        const joinParts = joinDateStr.split('/');
-        const joinYmStr = joinParts.length >= 2 ? `${joinParts[0]}/${joinParts[1]}` : joinDateStr;
-        const joinTimestamp = new Date(parseInt(joinParts[0], 10), parseInt(joinParts[1], 10) - 1, 1).getTime();
+    // 嚴格檢查：只有在夥伴主檔確實有「加入葡眾日」且非空值時，才建立「會員」節點
+    const rawJoinDate = partnerInfo && partnerInfo.join_date ? String(partnerInfo.join_date).trim() : '';
+    if (rawJoinDate && rawJoinDate !== '-') {
+        const joinParts = rawJoinDate.replace(/-/g, '/').split('/');
+        if (joinParts.length >= 2) {
+            const year = parseInt(joinParts[0], 10);
+            const month = parseInt(joinParts[1], 10);
+            if (!isNaN(year) && !isNaN(month) && year > 1990) {
+                const joinTimestamp = new Date(year, month - 1, 1).getTime();
+                const joinYmStr = `${year}/${String(month).padStart(2, '0')}`;
 
-        chartNodes.push({
-            x: joinTimestamp,
-            y: 10,
-            dateLabel: joinYmStr,
-            rankName: `${memberRank.rank_name_zh} (加入葡眾)`,
-            color: memberRank.badge_color_hex || '#84a3be'
-        });
+                chartNodes.push({
+                    x: joinTimestamp,
+                    y: 10,
+                    dateLabel: joinYmStr,
+                    rankName: `${memberRank ? memberRank.rank_name_zh : '會員'} (加入葡眾)`,
+                    color: memberColor // ★ 使用職級主檔設定之代表色
+                });
+            }
+        }
     }
 
-    // 加入升階歷程節點
+    // 加入升階歷程節點：排除 <= 10 的會員初始歷程，避免無加入日的夥伴出現 2026/06 假節點
     ptnHistory.forEach(h => {
-        const rank = appState.ranks.find(r => r.rank_id === h.new_rank_id);
-        const level = rank ? rank.rank_level : 10;
-        const color = rank && rank.badge_color_hex ? rank.badge_color_hex : '#8b5cf6';
+        const rank = appState.ranks.find(r => 
+            r.rank_id === h.new_rank_id || 
+            r.rank_code === h.new_rank_id || 
+            r.rank_name_zh === h.new_rank_id
+        );
+        
+        // 未找到職級或為會員等級時跳過（會員點僅由加入葡眾日提供）
+        if (!rank || rank.rank_level <= 10) return;
+
+        const level = rank.rank_level;
+        const color = rank.badge_color_hex || '#8b5cf6';
         const timestamp = parseYmToTimestamp(h.effective_month);
+        if (!timestamp) return;
 
         chartNodes.push({
             x: timestamp,
             y: level,
             dateLabel: h.effective_month,
-            rankName: rank ? rank.rank_name_zh : '未知職級',
+            rankName: rank.rank_name_zh,
             color: color
         });
     });
 
     // 依時間先後嚴格排序
     chartNodes.sort((a, b) => a.x - b.x);
-
-    if (chartNodes.length === 0) return;
-
-    // 2. 精算 X 軸範圍與「偶數月」刻度列表
-    const minTimestamp = chartNodes[0].x;
-    const maxTimestamp = chartNodes[chartNodes.length - 1].x;
+    
+    // 計算 X 軸起訖邊界（起訖點均對齊偶數月）
+    const now = new Date();
+    const minTimestamp = chartNodes.length > 0 ? chartNodes[0].x : new Date(now.getFullYear(), 0, 1).getTime();
+    const maxTimestamp = chartNodes.length > 0 ? chartNodes[chartNodes.length - 1].x : new Date(now.getFullYear(), 11, 1).getTime();
 
     const dMin = new Date(minTimestamp);
     let startYear = dMin.getFullYear();
     let startMonth = dMin.getMonth() + 1;
-    // 起點向前對齊至最近的偶數月（若本身是偶數月則再往前推 2 個月留白）
     let startEvenMonth = (startMonth % 2 === 0) ? startMonth - 2 : startMonth - 1;
     if (startEvenMonth <= 0) {
         startYear -= 1;
@@ -466,28 +506,46 @@ function renderPartnerRankChart(ptnHistory) {
     const dMax = new Date(maxTimestamp);
     let endYear = dMax.getFullYear();
     let endMonth = dMax.getMonth() + 1;
-    // 終點向後對齊至最近的偶數月（若本身是偶數月則再往後推 2 個月留白）
     let endEvenMonth = (endMonth % 2 === 0) ? endMonth + 2 : endMonth + 1;
     if (endEvenMonth > 12) {
         endYear += 1;
         endEvenMonth -= 12;
     }
 
+    // 計算跨越總月數，動態決定刻度步長（保證皆為 2 的倍數月份）
+    const totalSpanMonths = (endYear - startYear) * 12 + (endEvenMonth - startEvenMonth);
+    const stepCandidates = [2, 4, 6, 12, 24, 36, 48];
+    let stepMonths = 2;
+    for (const step of stepCandidates) {
+        if (totalSpanMonths / step <= 10) { // 刻度數控制在 10 個以內
+            stepMonths = step;
+            break;
+        }
+        stepMonths = step;
+    }
+
     const startBound = new Date(startYear, startEvenMonth - 1, 1).getTime();
     const endBound = new Date(endYear, endEvenMonth - 1, 1).getTime();
 
-    // 依序生成範圍內所有的偶數月時間戳
+    // 依動態步長生成偶數月刻度陣列
     const evenMonthTicks = [];
     let cur = new Date(startYear, startEvenMonth - 1, 1);
     while (cur.getTime() <= endBound) {
         evenMonthTicks.push(cur.getTime());
-        cur = new Date(cur.getFullYear(), cur.getMonth() + 2, 1);
+        cur = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, 1);
+    }
+    // 補齊最後一個刻度，確保圖表最右側節點能完整落在可視區內
+    if (evenMonthTicks[evenMonthTicks.length - 1] < endBound) {
+        evenMonthTicks.push(cur.getTime());
     }
 
-    // 3. RWD 動態寬度計算（支援橫向平滑滾動）
+    const finalStart = evenMonthTicks[0];
+    const finalEnd = evenMonthTicks[evenMonthTicks.length - 1];
+
+    // RWD 動態畫布寬度計算
     const $wrapper = $('#partnerRankChartWrapper');
     if ($wrapper.length) {
-        const minDynamicWidth = Math.max(100, evenMonthTicks.length * 80);
+        const minDynamicWidth = Math.max(100, evenMonthTicks.length * 85);
         $wrapper.css('min-width', evenMonthTicks.length > 6 ? `${minDynamicWidth}px` : '100%');
     }
 
@@ -495,7 +553,7 @@ function renderPartnerRankChart(ptnHistory) {
         partnerRankChartInstance.destroy();
     }
 
-    // 4. 建立 Chart.js 實體
+    // Chart.js 實體生成
     partnerRankChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -506,15 +564,13 @@ function renderPartnerRankChart(ptnHistory) {
                 backgroundColor: 'transparent',
                 fill: false,
                 borderWidth: 2.5,
-                tension: 0, // 設為直線以確保數據節點與垂直線精準咬合
-                // ★ 判定相鄰節點跨距：大於 1 階（差距 > 10）時套用虛線樣式
+                tension: 0,
                 segment: {
                     borderDash: ctx => {
                         const p0 = chartNodes[ctx.p0DataIndex];
                         const p1 = chartNodes[ctx.p1DataIndex];
                         if (!p0 || !p1) return undefined;
-                        const levelDiff = Math.abs(p1.y - p0.y);
-                        return levelDiff > 10 ? [6, 6] : undefined;
+                        return Math.abs(p1.y - p0.y) > 10 ? [6, 6] : undefined;
                     }
                 },
                 pointBackgroundColor: chartNodes.map(n => n.color),
@@ -550,17 +606,16 @@ function renderPartnerRankChart(ptnHistory) {
                 },
                 x: {
                     type: 'linear',
-                    min: startBound,
-                    max: endBound,
-                    offset: false, // 關閉 offset 確保數據坐標與格線 100% 垂直對齊
+                    min: finalStart,
+                    max: finalEnd,
+                    offset: false,
                     afterBuildTicks: axis => {
-                        // 強制套用偶數月刻度陣列
                         axis.ticks = evenMonthTicks.map(v => ({ value: v }));
                     },
                     ticks: {
                         color: '#c084fc',
                         font: { weight: '500' },
-                        autoSkip: false, // 確保偶數月刻度全數顯示
+                        autoSkip: false,
                         maxRotation: 45,
                         minRotation: 0,
                         callback: val => {
@@ -581,8 +636,7 @@ function renderPartnerRankChart(ptnHistory) {
                 tooltip: {
                     callbacks: {
                         title: items => {
-                            const item = items[0];
-                            const node = chartNodes[item.dataIndex];
+                            const node = chartNodes[items[0].dataIndex];
                             return node ? `年月：${node.dateLabel}` : '';
                         },
                         label: ctx => {
@@ -738,6 +792,13 @@ function openAddRankModal() {
     $('#fieldManagerLegsSnapshot').val('');
     $('#fieldPearlLegsSnapshot').val('');
     $('#fieldRecognitionDate').val('');
+
+    // 預設第二階（主任）並自動計算原職級（會員），維持禁用
+    $('#fieldPrevRankId').prop('disabled', true);
+    if (appState.ranks.length > 1) {
+        $('#fieldNewRankId').val(appState.ranks[1].rank_id);
+        autoCalcPrevRank(appState.ranks[1].rank_id);
+    }
     
     $('#fieldPartnerId').val('').trigger('change');
     new bootstrap.Modal(document.getElementById('rankHistoryModal')).show();
@@ -751,8 +812,14 @@ function openEditHistoryModal(historyId) {
     $('#fieldHistoryMode').val('edit');
     $('#fieldHistoryId').val(item.history_id);
     $('#fieldPartnerId').val(item.partner_id).trigger('change');
-    $('#fieldPrevRankId').val(item.previous_rank_id);
+    $('#fieldPrevRankId').prop('disabled', true);
     $('#fieldNewRankId').val(item.new_rank_id);
+    // 若原紀錄已有原職級則套用，否則自動推算
+    if (item.previous_rank_id) {
+        $('#fieldPrevRankId').val(item.previous_rank_id);
+    } else {
+        autoCalcPrevRank(item.new_rank_id);
+    }
     $('#fieldEffectiveMonth').val(item.effective_month);
     $('#fieldConsecutiveMonths').val(item.consecutive_qualified_months !== null ? item.consecutive_qualified_months : '');
     

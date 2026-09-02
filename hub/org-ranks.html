@@ -142,7 +142,7 @@
                     </div>
                     <div class="d-flex align-items-center gap-2" style="min-width: 300px;">
                         <label class="text-muted small text-nowrap" for="partnerSelect"><i class="fa-solid fa-filter"></i> 選擇夥伴：</label>
-                        <select class="form-select" id="partnerSelect" style="width: 100%;">
+                        <select class="form-select form-select-sm" id="partnerSelect" style="width: 100%;">
                             <option value="">載入夥伴清單中...</option>
                         </select>
                     </div>
@@ -227,74 +227,74 @@
         <div class="modal fade" id="rankHistoryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header border-bottom border-secondary border-opacity-25 pb-2">
                         <h5 class="modal-title text-white fw-bold" id="modalHistoryTitle">
                             <i class="fa-solid fa-medal text-accent"></i> 新增夥伴職級晉升
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body p-3 p-md-4">
                         <form id="formRankHistory">
                             <input type="hidden" id="fieldHistoryMode" value="add">
                             <input type="hidden" id="fieldHistoryId">
                             
                             <div class="row g-3 mb-3">
                                 <div class="col-md-12">
-                                    <label class="form-label" for="fieldPartnerId">夥伴名稱 *</label>
-                                    <select class="form-select select2-partner" id="fieldPartnerId" style="width: 100%;" required>
+                                    <label class="form-label" for="fieldPartnerId">夥伴名稱 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm select2-partner" id="fieldPartnerId" style="width: 100%;" required>
                                         <option value="">請選擇或搜尋夥伴...</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label" for="fieldPrevRankId">原職級</label>
-                                    <select class="form-select" id="fieldPrevRankId"></select>
+                                    <label class="form-label" for="fieldPrevRankId">原職級 <span class="badge bg-secondary-subtle text-secondary small">系統自動計算</span></label>
+                                    <select class="form-select form-select-sm" id="fieldPrevRankId" disabled tabindex="-1" style="pointer-events: none; opacity: 0.75;"></select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" for="fieldNewRankId">新晉升職級 *</label>
-                                    <select class="form-select" id="fieldNewRankId"></select>
+                                    <label class="form-label" for="fieldNewRankId">新晉升職級 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldNewRankId"></select>
                                 </div>
                             </div>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label" for="fieldEffectiveMonth">生效年月 (YYYY 或 YYYYMM) *</label>
-                                    <input type="text" class="form-control" id="fieldEffectiveMonth" placeholder="例如：2026 或 202608" maxlength="7" required>
+                                    <label class="form-label" for="fieldEffectiveMonth">生效年月 (YYYY 或 YYYYMM) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldEffectiveMonth" placeholder="例如：2026 或 202608" maxlength="7" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldConsecutiveMonths">連續達標月數</label>
-                                    <input type="number" class="form-control" id="fieldConsecutiveMonths" value="1" min="1">
+                                    <input type="number" class="form-control form-control-sm text-right" id="fieldConsecutiveMonths" value="1" min="1">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldRecognitionDate">表揚日期</label>
-                                    <input type="date" class="form-control" id="fieldRecognitionDate">
+                                    <input type="date" class="form-control form-control-sm" id="fieldRecognitionDate">
                                 </div>
                             </div>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label" for="fieldCumSvSnapshot">累積整組 SV 快照</label>
-                                    <input type="number" class="form-control" id="fieldCumSvSnapshot" value="0">
+                                    <label class="form-label" for="fieldCumSvSnapshot">累積整組 SV</label>
+                                    <input type="number" class="form-control form-control-sm text-right" id="fieldCumSvSnapshot" value="0">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label" for="fieldManagerLegsSnapshot">經理線數快照</label>
-                                    <input type="number" class="form-control" id="fieldManagerLegsSnapshot" value="0">
+                                    <label class="form-label" for="fieldManagerLegsSnapshot">經理線數</label>
+                                    <input type="number" class="form-control form-control-sm text-right" id="fieldManagerLegsSnapshot" value="0">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label" for="fieldPearlLegsSnapshot">珍珠線數快照</label>
-                                    <input type="number" class="form-control" id="fieldPearlLegsSnapshot" value="0">
+                                    <label class="form-label" for="fieldPearlLegsSnapshot">珍珠線數</label>
+                                    <input type="number" class="form-control form-control-sm text-right" id="fieldPearlLegsSnapshot" value="0">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="fieldNotes">備註</label>
-                                <textarea class="form-control" id="fieldNotes" rows="2" placeholder="填寫晉升備註或團隊紀錄..."></textarea>
+                                <textarea class="form-control form-control-sm" id="fieldNotes" rows="2" placeholder="填寫晉升備註或團隊紀錄..."></textarea>
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" id="btnSaveHistory" onclick="saveRankHistoryItem()">
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveHistory" onclick="saveRankHistoryItem()">
                             <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
                     </div>
