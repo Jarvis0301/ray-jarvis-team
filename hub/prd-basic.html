@@ -11,11 +11,11 @@
         <!-- 第三方函式庫加載器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
-        <!-- 團隊共用核心模組 -->
+        <!-- 共用核心模組 -->
         <script src="../assets/js/common.js"></script>
         <link rel="stylesheet" href="../assets/css/common.css">
 
-        <!-- 模組專屬腳本與樣式 -->
+        <!-- 頁面專屬 -->
         <script src="./js/prd-basic.js" defer></script>
         <link rel="stylesheet" href="./css/prd-basic.css">
     </head>
@@ -25,9 +25,9 @@
         <main class="container-fluid p-3 p-md-4">
 
             <!-- 頂部頁面標題區 -->
-            <header class="d-flex justify-content-between align-items-center mb-3">
+            <header class="row align-items-center mb-3">
                 <h4 class="fw-bold mb-0 text-light">
-                    <i class="fa-solid fa-box-open text-primary"></i> 產品資料維護
+                    <i class="fa-solid fa-box-open text-primary"></i> 產品資訊
                 </h4>
             </header>
 
@@ -426,9 +426,9 @@
 
         <!-- 編輯彈窗 Modal -->
         <div class="modal fade" id="modalProductFullEdit" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <section class="modal-content border-0 shadow-lg">
-                    <header class="modal-header border-bottom border-secondary border-opacity-25 pb-2" style="background-color: var(--uvaco-bg-surface);">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <div class="w-100">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <h5 class="modal-title fw-bold text-light" id="productModalHeading">
@@ -459,110 +459,118 @@
                                 <div class="tab-pane fade show active" id="tab-pane-prd-master" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">營運地區</label>
+                                            <label class="form-label">營運地區</label>
                                             <select class="form-select form-select-sm" name="region_code" required>
                                                 <option value="TW">台灣 (TW)</option>
                                                 <option value="MY">馬來西亞 (MY)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">完整產品編號</label>
+                                            <label class="form-label">完整產品編號</label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="product_code" placeholder="例：TW0303001" required>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">跨國基本編號</label>
+                                            <label class="form-label">跨國基本編號</label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="base_code" placeholder="例：0303001" required>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">產品型態</label>
+                                            <label class="form-label">產品型態</label>
                                             <select class="form-select form-select-sm" name="type_code" id="modalSelectType" required></select>
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">官方完整品名</label>
+                                            <label class="form-label">官方完整品名</label>
                                             <input type="text" class="form-control form-control-sm" name="name" placeholder="例：貝益潔護效牙膏" required>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">產品簡稱</label>
+                                            <label class="form-label">產品簡稱</label>
                                             <input type="text" class="form-control form-control-sm" name="short_name" placeholder="例：貝益潔">
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">主系列歸屬</label>
+                                            <label class="form-label">主系列歸屬</label>
                                             <select class="form-select form-select-sm" name="category_code" id="modalSelectCategory" required></select>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">次系列歸屬</label>
+                                            <label class="form-label">次系列歸屬</label>
                                             <select class="form-select form-select-sm" name="subcategory_code" id="modalSelectSubcategory" required></select>
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label small fw-bold">產品簡介</label>
+                                            <label class="form-label">產品簡介</label>
                                             <input type="text" class="form-control form-control-sm" name="short_summary" placeholder="例：草本植萃防護，維護牙齦健康">
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">包裝規格</label>
+                                            <label class="form-label">包裝規格</label>
                                             <input type="text" class="form-control form-control-sm" name="package_spec" placeholder="例：140g x 3 盒／組">
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">產品重量／淨重</label>
+                                            <label class="form-label">產品重量／淨重</label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="product_weight" placeholder="例：140g 或 0.15kg">
                                         </div>
                                         <div class="col-12 col-md-2">
-                                            <label class="form-label small fw-bold">售價</label>
+                                            <label class="form-label">售價</label>
                                             <input type="number" step="0.01" class="form-control form-control-sm" name="price" required>
                                         </div>
                                         <div class="col-12 col-md-2">
-                                            <label class="form-label small fw-bold">幣別代碼</label>
+                                            <label class="form-label">幣別代碼</label>
                                             <select class="form-select form-select-sm font-monospace" name="currency" required>
                                                 <option value="TWD">TWD (新台幣)</option>
                                                 <option value="MYR">MYR (馬幣)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-2">
-                                            <label class="form-label small fw-bold">全球統一 SV</label>
+                                            <label class="form-label">全球統一 SV</label>
                                             <input type="number" class="form-control form-control-sm" name="sv_point" required>
                                         </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">列表縮圖網址</label>
-                                            <input type="url" class="form-control form-control-sm" name="primary_image_url" placeholder="https://...">
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">上市日期</label>
+                                            <input type="date" class="form-control form-control-sm" name="launch_date">
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">供貨狀態</label>
+                                            <label class="form-label">下市日期</label>
+                                            <input type="date" class="form-control form-control-sm" name="discontinue_date">
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">官方最新異動日期 (UVACO)</label>
+                                            <input type="date" class="form-control form-control-sm" name="official_update_date">
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">供貨狀態</label>
                                             <select class="form-select form-select-sm" name="stock_status">
                                                 <option value="現貨">現貨</option>
                                                 <option value="缺貨">缺貨</option>
                                                 <option value="預購">預購</option>
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">顯示排序權重</label>
-                                            <input type="number" class="form-control form-control-sm" name="sort_order" value="0">
-                                        </div>
-
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">上市日期</label>
-                                            <input type="date" class="form-control form-control-sm" name="launch_date">
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">下市日期</label>
-                                            <input type="date" class="form-control form-control-sm" name="discontinue_date">
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label small fw-bold">官方最新異動日期 (UVACO)</label>
-                                            <input type="date" class="form-control form-control-sm" name="official_update_date">
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-9">
+                                            <label class="form-label">列表縮圖網址</label>
+                                            <input type="url" class="form-control form-control-sm" name="primary_image_url" placeholder="https://...">
                                         </div>
                                         <div class="col-12 col-md-3 d-flex align-items-end gap-3 pb-1">
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" name="is_featured" id="modalIsFeatured">
-                                                <label class="form-check-label small fw-bold" for="modalIsFeatured">明星產品</label>
+                                                <label class="form-check-label fw-bold" for="modalIsFeatured">明星產品</label>
                                             </div>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" name="is_valid" id="modalIsValid" checked>
-                                                <label class="form-check-label small fw-bold" for="modalIsValid">是否有效</label>
+                                                <label class="form-check-label fw-bold" for="modalIsValid">是否有效</label>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-12">
+                                            <label class="form-label">備註</label>
+                                            <input type="text" class="form-control form-control-sm" name="remarks" placeholder="例：官方批次改版或外包裝更迭備忘">
                                         </div>
                                     </div>
                                 </div>
@@ -571,40 +579,45 @@
                                 <div class="tab-pane fade" id="tab-pane-prd-details" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">高解析大圖網址</label>
+                                            <label class="form-label">高解析大圖網址</label>
                                             <input type="url" class="form-control form-control-sm" name="hd_image_url" placeholder="https://...">
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">葡眾官方產品連結</label>
+                                            <label class="form-label">葡眾官方產品連結</label>
                                             <input type="url" class="form-control form-control-sm" name="official_site_url" placeholder="https://www.uvaco.com.tw/...">
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">官方認證字號 / SNQ 標章</label>
+                                            <label class="form-label">官方認證字號 / SNQ 標章</label>
                                             <input type="text" class="form-control form-control-sm" name="certifications" placeholder="例：衛部健食字第A00000號">
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">亮點短語標籤 (以半形逗號分隔)</label>
+                                            <label class="form-label">亮點短語標籤 (以半形逗號分隔)</label>
                                             <input type="text" class="form-control form-control-sm" name="phrase_tags" placeholder="例：專利菌株,調整體質,無防腐劑">
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label small fw-bold">建議食用 / 使用情境</label>
+                                            <label class="form-label">建議食用 / 使用情境</label>
                                             <textarea class="form-control form-control-sm" name="usage_scenarios" rows="2" placeholder="例：早晚各一次，搭配溫開水..."></textarea>
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label small fw-bold">特色與主要功能</label>
+                                            <label class="form-label">特色與主要功能</label>
                                             <textarea class="form-control form-control-sm" name="features_and_functions" rows="2" placeholder="例：維持消化道機能..."></textarea>
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label small fw-bold">完整原料與主成分清單</label>
+                                            <label class="form-label">完整原料與主成分清單</label>
                                             <textarea class="form-control form-control-sm" name="ingredients" rows="3" placeholder="例：植物乳桿菌、雙歧桿菌..."></textarea>
                                         </div>
-
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label small fw-bold">產品詳細介紹 / 文案</label>
+                                            <label class="form-label">產品詳細介紹 / 文案</label>
                                             <textarea class="form-control form-control-sm" name="detailed_description" rows="3" placeholder="例：產品詳細說明..."></textarea>
                                         </div>
                                     </div>
@@ -612,7 +625,7 @@
                             </div>
                         </form>
                     </div>
-                    <footer class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
@@ -626,9 +639,9 @@
 
         <!-- 產品完整資訊檢視彈窗 (Detail Modal) -->
         <div class="modal fade" id="modalProductDetailView" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <section class="modal-content border-0 shadow-lg">
-                    <header class="modal-header border-bottom border-secondary border-opacity-25" style="background-color: var(--uvaco-bg-surface);">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-light">
                             <i class="fa-solid fa-circle-info text-info"></i> 產品完整詳細資訊
                         </h5>
@@ -723,6 +736,11 @@
                                     <strong class="text-muted d-block mb-1">短語標籤：</strong>
                                     <div id="viewPrdPhraseTags"></div>
                                 </div>
+
+                                <div class="mb-2">
+                                    <strong class="text-muted d-block mb-1">備註：</strong>
+                                    <span id="viewPrdRemarks" class="text-light">-</span>
+                                </div>
                             </div>
 
                             <!-- 深入介紹區塊 -->
@@ -754,7 +772,7 @@
                             </div>
                         </div>
                     </div>
-                    <footer class="modal-footer border-top border-secondary border-opacity-25 py-2 d-flex justify-content-end gap-2" style="background-color: var(--uvaco-bg-surface);">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 關閉
                         </button>
@@ -768,9 +786,9 @@
 
         <!-- 系列與型態維護 Modal -->
         <div class="modal fade" id="modalTaxonomyEdit" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-md">
-                <section class="modal-content border-0 shadow-lg">
-                    <header class="modal-header border-bottom border-secondary border-opacity-25" style="background-color: var(--uvaco-bg-surface);">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-light" id="modalTaxonomyHeading">
                             <i class="fa-solid fa-tags text-primary"></i> 維護分類與型態
                         </h5>
@@ -781,47 +799,47 @@
                             <input type="hidden" name="taxonomy_type" id="taxType">
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">唯一代碼</label>
+                                    <label class="form-label">唯一代碼</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="code" id="taxCode" placeholder="例：01 或 0101" required>
                                 </div>
                                 <div class="col-12 col-md-6" id="taxParentCategoryGroup" style="display: none;">
-                                    <label class="form-label small fw-bold">歸屬主系列</label>
+                                    <label class="form-label">歸屬主系列</label>
                                     <select class="form-select form-select-sm" name="category_code" id="taxParentCategory"></select>
                                 </div>
                             </div>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">中文名稱</label>
+                                    <label class="form-label">中文名稱</label>
                                     <input type="text" class="form-control form-control-sm" name="name_zh" id="taxNameZh" placeholder="例：保健食品" required>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">英文名稱</label>
+                                    <label class="form-label">英文名稱</label>
                                     <input type="text" class="form-control form-control-sm" name="name_en" id="taxNameEn" placeholder="例：Health Foods">
                                 </div>
                             </div>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">Font Awesome 圖示 Class</label>
+                                    <label class="form-label">Font Awesome 圖示 Class</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="icon_class" id="taxIconClass" placeholder="例：fa-solid fa-heart-pulse">
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">顯示排序權重</label>
+                                    <label class="form-label">顯示排序權重</label>
                                     <input type="number" class="form-control form-control-sm" name="sort_order" id="taxSortOrder" value="0">
                                 </div>
                             </div>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">標籤文字顏色</label>
+                                    <label class="form-label">標籤文字顏色</label>
                                     <input type="color" class="form-control form-control-sm form-control-color w-100" name="text_color" id="taxTextColor" value="#8b5cf6">
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small fw-bold">標籤背景顏色</label>
+                                    <label class="form-label">標籤背景顏色</label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="bg_color" id="taxBgColor" placeholder="#1a122d">
                                 </div>
                             </div>
                         </form>
                     </div>
-                    <footer class="modal-footer border-top border-secondary border-opacity-25 py-2" style="background-color: var(--uvaco-bg-surface);">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>

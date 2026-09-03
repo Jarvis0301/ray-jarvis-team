@@ -183,7 +183,7 @@ function parseItemsTable(rows) {
         primary_image_url: getVal(r, 14, 'https://via.placeholder.com/150/1a122d/c084fc?text=No+Image'),
         is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 15, 'FALSE').toUpperCase()),
         stock_status: getVal(r, 16),
-        sort_order: parseInt(getVal(r, 17, '0'), 10) || 0,
+        remarks: getVal(r, 17, ''),
         is_valid: getVal(r, 18, 'Y').toUpperCase() === 'Y' ? 'Y' : 'N',
         launch_date: getVal(r, 19, ''),
         discontinue_date: getVal(r, 20, ''),
@@ -592,6 +592,8 @@ function openDetailModal(productCode) {
     $('#viewPrdDiscontinueDate').text(item.discontinue_date || '-');
     $('#viewPrdOfficialUpdateDate').text(item.official_update_date || '-');
     $('#viewPrdCertifications').text(item.certifications || '無特別標註');
+
+    $('#viewPrdRemarks').text(item.remarks || '-');
 
     if (item.phrase_tags) {
         const tagBadges = item.phrase_tags.split(',').map(t => `<span class="badge badge-dark me-1 mb-1"># ${t.trim()}</span>`).join('');
@@ -1422,7 +1424,7 @@ function openEditModal(productCode) {
     form.elements['sv_point'].value = item.sv_point;
     form.elements['primary_image_url'].value = item.primary_image_url || '';
     form.elements['stock_status'].value = item.stock_status || '未設定';
-    if (form.elements['sort_order']) form.elements['sort_order'].value = item.sort_order || 0;
+    if (form.elements['remarks']) form.elements['remarks'].value = item.remarks || '';
     form.elements['is_featured'].checked = item.is_featured;
 
     const activeCheckbox = form.elements['is_valid'] || form.elements['is_active'];
@@ -1474,7 +1476,7 @@ async function saveProductItem() {
     }
 
     const isActive = (form.elements['is_valid'] ? form.elements['is_valid'].checked : (form.elements['is_active'] ? form.elements['is_active'].checked : true));
-    const sortOrderVal = form.elements['sort_order'] ? (parseInt(form.elements['sort_order'].value, 10) || 0) : (existingNode && existingNode.sort_order !== undefined ? existingNode.sort_order : 0);
+    const remarksVal = form.elements['remarks'] ? form.elements['remarks'].value.trim() : (existingNode && existingNode.remarks ? existingNode.remarks : '');
     const officialUpdateDateVal = form.elements['official_update_date'] ? form.elements['official_update_date'].value : (existingNode ? existingNode.official_update_date : '');
 
     // 1. prd_items 主檔陣列 (26 欄位)
@@ -1496,7 +1498,7 @@ async function saveProductItem() {
         form.elements['primary_image_url'].value.trim(),
         form.elements['is_featured'].checked ? 'TRUE' : 'FALSE',
         form.elements['stock_status'].value,
-        sortOrderVal,
+        remarksVal,
         isActive ? 'Y' : 'N',
         form.elements['launch_date'] ? form.elements['launch_date'].value : '',
         form.elements['discontinue_date'] ? form.elements['discontinue_date'].value : '',

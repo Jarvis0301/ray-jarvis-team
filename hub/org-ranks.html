@@ -11,11 +11,11 @@
         <!-- 第三方函式庫加載器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
-        <!-- 團隊共用核心模組 -->
+        <!-- 共用核心模組 -->
         <script src="../assets/js/common.js"></script>
         <link rel="stylesheet" href="../assets/css/common.css">
 
-        <!-- 模組專屬腳本與樣式 -->
+        <!-- 頁面專屬 -->
         <script src="./js/org-ranks.js" defer></script>
         <link rel="stylesheet" href="./css/org-ranks.css">
     </head>
@@ -25,25 +25,10 @@
         <main class="container-fluid py-4 px-lg-4">
             
             <!-- 頂部資訊列 -->
-            <header class="row align-items-center mb-4">
-                <div class="col-12">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rank-badge-icon shadow-sm" style="width: 50px; height: 50px; font-size: 1.4rem; background: var(--uvaco-primary); color: #fff;">
-                            <i class="fa-solid fa-ranking-star"></i>
-                        </div>
-                        <div>
-                            <div class="d-flex align-items-center gap-2">
-                                <h3 class="fw-bold mb-0 text-white">職級管理與晉升</h3>
-                                <span class="badge badge-purple-subtle border-purple-subtle px-2 py-1">
-                                    <i class="fa-solid fa-bolt"></i> 葡眾 10 階不歸零
-                                </span>
-                            </div>
-                            <p class="text-muted mb-0 small mt-1">
-                                職級制度與夥伴晉升軌跡
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <header class="row align-items-center mb-3">
+                <h4 class="fw-bold mb-0 text-light">
+                    <i class="fa-solid fa-ranking-star"></i> 職級晉升
+                </h4>
             </header>
 
             <!-- 區塊一：十階天梯導航 -->
@@ -226,13 +211,13 @@
         <!-- 彈窗：新增/編輯夥伴晉升歷程 (Modal) -->
         <div class="modal fade" id="rankHistoryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom border-secondary border-opacity-25 pb-2">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 pb-2">
                         <h5 class="modal-title text-white fw-bold" id="modalHistoryTitle">
                             <i class="fa-solid fa-medal text-accent"></i> 新增夥伴職級晉升
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
+                    </header>
                     <div class="modal-body p-3 p-md-4">
                         <form id="formRankHistory">
                             <input type="hidden" id="fieldHistoryMode" value="add">
@@ -290,15 +275,15 @@
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveHistory" onclick="saveRankHistoryItem()">
                             <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
-                    </div>
-                </div>
+                    </footer>
+                </section>
             </div>
         </div>
 

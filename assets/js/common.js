@@ -80,12 +80,12 @@ function setDataTable() {
             language: {
                 processing: "處理中...",
                 loadingRecords: "載入中...",
-                lengthMenu: "每頁顯示 _MENU_ 筆資料",
+                lengthMenu: "顯示 _MENU_ 筆結果",
                 zeroRecords: "沒有符合的結果",
                 info: "顯示第 _START_ 至 _END_ 筆結果，共 _TOTAL_ 筆",
                 infoEmpty: "顯示第 0 至 0 筆結果，共 0 筆",
                 infoFiltered: "(從 _MAX_ 筆結果中篩選)",
-                search: "關鍵字搜尋：",
+                search: "搜尋：",
                 searchPlaceholder: "輸入關鍵字...",
                 paginate: {
                     first: "‹‹",

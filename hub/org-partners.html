@@ -11,11 +11,11 @@
         <!-- 第三方函式庫加載器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
-        <!-- 團隊共用核心模組 -->
+        <!-- 共用核心模組 -->
         <script src="../assets/js/common.js"></script>
         <link rel="stylesheet" href="../assets/css/common.css">
 
-        <!-- 模組專屬腳本與樣式 -->
+        <!-- 頁面專屬 -->
         <script src="./js/org-partners.js" defer></script>
         <link rel="stylesheet" href="./css/org-partners.css">
     </head>
@@ -28,7 +28,7 @@
                 <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-2">
                         <h4 class="mb-0 fw-bold text-white text-nowrap">
-                            <i class="fa-solid fa-sitemap text-primary"></i> 組織成員管理
+                            <i class="fa-solid fa-users text-primary"></i> 組織成員
                         </h4>
                     </div>
 
@@ -570,9 +570,9 @@
         <!-- 夥伴 360° 全能戰術編輯器 Modal                                             -->
         <!-- ========================================================================== -->
         <div class="modal fade" id="partnerDetailModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom border-secondary border-opacity-25 pb-2">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 pb-2">
                         <div class="w-100">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="partnerModalTitle">
@@ -609,7 +609,7 @@
                                 </li>
                             </ul>
                         </div>
-                    </div>
+                    </header>
 
                     <div class="modal-body p-3 p-md-4">
                         <form id="partnerForm">
@@ -1129,7 +1129,7 @@
                     </div>
 
                     <!-- 底部按鈕區 -->
-                    <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between p-3">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between p-3">
                         <span class="text-secondary small d-none d-md-inline-block">
                             <i class="fa-solid fa-circle-info me-1"></i> 儲存時將自動同步寫入個人主檔、夥伴主檔、通訊表、語言表、組織關係
                         </span>
@@ -1141,8 +1141,8 @@
                                 <i class="fa-solid fa-floppy-disk"></i> 儲存
                             </button>
                         </div>
-                    </div>
-                </div>
+                    </footer>
+                </section>
             </div>
         </div>
 
@@ -1150,9 +1150,9 @@
         <!-- 夥伴 360° 全景戰術檔案檢視視窗 Modal                                       -->
         <!-- ========================================================================== -->
         <div class="modal fade" id="partnerViewModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <div class="d-flex align-items-center justify-content-between w-100">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge badge-purple-subtle"><i class="fa-solid fa-id-card-clip me-1"></i> 夥伴檔案</span>
@@ -1160,7 +1160,7 @@
                             </div>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                    </div>
+                    </header>
 
                     <div class="modal-body p-3 p-md-4">
                         <!-- 1. Hero 頂部名片卡 (保留不動) -->
@@ -1388,14 +1388,14 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 關閉
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btn-view-to-edit">
                             <i class="fa-solid fa-pen-to-square"></i> 編輯
                         </button>
-                    </div>
+                    </footer>
                 </div>
             </div>
         </div>

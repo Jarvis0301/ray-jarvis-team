@@ -11,11 +11,11 @@
         <!-- 第三方函式庫加載器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
-        <!-- 團隊共用核心模組 (載入 utils.js, dialog.js, sheet-adapter.js 並觸發 AppReady) -->
+        <!-- 共用核心模組 (載入 utils.js, dialog.js, sheet-adapter.js 並觸發 AppReady) -->
         <script src="../assets/js/common.js"></script>
         <link rel="stylesheet" href="../assets/css/common.css">
 
-        <!-- 模組專屬腳本與樣式 -->
+        <!-- 頁面專屬 -->
         <script src="./js/sys-menus.js" defer></script>
         <link rel="stylesheet" href="./css/sys-menus.css">
     </head>
@@ -23,11 +23,12 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
             <!-- 主控台頂部宣告與控制列 -->
-            <section class="mb-4">
+            <section class="mb-4 mx-3">
                 <div class="row align-items-center gy-3">
                     <div class="col-lg-6 col-md-12">
-                        <h1 class="page-title mb-1"><i class="fa-solid fa-bars-staggered"></i> 三軌動態選單拓撲與路由控制艙</h1>
-                        <p class="text-muted mb-0 small">全域控制公開版、團隊版與核心版之樹狀拓撲、開發狀態、對應資料表與實體路由。</p>
+                        <h4 class="mb-0 fw-bold text-white text-nowrap">
+                            <i class="fa-solid fa-bars-staggered"></i> 選單管理
+                        </h4>
                     </div>
                     <div class="col-lg-6 col-md-12 text-lg-end">
                         <div class="portal-switcher me-2 mb-2 mb-sm-0">
@@ -227,22 +228,22 @@
 
         <!-- Modal：新增 / 編輯選單節點 -->
         <div class="modal fade" id="menuModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom border-secondary-subtle">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary-subtle">
                         <h5 class="modal-title fw-bold text-white" id="modalTitle"><i class="fa-solid fa-pen-to-square text-primary"></i> 編輯選單節點</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
+                    </header>
                     <div class="modal-body p-4">
                         <form id="menuForm">
                             <input type="hidden" id="formMode" value="add">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-fingerprint"></i> 選單 ID (menu_id)</label>
+                                    <label class="form-label"><i class="fa-solid fa-fingerprint"></i> 選單 ID</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldMenuId" placeholder="如: H74000, T51000" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-layer-group"></i> 所屬版本 (app_track)</label>
+                                    <label class="form-label"><i class="fa-solid fa-layer-group"></i> 所屬版本</label>
                                     <select class="form-select form-select-sm" id="fieldAppTrack" required>
                                         <option value="核心版">核心版</option>
                                         <option value="團隊版">團隊版</option>
@@ -250,7 +251,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-sitemap"></i> 所屬階層 (menu_level)</label>
+                                    <label class="form-label"><i class="fa-solid fa-sitemap"></i> 所屬階層</label>
                                     <select class="form-select form-select-sm" id="fieldMenuLevel" required>
                                         <option value="0">0: 頂層大類</option>
                                         <option value="1">1: 二級子功能</option>
@@ -259,27 +260,27 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fa-solid fa-language"></i> 中文名稱 (menu_name_zh)</label>
+                                    <label class="form-label"><i class="fa-solid fa-language"></i> 中文名稱</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldMenuNameZh" placeholder="如: 選單管理 (4~5字)" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fa-solid fa-font"></i> 英文名稱 (menu_name_en)</label>
+                                    <label class="form-label"><i class="fa-solid fa-font"></i> 英文名稱</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldMenuNameEn" placeholder="如: Dynamic Menu Engine">
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-network-wired"></i> 父節點 (parent_id)</label>
+                                    <label class="form-label"><i class="fa-solid fa-network-wired"></i> 父節點</label>
                                     <select class="form-select form-select-sm" id="fieldParentId">
                                         <option value="root">root (最頂層根節點)</option>
                                         <option value="hide">hide (隱藏落地頁)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-arrow-down-1-9"></i> 排序權重 (sort_order)</label>
+                                    <label class="form-label"><i class="fa-solid fa-arrow-down-1-9"></i> 排序權重</label>
                                     <input type="number" class="form-control form-control-sm" id="fieldSortOrder" value="10" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-traffic-light"></i> 開發進度 (dev_status)</label>
+                                    <label class="form-label"><i class="fa-solid fa-traffic-light"></i> 開發進度</label>
                                     <select class="form-select form-select-sm" id="fieldDevStatus">
                                         <option value="已完成">已完成</option>
                                         <option value="測試中">測試中</option>
@@ -288,11 +289,11 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fa-solid fa-link"></i> 路由路徑 (route_url)</label>
+                                    <label class="form-label"><i class="fa-solid fa-link"></i> 路由路徑</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldRouteUrl" placeholder="如: sys-menus.html 或 #" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fa-solid fa-icons"></i> Font Awesome 圖示 (fa_icon)</label>
+                                    <label class="form-label"><i class="fa-solid fa-icons"></i> Font Awesome 圖示</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-dark border-secondary-subtle text-primary" id="iconPreview"><i class="fa-solid fa-bars"></i></span>
                                         <input type="text" class="form-control form-control-sm" id="fieldFaIcon" placeholder="fa-solid fa-bars-staggered">
@@ -300,11 +301,11 @@
                                 </div>
 
                                 <div class="col-md-8">
-                                    <label class="form-label"><i class="fa-solid fa-database"></i> 對應資料表 (related_tables)</label>
+                                    <label class="form-label"><i class="fa-solid fa-database"></i> 對應資料表</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldRelatedTables" placeholder="如: prd_items, prd_details">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-toggle-on"></i> 全域啟用開關 (is_active)</label>
+                                    <label class="form-label"><i class="fa-solid fa-toggle-on"></i> 全域啟用開關</label>
                                     <div class="form-check form-switch pt-2">
                                         <input class="form-check-input" type="checkbox" id="fieldIsActive" checked>
                                         <label class="form-check-label text-light small" for="fieldIsActive">啟用顯示 (Y)</label>
@@ -312,21 +313,21 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label"><i class="fa-solid fa-file-lines"></i> 核心功能與業務說明 (function_desc)</label>
+                                    <label class="form-label"><i class="fa-solid fa-file-lines"></i> 核心功能與業務說明</label>
                                     <textarea class="form-control form-control-sm" id="fieldFunctionDesc" rows="2" placeholder="詳細說明此節點職責、資料流與維護指引..."></textarea>
                                 </div>
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer border-top border-secondary-subtle">
+                    <footer class="modal-footer border-top border-secondary-subtle">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveMenuItem()">
                             <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
-                    </div>
-                </div>
+                    </footer>
+                </section>
             </div>
         </div>
     </body>

@@ -1,1502 +1,337 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-bs-theme="dark-purple">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>庫存預警與安全門檻調度中樞 (H36000) | 榮祥團隊戰術控制台</title>
-    
-    <!-- Bootstrap 5.3.3 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <!-- Font Awesome 6.5.2 CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Flag Icons 7.2.3 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
-    <!-- DataTables 2.0+ CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
-    <!-- Google Fonts: Noto Sans TC & JetBrains Mono -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap">
+<html lang="zh-TW" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>庫存預警與安全門檻調度中樞 (H36000) | 榮祥團隊戰術控制台</title>
 
-    <style>
-        /* ==========================================================================
-           核心版：暗夜魅影紫主題變數 (Dark Cyber Purple Tokens)
-           ========================================================================== */
-        :root, [data-bs-theme="dark-purple"] {
-            --uvaco-bg-base: #0a0518;
-            --uvaco-bg-surface: #140b2e;
-            --uvaco-bg-card: rgba(27, 15, 61, 0.75);
-            --uvaco-bg-card-hover: rgba(45, 24, 100, 0.9);
-            
-            --uvaco-primary: #a855f7;
-            --uvaco-primary-rgb: 168, 85, 247;
-            --uvaco-primary-hover: #9333ea;
-            --uvaco-primary-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-            
-            --uvaco-secondary: #c084fc;
-            --uvaco-accent-pink: #ec4899;
-            --uvaco-accent-sky: #38bdf8;
-            --uvaco-neon-red: #f43f5e;
-            --uvaco-neon-amber: #f59e0b;
-            --uvaco-neon-emerald: #10b981;
-            
-            --uvaco-border: rgba(168, 85, 247, 0.25);
-            --uvaco-border-glow: rgba(236, 72, 153, 0.45);
-            
-            --uvaco-text-main: #f8fafc;
-            --uvaco-text-muted: #94a3b8;
-            --uvaco-radius-lg: 16px;
-            --uvaco-radius-md: 10px;
-            --uvaco-font-mono: 'JetBrains Mono', monospace;
-        }
+        <!-- 認證守衛 -->
+        <script src="../assets/js/auth-guard.js"></script>
 
-        body {
-            background-color: var(--uvaco-bg-base);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(56, 189, 248, 0.05) 0px, transparent 60%);
-            background-attachment: fixed;
-            color: var(--uvaco-text-main);
-            font-family: 'Noto Sans TC', sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
+        <!-- 第三方函式庫加載器 -->
+        <script src="../assets/js/vendor-loader.js"></script>
 
-        .mono-num {
-            font-family: var(--uvaco-font-mono);
-        }
+        <!-- 共用核心模組 -->
+        <link rel="stylesheet" href="../assets/css/common.css">
+        <script src="../assets/js/common.js"></script>
 
-        /* 玻璃面板與高對比卡片 */
-        .glass-panel {
-            background: var(--uvaco-bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--uvaco-border);
-            border-radius: var(--uvaco-radius-lg);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        <!-- 頁面專屬 -->
+        <link rel="stylesheet" href="./css/psi-alerts.css">
+        <script src="./js/psi-alerts.js" defer></script>
+    </head>
 
-        .glass-panel:hover {
-            border-color: var(--uvaco-border-glow);
-        }
+    <body>
+        <main class="container-fluid px-3 px-lg-4 py-3">
 
-        /* 戰術抬頭 HUD 霓虹跑馬條 */
-        .hud-sentinel-bar {
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hud-sentinel-bar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--uvaco-primary-gradient);
-            box-shadow: 0 0 12px var(--uvaco-accent-pink);
-        }
-
-        .hud-pill {
-            background: rgba(10, 5, 24, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: var(--uvaco-radius-md);
-            padding: 0.75rem 1rem;
-            transition: all 0.25s ease;
-        }
-
-        .hud-pill:hover {
-            border-color: var(--uvaco-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.2);
-        }
-
-        /* 狀態指示呼吸燈 */
-        .live-pulse {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--uvaco-neon-emerald);
-            box-shadow: 0 0 8px var(--uvaco-neon-emerald);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* 戰術 Pills 按鈕 */
-        .btn-filter-pill {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--uvaco-border);
-            color: var(--uvaco-text-muted);
-            border-radius: 50px;
-            padding: 0.45rem 1.15rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.25s ease;
-        }
-
-        .btn-filter-pill:hover {
-            color: #ffffff;
-            background: rgba(168, 85, 247, 0.2);
-            border-color: var(--uvaco-primary);
-        }
-
-        .btn-filter-pill.active {
-            background: var(--uvaco-primary-gradient);
-            color: #ffffff;
-            border-color: transparent;
-            box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
-        }
-
-        /* 核心版霓虹按鈕 */
-        .btn-cyber-primary {
-            background: var(--uvaco-primary-gradient);
-            border: none;
-            color: #ffffff;
-            font-weight: 600;
-            border-radius: var(--uvaco-radius-md);
-            padding: 0.45rem 1.1rem;
-            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35);
-            transition: all 0.25s ease;
-        }
-
-        .btn-cyber-primary:hover {
-            background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
-            color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(236, 72, 153, 0.5);
-        }
-
-        .btn-cyber-outline {
-            background: transparent;
-            border: 1px solid var(--uvaco-border);
-            color: var(--uvaco-text-main);
-            border-radius: var(--uvaco-radius-md);
-            padding: 0.45rem 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-cyber-outline:hover {
-            background: rgba(168, 85, 247, 0.15);
-            border-color: var(--uvaco-primary);
-            color: #ffffff;
-        }
-
-        /* DataTables 深色極客定制 */
-        .table-purple {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--uvaco-text-main);
-            border-color: rgba(168, 85, 247, 0.15);
-        }
-
-        .table-purple th {
-            background: #140b2e !important;
-            color: var(--uvaco-secondary) !important;
-            font-weight: 600;
-            border-bottom: 2px solid var(--uvaco-border) !important;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            padding: 0.85rem 1rem !important;
-        }
-
-        .table-purple td {
-            vertical-align: middle;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
-            font-size: 0.88rem;
-            padding: 0.85rem 1rem !important;
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: var(--uvaco-primary-gradient) !important;
-            border-color: transparent !important;
-            color: #ffffff !important;
-            border-radius: 8px;
-        }
-
-        /* 徽章與狀態標籤 */
-        .badge-danger-glow {
-            background: rgba(244, 63, 94, 0.2);
-            color: #fb7185;
-            border: 1px solid #f43f5e;
-            box-shadow: 0 0 8px rgba(244, 63, 94, 0.3);
-        }
-
-        .badge-warning-glow {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fcd34d;
-            border: 1px solid #f59e0b;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-        }
-
-        .badge-purple-glow {
-            background: rgba(168, 85, 247, 0.2);
-            color: #d8b4fe;
-            border: 1px solid #a855f7;
-            box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
-        }
-
-        .badge-success-glow {
-            background: rgba(16, 185, 129, 0.2);
-            color: #6ee7b7;
-            border: 1px solid #10b981;
-        }
-
-        /* 模態框深色化 */
-        .modal-content-purple {
-            background-color: #140b2e;
-            border: 1px solid var(--uvaco-border-glow);
-            color: var(--uvaco-text-main);
-            border-radius: var(--uvaco-radius-lg);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-        }
-
-        .form-control-purple, .form-select-purple {
-            background-color: rgba(10, 5, 24, 0.85) !important;
-            border: 1px solid rgba(168, 85, 247, 0.3) !important;
-            color: #ffffff !important;
-            border-radius: var(--uvaco-radius-md);
-        }
-
-        .form-control-purple:focus, .form-select-purple:focus {
-            border-color: var(--uvaco-accent-pink) !important;
-            box-shadow: 0 0 10px rgba(236, 72, 153, 0.35) !important;
-        }
-
-        /* 進度條 */
-        .risk-progress-bar {
-            height: 6px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .risk-progress-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-    </style>
-</head>
-<body>
-
-    <main class="container-fluid px-3 px-lg-4 py-3">
-
-        <!-- ==========================================================================
-             1. 戰情 HUD 防衛天眼頂部資訊列 (Sentinel Matrix HUD)
-             ========================================================================== -->
-        <section class="glass-panel hud-sentinel-bar mb-4">
-            <div class="row align-items-center g-3">
-                <div class="col-12 col-xl-5">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(236, 72, 153, 0.15); border: 1px solid var(--uvaco-accent-pink); color: var(--uvaco-accent-pink); font-size: 1.5rem;">
-                            <i class="fa-solid fa-satellite-dish"></i>
-                        </div>
-                        <div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="live-pulse"></span>
-                                <span class="badge badge-purple-glow font-mono">H36000 庫存預警中樞</span>
-                                <span class="text-secondary small">|</span>
-                                <span class="text-secondary small mono-num" id="current-timestamp">2026-09-02 12:00:00</span>
+            <header class="glass-panel hud-sentinel-bar mb-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-xl-5">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(168, 85, 247, 0.18); border: 1px solid var(--uvaco-primary, #a855f7); color: var(--uvaco-primary, #a855f7); font-size: 1.5rem;">
+                                <i class="fa-solid fa-satellite-dish"></i>
                             </div>
-                            <h2 class="h4 mb-0 fw-bold mt-1 text-white">
-                                <i class="fa-solid fa-shield-halved text-primary"></i> 庫存預警與安全門檻調度中樞
-                            </h2>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="live-pulse"></span>
+                                    <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 font-chakra">H36000 庫存預警中樞</span>
+                                    <span class="text-secondary small">|</span>
+                                    <span class="text-secondary small font-chakra" id="hudSyncTime">--</span>
+                                </div>
+                                <h2 class="h4 mb-0 fw-bold mt-1 text-white">
+                                    <i class="fa-solid fa-shield-halved text-primary"></i> 庫存預警與安全門檻調度中樞
+                                </h2>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 動態指標四聯膠囊 -->
-                <div class="col-12 col-xl-7">
-                    <div class="row g-2">
-                        <div class="col-6 col-md-3">
-                            <div class="hud-pill">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="text-secondary small">低於安全水位</span>
-                                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                                </div>
-                                <div class="d-flex align-items-baseline gap-1">
-                                    <span class="h4 fw-bold font-mono text-danger mb-0" id="stat-stockout-count">0</span>
-                                    <span class="text-secondary small">項 (緊急)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="hud-pill">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="text-secondary small">近效期階梯壓迫</span>
-                                    <i class="fa-solid fa-hourglass-half text-warning"></i>
-                                </div>
-                                <div class="d-flex align-items-baseline gap-1">
-                                    <span class="h4 fw-bold font-mono text-warning mb-0" id="stat-expiry-count">0</span>
-                                    <span class="text-secondary small">批 (&lt;90天)</span>
+                    <div class="col-12 col-xl-7">
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3">
+                                <div class="hud-pill">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-secondary small">低於安全水位</span>
+                                        <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="h4 fw-bold font-chakra text-danger mb-0" id="stat-stockout-count">0</span>
+                                        <span class="text-secondary small">項 (緊急)</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="hud-pill">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="text-secondary small">受控門檻規則</span>
-                                    <i class="fa-solid fa-sliders" style="color: var(--uvaco-primary);"></i>
-                                </div>
-                                <div class="d-flex align-items-baseline gap-1">
-                                    <span class="h4 fw-bold font-mono text-white mb-0" id="stat-monitored-rules">0</span>
-                                    <span class="text-secondary small">組 (表 310)</span>
+                            <div class="col-6 col-md-3">
+                                <div class="hud-pill">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-secondary small">近效期階梯壓迫</span>
+                                        <i class="fa-solid fa-hourglass-half text-warning"></i>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="h4 fw-bold font-chakra text-warning mb-0" id="stat-expiry-count">0</span>
+                                        <span class="text-secondary small">批 (&le;90天)</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="hud-pill">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="text-secondary small">跨國在途對沖</span>
-                                    <i class="fa-solid fa-plane-arrival" style="color: var(--uvaco-accent-sky);"></i>
+                            <div class="col-6 col-md-3">
+                                <div class="hud-pill">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-secondary small">受控門檻規則</span>
+                                        <i class="fa-solid fa-sliders text-primary"></i>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="h4 fw-bold font-chakra text-white mb-0" id="stat-monitored-rules">0</span>
+                                        <span class="text-secondary small">組 (表 310)</span>
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-baseline gap-1">
-                                    <span class="h4 fw-bold font-mono mb-0" style="color: var(--uvaco-accent-sky);" id="stat-in-transit-sv">86,400</span>
-                                    <span class="text-secondary small">SV</span>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="hud-pill">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-secondary small">待處理告警</span>
+                                        <i class="fa-solid fa-bell text-info"></i>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="h4 fw-bold font-chakra text-info mb-0" id="stat-pending-count">0</span>
+                                        <span class="text-secondary small">筆待辦</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 控制列：工作台切換與全域按鈕 -->
-            <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top" style="border-color: rgba(168, 85, 247, 0.15) !important;">
-                <div class="col-12 col-md-7">
-                    <div class="d-flex flex-wrap gap-2 align-items-center">
-                        <button class="btn btn-filter-pill active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')">
-                            <i class="fa-solid fa-triangle-exclamation"></i> 即時預警防衛視圖 (<span id="count-alerts-total">0</span>)
+                <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top border-purple-subtle">
+                    <div class="col-12 col-md-7">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <button type="button" class="filter-pill-btn active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 即時預警防衛視圖 (<span id="count-alerts-total">0</span>)
+                            </button>
+                            <button type="button" class="filter-pill-btn" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')">
+                                <i class="fa-solid fa-sliders"></i> 門檻規則調整中樞 (H36100) (<span id="count-thresholds-total">0</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-5 text-md-end">
+                        <button type="button" class="btn btn-sm btn-outline-purple me-2" onclick="fetchGoogleSheetsData()" title="同步 Google 試算表">
+                            <i class="fa-solid fa-rotate"></i> 重新同步
                         </button>
-                        <button class="btn btn-filter-pill" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')">
-                            <i class="fa-solid fa-sliders"></i> 門檻規則調整中樞 (H36100) (<span id="count-thresholds-total">0</span>)
+                        <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
+                            <i class="fa-solid fa-plus"></i> 新增門檻規則
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section id="workspace-alerts" class="glass-panel p-3 mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="text-white fw-bold"><i class="fa-solid fa-filter text-primary"></i> 預警類別分流：</span>
+                        <button type="button" class="filter-pill-btn active" data-alert-filter="ALL">全部</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="低於安全水位">低於安全水位</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="90天近效期">90天近效期</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="30天極危效期">30天極危效期</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="品質鎖定">品質鎖定</button>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="input-group input-group-sm" style="max-width: 240px;">
+                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="alerts-table-search" class="form-control bg-dark text-white border-secondary" placeholder="快速搜尋品項 / 批號 / 倉儲...">
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-purple admin-action-btn" onclick="triggerBatchResolve()" title="批次知悉處理">
+                            <i class="fa-solid fa-check-double"></i> 批次知悉
                         </button>
                     </div>
                 </div>
 
-                <div class="col-12 col-md-5 text-md-end">
-                    <button class="btn btn-sm btn-cyber-outline me-2" onclick="fetchGoogleSheetsData()" title="同步 Google 試算表">
-                        <i class="fa-solid fa-arrows-rotate"></i> 重新同步
-                    </button>
-                    <button class="btn btn-sm btn-cyber-primary" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
-                        <i class="fa-solid fa-plus"></i> 新增門檻規則
-                    </button>
+                <div class="table-responsive">
+                    <table id="alertsDataTable" class="table table-dark-custom table-hover align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 40px;"><input type="checkbox" id="check-all-alerts" class="form-check-input"></th>
+                                <th>告警編號</th>
+                                <th>預警類型</th>
+                                <th>品項代號 / 品名</th>
+                                <th>所屬據點倉儲</th>
+                                <th>批號快照</th>
+                                <th>在庫存量 / 門檻</th>
+                                <th>效期倒數</th>
+                                <th>嚴重性</th>
+                                <th>處置狀態</th>
+                                <th class="text-end">戰術處置</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-table-body">
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ==========================================================================
-             2. 工作台 A：即時預警防衛清冊 (psi_alerts 表 308)
-             ========================================================================== -->
-        <section id="workspace-alerts" class="glass-panel p-3 mb-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border) !important;">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="text-white fw-bold"><i class="fa-solid fa-filter text-pink" style="color: var(--uvaco-accent-pink);"></i> 預警類別分流：</span>
-                    <div class="btn-group gap-1" role="group">
-                        <button type="button" class="btn btn-sm btn-filter-pill active" data-alert-filter="ALL">全部</button>
-                        <button type="button" class="btn btn-sm btn-filter-pill" data-alert-filter="低於安全水位">低於安全水位</button>
-                        <button type="button" class="btn btn-sm btn-filter-pill" data-alert-filter="90天近效期">90天近效期</button>
-                        <button type="button" class="btn btn-sm btn-filter-pill" data-alert-filter="30天極危效期">30天極危效期</button>
-                        <button type="button" class="btn btn-sm btn-filter-pill" data-alert-filter="品質鎖定">品質鎖定</button>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <div class="input-group input-group-sm" style="max-width: 240px;">
-                        <span class="input-group-text bg-dark border-purple text-secondary" style="border-color: var(--uvaco-border);"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" id="alerts-table-search" class="form-control bg-dark text-white border-purple" placeholder="快速搜尋品項 / 批號 / 倉儲..." style="border-color: var(--uvaco-border);">
-                    </div>
-                    <button class="btn btn-sm btn-cyber-outline admin-action-btn" onclick="triggerBatchResolve()" title="批次知悉處理">
-                        <i class="fa-solid fa-check-double"></i> 批次知悉
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table id="alertsDataTable" class="table table-purple table-hover align-middle w-100">
-                    <thead>
-                        <tr>
-                            <th class="text-center" style="width: 40px;"><input type="checkbox" id="check-all-alerts"></th>
-                            <th>告警編號</th>
-                            <th>預警類型</th>
-                            <th>品項代號 / 品名</th>
-                            <th>所屬據點倉儲</th>
-                            <th>批號快照</th>
-                            <th>在庫存量 / 門檻</th>
-                            <th>效期倒數</th>
-                            <th>嚴重性</th>
-                            <th>處置狀態</th>
-                            <th class="text-end">戰術處置</th>
-                        </tr>
-                    </thead>
-                    <tbody id="alerts-table-body">
-                        <!-- 由 JavaScript 渲染 -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ==========================================================================
-             3. 工作台 B：門檻規則調整中樞 (psi_safety_thresholds 表 310)
-             ========================================================================== -->
-        <section id="workspace-thresholds" class="glass-panel p-3 mb-4 d-none">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border) !important;">
-                <div>
-                    <h5 class="fw-bold text-white mb-0">
-                        <i class="fa-solid fa-sliders text-primary"></i> 各據點分倉安全水位門檻規則庫 (表 310)
-                    </h5>
-                    <div class="text-secondary small mt-1">
-                        <i class="fa-solid fa-info-circle"></i> 自由可用庫存 (available_qty) $\le$ 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <div class="input-group input-group-sm" style="max-width: 240px;">
-                        <span class="input-group-text bg-dark border-purple text-secondary" style="border-color: var(--uvaco-border);"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" id="thresholds-table-search" class="form-control bg-dark text-white border-purple" placeholder="搜尋倉儲 / 品項..." style="border-color: var(--uvaco-border);">
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table id="thresholdsDataTable" class="table table-purple table-hover align-middle w-100">
-                    <thead>
-                        <tr>
-                            <th>門檻代碼 (id)</th>
-                            <th>據點倉儲 (warehouse_id)</th>
-                            <th>產品品項 (product_id)</th>
-                            <th>安全門檻盒數 (threshold_qty)</th>
-                            <th>監控狀態 (is_monitored)</th>
-                            <th>戰術備註 (remarks)</th>
-                            <th>建立者</th>
-                            <th>最後異動時間</th>
-                            <th class="text-end">規則維護</th>
-                        </tr>
-                    </thead>
-                    <tbody id="thresholds-table-body">
-                        <!-- 由 JavaScript 渲染 -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ==========================================================================
-         4. 模態框 A：門檻規則配置 Modal (psi_safety_thresholds 表 310)
-         ========================================================================== -->
-    <div class="modal fade" id="thresholdModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modal-content-purple">
-                <div class="modal-header border-purple" style="border-color: rgba(168, 85, 247, 0.2) !important;">
-                    <h5 class="modal-title fw-bold text-white" id="thresholdModalLabel">
-                        <i class="fa-solid fa-sliders text-primary"></i> 門檻規則調整
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="thresholdForm">
-                        <input type="hidden" id="thresholdFormMode" value="add">
-                        <input type="hidden" id="thresholdFieldCreatedAt" value="">
-                        <input type="hidden" id="thresholdFieldCreatedBy" value="">
-
-                        <div class="mb-3">
-                            <label class="form-label small text-secondary fw-bold">門檻唯一識別碼 (id) *</label>
-                            <input type="text" class="form-control form-control-purple mono-num" id="fieldThresholdId" placeholder="如：TH-TW-TP-01" required>
-                            <div class="form-text text-muted small">主鍵 (PK)，可自訂或由系統自動編排</div>
+            <section id="workspace-thresholds" class="glass-panel p-3 mb-4 d-none">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
+                    <div>
+                        <h5 class="fw-bold text-white mb-0">
+                            <i class="fa-solid fa-sliders text-primary"></i> 各據點分倉安全水位門檻規則庫 (表 310)
+                        </h5>
+                        <div class="text-secondary small mt-1">
+                            <i class="fa-solid fa-info-circle"></i> 自由可用庫存 (available_qty) &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
                         </div>
+                    </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small text-secondary fw-bold">據點倉儲 (warehouse_id) *</label>
-                                <select class="form-select form-select-purple" id="fieldThresholdWarehouse" required>
-                                    <option value="WH-TW-TP">WH-TW-TP (台北總公司)</option>
-                                    <option value="WH-HOME-RAY">WH-HOME-RAY (Ray 居家戰備倉)</option>
-                                    <option value="WH-MY-KUL">WH-MY-KUL (吉隆坡前進基地)</option>
-                                    <option value="WH-TW-TC">WH-TW-TC (台中營運中心)</option>
-                                    <option value="WH-TW-KH">WH-TW-KH (高雄營運中心)</option>
-                                </select>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="input-group input-group-sm" style="max-width: 240px;">
+                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="thresholds-table-search" class="form-control bg-dark text-white border-secondary" placeholder="搜尋倉儲 / 品項...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="thresholdsDataTable" class="table table-dark-custom table-hover align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th>門檻代碼 (id)</th>
+                                <th>據點倉儲 (warehouse_id)</th>
+                                <th>產品品項 (product_id)</th>
+                                <th>安全門檻盒數 (threshold_qty)</th>
+                                <th>監控狀態 (is_monitored)</th>
+                                <th>戰術備註 (remarks)</th>
+                                <th>建立者</th>
+                                <th>最後異動時間</th>
+                                <th class="text-end">規則維護</th>
+                            </tr>
+                        </thead>
+                        <tbody id="thresholds-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+
+        <div class="modal fade" id="thresholdModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-white" id="thresholdModalLabel">
+                            <i class="fa-solid fa-sliders text-primary"></i> 門檻規則調整
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="thresholdForm">
+                            <input type="hidden" id="thresholdFormMode" value="add">
+                            <input type="hidden" id="thresholdFieldCreatedAt" value="">
+                            <input type="hidden" id="thresholdFieldCreatedBy" value="">
+
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-bold">門檻唯一識別碼 (id) *</label>
+                                <input type="text" class="form-control font-chakra" id="fieldThresholdId" placeholder="例如：TH-TW-TP-01" required>
+                                <div class="form-text text-muted small">主鍵 (PK)，可自訂或由系統自動編排</div>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label small text-secondary fw-bold">產品品項 (product_id) *</label>
-                                <select class="form-select form-select-purple" id="fieldThresholdProduct" required>
-                                    <option value="PRD-0101-01">PRD-0101-01 (康爾喜乳酸菌)</option>
-                                    <option value="PRD-0101-02">PRD-0101-02 (995 生技營養品)</option>
-                                    <option value="PRD-0102-01">PRD-0102-01 (樟芝益生技飲品)</option>
-                                    <option value="PRD-0201-01">PRD-0201-01 (迪asin 膠囊)</option>
-                                    <option value="PRD-0301-02">PRD-0301-02 (清調活化飲)</option>
-                                </select>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small text-secondary fw-bold">據點倉儲 (warehouse_id) *</label>
+                                    <select class="form-select font-chakra" id="fieldThresholdWarehouse" required>
+                                        <option value="WH-TW-TP">WH-TW-TP (台北總公司營運中心)</option>
+                                        <option value="WH-HOME-RAY">WH-HOME-RAY (Ray 居家戰備私倉)</option>
+                                        <option value="WH-MY-KUL">WH-MY-KUL (吉隆坡海外前進基地)</option>
+                                        <option value="WH-TW-TC">WH-TW-TC (台中旗艦營運中心)</option>
+                                        <option value="WH-TW-KH">WH-TW-KH (高雄營業營運中心)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small text-secondary fw-bold">產品品項 (product_id) *</label>
+                                    <select class="form-select font-chakra" id="fieldThresholdProduct" required>
+                                        <option value="PRD-0101-01">PRD-0101-01 (康爾喜乳酸菌)</option>
+                                        <option value="PRD-0101-02">PRD-0101-02 (995 生技營養品)</option>
+                                        <option value="PRD-0102-01">PRD-0102-01 (樟芝益菌絲體飲)</option>
+                                        <option value="PRD-0201-01">PRD-0201-01 (衛傑膠囊)</option>
+                                        <option value="PRD-0301-02">PRD-0301-02 (百克斯膠囊)</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label small text-secondary fw-bold">專屬安全存量門檻盒數 (threshold_qty) *</label>
-                            <input type="number" class="form-control form-control-purple mono-num" id="fieldThresholdQty" min="0" value="20" required>
-                            <div class="form-text text-muted small">當在線可用存量小於或等於此數值時觸發預警</div>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-bold">專屬安全存量門檻盒數 (threshold_qty) *</label>
+                                <input type="number" class="form-control font-chakra" id="fieldThresholdQty" min="0" value="0" required>
+                                <div class="form-text text-muted small">當在線可用存量小於或等於此數值時觸發預警</div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label small text-secondary fw-bold">門檻設定戰術備註 (remarks)</label>
-                            <input type="text" class="form-control form-control-purple" id="fieldThresholdRemarks" placeholder="如：大馬招商拓荒備貨、月末衝刺緩衝...">
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-bold">門檻設定戰術備註 (remarks)</label>
+                                <input type="text" class="form-control" id="fieldThresholdRemarks" placeholder="例如：大馬招商拓荒備貨、月末衝刺緩衝...">
+                            </div>
 
-                        <div class="form-check form-switch mt-3">
-                            <input class="form-check-input" type="checkbox" role="switch" id="fieldThresholdIsMonitored" checked>
-                            <label class="form-check-label text-white small fw-bold" for="fieldThresholdIsMonitored">
-                                <i class="fa-solid fa-bell text-warning"></i> 啟動此門檻即時掃描監控 (is_monitored = 'Y')
-                            </label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-purple" style="border-color: rgba(168, 85, 247, 0.2) !important;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-cyber-primary btn-sm px-4 fw-bold" onclick="saveThresholdItem()">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存門檻規則
-                    </button>
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="fieldThresholdIsMonitored" checked>
+                                <label class="form-check-label text-white small fw-bold" for="fieldThresholdIsMonitored">
+                                    <i class="fa-solid fa-bell text-warning"></i> 啟動此門檻即時掃描監控 (is_monitored = 'Y')
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-purple btn-sm px-4 fw-bold text-white" onclick="saveThresholdItem()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存門檻規則
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ==========================================================================
-         5. 模態框 B：告警戰術處置 Modal (psi_alerts 表 308)
-         ========================================================================== -->
-    <div class="modal fade" id="resolveAlertModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modal-content-purple">
-                <div class="modal-header border-purple" style="border-color: rgba(168, 85, 247, 0.2) !important;">
-                    <h5 class="modal-title fw-bold text-white">
-                        <i class="fa-solid fa-wand-magic-sparkles text-pink" style="color: var(--uvaco-accent-pink);"></i> 執行告警戰術處置
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="resolveAlertId" value="">
-                    
-                    <div class="p-3 rounded-3 mb-3" style="background: rgba(10, 5, 24, 0.7); border: 1px solid var(--uvaco-border);">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary small">預警項目：</span>
-                            <span class="text-white fw-bold" id="resolveAlertItemText">-</span>
+        <div class="modal fade" id="resolveAlertModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-white">
+                            <i class="fa-solid fa-wand-magic-sparkles text-primary"></i> 執行告警戰術處置
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="resolveAlertId" value="">
+                        
+                        <div class="p-3 rounded-3 mb-3 bg-dark border border-secondary">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary small">預警項目：</span>
+                                <span class="text-white fw-bold font-chakra" id="resolveAlertItemText">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary small">所屬據點：</span>
+                                <span class="text-info font-chakra" id="resolveAlertWhText">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-secondary small">建議處置：</span>
+                                <span class="text-warning small" id="resolveAlertSuggestedText">-</span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary small">所屬據點：</span>
-                            <span class="text-info mono-num" id="resolveAlertWhText">-</span>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-code-branch"></i> 變更處理狀態 (status)</label>
+                            <select class="form-select" id="resolveStatusSelect">
+                                <option value="已知悉">已知悉 (排入日常監控)</option>
+                                <option value="已轉特惠促銷/試用">已轉特惠促銷/試用 (優先消化)</option>
+                                <option value="已結案出清">已結案出清 (調撥完成/已補貨)</option>
+                                <option value="未處理">重設為未處理</option>
+                            </select>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-secondary small">建議處置：</span>
-                            <span class="text-warning small" id="resolveAlertSuggestedText">-</span>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-comment-dots"></i> 結案備註或調度說明</label>
+                            <input type="text" class="form-control" id="resolveRemarksInput" placeholder="輸入處置動作例如：已自台北總倉調撥 30 盒至大馬...">
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-white small fw-bold"><i class="fa-solid fa-code-branch"></i> 變更處理狀態 (status)</label>
-                        <select class="form-select form-select-purple" id="resolveStatusSelect">
-                            <option value="已知悉">已知悉 (排入日常監控)</option>
-                            <option value="已轉特惠促銷/試用">已轉特惠促銷/試用 (優先消化)</option>
-                            <option value="已結案出清">已結案出清 (調撥完成/已補貨)</option>
-                            <option value="未處理">重設為未處理</option>
-                        </select>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-purple btn-sm px-4 fw-bold text-white" onclick="saveAlertResolution()">
+                            <i class="fa-solid fa-check"></i> 確認處置並回寫
+                        </button>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-white small fw-bold"><i class="fa-solid fa-comment-dots"></i> 結案備註或調度說明</label>
-                        <input type="text" class="form-control form-control-purple" id="resolveRemarksInput" placeholder="輸入處置動作如：已自台北總倉調撥 30 盒至大馬...">
-                    </div>
-                </div>
-                <div class="modal-footer border-purple" style="border-color: rgba(168, 85, 247, 0.2) !important;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-cyber-primary btn-sm px-4 fw-bold" onclick="saveAlertResolution()">
-                        <i class="fa-solid fa-check"></i> 確認處置並回寫
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- ==========================================================================
-         JavaScript 核心驅動：Bootstrap 5, jQuery, PapaParse, DataTables
-         ========================================================================== -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-
-    <script>
-        // ==========================================================================
-        // 1. Google 雲端試算表設定與資料庫核心轉接器
-        // ==========================================================================
-        const SPREADSHEET_ID = "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw";
-        const SHEET_ALERTS = "庫存預警";     // 表 308 psi_alerts
-        const SHEET_THRESHOLDS = "安全門檻"; // 表 310 psi_safety_thresholds
-
-        // 獨立環境 SheetAdapter 輕量自適應代理
-        const SheetAdapter = window.SheetAdapter || (function() {
-            let deployId = "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA";
-            return {
-                init: (id) => { if(id) deployId = id; },
-                createRow: async (sheet, pk, dataArr) => mutate(sheet, "CREATE", pk, dataArr),
-                updateRow: async (sheet, pk, dataArr) => mutate(sheet, "UPDATE", pk, dataArr),
-                deleteRow: async (sheet, pk) => mutate(sheet, "DELETE", pk, [])
-            };
-
-            async function mutate(sheetName, action, pkValue, rowData) {
-                const userEmail = getCurrentUserEmail();
-                const payload = { action, sheetName, pkValue, rowData, userEmail };
-                const url = `https://script.google.com/macros/s/${deployId}/exec`;
-                
-                try {
-                    const res = await fetch(url, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(payload)
-                    });
-                    return await res.json();
-                } catch (e) {
-                    console.warn("GAS Web App 離線或被阻擋，以本地快取模式回應:", e);
-                    return { status: "success", message: "本地模擬寫入完成" };
-                }
-            }
-        })();
-
-        // 安全提示與載入器 Fallback
-        const AppToast = window.AppToast || {
-            success: (msg) => alert("【成功】" + msg),
-            error: (msg) => alert("【錯誤】" + msg),
-            warning: (msg) => alert("【警告】" + msg),
-            info: (msg) => console.log("【資訊】", msg)
-        };
-
-        const AppLoading = window.AppLoading || {
-            show: (title, desc) => console.log("載入中...", title, desc),
-            hide: () => {}
-        };
-
-        /**
-         * 試算表欄位索引安全取值工具函式
-         */
-        function getVal(row, colIndex, defaultVal = '') {
-            if (!row || !Array.isArray(row)) return defaultVal;
-            if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-                return String(row[colIndex]).trim();
-            }
-            return defaultVal;
-        }
-
-        /**
-         * 取得當前登入者名稱
-         */
-        function getCurrentUser() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return 'ADMIN';
-            try {
-                const session = JSON.parse(rawSession);
-                return session.userName || session.user || 'ADMIN';
-            } catch (e) {
-                return 'ADMIN';
-            }
-        }
-
-        function getCurrentUserEmail() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return 'jarvis20250807@gmail.com';
-            try {
-                const session = JSON.parse(rawSession);
-                return (session.user || '').toLowerCase().trim();
-            } catch (e) {
-                return 'jarvis20250807@gmail.com';
-            }
-        }
-
-        /**
-         * 取得當前格式化時間字串 (YYYY-MM-DD HH:mm:ss)
-         */
-        function getFormattedNow() {
-            const d = new Date();
-            const pad = n => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-        }
-
-        // ==========================================================================
-        // 2. 系統狀態管理 (State Management)
-        // ==========================================================================
-        let appState = {
-            alerts: [],
-            thresholds: [],
-            currentWorkspace: 'ALERTS', // 'ALERTS' | 'THRESHOLDS'
-            alertFilter: 'ALL',
-            alertsSearchKeyword: '',
-            thresholdsSearchKeyword: ''
-        };
-
-        let alertsDataTableInstance = null;
-        let thresholdsDataTableInstance = null;
-        let isInitialized = false;
-
-        // ==========================================================================
-        // 3. 系統生命週期與事件初始化
-        // ==========================================================================
-        window.addEventListener('AppReady', async () => {
-            SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
-            await initApp();
-            applyUIPermissions();
-        });
-
-        $(document).ready(async function() {
-            if (!isInitialized) {
-                SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
-                await initApp();
-                applyUIPermissions();
-            }
-        });
-
-        async function initApp() {
-            if (isInitialized) return;
-            isInitialized = true;
-
-            $('#current-timestamp').text(getFormattedNow());
-            bindUIEvents();
-
-            if (SPREADSHEET_ID) {
-                await fetchGoogleSheetsData();
-            } else {
-                loadFallbackData();
-                refreshView();
-            }
-        }
-
-        /**
-         * 檢查當前登入者是否為最高管理者 (Ray 或 Jarvis)
-         */
-        function isMasterAdmin() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return false;
-            try {
-                const session = JSON.parse(rawSession);
-                const adminEmails = [
-                    "jarvis20250807@gmail.com",
-                    "fish7548@gmail.com",
-                    "jarvis.lin@gmail.com",
-                    "ray.weng@gmail.com"
-                ];
-                return adminEmails.includes((session.user || '').toLowerCase().trim());
-            } catch (e) {
-                return false;
-            }
-        }
-
-        /**
-         * UI 動態權限檢查
-         */
-        function applyUIPermissions() {
-            const hasAdminRights = isMasterAdmin();
-            if (!hasAdminRights) {
-                $('#btnOpenAddThreshold').hide();
-                $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-            }
-        }
-
-        // ==========================================================================
-        // 4. 資料讀取引擎 (依 Schema 索引順序讀取預警表 308 與門檻表 310)
-        // ==========================================================================
-        async function fetchGoogleSheetsData() {
-            AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步預警與門檻資料...', '連線 Google 試算表');
-            try {
-                const fetchSheet = async (sheetName) => {
-                    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-                    const res = await fetch(url, { cache: 'no-store' });
-                    if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
-                    const text = await res.text();
-
-                    const parsed = Papa.parse(text, {
-                        header: false,
-                        skipEmptyLines: true
-                    });
-
-                    return (parsed.data || []).slice(1);
-                };
-
-                // 並行非同步獲取兩張實體表
-                const [rawAlertRows, rawThresholdRows] = await Promise.all([
-                    fetchSheet(SHEET_ALERTS).catch(() => []),
-                    fetchSheet(SHEET_THRESHOLDS).catch(() => [])
-                ]);
-
-                if (rawAlertRows && rawAlertRows.length > 0) {
-                    appState.alerts = parseAlertsTable(rawAlertRows);
-                } else {
-                    loadAlertsFallback();
-                }
-
-                if (rawThresholdRows && rawThresholdRows.length > 0) {
-                    appState.thresholds = parseThresholdsTable(rawThresholdRows);
-                } else {
-                    loadThresholdsFallback();
-                }
-
-                refreshView();
-                AppToast.success(`已自 Google 試算表同步 ${appState.alerts.length} 筆預警與 ${appState.thresholds.length} 組門檻規則`);
-            } catch (err) {
-                console.warn("Google Sheets 預警資料讀取失敗，啟動備用戰術數據:", err);
-                loadFallbackData();
-                refreshView();
-                AppToast.warning("試算表連線中斷，已載入戰備展示快照。");
-            } finally {
-                AppLoading.hide();
-            }
-        }
-
-        /**
-         * 依據表 308 psi_alerts 物理順序解析 (Index 0 ~ 18)
-         */
-        function parseAlertsTable(rows) {
-            return rows.map((r, idx) => {
-                return {
-                    id: getVal(r, 0, `ALT-${String(idx + 1).padStart(4, '0')}`),  // Col 0: id
-                    alert_type: getVal(r, 1, '低於安全水位'),                      // Col 1: alert_type
-                    warehouse_id: getVal(r, 2, 'WH-TW-TP'),                       // Col 2: warehouse_id
-                    product_id: getVal(r, 3, 'PRD-0101-01'),                      // Col 3: product_id
-                    stock_id: getVal(r, 4, ''),                                   // Col 4: stock_id
-                    batch_no: getVal(r, 5, '-'),                                  // Col 5: batch_no
-                    expiry_date: getVal(r, 6, '-'),                               // Col 6: expiry_date
-                    current_qty: parseInt(getVal(r, 7, '0'), 10) || 0,            // Col 7: current_qty
-                    threshold_qty: parseInt(getVal(r, 8, '0'), 10) || 0,          // Col 8: threshold_qty
-                    days_to_expire: parseInt(getVal(r, 9, '999'), 10) || 999,     // Col 9: days_to_expire
-                    alert_level: getVal(r, 10, '注意'),                           // Col 10: alert_level
-                    status: getVal(r, 11, '未處理'),                               // Col 11: status
-                    suggested_action: getVal(r, 12, '建議檢視備貨'),               // Col 12: suggested_action
-                    resolved_by: getVal(r, 13, ''),                               // Col 13: resolved_by
-                    resolved_at: getVal(r, 14, ''),                               // Col 14: resolved_at
-                    created_by: getVal(r, 15, 'SYSTEM'),                          // Col 15: created_by
-                    created_at: getVal(r, 16, '2026-01-01 00:00:00'),             // Col 16: created_at
-                    modified_by: getVal(r, 17, 'SYSTEM'),                         // Col 17: modified_by
-                    modified_at: getVal(r, 18, '2026-01-01 00:00:00')             // Col 18: modified_at
-                };
-            });
-        }
-
-        /**
-         * 依據表 310 psi_safety_thresholds 物理順序解析 (Index 0 ~ 9)
-         */
-        function parseThresholdsTable(rows) {
-            return rows.map((r, idx) => {
-                return {
-                    id: getVal(r, 0, `TH-${String(idx + 1).padStart(3, '0')}`),   // Col 0: id
-                    warehouse_id: getVal(r, 1, 'WH-TW-TP'),                       // Col 1: warehouse_id
-                    product_id: getVal(r, 2, 'PRD-0101-01'),                      // Col 2: product_id
-                    threshold_qty: parseInt(getVal(r, 3, '20'), 10) || 20,        // Col 3: threshold_qty
-                    is_monitored: getVal(r, 4, 'Y').toUpperCase(),                 // Col 4: is_monitored
-                    remarks: getVal(r, 5, ''),                                    // Col 5: remarks
-                    created_by: getVal(r, 6, 'SYSTEM'),                           // Col 6: created_by
-                    created_at: getVal(r, 7, '2026-01-01 00:00:00'),              // Col 7: created_at
-                    modified_by: getVal(r, 8, 'SYSTEM'),                          // Col 8: modified_by
-                    modified_at: getVal(r, 9, '2026-01-01 00:00:00')              // Col 9: modified_at
-                };
-            });
-        }
-
-        function loadFallbackData() {
-            loadAlertsFallback();
-            loadThresholdsFallback();
-        }
-
-        function loadAlertsFallback() {
-            appState.alerts = [
-                {
-                    id: 'ALT-1001',
-                    alert_type: '低於安全水位',
-                    warehouse_id: 'WH-MY-KUL',
-                    product_id: 'PRD-0101-01',
-                    stock_id: 'STK-9001',
-                    batch_no: 'LOT-20251104-A',
-                    expiry_date: '2027-11-04',
-                    current_qty: 8,
-                    threshold_qty: 40,
-                    days_to_expire: 428,
-                    alert_level: '緊急',
-                    status: '未處理',
-                    suggested_action: '發起跨國調撥，自台北總倉緊急補足大馬拓荒量',
-                    resolved_by: '',
-                    resolved_at: '',
-                    created_by: 'SYSTEM',
-                    created_at: '2026-09-01 09:30:00',
-                    modified_by: 'SYSTEM',
-                    modified_at: '2026-09-01 09:30:00'
-                },
-                {
-                    id: 'ALT-1002',
-                    alert_type: '90天近效期',
-                    warehouse_id: 'WH-TW-KH',
-                    product_id: 'PRD-0201-01',
-                    stock_id: 'STK-9002',
-                    batch_no: 'LOT-20241015-X',
-                    expiry_date: '2026-10-15',
-                    current_qty: 120,
-                    threshold_qty: 30,
-                    days_to_expire: 43,
-                    alert_level: '緊急',
-                    status: '未處理',
-                    suggested_action: '協調下線消費者先買方案，鎖定批號促銷消化',
-                    resolved_by: '',
-                    resolved_at: '',
-                    created_by: 'SYSTEM',
-                    created_at: '2026-09-01 10:15:00',
-                    modified_by: 'SYSTEM',
-                    modified_at: '2026-09-01 10:15:00'
-                },
-                {
-                    id: 'ALT-1003',
-                    alert_type: '低於安全水位',
-                    warehouse_id: 'WH-HOME-RAY',
-                    product_id: 'PRD-0101-02',
-                    stock_id: 'STK-9003',
-                    batch_no: 'LOT-20250912-B',
-                    expiry_date: '2027-09-12',
-                    current_qty: 12,
-                    threshold_qty: 30,
-                    days_to_expire: 375,
-                    alert_level: '注意',
-                    status: '已知悉',
-                    suggested_action: '月末經理衝刺儲備不足，建議向官方總部提貨',
-                    resolved_by: 'Ray',
-                    resolved_at: '2026-09-02 08:00:00',
-                    created_by: 'SYSTEM',
-                    created_at: '2026-09-01 11:00:00',
-                    modified_by: 'Ray',
-                    modified_at: '2026-09-02 08:00:00'
-                },
-                {
-                    id: 'ALT-1004',
-                    alert_type: '30天極危效期',
-                    warehouse_id: 'WH-TW-TP',
-                    product_id: 'PRD-0301-02',
-                    stock_id: 'STK-9004',
-                    batch_no: 'LOT-20240930-Z',
-                    expiry_date: '2026-09-30',
-                    current_qty: 15,
-                    threshold_qty: 20,
-                    days_to_expire: 28,
-                    alert_level: '緊急',
-                    status: '已轉特惠促銷/試用',
-                    suggested_action: '轉為團隊體驗拆盒或 ABC 會談樣品贈送',
-                    resolved_by: 'Jarvis',
-                    resolved_at: '2026-09-02 11:30:00',
-                    created_by: 'SYSTEM',
-                    created_at: '2026-09-01 14:20:00',
-                    modified_by: 'Jarvis',
-                    modified_at: '2026-09-02 11:30:00'
-                }
-            ];
-        }
-
-        function loadThresholdsFallback() {
-            appState.thresholds = [
-                {
-                    id: 'TH-TW-TP-01',
-                    warehouse_id: 'WH-TW-TP',
-                    product_id: 'PRD-0101-01',
-                    threshold_qty: 50,
-                    is_monitored: 'Y',
-                    remarks: '台北總部主要物流樞紐常備安全底線',
-                    created_by: 'SYSTEM',
-                    created_at: '2026-01-01 00:00:00',
-                    modified_by: 'Jarvis',
-                    modified_at: '2026-08-15 14:00:00'
-                },
-                {
-                    id: 'TH-RAY-01',
-                    warehouse_id: 'WH-HOME-RAY',
-                    product_id: 'PRD-0101-02',
-                    threshold_qty: 30,
-                    is_monitored: 'Y',
-                    remarks: '月末 160/3,200 SV 經理級衝刺機動戰備庫',
-                    created_by: 'Ray',
-                    created_at: '2026-02-10 10:00:00',
-                    modified_by: 'Ray',
-                    modified_at: '2026-08-20 18:00:00'
-                },
-                {
-                    id: 'TH-MY-KL01',
-                    warehouse_id: 'WH-MY-KUL',
-                    product_id: 'PRD-0101-01',
-                    threshold_qty: 40,
-                    is_monitored: 'Y',
-                    remarks: '大馬吉隆坡海外拓荒防線（跨境長前置天數）',
-                    created_by: 'Jarvis',
-                    created_at: '2026-05-12 11:00:00',
-                    modified_by: 'Jarvis',
-                    modified_at: '2026-08-25 09:30:00'
-                },
-                {
-                    id: 'TH-MY-KL02',
-                    warehouse_id: 'WH-MY-KUL',
-                    product_id: 'PRD-0102-01',
-                    threshold_qty: 30,
-                    is_monitored: 'Y',
-                    remarks: '樟芝益大馬經銷加盟見證展示庫存',
-                    created_by: 'Ray',
-                    created_at: '2026-06-01 16:00:00',
-                    modified_by: 'Ray',
-                    modified_at: '2026-08-28 17:00:00'
-                }
-            ];
-        }
-
-        // ==========================================================================
-        // 5. 介面事件綁定與視圖渲染中樞
-        // ==========================================================================
-        function bindUIEvents() {
-            // 預警篩選按鈕
-            $('[data-alert-filter]').on('click', function() {
-                $('[data-alert-filter]').removeClass('active');
-                $(this).addClass('active');
-                appState.alertFilter = $(this).data('alert-filter');
-                filterAlertsTable();
-            });
-
-            // 預警搜尋
-            $('#alerts-table-search').on('input', function() {
-                if (alertsDataTableInstance) {
-                    alertsDataTableInstance.search($(this).val()).draw();
-                }
-            });
-
-            // 門檻搜尋
-            $('#thresholds-table-search').on('input', function() {
-                if (thresholdsDataTableInstance) {
-                    thresholdsDataTableInstance.search($(this).val()).draw();
-                }
-            });
-
-            // Checkbox 全選
-            $('#check-all-alerts').on('change', function() {
-                $('.alert-item-check').prop('checked', this.checked);
-            });
-        }
-
-        function switchMainWorkspace(tab) {
-            appState.currentWorkspace = tab;
-            if (tab === 'ALERTS') {
-                $('#tab-btn-alerts').addClass('active');
-                $('#tab-btn-thresholds').removeClass('active');
-                $('#workspace-alerts').removeClass('d-none');
-                $('#workspace-thresholds').addClass('d-none');
-            } else {
-                $('#tab-btn-thresholds').addClass('active');
-                $('#tab-btn-alerts').removeClass('active');
-                $('#workspace-thresholds').removeClass('d-none');
-                $('#workspace-alerts').addClass('d-none');
-                renderThresholdsDataTable();
-            }
-        }
-
-        function refreshView() {
-            renderHudMetrics();
-            renderAlertsDataTable();
-            renderThresholdsDataTable();
-            applyUIPermissions();
-        }
-
-        function renderHudMetrics() {
-            const stockout = appState.alerts.filter(a => a.alert_type === '低於安全水位').length;
-            const expiring = appState.alerts.filter(a => a.alert_type.includes('效期') || a.days_to_expire <= 90).length;
-            const monitored = appState.thresholds.filter(t => t.is_monitored === 'Y').length;
-
-            $('#stat-stockout-count').text(stockout);
-            $('#stat-expiry-count').text(expiring);
-            $('#stat-monitored-rules').text(monitored);
-
-            $('#count-alerts-total').text(appState.alerts.length);
-            $('#count-thresholds-total').text(appState.thresholds.length);
-        }
-
-        // ==========================================================================
-        // 6. DataTables 渲染：預警主表 (psi_alerts)
-        // ==========================================================================
-        function renderAlertsDataTable() {
-            const formatted = appState.alerts.map(a => formatAlertRow(a));
-
-            if (alertsDataTableInstance) {
-                alertsDataTableInstance.clear();
-                alertsDataTableInstance.rows.add(formatted);
-                alertsDataTableInstance.draw();
-            } else {
-                alertsDataTableInstance = $('#alertsDataTable').DataTable({
-                    data: formatted,
-                    responsive: true,
-                    pageLength: 10,
-                    columns: [
-                        { data: 'checkbox' },
-                        { data: 'id' },
-                        { data: 'type' },
-                        { data: 'product' },
-                        { data: 'warehouse' },
-                        { data: 'batch' },
-                        { data: 'qty' },
-                        { data: 'days' },
-                        { data: 'level' },
-                        { data: 'status' },
-                        { data: 'actions' }
-                    ],
-                    language: {
-                        search: "表格搜尋：",
-                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆告警",
-                        paginate: { first: "首頁", last: "末頁", next: "下頁", previous: "上頁" },
-                        zeroRecords: "目前無任何庫存風險告警"
-                    }
-                });
-            }
-            filterAlertsTable();
-        }
-
-        function filterAlertsTable() {
-            if (!alertsDataTableInstance) return;
-            if (appState.alertFilter === 'ALL') {
-                alertsDataTableInstance.column(2).search('').draw();
-            } else {
-                alertsDataTableInstance.column(2).search(appState.alertFilter).draw();
-            }
-        }
-
-        function formatAlertRow(a) {
-            const hasAdminRights = isMasterAdmin();
-
-            let typeBadge = '<span class="badge badge-purple-glow">日常提示</span>';
-            if (a.alert_type === '低於安全水位') typeBadge = '<span class="badge badge-danger-glow"><i class="fa-solid fa-triangle-exclamation"></i> 低於安全水位</span>';
-            else if (a.alert_type === '90天近效期') typeBadge = '<span class="badge badge-warning-glow"><i class="fa-solid fa-hourglass-half"></i> 90天近效期</span>';
-            else if (a.alert_type === '30天極危效期') typeBadge = '<span class="badge badge-danger-glow"><i class="fa-solid fa-skull-crossbones"></i> 30天極危效期</span>';
-            else if (a.alert_type === '品質鎖定') typeBadge = '<span class="badge bg-secondary"><i class="fa-solid fa-lock"></i> 品質鎖定</span>';
-
-            let statusBadge = '<span class="badge bg-secondary">未處理</span>';
-            if (a.status === '已知悉') statusBadge = '<span class="badge bg-info-subtle text-info border border-info-subtle">已知悉</span>';
-            else if (a.status === '已轉特惠促銷/試用') statusBadge = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle">已轉特惠/試用</span>';
-            else if (a.status === '已結案出清') statusBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle">已結案出清</span>';
-
-            const actionBtn = hasAdminRights ? `
-                <button class="btn btn-sm btn-cyber-primary py-0 px-2 admin-action-btn" onclick="openResolveAlertModal('${a.id}')">
-                    <i class="fa-solid fa-bolt"></i> 處置
-                </button>
-            ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
-
-            return {
-                checkbox: `<input type="checkbox" class="alert-item-check form-check-input" value="${a.id}">`,
-                id: `<span class="mono-num fw-bold text-info">${a.id}</span>`,
-                type: typeBadge,
-                product: `<div class="fw-bold text-white">${a.product_id}</div><div class="small text-secondary">${getProductName(a.product_id)}</div>`,
-                warehouse: `<span class="badge bg-dark border border-purple">${a.warehouse_id}</span>`,
-                batch: `<div><span class="mono-num small text-light">${a.batch_no}</span><div class="small text-secondary">${a.expiry_date}</div></div>`,
-                qty: `<div><span class="mono-num fw-bold text-white">${a.current_qty}</span> <span class="text-secondary small">/ 門檻 ${a.threshold_qty}</span></div>`,
-                days: a.days_to_expire <= 90 
-                    ? `<span class="mono-num text-danger fw-bold"><i class="fa-solid fa-clock"></i> 剩 ${a.days_to_expire} 天</span>` 
-                    : `<span class="mono-num text-secondary">剩 ${a.days_to_expire} 天</span>`,
-                level: a.alert_level === '緊急' ? '<span class="text-danger fw-bold">緊急</span>' : '<span class="text-warning">注意</span>',
-                status: statusBadge,
-                actions: actionBtn
-            };
-        }
-
-        function getProductName(pid) {
-            const map = {
-                'PRD-0101-01': '康爾喜乳酸菌 (顆粒)',
-                'PRD-0101-02': '995 生技營養品 (液體)',
-                'PRD-0102-01': '樟芝益生技飲品',
-                'PRD-0201-01': '迪asin 膠囊',
-                'PRD-0301-02': '清調活化飲'
-            };
-            return map[pid] || '葡眾營養保健品';
-        }
-
-        // ==========================================================================
-        // 7. DataTables 渲染與 CRUD：門檻規則表 (psi_safety_thresholds)
-        // ==========================================================================
-        function renderThresholdsDataTable() {
-            const formatted = appState.thresholds.map(t => formatThresholdRow(t));
-
-            if (thresholdsDataTableInstance) {
-                thresholdsDataTableInstance.clear();
-                thresholdsDataTableInstance.rows.add(formatted);
-                thresholdsDataTableInstance.draw();
-            } else {
-                thresholdsDataTableInstance = $('#thresholdsDataTable').DataTable({
-                    data: formatted,
-                    responsive: true,
-                    pageLength: 10,
-                    columns: [
-                        { data: 'id' },
-                        { data: 'warehouse' },
-                        { data: 'product' },
-                        { data: 'qty' },
-                        { data: 'monitored' },
-                        { data: 'remarks' },
-                        { data: 'creator' },
-                        { data: 'updated_at' },
-                        { data: 'actions' }
-                    ],
-                    language: {
-                        search: "表格搜尋：",
-                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 組門檻規則",
-                        paginate: { first: "首頁", last: "末頁", next: "下頁", previous: "上頁" },
-                        zeroRecords: "查無門檻規則資料"
-                    }
-                });
-            }
-        }
-
-        function formatThresholdRow(t) {
-            const hasAdminRights = isMasterAdmin();
-            const isMonitored = t.is_monitored === 'Y';
-
-            const monitoredPill = isMonitored
-                ? '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fa-solid fa-circle-check"></i> 監控中</span>'
-                : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fa-solid fa-pause"></i> 暫停</span>';
-
-            const actionButtons = hasAdminRights ? `
-                <button class="btn btn-sm btn-outline-primary py-0 px-2 admin-action-btn" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1 admin-action-btn" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
-                    <i class="fa-solid fa-trash-alt"></i>
-                </button>
-            ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
-
-            return {
-                id: `<span class="mono-num fw-bold text-info">${t.id}</span>`,
-                warehouse: `<span class="badge bg-dark border border-purple">${t.warehouse_id}</span>`,
-                product: `<div><span class="mono-num text-white">${t.product_id}</span><div class="small text-secondary">${getProductName(t.product_id)}</div></div>`,
-                qty: `<span class="mono-num h6 fw-bold text-warning mb-0">${t.threshold_qty} 盒</span>`,
-                monitored: monitoredPill,
-                remarks: `<div class="small text-secondary text-truncate" style="max-width: 220px;" title="${t.remarks || ''}">${t.remarks || '-'}</div>`,
-                creator: `<span class="small">${t.created_by || 'SYSTEM'}</span>`,
-                updated_at: `<span class="mono-num small text-secondary">${t.modified_at || '-'}</span>`,
-                actions: actionButtons
-            };
-        }
-
-        function openAddThresholdModal() {
-            $('#thresholdModalLabel').html('<i class="fa-solid fa-plus text-primary"></i> 新增安全門檻規則');
-            $('#thresholdFormMode').val('add');
-            $('#thresholdForm')[0].reset();
-            $('#fieldThresholdId').prop('readonly', false).val(`TH-${String(appState.thresholds.length + 1).padStart(3, '0')}`);
-            $('#fieldThresholdWarehouse').val('WH-TW-TP');
-            $('#fieldThresholdProduct').val('PRD-0101-01');
-            $('#fieldThresholdQty').val('20');
-            $('#fieldThresholdIsMonitored').prop('checked', true);
-            $('#thresholdFieldCreatedAt').val('');
-            $('#thresholdFieldCreatedBy').val('');
-            new bootstrap.Modal(document.getElementById('thresholdModal')).show();
-        }
-
-        function openEditThresholdModal(thresholdId) {
-            const t = appState.thresholds.find(item => item.id === thresholdId);
-            if (!t) return;
-
-            $('#thresholdModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯安全門檻規則');
-            $('#thresholdFormMode').val('edit');
-            $('#fieldThresholdId').prop('readonly', true).val(t.id);
-            $('#fieldThresholdWarehouse').val(t.warehouse_id);
-            $('#fieldThresholdProduct').val(t.product_id);
-            $('#fieldThresholdQty').val(t.threshold_qty);
-            $('#fieldThresholdRemarks').val(t.remarks);
-            $('#fieldThresholdIsMonitored').prop('checked', t.is_monitored === 'Y');
-            $('#thresholdFieldCreatedAt').val(t.created_at);
-            $('#thresholdFieldCreatedBy').val(t.created_by);
-
-            new bootstrap.Modal(document.getElementById('thresholdModal')).show();
-        }
-
-        async function saveThresholdItem() {
-            const mode = $('#thresholdFormMode').val();
-            const id = $('#fieldThresholdId').val().trim();
-            const wh = $('#fieldThresholdWarehouse').val();
-            const prd = $('#fieldThresholdProduct').val();
-            const qty = parseInt($('#fieldThresholdQty').val(), 10) || 0;
-            const remarks = $('#fieldThresholdRemarks').val().trim();
-            const isMonitored = $('#fieldThresholdIsMonitored').is(':checked') ? 'Y' : 'N';
-
-            if (!id) {
-                AppToast.warning("門檻識別碼為必填！");
-                return;
-            }
-
-            const currentUser = getCurrentUser();
-            const nowStr = getFormattedNow();
-
-            const existing = appState.thresholds.find(t => t.id === id);
-            const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
-            const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
-
-            // 依表 310 psi_safety_thresholds 物理順序組成 rowData 陣列 (Index 0 ~ 9)
-            const rowDataArray = [
-                id,                 // Col 0: id (PK)
-                wh,                 // Col 1: warehouse_id
-                prd,                // Col 2: product_id
-                qty,                // Col 3: threshold_qty
-                isMonitored,        // Col 4: is_monitored
-                remarks,            // Col 5: remarks
-                createdBy,          // Col 6: created_by
-                createdAt,          // Col 7: created_at
-                currentUser,        // Col 8: modified_by
-                nowStr              // Col 9: modified_at
-            ];
-
-            const updatedObj = {
-                id: id,
-                warehouse_id: wh,
-                product_id: prd,
-                threshold_qty: qty,
-                is_monitored: isMonitored,
-                remarks: remarks,
-                created_by: createdBy,
-                created_at: createdAt,
-                modified_by: currentUser,
-                modified_at: nowStr
-            };
-
-            const $btn = $('button[onclick="saveThresholdItem()"]');
-            try {
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
-
-                if (mode === 'add') {
-                    await SheetAdapter.createRow(SHEET_THRESHOLDS, id, rowDataArray);
-                    appState.thresholds.push(updatedObj);
-                } else {
-                    await SheetAdapter.updateRow(SHEET_THRESHOLDS, id, rowDataArray);
-                    const index = appState.thresholds.findIndex(t => t.id === id);
-                    if (index !== -1) appState.thresholds[index] = updatedObj;
-                }
-
-                refreshView();
-
-                const modalEl = document.getElementById('thresholdModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
-
-                AppToast.success(`門檻規則【${id}】儲存成功！`);
-            } catch (err) {
-                AppToast.error("門檻寫入失敗：" + err.message);
-            } finally {
-                $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存門檻規則');
-            }
-        }
-
-        async function deleteThresholdItem(thresholdId) {
-            if (!confirm(`確定要永久刪除門檻規則【${thresholdId}】嗎？`)) return;
-
-            try {
-                await SheetAdapter.deleteRow(SHEET_THRESHOLDS, thresholdId);
-                appState.thresholds = appState.thresholds.filter(t => t.id !== thresholdId);
-                refreshView();
-                AppToast.success(`門檻規則【${thresholdId}】已成功刪除！`);
-            } catch (err) {
-                AppToast.error("刪除失敗：" + err.message);
-            }
-        }
-
-        // ==========================================================================
-        // 8. 告警處置回寫 (psi_alerts 表 308)
-        // ==========================================================================
-        function openResolveAlertModal(alertId) {
-            const a = appState.alerts.find(item => item.id === alertId);
-            if (!a) return;
-
-            $('#resolveAlertId').val(a.id);
-            $('#resolveAlertItemText').text(`${getProductName(a.product_id)} (${a.product_id})`);
-            $('#resolveAlertWhText').text(a.warehouse_id);
-            $('#resolveAlertSuggestedText').text(a.suggested_action || '常規調撥防線');
-            $('#resolveStatusSelect').val(a.status || '已知悉');
-            $('#resolveRemarksInput').val('');
-
-            new bootstrap.Modal(document.getElementById('resolveAlertModal')).show();
-        }
-
-        async function saveAlertResolution() {
-            const alertId = $('#resolveAlertId').val();
-            const alertItem = appState.alerts.find(a => a.id === alertId);
-            if (!alertItem) return;
-
-            const newStatus = $('#resolveStatusSelect').val();
-            const remarks = $('#resolveRemarksInput').val().trim();
-            const currentUser = getCurrentUser();
-            const nowStr = getFormattedNow();
-
-            // 依表 308 psi_alerts 物理順序組成 rowData 陣列 (Index 0 ~ 18)
-            const rowDataArray = [
-                alertItem.id,                                   // Col 0: id
-                alertItem.alert_type,                           // Col 1: alert_type
-                alertItem.warehouse_id,                         // Col 2: warehouse_id
-                alertItem.product_id,                           // Col 3: product_id
-                alertItem.stock_id,                             // Col 4: stock_id
-                alertItem.batch_no,                             // Col 5: batch_no
-                alertItem.expiry_date,                          // Col 6: expiry_date
-                alertItem.current_qty,                          // Col 7: current_qty
-                alertItem.threshold_qty,                        // Col 8: threshold_qty
-                alertItem.days_to_expire,                       // Col 9: days_to_expire
-                alertItem.alert_level,                          // Col 10: alert_level
-                newStatus,                                      // Col 11: status
-                remarks ? `${alertItem.suggested_action} ‧ [備註: ${remarks}]` : alertItem.suggested_action, // Col 12: suggested_action
-                currentUser,                                    // Col 13: resolved_by
-                nowStr,                                         // Col 14: resolved_at
-                alertItem.created_by,                           // Col 15: created_by
-                alertItem.created_at,                           // Col 16: created_at
-                currentUser,                                    // Col 17: modified_by
-                nowStr                                          // Col 18: modified_at
-            ];
-
-            try {
-                await SheetAdapter.updateRow(SHEET_ALERTS, alertId, rowDataArray);
-                
-                alertItem.status = newStatus;
-                alertItem.resolved_by = currentUser;
-                alertItem.resolved_at = nowStr;
-                alertItem.modified_by = currentUser;
-                alertItem.modified_at = nowStr;
-
-                refreshView();
-
-                const modalEl = document.getElementById('resolveAlertModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
-
-                AppToast.success(`告警【${alertId}】處置狀態已更新為【${newStatus}】！`);
-            } catch (err) {
-                AppToast.error("告警處置失敗：" + err.message);
-            }
-        }
-
-        async function triggerBatchResolve() {
-            const checkedBoxes = $('.alert-item-check:checked');
-            if (checkedBoxes.length === 0) {
-                AppToast.warning("請先勾選欲處置之告警項目！");
-                return;
-            }
-
-            if (!confirm(`確定要將已選取的 ${checkedBoxes.length} 筆告警批次標記為【已知悉】嗎？`)) return;
-
-            AppLoading.show("批次處置中...", "正在回寫試算表");
-            try {
-                for (let i = 0; i < checkedBoxes.length; i++) {
-                    const alertId = $(checkedBoxes[i]).val();
-                    const a = appState.alerts.find(item => item.id === alertId);
-                    if (a) {
-                        a.status = '已知悉';
-                        a.resolved_by = getCurrentUser();
-                        a.resolved_at = getFormattedNow();
-                    }
-                }
-                refreshView();
-                AppToast.success(`已完成 ${checkedBoxes.length} 筆告警之批次知悉簽核！`);
-            } finally {
-                AppLoading.hide();
-            }
-        }
-    </script>
-</body>
+        
+    </body>
 </html>

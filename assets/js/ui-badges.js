@@ -52,7 +52,7 @@ const UIBadges = (function () {
             country(countryCode) {
                 const code = clean(countryCode, 'TW').toUpperCase();
                 switch (code) {
-                    case 'TW': return `<span class="badge badge-blue-subtle font-monospace">TW</span>`;
+                    case 'TW': return `<span class="badge badge-cyan-subtle font-monospace">TW</span>`;
                     case 'MY': return `<span class="badge badge-yellow-subtle font-monospace">MY</span>`;
                     default: return `<span class="badge badge-muted-subtle font-monospace">未設定</span>`;
                 }
@@ -344,6 +344,38 @@ const UIBadges = (function () {
                     case '測試中': return '<span class="badge badge-warning">測試中</span>';
                     case '修復中': return '<span class="badge badge-danger">修復中</span>';
                     default: return `<span class="badge badge-muted">${clean(status, '開發中')}</span>`;
+                }
+            }
+        },
+
+        // ====================================================================
+        // 6. 倉儲與物流領域 (UIBadges.warehouse.*)
+        // ====================================================================
+        warehouse: {
+            /**
+             * 據點倉儲類型標籤
+             * 官方：badge-blue-subtle
+             * 自用：badge-teal-subtle
+             * 海外：badge-outline-cyan
+             * 物流：badge-outline-white
+             */
+            type(warehouseType) {
+                const type = (warehouseType || '').trim();
+                switch (type) {
+                    case 'OFFICIAL_CENTER':
+                    case '官方營運中心':
+                        return '<span class="badge badge-blue-subtle"><i class="fa-solid fa-building-flag me-1"></i> 官方營運中心</span>';
+                    case 'PRIVATE_HUB':
+                    case '自用常備倉':
+                        return '<span class="badge badge-teal-subtle"><i class="fa-solid fa-vault me-1"></i> 自用常備倉</span>';
+                    case 'TRANSIT_OVERSEAS':
+                    case '海外商務倉':
+                        return '<span class="badge badge-outline-cyan"><i class="fa-solid fa-plane-departure me-1"></i> 海外商務倉</span>';
+                    case 'LOGISTICS_IN_TRANSIT':
+                    case '物流在途倉':
+                        return '<span class="badge badge-outline-white"><i class="fa-solid fa-truck-fast me-1"></i> 物流在途倉</span>';
+                    default:
+                        return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
             }
         }

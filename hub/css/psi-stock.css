@@ -1,0 +1,90 @@
+/* ==========================================================================
+   psi-stock.css
+   庫存管理模組專屬樣式 (共用主題變數、毛玻璃、深色表格與通用按鈕均引用自 common.css)
+   ========================================================================== */
+
+/* 戰術抬頭哨兵頂部裝飾線 */
+.hud-sentinel-bar {
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hud-sentinel-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, var(--uvaco-primary, #a855f7) 0%, var(--uvaco-accent, #ec4899) 100%);
+    box-shadow: 0 0 12px var(--uvaco-accent, #ec4899);
+}
+
+/* 態勢動態指標卡 */
+.hud-pill {
+    background: var(--uvaco-bg-card-inner, rgba(10, 5, 24, 0.65));
+    border: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.2));
+    border-radius: var(--uvaco-border-radius-md, 10px);
+    padding: 0.75rem 1rem;
+    transition: all 0.25s ease;
+}
+
+.hud-pill:hover {
+    border-color: var(--uvaco-primary, #a855f7);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px var(--uvaco-primary-glow, rgba(168, 85, 247, 0.2));
+}
+
+/* 快篩膠囊按鈕 */
+.filter-pill-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.25));
+    color: var(--uvaco-text-muted, #94a3b8);
+    border-radius: 50px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.filter-pill-btn:hover {
+    color: #ffffff;
+    background: rgba(168, 85, 247, 0.2);
+    border-color: var(--uvaco-primary, #a855f7);
+}
+
+.filter-pill-btn.active {
+    background: linear-gradient(135deg, var(--uvaco-primary, #a855f7) 0%, var(--uvaco-accent, #ec4899) 100%);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
+}
+
+/* 批號標籤與效期階梯進度條 */
+.batch-chip {
+    background: rgba(168, 85, 247, 0.12);
+    border: 1px dashed rgba(168, 85, 247, 0.5);
+    color: var(--uvaco-secondary, #c084fc);
+    font-size: 0.8rem;
+    border-radius: 6px;
+    padding: 0.15rem 0.45rem;
+}
+
+.expiry-progress {
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.live-pulse {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--uvaco-neon-emerald, #10b981);
+    box-shadow: 0 0 8px var(--uvaco-neon-emerald, #10b981);
+}
