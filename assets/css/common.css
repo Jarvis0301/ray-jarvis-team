@@ -9386,6 +9386,101 @@ body {
   margin: 0.1rem 0.2rem 0.1rem 0 !important;
 }
 
+/* ==========================================================================
+   全域表單開關與選取元件視覺強化 (Checkbox / Radio / Switch)
+   針對深色主題未選取狀態大幅提升輪廓度、背景層次與互動光感
+   ========================================================================== */
+/* 1. Checkbox 與 Radio Button 未選取狀態強化 */
+.form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  vertical-align: top;
+  cursor: pointer;
+  /* 未選取時：加入微透亮沉降底色與 1.5px 明晰實線邊框 */
+  background-color: var(--uvaco-bg-card-hover, rgba(255, 255, 255, 0.08));
+  border: 1.5px solid var(--uvaco-secondary, rgba(255, 255, 255, 0.4)) !important;
+  border-radius: 0.35rem;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Radio Button 專屬圓形邊界 */
+.form-check-input[type=radio] {
+  border-radius: 50%;
+}
+
+/* 未選取狀態下的滑鼠懸停 (Hover)：外框提亮並觸發主題光暈 */
+.form-check-input:hover:not(:checked):not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-color: var(--uvaco-secondary, #34d399) !important;
+  box-shadow: 0 0 8px var(--uvaco-border-glow, rgba(52, 211, 153, 0.35));
+}
+
+/* 鍵盤聚焦與觸摸焦點 (Focus) */
+.form-check-input:focus {
+  border-color: var(--uvaco-secondary, #34d399) !important;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(52, 211, 153, 0.25)) !important;
+}
+
+/* 選中狀態 (Checked)：填入當前主題 Primary 色並維持高對比外發光 */
+.form-check-input:checked {
+  background-color: var(--uvaco-primary, #10b981) !important;
+  border-color: var(--uvaco-primary, #10b981) !important;
+  box-shadow: 0 0 10px var(--uvaco-border-glow, rgba(16, 185, 129, 0.45));
+}
+
+/* --------------------------------------------------------------------------
+   2. Switch (開關滑桿) 專屬軌道與撥鈕重構
+   -------------------------------------------------------------------------- */
+.form-switch .form-check-input {
+  width: 2.65rem;
+  height: 1.45rem;
+  margin-left: -2.85rem;
+  border-radius: 2rem;
+  /* 未選取軌道：加深底色但給予高對比實心邊框 */
+  background-color: var(--uvaco-bg-card-hover, rgba(255, 255, 255, 0.12));
+  border: 1.5px solid var(--uvaco-secondary, rgba(255, 255, 255, 0.45)) !important;
+  /* 重繪未選取時的 SVG 圓鈕：置換為高感光純亮白/銀灰圓點 (#f1f5f9) */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f1f5f9'/%3e%3c/svg%3e") !important;
+  background-position: left center;
+}
+
+/* 未選取 Switch 滑鼠懸停 (Hover)：滑軌提亮、圓鈕呈現 100% 純白 */
+.form-switch .form-check-input:hover:not(:checked):not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: var(--uvaco-secondary, #34d399) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  box-shadow: 0 0 10px var(--uvaco-border-glow, rgba(52, 211, 153, 0.35));
+}
+
+/* Switch 選中狀態 (Checked)：滑軌填色，滑鈕移至右側 */
+.form-switch .form-check-input:checked {
+  background-color: var(--uvaco-primary, #10b981) !important;
+  border-color: var(--uvaco-primary, #10b981) !important;
+  background-position: right center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. 禁用與輔助文字微調
+   -------------------------------------------------------------------------- */
+.form-check-input:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.form-check-label {
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  color: var(--uvaco-text-primary, #ecfdf5);
+  padding-left: 0.25rem;
+}
+
 .glass-panel {
   background: var(--uvaco-bg-card, rgba(21, 10, 42, 0.78));
   backdrop-filter: blur(14px);

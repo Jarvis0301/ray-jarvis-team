@@ -1,8 +1,11 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";
+const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
+const SPREADSHEET_ID_PRD = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";        // 獨立產品主檔試算表 (表 101 prd_items)
 const GAS_DEPLOY_ID = "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA";
+const SHEET_PRODUCTS = "產品主檔";   // 表 101: prd_items
+const SHEET_WAREHOUSES = "據點倉儲"; // 表 301: psi_warehouses
 const SHEET_ALERTS = "庫存預警";     // 表 308: psi_alerts
 const SHEET_THRESHOLDS = "安全門檻"; // 表 310: psi_safety_thresholds
 
@@ -45,12 +48,30 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+/**
+ * 取得據點中文名稱
+ */
+function getWarehouseName(whId) {
+    if (!whId) return '-';
+    return appState.warehouses[whId]?.name || whId;
+}
+
+/**
+ * 取得產品簡稱 (優先 short_name，次之完整 name)
+ */
+function getProductShortName(prdId) {
+    if (!prdId) return '-';
+    return appState.products[prdId]?.short_name || appState.products[prdId]?.name || prdId;
+}
+
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
 let appState = {
     alerts: [],
     thresholds: [],
+    warehouses: {}, // 格式: { [id]: { id, name } }
+    products: {},   // 格式: { [code]: { code, name, short_name } }
     currentWorkspace: 'ALERTS', // 'ALERTS' | 'THRESHOLDS'
     alertFilter: 'ALL'
 };
@@ -70,21 +91,10 @@ window.addEventListener('AppReady', async () => {
     applyUIPermissions();
 });
 
-$(document).ready(async function() {
-    if (!isInitialized) {
-        if (window.SheetAdapter) {
-            SheetAdapter.init(GAS_DEPLOY_ID);
-        }
-        await initAlertsApp();
-        applyUIPermissions();
-    }
-});
-
 async function initAlertsApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    $('#hudSyncTime').text(getFormattedNow());
     bindUIEvents();
     await fetchGoogleSheetsData();
 }
@@ -96,9 +106,7 @@ function isMasterAdmin() {
         const session = JSON.parse(rawSession);
         const adminEmails = [
             "jarvis20250807@gmail.com",
-            "fish7548@gmail.com",
-            "jarvis.lin@gmail.com",
-            "ray.weng@gmail.com"
+            "fish7548@gmail.com"
         ];
         return adminEmails.includes((session.user || '').toLowerCase().trim());
     } catch (e) {
@@ -118,10 +126,11 @@ function applyUIPermissions() {
 // 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步預警與門檻資料...', '連線 Google 試算表');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步預警與主檔資料...', '連線 Google 試算表');
     try {
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+        // 擴充支援傳入特定試算表 ID (預設為 SPREADSHEET_ID)
+        const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
+            const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) throw new Error(`HTTP 錯誤碼: ${res.status}`);
             const text = await res.text();
@@ -134,22 +143,53 @@ async function fetchGoogleSheetsData() {
             return (parsed.data || []).slice(1);
         };
 
-        const [rawAlertRows, rawThresholdRows] = await Promise.all([
+        // 並行獲取預警表、門檻表、據點表，以及來自另一試算表的產品主檔
+        const [rawAlertRows, rawThresholdRows, rawWhRows, rawPrdRows] = await Promise.all([
             fetchSheet(SHEET_ALERTS).catch(() => []),
-            fetchSheet(SHEET_THRESHOLDS).catch(() => [])
+            fetchSheet(SHEET_THRESHOLDS).catch(() => []),
+            fetchSheet(SHEET_WAREHOUSES).catch(() => []),
+            fetchSheet(SHEET_PRODUCTS, SPREADSHEET_ID_PRD).catch(() => []) // 指向獨立產品主檔試算表
         ]);
 
+        // 1. 解析據點主檔 (表 301)
+        appState.warehouses = {};
+        (rawWhRows || []).forEach(r => {
+            const id = getVal(r, 0);   // Col 0: id
+            const name = getVal(r, 1); // Col 1: warehouse_name
+            if (id) {
+                appState.warehouses[id] = { id, name: name || id };
+            }
+        });
+
+        // 2. 解析產品主檔 (表 101 prd_items)
+        appState.products = {};
+        (rawPrdRows || []).forEach(r => {
+            const code = getVal(r, 0);       // Col 0: product_code (PK)
+            const name = getVal(r, 3);       // Col 3: name (官方完整中文品名)
+            const shortName = getVal(r, 4);  // Col 4: short_name (產品簡稱)
+            if (code) {
+                appState.products[code] = {
+                    code,
+                    name: name || code,
+                    short_name: shortName || name || code
+                };
+            }
+        });
+
+        // 3. 解析預警表與門檻表
         appState.alerts = (rawAlertRows && rawAlertRows.length > 0) ? parseAlertsTable(rawAlertRows) : [];
         appState.thresholds = (rawThresholdRows && rawThresholdRows.length > 0) ? parseThresholdsTable(rawThresholdRows) : [];
 
+        // 刷新 Select2 選單與 DataTables 視圖
+        populateThresholdSelectOptions();
         refreshView();
-        AppToast.success(`已自雲端同步 ${appState.alerts.length} 筆預警與 ${appState.thresholds.length} 組門檻規則`);
+        AppToast.success(`同步完成：${appState.alerts.length} 筆預警、${appState.thresholds.length} 組門檻規則`);
     } catch (err) {
-        console.error("Google Sheets 預警資料讀取失敗:", err);
+        console.error("Google Sheets 同步失敗:", err);
         appState.alerts = [];
         appState.thresholds = [];
         refreshView();
-        AppToast.error(`雲端連線異常: ${err.message}`);
+        AppToast.error(`資料同步異常: ${err.message}`);
     } finally {
         AppLoading.hide();
     }
@@ -159,21 +199,22 @@ async function fetchGoogleSheetsData() {
  * 依據表 308 (psi_alerts) 物理順序解析 (Index 0 ~ 18)
  */
 function parseAlertsTable(rows) {
+    const todayStr = getFormattedNow().slice(0, 10).replace(/-/g, '');
     return rows.map((r, idx) => {
         return {
-            id: getVal(r, 0, `ALT-${String(idx + 1).padStart(4, '0')}`),  // Col 0: id
+            id: getVal(r, 0, `ALT-${todayStr}-${String(idx + 1).padStart(4, '0')}`), // Col 0: id (PK)
             alert_type: getVal(r, 1, '低於安全水位'),                      // Col 1: alert_type
-            warehouse_id: getVal(r, 2, 'WH-TW-TP'),                       // Col 2: warehouse_id
-            product_id: getVal(r, 3, 'PRD-0101-01'),                      // Col 3: product_id
-            stock_id: getVal(r, 4, ''),                                   // Col 4: stock_id
+            warehouse_id: getVal(r, 2, ''),                               // Col 2: warehouse_id (FK)
+            product_id: getVal(r, 3, ''),                                 // Col 3: product_id (FK)
+            stock_id: getVal(r, 4, ''),                                   // Col 4: stock_id (FK)
             batch_no: getVal(r, 5, '-'),                                  // Col 5: batch_no
             expiry_date: getVal(r, 6, '-'),                               // Col 6: expiry_date
             current_qty: parseInt(getVal(r, 7, '0'), 10) || 0,            // Col 7: current_qty
-            threshold_qty: parseInt(getVal(r, 8, '0'), 10) || 0,          // Col 8: threshold_qty
-            days_to_expire: parseInt(getVal(r, 9, '999'), 10) || 999,     // Col 9: days_to_expire
-            alert_level: getVal(r, 10, '注意'),                           // Col 10: alert_level
+            threshold_qty: getVal(r, 8) !== '' ? parseInt(getVal(r, 8), 10) : null, // Col 8: threshold_qty
+            days_to_expire: getVal(r, 9) !== '' ? parseInt(getVal(r, 9), 10) : null, // Col 9: days_to_expire
+            alert_level: getVal(r, 10, '注意'),                           // Col 10: alert_level ('一般','注意','緊急')
             status: getVal(r, 11, '未處理'),                               // Col 11: status
-            suggested_action: getVal(r, 12, '建議檢視備貨'),               // Col 12: suggested_action
+            remarks: getVal(r, 12, ''),                                   // Col 12: remarks (系統建議)
             resolved_by: getVal(r, 13, ''),                               // Col 13: resolved_by
             resolved_at: getVal(r, 14, ''),                               // Col 14: resolved_at
             created_by: getVal(r, 15, 'SYSTEM'),                          // Col 15: created_by
@@ -183,7 +224,6 @@ function parseAlertsTable(rows) {
         };
     });
 }
-
 /**
  * 依據表 310 (psi_safety_thresholds) 物理順序解析 (Index 0 ~ 9)
  */
@@ -213,18 +253,6 @@ function bindUIEvents() {
         $(this).addClass('active');
         appState.alertFilter = $(this).data('alert-filter');
         filterAlertsTable();
-    });
-
-    $('#alerts-table-search').on('input', function() {
-        if (alertsDataTableInstance) {
-            alertsDataTableInstance.search($(this).val()).draw();
-        }
-    });
-
-    $('#thresholds-table-search').on('input', function() {
-        if (thresholdsDataTableInstance) {
-            thresholdsDataTableInstance.search($(this).val()).draw();
-        }
     });
 
     $('#check-all-alerts').on('change', function() {
@@ -283,27 +311,19 @@ function renderAlertsDataTable() {
     } else {
         alertsDataTableInstance = $('#alertsDataTable').DataTable({
             data: formatted,
-            responsive: true,
-            pageLength: 10,
             columns: [
                 { data: 'checkbox' },
                 { data: 'id' },
                 { data: 'type' },
-                { data: 'product' },
                 { data: 'warehouse' },
+                { data: 'product' },
                 { data: 'batch' },
                 { data: 'qty' },
                 { data: 'days' },
                 { data: 'level' },
                 { data: 'status' },
                 { data: 'actions' }
-            ],
-            language: {
-                search: "表格搜尋：",
-                info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆告警",
-                paginate: { first: "首頁", last: "末頁", next: "下頁", previous: "上頁" },
-                zeroRecords: "目前無任何庫存風險告警"
-            }
+            ]
         });
     }
     filterAlertsTable();
@@ -321,35 +341,66 @@ function filterAlertsTable() {
 function formatAlertRow(a) {
     const hasAdminRights = isMasterAdmin();
 
-    let typeBadge = '<span class="badge badge-purple-glow">日常提示</span>';
-    if (a.alert_type === '低於安全水位') typeBadge = '<span class="badge badge-danger-glow"><i class="fa-solid fa-triangle-exclamation"></i> 低於安全水位</span>';
-    else if (a.alert_type === '90天近效期') typeBadge = '<span class="badge badge-warning-glow"><i class="fa-solid fa-hourglass-half"></i> 90天近效期</span>';
-    else if (a.alert_type === '30天極危效期') typeBadge = '<span class="badge badge-danger-glow"><i class="fa-solid fa-skull-crossbones"></i> 30天極危效期</span>';
-    else if (a.alert_type === '品質鎖定') typeBadge = '<span class="badge bg-secondary"><i class="fa-solid fa-lock"></i> 品質鎖定</span>';
+    // 1. 預警類型標籤：全面對齊共用 Badge 系統
+    let typeBadge = '<span class="badge badge-purple-subtle">日常提示</span>';
+    if (a.alert_type === '低於安全水位') {
+        typeBadge = '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>低於安全水位</span>';
+    } else if (a.alert_type === '90天近效期') {
+        typeBadge = '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hourglass-half me-1"></i>90天近效期</span>';
+    } else if (a.alert_type === '30天極危效期') {
+        typeBadge = '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>30天極危效期</span>';
+    } else if (a.alert_type === '已過期') {
+        typeBadge = '<span class="badge badge-danger"><i class="fa-solid fa-skull me-1"></i>已過期</span>';
+    } else if (a.alert_type === '品質鎖定') {
+        typeBadge = '<span class="badge badge-muted-subtle"><i class="fa-solid fa-lock me-1"></i>品質鎖定</span>';
+    }
 
-    let statusBadge = '<span class="badge bg-secondary">未處理</span>';
-    if (a.status === '已知悉') statusBadge = '<span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-30">已知悉</span>';
-    else if (a.status === '已轉特惠促銷/試用') statusBadge = '<span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30">已轉特惠/試用</span>';
-    else if (a.status === '已結案出清') statusBadge = '<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30">已結案出清</span>';
+    // 2. 告警嚴重級別標籤
+    let levelBadge = '<span class="badge badge-info-subtle">一般</span>';
+    if (a.alert_level === '緊急') {
+        levelBadge = '<span class="badge badge-danger-subtle fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i>緊急</span>';
+    } else if (a.alert_level === '注意') {
+        levelBadge = '<span class="badge badge-warning-subtle fw-bold">注意</span>';
+    }
+
+    // 3. 處理狀態標籤
+    let statusBadge = '<span class="badge badge-muted-subtle">未處理</span>';
+    if (a.status === '已知悉') {
+        statusBadge = '<span class="badge badge-info-subtle">已知悉</span>';
+    } else if (a.status === '已轉特惠促銷/試用') {
+        statusBadge = '<span class="badge badge-warning-subtle">已轉特惠/試用</span>';
+    } else if (a.status === '已結案出清') {
+        statusBadge = '<span class="badge badge-success-subtle">已結案出清</span>';
+    }
+
+    // 效期倒數顯示
+    let daysDisplay = '<span class="text-secondary">-</span>';
+    if (a.days_to_expire !== null && !isNaN(a.days_to_expire)) {
+        if (a.days_to_expire <= 0) {
+            daysDisplay = `<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark"></i> 逾期 ${Math.abs(a.days_to_expire)} 天</span>`;
+        } else if (a.days_to_expire <= 90) {
+            daysDisplay = `<span class="text-warning fw-bold"><i class="fa-solid fa-clock"></i> 剩 ${a.days_to_expire} 天</span>`;
+        } else {
+            daysDisplay = `<span class="text-secondary">剩 ${a.days_to_expire} 天</span>`;
+        }
+    }
 
     const actionBtn = hasAdminRights ? `
-        <button class="btn btn-sm btn-purple text-white py-0 px-2 admin-action-btn fw-bold" onclick="openResolveAlertModal('${a.id}')">
+        <button class="btn btn-sm btn-secondary" onclick="openResolveAlertModal('${a.id}')">
             <i class="fa-solid fa-bolt"></i> 處置
         </button>
     ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
 
     return {
         checkbox: `<input type="checkbox" class="alert-item-check form-check-input" value="${a.id}">`,
-        id: `<span class="font-chakra fw-bold text-info">${a.id}</span>`,
+        id: `<span class="fw-bold text-info">${a.id}</span>`,
         type: typeBadge,
-        product: `<div><span class="font-chakra text-white fw-bold">${a.product_id}</span><div class="small text-secondary">${getProductName(a.product_id)}</div></div>`,
-        warehouse: `<span class="badge bg-dark border border-purple-subtle font-chakra">${a.warehouse_id}</span>`,
-        batch: `<div><span class="font-chakra small text-light">${a.batch_no}</span><div class="small text-secondary font-chakra">${a.expiry_date}</div></div>`,
-        qty: `<div><span class="font-chakra fw-bold text-white">${a.current_qty}</span> <span class="text-secondary small font-chakra">/ 門檻 ${a.threshold_qty}</span></div>`,
-        days: a.days_to_expire <= 90 
-            ? `<span class="font-chakra text-danger fw-bold"><i class="fa-solid fa-clock"></i> 剩 ${a.days_to_expire} 天</span>` 
-            : `<span class="font-chakra text-secondary">剩 ${a.days_to_expire} 天</span>`,
-        level: a.alert_level === '緊急' ? '<span class="text-danger fw-bold">緊急</span>' : '<span class="text-warning">注意</span>',
+        warehouse: `<div><div class="text-white">${getWarehouseName(a.warehouse_id)}</div><span class="badge badge-outline-cyan small">${a.warehouse_id}</span></div>`,
+        product: `<div><div class="fw-bold text-white">${getProductShortName(a.product_id)}</div><span class="small text-secondary">${a.product_id}</span></div>`,
+        batch: `<div><span class="small text-light">${a.batch_no || '-'}</span><div class="small text-secondary">${a.expiry_date || '-'}</div></div>`,
+        qty: `<div><span class="fw-bold text-white">${a.current_qty}</span> <span class="text-secondary small">/ 門檻 ${a.threshold_qty ?? '-'}</span></div>`,
+        days: daysDisplay,
+        level: levelBadge,
         status: statusBadge,
         actions: actionBtn
     };
@@ -379,68 +430,131 @@ function renderThresholdsDataTable() {
     } else {
         thresholdsDataTableInstance = $('#thresholdsDataTable').DataTable({
             data: formatted,
-            responsive: true,
-            pageLength: 10,
             columns: [
                 { data: 'id' },
                 { data: 'warehouse' },
                 { data: 'product' },
                 { data: 'qty' },
                 { data: 'monitored' },
-                { data: 'remarks' },
-                { data: 'creator' },
-                { data: 'updated_at' },
                 { data: 'actions' }
-            ],
-            language: {
-                search: "表格搜尋：",
-                info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 組門檻規則",
-                paginate: { first: "首頁", last: "末頁", next: "下頁", previous: "上頁" },
-                zeroRecords: "查無門檻規則資料"
-            }
+            ]
         });
     }
 }
 
 function formatThresholdRow(t) {
     const hasAdminRights = isMasterAdmin();
-    const isMonitored = t.is_monitored === 'Y';
-
-    const monitoredPill = isMonitored
-        ? '<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30"><i class="fa-solid fa-circle-check"></i> 監控中</span>'
-        : '<span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30"><i class="fa-solid fa-pause"></i> 暫停</span>';
+    const monitoredPill = UIBadges.common.boolean(t.is_monitored, '監控中', '暫停');
 
     const actionButtons = hasAdminRights ? `
         <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary py-0 px-2 admin-action-btn" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
+            <button class="btn btn-outline-primary py-0 px-2" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
                 <i class="fa-solid fa-pen"></i>
             </button>
-            <button class="btn btn-outline-danger py-0 px-2 admin-action-btn" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
+            <button class="btn btn-outline-danger py-0 px-2" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
                 <i class="fa-solid fa-trash-alt"></i>
             </button>
         </div>
     ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
 
     return {
-        id: `<span class="font-chakra fw-bold text-info">${t.id}</span>`,
-        warehouse: `<span class="badge bg-dark border border-purple-subtle font-chakra">${t.warehouse_id}</span>`,
-        product: `<div><span class="font-chakra text-white fw-bold">${t.product_id}</span><div class="small text-secondary">${getProductName(t.product_id)}</div></div>`,
-        qty: `<span class="font-chakra h6 fw-bold text-warning mb-0">${t.threshold_qty} 盒</span>`,
+        id: `<span class="fw-bold text-info">${t.id}</span>`,
+        warehouse: `<div><div class="text-white">${getWarehouseName(t.warehouse_id)}</div><span class="badge badge-outline-cyan small">${t.warehouse_id}</span></div>`,
+        product: `<div><div class="fw-bold text-white">${getProductShortName(t.product_id)}</div><span class="small text-secondary">${t.product_id}</span></div>`,
+        qty: `<span class="h6 fw-bold text-warning mb-0">${t.threshold_qty} 盒</span>`,
         monitored: monitoredPill,
-        remarks: `<div class="small text-secondary text-truncate" style="max-width: 220px;" title="${t.remarks || ''}">${t.remarks || '-'}</div>`,
-        creator: `<span class="small">${t.created_by || 'SYSTEM'}</span>`,
-        updated_at: `<span class="font-chakra small text-secondary">${t.modified_at || '-'}</span>`,
         actions: actionButtons
     };
 }
 
+/**
+ * 動態填入門檻 Modal 之 Select2 下拉選單 (據點名稱與產品簡稱)
+ */
+function populateThresholdSelectOptions() {
+    const $whSelect = $('#fieldThresholdWarehouse');
+    const $prdSelect = $('#fieldThresholdProduct');
+
+    $whSelect.empty().append('<option value="">-- 請選擇據點倉儲 --</option>');
+    Object.values(appState.warehouses).forEach(wh => {
+        $whSelect.append(`<option value="${wh.id}">${wh.name} (${wh.id})</option>`);
+    });
+
+    $prdSelect.empty().append('<option value="">-- 請選擇產品品項 --</option>');
+    Object.values(appState.products).forEach(prd => {
+        $prdSelect.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
+    });
+
+    initThresholdSelect2();
+}
+
+/**
+ * 依據當前選擇的倉儲與產品，自動生成門檻主鍵 (PK: {warehouse_id}_{product_id})
+ */
+function updateGeneratedThresholdId() {
+    const wh = $('#fieldThresholdWarehouse').val();
+    const prd = $('#fieldThresholdProduct').val();
+
+    if (wh && prd) {
+        $('#fieldThresholdId').val(`${wh}_${prd}`);
+    } else {
+        $('#fieldThresholdId').val('');
+    }
+}
+
+/**
+ * 初始化門檻視窗之 Select2
+ */
+function initThresholdSelect2() {
+    if (!$.fn.select2) return;
+
+    const $wh = $('#fieldThresholdWarehouse');
+    const $prd = $('#fieldThresholdProduct');
+
+    $wh.select2({
+        theme: 'default',
+        dropdownParent: $('#thresholdModal'),
+        width: '100%',
+        placeholder: '-- 請選擇據點倉儲 --',
+        allowClear: true
+    });
+
+    $prd.select2({
+        theme: 'default',
+        dropdownParent: $('#thresholdModal'),
+        width: '100%',
+        placeholder: '-- 請選擇產品品項 --',
+        allowClear: true
+    });
+
+    // 監聽變更事件以即時自動生成 ID
+    $wh.off('change.autoId').on('change.autoId', function() {
+        if ($('#thresholdFormMode').val() === 'add') {
+            updateGeneratedThresholdId();
+        }
+    });
+
+    $prd.off('change.autoId').on('change.autoId', function() {
+        if ($('#thresholdFormMode').val() === 'add') {
+            updateGeneratedThresholdId();
+        }
+    });
+}
+
+/**
+ * 開啟新增門檻 Modal
+ */
 function openAddThresholdModal() {
     $('#thresholdModalLabel').html('<i class="fa-solid fa-plus text-primary"></i> 新增安全門檻規則');
     $('#thresholdFormMode').val('add');
     $('#thresholdForm')[0].reset();
-    $('#fieldThresholdId').prop('readonly', false).val(`TH-${Date.now().toString().slice(-6)}`);
-    $('#fieldThresholdWarehouse').val('WH-TW-TP');
-    $('#fieldThresholdProduct').val('PRD-0101-01');
+
+    // 主鍵由系統生成，維持 readonly
+    $('#fieldThresholdId').val('');
+
+    // 新增時開放選擇據點與產品
+    $('#fieldThresholdWarehouse').prop('disabled', false).val('').trigger('change');
+    $('#fieldThresholdProduct').prop('disabled', false).val('').trigger('change');
+
     $('#fieldThresholdQty').val(0);
     $('#fieldThresholdRemarks').val('');
     $('#fieldThresholdIsMonitored').prop('checked', true);
@@ -450,15 +564,21 @@ function openAddThresholdModal() {
     new bootstrap.Modal(document.getElementById('thresholdModal')).show();
 }
 
+/**
+ * 開啟編輯門檻 Modal
+ */
 function openEditThresholdModal(thresholdId) {
     const t = appState.thresholds.find(item => item.id === thresholdId);
     if (!t) return;
 
     $('#thresholdModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯安全門檻規則');
     $('#thresholdFormMode').val('edit');
-    $('#fieldThresholdId').prop('readonly', true).val(t.id);
-    $('#fieldThresholdWarehouse').val(t.warehouse_id);
-    $('#fieldThresholdProduct').val(t.product_id);
+
+    // 載入主鍵，並鎖定據點與產品（複合主鍵禁止直接修改）
+    $('#fieldThresholdId').val(t.id);
+    $('#fieldThresholdWarehouse').val(t.warehouse_id).trigger('change').prop('disabled', true);
+    $('#fieldThresholdProduct').val(t.product_id).trigger('change').prop('disabled', true);
+
     $('#fieldThresholdQty').val(t.threshold_qty);
     $('#fieldThresholdRemarks').val(t.remarks);
     $('#fieldThresholdIsMonitored').prop('checked', t.is_monitored === 'Y');
@@ -470,17 +590,30 @@ function openEditThresholdModal(thresholdId) {
 
 async function saveThresholdItem() {
     const mode = $('#thresholdFormMode').val();
-    const id = $('#fieldThresholdId').val().trim();
     const wh = $('#fieldThresholdWarehouse').val();
     const prd = $('#fieldThresholdProduct').val();
+
+    if (!wh || !prd) {
+        AppToast.warning("請完整選擇「據點倉儲」與「產品品項」！");
+        return;
+    }
+
+    // 系統強制依規格生成主鍵：倉儲據點ID_產品SKU ID
+    const id = `${wh}_${prd}`;
+    $('#fieldThresholdId').val(id);
+
+    // 新增時防呆：不可建立重複據點與產品之門檻
+    if (mode === 'add') {
+        const isDuplicate = appState.thresholds.some(t => t.id === id);
+        if (isDuplicate) {
+            AppToast.warning(`門檻規則【${id}】已存在，不可重複建立！如需修改請直接編輯既有規則。`);
+            return;
+        }
+    }
+
     const qty = parseInt($('#fieldThresholdQty').val(), 10) || 0;
     const remarks = $('#fieldThresholdRemarks').val().trim();
     const isMonitored = $('#fieldThresholdIsMonitored').is(':checked') ? 'Y' : 'N';
-
-    if (!id) {
-        AppToast.warning("請完整填寫門檻唯一識別碼！");
-        return;
-    }
 
     const currentUser = getCurrentUser();
     const nowStr = getFormattedNow();
@@ -488,9 +621,9 @@ async function saveThresholdItem() {
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
-    // 表 310: psi_safety_thresholds 依實體順序組成 0 ~ 9 陣列
+    // 表 310 (psi_safety_thresholds) 依實體物理欄位 Index 0 ~ 9 組裝
     const rowDataArray = [
-        id,                 // Col 0: id (PK)
+        id,                 // Col 0: id (PK: WH_PRD)
         wh,                 // Col 1: warehouse_id
         prd,                // Col 2: product_id
         qty,                // Col 3: threshold_qty
@@ -570,7 +703,7 @@ function openResolveAlertModal(alertId) {
     $('#resolveAlertId').val(a.id);
     $('#resolveAlertItemText').text(`${getProductName(a.product_id)} (${a.product_id})`);
     $('#resolveAlertWhText').text(a.warehouse_id);
-    $('#resolveAlertSuggestedText').text(a.suggested_action || '常規調撥防線');
+    $('#resolveAlertSuggestedText').text(a.remarks || '常規調撥備貨防線');
     $('#resolveStatusSelect').val(a.status || '已知悉');
     $('#resolveRemarksInput').val('');
 
@@ -583,25 +716,30 @@ async function saveAlertResolution() {
     if (!alertItem) return;
 
     const newStatus = $('#resolveStatusSelect').val();
-    const remarks = $('#resolveRemarksInput').val().trim();
+    const userRemarks = $('#resolveRemarksInput').val().trim();
     const currentUser = getCurrentUser();
     const nowStr = getFormattedNow();
 
-    // 表 308: psi_alerts 依實體順序組成 0 ~ 18 陣列
+    // 更新系統建議/備註欄位 (Col 12)
+    const updatedRemarks = userRemarks 
+        ? (alertItem.remarks ? `${alertItem.remarks} ‧ [處置: ${userRemarks}]` : userRemarks)
+        : alertItem.remarks;
+
+    // 嚴格依照表 308 (psi_alerts) 欄位順序 Index 0 ~ 18
     const rowDataArray = [
         alertItem.id,                                   // Col 0: id
         alertItem.alert_type,                           // Col 1: alert_type
         alertItem.warehouse_id,                         // Col 2: warehouse_id
         alertItem.product_id,                           // Col 3: product_id
-        alertItem.stock_id,                             // Col 4: stock_id
-        alertItem.batch_no,                             // Col 5: batch_no
-        alertItem.expiry_date,                          // Col 6: expiry_date
+        alertItem.stock_id || '',                       // Col 4: stock_id
+        alertItem.batch_no || '',                       // Col 5: batch_no
+        alertItem.expiry_date || '',                    // Col 6: expiry_date
         alertItem.current_qty,                          // Col 7: current_qty
-        alertItem.threshold_qty,                        // Col 8: threshold_qty
-        alertItem.days_to_expire,                       // Col 9: days_to_expire
+        alertItem.threshold_qty ?? '',                  // Col 8: threshold_qty
+        alertItem.days_to_expire ?? '',                 // Col 9: days_to_expire
         alertItem.alert_level,                          // Col 10: alert_level
         newStatus,                                      // Col 11: status
-        remarks ? `${alertItem.suggested_action} ‧ [備註: ${remarks}]` : alertItem.suggested_action, // Col 12: suggested_action
+        updatedRemarks,                                 // Col 12: remarks
         currentUser,                                    // Col 13: resolved_by
         nowStr,                                         // Col 14: resolved_at
         alertItem.created_by,                           // Col 15: created_by
@@ -614,6 +752,7 @@ async function saveAlertResolution() {
         await SheetAdapter.updateRow(SHEET_ALERTS, alertId, rowDataArray, GAS_DEPLOY_ID);
         
         alertItem.status = newStatus;
+        alertItem.remarks = updatedRemarks;
         alertItem.resolved_by = currentUser;
         alertItem.resolved_at = nowStr;
         alertItem.modified_by = currentUser;
@@ -661,9 +800,9 @@ async function triggerBatchResolve() {
                 a.modified_at = nowStr;
 
                 const rowDataArray = [
-                    a.id, a.alert_type, a.warehouse_id, a.product_id, a.stock_id,
-                    a.batch_no, a.expiry_date, a.current_qty, a.threshold_qty,
-                    a.days_to_expire, a.alert_level, a.status, a.suggested_action,
+                    a.id, a.alert_type, a.warehouse_id, a.product_id, a.stock_id || '',
+                    a.batch_no || '', a.expiry_date || '', a.current_qty, a.threshold_qty ?? '',
+                    a.days_to_expire ?? '', a.alert_level, a.status, a.remarks || '',
                     a.resolved_by, a.resolved_at, a.created_by, a.created_at,
                     a.modified_by, a.modified_at
                 ];

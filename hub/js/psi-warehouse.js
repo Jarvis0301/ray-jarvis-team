@@ -58,7 +58,7 @@ window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
         SheetAdapter.init(GAS_DEPLOY_ID);
     }
-    $('#current-timestamp').text(getFormattedNow());
+    
     bindUIEvents();
     await fetchGoogleSheetsData();
     applyUIPermissions();
@@ -256,9 +256,7 @@ function renderGridCards(list) {
         
         // 呼叫 UIBadges.warehouse 共用標籤工廠
         const typeBadge = UIBadges.warehouse.type(w.warehouse_type);
-        const statusBadge = isActive 
-            ? '<span class="badge badge-success">營運中</span>'
-            : '<span class="badge badge-danger">已停用</span>';
+        const statusBadge = UIBadges.common.boolean(isActive, '營運中', '已停用');
 
         const navUrl = (w.latitude && w.longitude)
             ? `https://www.google.com/maps/search/?api=1&query=${w.latitude},${w.longitude}`
@@ -384,9 +382,7 @@ function formatTableRow(w) {
     const typeBadge = UIBadges.warehouse.type(w.warehouse_type);
     const countryBadge = UIBadges.common.country(w.country_code);
 
-    const activePill = w.is_active === 'Y' 
-        ? '<span class="badge badge-success">營運中</span>'
-        : '<span class="badge badge-danger">已停用</span>';
+    const activePill = UIBadges.common.boolean(w.is_active === 'Y', '營運中', '已停用');
 
     const actionButtons = hasAdminRights ? `
         <button class="btn btn-sm btn-outline-purple py-1 px-2" onclick="openEditModal('${w.id}')"><i class="fa-solid fa-pen"></i></button>

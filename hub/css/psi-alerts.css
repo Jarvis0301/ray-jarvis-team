@@ -1,6 +1,7 @@
 /* ==========================================================================
    psi-alerts.css
-   庫存預警與門檻管理模組專屬樣式 (主題變數、毛玻璃、深色表格與通用按鈕均引用自 common.css)
+   庫存預警與門檻管理模組專屬樣式
+   (.card-custom、.glass-panel、.badge-* 均已由 common.css 提供)
    ========================================================================== */
 
 /* 戰術抬頭哨兵頂部裝飾線 */
@@ -19,21 +20,6 @@
     height: 100%;
     background: linear-gradient(135deg, var(--uvaco-primary, #a855f7) 0%, var(--uvaco-accent, #ec4899) 100%);
     box-shadow: 0 0 12px var(--uvaco-accent, #ec4899);
-}
-
-/* 態勢動態指標膠囊卡 */
-.hud-pill {
-    background: var(--uvaco-bg-card-inner, rgba(10, 5, 24, 0.65));
-    border: 1px solid var(--uvaco-border, rgba(168, 85, 247, 0.2));
-    border-radius: var(--uvaco-border-radius-md, 10px);
-    padding: 0.75rem 1rem;
-    transition: all 0.25s ease;
-}
-
-.hud-pill:hover {
-    border-color: var(--uvaco-primary, #a855f7);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px var(--uvaco-primary-glow, rgba(168, 85, 247, 0.2));
 }
 
 /* 快篩膠囊按鈕 */
@@ -78,26 +64,4 @@
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
     70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-/* 警示霓虹徽章 */
-.badge-danger-glow {
-    background: rgba(244, 63, 94, 0.2);
-    color: #fb7185;
-    border: 1px solid #f43f5e;
-    box-shadow: 0 0 8px rgba(244, 63, 94, 0.3);
-}
-
-.badge-warning-glow {
-    background: rgba(245, 158, 11, 0.2);
-    color: #fcd34d;
-    border: 1px solid #f59e0b;
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-}
-
-.badge-purple-glow {
-    background: rgba(168, 85, 247, 0.2);
-    color: #d8b4fe;
-    border: 1px solid #a855f7;
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
 }

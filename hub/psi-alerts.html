@@ -25,72 +25,55 @@
 
             <header class="glass-panel hud-sentinel-bar mb-4">
                 <div class="row align-items-center g-3">
-                    <div class="col-12 col-xl-5">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(168, 85, 247, 0.18); border: 1px solid var(--uvaco-primary, #a855f7); color: var(--uvaco-primary, #a855f7); font-size: 1.5rem;">
-                                <i class="fa-solid fa-satellite-dish"></i>
-                            </div>
-                            <div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="live-pulse"></span>
-                                    <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 font-chakra">H36000 庫存預警中樞</span>
-                                    <span class="text-secondary small">|</span>
-                                    <span class="text-secondary small font-chakra" id="hudSyncTime">--</span>
-                                </div>
-                                <h2 class="h4 mb-0 fw-bold mt-1 text-white">
-                                    <i class="fa-solid fa-shield-halved text-primary"></i> 庫存預警與安全門檻調度中樞
-                                </h2>
-                            </div>
+                    <div class="col-12 col-xl-6">
+                        <div class="h4 fw-bold text-white">
+                            <i class="fa-solid fa-triangle-exclamation text-primary"></i> 庫存預警
                         </div>
                     </div>
 
-                    <div class="col-12 col-xl-7">
+                    <div class="col-12 col-xl-6">
                         <div class="row g-2">
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">低於安全水位</span>
-                                        <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                                        <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger"></i> 低於安全水位</span>
                                     </div>
                                     <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold font-chakra text-danger mb-0" id="stat-stockout-count">0</span>
-                                        <span class="text-secondary small">項 (緊急)</span>
+                                        <span class="h4 fw-bold text-danger mb-0" id="stat-stockout-count">0</span>
+                                        <span class="text-secondary">項 (緊急)</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">近效期階梯壓迫</span>
-                                        <i class="fa-solid fa-hourglass-half text-warning"></i>
+                                        <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning"></i> 接近有效日期</span>
                                     </div>
                                     <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold font-chakra text-warning mb-0" id="stat-expiry-count">0</span>
-                                        <span class="text-secondary small">批 (&le;90天)</span>
+                                        <span class="h4 fw-bold text-warning mb-0" id="stat-expiry-count">0</span>
+                                        <span class="text-secondary">批 (&le;90天)</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">受控門檻規則</span>
-                                        <i class="fa-solid fa-sliders text-primary"></i>
+                                        <span class="text-secondary"><i class="fa-solid fa-sliders text-success"></i> 門檻規則</span>
                                     </div>
                                     <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold font-chakra text-white mb-0" id="stat-monitored-rules">0</span>
-                                        <span class="text-secondary small">組 (表 310)</span>
+                                        <span class="h4 fw-bold text-success mb-0" id="stat-monitored-rules">0</span>
+                                        <span class="text-secondary">組</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">待處理告警</span>
-                                        <i class="fa-solid fa-bell text-info"></i>
+                                        <span class="text-secondary"><i class="fa-solid fa-bell text-info"></i> 待處理預警</span>
                                     </div>
                                     <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold font-chakra text-info mb-0" id="stat-pending-count">0</span>
-                                        <span class="text-secondary small">筆待辦</span>
+                                        <span class="h4 fw-bold text-info mb-0" id="stat-pending-count">0</span>
+                                        <span class="text-secondary">筆待辦</span>
                                     </div>
                                 </div>
                             </div>
@@ -98,22 +81,19 @@
                     </div>
                 </div>
 
-                <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top border-purple-subtle">
+                <div class="row align-items-center justify-content-between g-3 mt-3 border-top border-purple-subtle">
                     <div class="col-12 col-md-7">
                         <div class="d-flex flex-wrap gap-2 align-items-center">
                             <button type="button" class="filter-pill-btn active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')">
-                                <i class="fa-solid fa-triangle-exclamation"></i> 即時預警防衛視圖 (<span id="count-alerts-total">0</span>)
+                                <i class="fa-solid fa-triangle-exclamation"></i> 即時預警 (<span id="count-alerts-total">0</span>)
                             </button>
                             <button type="button" class="filter-pill-btn" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')">
-                                <i class="fa-solid fa-sliders"></i> 門檻規則調整中樞 (H36100) (<span id="count-thresholds-total">0</span>)
+                                <i class="fa-solid fa-sliders"></i> 門檻規則 (<span id="count-thresholds-total">0</span>)
                             </button>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-5 text-md-end">
-                        <button type="button" class="btn btn-sm btn-outline-purple me-2" onclick="fetchGoogleSheetsData()" title="同步 Google 試算表">
-                            <i class="fa-solid fa-rotate"></i> 重新同步
-                        </button>
                         <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
                             <i class="fa-solid fa-plus"></i> 新增門檻規則
                         </button>
@@ -124,20 +104,17 @@
             <section id="workspace-alerts" class="glass-panel p-3 mb-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
                     <div class="d-flex flex-wrap align-items-center gap-2">
-                        <span class="text-white fw-bold"><i class="fa-solid fa-filter text-primary"></i> 預警類別分流：</span>
+                        <span class="text-white fw-bold"><i class="fa-solid fa-filter text-primary"></i> 預警類別：</span>
                         <button type="button" class="filter-pill-btn active" data-alert-filter="ALL">全部</button>
                         <button type="button" class="filter-pill-btn" data-alert-filter="低於安全水位">低於安全水位</button>
                         <button type="button" class="filter-pill-btn" data-alert-filter="90天近效期">90天近效期</button>
                         <button type="button" class="filter-pill-btn" data-alert-filter="30天極危效期">30天極危效期</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="已過期">已過期</button>
                         <button type="button" class="filter-pill-btn" data-alert-filter="品質鎖定">品質鎖定</button>
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
-                        <div class="input-group input-group-sm" style="max-width: 240px;">
-                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="alerts-table-search" class="form-control bg-dark text-white border-secondary" placeholder="快速搜尋品項 / 批號 / 倉儲...">
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline-purple admin-action-btn" onclick="triggerBatchResolve()" title="批次知悉處理">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="triggerBatchResolve()" title="批次知悉處理">
                             <i class="fa-solid fa-check-double"></i> 批次知悉
                         </button>
                     </div>
@@ -150,14 +127,14 @@
                                 <th class="text-center" style="width: 40px;"><input type="checkbox" id="check-all-alerts" class="form-check-input"></th>
                                 <th>告警編號</th>
                                 <th>預警類型</th>
-                                <th>品項代號 / 品名</th>
-                                <th>所屬據點倉儲</th>
+                                <th>據點倉儲</th>
+                                <th>產品品項</th>
                                 <th>批號快照</th>
                                 <th>在庫存量 / 門檻</th>
                                 <th>效期倒數</th>
                                 <th>嚴重性</th>
                                 <th>處置狀態</th>
-                                <th class="text-end">戰術處置</th>
+                                <th>處置操作</th>
                             </tr>
                         </thead>
                         <tbody id="alerts-table-body">
@@ -170,17 +147,10 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
                     <div>
                         <h5 class="fw-bold text-white mb-0">
-                            <i class="fa-solid fa-sliders text-primary"></i> 各據點分倉安全水位門檻規則庫 (表 310)
+                            <i class="fa-solid fa-sliders text-primary"></i> 各據點安全水位門檻規則
                         </h5>
                         <div class="text-secondary small mt-1">
-                            <i class="fa-solid fa-info-circle"></i> 自由可用庫存 (available_qty) &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="input-group input-group-sm" style="max-width: 240px;">
-                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="thresholds-table-search" class="form-control bg-dark text-white border-secondary" placeholder="搜尋倉儲 / 品項...">
+                            <i class="fa-solid fa-info-circle"></i> 自由可用庫存 &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
                         </div>
                     </div>
                 </div>
@@ -189,14 +159,11 @@
                     <table id="thresholdsDataTable" class="table table-dark-custom table-hover align-middle w-100">
                         <thead>
                             <tr>
-                                <th>門檻代碼 (id)</th>
-                                <th>據點倉儲 (warehouse_id)</th>
-                                <th>產品品項 (product_id)</th>
-                                <th>安全門檻盒數 (threshold_qty)</th>
-                                <th>監控狀態 (is_monitored)</th>
-                                <th>戰術備註 (remarks)</th>
-                                <th>建立者</th>
-                                <th>最後異動時間</th>
+                                <th>門檻代碼</th>
+                                <th>據點倉儲</th>
+                                <th>產品品項</th>
+                                <th>安全門檻盒數</th>
+                                <th>監控狀態</th>
                                 <th class="text-end">規則維護</th>
                             </tr>
                         </thead>
@@ -209,108 +176,99 @@
         </main>
 
         <div class="modal fade" id="thresholdModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold text-white" id="thresholdModalLabel">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                             <i class="fa-solid fa-sliders text-primary"></i> 門檻規則調整
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
+                    </header>
+                    <div class="modal-body p-3 p-md-4">
                         <form id="thresholdForm">
                             <input type="hidden" id="thresholdFormMode" value="add">
                             <input type="hidden" id="thresholdFieldCreatedAt" value="">
                             <input type="hidden" id="thresholdFieldCreatedBy" value="">
 
                             <div class="mb-3">
-                                <label class="form-label small text-secondary fw-bold">門檻唯一識別碼 (id) *</label>
-                                <input type="text" class="form-control font-chakra" id="fieldThresholdId" placeholder="例如：TH-TW-TP-01" required>
-                                <div class="form-text text-muted small">主鍵 (PK)，可自訂或由系統自動編排</div>
+                                <label class="form-label" for="fieldThresholdId">門檻唯一識別碼 (id) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm bg-dark text-info fw-bold" id="fieldThresholdId" placeholder="由系統依據點與產品自動生成..." readonly required>
+                                <div class="form-text text-muted small">主鍵 (PK)，依「倉儲據點ID_產品SKU ID」格式自動生成（例如：WH-TW-TP_TW0101001）</div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary fw-bold">據點倉儲 (warehouse_id) *</label>
-                                    <select class="form-select font-chakra" id="fieldThresholdWarehouse" required>
-                                        <option value="WH-TW-TP">WH-TW-TP (台北總公司營運中心)</option>
-                                        <option value="WH-HOME-RAY">WH-HOME-RAY (Ray 居家戰備私倉)</option>
-                                        <option value="WH-MY-KUL">WH-MY-KUL (吉隆坡海外前進基地)</option>
-                                        <option value="WH-TW-TC">WH-TW-TC (台中旗艦營運中心)</option>
-                                        <option value="WH-TW-KH">WH-TW-KH (高雄營業營運中心)</option>
+                                    <label class="form-label">據點倉儲 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldThresholdWarehouse" required>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary fw-bold">產品品項 (product_id) *</label>
-                                    <select class="form-select font-chakra" id="fieldThresholdProduct" required>
-                                        <option value="PRD-0101-01">PRD-0101-01 (康爾喜乳酸菌)</option>
-                                        <option value="PRD-0101-02">PRD-0101-02 (995 生技營養品)</option>
-                                        <option value="PRD-0102-01">PRD-0102-01 (樟芝益菌絲體飲)</option>
-                                        <option value="PRD-0201-01">PRD-0201-01 (衛傑膠囊)</option>
-                                        <option value="PRD-0301-02">PRD-0301-02 (百克斯膠囊)</option>
+                                    <label class="form-label">產品品項 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldThresholdProduct" required>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label small text-secondary fw-bold">專屬安全存量門檻盒數 (threshold_qty) *</label>
-                                <input type="number" class="form-control font-chakra" id="fieldThresholdQty" min="0" value="0" required>
+                                <label class="form-label">安全存量門檻盒數 <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm" id="fieldThresholdQty" min="0" value="0" required>
                                 <div class="form-text text-muted small">當在線可用存量小於或等於此數值時觸發預警</div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label small text-secondary fw-bold">門檻設定戰術備註 (remarks)</label>
-                                <input type="text" class="form-control" id="fieldThresholdRemarks" placeholder="例如：大馬招商拓荒備貨、月末衝刺緩衝...">
+                                <label class="form-label">備註</label>
+                                <input type="text" class="form-control form-control-sm" id="fieldThresholdRemarks" placeholder="例如：大馬招商拓荒備貨、月末衝刺緩衝...">
                             </div>
 
                             <div class="form-check form-switch mt-3">
                                 <input class="form-check-input" type="checkbox" role="switch" id="fieldThresholdIsMonitored" checked>
-                                <label class="form-check-label text-white small fw-bold" for="fieldThresholdIsMonitored">
-                                    <i class="fa-solid fa-bell text-warning"></i> 啟動此門檻即時掃描監控 (is_monitored = 'Y')
+                                <label class="form-check-label" for="fieldThresholdIsMonitored">
+                                    <i class="fa-solid fa-bell text-warning"></i> 啟動門檻即時監控
                                 </label>
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-purple btn-sm px-4 fw-bold text-white" onclick="saveThresholdItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存門檻規則
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                    </div>
-                </div>
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveThresholdItem()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存
+                        </button>
+                    </footer>
+                </section>
             </div>
         </div>
 
         <div class="modal fade" id="resolveAlertModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white">
                             <i class="fa-solid fa-wand-magic-sparkles text-primary"></i> 執行告警戰術處置
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
+                    </header>
+                    <div class="modal-body p-3 p-md-4">
                         <input type="hidden" id="resolveAlertId" value="">
                         
-                        <div class="p-3 rounded-3 mb-3 bg-dark border border-secondary">
+                        <div class="card-custom p-3 mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                                <span class="text-secondary small">預警項目：</span>
-                                <span class="text-white fw-bold font-chakra" id="resolveAlertItemText">-</span>
+                                <span class="text-secondary">預警項目：</span>
+                                <span class="text-white fw-bold" id="resolveAlertItemText">-</span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
-                                <span class="text-secondary small">所屬據點：</span>
-                                <span class="text-info font-chakra" id="resolveAlertWhText">-</span>
+                                <span class="text-secondary">所屬據點：</span>
+                                <span class="text-info" id="resolveAlertWhText">-</span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span class="text-secondary small">建議處置：</span>
-                                <span class="text-warning small" id="resolveAlertSuggestedText">-</span>
+                                <span class="text-secondary">建議處置：</span>
+                                <span class="text-warning" id="resolveAlertSuggestedText">-</span>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-code-branch"></i> 變更處理狀態 (status)</label>
-                            <select class="form-select" id="resolveStatusSelect">
+                            <label class="form-label"><i class="fa-solid fa-code-branch"></i> 變更處理狀態 (status)</label>
+                            <select class="form-select form-select-sm" id="resolveStatusSelect">
                                 <option value="已知悉">已知悉 (排入日常監控)</option>
                                 <option value="已轉特惠促銷/試用">已轉特惠促銷/試用 (優先消化)</option>
                                 <option value="已結案出清">已結案出清 (調撥完成/已補貨)</option>
@@ -319,16 +277,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-comment-dots"></i> 結案備註或調度說明</label>
-                            <input type="text" class="form-control" id="resolveRemarksInput" placeholder="輸入處置動作例如：已自台北總倉調撥 30 盒至大馬...">
+                            <label class="form-label"><i class="fa-solid fa-comment-dots"></i> 結案備註或調度說明</label>
+                            <input type="text" class="form-control form-control-sm" id="resolveRemarksInput" placeholder="輸入處置動作例如：已自台北總倉調撥 30 盒至大馬...">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-purple btn-sm px-4 fw-bold text-white" onclick="saveAlertResolution()">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveAlertResolution()">
                             <i class="fa-solid fa-check"></i> 確認處置並回寫
                         </button>
-                    </div>
+                    </footer>
                 </div>
             </div>
         </div>
