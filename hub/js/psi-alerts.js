@@ -344,10 +344,10 @@ function filterAlertsTable() {
 function formatAlertRow(a) {
     const hasAdminRights = isMasterAdmin();
 
-    // 改接 UIBadges.alert 核心模組
-    const typeBadge = UIBadges.alert.type(a.alert_type);
-    const levelBadge = UIBadges.alert.level(a.alert_level);
-    const statusBadge = UIBadges.alert.status(a.status);
+    // 改接 UIBadges.stockAlert 核心模組
+    const typeBadge = UIBadges.stockAlert.type(a.alert_type);
+    const levelBadge = UIBadges.stockAlert.level(a.alert_level);
+    const statusBadge = UIBadges.stockAlert.status(a.status);
 
     // 效期倒數顯示
     let daysDisplay = '<span class="text-secondary">-</span>';
@@ -382,17 +382,6 @@ function formatAlertRow(a) {
     };
 }
 
-function getProductName(pid) {
-    const map = {
-        'PRD-0101-01': '康爾喜乳酸菌 (顆粒)',
-        'PRD-0101-02': '995 生技營養品 (液體)',
-        'PRD-0102-01': '樟芝益菌絲體飲',
-        'PRD-0201-01': '衛傑膠囊',
-        'PRD-0301-02': '百克斯膠囊'
-    };
-    return map[pid] || '葡眾營養保健品';
-}
-
 // ==========================================================================
 // 7. DataTables 渲染與 CRUD：門檻規則表 (psi_safety_thresholds)
 // ==========================================================================
@@ -424,10 +413,10 @@ function formatThresholdRow(t) {
 
     const actionButtons = hasAdminRights ? `
         <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary py-0 px-2" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
+            <button class="btn btn-outline-primary" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
                 <i class="fa-solid fa-pen"></i>
             </button>
-            <button class="btn btn-outline-danger py-0 px-2" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
+            <button class="btn btn-outline-danger" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
                 <i class="fa-solid fa-trash-alt"></i>
             </button>
         </div>
@@ -736,7 +725,7 @@ function openResolveAlertModal(alertId) {
 
     $('#resolveAlertId').val(a.id);
     $('#resolveAlertIdDisplay').text(a.id);
-    $('#resolveAlertTypeBadge').html(window.UIBadges?.alert?.type ? UIBadges.alert.type(a.alert_type) : a.alert_type);
+    $('#resolveAlertTypeBadge').html(UIBadges.stockAlert.type(a.alert_type));
     $('#resolveAlertItemText').text(`${getProductShortName(a.product_id)} (${a.product_id})`);
     $('#resolveAlertWhText').text(`${getWarehouseName(a.warehouse_id)} (${a.warehouse_id})`);
     $('#resolveAlertSuggestedText').text(a.remarks || '常規調撥備貨防線');

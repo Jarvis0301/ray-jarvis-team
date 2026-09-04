@@ -10,7 +10,8 @@
         '../assets/js/utils.js',
         '../assets/js/dialog.js',
         '../assets/js/sheet-adapter.js',
-        '../assets/js/ui-badges.js'
+        '../assets/js/ui-badges.js',
+        '../assets/js/ui-select-options.js'
     ];
 
     /**

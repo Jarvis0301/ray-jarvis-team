@@ -20,20 +20,6 @@ const DEFAULT_AVATARS = {
     '未填': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
 };
 
-const REGIONS_DATABASE = {
-    TW: [
-        "臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市",
-        "基隆市", "新竹市", "嘉義市", "宜蘭縣", "新竹縣", "苗栗縣",
-        "彰化縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "花蓮縣",
-        "臺東縣", "澎湖縣"
-    ],
-    MY: [
-        "吉隆坡", "布城", "納閩", "柔佛州", "吉打州", "吉蘭丹州",
-        "馬六甲州", "森美蘭州", "彭亨州", "檳城州", "霹靂州", "玻璃市州",
-        "雪蘭莪州", "登嘉樓州", "沙巴州", "砂拉越州"
-    ]
-};
-
 let personMasterList = [];
 let partnersList = [];
 let personContactsList = [];
@@ -164,54 +150,26 @@ function initDynamicTableDragAndDrop(tbodySelector) {
 
 // 動態填充現居地與家鄉之台馬兩國分類選單
 function populateRegionDropdowns() {
-    const filterRegion = $('#filter-current-residence');
-    const formResidence = $('#form-current-residence');
-    const formHometown = $('#form-hometown');
+    const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
 
-    const currentFilterVal = filterRegion.val() || '';
-
-    filterRegion.empty().append('<option value="" selected>全部地區</option>');
-    formResidence.empty().append('<option value="">請選擇或輸入居住地...</option>');
-    formHometown.empty().append('<option value="">請選擇或輸入家鄉...</option>');
-
-    // 1. 🇹🇼 台灣縣市群組
-    let twGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
-    REGIONS_DATABASE.TW.forEach(reg => {
-        twGroup.append(`<option value="${reg}">${reg}</option>`);
+    // 1. 頂部過濾器（全部地區 + 含自訂地區）
+    UISelectOptions.geo.populateRegionsDropdown({
+        target: '#filter-current-residence',
+        placeholder: '全部地區',
+        customRegions: customRegions
     });
 
-    // 2. 🇲🇾 馬來西亞州區群組
-    let myGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
-    REGIONS_DATABASE.MY.forEach(reg => {
-        myGroup.append(`<option value="${reg}">${reg}</option>`);
+    // 2. 表單：現居地
+    UISelectOptions.geo.populateRegionsDropdown({
+        target: '#form-current-residence',
+        placeholder: '請選擇或輸入居住地...'
     });
 
-    filterRegion.append(twGroup.clone()).append(myGroup.clone());
-    formResidence.append(twGroup.clone()).append(myGroup.clone());
-    formHometown.append(twGroup).append(myGroup);
-
-    // 3. 動態掃描：若資料庫中存在預設清單之外的自訂現居地，自動建立「其他現有地區」分組
-    const standardRegions = new Set([...REGIONS_DATABASE.TW, ...REGIONS_DATABASE.MY]);
-    const customRegions = new Set();
-
-    personMasterList.forEach(p => {
-        const res = (p.current_residence || '').trim();
-        if (res && !standardRegions.has(res)) {
-            customRegions.add(res);
-        }
+    // 3. 表單：家鄉
+    UISelectOptions.geo.populateRegionsDropdown({
+        target: '#form-hometown',
+        placeholder: '請選擇或輸入家鄉...'
     });
-
-    if (customRegions.size > 0) {
-        let customGroup = $('<optgroup label="📍 其他現有地區"></optgroup>');
-        customRegions.forEach(reg => {
-            customGroup.append(`<option value="${reg}">${reg}</option>`);
-        });
-        filterRegion.append(customGroup);
-    }
-
-    if (currentFilterVal) {
-        filterRegion.val(currentFilterVal).trigger('change.select2');
-    }
 }
 
 function populateLanguageFilterDropdown() {
