@@ -4,6 +4,7 @@
  * 專為「榮祥團隊（Ray's Team）」打造之數位戰術控制台
  * 涵蓋：HUD 指標、卡片/列表/批次/樹狀/圖表五大視圖、360° 檔案、試算表 CRUD
  * 組織拓撲引擎：多樹森林、三軌線路（安置/推薦/輔導）、閉包表斷層偵測、全域篩選聯動
+ * 全面整合 UISelectOptions 共用下拉模組
  * ============================================================================
  */
 
@@ -41,7 +42,8 @@ window.addEventListener('AppReady', function () {
     SheetAdapter.init(GAS_DEPLOY_ID);
     applyUIPermissions();
     populateRegionDropdowns();
-    initSelect2Dropdowns();
+    populateNationalityDropdown('中華民國');
+    populateEthnicityDropdown('華人');
     initSelect2ScrollGuard();
     initOrgTreeControls();
     initOrgChartPan();
@@ -67,7 +69,6 @@ window.addEventListener('AppReady', function () {
                 }, 100);
             }
         } else if (targetId === '#container-charts-view') {
-            $('#select-lang-filter').select2({ width: '100%' });
             renderChartsView();
         }
     });
@@ -108,16 +109,50 @@ window.addEventListener('AppReady', function () {
     $('#form-placement-id, #form-sponsor-id, #form-node-nature').on('change', function () {
         updateFormAutoCalculatedFields();
     });
+
+    // 存歿狀態連動身故日期
+    $('#form-life-status').on('change', function () {
+        if ($(this).val() === '身故') {
+            $('#deceased-date-container').slideDown(200);
+        } else {
+            $('#deceased-date-container').slideUp(200);
+            $('#form-deceased-date').val('');
+        }
+    });
+
+    // 營運狀態為轉讓/身故停止/結婚整併/協議退出時，展開承接人與併入上線輸入區
+    $('#form-operator-status').on('change', function () {
+        const specialStatuses = ['身故停止', '因繼承原權停止', '因結婚合併停止', '因離婚協議退出'];
+        if (specialStatuses.includes($(this).val())) {
+            $('#operator-transfer-container').slideDown(200);
+        } else {
+            $('#operator-transfer-container').slideUp(200);
+        }
+    });
 });
 
 function initSelect2ScrollGuard() {
-    // 監聽 Modal 內部滾動、瀏覽器視窗滾動與組織圖畫布滾動
-    $(window).add('.modal, .modal-body, #org-chart-viewport-box').on('scroll', function (e) {
-        // 若當前有開啟中的 Select2 選單，於滾動時立即關閉以防脫軌漂移
+    const handleScroll = function (e) {
+        // 若是在滾動 Select2 選項清單本身，則放行
+        if (e.target && (
+            (e.target.classList && e.target.classList.contains('select2-results__options')) ||
+            $(e.target).closest('.select2-dropdown').length > 0
+        )) {
+            return;
+        }
+
         if ($('.select2-container--open').length > 0) {
             $('select.select2-hidden-accessible').select2('close');
         }
-    });
+    };
+
+    // 使用原生 capture: true 捕獲內層 modal-body 與外層滾動
+    window.addEventListener('scroll', handleScroll, true);
+    if (window.self !== window.top) {
+        try {
+            window.parent.addEventListener('scroll', handleScroll, true);
+        } catch (e) {}
+    }
 }
 
 function initDynamicTableDragAndDrop(tbodySelector) {
@@ -148,27 +183,66 @@ function initDynamicTableDragAndDrop(tbodySelector) {
     });
 }
 
-// 動態填充現居地與家鄉之台馬兩國分類選單
+// 動態填充現居地與家鄉之台馬兩國分類選單 (接軌 UISelectOptions.geo)
 function populateRegionDropdowns() {
     const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
 
-    // 1. 頂部過濾器（全部地區 + 含自訂地區）
+    // 1. 頂部 HUD 過濾器
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#filter-current-residence',
         placeholder: '全部地區',
-        customRegions: customRegions
+        customRegions: customRegions,
+        selectedValue: $('#filter-current-residence').val() || ''
+    });
+
+    $('#filter-current-residence').off('change.filterRegion').on('change.filterRegion', function () {
+        renderAllViews();
     });
 
     // 2. 表單：現居地
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-current-residence',
-        placeholder: '請選擇或輸入居住地...'
+        placeholder: '請選擇或輸入居住地...',
+        customRegions: customRegions,
+        dropdownParent: '#partnerDetailModal'
     });
 
     // 3. 表單：家鄉
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-hometown',
-        placeholder: '請選擇或輸入家鄉...'
+        placeholder: '請選擇或輸入家鄉...',
+        customRegions: customRegions,
+        dropdownParent: '#partnerDetailModal'
+    });
+}
+
+// 國籍下拉選單 (支援搜尋與自訂鍵入新增 Tags)
+function populateNationalityDropdown(selectedValue = '中華民國') {
+    const defaultNationalities = ['中華民國', '馬來西亞', '新加坡', '中國', '美國', '日本'];
+    UISelectOptions.core.render({
+        target: '#form-nationality',
+        data: defaultNationalities,
+        placeholder: '請選擇或輸入國籍...',
+        selectedValue: selectedValue,
+        searchable: true,
+        creatable: true,
+        grouped: false,
+        dropdownParent: '#partnerDetailModal'
+    });
+}
+
+// 種族下拉選單 (支援搜尋與自訂鍵入新增 Tags)
+function populateEthnicityDropdown(selectedValue = '華人') {
+    const defaultEthnicities = ['華人', '馬來人', '印度人', '原住民'];
+    UISelectOptions.core.render({
+        target: '#form-ethnicity',
+        data: defaultEthnicities,
+        placeholder: '請選擇或輸入種族...',
+        selectedValue: selectedValue,
+        searchable: true,
+        creatable: true,
+        grouped: false,
+        dropdownParent: '#partnerDetailModal'
     });
 }
 
@@ -179,7 +253,6 @@ function populateLanguageFilterDropdown() {
     const defaultLanguages = ['中文', '英文', '馬來文', '台語', '粵語', '客家話', '日文', '韓文', '印尼文', '泰文', '越南文'];
     const allLanguagesSet = new Set(defaultLanguages);
 
-    // 掃描資料庫中夥伴實際填寫的所有語言項目 (含自訂語言)
     if (Array.isArray(personLanguagesList)) {
         personLanguagesList.forEach(l => {
             const name = (l.language_name || '').trim();
@@ -189,25 +262,23 @@ function populateLanguageFilterDropdown() {
         });
     }
 
-    $langSelect.empty();
-    allLanguagesSet.forEach(lang => {
-        $langSelect.append(`<option value="${lang}">${lang}</option>`);
+    UISelectOptions.core.render({
+        target: '#select-lang-filter',
+        data: Array.from(allLanguagesSet),
+        placeholder: '請選擇分析語言...',
+        selectedValue: allLanguagesSet.has(currentSelected) ? currentSelected : '中文',
+        searchable: true,
+        creatable: false,
+        grouped: false
     });
 
-    // 恢復原選取項目，並觸發 Select2 介面刷新
-    const targetLang = allLanguagesSet.has(currentSelected) ? currentSelected : '中文';
-    $langSelect.val(targetLang);
-
-    if ($.fn.select2 && $langSelect.hasClass('select2-hidden-accessible')) {
-        $langSelect.trigger('change.select2');
-    }
+    $('#select-lang-filter').off('change.langAnalysis').on('change.langAnalysis', function () {
+        changeLanguageAnalysis($(this).val());
+    });
 }
 
 /**
  * 安全設置 Select2 (tags: true) 之值，若選項不存在則動態追加 Option
- * @param {string} selector jQuery 選擇器 (如 '#form-nationality')
- * @param {string} val 資料庫儲存之字串值
- * @param {string} defaultVal 預設值
  */
 function setSelect2TagVal(selector, val, defaultVal = '') {
     const $el = $(selector);
@@ -218,7 +289,6 @@ function setSelect2TagVal(selector, val, defaultVal = '') {
         return;
     }
 
-    // 若目前的 <option> 清單中找不到該值，動態建立新 option 並選取
     if ($el.find(`option[value="${targetVal}"]`).length === 0) {
         const newOption = new Option(targetVal, targetVal, true, true);
         $el.append(newOption).trigger('change');
@@ -227,91 +297,31 @@ function setSelect2TagVal(selector, val, defaultVal = '') {
     }
 }
 
-// 通用 Select2 自訂標籤配置產生器
-function getSelect2TagsConfig(placeholderText) {
-    return {
-        dropdownParent: $('#partnerDetailModal'),
-        width: '100%',
-        tags: true, // 開啟自由鍵入模式
-        placeholder: placeholderText,
-        allowClear: true,
-        createTag: function (params) {
-            const term = $.trim(params.term);
-            if (term === '') return null;
-            return {
-                id: term,
-                text: term,
-                newTag: true
-            };
-        },
-        templateResult: function (data) {
-            const $result = $('<span></span>');
-            $result.text(data.text);
-            if (data.newTag) {
-                $result.append(' <em class="text-warning small">(新增自訂項目)</em>');
-            }
-            return $result;
-        },
-        language: {
-            noResults: () => '鍵入文字後按 Enter 即可直接新增'
-        }
-    };
-}
-
-// 初始化所有 Select2 標籤下拉選單
-function initSelect2Dropdowns() {
-    if (!$.fn.select2) return;
-
-    // 1. 夥伴搜尋與一般下拉
-    $('.select2-partner-search').select2({
-        dropdownParent: $('#partnerDetailModal'),
-        width: '100%',
-        placeholder: '請輸入關鍵字搜尋...',
-        allowClear: true,
-        language: { noResults: () => '找不到相符項目' }
-    });
-
-    // 2. 國籍與種族 Select2 Tags
-    $('.select2-tags-single').each(function () {
-        const ph = $(this).find('option:first').text() || '請選擇或輸入...';
-        $(this).select2(getSelect2TagsConfig(ph));
-    });
-
-    // 3. 現居地與家鄉 Select2 Tags
-    $('.select2-tags-region').each(function () {
-        const ph = $(this).find('option:first').text() || '請選擇或輸入行政區...';
-        $(this).select2(getSelect2TagsConfig(ph));
-    });
-
-    // 4. 分析語言 Select2 Tags
-    $('#select-lang-filter').select2({
-        width: '100%',
-        dropdownAutoWidth: true,
-        placeholder: '請選擇分析語言...',
-        language: { noResults: () => '找不到相符語言' }
-    }).off('change').on('change', function () {
-        changeLanguageAnalysis($(this).val());
-    });
-
-    // 4. 頂部 HUD 過濾器
-    $('#filter-current-residence').select2({
-        width: '100%',
-        placeholder: '全部地區',
-        allowClear: true,
-        language: { noResults: () => '找不到相符項目' }
-    }).on('change', function () {
-        renderAllViews();
-    });
-}
-
+// 填充夥伴關聯選單 (接軌 UISelectOptions.core)
 function populateSelect2Options() {
-    const partnerSelects = ['#form-sponsor-id', '#form-placement-id', '#form-known-mentor-id', '#form-spouse-partner-id'];
+    const partnerSelects = [
+        '#form-sponsor-id',
+        '#form-placement-id',
+        '#form-known-mentor-id',
+        '#form-spouse-partner-id',
+        '#form-successor-partner-id',
+        '#form-surrendered-to-upline-id'
+    ];
     partnerSelects.forEach(selId => {
-        const $el = $(selId).empty().append('<option value="">(無)</option>');
-        partnersList.forEach(p => {
-            const dispName = getPartnerDisplayName(p);
-            const memberNo = p.member_no ? ` [${p.member_no}]` : '';
-            $el.append(`<option value="${p.partner_id}">${dispName}${memberNo} (${p.partner_id})</option>`);
+        UISelectOptions.core.render({
+            target: selId,
+            data: partnersList,
+            valueKey: 'partner_id',
+            textKey: (p) => {
+                const dispName = getPartnerDisplayName(p);
+                const memberNo = p.member_no ? ` [${p.member_no}]` : '';
+                return `${dispName}${memberNo} (${p.partner_id})`;
+            },
+            placeholder: '(無)',
+            searchable: true,
+            creatable: false,
+            grouped: false,
+            dropdownParent: '#partnerDetailModal'
         });
     });
 }
@@ -357,25 +367,17 @@ function initOrgChartPan() {
 
 /**
  * 依據排線關係自動計算「組織關係 (relation_type)」與「團隊直轄 (is_our_team)」
- * @param {string} partnerId 當前夥伴識別碼
- * @param {string} placementId 安置上線 ID
- * @param {string} sponsorId 推薦人 ID
- * @param {string} nodeNature 節點性質
- * @returns {{relationType: string, isOurTeam: string}}
  */
 function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeNature = '常態夥伴') {
-    // 1. 核心領導雙核判定
     const CORE_IDS = ['PTN-001', 'PTN-002'];
     if (CORE_IDS.includes(partnerId)) {
         return { relationType: '核心成員', isOurTeam: 'Y' };
     }
 
-    // 2. 中繼層或虛擬佔位判定
     if (nodeNature === '中繼失聯節點' || nodeNature === '虛擬佔位' || nodeNature === '幽靈節點') {
         return { relationType: '中繼層', isOurTeam: 'N' };
     }
 
-    // 3. 上線血緣追溯函式（向上搜尋特定目標祖先）
     const isAncestorOfCore = (targetId) => {
         let current = partnersList.find(p => p.partner_id === 'PTN-001');
         const visited = new Set();
@@ -389,7 +391,6 @@ function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeN
         return false;
     };
 
-    // 4. 下線血緣追溯函式（向上搜尋是否源於 Ray 或 Jarvis）
     const isDescendantOfCore = (parentId) => {
         let currentId = parentId;
         const visited = new Set();
@@ -402,7 +403,6 @@ function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeN
         return false;
     };
 
-    // 5. 執行關係推導
     const parentId = placementId || sponsorId;
 
     if (isAncestorOfCore(partnerId)) {
@@ -416,9 +416,6 @@ function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeN
     return { relationType: '旁線', isOurTeam: 'N' };
 }
 
-/**
- * 監聽表單排線變更，即時自動更新並鎖定組織關係與團隊直轄
- */
 function updateFormAutoCalculatedFields() {
     const partnerId = getFormTrimVal('#form-partner-id');
     const placementId = $('#form-placement-id').val();
@@ -430,7 +427,6 @@ function updateFormAutoCalculatedFields() {
     $('#form-relation-type').val(result.relationType);
     $('#form-is-our-team').val(result.isOurTeam);
     
-    // 更新視覺徽章提示
     $('#badge-calc-relation').text(result.relationType);
     $('#badge-calc-team').html(result.isOurTeam === 'Y' ? '<i class="fa-solid fa-star text-warning"></i> 直轄團隊' : '<i class="fa-solid fa-globe text-secondary"></i> 旁線/友軍');
 }
@@ -495,29 +491,32 @@ function parsePersonMasterTable(rows) {
         usage_identity: getVal(r, 6, '消費者'),
         gender: getVal(r, 7, '未填'),
         birthday: getVal(r, 8, ''),
-        nationality: getVal(r, 9, '中華民國'),
-        ethnicity: getVal(r, 10, '華人'),
-        hometown: getVal(r, 11, ''),
-        current_residence: getVal(r, 12, ''),
-        phone: getVal(r, 13, ''),
-        email: getVal(r, 14, ''),
-        contact_address: getVal(r, 15, ''),
-        met_date: getVal(r, 16, ''),
-        met_reason: getVal(r, 17, ''),
-        highest_education: getVal(r, 18, ''),
-        graduated_school: getVal(r, 19, ''),
-        occupation_background: getVal(r, 20, ''),
-        health_status: getVal(r, 21, '良好'),
-        financial_status: getVal(r, 22, '穩定'),
-        avatar_url: getVal(r, 23, ''),
-        career_education_notes: getVal(r, 24, ''),
-        health_notes: getVal(r, 25, ''),
-        financial_notes: getVal(r, 26, ''),
-        consumption_notes: getVal(r, 27, ''),
-        created_by: getVal(r, 28, 'SYSTEM'),
-        created_at: getVal(r, 29, '2026-01-01 00:00:00'),
-        modified_by: getVal(r, 30, 'SYSTEM'),
-        modified_at: getVal(r, 31, '2026-01-01 00:00:00')
+        deceased_date: getVal(r, 9, ''),
+        life_status: getVal(r, 10, '存活'),
+        marital_status: getVal(r, 11, ''),
+        nationality: getVal(r, 12, '中華民國'),
+        ethnicity: getVal(r, 13, '華人'),
+        hometown: getVal(r, 14, ''),
+        current_residence: getVal(r, 15, ''),
+        phone: getVal(r, 16, ''),
+        email: getVal(r, 17, ''),
+        contact_address: getVal(r, 18, ''),
+        met_date: getVal(r, 19, ''),
+        met_reason: getVal(r, 20, ''),
+        highest_education: getVal(r, 21, ''),
+        graduated_school: getVal(r, 22, ''),
+        occupation_background: getVal(r, 23, ''),
+        health_status: getVal(r, 24, '待了解'),
+        financial_status: getVal(r, 25, '穩定'),
+        avatar_url: getVal(r, 26, ''),
+        career_education_notes: getVal(r, 27, ''),
+        health_notes: getVal(r, 28, ''),
+        financial_notes: getVal(r, 29, ''),
+        consumption_notes: getVal(r, 30, ''),
+        created_by: getVal(r, 31, 'SYSTEM'),
+        created_at: getVal(r, 32, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 33, 'SYSTEM'),
+        modified_at: getVal(r, 34, '2026-01-01 00:00:00')
     })).filter(p => p.person_id && String(p.person_id).trim() !== '');
 }
 
@@ -538,24 +537,29 @@ function parsePartnersTable(rows) {
         upline_link_type: getVal(r, 12, '直屬已知'),
         current_rank_id: getVal(r, 13, ''),
         highest_rank_id: getVal(r, 14, ''),
-        country_code: getVal(r, 15, 'TW'),
-        is_our_team: getVal(r, 16, 'Y').toUpperCase(),
-        relation_type: getVal(r, 17, '下線'),
-        activity_level: getVal(r, 18, ''),
-        member_status: getVal(r, 19, ''),
-        operator_status: getVal(r, 20, ''),
-        joining_motive: getVal(r, 21, ''),
-        team_skills: getVal(r, 22, ''),
-        team_notes: getVal(r, 23, ''),
-        join_date: getVal(r, 24, ''),
-        renewal_due_date: getVal(r, 25, ''),
-        last_order_date: getVal(r, 26, ''),
-        exit_date: getVal(r, 27, ''),
-        avatar_url: getVal(r, 28, ''),
-        created_by: getVal(r, 29, 'SYSTEM'),
-        created_at: getVal(r, 30, '2026-01-01 00:00:00'),
-        modified_by: getVal(r, 31, 'SYSTEM'),
-        modified_at: getVal(r, 32, '2026-01-01 00:00:00')
+        diamond_star_level: parseInt(getVal(r, 15, '0'), 10) || 0,
+        star_eval_eligible_date: getVal(r, 16, ''),
+        country_code: getVal(r, 17, 'TW'),
+        is_our_team: getVal(r, 18, 'Y').toUpperCase(),
+        relation_type: getVal(r, 19, '下線'),
+        activity_level: getVal(r, 20, ''),
+        member_status: getVal(r, 21, ''),
+        operator_status: getVal(r, 22, '活躍'),
+        status_change_reason: getVal(r, 23, ''),
+        successor_partner_id: getVal(r, 24, ''),
+        surrendered_to_upline_id: getVal(r, 25, ''),
+        joining_motive: getVal(r, 26, ''),
+        team_skills: getVal(r, 27, ''),
+        team_notes: getVal(r, 28, ''),
+        join_date: getVal(r, 29, ''),
+        renewal_due_date: getVal(r, 30, ''),
+        last_order_date: getVal(r, 31, ''),
+        exit_date: getVal(r, 32, ''),
+        avatar_url: getVal(r, 33, ''),
+        created_by: getVal(r, 34, 'SYSTEM'),
+        created_at: getVal(r, 35, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 36, 'SYSTEM'),
+        modified_at: getVal(r, 37, '2026-01-01 00:00:00')
     })).filter(p => p.partner_id && String(p.partner_id).trim() !== '');
 }
 
@@ -610,16 +614,21 @@ function parseOrgRelationsTable(rows) {
 }
 
 function parseRanksTable(rows) {
-    return rows.map((r, idx) => ({
-        rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
-        rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
-        rank_level: parseInt(getVal(r, 2, '10'), 10) || 10,
-        rank_name_zh: getVal(r, 3, '未定義職級'),
-        badge_icon_class: getVal(r, 22, 'fa-solid fa-award'),
-        badge_color_hex: getVal(r, 23, '#8b5cf6'),
-        sort_order: parseInt(getVal(r, 24, String((idx + 1) * 10)), 10) || ((idx + 1) * 10),
-        is_active: getVal(r, 25, 'Y').toUpperCase()
-    })).filter(rk => rk.rank_name_zh !== '未定義職級' && rk.is_active === 'Y');
+    return rows.map((r, idx) => {
+        const activeRaw = getVal(r, 28, 'Y').toUpperCase();
+        const isActive = (activeRaw === 'Y' || activeRaw === '是' || activeRaw === 'TRUE' || activeRaw === '1' || activeRaw === '');
+
+        return {
+            rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
+            rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
+            rank_level: parseInt(getVal(r, 2, '10'), 10) || 10,
+            rank_name_zh: getVal(r, 3, '未定義職級'),
+            badge_icon_class: getVal(r, 25, 'fa-solid fa-award'),
+            badge_color_hex: getVal(r, 26, '#8b5cf6'),
+            sort_order: parseInt(getVal(r, 27, String((idx + 1) * 10)), 10) || ((idx + 1) * 10),
+            is_active: isActive ? 'Y' : 'N'
+        };
+    }).filter(rk => rk.rank_name_zh !== '未定義職級' && rk.is_active === 'Y');
 }
 
 // ============================================================================
@@ -662,7 +671,7 @@ function isMasterAdmin() {
     if (!rawSession) return true;
     try {
         const session = JSON.parse(rawSession);
-        const adminEmails = ["jarvis20250807@gmail.com", "fish7548@gmail.com", "jarvis.lin@gmail.com", "ray.weng@gmail.com"];
+        const adminEmails = ["jarvis20250807@gmail.com", "fish7548@gmail.com"];
         return adminEmails.includes((session.user || '').toLowerCase().trim());
     } catch (e) {
         return true;
@@ -716,16 +725,33 @@ function updateRanksCacheAndUI() {
     ranksMap = {};
     ranksDatabase.forEach(rk => { ranksMap[rk.rank_id] = rk; });
 
-    const $filterHighest = $('#filter-highest-rank-id').empty().append('<option value="">全部職級</option>');
-    const $formCurrent = $('#form-current-rank-id').empty().append('<option value="">(未設定 / 未知)</option>');
-    const $formHighest = $('#form-highest-rank-id').empty().append('<option value="">(未設定 / 未知)</option>');
-
     const sortedRanks = [...ranksDatabase].sort((a, b) => a.sort_order - b.sort_order);
-    sortedRanks.forEach(rk => {
-        const optHtml = `<option value="${rk.rank_id}">${rk.rank_name_zh} (${rk.rank_code})</option>`;
-        $filterHighest.append(optHtml);
-        $formCurrent.append(optHtml);
-        $formHighest.append(optHtml);
+
+    // 1. 篩選區
+    UISelectOptions.core.render({
+        target: '#filter-highest-rank-id',
+        data: sortedRanks,
+        valueKey: 'rank_id',
+        textKey: (rk) => `${rk.rank_name_zh} (${rk.rank_code})`,
+        placeholder: '全部職級',
+        searchable: false,
+        creatable: false,
+        grouped: false
+    });
+
+    // 2. 表單區
+    ['#form-current-rank-id', '#form-highest-rank-id'].forEach(target => {
+        UISelectOptions.core.render({
+            target,
+            data: sortedRanks,
+            valueKey: 'rank_id',
+            textKey: (rk) => `${rk.rank_name_zh} (${rk.rank_code})`,
+            placeholder: '(未設定 / 未知)',
+            searchable: false,
+            creatable: false,
+            grouped: false,
+            dropdownParent: '#partnerDetailModal'
+        });
     });
 }
 
@@ -769,13 +795,8 @@ function getFilteredPartners() {
 function renderAllViews() {
     const list = getFilteredPartners();
 
-    // 1. 榮祥直轄團隊基礎篩選
     const teamPartners = list.filter(p => p.is_our_team === 'Y');
-    
-    // 2. 榮祥團隊大馬成員 (直轄 + MY)
     const myTeamPartners = teamPartners.filter(p => p.country_code === 'MY');
-    
-    // 3. 榮祥團隊活躍成員 (直轄 + 積極參與/參與)
     const activeTeamPartners = teamPartners.filter(p => p.activity_level === '積極參與' || p.activity_level === '參與');
 
     $('#hud-total-partners').text(list.length);
@@ -787,7 +808,6 @@ function renderAllViews() {
     renderDataTableView(list);
     renderTreeView();
 
-    // 延遲渲染圖表 (若當前處於圖表頁籤)
     if ($('#container-charts-view').hasClass('active')) {
         renderChartsView(list);
     }
@@ -820,12 +840,10 @@ function renderCardsView(list) {
         const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
         const memberNoHtml = UIBadges.partner.memberNo(p);
 
-        // 實質輔導上線
         const mentorHtml = mentorName 
             ? `<span class="text-white">${mentorName}</span>` 
             : `<span class="text-muted">（無特定指派）</span>`;
 
-        // 1. 性別 / 年齡 / 現居地組合解析 (未填以 text-muted 呈現)
         let ageStr = '';
         const rawBirthday = person.birthday ? String(person.birthday).trim() : '';
         if (rawBirthday.length >= 4) {
@@ -849,12 +867,10 @@ function renderCardsView(list) {
 
         const genderAgeResidenceHtml = `${genderDisplay} ‧ ${ageDisplay} ‧ ${residenceDisplay}`;
 
-        // 專長標籤
         const skillsHtml = (p.team_skills && p.team_skills.trim()) 
             ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i> ${p.team_skills}</span></div>` 
             : `<div class="mb-2"><span class="text-muted small"><i class="fa-solid fa-tags text-secondary me-1"></i> 未設定專長標籤</span></div>`;
 
-        // 戰術備註
         const notesText = (p.team_notes && p.team_notes.trim()) || (person.financial_notes && person.financial_notes.trim()) || '';
         const notesHtml = notesText 
             ? `<p class="text-secondary small mb-0 text-truncate-2" style="font-size: 0.82rem;">${notesText}</p>` 
@@ -997,7 +1013,6 @@ function renderDataTableView(list) {
         ]
     });
 
-    // 初始化完成後立即校準一次欄位寬度
     setTimeout(() => {
         if (dataTableInstance) {
             dataTableInstance.columns.adjust();
@@ -1019,26 +1034,15 @@ function initOrgTreeControls() {
         selectedTreeRootId = $(this).val();
         renderTreeView();
     });
-
-    if ($.fn.select2) {
-        $('#select-tree-root').select2({
-            width: '100%',
-            dropdownAutoWidth: true,
-            language: { noResults: () => '找不到相符成員' }
-        });
-    }
 }
 
+// 組織樹根節點選單 (接軌 UISelectOptions.core)
 function populateTreeRootDropdown() {
-    const $select = $('#select-tree-root').empty();
-
-    // 1. 釘選前 5 個選項（符號置後、不顯示 partner_id）
     const pinnedOptions = [
         { id: 'ALL', text: '全部人員 🌐' },
         { id: 'TEAM_MEMBERS', text: '團隊成員 ⭐️' }
     ];
 
-    // 找出三位指定領導人
     const ray = partnersList.find(p => p.person_id === 'PSN-TW-001' || getPartnerDisplayName(p).includes('翁榮祥'));
     const jarvis = partnersList.find(p => p.person_id === 'PSN-TW-002' || getPartnerDisplayName(p).includes('林承志'));
     const weimin = partnersList.find(p => getPartnerDisplayName(p).includes('陳偉民'));
@@ -1047,30 +1051,34 @@ function populateTreeRootDropdown() {
     if (jarvis) pinnedOptions.push({ id: jarvis.partner_id, text: `${getPartnerDisplayName(jarvis)} [${getRankInfo(jarvis.highest_rank_id).rank_name_zh}] ⭐️` });
     if (weimin) pinnedOptions.push({ id: weimin.partner_id, text: `${getPartnerDisplayName(weimin)} [${getRankInfo(weimin.highest_rank_id).rank_name_zh}]` });
 
-    pinnedOptions.forEach(opt => {
-        $select.append(`<option value="${opt.id}">${opt.text}</option>`);
-    });
-
-    // 2. 排除已釘選者，其餘依中文姓名字母排序 (localeCompare)
     const pinnedIds = new Set(pinnedOptions.map(o => o.id));
     const others = partnersList.filter(p => !pinnedIds.has(p.partner_id) && p.account_holder_type !== '共同經營者');
 
     others.sort((a, b) => {
-        const nameA = getPartnerDisplayName(a);
-        const nameB = getPartnerDisplayName(b);
-        return nameA.localeCompare(nameB, 'zh-TW');
+        return getPartnerDisplayName(a).localeCompare(getPartnerDisplayName(b), 'zh-TW');
     });
 
-    others.forEach(p => {
+    const otherOptions = others.map(p => {
         const dispName = getPartnerDisplayName(p);
         const rank = getRankInfo(p.highest_rank_id);
         const isCoreSuffix = (p.is_our_team === 'Y') ? ' ⭐️' : '';
-        $select.append(`<option value="${p.partner_id}">${dispName} [${rank.rank_name_zh}]${isCoreSuffix}</option>`);
+        return {
+            id: p.partner_id,
+            text: `${dispName} [${rank.rank_name_zh}]${isCoreSuffix}`
+        };
     });
 
-    if (selectedTreeRootId) {
-        $select.val(selectedTreeRootId).trigger('change.select2');
-    }
+    UISelectOptions.core.render({
+        target: '#select-tree-root',
+        data: [...pinnedOptions, ...otherOptions],
+        valueKey: 'id',
+        textKey: 'text',
+        placeholder: '請選擇根節點...',
+        selectedValue: selectedTreeRootId || 'ALL',
+        searchable: true,
+        creatable: false,
+        grouped: false
+    });
 }
 
 window.zoomOrgChart = function (delta) {
@@ -1104,7 +1112,6 @@ window.downloadOrgChartPng = async function () {
             });
         }
 
-        // 問題 4：下載 PNG 時隱藏所有查看按鈕
         $('.org-card-view-btn').hide();
 
         const prevTransform = targetEl.style.transform;
@@ -1200,7 +1207,6 @@ function renderPartnerSubColumnHtml(partner, isSpouse = false) {
 function getRelationGapInfo(parentPartner, childPartner) {
     if (!parentPartner || !childPartner) return { isUnknown: false, gapCount: 0 };
 
-    // 檢查閉包表精確記錄
     const directRel = orgRelationsList.find(r =>
         r.ancestor_id === parentPartner.partner_id &&
         r.descendant_id === childPartner.partner_id
@@ -1249,7 +1255,6 @@ function renderTreeView() {
         });
     }
 
-    // 遞迴建構組織樹狀節點
     function buildNodeHtml(partner, parentPartner = null) {
         if (renderedPartnerIds.has(partner.partner_id)) return '';
         renderedPartnerIds.add(partner.partner_id);
@@ -1262,7 +1267,6 @@ function renderTreeView() {
             renderedPartnerIds.add(spouse.partner_id);
         }
 
-        // 篩選高亮與活動度判定
         const isSelfMatched = matchedPartnerIds.has(partner.partner_id) || (spouse && matchedPartnerIds.has(spouse.partner_id));
         const matchClass = isFilterActive ? (isSelfMatched ? 'tree-node-matched' : 'tree-node-dimmed') : '';
         const inactiveLevels = ['自用消費', '操作人頭', '失聯', '個資未知'];
@@ -1286,7 +1290,6 @@ function renderTreeView() {
             `;
         }
 
-        // 判定與父節點之斷層關係（根節點時 parentPartner 為 null）
         const gapInfo = parentPartner ? getRelationGapInfo(parentPartner, partner) : { isUnknown: false, gapCount: 0 };
         const liClass = gapInfo.isUnknown ? 'class="link-unknown"' : 'class="link-direct"';
         const gapBadgeHtml = (gapInfo.isUnknown && gapInfo.gapCount > 0)
@@ -1304,7 +1307,6 @@ function renderTreeView() {
         `;
 
         if (children.length > 0) {
-            // 檢查該節點往下的所有子分支是否全為未知斷層
             const childGapInfos = children.map(c => getRelationGapInfo(partner, c));
             const allChildrenUnknown = childGapInfos.every(info => info.isUnknown);
             const ulTrunkClass = allChildrenUnknown ? 'trunk-dashed' : 'trunk-solid';
@@ -1323,15 +1325,12 @@ function renderTreeView() {
     let targetRootPartners = [];
 
     if (selectedTreeRootId === 'TEAM_MEMBERS') {
-        // 釘選 2：團隊成員 (以 Ray 翁榮祥直轄體系為根)
         const rayNode = partnersList.find(p => p.person_id === 'PSN-TW-001' || getPartnerDisplayName(p).includes('翁榮祥'));
         if (rayNode) targetRootPartners = [rayNode];
     } else if (selectedTreeRootId && selectedTreeRootId !== 'ALL') {
-        // 指定單一夥伴
         const customRoot = partnersList.find(p => p.partner_id === selectedTreeRootId);
         if (customRoot) targetRootPartners = [customRoot];
     } else {
-        // 全域多樹森林 (全部頂層)
         targetRootPartners = partnersList.filter(p => {
             const parentId = getPartnerParentIdByMode(p, currentTreeLineMode);
             if (p.account_holder_type === '共同經營者') return false;
@@ -1361,7 +1360,7 @@ function renderTreeView() {
 }
 
 // ============================================================================
-// 8. 戰情統計與分析圖表 (語言矩陣 + 個人資訊 12 圓餅圖 + 組織體系 18 戰術圖表)
+// 8. 戰情統計與分析圖表
 // ============================================================================
 const getPieTooltipOptions = () => ({
     plugins: {
@@ -1455,9 +1454,6 @@ function calculatePartnerGenDepth(partnerId, allList, visited = new Set()) {
     return 1 + maxChildDepth;
 }
 
-// ============================================================================
-// 通用動態圖表資料聚合工具 (僅保留「現有資料 + 未設定」，無數據項目不產生)
-// ============================================================================
 function createExactCountMap(dataset, fieldExtractor) {
     const counts = {};
     let unsetCount = 0;
@@ -1472,12 +1468,10 @@ function createExactCountMap(dataset, fieldExtractor) {
         }
     });
 
-    // 排序：有資料的項目依人數由大至小排列
     const sortedEntries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const labels = sortedEntries.map(e => e[0]);
     const data = sortedEntries.map(e => e[1]);
 
-    // 戰術調色盤 (高飽和度紫藍琥珀青色系)
     const basePalette = [
         '#8b5cf6', '#38bdf8', '#10b981', '#fbbf24', '#f43f5e', 
         '#a855f7', '#06b6d4', '#f97316', '#ec4899', '#34d399', 
@@ -1485,7 +1479,6 @@ function createExactCountMap(dataset, fieldExtractor) {
     ];
     const colors = labels.map((_, idx) => basePalette[idx % basePalette.length]);
 
-    // 若存在「未設定」，追加至末尾並配置低對比暗灰色
     if (unsetCount > 0) {
         labels.push('未設定');
         data.push(unsetCount);
@@ -1592,14 +1585,7 @@ function renderChartsView(filteredDataset = null) {
     if (ctxNat && natSummary.labels.length > 0) {
         chartInstances.nationality = new Chart(ctxNat, {
             type: 'pie',
-            data: {
-                labels: natSummary.labels,
-                datasets: [{
-                    data: natSummary.data,
-                    backgroundColor: natSummary.colors,
-                    borderWidth: 0
-                }]
-            },
+            data: { labels: natSummary.labels, datasets: [{ data: natSummary.data, backgroundColor: natSummary.colors, borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
@@ -1614,14 +1600,7 @@ function renderChartsView(filteredDataset = null) {
     if (ctxEth && ethSummary.labels.length > 0) {
         chartInstances.ethnicity = new Chart(ctxEth, {
             type: 'pie',
-            data: {
-                labels: ethSummary.labels,
-                datasets: [{
-                    data: ethSummary.data,
-                    backgroundColor: ethSummary.colors,
-                    borderWidth: 0
-                }]
-            },
+            data: { labels: ethSummary.labels, datasets: [{ data: ethSummary.data, backgroundColor: ethSummary.colors, borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
@@ -1636,14 +1615,7 @@ function renderChartsView(filteredDataset = null) {
     if (ctxHome && homeSummary.labels.length > 0) {
         chartInstances.hometown = new Chart(ctxHome, {
             type: 'pie',
-            data: {
-                labels: homeSummary.labels,
-                datasets: [{
-                    data: homeSummary.data,
-                    backgroundColor: homeSummary.colors,
-                    borderWidth: 0
-                }]
-            },
+            data: { labels: homeSummary.labels, datasets: [{ data: homeSummary.data, backgroundColor: homeSummary.colors, borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
@@ -1658,14 +1630,7 @@ function renderChartsView(filteredDataset = null) {
     if (ctxRes && resSummary.labels.length > 0) {
         chartInstances.residence = new Chart(ctxRes, {
             type: 'pie',
-            data: {
-                labels: resSummary.labels,
-                datasets: [{
-                    data: resSummary.data,
-                    backgroundColor: resSummary.colors,
-                    borderWidth: 0
-                }]
-            },
+            data: { labels: resSummary.labels, datasets: [{ data: resSummary.data, backgroundColor: resSummary.colors, borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
@@ -1726,7 +1691,7 @@ function renderChartsView(filteredDataset = null) {
     if (ctxMarket) {
         chartInstances.market = new Chart(ctxMarket, {
             type: 'pie',
-            data: { labels: ['台灣 (TW)', '大馬 (MY)'], datasets: [{ data: [twCount, dataset.length - twCount], backgroundColor: ['#38bdf8', '#fbbf24'], borderWidth: 0 }] },
+            data: { labels: ['🇹🇼 台灣 (TW)', '🇲🇾 馬來西亞 (MY)'], datasets: [{ data: [twCount, dataset.length - twCount], backgroundColor: ['#38bdf8', '#fbbf24'], borderWidth: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
@@ -1830,12 +1795,26 @@ function renderChartsView(filteredDataset = null) {
     }
 
     // 21. 營運狀態
-    const opCounts = createCountMap('operator_status', ['活躍', '停滯', '沉睡', '凍結']);
+    const opCategories = [
+        '活躍', '停滯', '沉睡', '凍結',
+        '身故停止', '因繼承原權停止', '因結婚合併停止', '因離婚協議退出'
+    ];
+    const opCounts = createCountMap('operator_status', opCategories);
     const ctxOp = document.getElementById('chart-operator-status');
     if (ctxOp) {
         chartInstances.operator = new Chart(ctxOp, {
             type: 'pie',
-            data: { labels: Object.keys(opCounts), datasets: [{ data: Object.values(opCounts), backgroundColor: ['#10b981', '#fbbf24', '#f43f5e', '#64748b'], borderWidth: 0 }] },
+            data: {
+                labels: opCategories,
+                datasets: [{
+                    data: opCategories.map(c => opCounts[c] || 0),
+                    backgroundColor: [
+                        '#10b981', '#fbbf24', '#f43f5e', '#64748b',
+                        '#dc2626', '#8b5cf6', '#06b6d4', '#f97316'
+                    ],
+                    borderWidth: 0
+                }]
+            },
             options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
         });
     }
@@ -2002,15 +1981,8 @@ function renderChartsView(filteredDataset = null) {
 // ============================================================================
 window.addContactTableRow = function (contact = {}) {
     const $tbody = $('#form-contacts-dynamic-tbody');
-    const defaultPlatforms = ['LINE', 'WhatsApp', 'Discord', 'WeChat', 'Facebook', 'Instagram', 'Telegram', '其他'];
-    const currentPlatform = contact.platform_name || 'LINE';
     const categories = ['ID', '顯示名稱', '連結'];
-
-    const allPlatforms = defaultPlatforms.includes(currentPlatform) 
-        ? defaultPlatforms 
-        : [currentPlatform, ...defaultPlatforms];
-
-    const platformOptions = allPlatforms.map(p => `<option value="${p}" ${p === currentPlatform ? 'selected' : ''}>${p}</option>`).join('');
+    const currentPlatform = contact.platform_name || 'LINE';
     const categoryOptions = categories.map(c => `<option value="${c}" ${c === (contact.category || 'ID') ? 'selected' : ''}>${c}</option>`).join('');
 
     const $row = $(`
@@ -2019,7 +1991,7 @@ window.addContactTableRow = function (contact = {}) {
                 <div class="row-drag-handle" title="拖曳排序"><i class="fa-solid fa-grip-vertical"></i></div>
             </td>
             <td style="width: 22%;">
-                <select class="form-select form-select-sm contact-input-platform select2-dynamic-platform">${platformOptions}</select>
+                <select class="form-select form-select-sm contact-input-platform select2-dynamic-platform"></select>
             </td>
             <td style="width: 18%;"><select class="form-select form-select-sm contact-input-category">${categoryOptions}</select></td>
             <td><input type="text" class="form-control form-control-sm contact-input-value" value="${contact.contact_value || ''}" placeholder="帳號 / 連結..."></td>
@@ -2042,20 +2014,24 @@ window.addContactTableRow = function (contact = {}) {
     });
 
     $tbody.append($row);
-    $row.find('.select2-dynamic-platform').select2(getSelect2TagsConfig('平台...'));
+
+    // 套用 UISelectOptions 模組渲染動態平台選單 (支援自訂新增 Tags)
+    UISelectOptions.core.render({
+        target: $row.find('.select2-dynamic-platform'),
+        data: ['LINE', 'WhatsApp', 'Discord', 'WeChat', 'Facebook', 'Instagram', 'Telegram'],
+        placeholder: '平台...',
+        selectedValue: currentPlatform,
+        searchable: true,
+        creatable: true,
+        grouped: false,
+        dropdownParent: '#partnerDetailModal'
+    });
 };
 
 window.addLanguageTableRow = function (lang = {}) {
     const $tbody = $('#form-languages-dynamic-tbody');
-    const defaultLanguages = ['中文', '英文', '馬來文', '台語', '粵語', '客家話', '日文', '韓文', '泰文', '印尼文', '越南文', '其他'];
     const currentLang = lang.language_name || '中文';
     const levels = ['精通', '流利', '普通', '略懂', '不會'];
-
-    const allLanguages = defaultLanguages.includes(currentLang) 
-        ? defaultLanguages 
-        : [currentLang, ...defaultLanguages];
-
-    const langOptions = allLanguages.map(l => `<option value="${l}" ${l === currentLang ? 'selected' : ''}>${l}</option>`).join('');
     const buildLevelOptions = (selectedVal) => levels.map(lv => `<option value="${lv}" ${lv === (selectedVal || '普通') ? 'selected' : ''}>${lv}</option>`).join('');
 
     const $row = $(`
@@ -2064,7 +2040,7 @@ window.addLanguageTableRow = function (lang = {}) {
                 <div class="row-drag-handle" title="拖曳排序"><i class="fa-solid fa-grip-vertical"></i></div>
             </td>
             <td style="width: 20%;">
-                <select class="form-select form-select-sm lang-input-name select2-dynamic-lang">${langOptions}</select>
+                <select class="form-select form-select-sm lang-input-name select2-dynamic-lang"></select>
             </td>
             <td style="width: 14%;"><select class="form-select form-select-sm lang-input-listening">${buildLevelOptions(lang.listening_level)}</select></td>
             <td style="width: 14%;"><select class="form-select form-select-sm lang-input-speaking">${buildLevelOptions(lang.speaking_level)}</select></td>
@@ -2083,11 +2059,25 @@ window.addLanguageTableRow = function (lang = {}) {
     });
 
     $tbody.append($row);
-    $row.find('.select2-dynamic-lang').select2(getSelect2TagsConfig('語言...'));
+
+    // 套用 UISelectOptions 模組渲染動態語言選單 (支援自訂新增 Tags)
+    UISelectOptions.core.render({
+        target: $row.find('.select2-dynamic-lang'),
+        data: ['中文', '英文', '馬來文', '台語', '粵語', '客家話', '日文', '韓文', '泰文', '印尼文', '越南文'],
+        placeholder: '語言...',
+        selectedValue: currentLang,
+        searchable: true,
+        creatable: true,
+        grouped: false,
+        dropdownParent: '#partnerDetailModal'
+    });
 };
 
 window.openPartnerModalForCreate = function () {
     populateSelect2Options();
+    populateNationalityDropdown('中華民國');
+    populateEthnicityDropdown('華人');
+
     $('#partnerModalTitle').html('<i class="fa-solid fa-user-plus text-primary"></i> 登錄新成員檔案');
     $('#form-submit-btn').show();
     $('#form-mode').val('CREATE');
@@ -2099,7 +2089,6 @@ window.openPartnerModalForCreate = function () {
     $('#form-avatar-url').val('');
     $('#form-preview-avatar').attr('src', getDefaultAvatar('男'));
 
-    // 新增時啟用職級設定
     $('#form-current-rank-id, #form-highest-rank-id')
         .prop('disabled', false)
         .removeClass('bg-black bg-opacity-40 text-muted border-secondary');
@@ -2109,6 +2098,13 @@ window.openPartnerModalForCreate = function () {
     setSelect2TagVal('#form-ethnicity', '華人');
     setSelect2TagVal('#form-current-residence', '');
     setSelect2TagVal('#form-hometown', '');
+
+    $('#form-marital-status').val('');
+    $('#form-life-status').val('存活').trigger('change');
+    $('#form-deceased-date').val('');
+    $('#form-status-change-reason').val('');
+    $('#form-successor-partner-id, #form-surrendered-to-upline-id').val('').trigger('change');
+    $('#operator-transfer-container').hide();
 
     $('#form-contacts-dynamic-tbody').empty();
     $('#form-languages-dynamic-tbody').empty();
@@ -2131,7 +2127,6 @@ window.openPartnerModalForEdit = function (partnerId) {
     $('#form-person-id').prop('readonly', false).val(person.person_id || partner.person_id);
     $('#form-partner-id').prop('readonly', false).val(partner.partner_id);
 
-    // 編輯時鎖定職級下拉選單，防止手動篡改
     $('#form-current-rank-id, #form-highest-rank-id')
         .prop('disabled', true)
         .addClass('bg-black bg-opacity-40 text-muted border-secondary');
@@ -2148,10 +2143,17 @@ window.openPartnerModalForEdit = function (partnerId) {
 
     let natVal = person.nationality || '中華民國';
     if (natVal === '台灣' || natVal === 'TW') natVal = '中華民國';
+    populateNationalityDropdown(natVal);
+    populateEthnicityDropdown(person.ethnicity || '華人');
+
     setSelect2TagVal('#form-nationality', natVal);
     setSelect2TagVal('#form-ethnicity', person.ethnicity || '華人');
     setSelect2TagVal('#form-current-residence', person.current_residence || '');
     setSelect2TagVal('#form-hometown', person.hometown || '');
+
+    $('#form-marital-status').val(person.marital_status || '');
+    $('#form-life-status').val(person.life_status || '存活').trigger('change');
+    $('#form-deceased-date').val(person.deceased_date || '');
 
     $('#form-health-status').val(person.health_status || '良好');
     $('#form-financial-status').val(person.financial_status || '穩定');
@@ -2176,7 +2178,10 @@ window.openPartnerModalForEdit = function (partnerId) {
     $('#form-spouse-partner-id').val(partner.spouse_partner_id || '').trigger('change');
     $('#form-activity-level').val(partner.activity_level || '');
     $('#form-member-status').val(partner.member_status || '');
-    $('#form-operator-status').val(partner.operator_status || '');
+    $('#form-operator-status').val(partner.operator_status || '活躍').trigger('change');
+    $('#form-status-change-reason').val(partner.status_change_reason || '');
+    $('#form-successor-partner-id').val(partner.successor_partner_id || '').trigger('change');
+    $('#form-surrendered-to-upline-id').val(partner.surrendered_to_upline_id || '').trigger('change');
     $('#form-joining-motive').val(partner.joining_motive || '');
     $('#form-join-date').val(partner.join_date || '');
     $('#form-renewal-due-date').val(partner.renewal_due_date || '');
@@ -2253,7 +2258,7 @@ window.openPartnerModalForView = function (partnerId) {
         $('#view-leader-title').hide();
     }
 
-    // 2. 個人主檔自然人畫像
+    // 2. 個人主檔
     $('#view-person-id').html(formatEmpty(person.person_id));
     $('#view-identity-usage').html(`${formatEmpty(person.identity_type, '夥伴')} / ${formatEmpty(person.usage_identity, '消費者')}`);
 
@@ -2272,6 +2277,15 @@ window.openPartnerModalForView = function (partnerId) {
     const bDayText = rawBirthday ? `${rawBirthday}${ageStr}` : '未填生日';
     $('#view-gender-birthday-age').html(`${formatEmpty(gender)} ‧ ${formatEmpty(bDayText)}`);
     $('#view-nationality-ethnicity').html(`${formatEmpty(person.nationality, '中華民國')} ‧ ${formatEmpty(person.ethnicity, '華人')}`);
+
+    $('#view-marital-status').html(formatEmpty(person.marital_status, '未填寫'));
+
+    if (person.life_status === '身故') {
+        const dDate = person.deceased_date ? ` (${person.deceased_date})` : '';
+        $('#view-life-status').html(`<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i> 身故</span>${dDate}`);
+    } else {
+        $('#view-life-status').html('<span class="badge badge-success-subtle"><i class="fa-solid fa-heart me-1"></i> 存活</span>');
+    }
     
     const hometownText = person.hometown ? `${person.hometown} → ` : '';
     const residenceFull = person.current_residence ? `${hometownText}${person.current_residence}` : (person.hometown || '');
@@ -2305,7 +2319,28 @@ window.openPartnerModalForView = function (partnerId) {
 
     $('#view-join-date').html(formatEmpty(partner.join_date));
     $('#view-renewal-due-date').html(formatEmpty(partner.renewal_due_date));
-    $('#view-order-exit-dates').html(`最後訂購: ${formatEmpty(partner.last_order_date)} / 解約: ${formatEmpty(partner.exit_date)}`);
+    $('#view-order-exit-dates').html(`${formatEmpty(partner.last_order_date)} / ${formatEmpty(partner.exit_date)}`);
+
+    const starMap = ['非藍鑽', '一星藍鑽', '二星藍鑽', '三星藍鑽', '四星藍鑽', '五星藍鑽', '六星藍鑽', '耀星藍鑽'];
+    const starLevelNum = parseInt(partner.diamond_star_level, 10) || 0;
+    const starBadge = starLevelNum > 0 
+        ? `<span class="badge badge-info-subtle"><i class="fa-solid fa-gem me-1"></i> ${starMap[starLevelNum] || (starLevelNum + '星')}</span>` 
+        : '<span class="text-secondary small">非藍鑽</span>';
+    const evalDateText = partner.star_eval_eligible_date ? `<span class="font-monospace ms-1 small">(${partner.star_eval_eligible_date})</span>` : '';
+    $('#view-diamond-star-eval').html(`${starBadge} ${evalDateText}`);
+
+    $('#view-status-change-reason').html(formatEmpty(partner.status_change_reason, '無異動紀錄'));
+
+    const successorName = partner.successor_partner_id ? getPartnerDisplayName(partner.successor_partner_id) : '';
+    const surrenderedName = partner.surrendered_to_upline_id ? getPartnerDisplayName(partner.surrendered_to_upline_id) : '';
+
+    if (!successorName && !surrenderedName) {
+        $('#view-successor-surrendered').html('<span class="text-muted">無</span>');
+    } else {
+        const succHtml = successorName ? `<span class="text-info"><i class="fa-solid fa-user-check me-1"></i> 承接: ${successorName}</span>` : '';
+        const surrHtml = surrenderedName ? `<span class="text-warning ms-1"><i class="fa-solid fa-code-merge me-1"></i> 歸併: ${surrenderedName}</span>` : '';
+        $('#view-successor-surrendered').html(`${succHtml} ${surrHtml}`);
+    }
 
     // 4. 多管道通訊列表
     $('#view-phone').html(person.phone ? `<a href="tel:${person.phone}" class="text-info text-decoration-none">${person.phone}</a>` : '<span class="text-muted">未填寫</span>');
@@ -2345,9 +2380,9 @@ window.openPartnerModalForView = function (partnerId) {
                         <strong class="text-white">${l.language_name}</strong>
                         ${l.notes ? `<span class="text-muted" style="font-size: 0.72rem;">${l.notes}</span>` : ''}
                         <span class="text-secondary">聽: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
-                        <span class="text-secondary">說: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
-                        <span class="text-secondary">讀: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
-                        <span class="text-secondary">寫: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
+                        <span class="text-secondary">說: ${UIBadges.partner.languageProficiency(l.speaking_level)}</span>
+                        <span class="text-secondary">讀: ${UIBadges.partner.languageProficiency(l.reading_level)}</span>
+                        <span class="text-secondary">寫: ${UIBadges.partner.languageProficiency(l.writing_level)}</span>
                     </div>
                 </div>
             `);
@@ -2385,32 +2420,14 @@ window.openPartnerModalForView = function (partnerId) {
 // ============================================================================
 // 10. 寫入與刪除 (CRUD Operations)
 // ============================================================================
-
-/**
- * 取得表單欄位字串值並去除前後空白
- * @param {string} selector jQuery 選擇器
- * @param {string} defaultVal 預設值
- * @returns {string} 處理後之字串
- */
 function getFormTrimVal(selector, defaultVal = '') {
     const val = $(selector).val();
     return (val !== undefined && val !== null) ? String(val).trim() : defaultVal;
 }
 
-/**
- * 組織關係表 (org_relations) 自動化 CRUD 核心函式（修復主鍵污染問題）
- * @param {string} descendantId 當前儲存的夥伴 ID
- * @param {string} ancestorId 上線安置人/引薦人 ID
- * @param {string} linkType 上線連結模式 ('直屬已知' | '已知人數斷層' | '中間未知' | '體系頂層')
- * @param {number|string} gapCount 中間間隔人數 (若為直屬則為 0，未知則為 0)
- * @param {string} relationLine 血緣線路型態 ('安置排線' | '推薦線')
- * @param {string} currentUser 操作人員
- * @param {string} nowStr 格式化時間戳記
- */
 async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr) {
     if (!descendantId) return;
 
-    // 取得下一個自增流水號 ID (保持數值型態)
     const getNextAutoIncrementId = () => {
         if (!orgRelationsList || orgRelationsList.length === 0) return 1;
         const validIds = orgRelationsList
@@ -2419,7 +2436,6 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         return validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
     };
 
-    // 1. 體系頂層（無上線）：建立/維護自身對自身閉包 (depth = 0)
     if (!ancestorId || ancestorId === 'ROOT' || ancestorId === 'SYSTEM_ROOT' || linkType === '體系頂層') {
         const existingSelf = orgRelationsList.find(r => 
             r.ancestor_id === descendantId && r.descendant_id === descendantId
@@ -2430,18 +2446,18 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         const createdAt = existingSelf ? existingSelf.created_at : nowStr;
 
         const selfRelationRow = [
-            targetId,               // 0: id (保持數值流水號主鍵)
-            descendantId,           // 1: ancestor_id
-            descendantId,           // 2: descendant_id
-            0,                      // 3: depth
-            'Y',                    // 4: is_depth_exact
-            '精確血緣',             // 5: link_nature
-            relationLine || '安置排線', // 6: relation_line
-            descendantId,           // 7: path_trace
-            createdBy,              // 8: created_by
-            createdAt,              // 9: created_at
-            currentUser,            // 10: modified_by
-            nowStr                  // 11: modified_at
+            targetId,
+            descendantId,
+            descendantId,
+            0,
+            'Y',
+            '精確血緣',
+            relationLine || '安置排線',
+            descendantId,
+            createdBy,
+            createdAt,
+            currentUser,
+            nowStr
         ];
 
         if (existingSelf) {
@@ -2452,7 +2468,6 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         return;
     }
 
-    // 2. 計算斷層屬性、深度與路徑軌跡
     let depth = 1;
     let isDepthExact = 'Y';
     let linkNature = '精確血緣';
@@ -2461,7 +2476,7 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
     const numGaps = parseInt(gapCount, 10) || 0;
 
     if (linkType === '已知人數斷層' && numGaps > 0) {
-        depth = numGaps + 1; // 公式：depth = 間隔人數 + 1
+        depth = numGaps + 1;
         isDepthExact = 'Y';
         linkNature = '已知人數斷層';
         pathTrace = `${ancestorId}/GAP_${numGaps}/${descendantId}`;
@@ -2471,41 +2486,36 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         linkNature = '未知斷層直連';
         pathTrace = `${ancestorId}/UNKNOWN_GAP/${descendantId}`;
     } else {
-        // 直屬已知 (間隔 0 人)
         depth = 1;
         isDepthExact = 'Y';
         linkNature = '精確血緣';
         pathTrace = `${ancestorId}/${descendantId}`;
     }
 
-    // 3. 尋找既有關聯列（以 descendant_id 與 relation_line 為依歸）
     const existingRel = orgRelationsList.find(r => 
         r.descendant_id === descendantId && 
         (r.relation_line === relationLine || !r.relation_line || r.relation_line === '安置排線')
     );
 
-    // 嚴格維持原本的數值主鍵 ID，若為新建則派發下一個整數流水號
     const targetId = existingRel ? existingRel.id : String(getNextAutoIncrementId());
     const createdBy = existingRel ? existingRel.created_by : currentUser;
     const createdAt = existingRel ? existingRel.created_at : nowStr;
 
-    // 4. 組裝符合 04_組織 - 組織關係 12 欄位 Schema 的資料列
     const relationRowArray = [
-        targetId,                   // 0: id (BIGINT 主鍵流水號，絕不寫入 REL- 字串)
-        ancestorId,                 // 1: ancestor_id
-        descendantId,               // 2: descendant_id
-        depth,                      // 3: depth (INT)
-        isDepthExact,               // 4: is_depth_exact (Y/N)
-        linkNature,                 // 5: link_nature
-        relationLine || '安置排線', // 6: relation_line
-        pathTrace,                  // 7: path_trace (拓撲路徑字串)
-        createdBy,                  // 8: created_by
-        createdAt,                  // 9: created_at
-        currentUser,                // 10: modified_by
-        nowStr                      // 11: modified_at
+        targetId,
+        ancestorId,
+        descendantId,
+        depth,
+        isDepthExact,
+        linkNature,
+        relationLine || '安置排線',
+        pathTrace,
+        createdBy,
+        createdAt,
+        currentUser,
+        nowStr
     ];
 
-    // 5. 執行 Google 試算表寫入
     if (existingRel) {
         await SheetAdapter.updateRow('組織關係', targetId, relationRowArray);
     } else {
@@ -2513,22 +2523,15 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
     }
 }
 
-/**
- * 正規化出生年月日輸入值（支援 YYYY 或 YYYY/MM/DD）
- * @param {string} val 輸入字串
- * @returns {string} 標準化後的日期字串
- */
 function normalizeBirthdayInput(val) {
     if (!val || typeof val !== 'string') return '';
     const cleaned = val.trim();
     if (!cleaned) return '';
 
-    // 模式 1：僅輸入 4 碼年份（如 1988）
     if (/^\d{4}$/.test(cleaned)) {
         return cleaned;
     }
 
-    // 模式 2：完整年月日（支援 1988/6/5、1988-06-15 等形式，統整為 YYYY/MM/DD）
     const parts = cleaned.split(/[\/-]/);
     if (parts.length === 3) {
         const year = parts[0].padStart(4, '0');
@@ -2540,16 +2543,6 @@ function normalizeBirthdayInput(val) {
     return cleaned;
 }
 
-/**
- * 儲存夥伴 360° 全能戰術檔案
- * 完整連動「個人主檔」、「夥伴主檔」、「通訊資料」、「使用語言」、「組織關係」五張實體表
- * @param {Event} e 表單提交事件
- */
-/**
- * 儲存夥伴 360° 全能戰術檔案（高效能並行寫入 + 樂觀更新版）
- * 完整連動「個人主檔」、「夥伴主檔」、「通訊資料」、「使用語言」、「組織關係」五張實體表
- * @param {Event} e 表單提交事件
- */
 async function savePartnerRecord(e) {
     e.preventDefault();
 
@@ -2572,7 +2565,7 @@ async function savePartnerRecord(e) {
     const partnerCreatedBy = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_by : currentUser;
     const partnerCreatedAt = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_at : nowStr;
 
-    // 1. 封裝「個人主檔」資料列 (32 欄位)
+    // 1. 封裝「個人主檔」資料列 (36 欄位)
     const personRowArray = [
         personId,
         getFormTrimVal('#form-name-zh'),
@@ -2583,6 +2576,9 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-usage-identity', '消費者'),
         getFormTrimVal('#form-gender', '未填'),
         normalizeBirthdayInput(getFormTrimVal('#form-birthday')),
+        getFormTrimVal('#form-deceased-date'),
+        getFormTrimVal('#form-life-status', '存活'),
+        getFormTrimVal('#form-marital-status', ''),
         getFormTrimVal('#form-nationality', '中華民國'),
         getFormTrimVal('#form-ethnicity', '華人'),
         getFormTrimVal('#form-hometown'),
@@ -2595,7 +2591,7 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-highest-education'),
         getFormTrimVal('#form-graduated-school'),
         getFormTrimVal('#form-occupation-background'),
-        getFormTrimVal('#form-health-status', '良好'),
+        getFormTrimVal('#form-health-status', '待了解'),
         getFormTrimVal('#form-financial-status', '穩定'),
         getFormTrimVal('#form-avatar-url'),
         getFormTrimVal('#form-career-education-notes'),
@@ -2608,18 +2604,9 @@ async function savePartnerRecord(e) {
         nowStr
     ];
 
-    // 2. 封裝「夥伴主檔」資料列 (33 欄位)
-    const accountHolderType = getFormTrimVal('#form-account-holder-type', '個人經營者');
-    const officialAccountPartnerId = (accountHolderType === '共同經營者')
-        ? getFormTrimVal('#form-spouse-partner-id')
-        : partnerId;
-    const currentRankVal = (mode === 'UPDATE' && existingPartner) 
-        ? existingPartner.current_rank_id 
-        : getFormTrimVal('#form-current-rank-id');
-
-    const highestRankVal = (mode === 'UPDATE' && existingPartner) 
-        ? existingPartner.highest_rank_id 
-        : getFormTrimVal('#form-highest-rank-id');
+    // 2. 封裝「夥伴主檔」資料列 (37 欄位)
+    const diamondStarLevel = (mode === 'UPDATE' && existingPartner) ? (existingPartner.diamond_star_level || 0) : 0;
+    const starEvalEligibleDate = (mode === 'UPDATE' && existingPartner) ? (existingPartner.star_eval_eligible_date || '') : '';
 
     const partnerRowArray = [
         partnerId,
@@ -2637,12 +2624,17 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-upline-link-type', '直屬已知'),
         currentRankVal,
         highestRankVal,
+        diamondStarLevel,
+        starEvalEligibleDate,
         getFormTrimVal('#form-country-code', 'TW'),
         getFormTrimVal('#form-is-our-team', 'Y'),
         getFormTrimVal('#form-relation-type', '下線'),
         getFormTrimVal('#form-activity-level'),
         getFormTrimVal('#form-member-status'),
-        getFormTrimVal('#form-operator-status'),
+        getFormTrimVal('#form-operator-status', '活躍'),
+        getFormTrimVal('#form-status-change-reason'),
+        getFormTrimVal('#form-successor-partner-id'),
+        getFormTrimVal('#form-surrendered-to-upline-id'),
         getFormTrimVal('#form-joining-motive'),
         getFormTrimVal('#form-team-skills'),
         getFormTrimVal('#form-team-notes'),
@@ -2753,15 +2745,13 @@ async function savePartnerRecord(e) {
     const relationLine = getFormTrimVal('#form-relation-line', '安置排線');
 
     const btnSubmit = $('#form-submit-btn');
-    const silentOpt = { silent: true }; // 啟用靜默模式，禁止子請求閃爍 Loading
+    const silentOpt = { silent: true };
 
-    // 啟動單一穩定的主控 Loading
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary"></i> 正在平行同步全域組織與檔案...', '資料庫寫入中');
 
     try {
         btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 儲存寫入中...');
 
-        // 階段一：靜默清除舊子表
         const deletePromises = [];
         const oldContacts = personContactsList.filter(c => c.person_id === personId);
         oldContacts.forEach(oc => {
@@ -2776,7 +2766,6 @@ async function savePartnerRecord(e) {
             await Promise.all(deletePromises);
         }
 
-        // 階段二：靜默平行寫入主檔與新子表
         const createPromises = [];
         if (mode === 'CREATE') {
             createPromises.push(SheetAdapter.createRow('個人主檔', personId, personRowArray, null, silentOpt));
@@ -2792,7 +2781,6 @@ async function savePartnerRecord(e) {
 
         await Promise.all(createPromises);
 
-        // 階段三：本地記憶體樂觀更新 (In-Memory Optimistic Patch)
         const patchedPerson = parsePersonMasterTable([personRowArray])[0];
         const pIdx = personMasterList.findIndex(p => p.person_id === personId);
         if (pIdx >= 0) personMasterList[pIdx] = patchedPerson;
@@ -2806,12 +2794,10 @@ async function savePartnerRecord(e) {
         personContactsList = personContactsList.filter(c => c.person_id !== personId).concat(newContactsObjects);
         personLanguagesList = personLanguagesList.filter(l => l.person_id !== personId).concat(newLanguagesObjects);
 
-        // 🚀 核心關鍵：先關閉 Modal、解除 Loading、彈出 Toast，立即將 UI 響應歸還給使用者
         AppLoading.hide();
         bootstrap.Modal.getInstance(document.getElementById('partnerDetailModal'))?.hide();
         AppToast.success(`成員【${getFormTrimVal('#form-name-zh')}】檔案與多語言資料已成功儲存！`);
 
-        // 🚀 核心關鍵：將重型 DOM 渲染延遲至下一幀執行，徹底防止 Modal 淡出被卡住
         setTimeout(() => {
             populateSelect2Options();
             populateRegionDropdowns();
@@ -2819,7 +2805,6 @@ async function savePartnerRecord(e) {
             renderAllViews();
         }, 50);
 
-        // 背景非阻塞靜默同步
         fetchGoogleSheetsData();
 
     } catch (err) {
@@ -2831,10 +2816,6 @@ async function savePartnerRecord(e) {
     }
 }
 
-/**
- * 刪除夥伴主檔並完整清理關聯之個人主檔、通訊資料、使用語言與組織關係閉包鏈
- * @param {string} partnerId 夥伴唯一識別碼
- */
 window.deletePartnerRecord = function (partnerId) {
     const partner = partnersList.find(p => p.partner_id === partnerId);
     const personId = partner ? partner.person_id : null;
@@ -2845,14 +2826,11 @@ window.deletePartnerRecord = function (partnerId) {
         async function () {
             AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger"></i> 正在刪除成員檔案與清理血緣閉包...', '雲端同步處理');
             try {
-                // 1. 刪除夥伴主檔
                 await SheetAdapter.deleteRow('夥伴主檔', partnerId);
 
-                // 2. 刪除個人主檔
                 if (personId) {
                     await SheetAdapter.deleteRow('個人主檔', personId).catch(() => {});
 
-                    // 刪除該人員之通訊資料
                     const relatedContacts = personContactsList.filter(c => c.person_id === personId);
                     for (const rc of relatedContacts) {
                         if (rc.contact_id) {
@@ -2860,7 +2838,6 @@ window.deletePartnerRecord = function (partnerId) {
                         }
                     }
 
-                    // 刪除該人員之語言矩陣
                     const relatedLangs = personLanguagesList.filter(l => l.person_id === personId);
                     for (const rl of relatedLangs) {
                         if (rl.lang_id) {
@@ -2869,7 +2846,6 @@ window.deletePartnerRecord = function (partnerId) {
                     }
                 }
 
-                // 3. 刪除組織關係表中該夥伴作為後代 (descendant) 或祖先 (ancestor) 的全部記錄
                 const relsToDelete = orgRelationsList.filter(r => r.ancestor_id === partnerId || r.descendant_id === partnerId);
                 for (const rel of relsToDelete) {
                     if (rel.id) {

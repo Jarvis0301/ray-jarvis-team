@@ -112,11 +112,15 @@ const UIBadges = (function () {
              */
             operatorStatus(status) {
                 switch (status) {
-                    case '活躍': return `<span class="badge badge-outline-success-subtle">活躍</span>`;
-                    case '停滯': return `<span class="badge badge-outline-warning-subtle">停滯</span>`;
-                    case '沉睡': return `<span class="badge badge-outline-danger-subtle">沉睡</span>`;
-                    case '凍結': return `<span class="badge badge-outline-gray-subtle">凍結</span>`;
-                    default: return `<span class="badge badge-muted-subtle">未設定</span>`;
+                    case '活躍': return '<span class="badge badge-outline-success-subtle">活躍</span>';
+                    case '停滯': return '<span class="badge badge-outline-warning-subtle">停滯</span>';
+                    case '沉睡': return '<span class="badge badge-outline-danger-subtle">沉睡</span>';
+                    case '凍結': return '<span class="badge badge-outline-gray-subtle">凍結</span>';
+                    case '身故停止': return '<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i>身故停止</span>';
+                    case '因繼承原權停止': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-code-merge me-1"></i>因繼承原權停止</span>';
+                    case '因結婚合併停止': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-people-arrows me-1"></i>因結婚合併停止</span>';
+                    case '因離婚協議退出': return '<span class="badge badge-orange-subtle"><i class="fa-solid fa-user-xmark me-1"></i>因離婚協議退出</span>';
+                    default: return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
             },
 

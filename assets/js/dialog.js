@@ -150,8 +150,12 @@ class AppDialog {
                         </div>
                         <div class="modal-body" id="globalAppModalBody"></div>
                         <div class="modal-footer border-secondary" id="globalAppModalFooter">
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" id="globalAppModalCancelBtn" data-bs-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="globalAppModalConfirmBtn">確定</button>
+                            <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" id="globalAppModalCancelBtn" data-bs-dismiss="modal">
+                                <i class="fa-solid fa-xmark"></i> 取消
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="globalAppModalConfirmBtn">
+                                <i class="fa-solid fa-check"></i> 確定
+                            </button>
                         </div>
                     </div>
                 </div>

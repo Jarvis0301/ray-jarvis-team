@@ -445,13 +445,15 @@ function getWarehouseTypeOrder(type = '') {
 }
 
 /**
- * 動態填入門檻 Modal 之 Select2 下拉選單 (據點名稱與產品簡稱)
+ * 動態填入門檻 Modal 之下拉選單 (改接 UISelectOptions 共用模組)
+ * 1. 倉儲：依自用 -> 海外 -> 官方 -> 物流排序，可搜尋、不分組
+ * 2. 產品：依 TW / MY / 其他市場分組，品號升冪排序，可搜尋、分組
  */
 function populateThresholdSelectOptions() {
-    const $whSelect = $('#fieldThresholdWarehouse');
-    const $prdSelect = $('#fieldThresholdProduct');
+    const $wh = $('#fieldThresholdWarehouse');
+    const $prd = $('#fieldThresholdProduct');
 
-    // 1. 倉儲選單排序：自用 -> 海外 -> 官方 -> 物流
+    // 1. 倉儲選單資料排序 (自用 -> 海外 -> 官方 -> 物流)
     const sortedWarehouses = Object.values(appState.warehouses).sort((a, b) => {
         const orderA = getWarehouseTypeOrder(a.type);
         const orderB = getWarehouseTypeOrder(b.type);
@@ -459,55 +461,61 @@ function populateThresholdSelectOptions() {
         return a.id.localeCompare(b.id);
     });
 
-    $whSelect.empty().append('<option value="">-- 請選擇據點倉儲 --</option>');
-    sortedWarehouses.forEach(wh => {
-        const typeBadgeText = wh.type ? ` [${wh.type}]` : '';
-        $whSelect.append(`<option value="${wh.id}">${wh.name} (${wh.id})${typeBadgeText}</option>`);
+    // 渲染「據點倉儲」下拉選單
+    UISelectOptions.core.render({
+        target: $wh,
+        data: sortedWarehouses,
+        valueKey: 'id',
+        textKey: (wh) => `${wh.name} (${wh.id})${wh.type ? ` [${wh.type}]` : ''}`,
+        placeholder: '-- 請選擇據點倉儲 --',
+        selectedValue: $wh.val() || '',
+        searchable: true,
+        creatable: false,
+        grouped: false,
+        dropdownParent: '#thresholdModal'
     });
 
-    // 2. 產品選單分類：TW、MY 分組
-    $prdSelect.empty().append('<option value="">-- 請選擇產品品項 --</option>');
+    // 2. 產品選單資料結構化與排序 (TW 優先 -> MY 次之 -> 其他市場，內部依品號排序)
+    const regionPriority = { 'TW': 1, 'MY': 2 };
+    const structuredProducts = Object.values(appState.products)
+        .sort((a, b) => {
+            const prioA = regionPriority[a.region] || 99;
+            const prioB = regionPriority[b.region] || 99;
+            if (prioA !== prioB) return prioA - prioB;
+            return a.code.localeCompare(b.code);
+        })
+        .map(prd => ({
+            ...prd,
+            group: prd.region === 'TW' ? '🇹🇼 台灣市場' : (prd.region === 'MY' ? '🇲🇾 馬來西亞市場' : '🌐 其他市場')
+        }));
 
-    const twProducts = [];
-    const myProducts = [];
-    const otherProducts = [];
-
-    Object.values(appState.products).forEach(prd => {
-        if (prd.region === 'TW') twProducts.push(prd);
-        else if (prd.region === 'MY') myProducts.push(prd);
-        else otherProducts.push(prd);
+    // 渲染「產品品項」下拉選單 (分組)
+    UISelectOptions.core.render({
+        target: $prd,
+        data: structuredProducts,
+        valueKey: 'code',
+        textKey: (prd) => `${prd.short_name} (${prd.code})`,
+        groupKey: 'group',
+        placeholder: '-- 請選擇產品品項 --',
+        selectedValue: $prd.val() || '',
+        searchable: true,
+        creatable: false,
+        grouped: true,
+        dropdownParent: '#thresholdModal'
     });
 
-    // 排序各群組產品 (依品號升冪)
-    const sortByCode = (a, b) => a.code.localeCompare(b.code);
-    twProducts.sort(sortByCode);
-    myProducts.sort(sortByCode);
+    // 綁定選取變更事件，於新增模式下即時聯動生成主鍵 ID
+    $wh.off('change.autoId').on('change.autoId', function() {
+        if ($('#thresholdFormMode').val() === 'add') {
+            updateGeneratedThresholdId();
+        }
+    });
 
-    if (twProducts.length > 0) {
-        const $twGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
-        twProducts.forEach(prd => {
-            $twGroup.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
-        });
-        $prdSelect.append($twGroup);
-    }
-
-    if (myProducts.length > 0) {
-        const $myGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
-        myProducts.forEach(prd => {
-            $myGroup.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
-        });
-        $prdSelect.append($myGroup);
-    }
-
-    if (otherProducts.length > 0) {
-        const $otherGroup = $('<optgroup label="🌐 其他"></optgroup>');
-        otherProducts.forEach(prd => {
-            $otherGroup.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
-        });
-        $prdSelect.append($otherGroup);
-    }
-
-    initThresholdSelect2();
+    $prd.off('change.autoId').on('change.autoId', function() {
+        if ($('#thresholdFormMode').val() === 'add') {
+            updateGeneratedThresholdId();
+        }
+    });
 }
 
 /**
@@ -522,45 +530,6 @@ function updateGeneratedThresholdId() {
     } else {
         $('#fieldThresholdId').val('');
     }
-}
-
-/**
- * 初始化門檻視窗之 Select2
- */
-function initThresholdSelect2() {
-    if (!$.fn.select2) return;
-
-    const $wh = $('#fieldThresholdWarehouse');
-    const $prd = $('#fieldThresholdProduct');
-
-    $wh.select2({
-        theme: 'default',
-        dropdownParent: $('#thresholdModal'),
-        width: '100%',
-        placeholder: '-- 請選擇據點倉儲 --',
-        allowClear: true
-    });
-
-    $prd.select2({
-        theme: 'default',
-        dropdownParent: $('#thresholdModal'),
-        width: '100%',
-        placeholder: '-- 請選擇產品品項 --',
-        allowClear: true
-    });
-
-    // 監聽變更事件以即時自動生成 ID
-    $wh.off('change.autoId').on('change.autoId', function() {
-        if ($('#thresholdFormMode').val() === 'add') {
-            updateGeneratedThresholdId();
-        }
-    });
-
-    $prd.off('change.autoId').on('change.autoId', function() {
-        if ($('#thresholdFormMode').val() === 'add') {
-            updateGeneratedThresholdId();
-        }
-    });
 }
 
 /**

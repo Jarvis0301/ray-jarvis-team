@@ -173,38 +173,47 @@ async function fetchGoogleSheetsData() {
 }
 
 function parseRanksTable(rows) {
-    return rows.map((r, idx) => ({
-        rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
-        rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
-        rank_level: parseInt(getVal(r, 2, String((idx + 1) * 10)), 10) || 0,
-        rank_name_zh: getVal(r, 3, ''),
-        rank_name_en: getVal(r, 4, ''),
-        cum_group_sv_req: parseFloat(getVal(r, 5, '0')) || 0,
-        month_personal_sv_req: parseFloat(getVal(r, 6, '160')) || 160,
-        month_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
-        new_mgr_group_sv_req: parseFloat(getVal(r, 8, '0')) || 0,
-        qualified_lines_req: parseInt(getVal(r, 9, '0'), 10) || 0,
-        pearl_lines_req: parseInt(getVal(r, 10, '0'), 10) || 0,
-        month_org_sv_req: parseFloat(getVal(r, 11, '0')) || 0,
-        consecutive_months_req: parseInt(getVal(r, 12, '1'), 10) || 1,
-        direct_rebate_rate: parseFloat(getVal(r, 13, '0.05')) || 0.05,
-        leadership_gen_depth: parseInt(getVal(r, 14, '0'), 10) || 0,
-        leadership_gen_rate: parseFloat(getVal(r, 15, '0.06')) || 0.06,
-        has_group_bonus: getVal(r, 16, 'N').toUpperCase(),
-        has_manager_bonus: getVal(r, 17, 'N').toUpperCase(),
-        has_pearl_dividend: getVal(r, 18, 'N').toUpperCase(),
-        has_annual_excellence: getVal(r, 19, 'N').toUpperCase(),
-        has_travel_incentive: getVal(r, 20, 'N').toUpperCase(),
-        has_car_fund: getVal(r, 21, 'N').toUpperCase(),
-        badge_icon_class: getVal(r, 22, 'fa-solid fa-award'),
-        badge_color_hex: getVal(r, 23, '#8b5cf6'),
-        sort_order: parseInt(getVal(r, 24, String(idx + 1)), 10) || (idx + 1),
-        is_active: getVal(r, 25, 'Y').toUpperCase(),
-        created_by: getVal(r, 26, 'SYSTEM'),
-        created_at: getVal(r, 27, ''),
-        modified_by: getVal(r, 28, 'SYSTEM'),
-        modified_at: getVal(r, 29, '')
-    })).filter(r => r.rank_name_zh !== '').sort((a, b) => a.sort_order - b.sort_order);
+    return rows.map((r, idx) => {
+        // is_active 位於索引 28
+        const activeRaw = getVal(r, 28, 'Y').toUpperCase();
+        const isActive = (activeRaw === 'Y' || activeRaw === '是' || activeRaw === 'TRUE' || activeRaw === '1' || activeRaw === '');
+
+        return {
+            rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
+            rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
+            rank_level: parseInt(getVal(r, 2, String((idx + 1) * 10)), 10) || 0,
+            rank_name_zh: getVal(r, 3, ''),
+            rank_name_en: getVal(r, 4, ''),
+            star_rating: parseInt(getVal(r, 5, '0'), 10) || 0,
+            cooling_period_month: parseInt(getVal(r, 6, '0'), 10) || 0,
+            cum_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
+            month_personal_sv_req: parseFloat(getVal(r, 8, '160')) || 160,
+            month_group_sv_req: parseFloat(getVal(r, 9, '0')) || 0,
+            new_mgr_group_sv_req: parseFloat(getVal(r, 10, '0')) || 0,
+            qualified_lines_req: parseInt(getVal(r, 11, '0'), 10) || 0,
+            pearl_lines_req: parseInt(getVal(r, 12, '0'), 10) || 0,
+            month_org_sv_req: parseFloat(getVal(r, 13, '0')) || 0,
+            consecutive_months_req: parseInt(getVal(r, 14, '1'), 10) || 1,
+            direct_rebate_rate: parseFloat(getVal(r, 15, '0.05')) || 0.05,
+            leadership_gen_depth: parseInt(getVal(r, 16, '0'), 10) || 0,
+            leadership_gen_rate: parseFloat(getVal(r, 17, '0.06')) || 0.06,
+            has_group_bonus: getVal(r, 18, 'N').toUpperCase(),
+            has_manager_bonus: getVal(r, 19, 'N').toUpperCase(),
+            has_pearl_dividend: getVal(r, 20, 'N').toUpperCase(),
+            has_annual_excellence: getVal(r, 21, 'N').toUpperCase(),
+            has_travel_incentive: getVal(r, 22, 'N').toUpperCase(),
+            has_car_fund: getVal(r, 23, 'N').toUpperCase(),
+            car_reward_type: getVal(r, 24, '無'),
+            badge_icon_class: getVal(r, 25, 'fa-solid fa-award'),
+            badge_color_hex: getVal(r, 26, '#8b5cf6'),
+            sort_order: parseInt(getVal(r, 27, String(idx + 1)), 10) || (idx + 1),
+            is_active: isActive ? 'Y' : 'N',
+            created_by: getVal(r, 29, 'SYSTEM'),
+            created_at: getVal(r, 30, ''),
+            modified_by: getVal(r, 31, 'SYSTEM'),
+            modified_at: getVal(r, 32, '')
+        };
+    }).filter(r => r.rank_name_zh !== '' && r.is_active === 'Y').sort((a, b) => a.sort_order - b.sort_order);
 }
 
 function parseRankHistoryTable(rows) {
@@ -213,19 +222,21 @@ function parseRankHistoryTable(rows) {
         partner_id: getVal(r, 1, ''),
         previous_rank_id: getVal(r, 2, ''),
         new_rank_id: getVal(r, 3, ''),
-        effective_month: getVal(r, 4, ''),
-        consecutive_qualified_months: parseNullableInt(getVal(r, 5, '')),
-        cum_group_sv_snapshot: parseNullableFloat(getVal(r, 6, '')),
-        month_group_sv_snapshot: parseNullableFloat(getVal(r, 7, '')),
-        active_manager_legs_count: parseNullableInt(getVal(r, 8, '')),
-        active_pearl_legs_count: parseNullableInt(getVal(r, 9, '')),
-        month_total_org_sv_snapshot: parseNullableFloat(getVal(r, 10, '')),
-        company_recognition_date: formatDateToSlash(getVal(r, 11, '')),
-        notes: getVal(r, 12, '') || null,
-        created_by: getVal(r, 13, 'SYSTEM'),
-        created_at: getVal(r, 14, ''),
-        modified_by: getVal(r, 15, 'SYSTEM'),
-        modified_at: getVal(r, 16, '')
+        star_rating: parseInt(getVal(r, 4, '0'), 10) || 0,
+        effective_month: getVal(r, 5, ''),
+        cooling_start_date: formatDateToSlash(getVal(r, 6, '')),
+        consecutive_qualified_months: parseNullableInt(getVal(r, 7, '')),
+        cum_group_sv_snapshot: parseNullableFloat(getVal(r, 8, '')),
+        month_group_sv_snapshot: parseNullableFloat(getVal(r, 9, '')),
+        active_manager_legs_count: parseNullableInt(getVal(r, 10, '')),
+        active_pearl_legs_count: parseNullableInt(getVal(r, 11, '')),
+        month_total_org_sv_snapshot: parseNullableFloat(getVal(r, 12, '')),
+        company_recognition_date: formatDateToSlash(getVal(r, 13, '')),
+        notes: getVal(r, 14, '') || null,
+        created_by: getVal(r, 15, 'SYSTEM'),
+        created_at: getVal(r, 16, ''),
+        modified_by: getVal(r, 17, 'SYSTEM'),
+        modified_at: getVal(r, 18, '')
     })).filter(h => h.partner_id !== '');
 }
 
@@ -234,8 +245,10 @@ function parsePartnersTable(rows) {
         partner_id: getVal(r, 0, ''),
         person_id: getVal(r, 1, ''),
         member_no: getVal(r, 2, ''),
-        partner_name_zh: getVal(r, 3, ''),
-        join_date: formatDateToSlash(getVal(r, 24, '')) // 加入葡眾日 (YYYY/MM/DD)
+        leader_title: getVal(r, 3, ''),
+        diamond_star_level: parseInt(getVal(r, 15, '0'), 10) || 0,
+        star_eval_eligible_date: getVal(r, 16, ''),
+        join_date: formatDateToSlash(getVal(r, 29, '')) // 對齊最新索引 29
     })).filter(p => p.partner_id !== '');
 }
 
@@ -244,7 +257,8 @@ function parsePersonsTable(rows) {
         person_id: getVal(r, 0, ''),
         name_zh: getVal(r, 1, ''),
         name_en: getVal(r, 2, ''),
-        nickname: getVal(r, 3, '')
+        preferred_name: getVal(r, 3, ''),
+        display_name: getVal(r, 4, '')
     })).filter(p => p.person_id !== '');
 }
 
@@ -302,6 +316,7 @@ function selectRank(rankId) {
     $('#activeQualifiedLines').text(`${rank.qualified_lines_req} 條`);
     $('#activePearlLines').text(`${rank.pearl_lines_req} 條`);
     $('#activeConsecutiveMonths').text(`${rank.consecutive_months_req} 個月`);
+    $('#activeCoolingMonths').text(rank.cooling_period_month > 0 ? `${rank.cooling_period_month} 個月` : '無冷卻期');
 
     const $flags = $('#privilegeFlagsContainer').empty();
     const addFlag = (label, active, icon) => {
@@ -315,6 +330,7 @@ function selectRank(rankId) {
         `);
     };
 
+    // 獎金分紅特權旗標渲染
     addFlag(`階差獎金 ${(rank.direct_rebate_rate * 100).toFixed(0)}%`, true, 'fa-solid fa-percent');
     addFlag(`合格小組獎金 10%`, rank.has_group_bonus === 'Y', 'fa-solid fa-circle-check');
     addFlag(`合格經理獎金 5%`, rank.has_manager_bonus === 'Y', 'fa-solid fa-circle-check');
@@ -323,7 +339,12 @@ function selectRank(rankId) {
     addFlag(`珍鑽分紅 5%`, rank.has_pearl_dividend === 'Y', 'fa-solid fa-gem');
     addFlag(`珍鑽年度卓越 5%`, rank.has_annual_excellence === 'Y', 'fa-solid fa-trophy');
     addFlag(`珍鑽旅遊獎勵 1.5%`, rank.has_travel_incentive === 'Y', 'fa-solid fa-plane-departure');
-    addFlag(`購車基金 3.5% (頭款+分期)`, rank.has_car_fund === 'Y', 'fa-solid fa-car');
+    
+    // 購車基金 3.5% 資格與具體方案說明
+    addFlag(`購車基金 3.5%`, rank.has_car_fund === 'Y', 'fa-solid fa-car-side');
+    if (rank.car_reward_type && rank.car_reward_type !== '無') {
+        addFlag(`方案: ${rank.car_reward_type}`, true, 'fa-solid fa-car');
+    }
 }
 
 // 依據新職級自動推算前一階原職級
@@ -332,12 +353,16 @@ function autoCalcPrevRank(newRankId) {
     const currentIndex = appState.ranks.findIndex(r => r.rank_id === newRankId || r.rank_code === newRankId);
     
     if (currentIndex > 0) {
-        // 取天梯前一階職級
         const prevRank = appState.ranks[currentIndex - 1];
         $('#fieldPrevRankId').val(prevRank.rank_id);
     } else {
-        // 若選中首階（會員），原職級維持會員
         $('#fieldPrevRankId').val(appState.ranks[0].rank_id);
+    }
+
+    // 自動帶入新職級對應之藍鑽星等
+    const newRank = appState.ranks.find(r => r.rank_id === newRankId);
+    if (newRank) {
+        $('#fieldStarRating').val(newRank.star_rating || 0);
     }
 }
 
@@ -792,8 +817,9 @@ function openAddRankModal() {
     $('#fieldManagerLegsSnapshot').val('');
     $('#fieldPearlLegsSnapshot').val('');
     $('#fieldRecognitionDate').val('');
+    $('#fieldCoolingStartDate').val('');
+    $('#fieldStarRating').val('0');
 
-    // 預設第二階（主任）並自動計算原職級（會員），維持禁用
     $('#fieldPrevRankId').prop('disabled', true);
     if (appState.ranks.length > 1) {
         $('#fieldNewRankId').val(appState.ranks[1].rank_id);
@@ -814,18 +840,23 @@ function openEditHistoryModal(historyId) {
     $('#fieldPartnerId').val(item.partner_id).trigger('change');
     $('#fieldPrevRankId').prop('disabled', true);
     $('#fieldNewRankId').val(item.new_rank_id);
-    // 若原紀錄已有原職級則套用，否則自動推算
+
     if (item.previous_rank_id) {
         $('#fieldPrevRankId').val(item.previous_rank_id);
     } else {
         autoCalcPrevRank(item.new_rank_id);
     }
+    
+    $('#fieldStarRating').val(item.star_rating || 0);
     $('#fieldEffectiveMonth').val(item.effective_month);
     $('#fieldConsecutiveMonths').val(item.consecutive_qualified_months !== null ? item.consecutive_qualified_months : '');
     
     const recDate = item.company_recognition_date ? item.company_recognition_date.replace(/\//g, '-') : '';
     $('#fieldRecognitionDate').val(recDate);
     
+    const coolDate = item.cooling_start_date ? item.cooling_start_date.replace(/\//g, '-') : '';
+    $('#fieldCoolingStartDate').val(coolDate);
+
     $('#fieldCumSvSnapshot').val(item.cum_group_sv_snapshot !== null ? item.cum_group_sv_snapshot : '');
     $('#fieldManagerLegsSnapshot').val(item.active_manager_legs_count !== null ? item.active_manager_legs_count : '');
     $('#fieldPearlLegsSnapshot').val(item.active_pearl_legs_count !== null ? item.active_pearl_legs_count : '');
@@ -853,32 +884,36 @@ async function saveRankHistoryItem() {
     const createdBy = (mode === 'edit' && existing) ? existing.created_by : currentUser;
     const createdAt = (mode === 'edit' && existing) ? existing.created_at : nowStr;
 
+    const starRatingVal = parseInt($('#fieldStarRating').val(), 10) || 0;
     const consecutiveVal = parseNullableInt($('#fieldConsecutiveMonths').val());
     const cumSvVal = parseNullableFloat($('#fieldCumSvSnapshot').val());
     const mgrLegsVal = parseNullableInt($('#fieldManagerLegsSnapshot').val());
     const pearlLegsVal = parseNullableInt($('#fieldPearlLegsSnapshot').val());
+    const coolingStartDateVal = formatDateToSlash($('#fieldCoolingStartDate').val());
     const recognitionDateVal = formatDateToSlash($('#fieldRecognitionDate').val());
     const notesVal = $('#fieldNotes').val().trim() || '';
 
-    // 依據「職級歷程」17 欄位順序封裝
+    // 對齊最新 19 欄位 TSV Schema 封裝順序
     const rowDataArray = [
         historyId,                                           // [0] history_id
         partnerId,                                           // [1] partner_id
         $('#fieldPrevRankId').val(),                         // [2] previous_rank_id
         $('#fieldNewRankId').val(),                          // [3] new_rank_id
-        $('#fieldEffectiveMonth').val().trim(),              // [4] effective_month
-        consecutiveVal !== null ? consecutiveVal : '',       // [5] consecutive_qualified_months
-        cumSvVal !== null ? cumSvVal : '',                   // [6] cum_group_sv_snapshot
-        '',                                                  // [7] month_group_sv_snapshot
-        mgrLegsVal !== null ? mgrLegsVal : '',               // [8] active_manager_legs_count
-        pearlLegsVal !== null ? pearlLegsVal : '',           // [9] active_pearl_legs_count
-        '',                                                  // [10] month_total_org_sv_snapshot
-        recognitionDateVal || '',                            // [11] company_recognition_date
-        notesVal || '',                                      // [12] notes
-        createdBy,                                           // [13] created_by
-        createdAt,                                           // [14] created_at
-        currentUser,                                         // [15] modified_by
-        nowStr                                               // [16] modified_at
+        starRatingVal,                                       // [4] star_rating
+        $('#fieldEffectiveMonth').val().trim(),              // [5] effective_month
+        coolingStartDateVal || '',                           // [6] cooling_start_date
+        consecutiveVal !== null ? consecutiveVal : '',       // [7] consecutive_qualified_count
+        cumSvVal !== null ? cumSvVal : '',                   // [8] cum_group_sv_snapshot
+        '',                                                  // [9] month_group_sv_snapshot
+        mgrLegsVal !== null ? mgrLegsVal : '',               // [10] active_manager_legs_count
+        pearlLegsVal !== null ? pearlLegsVal : '',           // [11] active_pearl_legs_count
+        '',                                                  // [12] month_total_org_sv_snapshot
+        recognitionDateVal || '',                            // [13] company_recognition_date
+        notesVal || '',                                      // [14] notes
+        createdBy,                                           // [15] created_by
+        createdAt,                                           // [16] created_at
+        currentUser,                                         // [17] modified_by
+        nowStr                                               // [18] modified_at
     ];
 
     const updatedObj = {
@@ -886,7 +921,9 @@ async function saveRankHistoryItem() {
         partner_id: partnerId,
         previous_rank_id: $('#fieldPrevRankId').val(),
         new_rank_id: $('#fieldNewRankId').val(),
+        star_rating: starRatingVal,
         effective_month: $('#fieldEffectiveMonth').val().trim(),
+        cooling_start_date: coolingStartDateVal || null,
         consecutive_qualified_months: consecutiveVal,
         cum_group_sv_snapshot: cumSvVal,
         month_group_sv_snapshot: null,

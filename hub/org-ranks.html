@@ -35,12 +35,12 @@
             <section class="glass-panel p-3 mb-4" aria-label="職級天梯導航">
                 <div class="d-flex justify-content-between align-items-center mb-2 px-1">
                     <div class="small text-muted fw-bold">
-                        <i class="fa-solid fa-diagram-project text-secondary"></i> 葡眾 10 大職級天梯（點選檢視各階制度門檻）
+                        <i class="fa-solid fa-diagram-project text-secondary"></i> 葡眾職級晉升天梯（點選檢視各階制度門檻）
                     </div>
                     <div class="small text-muted" id="ranksCountBadge">載入中...</div>
                 </div>
                 <div class="rank-track-wrapper" id="rankTrackContainer">
-                    <!-- 由 JS 動態注入 10 個職級節點 -->
+                    <!-- 由 JS 動態注入職級節點 -->
                 </div>
             </section>
 
@@ -85,22 +85,28 @@
                             <div class="h6 fw-bold text-white mb-0" id="activeCumSv">-</div>
                         </div>
                     </div>
-                    <div class="col-4 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-sitemap text-success"></i> 經理線 (合格線)</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeQualifiedLines">-</div>
                         </div>
                     </div>
-                    <div class="col-4 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-gem text-accent"></i> 珍珠線 (實動線)</div>
                             <div class="h6 fw-bold text-white mb-0" id="activePearlLines">-</div>
                         </div>
                     </div>
-                    <div class="col-4 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="metric-pill text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-calendar-days text-secondary"></i> 連續考核月</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeConsecutiveMonths">-</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="metric-pill text-center">
+                            <div class="text-muted small mb-1"><i class="fa-solid fa-hourglass-half text-warning"></i> 考核冷卻期</div>
+                            <div class="h6 fw-bold text-white mb-0" id="activeCoolingMonths">-</div>
                         </div>
                     </div>
                 </div>
@@ -267,6 +273,20 @@
                                 <div class="col-md-4">
                                     <label class="form-label" for="fieldPearlLegsSnapshot">珍珠線數</label>
                                     <input type="number" class="form-control form-control-sm text-right" id="fieldPearlLegsSnapshot" value="0">
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="fieldEffectiveMonth">生效年月 (YYYY 或 YYYYMM) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldEffectiveMonth" placeholder="例如：2026 或 202608" maxlength="7" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="fieldStarRating">藍鑽星階 (0~7 星)</label>
+                                    <input type="number" class="form-control form-control-sm text-right" id="fieldStarRating" value="0" min="0" max="7">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="fieldCoolingStartDate">冷卻期起算日</label>
+                                    <input type="date" class="form-control form-control-sm" id="fieldCoolingStartDate">
                                 </div>
                             </div>
                             <div class="mb-3">

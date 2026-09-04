@@ -131,6 +131,10 @@
                             <option value="停滯">停滯</option>
                             <option value="沉睡">沉睡</option>
                             <option value="凍結">凍結</option>
+                            <option value="身故停止">身故停止</option>
+                            <option value="因繼承原權停止">因繼承原權停止</option>
+                            <option value="因結婚合併停止">因結婚合併停止</option>
+                            <option value="因離婚協議退出">因離婚協議退出</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
@@ -632,7 +636,7 @@
                                             <input type="text" class="form-control form-control-sm font-monospace" id="form-person-id" required placeholder="如：PSN-0001">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">中文真實姓名 <span class="text-danger">*</span></label>
+                                            <label class="form-label">中文姓名 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-name-zh" required placeholder="如：翁榮祥、林承志">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
@@ -730,6 +734,30 @@
                                                 <option value="高負債">高負債</option>
                                                 <option value="尋找副業">尋找副業</option>
                                             </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mt-1">
+                                        <div class="col-12 col-md-4 col-xl-3">
+                                            <label class="form-label" for="form-marital-status"><i class="fa-solid fa-ring"></i> 婚姻狀態</label>
+                                            <select class="form-select form-select-sm" id="form-marital-status">
+                                                <option value="" selected>(未填寫)</option>
+                                                <option value="未婚">未婚</option>
+                                                <option value="已婚">已婚</option>
+                                                <option value="離異">離異</option>
+                                                <option value="喪偶">喪偶</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-4 col-xl-3">
+                                            <label class="form-label" for="form-life-status"><i class="fa-solid fa-heart-pulse"></i> 存歿狀態</label>
+                                            <select class="form-select form-select-sm" id="form-life-status">
+                                                <option value="存活" selected>存活</option>
+                                                <option value="身故">身故</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-4 col-xl-3" id="deceased-date-container" style="display: none;">
+                                            <label class="form-label text-warning" for="form-deceased-date"><i class="fa-solid fa-calendar-xmark"></i> 身故日期</label>
+                                            <input type="date" class="form-control form-control-sm border-warning" id="form-deceased-date">
                                         </div>
                                     </div>
 
@@ -935,6 +963,30 @@
                                                 <option value="停滯">停滯</option>
                                                 <option value="沉睡">沉睡</option>
                                                 <option value="凍結">凍結</option>
+                                                <option value="身故停止">身故停止</option>
+                                                <option value="因繼承原權停止">因繼承原權停止</option>
+                                                <option value="因結婚合併停止">因結婚合併停止</option>
+                                                <option value="因離婚協議退出">因離婚協議退出</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- 區塊 5-1：營運狀態異動與繼承/受讓追蹤 -->
+                                    <div class="row g-3 mt-1" id="operator-transfer-container" style="display: none;">
+                                        <div class="col-12 col-md-6 col-xl-4">
+                                            <label class="form-label text-warning">狀態異動原因備註</label>
+                                            <input type="text" class="form-control form-control-sm border-warning" id="form-status-change-reason" placeholder="如：身故繼承、結婚整併、協議轉讓">
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-4">
+                                            <label class="form-label text-warning">承接 / 受讓人 (successor)</label>
+                                            <select class="form-select form-select-sm select2-partner-search border-warning" id="form-successor-partner-id">
+                                                <option value="">(無承接人)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-4">
+                                            <label class="form-label text-warning">原組織併入接線上線 (surrendered)</label>
+                                            <select class="form-select form-select-sm select2-partner-search border-warning" id="form-surrendered-to-upline-id">
+                                                <option value="">(無整併上線)</option>
                                             </select>
                                         </div>
                                     </div>
@@ -1178,7 +1230,7 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 mb-2 text-secondary">
-                                        <div><span>中文全名：</span><strong class="text-white" id="view-name-zh">--</strong></div>
+                                        <div><span>中文姓名：</span><strong class="text-white" id="view-name-zh">--</strong></div>
                                         <div><span>英文姓名：</span><strong class="text-white" id="view-name-en">--</strong></div>
                                         <div><span>常用稱呼：</span><strong class="text-white" id="view-name-pref">--</strong></div>
                                         <div><span>前端展示：</span><strong class="text-white" id="view-name-display">--</strong></div>
@@ -1197,8 +1249,9 @@
                             </div>
                         </div>
 
-                        <!-- 2. 個人主檔與夥伴組織雙欄結構 (認識時間與原因分立) -->
+                        <!-- 2. 個人主檔與夥伴組織雙欄結構 -->
                         <div class="row g-3 mb-3">
+                            <!-- 左欄：個人主檔自然人畫像 -->
                             <div class="col-12 col-md-6">
                                 <div class="dossier-sub-card h-100">
                                     <div class="dossier-card-header"><i class="fa-solid fa-user-tag text-primary"></i> 個人主檔畫像</div>
@@ -1214,6 +1267,14 @@
                                         <div class="d-flex justify-content-between">
                                             <span class="text-secondary">生理性別 / 生日 / 年齡</span>
                                             <span id="view-gender-birthday-age">--</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">婚姻狀態</span>
+                                            <span id="view-marital-status">--</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">存歿狀態 / 身故日期</span>
+                                            <span id="view-life-status">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span class="text-secondary">國籍 / 種族</span>
@@ -1247,6 +1308,7 @@
                                 </div>
                             </div>
 
+                            <!-- 右欄：葡眾組織排線與會籍狀態 -->
                             <div class="col-12 col-md-6">
                                 <div class="dossier-sub-card h-100">
                                     <div class="dossier-card-header"><i class="fa-solid fa-sitemap text-warning"></i> 葡眾組織排線與會籍</div>
@@ -1276,12 +1338,24 @@
                                             <span id="view-account-op-mode">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">藍鑽星階 / 考核起始日</span>
+                                            <span id="view-diamond-star-eval">--</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
                                             <span class="text-secondary">上線連結模式 / 節點性質</span>
                                             <span id="view-link-node-nature">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span class="text-secondary">入會動機</span>
                                             <span id="view-joining-motive">--</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">異動原因備註</span>
+                                            <span id="view-status-change-reason" class="text-end" style="max-width: 60%;">--</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">承接人 / 歸併接線上線</span>
+                                            <span id="view-successor-surrendered">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span class="text-secondary">簽約加入生效日</span>
