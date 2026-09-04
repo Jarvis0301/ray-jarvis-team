@@ -2,7 +2,7 @@
 // 1. Google 雲端試算表設定與核心常數
 // ==========================================================================
 const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";
-const GAS_DEPLOY_ID = "AKfycbx7GPm_qU2K4OOuGdpfuinfr3vItvICOWJWerjb0TiqTv1k0x0y3fG8Y4dIPDunGH-v";
+const GAS_DEPLOY_ID = "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt";
 const SHEET_NAME = "據點倉儲"; // 對應表 301 psi_warehouses
 
 /**

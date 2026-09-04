@@ -3,7 +3,7 @@
 // ==========================================================================
 const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
 const SPREADSHEET_ID_PRD = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";        // 獨立產品主檔試算表 (表 101 prd_items)
-const GAS_DEPLOY_ID = "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA";
+const GAS_DEPLOY_ID = "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt";
 const SHEET_PRODUCTS = "產品主檔";   // 表 101: prd_items
 const SHEET_WAREHOUSES = "據點倉儲"; // 表 301: psi_warehouses
 const SHEET_ALERTS = "庫存預警";     // 表 308: psi_alerts
@@ -156,20 +156,23 @@ async function fetchGoogleSheetsData() {
         (rawWhRows || []).forEach(r => {
             const id = getVal(r, 0);   // Col 0: id
             const name = getVal(r, 1); // Col 1: warehouse_name
+            const type = getVal(r, 2);     // Col 2: warehouse_type ('自用常備倉','海外商務倉','官方營運中心','物流在途倉')
             if (id) {
-                appState.warehouses[id] = { id, name: name || id };
+                appState.warehouses[id] = { id, name: name || id, type };
             }
         });
 
         // 2. 解析產品主檔 (表 101 prd_items)
         appState.products = {};
         (rawPrdRows || []).forEach(r => {
-            const code = getVal(r, 0);       // Col 0: product_code (PK)
+           const code = getVal(r, 0);       // Col 0: product_code (PK)
+            const region = getVal(r, 1, 'TW').toUpperCase(); // Col 1: region_code ('TW' / 'MY')
             const name = getVal(r, 3);       // Col 3: name (官方完整中文品名)
             const shortName = getVal(r, 4);  // Col 4: short_name (產品簡稱)
             if (code) {
                 appState.products[code] = {
                     code,
+                    region,
                     name: name || code,
                     short_name: shortName || name || code
                 };
@@ -341,37 +344,10 @@ function filterAlertsTable() {
 function formatAlertRow(a) {
     const hasAdminRights = isMasterAdmin();
 
-    // 1. 預警類型標籤：全面對齊共用 Badge 系統
-    let typeBadge = '<span class="badge badge-purple-subtle">日常提示</span>';
-    if (a.alert_type === '低於安全水位') {
-        typeBadge = '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>低於安全水位</span>';
-    } else if (a.alert_type === '90天近效期') {
-        typeBadge = '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hourglass-half me-1"></i>90天近效期</span>';
-    } else if (a.alert_type === '30天極危效期') {
-        typeBadge = '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>30天極危效期</span>';
-    } else if (a.alert_type === '已過期') {
-        typeBadge = '<span class="badge badge-danger"><i class="fa-solid fa-skull me-1"></i>已過期</span>';
-    } else if (a.alert_type === '品質鎖定') {
-        typeBadge = '<span class="badge badge-muted-subtle"><i class="fa-solid fa-lock me-1"></i>品質鎖定</span>';
-    }
-
-    // 2. 告警嚴重級別標籤
-    let levelBadge = '<span class="badge badge-info-subtle">一般</span>';
-    if (a.alert_level === '緊急') {
-        levelBadge = '<span class="badge badge-danger-subtle fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i>緊急</span>';
-    } else if (a.alert_level === '注意') {
-        levelBadge = '<span class="badge badge-warning-subtle fw-bold">注意</span>';
-    }
-
-    // 3. 處理狀態標籤
-    let statusBadge = '<span class="badge badge-muted-subtle">未處理</span>';
-    if (a.status === '已知悉') {
-        statusBadge = '<span class="badge badge-info-subtle">已知悉</span>';
-    } else if (a.status === '已轉特惠促銷/試用') {
-        statusBadge = '<span class="badge badge-warning-subtle">已轉特惠/試用</span>';
-    } else if (a.status === '已結案出清') {
-        statusBadge = '<span class="badge badge-success-subtle">已結案出清</span>';
-    }
+    // 改接 UIBadges.alert 核心模組
+    const typeBadge = UIBadges.alert.type(a.alert_type);
+    const levelBadge = UIBadges.alert.level(a.alert_level);
+    const statusBadge = UIBadges.alert.status(a.status);
 
     // 效期倒數顯示
     let daysDisplay = '<span class="text-secondary">-</span>';
@@ -468,21 +444,79 @@ function formatThresholdRow(t) {
 }
 
 /**
+ * 取得倉儲類型排序權重 (自用 -> 海外 -> 官方 -> 物流)
+ */
+function getWarehouseTypeOrder(type = '') {
+    const t = String(type).trim().toUpperCase();
+    if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
+    if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
+    if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
+    if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
+    return 99;
+}
+
+/**
  * 動態填入門檻 Modal 之 Select2 下拉選單 (據點名稱與產品簡稱)
  */
 function populateThresholdSelectOptions() {
     const $whSelect = $('#fieldThresholdWarehouse');
     const $prdSelect = $('#fieldThresholdProduct');
 
-    $whSelect.empty().append('<option value="">-- 請選擇據點倉儲 --</option>');
-    Object.values(appState.warehouses).forEach(wh => {
-        $whSelect.append(`<option value="${wh.id}">${wh.name} (${wh.id})</option>`);
+    // 1. 倉儲選單排序：自用 -> 海外 -> 官方 -> 物流
+    const sortedWarehouses = Object.values(appState.warehouses).sort((a, b) => {
+        const orderA = getWarehouseTypeOrder(a.type);
+        const orderB = getWarehouseTypeOrder(b.type);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.id.localeCompare(b.id);
     });
 
-    $prdSelect.empty().append('<option value="">-- 請選擇產品品項 --</option>');
-    Object.values(appState.products).forEach(prd => {
-        $prdSelect.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
+    $whSelect.empty().append('<option value="">-- 請選擇據點倉儲 --</option>');
+    sortedWarehouses.forEach(wh => {
+        const typeBadgeText = wh.type ? ` [${wh.type}]` : '';
+        $whSelect.append(`<option value="${wh.id}">${wh.name} (${wh.id})${typeBadgeText}</option>`);
     });
+
+    // 2. 產品選單分類：TW、MY 分組
+    $prdSelect.empty().append('<option value="">-- 請選擇產品品項 --</option>');
+
+    const twProducts = [];
+    const myProducts = [];
+    const otherProducts = [];
+
+    Object.values(appState.products).forEach(prd => {
+        if (prd.region === 'TW') twProducts.push(prd);
+        else if (prd.region === 'MY') myProducts.push(prd);
+        else otherProducts.push(prd);
+    });
+
+    // 排序各群組產品 (依品號升冪)
+    const sortByCode = (a, b) => a.code.localeCompare(b.code);
+    twProducts.sort(sortByCode);
+    myProducts.sort(sortByCode);
+
+    if (twProducts.length > 0) {
+        const $twGroup = $('<optgroup label="🇹🇼 台灣"></optgroup>');
+        twProducts.forEach(prd => {
+            $twGroup.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
+        });
+        $prdSelect.append($twGroup);
+    }
+
+    if (myProducts.length > 0) {
+        const $myGroup = $('<optgroup label="🇲🇾 馬來西亞"></optgroup>');
+        myProducts.forEach(prd => {
+            $myGroup.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
+        });
+        $prdSelect.append($myGroup);
+    }
+
+    if (otherProducts.length > 0) {
+        const $otherGroup = $('<optgroup label="🌐 其他"></optgroup>');
+        otherProducts.forEach(prd => {
+            $otherGroup.append(`<option value="${prd.code}">${prd.short_name} (${prd.code})</option>`);
+        });
+        $prdSelect.append($otherGroup);
+    }
 
     initThresholdSelect2();
 }
@@ -701,8 +735,10 @@ function openResolveAlertModal(alertId) {
     if (!a) return;
 
     $('#resolveAlertId').val(a.id);
-    $('#resolveAlertItemText').text(`${getProductName(a.product_id)} (${a.product_id})`);
-    $('#resolveAlertWhText').text(a.warehouse_id);
+    $('#resolveAlertIdDisplay').text(a.id);
+    $('#resolveAlertTypeBadge').html(window.UIBadges?.alert?.type ? UIBadges.alert.type(a.alert_type) : a.alert_type);
+    $('#resolveAlertItemText').text(`${getProductShortName(a.product_id)} (${a.product_id})`);
+    $('#resolveAlertWhText').text(`${getWarehouseName(a.warehouse_id)} (${a.warehouse_id})`);
     $('#resolveAlertSuggestedText').text(a.remarks || '常規調撥備貨防線');
     $('#resolveStatusSelect').val(a.status || '已知悉');
     $('#resolveRemarksInput').val('');

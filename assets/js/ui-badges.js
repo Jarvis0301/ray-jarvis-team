@@ -378,6 +378,66 @@ const UIBadges = (function () {
                         return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
             }
+        },
+
+        // ====================================================================
+        // 7. 庫存告警與調度領域 (UIBadges.alert.*)
+        // ====================================================================
+        alert: {
+            /**
+             * 庫存預警類型標籤
+             */
+            type(alertType) {
+                const type = clean(alertType, '日常提示');
+                switch (type) {
+                    case '低於安全水位':
+                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>低於安全水位</span>';
+                    case '90天近效期':
+                        return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hourglass-half me-1"></i>90天近效期</span>';
+                    case '30天極危效期':
+                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>30天極危效期</span>';
+                    case '已過期':
+                        return '<span class="badge badge-danger"><i class="fa-solid fa-skull me-1"></i>已過期</span>';
+                    case '品質鎖定':
+                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-lock me-1"></i>品質鎖定</span>';
+                    default:
+                        return `<span class="badge badge-purple-subtle">${type}</span>`;
+                }
+            },
+
+            /**
+             * 預警嚴重性等級標籤
+             */
+            level(alertLevel) {
+                const lvl = clean(alertLevel, '一般');
+                switch (lvl) {
+                    case '緊急':
+                        return '<span class="badge badge-danger-subtle fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i>緊急</span>';
+                    case '注意':
+                        return '<span class="badge badge-warning-subtle fw-bold">注意</span>';
+                    case '一般':
+                    default:
+                        return '<span class="badge badge-muted-subtle">一般</span>';
+                }
+            },
+
+            /**
+             * 告警處置狀態標籤
+             */
+            status(statusCode) {
+                const s = clean(statusCode, '未處理');
+                switch (s) {
+                    case '已知悉':
+                        return '<span class="badge badge-info-subtle">已知悉</span>';
+                    case '已轉特惠促銷/試用':
+                        return '<span class="badge badge-warning-subtle">已轉特惠/試用</span>';
+                    case '已結案出清':
+                        return '<span class="badge badge-success-subtle">已結案出清</span>';
+                    case '未處理':
+                    default:
+                        return '<span class="badge badge-muted-subtle">未處理</span>';
+                }
+            }
         }
     };
 })();
