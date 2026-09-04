@@ -56,15 +56,21 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function generateNextHistoryId() {
-    const numbers = appState.history
-        .map(h => {
-            const match = String(h.history_id).match(/RANK-HIS-(\d+)/i);
-            return match ? parseInt(match[1], 10) : 0;
-        })
-        .filter(n => !isNaN(n));
-    const maxNum = numbers.length > 0 ? Math.max(...numbers) : 0;
-    return `RANK-HIS-${String(maxNum + 1).padStart(3, '0')}`;
+function generateNextHistoryId(partnerId) {
+    const targetPid = partnerId ? partnerId.trim() : 'PTN-0001';
+    // 篩選該夥伴已有的晉升紀錄
+    const ptnHistories = appState.history.filter(h => h.partner_id === targetPid);
+    
+    // 擷取該夥伴歷程末尾流水號
+    const seqNumbers = ptnHistories.map(h => {
+        const idStr = String(h.history_id).trim();
+        // 匹配 RANK-HIS-PTN-xxxx-001 或舊式 RANK-HIS-001 格式末尾序號
+        const match = idStr.match(/(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+    }).filter(n => !isNaN(n));
+
+    const maxSeq = seqNumbers.length > 0 ? Math.max(...seqNumbers) : 0;
+    return `RANK-HIS-${targetPid}-${String(maxSeq + 1).padStart(3, '0')}`;
 }
 
 // ==========================================================================
@@ -88,8 +94,8 @@ function getPartnerDisplayName(partnerId) {
     if (!partner) return partnerId;
 
     const person = appState.persons.find(psn => psn.person_id === partner.person_id);
-    const name = (person && (person.name_zh || person.name_en || person.nickname)) 
-        ? (person.name_zh || person.name_en || person.nickname) 
+    const name = (person && (person.name_zh || person.name_en || person.preferred_name)) 
+        ? (person.name_zh || person.name_en || person.preferred_name) 
         : (partner.partner_name_zh || partner.partner_id);
     const memberNo = (partner && partner.member_no) ? ` (${partner.member_no})` : '';
     
@@ -217,27 +223,32 @@ function parseRanksTable(rows) {
 }
 
 function parseRankHistoryTable(rows) {
-    return rows.map((r, idx) => ({
-        history_id: getVal(r, 0, `RANK-HIS-${String(idx + 1).padStart(3, '0')}`),
-        partner_id: getVal(r, 1, ''),
-        previous_rank_id: getVal(r, 2, ''),
-        new_rank_id: getVal(r, 3, ''),
-        star_rating: parseInt(getVal(r, 4, '0'), 10) || 0,
-        effective_month: getVal(r, 5, ''),
-        cooling_start_date: formatDateToSlash(getVal(r, 6, '')),
-        consecutive_qualified_months: parseNullableInt(getVal(r, 7, '')),
-        cum_group_sv_snapshot: parseNullableFloat(getVal(r, 8, '')),
-        month_group_sv_snapshot: parseNullableFloat(getVal(r, 9, '')),
-        active_manager_legs_count: parseNullableInt(getVal(r, 10, '')),
-        active_pearl_legs_count: parseNullableInt(getVal(r, 11, '')),
-        month_total_org_sv_snapshot: parseNullableFloat(getVal(r, 12, '')),
-        company_recognition_date: formatDateToSlash(getVal(r, 13, '')),
-        notes: getVal(r, 14, '') || null,
-        created_by: getVal(r, 15, 'SYSTEM'),
-        created_at: getVal(r, 16, ''),
-        modified_by: getVal(r, 17, 'SYSTEM'),
-        modified_at: getVal(r, 18, '')
-    })).filter(h => h.partner_id !== '');
+    return rows.map((r, idx) => {
+        const partnerId = getVal(r, 1, 'PTN-0001');
+        const defaultHisId = `RANK-HIS-${partnerId}-${String(idx + 1).padStart(3, '0')}`;
+
+        return {
+            history_id: getVal(r, 0, defaultHisId),
+            partner_id: partnerId,
+            previous_rank_id: getVal(r, 2, ''),
+            new_rank_id: getVal(r, 3, ''),
+            star_rating: parseInt(getVal(r, 4, '0'), 10) || 0,
+            effective_month: getVal(r, 5, ''),
+            cooling_start_date: formatDateToSlash(getVal(r, 6, '')),
+            consecutive_qualified_months: parseNullableInt(getVal(r, 7, '')),
+            cum_group_sv_snapshot: parseNullableFloat(getVal(r, 8, '')),
+            month_group_sv_snapshot: parseNullableFloat(getVal(r, 9, '')),
+            active_manager_legs_count: parseNullableInt(getVal(r, 10, '')),
+            active_pearl_legs_count: parseNullableInt(getVal(r, 11, '')),
+            month_total_org_sv_snapshot: parseNullableFloat(getVal(r, 12, '')),
+            company_recognition_date: formatDateToSlash(getVal(r, 13, '')),
+            notes: getVal(r, 14, '') || null,
+            created_by: getVal(r, 15, 'SYSTEM'),
+            created_at: getVal(r, 16, ''),
+            modified_by: getVal(r, 17, 'SYSTEM'),
+            modified_at: getVal(r, 18, '')
+        };
+    }).filter(h => h.partner_id !== '');
 }
 
 function parsePartnersTable(rows) {
@@ -367,12 +378,32 @@ function autoCalcPrevRank(newRankId) {
 }
 
 function populateRankSelects() {
-    const $prev = $('#fieldPrevRankId').empty();
-    const $new = $('#fieldNewRankId').empty();
+    const rankData = appState.ranks;
 
-    appState.ranks.forEach(r => {
-        $prev.append(`<option value="${r.rank_id}">${r.rank_code} - ${r.rank_name_zh}</option>`);
-        $new.append(`<option value="${r.rank_id}">${r.rank_code} - ${r.rank_name_zh}</option>`);
+    // 1. 原職級選單
+    UISelectOptions.core.render({
+        target: '#fieldPrevRankId',
+        data: rankData,
+        valueKey: 'rank_id',
+        textKey: (r) => `${r.rank_code} - ${r.rank_name_zh}`,
+        placeholder: '請選擇原職級...',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        dropdownParent: '#rankHistoryModal'
+    });
+
+    // 2. 新晉升職級選單
+    UISelectOptions.core.render({
+        target: '#fieldNewRankId',
+        data: rankData,
+        valueKey: 'rank_id',
+        textKey: (r) => `${r.rank_code} - ${r.rank_name_zh}`,
+        placeholder: '請選擇新晉升職級...',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        dropdownParent: '#rankHistoryModal'
     });
 
     // 當新晉升職級變更時，立即自動計算原職級
@@ -386,33 +417,26 @@ function populateRankSelects() {
 // ==========================================================================
 function populatePartnerDropdown() {
     const $select = $('#partnerSelect');
-    $select.empty();
-
     const partnerList = appState.partners.length > 0 
         ? appState.partners 
         : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
 
-    if (partnerList.length === 0) {
-        $select.append('<option value="">暫無夥伴資料</option>');
-        return;
-    }
-
-    partnerList.forEach(p => {
-        const text = getPartnerDisplayName(p.partner_id);
-        $select.append(`<option value="${p.partner_id}">${text}</option>`);
+    // 透過共用模組渲染夥伴戰情下拉選單 (可搜尋、不可自訂新增)
+    UISelectOptions.core.render({
+        target: $select,
+        data: partnerList,
+        valueKey: 'partner_id',
+        textKey: (p) => getPartnerDisplayName(p.partner_id),
+        placeholder: '請選擇或搜尋夥伴...',
+        selectedValue: $select.val() || (partnerList[0]?.partner_id || ''),
+        searchable: true,
+        creatable: false,
+        grouped: false
     });
 
-    if ($.fn.select2) {
-        $select.select2({
-            placeholder: '請選擇或搜尋夥伴...',
-            allowClear: false,
-            width: '100%'
-        });
-
-        $select.off('change.partnerDash').on('change.partnerDash', function () {
-            onPartnerSelected($(this).val());
-        });
-    }
+    $select.off('change.partnerDash').on('change.partnerDash', function () {
+        onPartnerSelected($(this).val());
+    });
 
     const selectedPtn = $select.val();
     if (selectedPtn) {
@@ -782,33 +806,43 @@ function renderHistoryTable() {
 // ==========================================================================
 function initPartnerSelect2() {
     const $partnerSelect = $('#fieldPartnerId');
-    $partnerSelect.empty().append('<option value="">請選擇或搜尋夥伴...</option>');
-
     const partnerList = appState.partners.length > 0 
         ? appState.partners 
         : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
 
-    partnerList.forEach(p => {
-        const text = getPartnerDisplayName(p.partner_id);
-        $partnerSelect.append(`<option value="${p.partner_id}">${text}</option>`);
+    // 透過共用模組渲染晉升登記之夥伴選單 (綁定 Modal 父層與防脫軌滾動守衛)
+    UISelectOptions.core.render({
+        target: $partnerSelect,
+        data: partnerList,
+        valueKey: 'partner_id',
+        textKey: (p) => getPartnerDisplayName(p.partner_id),
+        placeholder: '請選擇或搜尋夥伴...',
+        selectedValue: $partnerSelect.val() || '',
+        searchable: true,
+        creatable: false,
+        grouped: false,
+        dropdownParent: '#rankHistoryModal'
     });
 
-    if ($.fn.select2) {
-        $partnerSelect.select2({
-            dropdownParent: $('#rankHistoryModal'),
-            placeholder: '請選擇或搜尋夥伴...',
-            allowClear: true,
-            width: '100%'
-        });
-    }
+    // 當新增狀態下更換夥伴時，動態重算其專屬晉升流水號
+    $partnerSelect.off('change.historyIdGen').on('change.historyIdGen', function () {
+        if ($('#fieldHistoryMode').val() === 'add') {
+            const selectedPid = $(this).val();
+            if (selectedPid) {
+                $('#fieldHistoryId').val(generateNextHistoryId(selectedPid));
+            } else {
+                $('#fieldHistoryId').val('');
+            }
+        }
+    });
 }
 
 function openAddRankModal() {
     $('#modalHistoryTitle').html('<i class="fa-solid fa-plus text-accent"></i> 登錄夥伴職級晉升');
     $('#fieldHistoryMode').val('add');
     $('#formRankHistory')[0].reset();
-    $('#fieldHistoryId').val(generateNextHistoryId());
-    
+    $('#fieldHistoryId').val(''); // 選擇夥伴後動態產生
+
     const now = new Date();
     const currentYm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
     $('#fieldEffectiveMonth').val(currentYm);
@@ -870,12 +904,18 @@ function openEditHistoryModal(historyId) {
 // ==========================================================================
 async function saveRankHistoryItem() {
     const mode = $('#fieldHistoryMode').val();
-    const historyId = $('#fieldHistoryId').val().trim();
     const partnerId = $('#fieldPartnerId').val().trim();
 
     if (!partnerId) {
         AppToast.warning("請選擇夥伴！");
         return;
+    }
+
+    // 若為新增且 ID 為空，強制呼叫生成器
+    let historyId = $('#fieldHistoryId').val().trim();
+    if (mode === 'add' && (!historyId || !historyId.includes(partnerId))) {
+        historyId = generateNextHistoryId(partnerId);
+        $('#fieldHistoryId').val(historyId);
     }
 
     const currentUser = getCurrentUser();
@@ -893,27 +933,27 @@ async function saveRankHistoryItem() {
     const recognitionDateVal = formatDateToSlash($('#fieldRecognitionDate').val());
     const notesVal = $('#fieldNotes').val().trim() || '';
 
-    // 對齊最新 19 欄位 TSV Schema 封裝順序
+    // 封裝 19 欄位 TSV 資料列
     const rowDataArray = [
-        historyId,                                           // [0] history_id
-        partnerId,                                           // [1] partner_id
-        $('#fieldPrevRankId').val(),                         // [2] previous_rank_id
-        $('#fieldNewRankId').val(),                          // [3] new_rank_id
-        starRatingVal,                                       // [4] star_rating
-        $('#fieldEffectiveMonth').val().trim(),              // [5] effective_month
-        coolingStartDateVal || '',                           // [6] cooling_start_date
-        consecutiveVal !== null ? consecutiveVal : '',       // [7] consecutive_qualified_count
-        cumSvVal !== null ? cumSvVal : '',                   // [8] cum_group_sv_snapshot
-        '',                                                  // [9] month_group_sv_snapshot
-        mgrLegsVal !== null ? mgrLegsVal : '',               // [10] active_manager_legs_count
-        pearlLegsVal !== null ? pearlLegsVal : '',           // [11] active_pearl_legs_count
-        '',                                                  // [12] month_total_org_sv_snapshot
-        recognitionDateVal || '',                            // [13] company_recognition_date
-        notesVal || '',                                      // [14] notes
-        createdBy,                                           // [15] created_by
-        createdAt,                                           // [16] created_at
-        currentUser,                                         // [17] modified_by
-        nowStr                                               // [18] modified_at
+        historyId,
+        partnerId,
+        $('#fieldPrevRankId').val(),
+        $('#fieldNewRankId').val(),
+        starRatingVal,
+        $('#fieldEffectiveMonth').val().trim(),
+        coolingStartDateVal || '',
+        consecutiveVal !== null ? consecutiveVal : '',
+        cumSvVal !== null ? cumSvVal : '',
+        '',
+        mgrLegsVal !== null ? mgrLegsVal : '',
+        pearlLegsVal !== null ? pearlLegsVal : '',
+        '',
+        recognitionDateVal || '',
+        notesVal || '',
+        createdBy,
+        createdAt,
+        currentUser,
+        nowStr
     ];
 
     const updatedObj = {

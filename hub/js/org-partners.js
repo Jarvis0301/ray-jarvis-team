@@ -369,7 +369,7 @@ function initOrgChartPan() {
  * 依據排線關係自動計算「組織關係 (relation_type)」與「團隊直轄 (is_our_team)」
  */
 function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeNature = '常態夥伴') {
-    const CORE_IDS = ['PTN-001', 'PTN-002'];
+    const CORE_IDS = ['PTN-0001', 'PTN-0002', 'PTN-001', 'PTN-002'];
     if (CORE_IDS.includes(partnerId)) {
         return { relationType: '核心成員', isOurTeam: 'Y' };
     }
@@ -379,7 +379,7 @@ function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeN
     }
 
     const isAncestorOfCore = (targetId) => {
-        let current = partnersList.find(p => p.partner_id === 'PTN-001');
+        let current = partnersList.find(p => p.partner_id === 'PTN-0001' || p.partner_id === 'PTN-001');
         const visited = new Set();
         while (current && current.partner_id) {
             const pId = current.placement_id || current.sponsor_id;
@@ -482,7 +482,7 @@ async function fetchGoogleSheetsData() {
 
 function parsePersonMasterTable(rows) {
     return rows.map((r, idx) => ({
-        person_id: getVal(r, 0, `PSN-${String(idx + 1).padStart(4, '0')}`),
+        person_id: getVal(r, 0, `PSN-${String(idx + 1).padStart(5, '0')}`),
         name_zh: getVal(r, 1, ''),
         name_en: getVal(r, 2, ''),
         preferred_name: getVal(r, 3, ''),
@@ -522,8 +522,8 @@ function parsePersonMasterTable(rows) {
 
 function parsePartnersTable(rows) {
     return rows.map((r, idx) => ({
-        partner_id: getVal(r, 0, `PTN-${String(idx + 1).padStart(3, '0')}`),
-        person_id: getVal(r, 1, `PSN-${String(idx + 1).padStart(4, '0')}`),
+        partner_id: getVal(r, 0, `PTN-${String(idx + 1).padStart(4, '0')}`),
+        person_id: getVal(r, 1, `PSN-${String(idx + 1).padStart(5, '0')}`),
         member_no: getVal(r, 2, ''),
         leader_title: getVal(r, 3, ''),
         account_holder_type: getVal(r, 4, '個人經營者'),
@@ -1153,7 +1153,7 @@ function getPartnerParentIdByMode(partner, mode) {
 }
 
 function getNodeBorderClass(partner) {
-    if (partner.partner_id === 'PTN-001' || partner.partner_id === 'PTN-002' || partner.relation_type === '核心成員') {
+    if (['PTN-0001', 'PTN-0002', 'PTN-001', 'PTN-002'].includes(partner.partner_id) || partner.relation_type === '核心成員') {
         return 'border-purple';
     }
     if (partner.relation_type === '中繼層') return 'border-gray';
@@ -2655,7 +2655,8 @@ async function savePartnerRecord(e) {
     $('#form-contacts-dynamic-tbody tr.dynamic-contact-row').each(function (idx) {
         const val = $(this).find('.contact-input-value').val().trim();
         if (val) {
-            const contactId = `${personId}-C${idx + 1}`;
+            const seq = String(idx + 1).padStart(2, '0');
+            const contactId = `${personId}-C${seq}`;
             const platform = $(this).find('.contact-input-platform').val();
             const category = $(this).find('.contact-input-category').val();
             const isPrimary = $(this).find('.contact-input-primary').val();
@@ -2697,7 +2698,8 @@ async function savePartnerRecord(e) {
     $('#form-languages-dynamic-tbody tr.dynamic-lang-row').each(function (idx) {
         const langName = $(this).find('.lang-input-name').val();
         if (langName) {
-            const langId = `${personId}-L${idx + 1}`;
+            const seq = String(idx + 1).padStart(2, '0');
+            const langId = `${personId}-L${seq}`;
             const listening = $(this).find('.lang-input-listening').val();
             const speaking = $(this).find('.lang-input-speaking').val();
             const reading = $(this).find('.lang-input-reading').val();
