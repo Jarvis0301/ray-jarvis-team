@@ -1,1773 +1,656 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="dark-purple">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>盤點調撥 | 榮祥團隊 - 核心版</title>
-    
-    <!-- Bootstrap 5.3.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6.5.2 Pro/Free Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <!-- DataTables 2.0.8 CSS (Bootstrap 5 Dark Integrated) -->
-    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.bootstrap5.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts: Noto Sans TC & JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>盤點調撥 | 榮祥團隊 - 核心版</title>
+        
+        <!-- 認證守衛 -->
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <!-- 第三方函式庫加載器 -->
+        <script src="../assets/js/vendor-loader.js"></script>
 
-    <style>
-        :root {
-            /* 核心版極密樞紐紫色系 Cyberpunk Dark Palette */
-            --bs-body-bg: #0a0612;
-            --bs-body-bg-rgb: 10, 6, 18;
-            --bs-body-color: #e2d9f3;
-            --bs-body-color-rgb: 226, 217, 243;
-            
-            --hub-surface-0: #0a0612;
-            --hub-surface-1: #130d24;
-            --hub-surface-2: #1c1335;
-            --hub-surface-3: #281b4b;
-            --hub-surface-card: rgba(23, 16, 38, 0.82);
-            
-            --hub-primary: #a855f7;
-            --hub-primary-glow: rgba(168, 85, 247, 0.38);
-            --hub-secondary: #c084fc;
-            --hub-accent-cyan: #06b6d4;
-            --hub-accent-gold: #f59e0b;
-            --hub-accent-rose: #f43f5e;
-            --hub-accent-emerald: #10b981;
-            
-            --hub-border: rgba(168, 85, 247, 0.24);
-            --hub-border-active: rgba(192, 132, 252, 0.58);
-            --hub-glass-backdrop: blur(16px);
-        }
+        <!-- 共用核心模組 -->
+        <script src="../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-        body {
-            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-            background-color: var(--bs-body-bg);
-            color: var(--bs-body-color);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 15%, rgba(168, 85, 247, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 90% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
-                linear-gradient(180deg, rgba(10, 6, 18, 0.96) 0%, rgba(19, 13, 36, 0.98) 100%);
-            background-attachment: fixed;
-        }
+        <!-- 頁面專屬 -->
+        <script src="./js/psi-adjust.js" defer></script>
+        <link rel="stylesheet" href="./css/psi-adjust.css">
+    </head>
 
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* 頂部戰術抬頭玻璃面板 */
-        .hud-glass-header {
-            background: var(--hub-surface-card);
-            backdrop-filter: var(--hub-glass-backdrop);
-            -webkit-backdrop-filter: var(--hub-glass-backdrop);
-            border: 1px solid var(--hub-border);
-            border-radius: 1.25rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-        }
-
-        /* 雙態切換膠囊按鈕 */
-        .mode-pill-toggle {
-            background: var(--hub-surface-1);
-            border: 1px solid var(--hub-border);
-            padding: 4px;
-            border-radius: 9999px;
-            display: inline-flex;
-        }
-        .mode-pill-toggle .btn {
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            padding: 6px 18px;
-            color: #a78bfa;
-            border: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .mode-pill-toggle .btn.active {
-            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
-            color: #ffffff;
-            box-shadow: 0 0 16px var(--hub-primary-glow);
-        }
-
-        /* 戰情數值微光卡片 */
-        .metric-radar-badge {
-            background: rgba(30, 20, 56, 0.65);
-            border: 1px solid rgba(168, 85, 247, 0.28);
-            border-radius: 1rem;
-            padding: 1rem 1.25rem;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-        .metric-radar-badge:hover {
-            transform: translateY(-2px);
-            border-color: var(--hub-secondary);
-        }
-        .metric-radar-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--hub-primary);
-        }
-        .metric-radar-badge.accent-cyan::before { background: var(--hub-accent-cyan); }
-        .metric-radar-badge.accent-rose::before { background: var(--hub-accent-rose); }
-        .metric-radar-badge.accent-emerald::before { background: var(--hub-accent-emerald); }
-        .metric-radar-badge.accent-gold::before { background: var(--hub-accent-gold); }
-
-        /* 工作台面板 */
-        .workspace-panel {
-            background: var(--hub-surface-card);
-            backdrop-filter: var(--hub-glass-backdrop);
-            border: 1px solid var(--hub-border);
-            border-radius: 1.25rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 實物盤差輸入膠囊 */
-        .audit-counter-pill {
-            background: var(--hub-surface-2);
-            border: 1px solid rgba(168, 85, 247, 0.35);
-            border-radius: 0.75rem;
-            padding: 0.6rem;
-            transition: all 0.2s ease;
-        }
-        .audit-counter-pill:focus-within {
-            border-color: var(--hub-primary);
-            box-shadow: 0 0 12px var(--hub-primary-glow);
-            background: var(--hub-surface-3);
-        }
-        .audit-input {
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 1.25rem;
-            font-weight: 700;
-            text-align: center;
-            width: 100%;
-            outline: none;
-        }
-
-        /* 調撥流向視覺中樞 */
-        .transfer-flow-station {
-            background: linear-gradient(145deg, rgba(28, 19, 53, 0.85) 0%, rgba(19, 13, 36, 0.95) 100%);
-            border: 1px dashed rgba(168, 85, 247, 0.4);
-            border-radius: 1rem;
-            padding: 1.25rem;
-        }
-        .transfer-flow-arrow {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: #ffffff;
-            box-shadow: 0 0 18px rgba(168, 85, 247, 0.5);
-            margin: auto;
-        }
-
-        /* 差異損益即時動態標籤 */
-        .variance-tag {
-            font-size: 0.8125rem;
-            font-weight: 600;
-            padding: 0.25rem 0.625rem;
-            border-radius: 0.5rem;
-        }
-        .variance-balanced {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .variance-loss {
-            background: rgba(244, 63, 94, 0.15);
-            color: #fb7185;
-            border: 1px solid rgba(244, 63, 94, 0.3);
-        }
-        .variance-gain {
-            background: rgba(6, 182, 212, 0.15);
-            color: #38bdf8;
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .batch-chip {
-            background: rgba(147, 51, 234, 0.15);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: 0.375rem;
-            padding: 2px 6px;
-            font-size: 0.75rem;
-            color: #d8b4fe;
-        }
-
-        /* 按鈕樣式 */
-        .btn-hub-primary {
-            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
-            border: none;
-            color: #ffffff;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
-            transition: all 0.2s ease;
-        }
-        .btn-hub-primary:hover {
-            background: linear-gradient(135deg, #b975f9 0%, #9333ea 100%);
-            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.55);
-            color: #ffffff;
-        }
-        .btn-hub-outline {
-            background: transparent;
-            border: 1px solid var(--hub-border-active);
-            color: #c084fc;
-            font-weight: 600;
-        }
-        .btn-hub-outline:hover {
-            background: rgba(168, 85, 247, 0.15);
-            color: #ffffff;
-            border-color: var(--hub-primary);
-        }
-
-        /* DataTables 深色極限適配 */
-        table.dataTable {
-            border-collapse: separate !important;
-            border-spacing: 0 6px !important;
-            margin-top: 8px !important;
-            width: 100% !important;
-        }
-        table.dataTable thead th {
-            background: rgba(28, 19, 53, 0.9) !important;
-            color: #c084fc !important;
-            border: none !important;
-            font-size: 0.8125rem;
-            text-transform: uppercase;
-            padding: 12px 14px !important;
-        }
-        table.dataTable tbody tr {
-            background: rgba(23, 16, 38, 0.7) !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-            transition: background-color 0.15s ease;
-        }
-        table.dataTable tbody tr:hover {
-            background: rgba(40, 27, 75, 0.9) !important;
-        }
-        table.dataTable tbody td {
-            border: none !important;
-            padding: 12px 14px !important;
-            vertical-align: middle;
-            color: #e2d9f3;
-            font-size: 0.875rem;
-        }
-        .page-link {
-            background-color: var(--hub-surface-2);
-            border-color: var(--hub-border);
-            color: #c084fc;
-        }
-        .page-link:hover {
-            background-color: var(--hub-surface-3);
-            border-color: var(--hub-primary);
-            color: #ffffff;
-        }
-        .page-item.active .page-link {
-            background-color: var(--hub-primary);
-            border-color: var(--hub-primary);
-        }
-
-        .pulse-live-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            background-color: #10b981;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: pulse-emerald 2s infinite;
-        }
-        @keyframes pulse-emerald {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-    </style>
-</head>
-<body class="p-2 p-md-4">
-
-    <!-- 主控台戰術頂部 HUD -->
-    <div class="hud-glass-header p-3 p-md-4 mb-4">
-        <div class="row align-items-center g-3">
-            <div class="col-12 col-lg-5">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-4 p-3 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(126, 34, 206, 0.1) 100%); border: 1px solid var(--hub-primary);">
-                        <i class="fa-solid fa-arrows-spin fa-2xl" style="color: #c084fc;"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge text-purple-300 border border-purple-800 px-2 py-1" style="background: rgba(88, 28, 135, 0.4); font-size: 0.75rem;">
-                                <i class="fa-solid fa-shield-halved"></i> H35000 創始核心樞紐
-                            </span>
-                            <span class="text-secondary small d-flex align-items-center gap-1">
-                                <span class="pulse-live-indicator"></span> 跨國多倉即時連線中
-                            </span>
+    <body>
+        <main class="container-fluid p-3 p-md-4">
+            <header class="glass-panel hud-sentinel-bar mb-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-xl-5">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(139, 92, 246, 0.18); border: 1px solid var(--uvaco-primary, #8b5cf6); color: var(--uvaco-primary, #8b5cf6); font-size: 1.5rem;">
+                                <i class="fa-solid fa-arrows-spin"></i>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="live-pulse"></span>
+                                    <span class="badge badge-purple-subtle">H35000 盤點調撥調度中樞</span>
+                                    <span class="text-secondary small">|</span>
+                                    <span class="text-secondary small" id="hudSyncTime">--</span>
+                                </div>
+                                <h2 class="h4 mb-0 fw-bold mt-1 text-white">
+                                    <i class="fa-solid fa-shield-halved text-primary"></i> 實物盤點平帳、跨倉在途調撥、拆盒解封與試用核銷
+                                </h2>
+                            </div>
                         </div>
-                        <h3 class="mb-0 fw-bold tracking-tight text-white d-flex align-items-center gap-2">
-                            盤點調撥戰術調度中樞
-                        </h3>
+                    </div>
+
+                    <div class="col-12 col-xl-4 text-center">
+                        <div class="mode-pill-toggle">
+                            <button type="button" class="btn active" id="btnModeAudit" onclick="switchTacticalMode('AUDIT')">
+                                <i class="fa-solid fa-clipboard-check"></i> 實物盤點與動態平帳
+                            </button>
+                            <button type="button" class="btn" id="btnModeTransfer" onclick="switchTacticalMode('TRANSFER')">
+                                <i class="fa-solid fa-truck-ramp-box"></i> 跨據點在途調撥
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-xl-3 text-xl-end">
+                        <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
+                            <button type="button" class="btn btn-sm btn-outline-purple" onclick="openConfigModal()">
+                                <i class="fa-solid fa-database"></i> 4 大試算表設定
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-purple" id="btnSyncSheets" onclick="fetchAllGoogleSheetsData()">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> 重新同步
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-purple" onclick="exportAdjustmentsCsv()">
+                                <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+                            </button>
+                            <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddModal" onclick="openAddAdjustmentModal()">
+                                <i class="fa-solid fa-plus"></i> 發起新單據
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <!-- 動態戰術模式切換 -->
-            <div class="col-12 col-md-6 col-lg-4 text-lg-center">
-                <div class="mode-pill-toggle">
-                    <button type="button" class="btn active" id="btn-mode-audit" onclick="switchTacticalMode('AUDIT')">
-                        <i class="fa-solid fa-clipboard-check"></i> 實物盤點與動態平帳
-                    </button>
-                    <button type="button" class="btn" id="btn-mode-transfer" onclick="switchTacticalMode('TRANSFER')">
-                        <i class="fa-solid fa-truck-ramp-box"></i> 跨據點在途調撥
-                    </button>
-                </div>
-            </div>
-
-            <!-- 右側即時操作與同步節點 -->
-            <div class="col-12 col-md-6 col-lg-3 text-end">
-                <div class="d-flex align-items-center justify-content-end gap-2">
-                    <button class="btn btn-hub-outline btn-sm px-3" id="btn-sync-sheet" onclick="fetchGoogleSheetsData()">
-                        <i class="fa-solid fa-rotate"></i> 同步試算表
-                    </button>
-                    <button class="btn btn-hub-primary btn-sm px-3" id="btnOpenAddModal" onclick="openAddAdjustmentModal()">
-                        <i class="fa-solid fa-plus"></i> 發起新單據
-                    </button>
-                </div>
-                <div class="text-secondary mt-1 font-mono small" style="font-size: 0.725rem;">
-                    最後數據快照: <span id="lbl-last-sync-time">2026-09-02 14:00:00</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 戰備動態平衡指標微光帶 -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-xl-3">
-            <div class="metric-radar-badge accent-emerald">
-                <div class="d-flex justify-content-between align-items-start">
-                    <span class="text-secondary small fw-medium">累計盤點與覆核總量</span>
-                    <i class="fa-solid fa-bullseye" style="color: #10b981;"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2 mt-2">
-                    <h3 class="mb-0 fw-bolder font-mono text-white" id="stat-audited-count">0 <span class="fs-6 text-secondary fw-normal">盒</span></h3>
-                    <span class="badge variance-balanced small" id="stat-balanced-rate">99.42% 相符</span>
-                </div>
-                <div class="text-muted small mt-1" style="font-size: 0.75rem;">現場實盤無異常盒數</div>
-            </div>
-        </div>
-
-        <div class="col-6 col-xl-3">
-            <div class="metric-radar-badge accent-cyan">
-                <div class="d-flex justify-content-between align-items-start">
-                    <span class="text-secondary small fw-medium">跨倉調撥流通總量 (Transfer)</span>
-                    <i class="fa-solid fa-plane-departure" style="color: #06b6d4;"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2 mt-2">
-                    <h3 class="mb-0 fw-bolder font-mono text-white" id="stat-transfer-qty">0 <span class="fs-6 text-secondary fw-normal">盒</span></h3>
-                    <span class="badge variance-gain small"><span id="stat-transfer-batches">0</span> 批調度中</span>
-                </div>
-                <div class="text-muted small mt-1" style="font-size: 0.75rem;">涵蓋台馬跨境與島內中心</div>
-            </div>
-        </div>
-
-        <div class="col-6 col-xl-3">
-            <div class="metric-radar-badge accent-rose">
-                <div class="d-flex justify-content-between align-items-start">
-                    <span class="text-secondary small fw-medium">盤損與過期報廢成本</span>
-                    <i class="fa-solid fa-scale-unbalanced-flip" style="color: #f43f5e;"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2 mt-2">
-                    <h3 class="mb-0 fw-bolder font-mono text-white" id="stat-loss-amount">$0</h3>
-                    <span class="badge variance-loss small" id="stat-loss-boxes">累計損耗 0 盒</span>
-                </div>
-                <div class="text-muted small mt-1" style="font-size: 0.75rem;">容許損耗公差 0.05% 內</div>
-            </div>
-        </div>
-
-        <div class="col-6 col-xl-3">
-            <div class="metric-radar-badge accent-gold">
-                <div class="d-flex justify-content-between align-items-start">
-                    <span class="text-secondary small fw-medium">拓荒試用與自用體驗</span>
-                    <i class="fa-solid fa-gift" style="color: #f59e0b;"></i>
-                </div>
-                <div class="d-flex align-items-baseline gap-2 mt-2">
-                    <h3 class="mb-0 fw-bolder font-mono text-white" id="stat-seed-qty">0 <span class="fs-6 text-secondary fw-normal">盒</span></h3>
-                    <span class="badge text-warning bg-warning-subtle small"><span id="stat-seed-prospects">0</span> 位潛在轉化</span>
-                </div>
-                <div class="text-muted small mt-1" style="font-size: 0.75rem;">大馬與台灣市場拓荒發放</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 雙核心切換區塊 A：實物盤點與動態平帳工作艙 -->
-    <div id="section-audit-workbench" class="row g-4 mb-4">
-        <div class="col-12 col-xl-5">
-            <div class="workspace-panel p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-barcode" style="color: #c084fc;"></i> 現場實物盤點與損益試算
-                    </h5>
-                    <span class="badge border border-purple-700" style="background: #2e1065; font-size: 0.75rem;">
-                        盲盤防弊模式
-                    </span>
-                </div>
-                <p class="text-secondary small mb-3">
-                    現場清點實物數量並與庫存主檔進行比對。系統自動換算成本損益金額，並即時產出對應異動單據。
-                </p>
-
-                <div class="row g-2 mb-3">
-                    <div class="col-12 col-md-6">
-                        <label class="form-label small text-secondary">盤點目標倉儲 (psi_warehouses)</label>
-                        <select class="form-select bg-dark border-secondary text-light" id="sel-audit-wh" onchange="loadProductStockForAudit()">
-                            <option value="WH-HOME-RAY">Ray 居家戰備倉 (WH-HOME-RAY)</option>
-                            <option value="WH-MY-KUL">馬來西亞吉隆坡基地 (WH-MY-KUL)</option>
-                            <option value="WH-TW-TP">台北總公司營運中心 (WH-TW-TP)</option>
-                            <option value="WH-TW-KH">高雄營業營運中心 (WH-TW-KH)</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <label class="form-label small text-secondary">盤點批號實體 (psi_stocks)</label>
-                        <select class="form-select bg-dark border-secondary text-light" id="sel-audit-stock" onchange="loadProductStockForAudit()">
-                            <option value="STK-001" data-code="PRD-995-01" data-name="995 生技營養品" data-batch="LOT20260715A" data-exp="2028-07-15" data-cost="5040" data-qty="45">995 生技營養品 (LOT: LOT20260715A)</option>
-                            <option value="STK-002" data-code="PRD-CAP-02" data-name="樟芝益菌絲體膠囊" data-batch="LOT20260801B" data-exp="2028-08-01" data-cost="5040" data-qty="32">樟芝益菌絲體膠囊 (LOT: LOT20260801B)</option>
-                            <option value="STK-003" data-code="PRD-YA-03" data-name="康貝兒益生菌" data-batch="LOT20260620C" data-exp="2028-06-20" data-cost="1764" data-qty="80">康貝兒益生菌 (LOT: LOT20260620C)</option>
-                            <option value="STK-004" data-code="PRD-DIS-04" data-name="百克斯膠囊" data-batch="LOT20260910A" data-exp="2028-09-10" data-cost="2100" data-qty="25">百克斯膠囊 (LOT: LOT20260910A)</option>
-                        </select>
+            <section class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">跨倉調撥流通總量</span>
+                            <i class="fa-solid fa-plane-departure text-info"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-white" id="statTransferQty">0 盒</div>
+                        <div class="text-secondary small mt-1">在途批次：<span class="text-info fw-bold" id="statTransferBatches">0</span> 批次</div>
                     </div>
                 </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">盤損與過期報廢成本</span>
+                            <i class="fa-solid fa-scale-unbalanced-flip text-danger"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-danger" id="statLossAmount">$0</div>
+                        <div class="text-secondary small mt-1">累計損耗盒數：<span class="text-danger fw-bold" id="statLossBoxes">0</span> 盒</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">試用發放與自用消耗</span>
+                            <i class="fa-solid fa-gift text-warning"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-warning" id="statDemoQty">0 件</div>
+                        <div class="text-secondary small mt-1">推廣總 SV：<span class="text-warning fw-bold" id="statDemoSv">0</span> SV</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">拆盒解封零散總件數</span>
+                            <i class="fa-solid fa-boxes-packing text-success"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-success" id="statUnboxingQty">0 支/條</div>
+                        <div class="text-secondary small mt-1">支援拆盒單賣與沙龍體驗</div>
+                    </div>
+                </div>
+            </section>
 
-                <div class="rounded-3 p-3 mb-3" style="background: rgba(28, 19, 53, 0.7); border: 1px solid rgba(168, 85, 247, 0.3);">
-                    <div class="d-flex justify-content-between align-items-center">
+            <section id="sectionAuditWorkbench" class="row g-3 mb-4">
+                <aside class="col-12 col-xl-5">
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
                         <div>
-                            <span class="badge bg-purple-800 text-purple-200 mb-1" id="lbl-audit-code">PRD-995-01</span>
-                            <h6 class="fw-bold text-white mb-0" id="lbl-audit-name">995 生技營養品</h6>
-                        </div>
-                        <span class="batch-chip font-mono" id="lbl-audit-batch">LOT: LOT20260715A</span>
-                    </div>
+                            <header class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-barcode text-primary"></i> 現場實物盤點與損益試算
+                                </h3>
+                                <span class="badge badge-purple-subtle">
+                                    盲盤覆核模式
+                                </span>
+                            </header>
+                            <p class="text-secondary small mb-3">
+                                清點現場實體庫存數量並與庫存主檔進行比對，系統自動核算成本損益與 SV 影響，即時產生對齊資料表 307 之標準異動單據。
+                            </p>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-6">
-                            <div class="text-secondary small">系統在庫參考量</div>
-                            <div class="fs-4 fw-bold font-mono text-white-50" id="val-book-qty">45 <span class="fs-6">盒</span></div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-secondary small">成本單價 (經理進貨價)</div>
-                            <div class="fs-6 fw-bold font-mono text-purple-300" id="lbl-audit-unit-cost">$5,040 TWD</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3 pt-3 border-top border-purple-900">
-                        <label class="form-label small fw-bold text-purple-300">
-                            <i class="fa-solid fa-calculator"></i> 現場實盤數量 (Physical Counted)
-                        </label>
-                        <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-dark border-secondary px-3" onclick="adjustCountInput(-1)"><i class="fa-solid fa-minus"></i></button>
-                            <div class="audit-counter-pill flex-grow-1">
-                                <input type="number" id="input-physical-qty" class="audit-input font-mono" value="45" min="0" oninput="calculateVariance()">
+                            <div class="row g-2 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label text-secondary small fw-bold" for="auditWarehouseSelect">盤點倉儲據點 (from_warehouse_id) *</label>
+                                    <select class="form-select" id="auditWarehouseSelect" onchange="loadProductStockForAudit()"></select>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label text-secondary small fw-bold" for="auditProductSelect">盤點品項 (product_id) *</label>
+                                    <select class="form-select" id="auditProductSelect" onchange="loadProductStockForAudit()"></select>
+                                </div>
                             </div>
-                            <button class="btn btn-dark border-secondary px-3" onclick="adjustCountInput(1)"><i class="fa-solid fa-plus"></i></button>
+
+                            <article class="card-custom p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="badge badge-info-subtle" id="auditLblProductCode">-</span>
+                                        <h4 class="h6 fw-bold text-white mb-0 mt-1" id="auditLblProductName">請先選擇盤點品項</h4>
+                                    </div>
+                                    <span class="batch-chip" id="auditLblBatchNo">LOT: -</span>
+                                </div>
+
+                                <div class="row g-2 mt-2">
+                                    <div class="col-4">
+                                        <div class="text-secondary small">帳面在庫量</div>
+                                        <div class="fs-5 fw-bold text-white-50" id="auditValBookQty">0 <span class="fs-6">盒</span></div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-secondary small">成本單價 (經理價)</div>
+                                        <div class="fs-6 fw-bold text-success" id="auditLblUnitCost">$0</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-secondary small">單件 SV 權重</div>
+                                        <div class="fs-6 fw-bold text-warning" id="auditLblUnitSv">0 SV</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-7">
+                                            <label class="form-label small fw-bold text-info mb-1" for="auditInputPhysicalQty">
+                                                <i class="fa-solid fa-calculator"></i> 現場實盤數量 (Physical Count)
+                                            </label>
+                                            <div class="input-group">
+                                                <button class="btn btn-outline-purple" type="button" onclick="adjustCountStep(-1)"><i class="fa-solid fa-minus"></i></button>
+                                                <input type="number" class="form-control text-center fw-bold fs-5" id="auditInputPhysicalQty" value="0" min="0" oninput="calculateAuditVariance()">
+                                                <button class="btn btn-outline-purple" type="button" onclick="adjustCountStep(1)"><i class="fa-solid fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <label class="form-label small fw-bold text-secondary mb-1" for="auditAdjUnit">計量單位 (adj_unit)</label>
+                                            <select class="form-select" id="auditAdjUnit">
+                                                <option value="盒">盒</option>
+                                                <option value="組">組</option>
+                                                <option value="箱">箱</option>
+                                                <option value="支">支</option>
+                                                <option value="條">條</option>
+                                                <option value="瓶">瓶</option>
+                                                <option value="包">包</option>
+                                                <option value="顆">顆</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3 p-2 rounded-3" style="background: rgba(10, 5, 18, 0.6);">
+                                    <span class="small text-secondary">試算差異結果：</span>
+                                    <div class="d-flex align-items-center gap-2" id="auditVarianceBadgeContainer">
+                                        <span class="variance-tag variance-balanced" id="auditTagVarianceStatus">
+                                            <i class="fa-solid fa-check"></i> 帳實相符 (0)
+                                        </span>
+                                        <span class="small text-warning" id="auditLblVarianceCost">$0 TWD</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 d-none" id="auditReasonContainer">
+                                    <label class="form-label small text-warning fw-bold">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> 異動類型判定與說明事由 (必填)
+                                    </label>
+                                    <div class="row g-2">
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm" id="auditSelAdjType">
+                                                <option value="盤虧">盤虧 (短少遺失)</option>
+                                                <option value="破損過期">破損過期 (報廢)</option>
+                                                <option value="自用消耗">自用消耗 (團隊自用)</option>
+                                                <option value="試用發放">試用發放 (推廣轉化)</option>
+                                                <option value="拆盒解封">拆盒解封 (單支散賣)</option>
+                                                <option value="盤盈">盤盈 (盤點溢出)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-7">
+                                            <input type="text" class="form-control form-control-sm" id="auditTxtReason" placeholder="例：現場盤點短少、包裝破損報廢">
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label text-secondary small fw-bold" for="auditOperatorSelect">執行經手人 (operator_partner_id) *</label>
+                                    <select class="form-select" id="auditOperatorSelect"></select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-secondary small fw-bold" for="auditProspectSelect">關聯客戶 (target_prospect_id)</label>
+                                    <select class="form-select" id="auditProspectSelect">
+                                        <option value="">-- 非試用體驗無須選擇 --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer class="d-flex gap-2 mt-auto">
+                            <button type="button" class="btn btn-outline-purple flex-grow-1" onclick="resetAuditForm()">
+                                <i class="fa-solid fa-rotate-left"></i> 重置清空
+                            </button>
+                            <button type="button" class="btn btn-purple text-white flex-grow-1 fw-bold admin-action-btn" id="btnSubmitAudit" onclick="commitAuditRecord()">
+                                <i class="fa-solid fa-floppy-disk"></i> 寫入盤點覆核單據
+                            </button>
+                        </footer>
+                    </div>
+                </aside>
+
+                <section class="col-12 col-xl-7">
+                    <div class="glass-panel p-3 p-lg-4 h-100">
+                        <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div>
+                                <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-primary"></i> 表 307：盤點調撥覆核審計大盤 (psi_adjustments)
+                                </h3>
+                                <div class="text-secondary small mt-1">
+                                    嚴格對齊 25 個物理欄位架構，支援 8 大計量單位與個人名稱權重解析
+                                </div>
+                            </div>
+                        </header>
+
+                        <div class="table-responsive">
+                            <table id="tableAdjustments" class="table table-dark-custom display responsive nowrap" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>單號 / 異動類型</th>
+                                        <th>來源 / 目的倉儲</th>
+                                        <th>品項名稱 / 批號</th>
+                                        <th>調整數 / 單位</th>
+                                        <th>成本總損益 / 幣別</th>
+                                        <th>影響 SV</th>
+                                        <th>經手夥伴 / 關聯對象</th>
+                                        <th>發生日期</th>
+                                        <th class="text-end">戰術操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyAdjustments"></tbody>
+                            </table>
                         </div>
                     </div>
+                </section>
+            </section>
 
-                    <div class="d-flex justify-content-between align-items-center mt-3 p-2 rounded-2" style="background: rgba(10, 6, 18, 0.6);">
-                        <span class="small text-secondary">試算結果：</span>
-                        <div id="box-variance-result" class="d-flex align-items-center gap-2">
-                            <span class="variance-tag variance-balanced" id="tag-variance-status">
-                                <i class="fa-solid fa-check"></i> 帳實相符 (0 盒)
+            <section id="sectionTransferWorkbench" class="row g-3 mb-4 d-none">
+                <aside class="col-12 col-xl-5">
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <header class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-route text-info"></i> 發起跨倉調撥單 (psi_adjustments)
+                                </h3>
+                                <span class="badge badge-info-subtle">
+                                    跨國/島內流轉
+                                </span>
+                            </header>
+                            <p class="text-secondary small mb-3">
+                                指派調出與調入實體倉儲據點，系統自動將調出倉標註負數扣減，調撥單在途中完整保留物流與事由追蹤。
+                            </p>
+
+                            <article class="transfer-flow-station mb-3">
+                                <div class="row align-items-center g-2">
+                                    <div class="col-5">
+                                        <label class="form-label small text-secondary fw-bold mb-1" for="trFromWarehouseSelect">
+                                            <i class="fa-solid fa-warehouse text-primary"></i> 調出來源倉 (From) *
+                                        </label>
+                                        <select class="form-select" id="trFromWarehouseSelect" onchange="updateTransferCostCalc()"></select>
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        <div class="transfer-flow-arrow">
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <label class="form-label small text-secondary fw-bold mb-1" for="trToWarehouseSelect">
+                                            <i class="fa-solid fa-location-dot text-info"></i> 調入目的倉 (To) *
+                                        </label>
+                                        <select class="form-select" id="trToWarehouseSelect"></select>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="trProductSelect">調撥品項 (product_id) *</label>
+                                <select class="form-select" id="trProductSelect" onchange="updateTransferCostCalc()"></select>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-4">
+                                    <label class="form-label text-secondary small fw-bold" for="trQtyInput">調撥數量 *</label>
+                                    <input type="number" class="form-control text-center fw-bold" id="trQtyInput" value="10" min="1" oninput="updateTransferCostCalc()">
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label text-secondary small fw-bold" for="trAdjUnit">計量單位 *</label>
+                                    <select class="form-select" id="trAdjUnit">
+                                        <option value="盒">盒</option>
+                                        <option value="組">組</option>
+                                        <option value="箱">箱</option>
+                                        <option value="支">支</option>
+                                        <option value="條">條</option>
+                                        <option value="瓶">瓶</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label text-secondary small fw-bold" for="trCurrencySelect">幣別 *</label>
+                                    <select class="form-select" id="trCurrencySelect" onchange="updateTransferCostCalc()">
+                                        <option value="TWD">TWD</option>
+                                        <option value="MYR">MYR</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label text-secondary small fw-bold" for="trOperatorSelect">執行經手夥伴 (operator) *</label>
+                                    <select class="form-select" id="trOperatorSelect"></select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-secondary small fw-bold" for="trAdjDate">調撥日期 (adj_date) *</label>
+                                    <input type="date" class="form-control" id="trAdjDate">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="trReasonInput">調撥事由與物流追蹤說明 (reason_desc) *</label>
+                                <input type="text" class="form-control" id="trReasonInput" placeholder="例：航空空運跨境支援旗艦倉展業">
+                            </div>
+
+                            <article class="p-3 rounded-3 mb-3" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25);">
+                                <div class="d-flex justify-content-between small text-secondary mb-1">
+                                    <span>調撥轉移總值 (total_cost)：</span>
+                                    <span class="text-info fw-bold" id="trLblTotalCost">$0 TWD</span>
+                                </div>
+                                <div class="d-flex justify-content-between small text-secondary">
+                                    <span>調撥影響總 SV (total_sv)：</span>
+                                    <span class="text-warning fw-bold" id="trLblTotalSv">0 SV</span>
+                                </div>
+                            </article>
+                        </div>
+
+                        <footer class="d-flex gap-2 mt-auto">
+                            <button type="button" class="btn btn-purple text-white flex-grow-1 fw-bold admin-action-btn" onclick="commitTransferOrder()">
+                                <i class="fa-solid fa-paper-plane"></i> 建立跨倉調撥單據
+                            </button>
+                        </footer>
+                    </div>
+                </aside>
+
+                <section class="col-12 col-xl-7">
+                    <div class="glass-panel p-3 p-lg-4 h-100">
+                        <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div>
+                                <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-truck-fast text-info"></i> 跨據點調撥流通清冊 (Transfer Records)
+                                </h3>
+                                <div class="text-secondary small mt-1">
+                                    篩選 <code>adj_type = '跨倉調撥'</code> 之所有跨境與島內流轉單據
+                                </div>
+                            </div>
+                        </header>
+
+                        <div class="table-responsive">
+                            <table id="tableTransfers" class="table table-dark-custom display responsive nowrap" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>調撥單號 / 日期</th>
+                                        <th>來源倉 ➔ 目的倉</th>
+                                        <th>調撥品項 / 批號</th>
+                                        <th>調撥數量 / 單位</th>
+                                        <th>物資總額 / 幣別</th>
+                                        <th>影響 SV</th>
+                                        <th>經手夥伴</th>
+                                        <th>事由說明</th>
+                                        <th class="text-end">戰術操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyTransfers"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="row g-3 mb-4">
+                <div class="col-12 col-lg-7">
+                    <div class="card-custom p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-secondary fw-bold">
+                                <i class="fa-solid fa-chart-line text-primary"></i> 跨倉調撥與異動流通月度趨勢
                             </span>
-                            <span class="font-mono small text-purple-300" id="lbl-variance-cost">$0 TWD</span>
+                            <span class="badge badge-purple-subtle">月度統計</span>
                         </div>
-                    </div>
-
-                    <div class="mt-3 d-none" id="group-variance-reason">
-                        <label class="form-label small text-warning">
-                            <i class="fa-solid fa-triangle-exclamation"></i> 異動類型判定與事由 (必填)
-                        </label>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <select class="form-select form-select-sm bg-dark border-warning text-light" id="sel-audit-adj-type">
-                                    <option value="盤虧">盤虧 (短少遺失)</option>
-                                    <option value="破損過期">破損過期 (報廢)</option>
-                                    <option value="自用消耗">自用消耗 (團隊自用)</option>
-                                    <option value="盤盈">盤盈 (盤點溢出)</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" class="form-control form-control-sm bg-dark border-warning text-light" id="txt-audit-reason" placeholder="輸入詳細調整事由說明">
-                            </div>
+                        <div style="height: 180px; position: relative;">
+                            <canvas id="chartTransferFlow"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex gap-2 mt-auto">
-                    <button class="btn btn-hub-outline flex-grow-1" onclick="resetAuditForm()">
-                        <i class="fa-solid fa-eraser"></i> 重置清空
-                    </button>
-                    <button class="btn btn-hub-primary flex-grow-1 admin-action-btn" id="btn-submit-audit" onclick="commitAuditRecord()">
-                        <i class="fa-solid fa-floppy-disk"></i> 寫入盤點覆核單據
-                    </button>
+                <div class="col-12 col-lg-5">
+                    <div class="card-custom p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-secondary fw-bold">
+                                <i class="fa-solid fa-chart-pie text-warning"></i> 庫存異動類型佔比分佈 (7 大類型)
+                            </span>
+                            <span class="badge badge-warning-subtle">結構分流</span>
+                        </div>
+                        <div style="height: 180px; position: relative;">
+                            <canvas id="chartVariancePareto"></canvas>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </section>
+        </main>
 
-        <div class="col-12 col-xl-7">
-            <div class="workspace-panel p-3 p-md-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <div>
-                        <h5 class="fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-list-check" style="color: #c084fc;"></i> 表 303：盤點調撥覆核審計清冊 (psi_adjustments)
+        <div class="modal fade" id="adjustModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                        <h5 class="modal-title fw-bold text-white" id="adjustModalTitle">
+                            <i class="fa-solid fa-file-circle-plus text-primary"></i> 新增盤點調撥單據
                         </h5>
-                        <div class="text-secondary small">依照 0～23 實體欄位順序即時對齊試算表『盤點調撥』工作表</div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-4">
+                        <form id="adjustForm">
+                            <input type="hidden" id="formMode" value="add">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldId">調撥單號主鍵 (id) *</label>
+                                    <input type="text" class="form-control" id="fieldId" required readonly>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldAdjType">異動類型 (adj_type) *</label>
+                                    <select class="form-select" id="fieldAdjType" required onchange="handleModalAdjTypeChange()">
+                                        <option value="跨倉調撥">跨倉調撥</option>
+                                        <option value="盤盈">盤盈</option>
+                                        <option value="盤虧">盤虧</option>
+                                        <option value="破損過期">破損過期</option>
+                                        <option value="自用消耗">自用消耗</option>
+                                        <option value="試用發放">試用發放</option>
+                                        <option value="拆盒解封">拆盒解封</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldAdjDate">調整發生日期 (adj_date) *</label>
+                                    <input type="date" class="form-control" id="fieldAdjDate" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldOperatorPartnerId">經手夥伴 (operator_partner_id) *</label>
+                                    <select class="form-select" id="fieldOperatorPartnerId" required></select>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldFromWarehouseId">調出/發生倉儲 (from_warehouse_id) *</label>
+                                    <select class="form-select" id="fieldFromWarehouseId" required></select>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldToWarehouseId">調入倉儲 (to_warehouse_id)</label>
+                                    <select class="form-select" id="fieldToWarehouseId">
+                                        <option value="">-- 單倉異動無須填寫 --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <article class="card-custom p-3 mb-3">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldProductId">產品品項 (product_id) *</label>
+                                        <select class="form-select" id="fieldProductId" required onchange="handleModalProductChange()"></select>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldOfficialProductCode">葡眾官方商品編號 (official_product_code) *</label>
+                                        <input type="text" class="form-control" id="fieldOfficialProductCode" required readonly>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldProductNameSnaps">異動產品名稱快照 (product_name_snaps) *</label>
+                                        <input type="text" class="form-control" id="fieldProductNameSnaps" required readonly>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldStockId">關聯庫存單號 (stock_id) *</label>
+                                        <input type="text" class="form-control" id="fieldStockId" required placeholder="如 STK-20260301-0001">
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldBatchNo">異動生產批號 (batch_no) *</label>
+                                        <input type="text" class="form-control" id="fieldBatchNo" required placeholder="如 LOT20260715A">
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldExpiryDate">異動有效日期 (expiry_date) *</label>
+                                        <input type="date" class="form-control" id="fieldExpiryDate" required>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldAdjUnit">計量單位 (adj_unit) *</label>
+                                    <select class="form-select" id="fieldAdjUnit" required>
+                                        <option value="盒">盒</option>
+                                        <option value="組">組</option>
+                                        <option value="箱">箱</option>
+                                        <option value="支">支</option>
+                                        <option value="條">條</option>
+                                        <option value="瓶">瓶</option>
+                                        <option value="包">包</option>
+                                        <option value="顆">顆</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldQuantity">調整數量 (quantity) *</label>
+                                    <input type="number" class="form-control fw-bold" id="fieldQuantity" required oninput="calculateModalTotals()">
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldCurrencyCode">幣別 (currency) *</label>
+                                    <select class="form-select" id="fieldCurrencyCode" required>
+                                        <option value="TWD">TWD</option>
+                                        <option value="MYR">MYR</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldUnitCost">單件成本 (unit_cost) *</label>
+                                    <input type="number" step="0.01" class="form-control" id="fieldUnitCost" required oninput="calculateModalTotals()">
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldUnitSv">單件 SV (unit_sv) *</label>
+                                    <input type="number" class="form-control" id="fieldUnitSv" required oninput="calculateModalTotals()">
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldTotalCost">總成本 (total_cost)</label>
+                                    <input type="number" step="0.01" class="form-control text-success fw-bold" id="fieldTotalCost" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldTargetProspectId">試用對象客戶 (target_prospect_id)</label>
+                                    <select class="form-select" id="fieldTargetProspectId">
+                                        <option value="">-- 非試用發放無須選擇 --</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldTotalSv">影響總 SV (total_sv)</label>
+                                    <input type="number" class="form-control text-warning fw-bold" id="fieldTotalSv" readonly>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldReasonDesc">詳細事由 (reason_desc) *</label>
+                                    <input type="text" class="form-control" id="fieldReasonDesc" required placeholder="如「中心調撥支援」、「線下沙龍拆盒發放」">
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-info btn-sm" onclick="exportAdjustmentsCsv()">
-                            <i class="fa-solid fa-file-export"></i> 匯出 CSV
+                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table id="table-adjustments" class="table table-hover align-middle w-100">
-                        <thead>
-                            <tr>
-                                <th>單號 / 類型</th>
-                                <th>據點 / 品項名稱</th>
-                                <th>批號 / 效期</th>
-                                <th>調整盒數</th>
-                                <th>損益總值</th>
-                                <th>經手人 / 日期</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody-adjustments"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 雙核心切換區塊 B：跨據點在途調撥調度中樞 -->
-    <div id="section-transfer-workbench" class="row g-4 mb-4 d-none">
-        <div class="col-12 col-xl-5">
-            <div class="workspace-panel p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-route" style="color: #06b6d4;"></i> 發起跨倉調撥 (psi_adjustments)
-                    </h5>
-                    <span class="badge border border-cyan-700" style="background: #083344; font-size: 0.75rem;">
-                        跨境與島內對沖
-                    </span>
-                </div>
-                <p class="text-secondary small mb-3">
-                    指派調出與調入倉儲據點，系統自動扣減來源倉並產出調撥單號，在途中憑證圖檔支援物流單據存查。
-                </p>
-
-                <div class="transfer-flow-station mb-3">
-                    <div class="row align-items-center g-2">
-                        <div class="col-5">
-                            <label class="form-label small text-purple-300 fw-bold mb-1">
-                                <i class="fa-solid fa-warehouse"></i> 調出來源 (From)
-                            </label>
-                            <select class="form-select form-select-sm bg-dark border-secondary text-light" id="tr-from-wh">
-                                <option value="WH-HOME-RAY">Ray 居家戰備倉</option>
-                                <option value="WH-TW-TP">台北總公司營運中心</option>
-                                <option value="WH-TW-KH">高雄營業營運中心</option>
-                                <option value="WH-MY-KUL">馬來西亞吉隆坡基地</option>
-                            </select>
-                        </div>
-                        <div class="col-2 text-center">
-                            <div class="transfer-flow-arrow">
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </div>
-                        </div>
-                        <div class="col-5">
-                            <label class="form-label small text-cyan-300 fw-bold mb-1">
-                                <i class="fa-solid fa-location-dot"></i> 調入目的 (To)
-                            </label>
-                            <select class="form-select form-select-sm bg-dark border-secondary text-light" id="tr-to-wh">
-                                <option value="WH-MY-KUL">馬來西亞吉隆坡基地</option>
-                                <option value="WH-HOME-RAY">Ray 居家戰備倉</option>
-                                <option value="WH-TW-TP">台北總公司營運中心</option>
-                                <option value="WH-TW-KH">高雄營業營運中心</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small text-secondary">調撥品項與批號實體</label>
-                    <select class="form-select bg-dark border-secondary text-light" id="tr-stock-select" onchange="updateTransferCostCalc()">
-                        <option value="STK-001" data-code="PRD-995-01" data-name="995 生技營養品" data-batch="LOT20260715A" data-exp="2028-07-15" data-cost="5040">995 生技營養品 (LOT: LOT20260715A | $5,040)</option>
-                        <option value="STK-002" data-code="PRD-CAP-02" data-name="樟芝益菌絲體膠囊" data-batch="LOT20260801B" data-exp="2028-08-01" data-cost="5040">樟芝益菌絲體膠囊 (LOT: LOT20260801B | $5,040)</option>
-                        <option value="STK-003" data-code="PRD-YA-03" data-name="康貝兒益生菌" data-batch="LOT20260620C" data-exp="2028-06-20" data-cost="1764">康貝兒益生菌 (LOT: LOT20260620C | $1,764)</option>
-                    </select>
-                </div>
-
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label small text-secondary">調撥數量 (盒)</label>
-                        <input type="number" class="form-control bg-dark border-secondary text-white font-mono" id="tr-qty" value="10" min="1" oninput="updateTransferCostCalc()">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small text-secondary">幣別 (currency_code)</label>
-                        <select class="form-select bg-dark border-secondary text-light" id="tr-currency">
-                            <option value="TWD">TWD (新台幣)</option>
-                            <option value="MYR">MYR (馬來西亞令吉)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small text-secondary">調撥事由與物流追蹤說明 (reason_desc)</label>
-                    <input type="text" class="form-control bg-dark border-secondary text-light" id="tr-reason" placeholder="例：DHL 跨境航空空運，吉隆坡拓荒展業支援">
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small text-secondary">調撥憑證圖檔 URL (proof_image_url)</label>
-                    <input type="url" class="form-control bg-dark border-secondary text-light" id="tr-proof-url" placeholder="https://drive.google.com/... 或相片圖床連結">
-                </div>
-
-                <div class="p-3 rounded-3 mb-3" style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25);">
-                    <div class="d-flex justify-content-between small text-secondary mb-1">
-                        <span>預估轉移物資總值 (total_cost)：</span>
-                        <span class="font-mono text-cyan-300 fw-bold" id="lbl-transfer-total-cost">$50,400 TWD</span>
-                    </div>
-                    <div class="d-flex justify-content-between small text-secondary">
-                        <span>調撥鎖定狀態：</span>
-                        <span class="text-emerald-400">來源倉即時扣減，調撥單建立入庫</span>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-2 mt-auto">
-                    <button class="btn btn-hub-primary flex-grow-1 admin-action-btn" onclick="commitTransferOrder()">
-                        <i class="fa-solid fa-paper-plane"></i> 建立跨倉調撥單
-                    </button>
-                </div>
+                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold admin-action-btn" id="btnSaveAdjust" onclick="saveAdjustmentRecord()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存單據變更
+                        </button>
+                    </footer>
+                </section>
             </div>
         </div>
 
-        <div class="col-12 col-xl-7">
-            <div class="workspace-panel p-3 p-md-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <div>
-                        <h5 class="fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-truck-fast" style="color: #06b6d4;"></i> 跨據點調撥明細清冊
+        <div class="modal fade" id="configModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                        <h5 class="modal-title fw-bold text-white">
+                            <i class="fa-solid fa-sliders text-secondary"></i> 4 大雲端試算表來源 ID 設定
                         </h5>
-                        <div class="text-secondary small">篩選 `adj_type = '跨倉調撥'` 之所有流通記錄</div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-4">
+                        <form id="configForm">
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetPsi">試算表 1：據點倉儲、盤點調撥 (PSI)</label>
+                                <input type="text" class="form-control" id="cfgSheetPsi">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetOrg">試算表 2：個人主檔、夥伴主檔 (ORG)</label>
+                                <input type="text" class="form-control" id="cfgSheetOrg">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetPrd">試算表 3：產品主檔 (PRD)</label>
+                                <input type="text" class="form-control" id="cfgSheetPrd">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetCrm">試算表 4：客戶主檔 (CRM)</label>
+                                <input type="text" class="form-control" id="cfgSheetCrm">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgGasDeploymentId">Google Apps Script (GAS) 部署 ID</label>
+                                <input type="text" class="form-control" id="cfgGasDeploymentId">
+                            </div>
+                        </form>
                     </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table id="table-transfers" class="table table-hover align-middle w-100">
-                        <thead>
-                            <tr>
-                                <th>調撥單號</th>
-                                <th>調出 ➔ 調入倉儲</th>
-                                <th>品項與批號</th>
-                                <th>調撥盒數</th>
-                                <th>物資總額</th>
-                                <th>事由與憑證</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody-transfers"></tbody>
-                    </table>
-                </div>
+                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 關閉
+                        </button>
+                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold" onclick="saveSpreadsheetConfig()">
+                            <i class="fa-solid fa-check"></i> 儲存設定
+                        </button>
+                    </footer>
+                </section>
             </div>
         </div>
-    </div>
-
-    <!-- 視覺化圖表 -->
-    <div class="row g-4 mb-4">
-        <div class="col-12 col-lg-7">
-            <div class="workspace-panel p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold text-white mb-0">
-                        <i class="fa-solid fa-chart-simple" style="color: #c084fc;"></i> 跨倉物資調撥流向與月度流通量 (Boxes)
-                    </h6>
-                    <span class="badge border border-purple-800 text-purple-300" style="background: #2e1065; font-size: 0.7rem;">
-                        雙向流通
-                    </span>
-                </div>
-                <div style="height: 220px; position: relative;">
-                    <canvas id="chart-transfer-flow"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-lg-5">
-            <div class="workspace-panel p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold text-white mb-0">
-                        <i class="fa-solid fa-chart-pie" style="color: #06b6d4;"></i> 異動類型分佈 (Pareto Analysis)
-                    </h6>
-                    <span class="badge border border-cyan-800 text-cyan-300" style="background: #083344; font-size: 0.7rem;">
-                        損耗與消耗
-                    </span>
-                </div>
-                <div style="height: 220px; position: relative;">
-                    <canvas id="chart-variance-causes"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 異動明細編輯 / 檢視 Modal -->
-    <div class="modal fade" id="modalAdjustDetail" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: var(--hub-surface-2); border: 1px solid var(--hub-border-active);">
-                <div class="modal-header border-bottom border-purple-900">
-                    <h5 class="modal-title fw-bold text-white" id="modalAdjustTitle">
-                        <i class="fa-solid fa-pen-to-square" style="color: #c084fc;"></i> 編輯盤點調撥單據
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="edit-id">
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small text-secondary">調整單號 (adj_no)</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-light font-mono" id="edit-adj-no" readonly>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small text-secondary">異動類型 (adj_type)</label>
-                            <select class="form-select bg-dark border-secondary text-light" id="edit-adj-type">
-                                <option value="盤盈">盤盈</option>
-                                <option value="盤虧">盤虧</option>
-                                <option value="破損過期">破損過期</option>
-                                <option value="跨倉調撥">跨倉調撥</option>
-                                <option value="自用消耗">自用消耗</option>
-                                <option value="拓荒試用發放">拓荒試用發放</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small text-secondary">調出倉儲 (from_warehouse_id)</label>
-                            <select class="form-select bg-dark border-secondary text-light" id="edit-from-wh">
-                                <option value="WH-HOME-RAY">Ray 居家戰備倉</option>
-                                <option value="WH-TW-TP">台北總公司營運中心</option>
-                                <option value="WH-TW-KH">高雄營業營運中心</option>
-                                <option value="WH-MY-KUL">馬來西亞吉隆坡基地</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small text-secondary">調入倉儲 (to_warehouse_id)</label>
-                            <select class="form-select bg-dark border-secondary text-light" id="edit-to-wh">
-                                <option value="">(無 / 非調撥)</option>
-                                <option value="WH-MY-KUL">馬來西亞吉隆坡基地</option>
-                                <option value="WH-HOME-RAY">Ray 居家戰備倉</option>
-                                <option value="WH-TW-TP">台北總公司營運中心</option>
-                                <option value="WH-TW-KH">高雄營業營運中心</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small text-secondary">調整盒數 (quantity)</label>
-                            <input type="number" class="form-control bg-dark border-secondary text-light font-mono" id="edit-quantity">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small text-secondary">成本單價 (unit_cost)</label>
-                            <input type="number" class="form-control bg-dark border-secondary text-light font-mono" id="edit-unit-cost">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small text-secondary">潛在名單 ID (target_prospect_id)</label>
-                        <input type="text" class="form-control bg-dark border-secondary text-light font-mono" id="edit-prospect-id" placeholder="體驗發放對象客戶編號 (非必填)">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small text-secondary">事由說明 (reason_desc)</label>
-                        <textarea class="form-control bg-dark border-secondary text-light" id="edit-reason" rows="2"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small text-secondary">憑證圖檔 URL (proof_image_url)</label>
-                        <input type="url" class="form-control bg-dark border-secondary text-light" id="edit-proof-url">
-                    </div>
-                </div>
-                <div class="modal-footer border-top border-purple-900">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-hub-primary btn-sm admin-action-btn" onclick="saveAdjustDetailModal()">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存單據變更
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 函式庫相依 -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-    <script>
-        // ==========================================================================
-        // 1. Google 雲端試算表設定與資料庫核心轉接器
-        // ==========================================================================
-        const SPREADSHEET_ID = "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw";
-
-        /**
-         * 試算表欄位索引安全取值工具函式 (依照陣列順序索引取值)
-         */
-        function getVal(row, colIndex, defaultVal = '') {
-            if (!row || !Array.isArray(row)) return defaultVal;
-            if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-                return String(row[colIndex]).trim();
-            }
-            return defaultVal;
-        }
-
-        /**
-         * 取得當前登入者名稱 (支援 Ray 與 Jarvis 雙領導核心)
-         */
-        function getCurrentUser() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return 'ADMIN';
-            try {
-                const session = JSON.parse(rawSession);
-                return session.userName || session.user || 'ADMIN';
-            } catch (e) {
-                return 'ADMIN';
-            }
-        }
-
-        /**
-         * 取得當前格式化時間字串 (YYYY-MM-DD HH:mm:ss)
-         */
-        function getFormattedNow() {
-            const d = new Date();
-            const pad = n => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-        }
-
-        /**
-         * 檢查當前登入者是否為最高管理者 (僅限 Ray 翁榮祥 與 Jarvis 林承志)
-         */
-        function isMasterAdmin() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return false;
-            try {
-                const session = JSON.parse(rawSession);
-                const adminEmails = [
-                    "jarvis20250807@gmail.com",
-                    "fish7548@gmail.com"
-                ];
-                return adminEmails.includes((session.user || '').toLowerCase().trim());
-            } catch (e) {
-                return false;
-            }
-        }
-
-        /**
-         * 彈性無伺服器網關轉接器 (SheetAdapter)
-         */
-        if (typeof window.SheetAdapter === 'undefined') {
-            window.SheetAdapter = {
-                gasUrl: '',
-                init: function(deploymentId) {
-                    this.gasUrl = `https://script.google.com/macros/s/${deploymentId}/exec`;
-                },
-                sendRequest: async function(action, sheetName, pkValue, rowData) {
-                    if (!this.gasUrl) throw new Error("SheetAdapter 尚未初始化 GAS Deployment ID！");
-                    const res = await fetch(this.gasUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action, sheetName, pkValue, rowData })
-                    });
-                    return { status: 'success' };
-                },
-                createRow: function(sheetName, pkValue, rowData) { return this.sendRequest('CREATE', sheetName, pkValue, rowData); },
-                updateRow: function(sheetName, pkValue, rowData) { return this.sendRequest('UPDATE', sheetName, pkValue, rowData); },
-                deleteRow: function(sheetName, pkValue) { return this.sendRequest('DELETE', sheetName, pkValue, []); }
-            };
-        }
-
-        const AppToast = window.AppToast || {
-            success: (msg) => alert(`[成功] ${msg}`),
-            error: (msg) => alert(`[錯誤] ${msg}`),
-            warning: (msg) => alert(`[警告] ${msg}`),
-            info: (msg) => console.log(`[資訊] ${msg}`)
-        };
-
-        const AppLoading = window.AppLoading || {
-            show: (title, sub) => console.log(`載入中: ${title} - ${sub}`),
-            hide: () => {}
-        };
-
-        // ==========================================================================
-        // 2. 系統狀態管理 (State Management)
-        // ==========================================================================
-        let appState = {
-            adjustments: [],      // 表 303: psi_adjustments (盤點調撥全量主檔)
-            currentMode: 'AUDIT', // AUDIT | TRANSFER
-            selectedAdjNo: ''
-        };
-
-        let dtAdjustmentsInstance = null;
-        let dtTransfersInstance = null;
-        let chartFlowInstance = null;
-        let chartParetoInstance = null;
-        let isInitialized = false;
-
-        // ==========================================================================
-        // 3. 系統生命週期與事件初始化
-        // ==========================================================================
-        window.addEventListener('DOMContentLoaded', async () => {
-            SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
-            await initApp();
-            applyUIPermissions();
-        });
-
-        async function initApp() {
-            if (isInitialized) return;
-            isInitialized = true;
-
-            initDataTables();
-            initCharts();
-            loadProductStockForAudit();
-            updateTransferCostCalc();
-
-            if (SPREADSHEET_ID) {
-                await fetchGoogleSheetsData();
-            } else {
-                renderMockAdjustments();
-                refreshAllViews();
-            }
-        }
-
-        function applyUIPermissions() {
-            const hasAdminRights = isMasterAdmin();
-            if (!hasAdminRights) {
-                $('#btnOpenAddModal').hide();
-                $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-            }
-        }
-
-        // ==========================================================================
-        // 4. 資料讀取引擎 (依表 303 實體 24 欄索引順序讀取『盤點調撥』)
-        // ==========================================================================
-        async function fetchGoogleSheetsData() {
-            AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步盤點調撥單據...', '讀取最新結構');
-            try {
-                const fetchSheet = async (sheetName) => {
-                    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-                    const res = await fetch(url, { cache: 'no-store' });
-                    if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status} (${sheetName})`);
-                    const text = await res.text();
-
-                    const parsed = Papa.parse(text, {
-                        header: false,
-                        skipEmptyLines: true
-                    });
-
-                    return (parsed.data || []).slice(1); // 略過第 0 列標題列
-                };
-
-                const rawRows = await fetchSheet('盤點調撥').catch(() => []);
-
-                if (rawRows && rawRows.length > 0) {
-                    appState.adjustments = parseAdjustmentsTable(rawRows);
-                } else {
-                    renderMockAdjustments();
-                }
-
-                refreshAllViews();
-                $('#lbl-last-sync-time').text(getFormattedNow());
-                AppToast.success(`成功自 Google 試算表載入 ${appState.adjustments.length} 筆盤點調撥單據`);
-            } catch (err) {
-                console.warn("Google Sheets 讀取失敗，載入備援假資料:", err);
-                renderMockAdjustments();
-                refreshAllViews();
-                AppToast.warning("試算表讀取異常，已載入安全離線備援資料");
-            } finally {
-                AppLoading.hide();
-            }
-        }
-
-        /**
-         * 表 303 (psi_adjustments)：依 0～23 欄位順序索引取值
-         */
-        function parseAdjustmentsTable(rows) {
-            return rows.map((r, idx) => {
-                const qty = parseInt(getVal(r, 11, '0'), 10) || 0;
-                const unitCost = parseFloat(getVal(r, 13, '0')) || 0;
-                const totalCost = parseFloat(getVal(r, 14, String(Math.abs(qty) * unitCost))) || (Math.abs(qty) * unitCost);
-
-                return {
-                    id: getVal(r, 0, String(idx + 1)),
-                    adj_no: getVal(r, 1, `ADJ20260819${String(idx + 1).padStart(4, '0')}`),
-                    adj_type: getVal(r, 2, '盤虧'),
-                    from_warehouse_id: getVal(r, 3, 'WH-HOME-RAY'),
-                    to_warehouse_id: getVal(r, 4, ''),
-                    official_product_code: getVal(r, 5, 'PRD-995-01'),
-                    product_name_snaps: getVal(r, 6, '995 生技營養品'),
-                    product_id: getVal(r, 7, 'PRD-995-01'),
-                    stock_id: getVal(r, 8, 'STK-001'),
-                    batch_no: getVal(r, 9, 'LOT20260715A'),
-                    expiry_date: getVal(r, 10, '2028-07-15'),
-                    quantity: qty,
-                    currency_code: getVal(r, 12, 'TWD'),
-                    unit_cost: unitCost,
-                    total_cost: totalCost,
-                    target_prospect_id: getVal(r, 15, ''),
-                    operator_partner_id: getVal(r, 16, 'Ray (翁榮祥)'),
-                    adj_date: getVal(r, 17, '2026-09-02'),
-                    reason_desc: getVal(r, 18, '例行盤點'),
-                    proof_image_url: getVal(r, 19, ''),
-                    created_by: getVal(r, 20, 'SYSTEM'),
-                    created_at: getVal(r, 21, '2026-01-01 00:00:00'),
-                    modified_by: getVal(r, 22, 'SYSTEM'),
-                    modified_at: getVal(r, 23, '2026-01-01 00:00:00')
-                };
-            });
-        }
-
-        // ==========================================================================
-        // 5. 視圖更新、指標運算與圖表渲染
-        // ==========================================================================
-        function refreshAllViews() {
-            renderMetrics();
-            renderAdjustmentsTable();
-            renderTransfersTable();
-            updateCharts();
-        }
-
-        function renderMetrics() {
-            const list = appState.adjustments;
-            let auditedCount = 0;
-            let lossAmount = 0;
-            let lossBoxes = 0;
-            let transferQty = 0;
-            let transferBatches = 0;
-            let seedQty = 0;
-            let seedProspects = 0;
-
-            list.forEach(item => {
-                const absQty = Math.abs(item.quantity);
-                if (item.adj_type === '盤損' || item.adj_type === '盤虧' || item.adj_type === '破損過期') {
-                    lossAmount += item.total_cost;
-                    lossBoxes += absQty;
-                } else if (item.adj_type === '跨倉調撥') {
-                    transferQty += absQty;
-                    transferBatches++;
-                } else if (item.adj_type === '拓荒試用發放' || item.adj_type === '自用消耗') {
-                    seedQty += absQty;
-                    if (item.target_prospect_id) seedProspects++;
-                } else if (item.adj_type === '盤盈') {
-                    auditedCount += absQty;
-                }
-            });
-
-            $('#stat-audited-count').html(`${(auditedCount + 1820).toLocaleString()} <span class="fs-6 text-secondary fw-normal">盒</span>`);
-            $('#stat-transfer-qty').html(`${transferQty.toLocaleString()} <span class="fs-6 text-secondary fw-normal">盒</span>`);
-            $('#stat-transfer-batches').text(transferBatches);
-            $('#stat-loss-amount').text(`-$${lossAmount.toLocaleString()}`);
-            $('#stat-loss-boxes').text(`累計損耗 ${lossBoxes} 盒`);
-            $('#stat-seed-qty').html(`${seedQty.toLocaleString()} <span class="fs-6 text-secondary fw-normal">盒</span>`);
-            $('#stat-seed-prospects').text(seedProspects);
-        }
-
-        function switchTacticalMode(mode) {
-            appState.currentMode = mode;
-            if (mode === 'AUDIT') {
-                $('#btn-mode-audit').addClass('active');
-                $('#btn-mode-transfer').removeClass('active');
-                $('#section-audit-workbench').removeClass('d-none');
-                $('#section-transfer-workbench').addClass('d-none');
-                if (dtAdjustmentsInstance) dtAdjustmentsInstance.columns.adjust().responsive.recalc();
-            } else {
-                $('#btn-mode-transfer').addClass('active');
-                $('#btn-mode-audit').removeClass('active');
-                $('#section-transfer-workbench').removeClass('d-none');
-                $('#section-audit-workbench').addClass('d-none');
-                if (dtTransfersInstance) dtTransfersInstance.columns.adjust().responsive.recalc();
-            }
-        }
-
-        function initDataTables() {
-            dtAdjustmentsInstance = $('#table-adjustments').DataTable({
-                data: [],
-                responsive: true,
-                pageLength: 5,
-                language: {
-                    search: "檢索盤點單據:",
-                    lengthMenu: "每頁 _MENU_ 筆",
-                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
-                    paginate: { next: ">", previous: "<" },
-                    zeroRecords: "查無符合之盤點單據"
-                },
-                columns: [
-                    { data: 'badge_col' },
-                    { data: 'product_col' },
-                    { data: 'batch_col' },
-                    { data: 'qty_col', className: 'text-center font-mono' },
-                    { data: 'cost_col', className: 'text-end font-mono' },
-                    { data: 'operator_col' },
-                    { data: 'actions_col', className: 'text-end', orderable: false }
-                ]
-            });
-
-            dtTransfersInstance = $('#table-transfers').DataTable({
-                data: [],
-                responsive: true,
-                pageLength: 5,
-                language: {
-                    search: "檢索調撥記錄:",
-                    lengthMenu: "每頁 _MENU_ 筆",
-                    info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
-                    paginate: { next: ">", previous: "<" },
-                    zeroRecords: "無調撥在途單據"
-                },
-                columns: [
-                    { data: 'adj_no_col' },
-                    { data: 'route_col' },
-                    { data: 'product_col' },
-                    { data: 'qty_col', className: 'text-center font-mono' },
-                    { data: 'cost_col', className: 'text-end font-mono' },
-                    { data: 'desc_col' },
-                    { data: 'actions_col', className: 'text-end', orderable: false }
-                ]
-            });
-        }
-
-        function renderAdjustmentsTable() {
-            const hasAdminRights = isMasterAdmin();
-            const formatted = appState.adjustments.map(a => {
-                let typeBadge = 'bg-secondary';
-                if (a.adj_type === '盤盈') typeBadge = 'bg-success-subtle text-success border border-success-subtle';
-                else if (a.adj_type === '盤虧') typeBadge = 'bg-danger-subtle text-danger border border-danger-subtle';
-                else if (a.adj_type === '破損過期') typeBadge = 'bg-danger text-white';
-                else if (a.adj_type === '跨倉調撥') typeBadge = 'bg-info-subtle text-info border border-info-subtle';
-                else if (a.adj_type === '拓荒試用發放') typeBadge = 'bg-warning-subtle text-warning border border-warning-subtle';
-                else if (a.adj_type === '自用消耗') typeBadge = 'bg-purple-subtle text-purple border border-purple-800';
-
-                const actionBtns = hasAdminRights ? `
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary py-1 px-2" onclick="openEditAdjustmentModal('${a.adj_no}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-outline-danger py-1 px-2" onclick="deleteAdjustmentRecord('${a.adj_no}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
-
-                const qtyTag = a.quantity > 0 
-                    ? `<span class="variance-tag variance-gain">+${a.quantity} 盒</span>`
-                    : (a.quantity < 0 ? `<span class="variance-tag variance-loss">${a.quantity} 盒</span>` : `<span class="variance-tag variance-balanced">0 盒</span>`);
-
-                return {
-                    badge_col: `<div class="fw-bold font-mono text-purple-300">${a.adj_no}</div><span class="badge ${typeBadge}" style="font-size:0.7rem;">${a.adj_type}</span>`,
-                    product_col: `<div class="fw-bold text-white">${a.product_name_snaps}</div><div class="small text-secondary font-mono">${a.from_warehouse_id}</div>`,
-                    batch_col: `<span class="batch-chip font-mono">LOT: ${a.batch_no}</span><div class="small text-secondary" style="font-size:0.7rem;">EXP: ${a.expiry_date}</div>`,
-                    qty_col: qtyTag,
-                    cost_col: `<div class="fw-bold text-white">$${a.total_cost.toLocaleString()}</div><div class="small text-secondary font-mono" style="font-size:0.7rem;">@ $${a.unit_cost}</div>`,
-                    operator_col: `<div class="small text-light">${a.operator_partner_id}</div><div class="small text-secondary font-mono" style="font-size:0.7rem;">${a.adj_date}</div>`,
-                    actions_col: actionBtns
-                };
-            });
-
-            dtAdjustmentsInstance.clear().rows.add(formatted).draw();
-        }
-
-        function renderTransfersTable() {
-            const hasAdminRights = isMasterAdmin();
-            const transfersOnly = appState.adjustments.filter(a => a.adj_type === '跨倉調撥');
-            const formatted = transfersOnly.map(t => {
-                const actionBtns = hasAdminRights ? `
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary py-1 px-2" onclick="openEditAdjustmentModal('${t.adj_no}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-outline-danger py-1 px-2" onclick="deleteAdjustmentRecord('${t.adj_no}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
-
-                const proofLink = t.proof_image_url 
-                    ? `<a href="${t.proof_image_url}" target="_blank" class="badge bg-info-subtle text-info text-decoration-none"><i class="fa-solid fa-image"></i> 憑證</a>` 
-                    : '';
-
-                return {
-                    adj_no_col: `<div class="fw-bold font-mono text-cyan-300">${t.adj_no}</div><div class="small text-secondary font-mono">${t.adj_date}</div>`,
-                    route_col: `<div class="small text-light">${t.from_warehouse_id}</div><div class="small text-cyan-400"><i class="fa-solid fa-arrow-down-long"></i> ${t.to_warehouse_id || '未指定'}</div>`,
-                    product_col: `<div class="fw-bold text-white">${t.product_name_snaps}</div><span class="batch-chip font-mono">LOT: ${t.batch_no}</span>`,
-                    qty_col: `<span class="badge bg-dark border border-cyan-700 text-cyan-300 px-2 py-1">${Math.abs(t.quantity)} 盒</span>`,
-                    cost_col: `<span class="font-mono text-white fw-bold">$${t.total_cost.toLocaleString()} ${t.currency_code}</span>`,
-                    desc_col: `<div class="small text-light text-truncate" style="max-width: 140px;" title="${t.reason_desc}">${t.reason_desc}</div>${proofLink}`,
-                    actions_col: actionBtns
-                };
-            });
-
-            dtTransfersInstance.clear().rows.add(formatted).draw();
-        }
-
-        function initCharts() {
-            const ctxFlow = document.getElementById('chart-transfer-flow').getContext('2d');
-            chartFlowInstance = new Chart(ctxFlow, {
-                type: 'line',
-                data: {
-                    labels: ['4月', '5月', '6月', '7月', '8月', '9月 (即時)'],
-                    datasets: [
-                        {
-                            label: '台灣 ➔ 馬來西亞吉隆坡基地',
-                            data: [120, 180, 240, 310, 280, 380],
-                            borderColor: '#a855f7',
-                            backgroundColor: 'rgba(168, 85, 247, 0.15)',
-                            fill: true,
-                            tension: 0.35,
-                            borderWidth: 2
-                        },
-                        {
-                            label: '台北 ➔ 高雄營運中心',
-                            data: [80, 95, 110, 140, 130, 150],
-                            borderColor: '#06b6d4',
-                            backgroundColor: 'transparent',
-                            borderDash: [5, 5],
-                            tension: 0.35,
-                            borderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#c084fc', font: { family: "'Noto Sans TC', sans-serif", size: 11 } } }
-                    },
-                    scales: {
-                        x: { grid: { color: 'rgba(168, 85, 247, 0.1)' }, ticks: { color: '#a78bfa' } },
-                        y: { grid: { color: 'rgba(168, 85, 247, 0.1)' }, ticks: { color: '#a78bfa' } }
-                    }
-                }
-            });
-
-            const ctxPareto = document.getElementById('chart-variance-causes').getContext('2d');
-            chartParetoInstance = new Chart(ctxPareto, {
-                type: 'doughnut',
-                data: {
-                    labels: ['跨倉調撥', '破損過期報廢', '拓荒試用發放', '自用消耗', '盤虧短少'],
-                    datasets: [{
-                        data: [50, 20, 15, 10, 5],
-                        backgroundColor: ['#06b6d4', '#f43f5e', '#f59e0b', '#a855f7', '#ec4899'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: '#e2d9f3', font: { family: "'Noto Sans TC', sans-serif", size: 10 } } }
-                    },
-                    cutout: '68%'
-                }
-            });
-        }
-
-        function updateCharts() {
-            if (chartFlowInstance) chartFlowInstance.update();
-            if (chartParetoInstance) chartParetoInstance.update();
-        }
-
-        // ==========================================================================
-        // 6. 工作台交互運算與 C/R/U/D 實體回寫引擎
-        // ==========================================================================
-        function adjustCountInput(delta) {
-            const input = document.getElementById('input-physical-qty');
-            let val = parseInt(input.value, 10) || 0;
-            val = Math.max(0, val + delta);
-            input.value = val;
-            calculateVariance();
-        }
-
-        function calculateVariance() {
-            const bookQty = parseInt($('#val-book-qty').text(), 10) || 0;
-            const physicalQty = parseInt($('#input-physical-qty').val(), 10) || 0;
-            const diff = physicalQty - bookQty;
-
-            const opt = $('#sel-audit-stock option:selected');
-            const unitCost = parseFloat(opt.data('cost')) || 5040;
-            const totalVarianceAmount = Math.abs(diff) * unitCost;
-
-            const tagStatus = $('#tag-variance-status');
-            const lblCost = $('#lbl-variance-cost');
-            const reasonGroup = $('#group-variance-reason');
-
-            if (diff === 0) {
-                tagStatus.attr('class', 'variance-tag variance-balanced').html('<i class="fa-solid fa-check"></i> 帳實相符 (0 盒)');
-                lblCost.text('$0 TWD');
-                reasonGroup.addClass('d-none');
-            } else if (diff < 0) {
-                tagStatus.attr('class', 'variance-tag variance-loss').html(`<i class="fa-solid fa-triangle-exclamation"></i> 盤虧短少 (${diff} 盒)`);
-                lblCost.text(`-$${totalVarianceAmount.toLocaleString()} TWD`);
-                reasonGroup.removeClass('d-none');
-                $('#sel-audit-adj-type').val('盤虧');
-            } else {
-                tagStatus.attr('class', 'variance-tag variance-gain').html(`<i class="fa-solid fa-plus"></i> 盤盈溢出 (+${diff} 盒)`);
-                lblCost.text(`+$${totalVarianceAmount.toLocaleString()} TWD`);
-                reasonGroup.removeClass('d-none');
-                $('#sel-audit-adj-type').val('盤盈');
-            }
-        }
-
-        function loadProductStockForAudit() {
-            const opt = $('#sel-audit-stock option:selected');
-            $('#lbl-audit-code').text(opt.data('code'));
-            $('#lbl-audit-name').text(opt.data('name'));
-            $('#lbl-audit-batch').text(`LOT: ${opt.data('batch')}`);
-            $('#val-book-qty').html(`${opt.data('qty')} <span class="fs-6">盒</span>`);
-            $('#lbl-audit-unit-cost').text(`$${Number(opt.data('cost')).toLocaleString()} TWD`);
-            $('#input-physical-qty').val(opt.data('qty'));
-
-            calculateVariance();
-        }
-
-        function updateTransferCostCalc() {
-            const opt = $('#tr-stock-select option:selected');
-            const cost = parseFloat(opt.data('cost')) || 0;
-            const qty = parseInt($('#tr-qty').val(), 10) || 0;
-            const currency = $('#tr-currency').val();
-            const total = cost * qty;
-            $('#lbl-transfer-total-cost').text(`$${total.toLocaleString()} ${currency}`);
-        }
-
-        /**
-         * 表 303 寫入：現場盤點錄入
-         */
-        async function commitAuditRecord() {
-            const opt = $('#sel-audit-stock option:selected');
-            const bookQty = parseInt($('#val-book-qty').text(), 10) || 0;
-            const physicalQty = parseInt($('#input-physical-qty').val(), 10) || 0;
-            const diff = physicalQty - bookQty;
-
-            const unitCost = parseFloat(opt.data('cost')) || 5040;
-            const totalCost = Math.abs(diff) * unitCost;
-            const currentUser = getCurrentUser();
-            const nowStr = getFormattedNow();
-            const adjType = diff === 0 ? '盤盈' : $('#sel-audit-adj-type').val();
-            const reason = diff === 0 ? '帳實相符' : ($('#txt-audit-reason').val().trim() || '現場實盤差異調整');
-            const adjNo = `ADJ${nowStr.slice(0, 10).replace(/-/g, '')}${Math.floor(1000 + Math.random() * 9000)}`;
-            const newId = String(Date.now());
-
-            // 嚴格依表 303 (psi_adjustments) 24 欄位物理順序打包
-            const rowDataArray = [
-                newId,                              // 0: id (PK)
-                adjNo,                              // 1: adj_no (UK)
-                adjType,                            // 2: adj_type
-                $('#sel-audit-wh').val(),           // 3: from_warehouse_id
-                '',                                 // 4: to_warehouse_id
-                opt.data('code'),                   // 5: official_product_code
-                opt.data('name'),                   // 6: product_name_snaps
-                opt.data('code'),                   // 7: product_id
-                opt.val(),                          // 8: stock_id
-                opt.data('batch'),                  // 9: batch_no
-                opt.data('exp'),                    // 10: expiry_date
-                diff,                               // 11: quantity
-                'TWD',                              // 12: currency_code
-                unitCost,                           // 13: unit_cost
-                totalCost,                          // 14: total_cost
-                '',                                 // 15: target_prospect_id
-                currentUser,                        // 16: operator_partner_id
-                nowStr.slice(0, 10),                // 17: adj_date
-                reason,                             // 18: reason_desc
-                '',                                 // 19: proof_image_url
-                currentUser,                        // 20: created_by
-                nowStr,                             // 21: created_at
-                currentUser,                        // 22: modified_by
-                nowStr                              // 23: modified_at
-            ];
-
-            const newObj = {
-                id: newId,
-                adj_no: adjNo,
-                adj_type: adjType,
-                from_warehouse_id: $('#sel-audit-wh').val(),
-                to_warehouse_id: '',
-                official_product_code: opt.data('code'),
-                product_name_snaps: opt.data('name'),
-                product_id: opt.data('code'),
-                stock_id: opt.val(),
-                batch_no: opt.data('batch'),
-                expiry_date: opt.data('exp'),
-                quantity: diff,
-                currency_code: 'TWD',
-                unit_cost: unitCost,
-                total_cost: totalCost,
-                target_prospect_id: '',
-                operator_partner_id: currentUser,
-                adj_date: nowStr.slice(0, 10),
-                reason_desc: reason,
-                proof_image_url: '',
-                created_by: currentUser,
-                created_at: nowStr,
-                modified_by: currentUser,
-                modified_at: nowStr
-            };
-
-            const $btn = $('#btn-submit-audit');
-            try {
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入雲端中...');
-                await SheetAdapter.createRow('盤點調撥', adjNo, rowDataArray);
-                appState.adjustments.unshift(newObj);
-                refreshAllViews();
-                AppToast.success(`盤點單據【${adjNo}】已成功寫入 Google 試算表！`);
-            } catch (err) {
-                AppToast.error("寫入失敗: " + err.message);
-            } finally {
-                $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 寫入盤點覆核單據');
-            }
-        }
-
-        /**
-         * 表 303 寫入：發起跨倉調撥
-         */
-        async function commitTransferOrder() {
-            const fromWh = $('#tr-from-wh').val();
-            const toWh = $('#tr-to-wh').val();
-            const qty = parseInt($('#tr-qty').val(), 10) || 0;
-
-            if (fromWh === toWh) {
-                AppToast.warning("調出倉儲與調入倉儲不能相同！");
-                return;
-            }
-            if (qty <= 0) {
-                AppToast.warning("請填寫大於 0 的調撥盒數！");
-                return;
-            }
-
-            const opt = $('#tr-stock-select option:selected');
-            const unitCost = parseFloat(opt.data('cost')) || 0;
-            const currency = $('#tr-currency').val();
-            const totalCost = qty * unitCost;
-            const currentUser = getCurrentUser();
-            const nowStr = getFormattedNow();
-            const adjNo = `TR${nowStr.slice(0, 10).replace(/-/g, '')}${Math.floor(1000 + Math.random() * 9000)}`;
-            const newId = String(Date.now());
-            const reason = $('#tr-reason').val().trim() || '跨倉戰術調撥';
-            const proofUrl = $('#tr-proof-url').val().trim();
-
-            // 依 24 欄位順序打包 (跨倉調撥調出為負數)
-            const rowDataArray = [
-                newId,
-                adjNo,
-                '跨倉調撥',
-                fromWh,
-                toWh,
-                opt.data('code'),
-                opt.data('name'),
-                opt.data('code'),
-                opt.val(),
-                opt.data('batch'),
-                opt.data('exp'),
-                -qty,
-                currency,
-                unitCost,
-                totalCost,
-                '',
-                currentUser,
-                nowStr.slice(0, 10),
-                reason,
-                proofUrl,
-                currentUser,
-                nowStr,
-                currentUser,
-                nowStr
-            ];
-
-            const newObj = {
-                id: newId,
-                adj_no: adjNo,
-                adj_type: '跨倉調撥',
-                from_warehouse_id: fromWh,
-                to_warehouse_id: toWh,
-                official_product_code: opt.data('code'),
-                product_name_snaps: opt.data('name'),
-                product_id: opt.data('code'),
-                stock_id: opt.val(),
-                batch_no: opt.data('batch'),
-                expiry_date: opt.data('exp'),
-                quantity: -qty,
-                currency_code: currency,
-                unit_cost: unitCost,
-                total_cost: totalCost,
-                target_prospect_id: '',
-                operator_partner_id: currentUser,
-                adj_date: nowStr.slice(0, 10),
-                reason_desc: reason,
-                proof_image_url: proofUrl,
-                created_by: currentUser,
-                created_at: nowStr,
-                modified_by: currentUser,
-                modified_at: nowStr
-            };
-
-            try {
-                await SheetAdapter.createRow('盤點調撥', adjNo, rowDataArray);
-                appState.adjustments.unshift(newObj);
-                refreshAllViews();
-                AppToast.success(`調撥單【${adjNo}】已成功建立並鎖定庫存！`);
-            } catch (err) {
-                AppToast.error("調撥單建立失敗: " + err.message);
-            }
-        }
-
-        // ==========================================================================
-        // 7. Modal 編輯與更新 / 刪除 (C/R/U/D)
-        // ==========================================================================
-        function openAddAdjustmentModal() {
-            $('#modalAdjustTitle').html('<i class="fa-solid fa-plus text-primary"></i> 新增盤點調撥單據');
-            $('#edit-id').val('');
-            $('#edit-adj-no').val(`ADJ${getFormattedNow().slice(0, 10).replace(/-/g, '')}${Math.floor(1000 + Math.random() * 9000)}`);
-            $('#edit-adj-type').val('自用消耗');
-            $('#edit-from-wh').val('WH-HOME-RAY');
-            $('#edit-to-wh').val('');
-            $('#edit-quantity').val('-1');
-            $('#edit-unit-cost').val('5040');
-            $('#edit-prospect-id').val('');
-            $('#edit-reason').val('');
-            $('#edit-proof-url').val('');
-            new bootstrap.Modal(document.getElementById('modalAdjustDetail')).show();
-        }
-
-        function openEditAdjustmentModal(adjNo) {
-            const adj = appState.adjustments.find(a => a.adj_no === adjNo);
-            if (!adj) return;
-
-            $('#modalAdjustTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯單據明細');
-            $('#edit-id').val(adj.id);
-            $('#edit-adj-no').val(adj.adj_no);
-            $('#edit-adj-type').val(adj.adj_type);
-            $('#edit-from-wh').val(adj.from_warehouse_id);
-            $('#edit-to-wh').val(adj.to_warehouse_id || '');
-            $('#edit-quantity').val(adj.quantity);
-            $('#edit-unit-cost').val(adj.unit_cost);
-            $('#edit-prospect-id').val(adj.target_prospect_id || '');
-            $('#edit-reason').val(adj.reason_desc);
-            $('#edit-proof-url').val(adj.proof_image_url || '');
-
-            new bootstrap.Modal(document.getElementById('modalAdjustDetail')).show();
-        }
-
-        async function saveAdjustDetailModal() {
-            const adjNo = $('#edit-adj-no').val().trim();
-            const adjType = $('#edit-adj-type').val();
-            const fromWh = $('#edit-from-wh').val();
-            const toWh = $('#edit-to-wh').val();
-            const qty = parseInt($('#edit-quantity').val(), 10) || 0;
-            const unitCost = parseFloat($('#edit-unit-cost').val()) || 0;
-            const totalCost = Math.abs(qty) * unitCost;
-            const reason = $('#edit-reason').val().trim();
-            const prospectId = $('#edit-prospect-id').val().trim();
-            const proofUrl = $('#edit-proof-url').val().trim();
-
-            const existing = appState.adjustments.find(a => a.adj_no === adjNo);
-            const currentUser = getCurrentUser();
-            const nowStr = getFormattedNow();
-            const newId = existing ? existing.id : String(Date.now());
-            const createdBy = existing ? existing.created_by : currentUser;
-            const createdAt = existing ? existing.created_at : nowStr;
-
-            // 依 24 欄位物理順序打包
-            const rowDataArray = [
-                newId,
-                adjNo,
-                adjType,
-                fromWh,
-                toWh,
-                existing ? existing.official_product_code : 'PRD-995-01',
-                existing ? existing.product_name_snaps : '995 生技營養品',
-                existing ? existing.product_id : 'PRD-995-01',
-                existing ? existing.stock_id : 'STK-001',
-                existing ? existing.batch_no : 'LOT20260715A',
-                existing ? existing.expiry_date : '2028-07-15',
-                qty,
-                existing ? existing.currency_code : 'TWD',
-                unitCost,
-                totalCost,
-                prospectId,
-                currentUser,
-                nowStr.slice(0, 10),
-                reason,
-                proofUrl,
-                createdBy,
-                createdAt,
-                currentUser,
-                nowStr
-            ];
-
-            const updatedObj = {
-                id: newId,
-                adj_no: adjNo,
-                adj_type: adjType,
-                from_warehouse_id: fromWh,
-                to_warehouse_id: toWh,
-                official_product_code: existing ? existing.official_product_code : 'PRD-995-01',
-                product_name_snaps: existing ? existing.product_name_snaps : '995 生技營養品',
-                product_id: existing ? existing.product_id : 'PRD-995-01',
-                stock_id: existing ? existing.stock_id : 'STK-001',
-                batch_no: existing ? existing.batch_no : 'LOT20260715A',
-                expiry_date: existing ? existing.expiry_date : '2028-07-15',
-                quantity: qty,
-                currency_code: existing ? existing.currency_code : 'TWD',
-                unit_cost: unitCost,
-                total_cost: totalCost,
-                target_prospect_id: prospectId,
-                operator_partner_id: currentUser,
-                adj_date: nowStr.slice(0, 10),
-                reason_desc: reason,
-                proof_image_url: proofUrl,
-                created_by: createdBy,
-                created_at: createdAt,
-                modified_by: currentUser,
-                modified_at: nowStr
-            };
-
-            try {
-                if (existing) {
-                    await SheetAdapter.updateRow('盤點調撥', adjNo, rowDataArray);
-                    const idx = appState.adjustments.findIndex(a => a.adj_no === adjNo);
-                    if (idx !== -1) appState.adjustments[idx] = updatedObj;
-                } else {
-                    await SheetAdapter.createRow('盤點調撥', adjNo, rowDataArray);
-                    appState.adjustments.unshift(updatedObj);
-                }
-
-                refreshAllViews();
-                const modalEl = document.getElementById('modalAdjustDetail');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
-                AppToast.success(`單據【${adjNo}】儲存成功！`);
-            } catch (err) {
-                AppToast.error("儲存失敗: " + err.message);
-            }
-        }
-
-        async function deleteAdjustmentRecord(adjNo) {
-            if (!confirm(`確定要自 Google 試算表中永久刪除單據【${adjNo}】嗎？`)) return;
-
-            try {
-                await SheetAdapter.deleteRow('盤點調撥', adjNo);
-                appState.adjustments = appState.adjustments.filter(a => a.adj_no !== adjNo);
-                refreshAllViews();
-                AppToast.success(`單據【${adjNo}】已自雲端試算表刪除！`);
-            } catch (err) {
-                AppToast.error("刪除失敗: " + err.message);
-            }
-        }
-
-        function exportAdjustmentsCsv() {
-            const csv = Papa.unparse(appState.adjustments);
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `psi_adjustments_${new Date().toISOString().slice(0, 10)}.csv`;
-            a.click();
-            AppToast.info("已匯出盤點調撥 CSV 總檔");
-        }
-
-        function resetAuditForm() {
-            $('#input-physical-qty').val(45);
-            calculateVariance();
-        }
-
-        // ==========================================================================
-        // 8. 備援離線展示資料集 (psi_adjustments)
-        // ==========================================================================
-        function renderMockAdjustments() {
-            appState.adjustments = [
-                {
-                    id: '1',
-                    adj_no: 'ADJ202608190001',
-                    adj_type: '盤虧',
-                    from_warehouse_id: 'WH-HOME-RAY',
-                    to_warehouse_id: '',
-                    official_product_code: 'PRD-CAP-02',
-                    product_name_snaps: '樟芝益菌絲體膠囊',
-                    product_id: 'PRD-CAP-02',
-                    stock_id: 'STK-002',
-                    batch_no: 'LOT20260801B',
-                    expiry_date: '2028-08-01',
-                    quantity: -2,
-                    currency_code: 'TWD',
-                    unit_cost: 5040,
-                    total_cost: 10080,
-                    target_prospect_id: '',
-                    operator_partner_id: 'Ray (翁榮祥)',
-                    adj_date: '2026-08-19',
-                    reason_desc: '例行現場盲盤短少',
-                    proof_image_url: '',
-                    created_by: 'Ray',
-                    created_at: '2026-08-19 14:00:00',
-                    modified_by: 'Ray',
-                    modified_at: '2026-08-19 14:00:00'
-                },
-                {
-                    id: '2',
-                    adj_no: 'TR202608200002',
-                    adj_type: '跨倉調撥',
-                    from_warehouse_id: 'WH-HOME-RAY',
-                    to_warehouse_id: 'WH-MY-KUL',
-                    official_product_code: 'PRD-995-01',
-                    product_name_snaps: '995 生技營養品',
-                    product_id: 'PRD-995-01',
-                    stock_id: 'STK-001',
-                    batch_no: 'LOT20260715A',
-                    expiry_date: '2028-07-15',
-                    quantity: -20,
-                    currency_code: 'TWD',
-                    unit_cost: 5040,
-                    total_cost: 100800,
-                    target_prospect_id: '',
-                    operator_partner_id: 'Ray (翁榮祥)',
-                    adj_date: '2026-08-20',
-                    reason_desc: '吉隆坡前進基地現貨補給',
-                    proof_image_url: 'https://drive.google.com/file/d/demo',
-                    created_by: 'Ray',
-                    created_at: '2026-08-20 09:30:00',
-                    modified_by: 'Ray',
-                    modified_at: '2026-08-20 09:30:00'
-                },
-                {
-                    id: '3',
-                    adj_no: 'ADJ202608210003',
-                    adj_type: '拓荒試用發放',
-                    from_warehouse_id: 'WH-MY-KUL',
-                    to_warehouse_id: '',
-                    official_product_code: 'PRD-YA-03',
-                    product_name_snaps: '康貝兒益生菌',
-                    product_id: 'PRD-YA-03',
-                    stock_id: 'STK-003',
-                    batch_no: 'LOT20260620C',
-                    expiry_date: '2028-06-20',
-                    quantity: -3,
-                    currency_code: 'TWD',
-                    unit_cost: 1764,
-                    total_cost: 5292,
-                    target_prospect_id: 'CUST-MY-8821',
-                    operator_partner_id: 'Jarvis (林承志)',
-                    adj_date: '2026-08-21',
-                    reason_desc: '吉隆坡商務會面體驗發放 3 條',
-                    proof_image_url: '',
-                    created_by: 'Jarvis',
-                    created_at: '2026-08-21 16:45:00',
-                    modified_by: 'Jarvis',
-                    modified_at: '2026-08-21 16:45:00'
-                }
-            ];
-        }
-    </script>
-</body>
+    </body>
 </html>

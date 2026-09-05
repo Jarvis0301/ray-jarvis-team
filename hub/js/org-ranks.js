@@ -766,8 +766,8 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
             actionBtns = `<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate"></i> 共同經營同步</span>`;
         } else if (hasAdminRights) {
             actionBtns = `
-                <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+                <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
             `;
         } else {
             actionBtns = '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
@@ -826,8 +826,8 @@ function renderHistoryTable() {
         const hasAdminRights = isMasterAdmin();
 
         const actionBtns = hasAdminRights ? `
-            <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+            <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
         ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
 
         return {

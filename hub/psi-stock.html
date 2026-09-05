@@ -23,6 +23,9 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
 
+            <!-- ==========================================================================
+                1. 戰備物資態勢抬頭 (Sentinel Stock HUD)
+                ========================================================================== -->
             <header class="glass-panel hud-sentinel-bar mb-4">
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-xl-5">
@@ -33,7 +36,7 @@
                             <div>
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="live-pulse"></span>
-                                    <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25">H32000 庫存管理中樞</span>
+                                    <span class="badge badge-purple-subtle">H32000 庫存管理中樞</span>
                                     <span class="text-secondary small">|</span>
                                     <span class="text-secondary small" id="hudSyncTime">--</span>
                                 </div>
@@ -44,10 +47,11 @@
                         </div>
                     </div>
 
+                    <!-- 四聯動態指標卡 (改用共用 card-custom 容器) -->
                     <div class="col-12 col-xl-7">
                         <div class="row g-2">
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="text-secondary small">在線實體總盒數</span>
                                         <i class="fa-solid fa-box-open text-primary"></i>
@@ -59,7 +63,7 @@
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="text-secondary small">自由可用現貨</span>
                                         <i class="fa-solid fa-circle-check text-success"></i>
@@ -71,7 +75,7 @@
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="text-secondary small">代領預扣鎖定</span>
                                         <i class="fa-solid fa-lock text-warning"></i>
@@ -83,7 +87,7 @@
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="hud-pill">
+                                <div class="card-custom h-100 p-2">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="text-secondary small">FIFO 效期預警批數</span>
                                         <i class="fa-solid fa-triangle-exclamation text-danger"></i>
@@ -98,6 +102,7 @@
                     </div>
                 </div>
 
+                <!-- 據點維度篩選與操作按鈕 -->
                 <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top border-purple-subtle">
                     <div class="col-12 col-md-7">
                         <div class="d-flex flex-wrap gap-2 align-items-center">
@@ -111,26 +116,29 @@
                             <button type="button" class="filter-pill-btn" data-filter-wh="WH-HOME-RAY">
                                 <i class="fa-solid fa-shield-halved"></i> Ray 居家戰備私倉
                             </button>
-                            <button type="button" class="filter-pill-btn" data-filter-wh="WH-MY-KUL">
+                            <button type="button" class="filter-pill-btn" data-filter-wh="WH-MY-KL01">
                                 <i class="fa-solid fa-plane-departure"></i> 吉隆坡海外前進基地
                             </button>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-5 text-md-end">
-                        <button class="btn btn-sm btn-outline-purple me-2" onclick="fetchGoogleSheetsData()" title="從 Google 試算表同步資料">
+                        <button type="button" class="btn btn-sm btn-outline-purple me-2" onclick="fetchGoogleSheetsData()" title="從 Google 試算表同步資料">
                             <i class="fa-solid fa-rotate"></i> 重新同步
                         </button>
-                        <button class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddModal" onclick="openAddStockModal()">
+                        <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddModal" onclick="openAddStockModal()">
                             <i class="fa-solid fa-plus"></i> 新增庫存批號
                         </button>
                     </div>
                 </div>
             </header>
 
+            <!-- ==========================================================================
+                2. 視覺化戰術儀表 (Chart Horizon Matrix)
+                ========================================================================== -->
             <section class="row g-3 mb-4">
                 <div class="col-12 col-lg-4">
-                    <div class="glass-panel p-3 h-100">
+                    <div class="card-custom h-100 p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="fw-bold text-white small"><i class="fa-solid fa-chart-pie text-primary"></i> 跨倉實體庫存容積佔比</span>
                             <span class="badge bg-secondary bg-opacity-25 text-light small">現貨盒數</span>
@@ -142,7 +150,7 @@
                 </div>
 
                 <div class="col-12 col-lg-8">
-                    <div class="glass-panel p-3 h-100">
+                    <div class="card-custom h-100 p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="fw-bold text-white small"><i class="fa-solid fa-hourglass-half text-secondary"></i> FIFO 批號有效期限時空階梯 (距過期天數)</span>
                             <div class="d-flex gap-2 small">
@@ -158,6 +166,9 @@
                 </div>
             </section>
 
+            <!-- ==========================================================================
+                3. 批號庫存動態戰術表 (DataTable 2.x 表 302: psi_stocks)
+                ========================================================================== -->
             <section class="glass-panel p-3 mb-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
                     <div class="d-flex flex-wrap align-items-center gap-2">
@@ -185,7 +196,7 @@
                             <tr>
                                 <th>主鍵</th>
                                 <th>所在據點倉儲</th>
-                                <th>產品代碼</th>
+                                <th>產品品項</th>
                                 <th>官方生產批號</th>
                                 <th>有效截止日</th>
                                 <th>實體現貨</th>
@@ -193,20 +204,24 @@
                                 <th>可用盒數</th>
                                 <th>成本 / SV</th>
                                 <th>狀態標記</th>
-                                <th>操作</th>
+                                <th class="text-end">戰術操作</th>
                             </tr>
                         </thead>
                         <tbody>
-                            </tbody>
+                            <!-- 由 DataTables 動態渲染 -->
+                        </tbody>
                     </table>
                 </div>
             </section>
         </main>
 
+        <!-- ==========================================================================
+            4. 庫存批號維護 Modal (表 302: psi_stocks 實體 17 欄位 CRUD，下拉選單由共用模組接管)
+            ========================================================================== -->
         <div class="modal fade" id="stockModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <section class="modal-content">
-                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
+                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
                         <h5 class="modal-title fw-bold text-white" id="stockModalLabel">
                             <i class="fa-solid fa-box-archive text-primary"></i> 庫存批號主檔編輯
                         </h5>
@@ -220,96 +235,96 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label">庫存唯一代碼 <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control form-control-sm" id="fieldId" placeholder="例如：STK-20260901-01" required>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldId">庫存唯一代碼 (id) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldId" readonly required>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label">存放據點倉儲 <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="fieldWarehouseId" required>
-                                        <option value="WH-TW-TP">WH-TW-TP (台北總公司營運中心)</option>
-                                        <option value="WH-HOME-RAY">WH-HOME-RAY (Ray 居家戰備私倉)</option>
-                                        <option value="WH-MY-KUL">WH-MY-KUL (吉隆坡海外前進基地)</option>
-                                        <option value="WH-TW-TC">WH-TW-TC (台中旗艦營運中心)</option>
-                                        <option value="WH-TW-KH">WH-TW-KH (高雄營業營運中心)</option>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldWarehouseId">存放據點倉儲 (warehouse_id) <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldWarehouseId" required style="width: 100%;">
+                                        <option value="">-- 請選擇存放據點倉儲 --</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label">產品品項 <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="fieldProductId" required>
-                                        <option value="PRD-0101-01">PRD-0101-01 (康爾喜乳酸菌)</option>
-                                        <option value="PRD-0101-02">PRD-0101-02 (995 生技營養品)</option>
-                                        <option value="PRD-0102-01">PRD-0102-01 (樟芝益菌絲體飲)</option>
-                                        <option value="PRD-0201-01">PRD-0201-01 (衛傑膠囊)</option>
-                                        <option value="PRD-0301-02">PRD-0301-02 (百克斯膠囊)</option>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldProductId">產品品項 SKU (product_id) <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldProductId" required style="width: 100%;">
+                                        <option value="">-- 請選擇產品品項 --</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">官方生產批號 <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control form-control-sm" id="fieldBatchNo" placeholder="例如：LOT20260315A" required>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldBatchNo">官方生產批號 (batch_no) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldBatchNo" placeholder="如：LOT20260315A" required>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">有效截止日期 <span class="text-danger">*</span></label>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldExpiryDate">有效截止日期 (expiry_date) <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="fieldExpiryDate" required>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label">在線實體總盒數 <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldQuantity" min="0" value="0" required>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small text-secondary fw-bold" for="fieldQuantity">密封整盒現貨 (quantity) *</label>
+                                    <input type="number" class="form-control" id="fieldQuantity" min="0" value="0" required>
+                                    <div class="form-text text-muted small">完整未拆封盒裝數</div>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label">代領預扣盒數 <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldReservedQty" min="0" value="0" required>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small text-secondary fw-bold" for="fieldPiecesQty">散裝剩餘支/條 (pieces_qty) *</label>
+                                    <input type="number" class="form-control" id="fieldPiecesQty" min="0" value="0" required>
+                                    <div class="form-text text-muted small">拆盒零售/體驗零散數</div>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label">自由可用盒數</label>
-                                    <input type="number" class="form-control form-control-sm bg-dark text-success fw-bold" id="fieldAvailableQty" readonly>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small text-secondary fw-bold" for="fieldReservedQty">代領預扣盒數 (reserved_qty) *</label>
+                                    <input type="number" class="form-control" id="fieldReservedQty" min="0" value="0" required>
+                                    <div class="form-text text-muted small">訂單已成立未提領</div>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small text-secondary fw-bold" for="fieldAvailableQty">自由可用盒數 (available_qty)</label>
+                                    <input type="number" class="form-control bg-dark text-success fw-bold" id="fieldAvailableQty" readonly>
+                                    <div class="form-text text-muted small">盒裝現貨扣除預扣</div>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label">幣別</label>
-                                    <select class=" form-select form-select-sm" id="fieldCurrencyCode">
+                                    <label class="form-label small text-secondary fw-bold" for="fieldCurrencyCode">幣別 (currency_code)</label>
+                                    <select class="form-select form-select-sm" id="fieldCurrencyCode">
                                         <option value="TWD">TWD (新台幣)</option>
                                         <option value="MYR">MYR (馬來幣)</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label">成本單價</label>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldCostPrice">成本單價 (cost_price)</label>
                                     <input type="number" step="0.01" class="form-control form-control-sm" id="fieldCostPrice" value="0">
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label">單盒 SV 點數</label>
+                                    <label class="form-label small text-secondary fw-bold" for="fieldSvPoint">單盒 SV 點數 (sv_point)</label>
                                     <input type="number" class="form-control form-control-sm" id="fieldSvPoint" value="0">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">庫存備註說明</label>
-                                <input type="text" class="form-control form-control-sm" id="fieldRemarks" placeholder="例如：大馬拓荒展業樣品備貨、總部大批提貨待驗收...">
+                                <label class="form-label small text-secondary fw-bold" for="fieldRemarks">庫存備註說明 (remarks)</label>
+                                <input type="text" class="form-control form-control-sm" id="fieldRemarks" placeholder="如：大馬拓荒展業樣品備貨、總部大批提貨待驗收...">
                             </div>
 
                             <div class="form-check form-switch mt-2">
                                 <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
-                                <label class="form-check-label" for="fieldIsLocked">
-                                    <i class="fa-solid fa-lock text-danger"></i> 品質異常或盤點凍結出庫標記
+                                <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
+                                    <i class="fa-solid fa-lock text-danger"></i> 品質異常或盤點凍結出庫標記 (is_locked = 'Y')
                                 </label>
                             </div>
                         </form>
                     </div>
-                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveStockItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存
+                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold" onclick="saveStockItem()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存批號庫存
                         </button>
-                    </div>
+                    </footer>
                 </section>
             </div>
         </div>

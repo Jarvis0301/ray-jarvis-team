@@ -1,1433 +1,620 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="dark-purple">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>銷貨出庫 | 榮祥團隊 - 核心版</title>
-    <!-- Google 字體 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5.3.2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6.5.2 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <!-- DataTables 2.0 Dark Theme CSS -->
-    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.bootstrap5.min.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --team-purple-bg: #0b0514;
-            --team-purple-card: #140b24;
-            --team-purple-surface: #1d1033;
-            --team-purple-hover: #261642;
-            --team-purple-border: rgba(168, 85, 247, 0.22);
-            --team-purple-glow: rgba(168, 85, 247, 0.45);
-            --team-accent-purple: #8b5cf6;
-            --team-accent-light: #c084fc;
-            --team-accent-pink: #f472b6;
-            --team-accent-green: #34d399;
-            --team-accent-amber: #fbbf24;
-            --team-accent-cyan: #38bdf8;
-            --team-text-main: #f8fafc;
-            --team-text-muted: #a78bfa;
-            --m3-radius: 18px;
-            --m3-radius-pill: 9999px;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>銷貨出庫 | 榮祥團隊 - 核心版</title>
+        
+        <!-- 認證守衛 -->
+        <script src="../assets/js/auth-guard.js"></script>
+        
+        <!-- 第三方函式庫加載器 -->
+        <script src="../assets/js/vendor-loader.js"></script>
 
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        <!-- 共用核心模組 -->
+        <script src="../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../assets/css/common.css">
 
-        body {
-            background-color: var(--team-purple-bg);
-            color: var(--team-text-main);
-            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 1.25rem;
-            min-height: 100vh;
-        }
+        <!-- 頁面專屬 -->
+        <script src="./js/psi-outbound.js" defer></script>
+        <link rel="stylesheet" href="./css/psi-outbound.css">
+    </head>
 
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* 玻璃擬態戰術卡片 */
-        .glass-panel {
-            background: var(--team-purple-card);
-            border: 1px solid var(--team-purple-border);
-            border-radius: var(--m3-radius);
-            backdrop-filter: blur(16px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .glass-panel:hover {
-            border-color: var(--team-purple-glow);
-            box-shadow: 0 8px 24px 0 rgba(139, 92, 246, 0.2);
-        }
-
-        /* 頂部戰備狀態 HUD 藥丸標籤 */
-        .hud-filter-pill {
-            background: rgba(29, 16, 51, 0.85);
-            border: 1px solid var(--team-purple-border);
-            border-radius: var(--m3-radius-pill);
-            padding: 0.5rem 1.15rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.65rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .hud-filter-pill:hover, .hud-filter-pill.active {
-            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-            border-color: var(--team-accent-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
-        }
-
-        .hud-filter-pill.active span {
-            color: #ffffff !important;
-        }
-
-        /* 標籤徽章 */
-        .badge-purple { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.35); }
-        .badge-green  { background: rgba(52, 211, 153, 0.18); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.35); }
-        .badge-amber  { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.35); }
-        .badge-pink   { background: rgba(244, 114, 182, 0.18); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.35); }
-        .badge-cyan   { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
-
-        /* 按鈕外觀 */
-        .btn-purple-primary {
-            background: linear-gradient(135deg, #9333ea 0%, #6366f1 100%);
-            color: #ffffff;
-            border: none;
-            border-radius: var(--m3-radius-pill);
-            padding: 0.55rem 1.25rem;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-            transition: all 0.2s ease;
-        }
-
-        .btn-purple-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.45);
-            color: #ffffff;
-        }
-
-        .btn-purple-outline {
-            background: rgba(139, 92, 246, 0.1);
-            color: var(--team-accent-light);
-            border: 1px solid var(--team-purple-border);
-            border-radius: var(--m3-radius-pill);
-            padding: 0.5rem 1.15rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-purple-outline:hover {
-            background: rgba(139, 92, 246, 0.25);
-            color: #ffffff;
-            border-color: var(--team-accent-light);
-        }
-
-        /* 霓虹輸入控制件 */
-        .form-control, .form-select {
-            background-color: #120822 !important;
-            border: 1px solid var(--team-purple-border) !important;
-            color: var(--team-text-main) !important;
-            border-radius: 12px;
-            padding: 0.6rem 0.9rem;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--team-accent-light) !important;
-            box-shadow: 0 0 0 0.25rem rgba(192, 132, 252, 0.2) !important;
-        }
-
-        /* DataTables 深夜自定義 */
-        .table-dark-custom {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--team-text-main);
-            --bs-table-border-color: rgba(168, 85, 247, 0.12);
-        }
-
-        .table-dark-custom th {
-            background-color: rgba(29, 16, 51, 0.95);
-            color: var(--team-accent-light);
-            font-weight: 700;
-            border-bottom: 2px solid var(--team-purple-glow);
-            padding: 0.9rem 0.75rem;
-        }
-
-        .table-dark-custom td {
-            padding: 0.85rem 0.75rem;
-            vertical-align: middle;
-            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
-        }
-
-        .table-dark-custom tr:hover td {
-            background-color: rgba(139, 92, 246, 0.08);
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%) !important;
-            border: none !important;
-            color: #ffffff !important;
-            border-radius: 8px;
-        }
-
-        .dataTables_wrapper .dataTables_filter input {
-            background-color: #120822 !important;
-            border: 1px solid var(--team-purple-border) !important;
-            color: #ffffff !important;
-            border-radius: 20px;
-            padding: 0.35rem 0.85rem;
-        }
-
-        /* 脈衝動態點 */
-        .pulse-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px currentColor;
-            animation: pulseAnim 2s infinite;
-        }
-
-        @keyframes pulseAnim {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.5; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- 頂部戰術指揮抬頭與總量 HUD -->
-    <div class="container-fluid px-0 mb-4">
-        <div class="row align-items-center g-3">
-            <div class="col-12 col-xl-5">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-3 glass-panel rounded-4 d-flex align-items-center justify-content-center" style="width: 58px; height: 58px;">
-                        <i class="fa-solid fa-truck-ramp-box fa-2x text-warning"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h3 class="mb-0 fw-bold text-light">銷貨出庫調度中樞</h3>
-                            <span class="badge badge-purple px-2 py-1 font-mono" style="border-radius: 8px;">
-                                <i class="fa-solid fa-satellite-dish pulse-indicator text-info"></i> H34000
-                            </span>
-                            <span class="badge badge-amber px-2 py-1 font-mono" style="border-radius: 8px;">
-                                表 304 : psi_outbound_orders
-                            </span>
-                        </div>
-                        <p class="text-secondary small mb-0 mt-1">
-                            <i class="fa-solid fa-shield-halved text-primary"></i> 榮祥團隊核心戰術調度 • 嚴格落實實體扣庫、代領預扣鎖定與 SV 點數核銷
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 互動式狀態分流 HUD 過濾條 -->
-            <div class="col-12 col-xl-7">
-                <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
-                    <div class="hud-filter-pill active" onclick="filterFulfillment('ALL', this)">
-                        <i class="fa-solid fa-boxes-stacked text-secondary"></i>
-                        <span class="text-light small">全部單據</span>
-                        <span class="fw-bold text-light font-mono" id="hudCountAll">0</span>
-                    </div>
-                    <div class="hud-filter-pill" onclick="filterFulfillment('待取貨', this)">
-                        <i class="fa-solid fa-clock text-warning"></i>
-                        <span class="text-secondary small">待取貨 / 待撿貨</span>
-                        <span class="fw-bold text-warning font-mono" id="hudCountPending">0</span>
-                    </div>
-                    <div class="hud-filter-pill" onclick="filterFulfillment('已寄出', this)">
-                        <i class="fa-solid fa-truck-fast text-info"></i>
-                        <span class="text-secondary small">物流在途</span>
-                        <span class="fw-bold text-info font-mono" id="hudCountShipped">0</span>
-                    </div>
-                    <div class="hud-filter-pill" onclick="filterFulfillment('HOLD', this)">
-                        <i class="fa-solid fa-handshake-angle text-pink" style="color: #f472b6;"></i>
-                        <span class="text-secondary small">代領預扣</span>
-                        <span class="fw-bold font-mono" id="hudCountHold" style="color: #f472b6;">0</span>
-                    </div>
-                    <div class="hud-filter-pill" onclick="filterFulfillment('已交付', this)">
-                        <i class="fa-solid fa-circle-check text-success"></i>
-                        <span class="text-secondary small">已核銷交付</span>
-                        <span class="fw-bold text-success font-mono" id="hudCountDelivered">0</span>
-                    </div>
-                    <button class="btn btn-purple-primary" id="btnOpenAddModal" onclick="openCreateOutboundModal()">
-                        <i class="fa-solid fa-plus"></i> 開立銷貨出庫單
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 主體版面：跳脫死板卡片，採用「動態撿貨發貨驗證艙 (Inspector Console) + 出庫全景履歷大盤」雙翼佈局 -->
-    <div class="container-fluid px-0">
-        <div class="row g-4">
-            
-            <!-- 左側 / 上層：出庫單 即時裝箱與智慧 FIFO 驗證艙 -->
-            <div class="col-12 col-xxl-4">
-                <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="pulse-indicator text-success"></span>
-                                <h5 class="fw-bold mb-0 text-light">
-                                    <i class="fa-solid fa-box-open text-primary"></i> 智慧裝箱檢驗艙
-                                </h5>
+    <body>
+        <main class="container-fluid p-3 p-md-4">
+            <header class="glass-panel hud-sentinel-bar mb-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-xl-7">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(139, 92, 246, 0.18); border: 1px solid var(--uvaco-primary, #8b5cf6); color: var(--uvaco-primary, #8b5cf6); font-size: 1.5rem;">
+                                <i class="fa-solid fa-dolly"></i>
                             </div>
-                            <span class="badge badge-purple" id="inspectorFulfillBadge">
-                                <i class="fa-solid fa-circle-notch fa-spin"></i> 等待選取
-                            </span>
-                        </div>
-
-                        <!-- 作用中單據摘要卡片 -->
-                        <div class="p-3 rounded-4 mb-3" style="background: rgba(29, 16, 51, 0.65); border: 1px dashed var(--team-purple-border);">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small">出庫單號 (outbound_no)</span>
-                                <span class="fw-bold text-light font-mono" id="inspOutboundNo">-</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small">收件對象 / 夥伴 (recipient_name)</span>
-                                <span class="fw-semibold text-warning" id="inspRecipientName">-</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small">出庫庫房代碼 (warehouse_id)</span>
-                                <span class="text-light font-mono small" id="inspWarehouseId">-</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small">出庫業務類型 (outbound_type)</span>
-                                <span class="badge badge-cyan" id="inspOutboundType">-</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary small">代領預扣鎖定 (is_pre_order_hold)</span>
-                                <span id="inspPreOrderHoldBadge">-</span>
-                            </div>
-                        </div>
-
-                        <!-- 配送履約與物流單號快速查驗 -->
-                        <div class="p-3 rounded-4 mb-3" style="background: rgba(29, 16, 51, 0.4); border: 1px solid var(--team-purple-border);">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small">物流管道 (delivery_method)</span>
-                                <span class="text-light small" id="inspDeliveryMethod">-</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-secondary small">追蹤碼 (tracking_no)</span>
-                                <span class="font-mono text-info small" id="inspTrackingNo">-</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-start">
-                                <span class="text-secondary small text-nowrap me-2">收件地址</span>
-                                <span class="text-light small text-end text-break" id="inspShippingAddress">-</span>
-                            </div>
-                        </div>
-
-                        <!-- 出貨備註說明 (remarks) -->
-                        <div class="mb-3">
-                            <label class="text-secondary small fw-bold mb-1">
-                                <i class="fa-solid fa-note-sticky text-warning"></i> 調度備註說明 (remarks)
-                            </label>
-                            <div class="p-2 rounded-3 text-secondary small bg-dark border border-secondary border-opacity-25" id="inspRemarks" style="min-height: 48px;">
-                                暫無備註資訊。
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 底部財務與 SV 結算統計 -->
-                    <div class="pt-3 border-top" style="border-color: rgba(168,85,247,0.2) !important;">
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <div class="p-2 rounded-3 text-center" style="background: rgba(139,92,246,0.12);">
-                                    <div class="text-secondary" style="font-size: 0.72rem;">出貨總盒數 / 總 SV</div>
-                                    <div class="fw-bold text-info font-mono" id="inspBoxesAndSv">0 盒 / 0 SV</div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="live-pulse"></span>
+                                    <span class="badge badge-purple-subtle">H34000 銷貨出庫調度中樞</span>
+                                    <span class="text-secondary small">|</span>
+                                    <span class="text-secondary small" id="hudSyncTime">--</span>
                                 </div>
+                                <h2 class="h4 mb-0 fw-bold mt-1 text-white">
+                                    <i class="fa-solid fa-boxes-packing text-primary"></i> 銷貨開單、代領預扣鎖定、毛利結算與實體出庫
+                                </h2>
                             </div>
-                            <div class="col-6">
-                                <div class="p-2 rounded-3 text-center" style="background: rgba(52,211,153,0.12);">
-                                    <div class="text-secondary" style="font-size: 0.72rem;">實收金額 / 利潤價差</div>
-                                    <div class="fw-bold text-success font-mono" id="inspAmountAndProfit">$0 / +$0</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-xl-5 text-xl-end">
+                        <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
+                            <button type="button" class="btn btn-sm btn-outline-purple" onclick="openConfigModal()">
+                                <i class="fa-solid fa-database"></i> 4 大試算表設定
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-purple" id="btnSyncSheets" onclick="fetchAllGoogleSheetsData()">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> 重新同步
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-purple" onclick="exportOutboundCSV()">
+                                <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+                            </button>
+                            <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddModal" onclick="openCreateOutboundModal()">
+                                <i class="fa-solid fa-plus"></i> 開立銷貨單據
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="glass-panel pipeline-stepper mb-4">
+                <div class="step-node active" data-status-filter="ALL" onclick="filterByPipeline('ALL', this)">
+                    <i class="fa-solid fa-list-check"></i> 全域出庫總覽
+                    <span class="step-count" id="countAll">0</span>
+                </div>
+                <div class="step-node" data-status-filter="待取貨" onclick="filterByPipeline('待取貨', this)">
+                    <i class="fa-solid fa-clock"></i> 待取貨/待撿貨
+                    <span class="step-count" id="countPending">0</span>
+                </div>
+                <div class="step-node" data-status-filter="已寄出" onclick="filterByPipeline('已寄出', this)">
+                    <i class="fa-solid fa-truck-fast"></i> 物流運送在途
+                    <span class="step-count" id="countShipped">0</span>
+                </div>
+                <div class="step-node" data-status-filter="HOLD" onclick="filterByPipeline('HOLD', this)">
+                    <i class="fa-solid fa-handshake-angle"></i> 代領預扣鎖定
+                    <span class="step-count" id="countHold">0</span>
+                </div>
+                <div class="step-node" data-status-filter="已交付" onclick="filterByPipeline('已交付', this)">
+                    <i class="fa-solid fa-boxes-packing"></i> 已核銷實體驗收
+                    <span class="step-count" id="countDelivered">0</span>
+                </div>
+                <div class="step-node" data-status-filter="已取消" onclick="filterByPipeline('已取消', this)">
+                    <i class="fa-solid fa-ban"></i> 已作廢取消
+                    <span class="step-count" id="countCancelled">0</span>
+                </div>
+            </section>
+
+            <section class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">在線出庫總量</span>
+                            <i class="fa-solid fa-boxes-stacked text-primary"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-white" id="kpiTotalBoxes">0 盒 / 0 支</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">銷售實收總額 (TWD)</span>
+                            <i class="fa-solid fa-sack-dollar text-success"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-success" id="kpiTotalSales">$0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">官方考核出庫總 SV</span>
+                            <i class="fa-solid fa-coins text-warning"></i>
+                        </div>
+                        <div class="d-flex align-items-baseline gap-1">
+                            <span class="h4 mb-0 fw-bold text-warning" id="kpiTotalSv">0</span>
+                            <span class="text-secondary small">SV</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card-custom h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary small fw-bold">實質毛利/價差總計</span>
+                            <i class="fa-solid fa-hand-holding-dollar text-info"></i>
+                        </div>
+                        <div class="h4 mb-0 fw-bold text-info" id="kpiTotalProfit">$0</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="row g-3">
+                <aside class="col-12 col-xxl-4">
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <header class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="live-pulse"></span>
+                                    <h3 class="h5 fw-bold mb-0 text-white">
+                                        <i class="fa-solid fa-box-open text-primary"></i> 智慧裝箱檢驗艙
+                                    </h3>
+                                </div>
+                                <span class="badge badge-purple-subtle" id="inspectorFulfillBadge">等待選取單據</span>
+                            </header>
+
+                            <article class="card-custom p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">出庫單號 (id)</span>
+                                    <span class="fw-bold text-white" id="inspOutboundId">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">收件對象 (依權重解析)</span>
+                                    <span class="fw-bold text-warning" id="inspRecipientResolvedName">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">經手夥伴 (operator)</span>
+                                    <span class="text-light small" id="inspOperatorName">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">實體扣庫倉庫 (warehouse_id)</span>
+                                    <span class="text-light small" id="inspWarehouseId">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">業務類別 (order_category)</span>
+                                    <span class="badge badge-purple-subtle" id="inspOrderCategory">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary small">代領預扣鎖定 (is_pre_order_hold)</span>
+                                    <span id="inspPreOrderHoldBadge">-</span>
+                                </div>
+                            </article>
+
+                            <article class="card-custom p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">交付管道 (delivery_method)</span>
+                                    <span class="text-white small" id="inspDeliveryMethod">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">貨運追蹤碼 (tracking_no)</span>
+                                    <span class="text-info small" id="inspTrackingNo">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <span class="text-secondary small text-nowrap me-2">配送實體地址</span>
+                                    <span class="text-white small text-end text-break" id="inspShippingAddress">-</span>
+                                </div>
+                            </article>
+
+                            <div class="mb-3">
+                                <label class="text-secondary small fw-bold mb-1">
+                                    <i class="fa-solid fa-note-sticky text-warning"></i> 調度備註說明 (remarks)
+                                </label>
+                                <div class="p-2 rounded-3 text-secondary small bg-dark border border-secondary border-opacity-25" id="inspRemarks" style="min-height: 48px;">
+                                    暫無特定備註事項。
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-purple-primary admin-action-btn" id="btnMarkDelivered" onclick="quickMarkDelivered()">
-                                <i class="fa-solid fa-box-check"></i> 標記為已交付（執行扣庫）
-                            </button>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-purple-outline w-50" onclick="printDispatchNote()">
-                                    <i class="fa-solid fa-print"></i> 列印揀貨單
+                        <footer class="pt-3 border-top border-secondary border-opacity-25">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <div class="p-2 rounded-3 text-center" style="background: rgba(139, 92, 246, 0.12);">
+                                        <div class="text-secondary small">盒數 / 散支 / 總 SV</div>
+                                        <div class="fw-bold text-info" id="inspBoxesAndSv">0 盒 / 0 支 / 0 SV</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 rounded-3 text-center" style="background: rgba(52, 211, 153, 0.12);">
+                                        <div class="text-secondary small">實收總額 / 毛利價差</div>
+                                        <div class="fw-bold text-success" id="inspAmountAndProfit">$0 / +$0</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-purple text-white fw-bold admin-action-btn" id="btnMarkDelivered" onclick="quickMarkDelivered()">
+                                    <i class="fa-solid fa-stamp"></i> 標記為已交付（執行實體扣庫）
                                 </button>
-                                <button class="btn btn-purple-outline w-50 admin-action-btn" onclick="openEditActiveOrder()">
-                                    <i class="fa-solid fa-pen-to-square"></i> 編輯此單
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-info w-50" onclick="openDetailModalForActive()">
+                                        <i class="fa-solid fa-list-ul"></i> 檢視出庫明細
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-purple w-50 admin-action-btn" onclick="openEditOutboundModal(appState.selectedOutboundId)">
+                                        <i class="fa-solid fa-pen-to-square"></i> 編輯此單據
+                                    </button>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </aside>
+
+                <section class="col-12 col-xxl-8">
+                    <div class="card-custom p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#outboundChartContainer">
+                            <div class="fw-bold text-white small">
+                                <i class="fa-solid fa-chart-line text-primary"></i> 銷貨出庫月度財務走勢 (銷售實收 vs 毛利價差)
+                            </div>
+                            <div class="text-secondary small">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="outboundChartContainer">
+                            <div style="height: 180px; position: relative;">
+                                <canvas id="outboundChart"></canvas>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 右側 / 下層：出庫戰術履歷表與品項出庫速流雷達 (Chart.js + DataTables) -->
-            <div class="col-12 col-xxl-8">
-                
-                <!-- 頂部速流小雷達與品項比例圖 -->
-                <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-7">
-                        <div class="glass-panel p-3 d-flex flex-column justify-content-between" style="height: 190px;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="small text-secondary fw-bold">
-                                    <i class="fa-solid fa-chart-line text-info"></i> 近七日出庫盒數與時段流速
-                                </span>
-                                <span class="badge badge-purple font-mono" style="font-size: 0.7rem;">
-                                    即時出庫統計
-                                </span>
-                            </div>
-                            <div style="height: 130px;">
-                                <canvas id="chartOutboundVelocity"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-5">
-                        <div class="glass-panel p-3 d-flex flex-column justify-content-between" style="height: 190px;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="small text-secondary fw-bold">
-                                    <i class="fa-solid fa-chart-pie text-pink" style="color: #f472b6;"></i> 出庫型態分流比重 (outbound_type)
-                                </span>
-                                <span class="badge badge-pink font-mono" id="badgeTypeTop" style="font-size: 0.7rem;">
-                                    多元交付
-                                </span>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center" style="height: 130px;">
-                                <canvas id="chartTypeRatio"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 銷貨出庫主檔清單 (DataTable.js) -->
-                <div class="glass-panel p-4">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <h5 class="fw-bold mb-0 text-light">
-                                <i class="fa-solid fa-table-list text-primary"></i> 銷貨出庫主檔大盤
-                            </h5>
-                            <span class="badge badge-purple small">Google 試算表同步中</span>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-purple-outline" onclick="fetchGoogleSheetsData()">
-                                <i class="fa-solid fa-rotate text-info"></i> 重新載入
-                            </button>
-                            <button class="btn btn-sm btn-purple-outline" onclick="exportOutboundCSV()">
-                                <i class="fa-solid fa-file-csv text-success"></i> 匯出 CSV
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table id="tableOutboundOrders" class="table table-dark-custom align-middle w-100">
-                            <thead>
-                                <tr>
-                                    <th>單據編號 / 日期</th>
-                                    <th>出庫倉庫</th>
-                                    <th>出庫類型</th>
-                                    <th>收件人姓名</th>
-                                    <th>盒數 / SV / 幣別</th>
-                                    <th>實收 / 成本 / 利潤</th>
-                                    <th>代領預扣</th>
-                                    <th>履約狀態</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- 由 DataTables 動態渲染 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: 新增 / 編輯銷貨出庫單 (psi_outbound_orders 28 欄位嚴謹表單) -->
-    <div class="modal fade" id="outboundModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content glass-panel" style="background: #140b24; border: 1px solid var(--team-purple-glow);">
-                <div class="modal-header border-0 pb-0">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-dolly text-warning fa-lg"></i>
-                        <h5 class="modal-title fw-bold text-light" id="outboundModalTitle">開立銷貨出庫單</h5>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form id="outboundForm" onsubmit="event.preventDefault(); saveOutboundOrder();">
-                        <input type="hidden" id="formMode" value="add">
-                        <input type="hidden" id="fieldId" value="">
-
-                        <!-- 第一列：單號、日期、庫房、出庫型態 -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">出庫單號 (outbound_no) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control font-mono" id="fieldOutboundNo" required placeholder="如 OUT202609020001">
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">出貨日期 (outbound_date) <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control font-mono" id="fieldOutboundDate" required>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">來源倉庫代碼 (warehouse_id) <span class="text-danger">*</span></label>
-                                <select class="form-select font-mono" id="fieldWarehouseId" required>
-                                    <option value="WH-TW-TP">WH-TW-TP (台北總公司營運中心)</option>
-                                    <option value="WH-HOME-RAY">WH-HOME-RAY (Ray 居家戰備倉)</option>
-                                    <option value="WH-TW-TC">WH-TW-TC (台中中繼倉)</option>
-                                    <option value="WH-TW-KH">WH-TW-KH (高雄據點倉)</option>
-                                    <option value="WH-MY-KUL">WH-MY-KUL (吉隆坡海外跨境倉)</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">出庫業務類型 (outbound_type) <span class="text-danger">*</span></label>
-                                <select class="form-select" id="fieldOutboundType" required>
-                                    <option value="零售客">零售客</option>
-                                    <option value="夥伴調度">夥伴調度</option>
-                                    <option value="體驗試用">體驗試用</option>
-                                    <option value="自用">自用</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- 第二列：收件身分、關聯夥伴/客戶、收件人姓名、幣別 -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">收件人身分類型 (recipient_type)</label>
-                                <select class="form-select" id="fieldRecipientType">
-                                    <option value="消費者">消費者</option>
-                                    <option value="經營者">經營者</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">關聯客戶編號 (customer_id)</label>
-                                <input type="text" class="form-control font-mono" id="fieldCustomerId" placeholder="零售客選填 (如 CUST-001)">
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">關聯夥伴編號 (partner_id)</label>
-                                <input type="text" class="form-control font-mono" id="fieldPartnerId" placeholder="代領夥伴選填 (如 PART-008)">
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">收件人真實姓名 (recipient_name) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="fieldRecipientName" required placeholder="如：林書豪、陳美玲">
-                            </div>
-                        </div>
-
-                        <!-- 第三列：物流方式、單號、收件地址、代領預扣標記 -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">物流交付方式 (delivery_method)</label>
-                                <select class="form-select" id="fieldDeliveryMethod">
-                                    <option value="面交自取">面交自取</option>
-                                    <option value="宅急便">宅急便 (黑貓)</option>
-                                    <option value="郵局">郵局</option>
-                                    <option value="店到店">店到店 (7-11/全家)</option>
-                                    <option value="Grab">Grab (跨境/同城快送)</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">貨運託運單號 (tracking_no)</label>
-                                <input type="text" class="form-control font-mono" id="fieldTrackingNo" placeholder="如：9021884723">
-                            </div>
+                    <div class="glass-panel p-3 p-lg-4">
+                        <div class="row g-2 align-items-center mb-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary small fw-bold">配送地址 / 超商門市 (shipping_address)</label>
-                                <input type="text" class="form-control" id="fieldShippingAddress" placeholder="輸入完整實體派送住址或門市名稱">
-                            </div>
-                            <div class="col-12 col-md-2 d-flex flex-column justify-content-center">
-                                <label class="form-label text-secondary small fw-bold">代領預扣標記 (is_pre_order_hold)</label>
-                                <div class="form-check form-switch mt-1">
-                                    <input class="form-check-input" type="checkbox" id="fieldIsPreOrderHold" checked>
-                                    <label class="form-check-label text-warning small" for="fieldIsPreOrderHold">鎖定預扣 (Y)</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </span>
+                                    <input type="text" id="customTableSearch" class="form-control form-control-sm" placeholder="搜尋銷貨單號、收件人、倉庫或備註...">
                                 </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <select id="filterWarehouse" class="form-select form-select-sm">
+                                    <option value="">全部出貨倉庫 (All Warehouses)</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <select id="filterPerformanceMonth" class="form-select form-select-sm">
+                                    <option value="">全部業績月份 (All Months)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2 text-end">
+                                <span class="badge badge-purple-subtle" id="tableSummaryInfo">載入數據中...</span>
                             </div>
                         </div>
 
-                        <!-- 第四列：盒數、實收總額、成本總額、毛利潤、總 SV、交易幣別 -->
-                        <div class="p-3 rounded-4 mb-3" style="background: rgba(29, 16, 51, 0.5); border: 1px solid var(--team-purple-border);">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold">出貨總盒數 (total_boxes)</label>
-                                    <input type="number" class="form-control font-mono" id="fieldTotalBoxes" min="1" value="1" required>
+                        <div class="table-responsive">
+                            <table id="outboundDataTable" class="table table-dark-custom table-hover align-middle w-100">
+                                <thead>
+                                    <tr>
+                                        <th>銷貨單號 / 類別</th>
+                                        <th>調度中心 / 倉庫</th>
+                                        <th>開單夥伴 / 收件人 (權重解析)</th>
+                                        <th>訂單日 / 交付日</th>
+                                        <th>業績月</th>
+                                        <th>盒數 / 散支</th>
+                                        <th>銷售實收 / 成本 / 毛利</th>
+                                        <th>出庫 SV</th>
+                                        <th>預扣狀態</th>
+                                        <th>履約狀態</th>
+                                        <th class="text-end">戰術操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outboundTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </main>
+
+        <div class="modal fade" id="outboundModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                        <h5 class="modal-title fw-bold text-white" id="outboundModalTitle">
+                            <i class="fa-solid fa-file-circle-plus text-primary"></i> 開立銷貨出庫單據
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-4">
+                        <form id="outboundForm">
+                            <input type="hidden" id="formMode" value="add">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldId">銷貨單號主鍵 (id) *</label>
+                                    <input type="text" class="form-control" id="fieldId" required readonly>
                                 </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold">整單總 SV (total_sv)</label>
-                                    <input type="number" class="form-control font-mono" id="fieldTotalSv" min="0" value="2840" required>
-                                </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold">交易幣別 (currency_code)</label>
-                                    <select class="form-select font-mono" id="fieldCurrencyCode">
-                                        <option value="TWD">TWD (新台幣)</option>
-                                        <option value="MYR">MYR (馬來幣)</option>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldOrderCategory">銷貨訂購類別 (order_category) *</label>
+                                    <select class="form-select" id="fieldOrderCategory" required>
+                                        <option value="零售客銷售">零售客銷售</option>
+                                        <option value="下線夥伴調度">下線夥伴調度</option>
+                                        <option value="體驗試用贈送">體驗試用贈送</option>
+                                        <option value="自用消耗">自用消耗</option>
                                     </select>
                                 </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold">銷售實收 (total_sales_amount)</label>
-                                    <input type="number" step="0.01" class="form-control font-mono" id="fieldTotalSalesAmount" value="5680" oninput="calculateProfit()">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldOrderCenter">出貨調度中心 (order_center) *</label>
+                                    <select class="form-select" id="fieldOrderCenter" required></select>
                                 </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold">進貨成本 (total_cost_amount)</label>
-                                    <input type="number" step="0.01" class="form-control font-mono" id="fieldTotalCostAmount" value="4700" oninput="calculateProfit()">
-                                </div>
-                                <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold">毛利價差 (total_profit_amount)</label>
-                                    <input type="number" step="0.01" class="form-control font-mono text-success fw-bold" id="fieldTotalProfitAmount" value="980" readonly>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldPerformanceMonth">業績計入月份 (performance_month) *</label>
+                                    <input type="month" class="form-control" id="fieldPerformanceMonth" required>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- 第五列：履約狀態、收款狀態、付款方式、付款平台 -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">履約狀態 (fulfillment_status) <span class="text-danger">*</span></label>
-                                <select class="form-select" id="fieldFulfillmentStatus" required>
-                                    <option value="待取貨">待取貨</option>
-                                    <option value="已寄出">已寄出</option>
-                                    <option value="已交付">已交付</option>
-                                    <option value="已取消">已取消</option>
-                                </select>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldOrderDate">出單建立日期 (order_date) *</label>
+                                    <input type="date" class="form-control" id="fieldOrderDate" required>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldDeliveryMethod">出貨交付方式 (delivery_method) *</label>
+                                    <select class="form-select" id="fieldDeliveryMethod" required>
+                                        <option value="面交自取">面交自取</option>
+                                        <option value="宅配運送">宅配運送</option>
+                                        <option value="超商取貨">超商取貨</option>
+                                        <option value="Grab快遞">Grab快遞</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldWarehouseId">實體扣庫倉庫 (warehouse_id) *</label>
+                                    <select class="form-select" id="fieldWarehouseId" required></select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldOperatorPartnerId">經手開單夥伴 (operator_partner_id) *</label>
+                                    <select class="form-select" id="fieldOperatorPartnerId" required></select>
+                                </div>
                             </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">收款狀態 (payment_status) <span class="text-danger">*</span></label>
-                                <select class="form-select" id="fieldPaymentStatus" required>
-                                    <option value="未付款">未付款</option>
-                                    <option value="已收訖">已收訖</option>
-                                    <option value="部分訂金">部分訂金</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">付款方式 (payment_method)</label>
-                                <select class="form-select" id="fieldPaymentMethod">
-                                    <option value="現金">現金</option>
-                                    <option value="銀行轉帳">銀行轉帳</option>
-                                    <option value="電子支付">電子支付</option>
-                                    <option value="其他">其他</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label text-secondary small fw-bold">付款平台 (payment_platform)</label>
-                                <input type="text" class="form-control" id="fieldPaymentPlatform" value="國泰" placeholder="如：現金、國泰、LINE Pay">
-                            </div>
-                        </div>
 
-                        <!-- 第六列：備註說明 -->
-                        <div class="mb-3">
-                            <label class="form-label text-secondary small fw-bold">出貨備註說明 (remarks)</label>
-                            <textarea class="form-control" id="fieldRemarks" rows="2" placeholder="詳細出庫用途、代領人約定沖銷週期或特殊注意事項"></textarea>
-                        </div>
+                            <div class="card-custom p-3 mb-3">
+                                <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
+                                    <span class="badge badge-purple-subtle">
+                                        <i class="fa-solid fa-users"></i> 收件人身分客情關聯（展示名稱 &gt; 中文 &gt; 英文 &gt; 暱稱）
+                                    </span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldRecipientType">收件身分類型 *</label>
+                                        <select class="form-select" id="fieldRecipientType" onchange="toggleRecipientType()">
+                                            <option value="消費者">消費者 (終端顧客)</option>
+                                            <option value="經營者">經營者 (團隊夥伴)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-3" id="wrapperCustomerSelect">
+                                        <label class="form-label text-secondary small" for="fieldRecipientCustomerId">關聯客戶 (recipient_customer_id)</label>
+                                        <select class="form-select" id="fieldRecipientCustomerId" onchange="autoFillCustomerInfo()"></select>
+                                    </div>
+                                    <div class="col-12 col-md-3" id="wrapperPartnerSelect" style="display:none;">
+                                        <label class="form-label text-secondary small" for="fieldRecipientPartnerId">關聯夥伴 (recipient_partner_id)</label>
+                                        <select class="form-select" id="fieldRecipientPartnerId" onchange="autoFillPartnerInfo()"></select>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldRecipientName">收件人姓名 (recipient_name) *</label>
+                                        <input type="text" class="form-control" id="fieldRecipientName" required>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small" for="fieldRecipientPhone">收件人手機 (recipient_phone)</label>
+                                        <input type="tel" class="form-control" id="fieldRecipientPhone" placeholder="09xxxxxxxx">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label text-secondary small" for="fieldShippingAddress">配送實體地址 / 門市 (shipping_address)</label>
+                                        <input type="text" class="form-control" id="fieldShippingAddress" placeholder="輸入完整派送地址或超商門市資訊">
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="d-flex justify-content-end gap-2 pt-2 border-top" style="border-color: rgba(168,85,247,0.2) !important;">
-                            <button type="button" class="btn btn-purple-outline" data-bs-dismiss="modal">取消</button>
-                            <button type="submit" class="btn btn-purple-primary" id="btnSubmitOutbound">
-                                <i class="fa-solid fa-floppy-disk"></i> 儲存出庫紀錄
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small" for="fieldOutboundDate">實體交付出庫日 (outbound_date)</label>
+                                    <input type="date" class="form-control" id="fieldOutboundDate">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small" for="fieldShippingDate">物流交寄日期 (shipping_date)</label>
+                                    <input type="date" class="form-control" id="fieldShippingDate">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small" for="fieldTrackingNo">託運單號/配送碼 (tracking_no)</label>
+                                    <input type="text" class="form-control" id="fieldTrackingNo" placeholder="如黑貓或超商寄件碼">
+                                </div>
+                                <div class="col-12 col-md-3 d-flex flex-column justify-content-center">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldIsPreOrderHold">代領預扣鎖定 (is_pre_order_hold)</label>
+                                    <div class="form-check form-switch mt-1">
+                                        <input class="form-check-input" type="checkbox" id="fieldIsPreOrderHold">
+                                        <label class="form-check-label text-warning small" for="fieldIsPreOrderHold">鎖定暫存 (Y)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-custom p-3 mb-3">
+                                <div class="row g-3">
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldCurrencyCode">交易幣別 *</label>
+                                        <select class="form-select" id="fieldCurrencyCode" required>
+                                            <option value="TWD">TWD (新台幣)</option>
+                                            <option value="MYR">MYR (馬來幣)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldTotalBoxes">整盒盒數 *</label>
+                                        <input type="number" class="form-control" id="fieldTotalBoxes" min="0" value="1" required>
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldTotalPieces">散裝支數 *</label>
+                                        <input type="number" class="form-control" id="fieldTotalPieces" min="0" value="0" required>
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldTotalSv">出庫 SV (total_sv) *</label>
+                                        <input type="number" class="form-control text-warning fw-bold" id="fieldTotalSv" min="0" value="0" required>
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldProductAmount">商品實收小計 *</label>
+                                        <input type="number" step="0.01" class="form-control" id="fieldProductAmount" min="0" value="0" required onchange="calculateFinancials()">
+                                    </div>
+                                    <div class="col-6 col-md-2">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldShippingFee">向客收運費 *</label>
+                                        <input type="number" step="0.01" class="form-control" id="fieldShippingFee" min="0" value="0" required onchange="calculateFinancials()">
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldTotalSalesAmount">整單實收總額</label>
+                                        <input type="number" step="0.01" class="form-control text-success fw-bold" id="fieldTotalSalesAmount" readonly>
+                                    </div>
+                                    <div class="col-6 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldTotalCostAmount">進貨成本總額 *</label>
+                                        <input type="number" step="0.01" class="form-control" id="fieldTotalCostAmount" min="0" value="0" required onchange="calculateFinancials()">
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label text-secondary small fw-bold" for="fieldTotalProfitAmount">實質毛利價差</label>
+                                        <input type="number" step="0.01" class="form-control text-info fw-bold" id="fieldTotalProfitAmount" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldFulfillmentStatus">履約狀態 (fulfillment_status) *</label>
+                                    <select class="form-select" id="fieldFulfillmentStatus" required>
+                                        <option value="草稿">草稿 (DRAFT)</option>
+                                        <option value="待取貨">待取貨 (PENDING)</option>
+                                        <option value="已寄出">已寄出 (IN_TRANSIT)</option>
+                                        <option value="已交付">已交付 (DELIVERED)</option>
+                                        <option value="已取消">已取消 (CANCELLED)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldPaymentStatus">收款狀態 (payment_status) *</label>
+                                    <select class="form-select" id="fieldPaymentStatus" required>
+                                        <option value="未付款">未付款</option>
+                                        <option value="已收訖">已收訖</option>
+                                        <option value="部分訂金">部分訂金</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldPaymentMethod">付款方式 (payment_method) *</label>
+                                    <select class="form-select" id="fieldPaymentMethod" required>
+                                        <option value="現金">現金</option>
+                                        <option value="銀行轉帳">銀行轉帳</option>
+                                        <option value="電子支付">電子支付</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label text-secondary small fw-bold" for="fieldPaymentPlatform">收款金流帳戶 (payment_platform) *</label>
+                                    <select class="form-select" id="fieldPaymentPlatform" required>
+                                        <option value="現金">現金</option>
+                                        <option value="國泰">國泰</option>
+                                        <option value="合庫">合庫</option>
+                                        <option value="郵局">郵局</option>
+                                        <option value="LINE Pay">LINE Pay</option>
+                                        <option value="LINE Pay Money">LINE Pay Money</option>
+                                        <option value="Touch n Go">Touch n Go (MY)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small" for="fieldRemarks">出貨備註說明事項 (remarks)</label>
+                                <textarea class="form-control" id="fieldRemarks" rows="2" placeholder="記錄湊單細項、自用折抵事由、拆零優惠、代領還款協議..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 取消
+                        </button>
+                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold admin-action-btn" id="btnSaveOutbound" onclick="saveOutboundOrder()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存銷貨出庫單
+                        </button>
+                    </footer>
+                </section>
             </div>
         </div>
-    </div>
 
-    <!-- 核心依賴套件 Scripts -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+        <div class="modal fade" id="outboundDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                        <h5 class="modal-title fw-bold text-white">
+                            <i class="fa-solid fa-list-ol text-info"></i> 銷貨出庫商品品項與費用明細
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-4">
+                        <article class="card-custom p-3 mb-3">
+                            <div class="row g-2 small">
+                                <div class="col-md-3"><span class="text-secondary">銷貨單號：</span><span class="text-white fw-bold" id="detailModalOutboundId">-</span></div>
+                                <div class="col-md-3"><span class="text-secondary">收件對象：</span><span class="text-warning fw-bold" id="detailModalRecipient">-</span></div>
+                                <div class="col-md-3"><span class="text-secondary">經手開單：</span><span class="text-white" id="detailModalOperator">-</span></div>
+                                <div class="col-md-3"><span class="text-secondary">履約狀態：</span><span class="text-info fw-bold" id="detailModalStatus">-</span></div>
+                            </div>
+                        </article>
 
-    <!-- 系統全景 JavaScript (嚴格遵守欄位索引讀取與 C/R/U/D 機制) -->
-    <script>
-        // ==========================================================================
-        // 1. Google 雲端試算表設定與資料庫核心轉接器
-        // ==========================================================================
-        const SPREADSHEET_ID = "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw";
-        const SHEET_NAME_OUTBOUND = "psi_outbound_orders";
-
-        /**
-         * 試算表欄位索引安全取值工具函式
-         */
-        function getVal(row, colIndex, defaultVal = '') {
-            if (!row || !Array.isArray(row)) return defaultVal;
-            if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-                return String(row[colIndex]).trim();
-            }
-            return defaultVal;
-        }
-
-        /**
-         * 取得當前登入者名稱
-         */
-        function getCurrentUser() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return 'ADMIN';
-            try {
-                const session = JSON.parse(rawSession);
-                return session.userName || session.user || 'ADMIN';
-            } catch (e) {
-                return 'ADMIN';
-            }
-        }
-
-        /**
-         * 取得當前格式化時間字串 (YYYY-MM-DD HH:mm:ss)
-         */
-        function getFormattedNow() {
-            const d = new Date();
-            const pad = n => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-        }
-
-        /**
-         * 檢查當前登入者是否為最高管理者 (Ray 翁榮祥 / Jarvis 林承志)
-         */
-        function isMasterAdmin() {
-            const rawSession = localStorage.getItem('ray_team_auth_session');
-            if (!rawSession) return true; // 預設展示允許，若有登入則嚴格過濾
-            try {
-                const session = JSON.parse(rawSession);
-                const adminEmails = [
-                    "jarvis20250807@gmail.com",
-                    "fish7548@gmail.com"
-                ];
-                return adminEmails.includes((session.user || '').toLowerCase().trim());
-            } catch (e) {
-                return false;
-            }
-        }
-
-        /**
-         * UI 動態權限檢查
-         */
-        function applyUIPermissions() {
-            const hasAdminRights = isMasterAdmin();
-            if (!hasAdminRights) {
-                $('#btnOpenAddModal').hide();
-                $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-            }
-        }
-
-        /**
-         * 無伺服器 SheetAdapter 適配層（支援標準 GAS Web App 寫入）
-         */
-        const SheetAdapter = {
-            webAppUrl: '',
-            init: function(tokenOrUrl) {
-                if (tokenOrUrl.startsWith('http')) {
-                    this.webAppUrl = tokenOrUrl;
-                } else {
-                    this.webAppUrl = `https://script.google.com/macros/s/${tokenOrUrl}/exec`;
-                }
-            },
-            callApi: async function(action, sheetName, id, rowData) {
-                if (!this.webAppUrl) {
-                    console.warn("SheetAdapter 尚未配置正式 GAS URL，將於本機記憶體完成狀態同步。");
-                    return { success: true };
-                }
-                const payload = {
-                    action: action,
-                    sheet: sheetName,
-                    id: id,
-                    rowData: rowData,
-                    timestamp: Date.now()
-                };
-                const res = await fetch(this.webAppUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                return { success: true };
-            },
-            createRow: async function(sheet, id, rowData) { return this.callApi('create', sheet, id, rowData); },
-            updateRow: async function(sheet, id, rowData) { return this.callApi('update', sheet, id, rowData); },
-            deleteRow: async function(sheet, id) { return this.callApi('delete', sheet, id, []); }
-        };
-
-        // UI 彈出通知與等待提示輔助器
-        const AppToast = {
-            success: (msg) => alert(`【成功】${msg}`),
-            error: (msg) => alert(`【錯誤】${msg}`),
-            info: (msg) => console.log(`[INFO] ${msg}`),
-            warning: (msg) => alert(`【提醒】${msg}`)
-        };
-
-        const AppLoading = {
-            show: (title, text) => console.log(`Loading: ${title} - ${text}`),
-            hide: () => {}
-        };
-
-        // ==========================================================================
-        // 2. 系統狀態管理 (State Management)
-        // ==========================================================================
-        let appState = {
-            outbounds: [],
-            selectedOutboundId: '',
-            currentFilter: 'ALL'
-        };
-
-        let outboundDataTableInstance = null;
-        let chartVelocityInstance = null;
-        let chartTypeRatioInstance = null;
-        let isInitialized = false;
-
-        // ==========================================================================
-        // 3. 系統生命週期與事件初始化
-        // ==========================================================================
-        window.addEventListener('AppReady', async () => {
-            SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
-            await initApp();
-            applyUIPermissions();
-        });
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!isInitialized) {
-                SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
-                await initApp();
-                applyUIPermissions();
-            }
-        });
-
-        async function initApp() {
-            if (isInitialized) return;
-            isInitialized = true;
-
-            initCharts();
-            if (SPREADSHEET_ID) {
-                await fetchGoogleSheetsData();
-            } else {
-                renderMockFallbackData();
-            }
-        }
-
-        // ==========================================================================
-        // 4. 資料讀取引擎 (依據 28 個物理欄位順序索引精準解析)
-        // ==========================================================================
-        async function fetchGoogleSheetsData() {
-            AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步銷貨出庫...', '載入最新結構');
-            try {
-                const fetchSheet = async (sheetName) => {
-                    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-                    const res = await fetch(url, { cache: 'no-store' });
-                    if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
-                    const text = await res.text();
-
-                    const parsed = Papa.parse(text, {
-                        header: false,
-                        skipEmptyLines: true
-                    });
-
-                    return (parsed.data || []).slice(1);
-                };
-
-                const rawRows = await fetchSheet(SHEET_NAME_OUTBOUND);
-
-                if (!rawRows || rawRows.length === 0) {
-                    throw new Error(`試算表『${SHEET_NAME_OUTBOUND}』工作表中未讀取到任何有效數據。`);
-                }
-
-                appState.outbounds = parseOutboundOrdersTable(rawRows);
-
-                if (appState.outbounds.length > 0 && !appState.selectedOutboundId) {
-                    appState.selectedOutboundId = appState.outbounds[0].id;
-                }
-
-                refreshView();
-                AppToast.info(`已成功自 Google 試算表同步 ${appState.outbounds.length} 筆銷貨出庫紀錄`);
-            } catch (err) {
-                console.warn("Google Sheets 銷貨出庫資料讀取失敗，改採戰術離線資料渲染:", err);
-                renderMockFallbackData();
-            } finally {
-                AppLoading.hide();
-            }
-        }
-
-        /**
-         * 依據表 304 (psi_outbound_orders) 物理順序索引解析 (Index 0 ~ 27)
-         */
-        function parseOutboundOrdersTable(rows) {
-            return rows.map((r, idx) => {
-                const rowId = getVal(r, 0, String(idx + 1));
-                const salesAmt = parseFloat(getVal(r, 15, '0')) || 0;
-                const costAmt = parseFloat(getVal(r, 16, '0')) || 0;
-                const calcProfit = parseFloat(getVal(r, 17, String(salesAmt - costAmt))) || (salesAmt - costAmt);
-
-                return {
-                    id: rowId,                                                      // 0: id
-                    outbound_no: getVal(r, 1, `OUT20260902${String(idx + 1).padStart(4, '0')}`), // 1: outbound_no
-                    warehouse_id: getVal(r, 2, 'WH-TW-TP'),                         // 2: warehouse_id
-                    outbound_type: getVal(r, 3, '零售客'),                          // 3: outbound_type
-                    recipient_type: getVal(r, 4, '消費者'),                         // 4: recipient_type
-                    customer_id: getVal(r, 5, ''),                                  // 5: customer_id
-                    partner_id: getVal(r, 6, ''),                                   // 6: partner_id
-                    outbound_date: getVal(r, 7, new Date().toISOString().slice(0, 10)), // 7: outbound_date
-                    is_pre_order_hold: getVal(r, 8, 'N').toUpperCase(),             // 8: is_pre_order_hold
-                    delivery_method: getVal(r, 9, '面交自取'),                      // 9: delivery_method
-                    tracking_no: getVal(r, 10, ''),                                 // 10: tracking_no
-                    recipient_name: getVal(r, 11, '未指定收件人'),                  // 11: recipient_name
-                    shipping_address: getVal(r, 12, ''),                            // 12: shipping_address
-                    currency_code: getVal(r, 13, 'TWD'),                            // 13: currency_code
-                    total_boxes: parseInt(getVal(r, 14, '1'), 10) || 1,             // 14: total_boxes
-                    total_sales_amount: salesAmt,                                   // 15: total_sales_amount
-                    total_cost_amount: costAmt,                                     // 16: total_cost_amount
-                    total_profit_amount: calcProfit,                                // 17: total_profit_amount
-                    total_sv: parseInt(getVal(r, 18, '0'), 10) || 0,                // 18: total_sv
-                    fulfillment_status: getVal(r, 19, '待取貨'),                    // 19: fulfillment_status
-                    payment_status: getVal(r, 20, '未付款'),                        // 20: payment_status
-                    payment_method: getVal(r, 21, '現金'),                          // 21: payment_method
-                    payment_platform: getVal(r, 22, '現金'),                        // 22: payment_platform
-                    remarks: getVal(r, 23, ''),                                     // 23: remarks
-                    created_by: getVal(r, 24, 'SYSTEM'),                            // 24: created_by
-                    created_at: getVal(r, 25, getFormattedNow()),                   // 25: created_at
-                    modified_by: getVal(r, 26, 'SYSTEM'),                           // 26: modified_by
-                    modified_at: getVal(r, 27, getFormattedNow())                    // 27: modified_at
-                };
-            }).filter(item => item.outbound_no !== '');
-        }
-
-        /**
-         * 模擬備援資料（符合 28 欄位綱要）
-         */
-        function renderMockFallbackData() {
-            appState.outbounds = [
-                {
-                    id: "1", outbound_no: "OUT202609020001", warehouse_id: "WH-TW-TP", outbound_type: "零售客",
-                    recipient_type: "消費者", customer_id: "CUST-8812", partner_id: "", outbound_date: "2026-09-02",
-                    is_pre_order_hold: "N", delivery_method: "宅急便", tracking_no: "TC-99482012", recipient_name: "張雅婷（尊榮客戶）",
-                    shipping_address: "台北市中山區民權東路二段 45 號 6 樓", currency_code: "TWD", total_boxes: 3,
-                    total_sales_amount: 17040, total_cost_amount: 14100, total_profit_amount: 2940, total_sv: 8520,
-                    fulfillment_status: "已寄出", payment_status: "已收訖", payment_method: "電子支付", payment_platform: "LINE Pay",
-                    remarks: "指定上午時段配送，內含 995 兩盒、樟芝益一盒", created_by: "Ray", created_at: "2026-09-02 09:15:00", modified_by: "Ray", modified_at: "2026-09-02 09:15:00"
-                },
-                {
-                    id: "2", outbound_no: "OUT202609020002", warehouse_id: "WH-HOME-RAY", outbound_type: "夥伴調度",
-                    recipient_type: "經營者", customer_id: "", partner_id: "PART-007", outbound_date: "2026-09-02",
-                    is_pre_order_hold: "Y", delivery_method: "面交自取", tracking_no: "-", recipient_name: "林書豪（合格經理）",
-                    shipping_address: "面交點：Ray 居家戰備庫", currency_code: "TWD", total_boxes: 6,
-                    total_sales_amount: 32400, total_cost_amount: 28200, total_profit_amount: 4200, total_sv: 17040,
-                    fulfillment_status: "待取貨", payment_status: "部分訂金", payment_method: "銀行轉帳", payment_platform: "國泰",
-                    remarks: "代領預扣鎖定，約定下週團隊月結沖銷", created_by: "Jarvis", created_at: "2026-09-02 10:30:00", modified_by: "Jarvis", modified_at: "2026-09-02 10:30:00"
-                },
-                {
-                    id: "3", outbound_no: "OUT202609010003", warehouse_id: "WH-MY-KUL", outbound_type: "夥伴調度",
-                    recipient_type: "經營者", customer_id: "", partner_id: "PART-MY01", outbound_date: "2026-09-01",
-                    is_pre_order_hold: "N", delivery_method: "Grab", tracking_no: "GRAB-MY-552", recipient_name: "Tan Ah Kow（大馬據點）",
-                    shipping_address: "Sunway Velocity Residence, KL", currency_code: "MYR", total_boxes: 4,
-                    total_sales_amount: 3800, total_cost_amount: 3100, total_profit_amount: 700, total_sv: 11360,
-                    fulfillment_status: "已交付", payment_status: "已收訖", payment_method: "現金", payment_platform: "現金",
-                    remarks: "台馬跨境現貨借調已核銷", created_by: "Ray", created_at: "2026-09-01 14:20:00", modified_by: "Ray", modified_at: "2026-09-01 18:00:00"
-                }
-            ];
-            appState.selectedOutboundId = "1";
-            refreshView();
-        }
-
-        // ==========================================================================
-        // 5. 視圖渲染中樞 (HUD、驗證艙、圖表、DataTables)
-        // ==========================================================================
-        function refreshView() {
-            renderHudStats();
-            renderInspectorStage();
-            renderOutboundDataTable();
-            updateCharts();
-        }
-
-        function renderHudStats() {
-            const list = appState.outbounds;
-            $('#hudCountAll').text(list.length);
-            $('#hudCountPending').text(list.filter(d => d.fulfillment_status === '待取貨').length);
-            $('#hudCountShipped').text(list.filter(d => d.fulfillment_status === '已寄出').length);
-            $('#hudCountHold').text(list.filter(d => d.is_pre_order_hold === 'Y').length);
-            $('#hudCountDelivered').text(list.filter(d => d.fulfillment_status === '已交付').length);
-        }
-
-        function filterFulfillment(type, element) {
-            appState.currentFilter = type;
-            $('.hud-filter-pill').removeClass('active');
-            $(element).addClass('active');
-
-            if (!outboundDataTableInstance) return;
-
-            if (type === 'ALL') {
-                outboundDataTableInstance.column(7).search('').column(6).search('').draw();
-            } else if (type === 'HOLD') {
-                outboundDataTableInstance.column(7).search('').column(6).search('預扣鎖定').draw();
-            } else {
-                outboundDataTableInstance.column(6).search('').column(7).search(type).draw();
-            }
-        }
-
-        function renderInspectorStage() {
-            const item = appState.outbounds.find(d => d.id === appState.selectedOutboundId);
-            if (!item) {
-                $('#inspOutboundNo').text('-');
-                $('#inspRecipientName').text('尚未選取單據');
-                $('#inspWarehouseId').text('-');
-                $('#inspOutboundType').text('-');
-                $('#inspPreOrderHoldBadge').html('-');
-                $('#inspDeliveryMethod').text('-');
-                $('#inspTrackingNo').text('-');
-                $('#inspShippingAddress').text('-');
-                $('#inspRemarks').text('暫無備註資訊。');
-                $('#inspBoxesAndSv').text('0 盒 / 0 SV');
-                $('#inspAmountAndProfit').text('$0 / +$0');
-                $('#inspectorFulfillBadge').attr('class', 'badge badge-purple').text('無選取');
-                return;
-            }
-
-            $('#inspOutboundNo').text(item.outbound_no);
-            $('#inspRecipientName').text(`${item.recipient_name} (${item.recipient_type})`);
-            $('#inspWarehouseId').text(item.warehouse_id);
-            $('#inspOutboundType').text(item.outbound_type);
-
-            // 代領預扣鎖定顯示
-            if (item.is_pre_order_hold === 'Y') {
-                $('#inspPreOrderHoldBadge').html('<span class="badge badge-amber"><i class="fa-solid fa-lock"></i> 預扣鎖定 (Y)</span>');
-            } else {
-                $('#inspPreOrderHoldBadge').html('<span class="badge badge-green"><i class="fa-solid fa-lock-open"></i> 正常無鎖定 (N)</span>');
-            }
-
-            $('#inspDeliveryMethod').text(item.delivery_method);
-            $('#inspTrackingNo').text(item.tracking_no || '(無單號)');
-            $('#inspShippingAddress').text(item.shipping_address || '(無配送地址/自取)');
-            $('#inspRemarks').text(item.remarks || '無特定調度說明。');
-
-            // 統計
-            $('#inspBoxesAndSv').text(`${item.total_boxes} 盒 / ${Number(item.total_sv).toLocaleString()} SV`);
-            const sign = item.total_profit_amount >= 0 ? '+' : '';
-            $('#inspAmountAndProfit').text(`${item.currency_code} $${Number(item.total_sales_amount).toLocaleString()} / ${sign}$${Number(item.total_profit_amount).toLocaleString()}`);
-
-            // 履約狀態 Badge
-            let bClass = 'badge-purple';
-            if (item.fulfillment_status === '已交付') bClass = 'badge-green';
-            else if (item.fulfillment_status === '已寄出') bClass = 'badge-cyan';
-            else if (item.fulfillment_status === '待取貨') bClass = 'badge-amber';
-            $('#inspectorFulfillBadge').attr('class', `badge ${bClass}`).html(`<i class="fa-solid fa-truck"></i> ${item.fulfillment_status}`);
-        }
-
-        function selectOutbound(id) {
-            appState.selectedOutboundId = id;
-            renderInspectorStage();
-        }
-
-        function renderOutboundDataTable() {
-            const formatted = appState.outbounds.map(d => {
-                const isSelected = d.id === appState.selectedOutboundId;
-                let fulfillClass = 'badge-purple';
-                if (d.fulfillment_status === '已交付') fulfillClass = 'badge-green';
-                else if (d.fulfillment_status === '已寄出') fulfillClass = 'badge-cyan';
-                else if (d.fulfillment_status === '待取貨') fulfillClass = 'badge-amber';
-
-                const holdBadge = d.is_pre_order_hold === 'Y' 
-                    ? '<span class="badge badge-amber"><i class="fa-solid fa-lock"></i> 預扣鎖定</span>' 
-                    : '<span class="text-secondary small">正常</span>';
-
-                const profitSign = d.total_profit_amount >= 0 ? '+' : '';
-
-                return {
-                    id: d.id,
-                    order_info: `<div class="fw-bold font-mono text-light">${d.outbound_no}</div><div class="text-secondary small">${d.outbound_date}</div>`,
-                    warehouse: `<span class="badge badge-purple font-mono">${d.warehouse_id}</span>`,
-                    type: `<span class="badge badge-cyan">${d.outbound_type}</span>`,
-                    recipient: `<div class="fw-semibold text-light">${d.recipient_name}</div><div class="text-secondary small font-mono">${d.partner_id || d.customer_id || '-'}</div>`,
-                    boxes_sv: `<div class="font-mono text-light">${d.total_boxes} 盒 <span class="badge badge-purple ms-1">${d.currency_code}</span></div><div class="text-info small font-mono">+${Number(d.total_sv).toLocaleString()} SV</div>`,
-                    finance: `<div class="font-mono small text-light">$${Number(d.total_sales_amount).toLocaleString()}</div><div class="font-mono text-success small" style="font-size:0.75rem;">${profitSign}$${Number(d.total_profit_amount).toLocaleString()}</div>`,
-                    hold: holdBadge,
-                    status: `<span class="badge ${fulfillClass}">${d.fulfillment_status}</span>`,
-                    actions: `
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-purple-outline py-1 px-2" title="置入檢驗艙" onclick="selectOutbound('${d.id}')">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-purple-outline py-1 px-2 admin-action-btn" title="編輯單據" onclick="openEditOutboundModal('${d.id}')">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button class="btn btn-sm btn-purple-outline py-1 px-2 text-danger admin-action-btn" title="刪除單據" onclick="deleteOutboundOrder('${d.id}')">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                        <div class="table-responsive">
+                            <table class="table table-dark-custom table-sm align-middle sub-table">
+                                <thead>
+                                    <tr>
+                                        <th>項次</th>
+                                        <th>官方編號 / 出貨名稱快照</th>
+                                        <th>性質 / 單位</th>
+                                        <th>銷售單價</th>
+                                        <th>成本單價</th>
+                                        <th>單件 SV</th>
+                                        <th>訂購 / 實發數</th>
+                                        <th>金額小計</th>
+                                        <th>成本小計</th>
+                                        <th>毛利小計</th>
+                                        <th>SV 小計</th>
+                                        <th>批號 / 效期</th>
+                                        <th>扣庫單號 (stock_id)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outboundItemsTableBody"></tbody>
+                            </table>
                         </div>
-                    `
-                };
-            });
+                    </div>
+                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 關閉
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </div>
 
-            if (outboundDataTableInstance) {
-                outboundDataTableInstance.clear();
-                outboundDataTableInstance.rows.add(formatted);
-                outboundDataTableInstance.draw();
-            } else {
-                outboundDataTableInstance = $('#tableOutboundOrders').DataTable({
-                    data: formatted,
-                    responsive: true,
-                    pageLength: 8,
-                    columns: [
-                        { data: 'order_info' },
-                        { data: 'warehouse' },
-                        { data: 'type' },
-                        { data: 'recipient' },
-                        { data: 'boxes_sv' },
-                        { data: 'finance' },
-                        { data: 'hold' },
-                        { data: 'status' },
-                        { data: 'actions', orderable: false }
-                    ],
-                    language: {
-                        search: "_INPUT_",
-                        searchPlaceholder: "搜尋出庫單號、收件人、倉庫...",
-                        lengthMenu: "每頁 _MENU_ 筆",
-                        info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆",
-                        paginate: {
-                            first: '<i class="fa-solid fa-angles-left"></i>',
-                            last: '<i class="fa-solid fa-angles-right"></i>',
-                            next: '<i class="fa-solid fa-angle-right"></i>',
-                            previous: '<i class="fa-solid fa-angle-left"></i>'
-                        },
-                        zeroRecords: "未找到符合的出庫紀錄"
-                    },
-                    order: [[0, 'desc']]
-                });
-            }
-        }
-
-        // ==========================================================================
-        // 6. 視覺圖表 (Chart.js 4.4.3)
-        // ==========================================================================
-        function initCharts() {
-            // 出庫流速折線圖
-            const ctxVelocity = document.getElementById('chartOutboundVelocity').getContext('2d');
-            const grad = ctxVelocity.createLinearGradient(0, 0, 0, 130);
-            grad.addColorStop(0, 'rgba(139, 92, 246, 0.45)');
-            grad.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
-
-            chartVelocityInstance = new Chart(ctxVelocity, {
-                type: 'line',
-                data: {
-                    labels: ['8/27', '8/28', '8/29', '8/30', '8/31', '9/01', '9/02'],
-                    datasets: [{
-                        label: '出庫盒數',
-                        data: [12, 19, 8, 24, 15, 28, 22],
-                        borderColor: '#a855f7',
-                        borderWidth: 2,
-                        fill: true,
-                        backgroundColor: grad,
-                        tension: 0.35,
-                        pointBackgroundColor: '#c084fc',
-                        pointRadius: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                        y: { grid: { color: 'rgba(168,85,247,0.1)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
-                    }
-                }
-            });
-
-            // 出庫型態比例圖
-            const ctxRatio = document.getElementById('chartTypeRatio').getContext('2d');
-            chartTypeRatioInstance = new Chart(ctxRatio, {
-                type: 'doughnut',
-                data: {
-                    labels: ['零售客', '夥伴調度', '體驗試用', '自用'],
-                    datasets: [{
-                        data: [5, 3, 1, 1],
-                        backgroundColor: ['#38bdf8', '#8b5cf6', '#f472b6', '#34d399'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '72%',
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function updateCharts() {
-            if (!chartTypeRatioInstance) return;
-            const types = ['零售客', '夥伴調度', '體驗試用', '自用'];
-            const counts = types.map(t => appState.outbounds.filter(d => d.outbound_type === t).length);
-            chartTypeRatioInstance.data.datasets[0].data = counts;
-            chartTypeRatioInstance.update();
-        }
-
-        // ==========================================================================
-        // 7. 表單操作與 CRUD (依照 28 個實體欄位順序完全映射寫入)
-        // ==========================================================================
-        function calculateProfit() {
-            const sales = parseFloat($('#fieldTotalSalesAmount').val()) || 0;
-            const cost = parseFloat($('#fieldTotalCostAmount').val()) || 0;
-            const profit = sales - cost;
-            $('#fieldTotalProfitAmount').val(profit.toFixed(2));
-        }
-
-        function openCreateOutboundModal() {
-            $('#outboundModalTitle').html('<i class="fa-solid fa-plus text-primary"></i> 開立銷貨出庫單');
-            $('#formMode').val('add');
-            $('#outboundForm')[0].reset();
-
-            const nextId = String(Date.now());
-            const todayStr = new Date().toISOString().slice(0, 10);
-            const autoNo = "OUT" + todayStr.replace(/-/g, '') + String(appState.outbounds.length + 1).padStart(4, '0');
-
-            $('#fieldId').val(nextId);
-            $('#fieldOutboundNo').val(autoNo);
-            $('#fieldOutboundDate').val(todayStr);
-            $('#fieldWarehouseId').val('WH-TW-TP');
-            $('#fieldOutboundType').val('零售客');
-            $('#fieldRecipientType').val('消費者');
-            $('#fieldIsPreOrderHold').prop('checked', false);
-            $('#fieldDeliveryMethod').val('宅急便');
-            $('#fieldCurrencyCode').val('TWD');
-            $('#fieldTotalBoxes').val(1);
-            $('#fieldTotalSv').val(2840);
-            $('#fieldTotalSalesAmount').val(5680);
-            $('#fieldTotalCostAmount').val(4700);
-            $('#fieldTotalProfitAmount').val(980);
-            $('#fieldFulfillmentStatus').val('待取貨');
-            $('#fieldPaymentStatus').val('未付款');
-            $('#fieldPaymentMethod').val('現金');
-            $('#fieldPaymentPlatform').val('現金');
-
-            new bootstrap.Modal(document.getElementById('outboundModal')).show();
-        }
-
-        function openEditActiveOrder() {
-            if (!appState.selectedOutboundId) {
-                AppToast.warning("請先選取欲編輯的出庫單！");
-                return;
-            }
-            openEditOutboundModal(appState.selectedOutboundId);
-        }
-
-        function openEditOutboundModal(id) {
-            const d = appState.outbounds.find(item => item.id === id);
-            if (!d) return;
-
-            $('#outboundModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯銷貨出庫單');
-            $('#formMode').val('edit');
-            $('#fieldId').val(d.id);
-            $('#fieldOutboundNo').val(d.outbound_no);
-            $('#fieldOutboundDate').val(d.outbound_date);
-            $('#fieldWarehouseId').val(d.warehouse_id);
-            $('#fieldOutboundType').val(d.outbound_type);
-            $('#fieldRecipientType').val(d.recipient_type);
-            $('#fieldCustomerId').val(d.customer_id);
-            $('#fieldPartnerId').val(d.partner_id);
-            $('#fieldRecipientName').val(d.recipient_name);
-            $('#fieldDeliveryMethod').val(d.delivery_method);
-            $('#fieldTrackingNo').val(d.tracking_no);
-            $('#fieldShippingAddress').val(d.shipping_address);
-            $('#fieldIsPreOrderHold').prop('checked', d.is_pre_order_hold === 'Y');
-            $('#fieldCurrencyCode').val(d.currency_code);
-            $('#fieldTotalBoxes').val(d.total_boxes);
-            $('#fieldTotalSv').val(d.total_sv);
-            $('#fieldTotalSalesAmount').val(d.total_sales_amount);
-            $('#fieldTotalCostAmount').val(d.total_cost_amount);
-            $('#fieldTotalProfitAmount').val(d.total_profit_amount);
-            $('#fieldFulfillmentStatus').val(d.fulfillment_status);
-            $('#fieldPaymentStatus').val(d.payment_status);
-            $('#fieldPaymentMethod').val(d.payment_method);
-            $('#fieldPaymentPlatform').val(d.payment_platform);
-            $('#fieldRemarks').val(d.remarks);
-
-            new bootstrap.Modal(document.getElementById('outboundModal')).show();
-        }
-
-        async function saveOutboundOrder() {
-            const mode = $('#formMode').val();
-            const id = $('#fieldId').val();
-            const outboundNo = $('#fieldOutboundNo').val().trim();
-            if (!outboundNo) {
-                AppToast.warning("請填寫出庫單號 (outbound_no)！");
-                return;
-            }
-
-            const currentUser = getCurrentUser();
-            const nowStr = getFormattedNow();
-            const existing = appState.outbounds.find(d => d.id === id);
-            const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
-            const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
-
-            const sales = parseFloat($('#fieldTotalSalesAmount').val()) || 0;
-            const cost = parseFloat($('#fieldTotalCostAmount').val()) || 0;
-            const profit = parseFloat($('#fieldTotalProfitAmount').val()) || (sales - cost);
-
-            // 依照表 304 實體欄位順序精準封裝陣列 (Index 0 ~ 27)
-            const rowDataArray = [
-                id,                                                     // 0: id
-                outboundNo,                                             // 1: outbound_no
-                $('#fieldWarehouseId').val(),                           // 2: warehouse_id
-                $('#fieldOutboundType').val(),                          // 3: outbound_type
-                $('#fieldRecipientType').val(),                         // 4: recipient_type
-                $('#fieldCustomerId').val().trim(),                     // 5: customer_id
-                $('#fieldPartnerId').val().trim(),                      // 6: partner_id
-                $('#fieldOutboundDate').val(),                          // 7: outbound_date
-                $('#fieldIsPreOrderHold').is(':checked') ? 'Y' : 'N',   // 8: is_pre_order_hold
-                $('#fieldDeliveryMethod').val(),                        // 9: delivery_method
-                $('#fieldTrackingNo').val().trim(),                     // 10: tracking_no
-                $('#fieldRecipientName').val().trim(),                  // 11: recipient_name
-                $('#fieldShippingAddress').val().trim(),                // 12: shipping_address
-                $('#fieldCurrencyCode').val(),                          // 13: currency_code
-                parseInt($('#fieldTotalBoxes').val(), 10) || 1,         // 14: total_boxes
-                sales,                                                  // 15: total_sales_amount
-                cost,                                                   // 16: total_cost_amount
-                profit,                                                 // 17: total_profit_amount
-                parseInt($('#fieldTotalSv').val(), 10) || 0,            // 18: total_sv
-                $('#fieldFulfillmentStatus').val(),                     // 19: fulfillment_status
-                $('#fieldPaymentStatus').val(),                         // 20: payment_status
-                $('#fieldPaymentMethod').val(),                         // 21: payment_method
-                $('#fieldPaymentPlatform').val().trim(),                // 22: payment_platform
-                $('#fieldRemarks').val().trim(),                        // 23: remarks
-                createdBy,                                              // 24: created_by
-                createdAt,                                              // 25: created_at
-                currentUser,                                            // 26: modified_by
-                nowStr                                                  // 27: modified_at
-            ];
-
-            const updatedObj = {
-                id: id,
-                outbound_no: outboundNo,
-                warehouse_id: $('#fieldWarehouseId').val(),
-                outbound_type: $('#fieldOutboundType').val(),
-                recipient_type: $('#fieldRecipientType').val(),
-                customer_id: $('#fieldCustomerId').val().trim(),
-                partner_id: $('#fieldPartnerId').val().trim(),
-                outbound_date: $('#fieldOutboundDate').val(),
-                is_pre_order_hold: $('#fieldIsPreOrderHold').is(':checked') ? 'Y' : 'N',
-                delivery_method: $('#fieldDeliveryMethod').val(),
-                tracking_no: $('#fieldTrackingNo').val().trim(),
-                recipient_name: $('#fieldRecipientName').val().trim(),
-                shipping_address: $('#fieldShippingAddress').val().trim(),
-                currency_code: $('#fieldCurrencyCode').val(),
-                total_boxes: parseInt($('#fieldTotalBoxes').val(), 10) || 1,
-                total_sales_amount: sales,
-                total_cost_amount: cost,
-                total_profit_amount: profit,
-                total_sv: parseInt($('#fieldTotalSv').val(), 10) || 0,
-                fulfillment_status: $('#fieldFulfillmentStatus').val(),
-                payment_status: $('#fieldPaymentStatus').val(),
-                payment_method: $('#fieldPaymentMethod').val(),
-                payment_platform: $('#fieldPaymentPlatform').val().trim(),
-                remarks: $('#fieldRemarks').val().trim(),
-                created_by: createdBy,
-                created_at: createdAt,
-                modified_by: currentUser,
-                modified_at: nowStr
-            };
-
-            const $btn = $('#btnSubmitOutbound');
-            try {
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入雲端中...');
-
-                if (mode === 'add') {
-                    await SheetAdapter.createRow(SHEET_NAME_OUTBOUND, id, rowDataArray);
-                    appState.outbounds.unshift(updatedObj);
-                } else {
-                    await SheetAdapter.updateRow(SHEET_NAME_OUTBOUND, id, rowDataArray);
-                    const idx = appState.outbounds.findIndex(d => d.id === id);
-                    if (idx !== -1) appState.outbounds[idx] = updatedObj;
-                }
-
-                appState.selectedOutboundId = id;
-                refreshView();
-
-                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('outboundModal'));
-                if (modalInstance) modalInstance.hide();
-
-                AppToast.success(`銷貨出庫單 [${outboundNo}] 已成功同步至雲端資料庫！`);
-            } catch (err) {
-                AppToast.error("出庫單寫入失敗：" + err.message);
-            } finally {
-                $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存出庫紀錄');
-            }
-        }
-
-        async function quickMarkDelivered() {
-            const item = appState.outbounds.find(d => d.id === appState.selectedOutboundId);
-            if (!item) return;
-
-            if (item.fulfillment_status === '已交付') {
-                AppToast.warning("該單據早已為「已交付」狀態，無須重複扣庫！");
-                return;
-            }
-
-            if (!confirm(`確認將出庫單 [${item.outbound_no}] 標記為「已交付」並正式解除庫存保留？`)) return;
-
-            item.fulfillment_status = '已交付';
-            item.is_pre_order_hold = 'N'; // 解除鎖定
-            item.modified_by = getCurrentUser();
-            item.modified_at = getFormattedNow();
-
-            const rowDataArray = [
-                item.id, item.outbound_no, item.warehouse_id, item.outbound_type, item.recipient_type,
-                item.customer_id, item.partner_id, item.outbound_date, item.is_pre_order_hold,
-                item.delivery_method, item.tracking_no, item.recipient_name, item.shipping_address,
-                item.currency_code, item.total_boxes, item.total_sales_amount, item.total_cost_amount,
-                item.total_profit_amount, item.total_sv, item.fulfillment_status, item.payment_status,
-                item.payment_method, item.payment_platform, item.remarks, item.created_by, item.created_at,
-                item.modified_by, item.modified_at
-            ];
-
-            try {
-                await SheetAdapter.updateRow(SHEET_NAME_OUTBOUND, item.id, rowDataArray);
-                refreshView();
-                AppToast.success(`出庫單 [${item.outbound_no}] 已交付並成功完成扣庫！`);
-            } catch (e) {
-                AppToast.error("狀態變更失敗：" + e.message);
-            }
-        }
-
-        async function deleteOutboundOrder(id) {
-            const item = appState.outbounds.find(d => d.id === id);
-            const no = item ? item.outbound_no : id;
-
-            if (!confirm(`確定要自 Google 試算表中永久撤銷出庫單 [${no}] 嗎？此動作將釋放實體配額！`)) return;
-
-            try {
-                await SheetAdapter.deleteRow(SHEET_NAME_OUTBOUND, id);
-                appState.outbounds = appState.outbounds.filter(d => d.id !== id);
-                if (appState.selectedOutboundId === id) {
-                    appState.selectedOutboundId = appState.outbounds.length > 0 ? appState.outbounds[0].id : '';
-                }
-                refreshView();
-                AppToast.success(`出庫單 [${no}] 已成功廢止與刪除！`);
-            } catch (err) {
-                AppToast.error("刪除失敗：" + err.message);
-            }
-        }
-
-        function printDispatchNote() {
-            const item = appState.outbounds.find(d => d.id === appState.selectedOutboundId);
-            if (!item) return;
-            alert(`【榮祥團隊揀貨憑單】\n單號：${item.outbound_no}\n來源倉：${item.warehouse_id}\n收件人：${item.recipient_name}\n盒數：${item.total_boxes} 盒 (共 ${item.total_sv} SV)\n正在傳送指令至熱感式標籤印表機...`);
-        }
-
-        function exportOutboundCSV() {
-            const csv = Papa.unparse(appState.outbounds);
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `psi_outbound_orders_${new Date().toISOString().slice(0, 10)}.csv`;
-            a.click();
-            AppToast.info('已成功匯出銷貨出庫 CSV 主檔');
-        }
-    </script>
-</body>
+        <div class="modal fade" id="configModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                        <h5 class="modal-title fw-bold text-white">
+                            <i class="fa-solid fa-sliders text-secondary"></i> 4 大雲端試算表來源 ID 設定
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-4">
+                        <form id="configForm">
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetPsi">試算表 1：據點倉儲、銷貨主檔、銷貨明細 (PSI)</label>
+                                <input type="text" class="form-control" id="cfgSheetPsi">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetOrg">試算表 2：個人主檔、夥伴主檔 (ORG)</label>
+                                <input type="text" class="form-control" id="cfgSheetOrg">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetPrd">試算表 3：產品主檔、產品組合 (PRD)</label>
+                                <input type="text" class="form-control" id="cfgSheetPrd">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgSheetCrm">試算表 4：客戶主檔 (CRM)</label>
+                                <input type="text" class="form-control" id="cfgSheetCrm">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold" for="cfgGasDeploymentId">Google Apps Script (GAS) 部署 ID</label>
+                                <input type="text" class="form-control" id="cfgGasDeploymentId">
+                            </div>
+                        </form>
+                    </div>
+                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> 關閉
+                        </button>
+                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold" onclick="saveSpreadsheetConfig()">
+                            <i class="fa-solid fa-check"></i> 儲存設定
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </div>
+    </body>
 </html>
