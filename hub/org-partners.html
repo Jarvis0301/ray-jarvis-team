@@ -632,8 +632,11 @@
 
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">個人識別碼 (person_id) <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control form-control-sm font-monospace" id="form-person-id" required placeholder="如：PSN-00001">
+                                            <label class="form-label d-flex justify-content-between align-items-center">
+                                                <span>個人識別碼 (person_id)</span>
+                                                <span class="badge bg-secondary-subtle text-secondary small"><i class="fa-solid fa-lock"></i> 系統指派</span>
+                                            </label>
+                                            <input type="text" class="form-control form-control-sm font-monospace" id="form-person-id" readonly placeholder="系統自動生成">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">中文姓名 <span class="text-danger">*</span></label>
@@ -797,10 +800,13 @@
                                     <!-- 區塊 1：基礎識別與所屬市場 -->
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">夥伴識別碼 (partner_id) <span class="text-danger">*</span></label>
+                                            <label class="form-label d-flex justify-content-between align-items-center">
+                                                <span>夥伴識別碼 (partner_id)</span>
+                                                <span class="badge bg-secondary-subtle text-secondary small"><i class="fa-solid fa-lock"></i> 系統指派</span>
+                                            </label>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-black bg-opacity-40 text-secondary border-secondary border-opacity-25"><i class="fa-solid fa-id-badge"></i></span>
-                                                <input type="text" class="form-control form-control-sm font-monospace" id="form-partner-id" required placeholder="如：PTN-0001">
+                                                <input type="text" class="form-control form-control-sm font-monospace" id="form-partner-id" readonly placeholder="系統自動生成">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">

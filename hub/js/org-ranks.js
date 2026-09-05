@@ -73,6 +73,48 @@ function generateNextHistoryId(partnerId) {
     return `RANK-HIS-${targetPid}-${String(maxSeq + 1).padStart(3, '0')}`;
 }
 
+function getEffectiveHistoryPartner(partnerId) {
+    if (!partnerId) return null;
+    const partner = appState.partners.find(p => p.partner_id === partnerId);
+    if (!partner) return null;
+
+    // 判斷是否為共同經營者且設有主帳號夥伴
+    const isCoOp = (partner.account_holder_type === '共同經營者' || partner.operation_mode === '共同經營');
+    const primaryId = partner.official_account_partner_id || partner.spouse_partner_id;
+
+    if (isCoOp && primaryId && primaryId !== partner.partner_id) {
+        const primaryPartner = appState.partners.find(p => p.partner_id === primaryId);
+        return {
+            isDelegated: true,
+            targetPartnerId: primaryId,
+            primaryPartner: primaryPartner || null,
+            originalPartner: partner
+        };
+    }
+
+    return {
+        isDelegated: false,
+        targetPartnerId: partnerId,
+        primaryPartner: partner,
+        originalPartner: partner
+    };
+}
+
+function getEffectiveRankHistory(partnerId) {
+    const delegation = getEffectiveHistoryPartner(partnerId);
+    if (!delegation) return [];
+
+    // 優先查詢主要經營者之歷史晉升歷程
+    let history = appState.history.filter(h => h.partner_id === delegation.targetPartnerId);
+    
+    // 若主要經營者歷程為空，但共同經營者有獨立歷史記錄時的容錯防禦
+    if (history.length === 0 && delegation.isDelegated) {
+        history = appState.history.filter(h => h.partner_id === partnerId);
+    }
+
+    return history.sort((a, b) => (a.effective_month > b.effective_month ? 1 : -1));
+}
+
 // ==========================================================================
 // 系統狀態管理 (State Management)
 // ==========================================================================
@@ -257,9 +299,15 @@ function parsePartnersTable(rows) {
         person_id: getVal(r, 1, ''),
         member_no: getVal(r, 2, ''),
         leader_title: getVal(r, 3, ''),
+        account_holder_type: getVal(r, 4, '個人經營者'),
+        official_account_partner_id: getVal(r, 5, ''),
+        operation_mode: getVal(r, 6, '個人經營'),
+        spouse_partner_id: getVal(r, 7, ''),
+        current_rank_id: getVal(r, 13, ''),
+        highest_rank_id: getVal(r, 14, ''),
         diamond_star_level: parseInt(getVal(r, 15, '0'), 10) || 0,
         star_eval_eligible_date: getVal(r, 16, ''),
-        join_date: formatDateToSlash(getVal(r, 29, '')) // 對齊最新索引 29
+        join_date: formatDateToSlash(getVal(r, 29, ''))
     })).filter(p => p.partner_id !== '');
 }
 
@@ -447,12 +495,11 @@ function populatePartnerDropdown() {
 function onPartnerSelected(partnerId) {
     if (!partnerId) return;
 
-    const ptnHistory = appState.history
-        .filter(h => h.partner_id === partnerId)
-        .sort((a, b) => (a.effective_month > b.effective_month ? 1 : -1));
+    const delegation = getEffectiveHistoryPartner(partnerId);
+    const ptnHistory = getEffectiveRankHistory(partnerId);
 
-    renderPartnerRankChart(ptnHistory);
-    renderPartnerSingleTable(ptnHistory);
+    renderPartnerRankChart(ptnHistory, delegation);
+    renderPartnerSingleTable(ptnHistory, delegation);
 }
 
 // 年月字串（YYYYMM、YYYY-MM、YYYY/MM 或 YYYY）轉為標準 Timestamp 數值
@@ -470,7 +517,7 @@ function parseYmToTimestamp(ymStr) {
     return new Date(year, month - 1, 1).getTime();
 }
 
-function renderPartnerRankChart(ptnHistory) {
+function renderPartnerRankChart(ptnHistory, delegation = null) {
     const ctx = document.getElementById('partnerRankChart');
     if (!ctx) return;
 
@@ -488,8 +535,12 @@ function renderPartnerRankChart(ptnHistory) {
 
     const chartNodes = [];
 
+    // 若共同經營者自身無加入日期，嘗試取用主要經營者之加入日期
+    let rawJoinDate = partnerInfo && partnerInfo.join_date ? String(partnerInfo.join_date).trim() : '';
+    if ((!rawJoinDate || rawJoinDate === '-') && delegation && delegation.primaryPartner) {
+        rawJoinDate = delegation.primaryPartner.join_date ? String(delegation.primaryPartner.join_date).trim() : '';
+    }
     // 嚴格檢查：只有在夥伴主檔確實有「加入葡眾日」且非空值時，才建立「會員」節點
-    const rawJoinDate = partnerInfo && partnerInfo.join_date ? String(partnerInfo.join_date).trim() : '';
     if (rawJoinDate && rawJoinDate !== '-') {
         const joinParts = rawJoinDate.replace(/-/g, '/').split('/');
         if (joinParts.length >= 2) {
@@ -699,17 +750,32 @@ function renderPartnerRankChart(ptnHistory) {
     });
 }
 
-function renderPartnerSingleTable(ptnHistory) {
+// 在 org-ranks.js 中替換原 renderPartnerSingleTable 內部迴圈與標頭提示
+function renderPartnerSingleTable(ptnHistory, delegation = null) {
     const hasAdminRights = isMasterAdmin();
+    const isDelegated = delegation && delegation.isDelegated;
+    const primaryDisplayName = isDelegated ? getPartnerDisplayName(delegation.targetPartnerId) : '';
 
     const formatted = ptnHistory.map(h => {
         const prevRank = appState.ranks.find(r => r.rank_id === h.previous_rank_id);
         const newRank = appState.ranks.find(r => r.rank_id === h.new_rank_id);
 
-        const actionBtns = hasAdminRights ? `
-            <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
-        ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+        let actionBtns = '';
+        if (isDelegated) {
+            // 共同經營者採動態同步，提示需至主要經營者處異動
+            actionBtns = `<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate"></i> 共同經營同步</span>`;
+        } else if (hasAdminRights) {
+            actionBtns = `
+                <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+            `;
+        } else {
+            actionBtns = '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+        }
+
+        const noteSyncTag = isDelegated 
+            ? `<span class="badge bg-dark text-secondary me-1"><i class="fa-solid fa-user-group"></i> 共同經營</span>` 
+            : '';
 
         return {
             previous: prevRank ? UIBadges.rank.badge(prevRank) : `<span class="badge badge-gray">${h.previous_rank_id || '-'}</span>`,
@@ -720,7 +786,7 @@ function renderPartnerSingleTable(ptnHistory) {
             manager_legs: h.active_manager_legs_count !== null ? `<span class="text-center d-block">${h.active_manager_legs_count} 條</span>` : '-',
             pearl_legs: h.active_pearl_legs_count !== null ? `<span class="text-center d-block">${h.active_pearl_legs_count} 條</span>` : '-',
             recognition: h.company_recognition_date || '-',
-            notes: h.notes || '-',
+            notes: `${noteSyncTag}<span class="text-truncate d-inline-block" style="max-width: 140px;" title="${h.notes || ''}">${h.notes || '-'}</span>`,
             actions: actionBtns
         };
     });
@@ -904,14 +970,24 @@ function openEditHistoryModal(historyId) {
 // ==========================================================================
 async function saveRankHistoryItem() {
     const mode = $('#fieldHistoryMode').val();
-    const partnerId = $('#fieldPartnerId').val().trim();
+    let partnerId = $('#fieldPartnerId').val().trim();
 
     if (!partnerId) {
         AppToast.warning("請選擇夥伴！");
         return;
     }
 
-    // 若為新增且 ID 為空，強制呼叫生成器
+    // 防呆：若選取共同經營者，自動將歷程目標導回其主要經營者
+    const targetPtn = appState.partners.find(p => p.partner_id === partnerId);
+    if (targetPtn && (targetPtn.account_holder_type === '共同經營者' || targetPtn.operation_mode === '共同經營')) {
+        const primaryId = targetPtn.official_account_partner_id || targetPtn.spouse_partner_id;
+        if (primaryId && primaryId !== partnerId) {
+            AppToast.info(`已自動將晉升紀錄重導向登記於主要經營者【${getPartnerDisplayName(primaryId)}】`);
+            partnerId = primaryId;
+        }
+    }
+
+    // 若為新增且 ID 為空，強制使用實質 partnerId 呼叫生成器
     let historyId = $('#fieldHistoryId').val().trim();
     if (mode === 'add' && (!historyId || !historyId.includes(partnerId))) {
         historyId = generateNextHistoryId(partnerId);
