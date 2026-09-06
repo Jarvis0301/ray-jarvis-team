@@ -11,8 +11,8 @@
 // ============================================================================
 // 1. 核心常數與全域狀態 (Constants & State)
 // ============================================================================
-const SPREADSHEET_ID = "1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg";
-const GAS_DEPLOY_ID = "AKfycbwCHIswVrVHuvEusFZrg2KjTCCwYhlf-3h-QbWhro8YVekUt1wNa4oDxxBxzPc_z6cd";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.ORG;
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.ORG;
 
 const DEFAULT_AVATARS = {
     '男': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
@@ -40,7 +40,6 @@ let selectedTreeRootId = 'ALL';        // 預設：全域森林 ('ALL' 或指定
 // ============================================================================
 window.addEventListener('AppReady', function () {
     SheetAdapter.init(GAS_DEPLOY_ID);
-    applyUIPermissions();
     populateRegionDropdowns();
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
@@ -494,20 +493,15 @@ function populateSelect2Options() {
         '#form-successor-partner-id',
         '#form-surrendered-to-upline-id'
     ];
+
     partnerSelects.forEach(selId => {
-        UISelectOptions.core.render({
+        UISelectOptions.partner.populate({
             target: selId,
-            data: partnersList,
-            valueKey: 'partner_id',
-            textKey: (p) => {
-                const dispName = getPartnerDisplayName(p);
-                const memberNo = p.member_no ? ` [${p.member_no}]` : '';
-                return `${dispName}${memberNo} (${p.partner_id})`;
-            },
+            partners: partnersList,
+            persons: personMasterList,
+            displayMode: 2, // 模式 2：姓名 (member no) [partner id]
             placeholder: '(無)',
             searchable: true,
-            creatable: false,
-            grouped: false,
             dropdownParent: '#partnerDetailModal'
         });
     });
@@ -556,7 +550,7 @@ function initOrgChartPan() {
 // 6. 雲端資料同步與解析引擎 (Data Fetch & Parse)
 // ============================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步全域組織與個人主檔...', '讀取雲端試算表');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName) => {
@@ -790,24 +784,6 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return true;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = ["jarvis20250807@gmail.com", "fish7548@gmail.com", "jarvis.lin@gmail.com", "ray.weng@gmail.com"];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return true;
-    }
-}
-
-function applyUIPermissions() {
-    if (!isMasterAdmin()) {
-        $('#btn-open-create-modal').hide();
-    }
-}
-
 function getDefaultAvatar(gender = '男') {
     return DEFAULT_AVATARS[gender] || DEFAULT_AVATARS['男'];
 }
@@ -816,22 +792,9 @@ function getPersonMaster(personId) {
     return personMasterList.find(p => p.person_id === personId) || {};
 }
 
-function getPartnerDisplayName(target) {
-    if (!target) return '';
-    const p = typeof target === 'string'
-        ? partnersList.find(x => x.partner_id === target || x.member_no === target)
-        : target;
-
-    if (!p) return typeof target === 'string' && target !== 'ROOT' ? target : '';
-
-    const person = getPersonMaster(p.person_id);
-    const candidates = [person.display_name, person.name_zh, person.name_en, person.preferred_name];
-    for (const name of candidates) {
-        if (name && String(name).trim() !== '') {
-            return String(name).trim();
-        }
-    }
-    return '（未知姓名）';
+function getPartnerDisplayName(target, displayMode = 1) {
+    if (!target || target === 'ROOT' || target === 'SYSTEM_ROOT' || target === '未知' || target === '(未知)') return '';
+    return EntityResolver.partner(target, partnersList, personMasterList, displayMode) || '（未知姓名）';
 }
 
 function getRankInfo(rankId) {

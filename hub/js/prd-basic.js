@@ -1,7 +1,8 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與核心常數
 // ==========================================================================
-const SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.PRD;
 
 /**
  * 試算表欄位索引安全取值工具函式
@@ -89,7 +90,7 @@ let rawTableInstance = null;
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter && typeof SheetAdapter.init === 'function') {
-        SheetAdapter.init("AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H");
+        SheetAdapter.init(GAS_DEPLOY_ID);
     }
     await initApp();
 });
@@ -112,7 +113,7 @@ async function initApp() {
 // 4. 資料讀取與 5 表解析引擎 (依欄位順序解析)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品資料庫...', '載入 5 表架構');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName) => {

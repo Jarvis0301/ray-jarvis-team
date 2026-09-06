@@ -25,36 +25,17 @@
             <header class="glass-panel hud-sentinel-bar mb-4">
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-xl-6">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 52px; height: 52px; background: rgba(139, 92, 246, 0.18); border: 1px solid var(--uvaco-primary, #8b5cf6); color: var(--uvaco-primary, #8b5cf6); font-size: 1.5rem;">
-                                <i class="fa-solid fa-truck-ramp-box"></i>
-                            </div>
-                            <div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="live-pulse"></span>
-                                    <span class="badge badge-purple-subtle">H31000 進貨入庫調度中樞</span>
-                                    <span class="text-secondary small">|</span>
-                                    <span class="text-secondary small" id="hudSyncTime">--</span>
-                                </div>
-                                <h2 class="h4 mb-0 fw-bold mt-1 text-white">
-                                    <i class="fa-solid fa-layer-group text-primary"></i> 官方訂購單、四流分離核算與入庫點收
-                                </h2>
-                            </div>
+                        <div class="h4 fw-bold text-white">
+                            <i class="fa-solid fa-truck-ramp-box text-primary"></i> 進貨入庫
                         </div>
                     </div>
 
                     <div class="col-12 col-xl-6 text-xl-end">
                         <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
-                            <button type="button" class="btn btn-sm btn-outline-purple" onclick="openConfigModal()">
-                                <i class="fa-solid fa-database"></i> 試算表設定
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-purple" id="btnSyncSheets" onclick="fetchAllGoogleSheetsData()">
-                                <i class="fa-solid fa-cloud-arrow-down"></i> 重新同步
-                            </button>
                             <button type="button" class="btn btn-sm btn-outline-purple" onclick="exportCsv()">
                                 <i class="fa-solid fa-file-csv"></i> 匯出 CSV
                             </button>
-                            <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddModal" onclick="openAddModal()">
+                            <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddModal()">
                                 <i class="fa-solid fa-plus"></i> 新增進貨單據
                             </button>
                         </div>
@@ -87,7 +68,7 @@
 
             <section class="row g-3 mb-4">
                 <div class="col-6 col-lg-3">
-                    <div class="card-custom h-100 p-3">
+                    <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small fw-bold">採購總盒數</span>
                             <i class="fa-solid fa-boxes-stacked text-primary"></i>
@@ -99,7 +80,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
-                    <div class="card-custom h-100 p-3">
+                    <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small fw-bold">實付總成本 (含運費)</span>
                             <i class="fa-solid fa-sack-dollar text-success"></i>
@@ -108,7 +89,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
-                    <div class="card-custom h-100 p-3">
+                    <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small fw-bold">官方考核總 SV</span>
                             <i class="fa-solid fa-coins text-warning"></i>
@@ -120,7 +101,7 @@
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
-                    <div class="card-custom h-100 p-3">
+                    <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small fw-bold">四流分離解耦單數</span>
                             <i class="fa-solid fa-arrows-split-up-and-left text-info"></i>
@@ -133,7 +114,7 @@
                 </div>
             </section>
 
-            <section class="card-custom p-3 mb-4">
+            <section class="card p-3 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#analyticsChartContainer">
                     <div class="fw-bold text-white small">
                         <i class="fa-solid fa-chart-line text-primary"></i> 月度進貨 SV 與採購支出戰術圖表
@@ -199,35 +180,35 @@
         <div class="modal fade" id="inboundModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <section class="modal-content">
-                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white" id="modalTitle">
                             <i class="fa-solid fa-file-circle-plus text-primary"></i> 新增進貨入庫單據
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
-                    <div class="modal-body p-4">
+                    <div class="modal-body p-3 p-md-4">
                         <form id="inboundForm">
                             <input type="hidden" id="formMode" value="add">
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldId">進貨單號主鍵 (id) *</label>
-                                    <input type="text" class="form-control" id="fieldId" required readonly>
+                                    <label class="form-label" for="fieldId">進貨單號主鍵 (id) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldId" required readonly>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small" for="fieldOfficialOrderNo">葡眾官方訂購單號 (official_order_no)</label>
-                                    <input type="text" class="form-control" id="fieldOfficialOrderNo" placeholder="如 WSA2602250100">
+                                    <label class="form-label" for="fieldOfficialOrderNo">葡眾官方訂購單號</label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldOfficialOrderNo" placeholder="如 WSA2602250100">
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small" for="fieldOrderCategory">官方訂購類別 (order_category) *</label>
-                                    <select class="form-select" id="fieldOrderCategory" required>
+                                    <label class="form-label" for="fieldOrderCategory">官方訂購類別 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldOrderCategory" required>
                                         <option value="本人訂購">本人訂購</option>
                                         <option value="代下線訂購">代下線訂購</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small" for="fieldOrderCenter">官方訂購中心 (order_center) *</label>
-                                    <select class="form-select" id="fieldOrderCenter" required>
+                                    <label class="form-label" for="fieldOrderCenter">官方訂購中心 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldOrderCenter" required>
                                         <option value="網路">網路 (APP / 官方電商)</option>
                                     </select>
                                 </div>
@@ -235,27 +216,27 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldWarehouseId">入庫實體據點 (warehouse_id) *</label>
-                                    <select class="form-select" id="fieldWarehouseId" required></select>
+                                    <label class="form-label" for="fieldWarehouseId">入庫實體據點 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldWarehouseId" required></select>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldDeliveryMethod">官方交付方式 (delivery_method) *</label>
-                                    <select class="form-select" id="fieldDeliveryMethod" required>
+                                    <label class="form-label" for="fieldDeliveryMethod">官方交付方式 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldDeliveryMethod" required>
                                         <option value="運送">運送 (宅配到府)</option>
                                         <option value="自取">自取 (中心自提)</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldPerformanceMonth">業績計入月份 (performance_month) *</label>
-                                    <input type="month" class="form-control" id="fieldPerformanceMonth" required>
+                                    <label class="form-label" for="fieldPerformanceMonth">業績計入月份 <span class="text-danger">*</span></label>
+                                    <input type="month" class="form-control form-control-sm" id="fieldPerformanceMonth" required>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldOrderDate">官方下單訂購日期 (order_date) *</label>
-                                    <input type="date" class="form-control" id="fieldOrderDate" required>
+                                    <label class="form-label" for="fieldOrderDate">官方下單訂購日期 <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control form-control-sm" id="fieldOrderDate" required>
                                 </div>
                             </div>
 
-                            <div class="card-custom p-3 mb-3">
+                            <div class="card p-3 mb-3">
                                 <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
                                     <span class="badge badge-purple-subtle">
                                         <i class="fa-solid fa-arrows-split-up-and-left"></i> 四流分離戰術架構配置
@@ -264,16 +245,16 @@
                                 </div>
                                 <div class="row g-3">
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label text-secondary small fw-bold" for="fieldPurchaserPartnerId">實際下單出資夥伴 (purchaser_partner_id) *</label>
-                                        <select class="form-select" id="fieldPurchaserPartnerId" required></select>
+                                        <label class="form-label" for="fieldPurchaserPartnerId">實際下單出資夥伴 <span class="text-danger">*</span></label>
+                                        <select class="form-select form-select-sm" id="fieldPurchaserPartnerId" required></select>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label text-secondary small fw-bold" for="fieldSvOwnerPartnerId">業績點數歸屬人 (sv_owner_partner_id) *</label>
-                                        <select class="form-select" id="fieldSvOwnerPartnerId" required></select>
+                                        <label class="form-label" for="fieldSvOwnerPartnerId">業績點數歸屬人 <span class="text-danger">*</span></label>
+                                        <select class="form-select form-select-sm" id="fieldSvOwnerPartnerId" required></select>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label text-secondary small fw-bold" for="fieldCurrencyCode">交易幣別 (currency_code) *</label>
-                                        <select class="form-select" id="fieldCurrencyCode" required>
+                                        <label class="form-label" for="fieldCurrencyCode">交易幣別 <span class="text-danger">*</span></label>
+                                        <select class="form-select form-select-sm" id="fieldCurrencyCode" required>
                                             <option value="TWD">TWD (新台幣)</option>
                                             <option value="MYR">MYR (馬來幣)</option>
                                         </select>
@@ -283,20 +264,20 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small" for="fieldInboundDate">實際驗收入庫日 (inbound_date)</label>
-                                    <input type="date" class="form-control" id="fieldInboundDate">
+                                    <label class="form-label" for="fieldInboundDate">實際驗收入庫日</label>
+                                    <input type="date" class="form-control form-control-sm" id="fieldInboundDate">
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small" for="fieldOfficialShippingNo">葡眾官方出貨單號 (official_shipping_no)</label>
-                                    <input type="text" class="form-control" id="fieldOfficialShippingNo" placeholder="如 GSP2602260042">
+                                    <label class="form-label" for="fieldOfficialShippingNo">葡眾官方出貨單號</label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldOfficialShippingNo" placeholder="如 GSP2602260042">
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small" for="fieldShippingDate">官方出貨日期 (shipping_date)</label>
-                                    <input type="date" class="form-control" id="fieldShippingDate">
+                                    <label class="form-label" for="fieldShippingDate">官方出貨日期</label>
+                                    <input type="date" class="form-control form-control-sm" id="fieldShippingDate">
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldStatus">入庫狀態 (status) *</label>
-                                    <select class="form-select" id="fieldStatus" required>
+                                    <label class="form-label" for="fieldStatus">入庫狀態 <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" id="fieldStatus" required>
                                         <option value="草稿">草稿 (DRAFT)</option>
                                         <option value="運輸中">運輸中 (IN_TRANSIT)</option>
                                         <option value="已入庫驗收">已入庫驗收 (COMPLETED)</option>
@@ -307,39 +288,39 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldProductAmount">純商品金額小計 *</label>
-                                    <input type="number" step="0.01" class="form-control" id="fieldProductAmount" min="0" required onchange="calculateTotalCost()">
+                                    <label class="form-label" for="fieldProductAmount">純商品金額小計 <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm" id="fieldProductAmount" min="0" required onchange="calculateTotalCost()">
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldShippingFee">官方運費小計 *</label>
-                                    <input type="number" step="0.01" class="form-control" id="fieldShippingFee" min="0" required onchange="calculateTotalCost()">
+                                    <label class="form-label" for="fieldShippingFee">官方運費小計 <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm" id="fieldShippingFee" min="0" required onchange="calculateTotalCost()">
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldTotalCostAmount">實付總額 (total_cost_amount) *</label>
-                                    <input type="number" step="0.01" class="form-control text-warning fw-bold" id="fieldTotalCostAmount" min="0" required readonly>
+                                    <label class="form-label" for="fieldTotalCostAmount">實付總額 <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm" id="fieldTotalCostAmount" min="0" required readonly>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldTotalBoxes">總盒數 (total_boxes) *</label>
-                                    <input type="number" class="form-control" id="fieldTotalBoxes" min="0" required>
+                                    <label class="form-label" for="fieldTotalBoxes">總盒數 <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control form-control-sm" id="fieldTotalBoxes" min="0" required>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label text-secondary small fw-bold" for="fieldTotalSv">考核總 SV (total_sv) *</label>
-                                    <input type="number" class="form-control text-info fw-bold" id="fieldTotalSv" min="0" required>
+                                    <label class="form-label" for="fieldTotalSv">考核總 SV <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control form-control-sm" id="fieldTotalSv" min="0" required>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-secondary small" for="fieldRemarks">單據備註事項 (remarks)</label>
-                                <textarea class="form-control" id="fieldRemarks" rows="2" placeholder="官方代訂備註、代墊款還款約定、湊單分貨說明..."></textarea>
+                                <label class="form-label" for="fieldRemarks">單據備註事項</label>
+                                <textarea class="form-control form-control-sm" id="fieldRemarks" rows="2" placeholder="官方代訂備註、代墊款還款約定、湊單分貨說明..."></textarea>
                             </div>
                         </form>
                     </div>
-                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold admin-action-btn" id="btnSaveInbound" onclick="saveInboundItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存單據變更
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveInbound" onclick="saveInboundItem()">
+                            <i class="fa-solid fa-floppy-disk"></i> 儲存
                         </button>
                     </footer>
                 </section>
@@ -349,14 +330,14 @@
         <div class="modal fade" id="inboundDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <section class="modal-content">
-                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white">
                             <i class="fa-solid fa-list-ol text-info"></i> 進貨單商品與費用明細清單
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
-                    <div class="modal-body p-4">
-                        <article class="card-custom p-3 mb-3">
+                    <div class="modal-body p-3 p-md-4">
+                        <article class="card p-3 mb-3">
                             <div class="row g-2 small">
                                 <div class="col-md-3"><span class="text-secondary">單號：</span><span class="text-white fw-bold" id="detailOrderNo">-</span></div>
                                 <div class="col-md-3"><span class="text-secondary">官方訂單：</span><span class="text-white" id="detailOfficialNo">-</span></div>
@@ -387,7 +368,7 @@
                             </table>
                         </div>
                     </div>
-                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end p-3">
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark"></i> 關閉
                         </button>
@@ -395,46 +376,6 @@
                 </section>
             </div>
         </div>
-
-        <div class="modal fade" id="configModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <section class="modal-content">
-                    <header class="modal-header border-bottom border-purple-subtle py-3 px-4">
-                        <h5 class="modal-title fw-bold text-white">
-                            <i class="fa-solid fa-sliders text-secondary"></i> 雲端試算表來源 ID 設定
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </header>
-                    <div class="modal-body p-4">
-                        <form id="configForm">
-                            <div class="mb-3">
-                                <label class="form-label text-secondary small fw-bold" for="cfgSheetPsi">試算表 1：據點倉儲、進貨主檔、進貨明細</label>
-                                <input type="text" class="form-control" id="cfgSheetPsi">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-secondary small fw-bold" for="cfgSheetOrg">試算表 2：個人主檔、夥伴主檔</label>
-                                <input type="text" class="form-control" id="cfgSheetOrg">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-secondary small fw-bold" for="cfgSheetPrd">試算表 3：產品主檔、產品組合、產品組合明細</label>
-                                <input type="text" class="form-control" id="cfgSheetPrd">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-secondary small fw-bold" for="cfgGasDeploymentId">Google Apps Script (GAS) 部署 ID</label>
-                                <input type="text" class="form-control" id="cfgGasDeploymentId">
-                            </div>
-                        </form>
-                    </div>
-                    <footer class="modal-footer border-top border-purple-subtle d-flex justify-content-end gap-2 p-3">
-                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 關閉
-                        </button>
-                        <button type="button" class="btn btn-purple btn-sm rounded-pill px-4 text-white fw-bold" onclick="saveSpreadsheetConfig()">
-                            <i class="fa-solid fa-check"></i> 儲存設定
-                        </button>
-                    </footer>
-                </section>
-            </div>
-        </div>
+        
     </body>
 </html>

@@ -1,16 +1,16 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";         // 主試算表 (庫存主檔、據點倉儲)[cite: 11]
-const SPREADSHEET_ID_PRD = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";     // 產品主檔試算表 (prd_items)[cite: 4]
-const GAS_DEPLOY_ID = "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt"; // GAS 部署 ID[cite: 11]
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.PSI;         // 主試算表 (庫存主檔、據點倉儲)
+const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;     // 產品主檔試算表 (prd_items)
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI; // GAS 部署 ID
 
-const SHEET_STOCKS = "庫存主檔";       // 表 302: psi_stocks[cite: 11]
-const SHEET_WAREHOUSES = "據點倉儲";   // 表 301: psi_warehouses[cite: 11]
-const SHEET_PRODUCTS = "產品主檔";     // 表 101: prd_items[cite: 4]
+const SHEET_STOCKS = "庫存主檔";       // 表 302: psi_stocks
+const SHEET_WAREHOUSES = "據點倉儲";   // 表 301: psi_warehouses
+const SHEET_PRODUCTS = "產品主檔";     // 表 101: prd_items
 
 /**
- * 試算表欄位索引安全取值工具函式 (0-Based 絕對物理順序)[cite: 11]
+ * 試算表欄位索引安全取值工具函式 (0-Based 絕對物理順序)
  */
 function getVal(row, colIndex, defaultVal = '') {
     if (!row || !Array.isArray(row)) return defaultVal;
@@ -86,48 +86,25 @@ window.addEventListener('AppReady', async () => {
         SheetAdapter.init(GAS_DEPLOY_ID); // 初始化共用試算表配接器[cite: 7, 11]
     }
     await initStockApp();
-    applyUIPermissions();
 });
 
 async function initStockApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    $('#hudSyncTime').text(getFormattedNow());
     bindUIEvents();
     await fetchGoogleSheetsData();
-}
-
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com",
-            "jarvis.lin@gmail.com",
-            "ray.weng@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
 }
 
 // ==========================================================================
 // 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入[cite: 11]
 // ==========================================================================
+/**
+ * 資料讀取引擎
+ */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步庫存與主檔數據...', '連線 Google 試算表'); //[cite: 10, 11]
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+
     try {
         const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
             const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
@@ -140,7 +117,7 @@ async function fetchGoogleSheetsData() {
                 skipEmptyLines: true
             });
 
-            return (parsed.data || []).slice(1); // 略過第 0 列標題列[cite: 11]
+            return (parsed.data || []).slice(1);
         };
 
         const [rawStockRows, rawWhRows, rawPrdRows] = await Promise.all([
@@ -149,25 +126,23 @@ async function fetchGoogleSheetsData() {
             fetchSheet(SHEET_PRODUCTS, SPREADSHEET_ID_PRD).catch(() => [])
         ]);
 
-        // 1. 解析據點倉儲主檔 (表 301: psi_warehouses，Index 0 ~ 14)
         appState.warehouses = {};
         (rawWhRows || []).forEach(r => {
-            const id = getVal(r, 0);                  // Col 0: id (PK)
-            const name = getVal(r, 1);                // Col 1: warehouse_name
-            const type = getVal(r, 2, '官方營運中心'); // Col 2: warehouse_type
-            const country = getVal(r, 3, 'TW');       // Col 3: country_code
+            const id = getVal(r, 0);
+            const name = getVal(r, 1);
+            const type = getVal(r, 2, '官方營運中心');
+            const country = getVal(r, 3, 'TW');
             if (id) {
                 appState.warehouses[id] = { id, name: name || id, type, country };
             }
         });
 
-        // 2. 解析產品品項主檔 (表 101: prd_items)
         appState.products = {};
         (rawPrdRows || []).forEach(r => {
-            const code = getVal(r, 0);                        // Col 0: product_code (PK)
-            const region = getVal(r, 1, 'TW').toUpperCase();  // Col 1: region_code ('TW' / 'MY')
-            const name = getVal(r, 3);                        // Col 3: name (完整品名)
-            const shortName = getVal(r, 4);                   // Col 4: short_name (簡稱)
+            const code = getVal(r, 0);
+            const region = getVal(r, 1, 'TW').toUpperCase();
+            const name = getVal(r, 3);
+            const shortName = getVal(r, 4);
             if (code) {
                 appState.products[code] = {
                     code,
@@ -178,21 +153,20 @@ async function fetchGoogleSheetsData() {
             }
         });
 
-        // 3. 解析庫存主檔 (表 302: psi_stocks，Index 0 ~ 16)
-        appState.stocks = (rawStockRows && rawStockRows.length > 0)
-            ? parseStocksTable(rawStockRows)
+        appState.stocks = (rawStockRows && rawStockRows.length > 0) 
+            ? parseStocksTable(rawStockRows) 
             : [];
 
         populateStockSelectOptions();
         refreshView();
-        AppToast.success(`已自雲端同步 ${appState.stocks.length} 筆批號庫存主檔`); //[cite: 10, 11]
+        $('#hudSyncTime').text(getFormattedNow());
+
+        AppToast.success(`已自雲端同步 ${appState.stocks.length} 筆批號庫存主檔`);
     } catch (err) {
-        console.error("Google Sheets 庫存資料同步失敗:", err);
-        appState.stocks = [];
-        refreshView();
-        AppToast.error(`雲端連線異常: ${err.message}`); //[cite: 10, 11]
+        console.error("Google Sheets 庫存同步異常:", err);
+        AppToast.error(`雲端連線異常: ${err.message}`);
     } finally {
-        AppLoading.hide(); //[cite: 7, 10]
+        AppLoading.hide();
     }
 }
 
@@ -235,80 +209,30 @@ function parseStocksTable(rows) {
 // ==========================================================================
 // 5. 下拉選單中樞介接 (UISelectOptions.core.render)[cite: 4]
 // ==========================================================================
-function getWarehouseTypeOrder(type) {
-    const orderMap = {
-        '自用常備倉': 1,
-        '海外商務倉': 2,
-        '官方營運中心': 3,
-        '物流在途倉': 4
-    };
-    return orderMap[type] || 99;
+function getWarehouseName(whId, displayMode = 1) {
+    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
-function getWarehouseName(whId) {
-    if (!whId) return '-';
-    return appState.warehouses[whId]?.name || whId;
-}
-
-function getProductShortName(prdId) {
-    if (!prdId) return '-';
-    return appState.products[prdId]?.short_name || appState.products[prdId]?.name || prdId;
+function getProductShortName(prdId, displayMode = 1) {
+    return EntityResolver.product(prdId, appState.products, displayMode);
 }
 
 function populateStockSelectOptions() {
-    const $wh = $('#fieldWarehouseId');
-    const $prd = $('#fieldProductId');
-
-    // 1. 倉儲選單排序：自用 -> 海外 -> 官方 -> 物流
-    const sortedWarehouses = Object.values(appState.warehouses).sort((a, b) => {
-        const orderA = getWarehouseTypeOrder(a.type);
-        const orderB = getWarehouseTypeOrder(b.type);
-        if (orderA !== orderB) return orderA - orderB;
-        return a.id.localeCompare(b.id);
+    UISelectOptions.warehouse.populate({
+        target: '#fieldWarehouseId',
+        warehouses: appState.warehouses,
+        placeholder: '-- 請選擇存放據點倉儲 --',
+        selectedValue: $('#fieldWarehouseId').val() || '',
+        dropdownParent: '#stockModal'
     });
 
-    if (window.UISelectOptions && UISelectOptions.core) {
-        UISelectOptions.core.render({
-            target: $wh,
-            data: sortedWarehouses,
-            valueKey: 'id',
-            textKey: (wh) => `${wh.name} (${wh.id})${wh.type ? ` [${wh.type}]` : ''}`,
-            placeholder: '-- 請選擇存放據點倉儲 --',
-            selectedValue: $wh.val() || '',
-            searchable: true,
-            creatable: false,
-            grouped: false,
-            dropdownParent: '#stockModal'
-        }); //[cite: 4]
-
-        // 2. 產品品項選單分組：TW 優先 -> MY 次之 -> 其他市場
-        const regionPriority = { 'TW': 1, 'MY': 2 };
-        const structuredProducts = Object.values(appState.products)
-            .sort((a, b) => {
-                const prioA = regionPriority[a.region] || 99;
-                const prioB = regionPriority[b.region] || 99;
-                if (prioA !== prioB) return prioA - prioB;
-                return a.code.localeCompare(b.code);
-            })
-            .map(prd => ({
-                ...prd,
-                group: prd.region === 'TW' ? '🇹🇼 台灣市場' : (prd.region === 'MY' ? '🇲🇾 馬來西亞市場' : '🌐 其他市場')
-            }));
-
-        UISelectOptions.core.render({
-            target: $prd,
-            data: structuredProducts,
-            valueKey: 'code',
-            textKey: (prd) => `${prd.short_name} (${prd.code})`,
-            groupKey: 'group',
-            placeholder: '-- 請選擇產品品項 --',
-            selectedValue: $prd.val() || '',
-            searchable: true,
-            creatable: false,
-            grouped: true,
-            dropdownParent: '#stockModal'
-        }); //[cite: 4]
-    }
+    UISelectOptions.product.populate({
+        target: '#fieldProductId',
+        products: appState.products,
+        placeholder: '-- 請選擇產品品項 --',
+        selectedValue: $('#fieldProductId').val() || '',
+        dropdownParent: '#stockModal'
+    });
 }
 
 // ==========================================================================
@@ -348,7 +272,6 @@ function refreshView() {
     renderHudMetrics();
     renderStockDataTable();
     renderTacticalCharts();
-    applyUIPermissions();
 }
 
 function renderHudMetrics() {
@@ -392,8 +315,6 @@ function renderStockDataTable() {
     } else {
         stockDataTableInstance = $('#stockMasterTable').DataTable({
             data: formatted,
-            responsive: true,
-            pageLength: 10,
             columns: [
                 { data: 'id' },
                 { data: 'warehouse' },
@@ -406,13 +327,7 @@ function renderStockDataTable() {
                 { data: 'cost_sv' },
                 { data: 'status' },
                 { data: 'actions' }
-            ],
-            language: {
-                search: "檢索品項/批號：",
-                info: "顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆批號庫存",
-                paginate: { first: "首頁", last: "末頁", next: "下頁", previous: "上頁" },
-                zeroRecords: "查無符合條件的庫存批號"
-            }
+            ]
         });
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
@@ -439,7 +354,6 @@ function renderStockDataTable() {
 }
 
 function formatStockRow(s) {
-    const hasAdminRights = isMasterAdmin();
     const days = getDaysToExpiry(s.expiry_date);
 
     let expiryColor = "bg-success text-success";
@@ -448,23 +362,21 @@ function formatStockRow(s) {
     else if (days <= 90) expiryColor = "bg-warning text-warning";
 
     const isLocked = s.is_locked === 'Y';
-    const statusBadge = isLocked
-        ? `<span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30"><i class="fa-solid fa-lock"></i> 凍結禁出</span>`
-        : `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30"><i class="fa-solid fa-circle-check"></i> 自由流通</span>`;
+    const statusBadge = UIBadges.psi.stockLock(s.is_locked);
 
-    const actionButtons = hasAdminRights ? `
+    const actionButtons = `
         <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary py-0 px-2 admin-action-btn" onclick="openEditStockModal('${s.id}')" title="編輯批號">
+            <button class="btn btn-outline-primary" onclick="openEditStockModal('${s.id}')" title="編輯批號">
                 <i class="fa-solid fa-pen"></i>
             </button>
-            <button class="btn ${isLocked ? 'btn-outline-success' : 'btn-outline-warning'} py-0 px-2 admin-action-btn" onclick="toggleStockLock('${s.id}')" title="${isLocked ? '解凍批號' : '凍結出庫'}">
+            <button class="btn ${isLocked ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleStockLock('${s.id}')" title="${isLocked ? '解凍批號' : '凍結出庫'}">
                 <i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-lock'}"></i>
             </button>
-            <button class="btn btn-outline-danger py-0 px-2 admin-action-btn" onclick="deleteStockItem('${s.id}')" title="刪除庫存項目">
+            <button class="btn btn-outline-danger" onclick="deleteStockItem('${s.id}')" title="刪除庫存項目">
                 <i class="fa-solid fa-trash-alt"></i>
             </button>
         </div>
-    ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+    `;
 
     return {
         id: `<span class="fw-bold text-info">${s.id}</span>`,
@@ -693,13 +605,18 @@ async function saveStockItem() {
             if (idx !== -1) appState.stocks[idx] = updatedObj;
         }
 
-        refreshView();
+        // 關閉 Modal 並自動向雲端試算表靜默同步最新狀態
+        const modalEl = document.getElementById('stockModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+
+        await fetchGoogleSheetsData();
         bootstrap.Modal.getInstance(document.getElementById('stockModal')).hide();
         AppToast.success(`庫存批號【${id}】儲存成功！`);
     } catch (err) {
         AppToast.error("庫存批號儲存失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存批號庫存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 
@@ -724,51 +641,10 @@ async function toggleStockLock(stockId) {
         s.modified_by = currentUser;
         s.modified_at = nowStr;
 
-        refreshView();
+        await fetchGoogleSheetsData();
         AppToast.success(`批號【${stockId}】已變更為【${newLock === 'Y' ? '凍結出庫' : '自由流通'}】`);
     } catch (err) {
         AppToast.error("鎖定狀態更新失敗: " + err.message);
-    }
-}
-
-async function toggleStockLock(stockId) {
-    const s = appState.stocks.find(item => item.id === stockId);
-    if (!s) return;
-
-    const newLock = s.is_locked === 'Y' ? 'N' : 'Y';
-    const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
-
-    const rowDataArray = [
-        s.id,
-        s.warehouse_id,
-        s.product_id,
-        s.batch_no,
-        s.expiry_date,
-        s.quantity,
-        s.reserved_qty,
-        s.available_qty,
-        s.currency_code,
-        s.cost_price,
-        s.sv_point,
-        newLock,
-        s.remarks,
-        s.created_by,
-        s.created_at,
-        currentUser,
-        nowStr
-    ];
-
-    try {
-        await SheetAdapter.updateRow(SHEET_STOCKS, stockId, rowDataArray, GAS_DEPLOY_ID); //[cite: 7, 11]
-        s.is_locked = newLock;
-        s.modified_by = currentUser;
-        s.modified_at = nowStr;
-
-        refreshView();
-        AppToast.success(`批號【${stockId}】已變更為【${newLock === 'Y' ? '凍結出庫' : '自由流通'}】`); //[cite: 10]
-    } catch (err) {
-        AppToast.error("鎖定狀態更新失敗: " + err.message); //[cite: 10]
     }
 }
 
@@ -783,7 +659,8 @@ async function deleteStockItem(stockId) {
     try {
         await SheetAdapter.deleteRow(SHEET_STOCKS, stockId, GAS_DEPLOY_ID); //[cite: 7, 11]
         appState.stocks = appState.stocks.filter(item => item.id !== stockId);
-        refreshView();
+
+        await fetchGoogleSheetsData();
         AppToast.success(`批號【${stockId}】已自雲端試算表刪除！`); //[cite: 10]
     } catch (err) {
         AppToast.error("刪除失敗: " + err.message); //[cite: 10]

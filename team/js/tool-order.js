@@ -1,7 +1,7 @@
 // ==========================================
 // 1. Google 雲端硬碟試算表設定與解耦合輔助工具
 // ==========================================
-const SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
 
 // 依欄位索引位置取值，避免 Google 試算表重複/空白標題造成的警告
 function getVal(row, colIndex, defaultVal = '') {
@@ -81,7 +81,8 @@ async function initApp() {
 // 4. 解析 Google Sheets 數據 (解耦合載入)
 // ==========================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品資料...', '載入即時價目與規格主檔');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    
     try {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;

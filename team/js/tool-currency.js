@@ -1,7 +1,7 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與核心轉接器
 // ==========================================================================
-const SPREADSHEET_ID = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
 
 // 依據欄位順序索引 (Column Index) 進行安全取值
 function getVal(row, colIndex, defaultVal = '') {
@@ -61,7 +61,8 @@ async function initApp() {
 // 4. 解析 Google Sheets 數據 (依 Schema 索引順序讀取)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步產品與匯率數據...', '載入台馬產品主檔與雙向價目');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    
     try {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;

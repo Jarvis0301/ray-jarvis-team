@@ -2,11 +2,11 @@
 // 1. 系統組態與 4 大試算表來源定義
 // ==========================================================================
 const SPREADSHEET_CONFIG = {
-    sheetPsi: '1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo',
-    sheetOrg: '1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg',
-    sheetPrd: '18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I',
-    sheetCrm: '1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw',
-    gasDeploymentId: 'AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt'
+    sheetPsi: APP_CONFIG.SHEETS.PSI,
+    sheetOrg: APP_CONFIG.SHEETS.ORG,
+    sheetPrd: APP_CONFIG.SHEETS.PRD,
+    sheetCrm: APP_CONFIG.SHEETS.CRM,
+    gasDeploymentId: APP_CONFIG.GAS.PSI
 };
 
 // 系統資料狀態庫 (全面移除預設假資料)
@@ -54,79 +54,23 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com",
-            "jarvis.lin@gmail.com",
-            "ray.weng@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
-
 // ==========================================================================
-// 3. 個人與實體名稱權重解析核心 (展示名稱 > 中文 > 英文 > 暱稱)
+// 3. 實體名稱權重解析核心 (接軌 EntityResolver)
 // ==========================================================================
-function getPersonResolvedName(personId) {
-    if (!personId) return '';
-    const person = appState.persons.find(p => p.person_id === personId);
-    if (!person) return personId;
-
-    if (person.display_name && person.display_name.trim()) return person.display_name.trim();
-    if (person.name_zh && person.name_zh.trim()) return person.name_zh.trim();
-    if (person.name_en && person.name_en.trim()) return person.name_en.trim();
-    if (person.preferred_name && person.preferred_name.trim()) return person.preferred_name.trim();
-    return personId;
+function getPersonResolvedName(personId, displayMode = 1) {
+    return EntityResolver.person(personId, appState.persons, displayMode);
 }
 
-function getPartnerResolvedName(partnerId) {
-    if (!partnerId) return '-';
-    const partner = appState.partners.find(p => p.partner_id === partnerId || p.member_no === partnerId);
-    if (partner && partner.person_id) {
-        const name = getPersonResolvedName(partner.person_id);
-        if (name && name !== partner.person_id) return name;
-    }
-    if (partner && partner.name_zh && partner.name_zh.trim()) return partner.name_zh.trim();
-    return getPersonResolvedName(partnerId);
+function getPartnerResolvedName(partnerId, displayMode = 1) {
+    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
 }
 
-function getCustomerResolvedName(customerId) {
-    if (!customerId) return '-';
-    const customer = appState.customers.find(c => c.customer_id === customerId);
-    if (customer && customer.person_id) {
-        const name = getPersonResolvedName(customer.person_id);
-        if (name && name !== customer.person_id) return name;
-    }
-    return customerId;
+function getCustomerResolvedName(customerId, displayMode = 1) {
+    return EntityResolver.customer(customerId, appState.customers, appState.persons, displayMode);
 }
 
-function getWarehouseDisplayName(whId) {
-    const wh = appState.warehouses.find(w => w.id === whId);
-    return wh ? `${wh.warehouse_name} (${wh.id})` : whId;
-}
-
-function getWarehouseTypeOrder(type = '') {
-    const t = String(type).trim();
-    if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
-    if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
-    if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
-    if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
-    return 99;
+function getWarehouseDisplayName(whId, displayMode = 2) {
+    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
 // ==========================================================================
@@ -137,14 +81,12 @@ window.addEventListener('AppReady', async () => {
         SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
     }
     await initAdjustApp();
-    applyUIPermissions();
 });
 
 async function initAdjustApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    $('#hudSyncTime').text(getFormattedNow());
     initEvents();
     await fetchAllGoogleSheetsData();
 }
@@ -158,12 +100,11 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
     return (parsed.data || []).slice(1);
 }
 
+/**
+ * 資料讀取引擎
+ */
 async function fetchAllGoogleSheetsData() {
-    if (window.AppLoading) {
-        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在連動同步 4 大試算表...', '盤點調撥雲端同步');
-    }
-    const $btn = $('#btnSyncSheets');
-    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawAdjustments, rawPersons, rawPartners, rawProducts, rawCustomers] = await Promise.all([
@@ -185,15 +126,14 @@ async function fetchAllGoogleSheetsData() {
         });
 
         refreshAllViews();
+        $('#hudSyncTime').text(getFormattedNow());
+
         AppToast.success(`4 大試算表連動同步完成 (${appState.adjustments.length} 筆盤點調撥紀錄)`);
     } catch (err) {
         console.error("試算表同步異常:", err);
         AppToast.error("部分試算表連線失敗，請檢查 4 大試算表共用設定");
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 重新同步');
-        if (window.AppLoading) {
-            AppLoading.hide();
-        }
+        AppLoading.hide();
     }
 }
 
@@ -297,76 +237,50 @@ function refreshAllViews() {
 }
 
 function populateSelectOptions() {
-    // 倉儲選單 (無假資料)
-    const $auditWh = $('#auditWarehouseSelect').empty().append('<option value="">-- 請選擇盤點倉儲 --</option>');
-    const $trFromWh = $('#trFromWarehouseSelect').empty().append('<option value="">-- 請選擇調出倉 --</option>');
-    const $trToWh = $('#trToWarehouseSelect').empty().append('<option value="">-- 請選擇調入倉 --</option>');
-    const $modalFromWh = $('#fieldFromWarehouseId').empty().append('<option value="">-- 請選擇發生倉儲 --</option>');
-    const $modalToWh = $('#fieldToWarehouseId').empty().append('<option value="">-- 單倉異動無須填寫 --</option>');
-
-    const sortedWarehouses = [...appState.warehouses].sort((a, b) => {
-        const orderA = getWarehouseTypeOrder(a.warehouse_type);
-        const orderB = getWarehouseTypeOrder(b.warehouse_type);
-        if (orderA !== orderB) return orderA - orderB;
-        return a.id.localeCompare(b.id);
+    // 1. 倉儲選單
+    ['#auditWarehouseSelect', '#trFromWarehouseSelect', '#trToWarehouseSelect', '#fieldFromWarehouseId'].forEach(target => {
+        UISelectOptions.warehouse.populate({
+            target,
+            warehouses: appState.warehouses,
+            placeholder: '-- 請選擇倉儲據點 --',
+            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
+        });
+    });
+    UISelectOptions.warehouse.populate({
+        target: '#fieldToWarehouseId',
+        warehouses: appState.warehouses,
+        placeholder: '-- 單倉異動無須填寫 --',
+        dropdownParent: '#adjustModal'
     });
 
-    sortedWarehouses.forEach(w => {
-        const opt = `<option value="${w.id}">${w.warehouse_name} (${w.id})</option>`;
-        $auditWh.append(opt);
-        $trFromWh.append(opt);
-        $trToWh.append(opt);
-        $modalFromWh.append(opt);
-        $modalToWh.append(opt);
+    // 2. 產品選單
+    ['#auditProductSelect', '#trProductSelect', '#fieldProductId'].forEach(target => {
+        UISelectOptions.product.populate({
+            target,
+            products: appState.products,
+            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
+        });
     });
 
-    if (sortedWarehouses.length > 1) {
-        $('#trFromWarehouseSelect').val(sortedWarehouses[0].id);
-        $('#trToWarehouseSelect').val(sortedWarehouses[1].id);
-    }
-
-    // 產品選單 (無假資料)
-    const $auditPrd = $('#auditProductSelect').empty().append('<option value="">-- 請選擇盤點品項 --</option>');
-    const $trPrd = $('#trProductSelect').empty().append('<option value="">-- 請選擇調撥品項 --</option>');
-    const $modalPrd = $('#fieldProductId').empty().append('<option value="">-- 請選擇品項 --</option>');
-
-    appState.products.forEach(p => {
-        const opt = `<option value="${p.product_code}" data-base="${p.official_product_code || p.product_code}" data-name="${p.name}" data-price="${p.price}" data-sv="${p.sv_point}">${p.name} (${p.product_code})</option>`;
-        $auditPrd.append(opt);
-        $trPrd.append(opt);
-        $modalPrd.append(opt);
+    // 3. 夥伴選單
+    ['#auditOperatorSelect', '#trOperatorSelect', '#fieldOperatorPartnerId'].forEach(target => {
+        UISelectOptions.partner.populate({
+            target,
+            partners: appState.partners,
+            persons: appState.persons,
+            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
+        });
     });
 
-    // 夥伴選單 (operator_partner_id)
-    const $auditOp = $('#auditOperatorSelect').empty().append('<option value="">-- 請選擇經手夥伴 --</option>');
-    const $trOp = $('#trOperatorSelect').empty().append('<option value="">-- 請選擇經手夥伴 --</option>');
-    const $modalOp = $('#fieldOperatorPartnerId').empty().append('<option value="">-- 請選擇經手夥伴 --</option>');
-
-    const sortedPartners = [...appState.partners].map(p => ({
-        id: p.partner_id,
-        label: `${getPartnerResolvedName(p.partner_id)} (${p.member_no || p.partner_id})`
-    })).sort((a, b) => a.label.localeCompare(b.label, 'zh-Hant'));
-
-    sortedPartners.forEach(p => {
-        const opt = `<option value="${p.id}">${p.label}</option>`;
-        $auditOp.append(opt);
-        $trOp.append(opt);
-        $modalOp.append(opt);
-    });
-
-    // 客戶選單 (target_prospect_id)
-    const $auditProspect = $('#auditProspectSelect').empty().append('<option value="">-- 非試用體驗無須選擇 --</option>');
-    const $modalProspect = $('#fieldTargetProspectId').empty().append('<option value="">-- 非試用發放無須選擇 --</option>');
-
-    const sortedCustomers = [...appState.customers].map(c => ({
-        id: c.customer_id,
-        label: `${getCustomerResolvedName(c.customer_id)} (${c.customer_id})`
-    })).sort((a, b) => a.label.localeCompare(b.label, 'zh-Hant'));
-
-    sortedCustomers.forEach(c => {
-        const opt = `<option value="${c.id}">${c.label}</option>`;
-        $auditProspect.append(opt);
-        $modalProspect.append(opt);
+    // 4. 客戶選單
+    ['#auditProspectSelect', '#fieldTargetProspectId'].forEach(target => {
+        UISelectOptions.customer.populate({
+            target,
+            customers: appState.customers,
+            persons: appState.persons,
+            placeholder: '-- 非試用體驗無須選擇 --',
+            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
+        });
     });
 }
 
@@ -422,16 +336,9 @@ function switchTacticalMode(mode) {
 }
 
 function renderAdjustmentsTable() {
-    const hasAdminRights = isMasterAdmin();
 
     const formatted = appState.adjustments.map(a => {
-        let badgeClass = 'badge-info-subtle';
-        if (a.adj_type === '盤盈') badgeClass = 'badge-success-subtle';
-        else if (a.adj_type === '盤虧') badgeClass = 'badge-danger-subtle';
-        else if (a.adj_type === '破損過期') badgeClass = 'badge-danger-subtle';
-        else if (a.adj_type === '自用消耗') badgeClass = 'badge-purple-subtle';
-        else if (a.adj_type === '試用發放') badgeClass = 'badge-warning-subtle';
-        else if (a.adj_type === '拆盒解封') badgeClass = 'badge-purple-subtle';
+        const typeBadge = UIBadges.psi.adjustType(a.adj_type);
 
         const operatorResolved = getPartnerResolvedName(a.operator_partner_id);
         const prospectResolved = a.target_prospect_id ? getCustomerResolvedName(a.target_prospect_id) : '';
@@ -442,14 +349,14 @@ function renderAdjustmentsTable() {
 
         const actionButtons = `
             <div class="d-flex align-items-center justify-content-end gap-1">
-                ${hasAdminRights ? `
-                    <button class="btn btn-sm btn-outline-primary py-0 px-2 admin-action-btn" title="編輯單據" onclick="openEditAdjustmentModal('${a.id}')">
+                ${`
+                    <button class="btn btn-sm btn-outline-primary" title="編輯單據" onclick="openEditAdjustmentModal('${a.id}')">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger py-0 px-2 admin-action-btn" title="刪除單據" onclick="deleteAdjustmentRecord('${a.id}')">
+                    <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteAdjustmentRecord('${a.id}')">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
-                ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>'}
+                `}
             </div>
         `;
 
@@ -457,7 +364,7 @@ function renderAdjustmentsTable() {
             id_and_type: `
                 <div>
                     <div class="fw-bold text-white">${a.id}</div>
-                    <span class="badge ${badgeClass}">${a.adj_type}</span>
+                    ${typeBadge}
                 </div>
             `,
             warehouses: `
@@ -502,10 +409,6 @@ function renderAdjustmentsTable() {
     } else {
         dtAdjustmentsInstance = $('#tableAdjustments').DataTable({
             data: formatted,
-            responsive: true,
-            pageLength: 8,
-            lengthChange: false,
-            ordering: true,
             order: [[7, 'desc']],
             columns: [
                 { data: 'id_and_type' },
@@ -523,7 +426,6 @@ function renderAdjustmentsTable() {
 }
 
 function renderTransfersTable() {
-    const hasAdminRights = isMasterAdmin();
     const transfersOnly = appState.adjustments.filter(a => a.adj_type === '跨倉調撥');
 
     const formatted = transfersOnly.map(t => {
@@ -531,14 +433,14 @@ function renderTransfersTable() {
 
         const actionButtons = `
             <div class="d-flex align-items-center justify-content-end gap-1">
-                ${hasAdminRights ? `
-                    <button class="btn btn-sm btn-outline-primary py-0 px-2 admin-action-btn" title="編輯調撥單" onclick="openEditAdjustmentModal('${t.id}')">
+                ${`
+                    <button class="btn btn-sm btn-outline-primary" title="編輯調撥單" onclick="openEditAdjustmentModal('${t.id}')">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger py-0 px-2 admin-action-btn" title="刪除單據" onclick="deleteAdjustmentRecord('${t.id}')">
+                    <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteAdjustmentRecord('${t.id}')">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
-                ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>'}
+                `}
             </div>
         `;
 
@@ -577,10 +479,6 @@ function renderTransfersTable() {
     } else {
         dtTransfersInstance = $('#tableTransfers').DataTable({
             data: formatted,
-            responsive: true,
-            pageLength: 8,
-            lengthChange: false,
-            ordering: true,
             order: [[0, 'desc']],
             columns: [
                 { data: 'id_and_date' },
@@ -844,7 +742,7 @@ async function commitAuditRecord() {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`盤點單據【${adjNo}】已成功同步至 Google 試算表！`);
     } catch (err) {
         AppToast.error("寫入失敗: " + err.message);
@@ -952,7 +850,7 @@ async function commitTransferOrder() {
     try {
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`跨倉調撥單【${adjNo}】已成功建立！`);
     } catch (err) {
         AppToast.error("調撥單建立失敗: " + err.message);
@@ -1139,13 +1037,13 @@ async function saveAdjustmentRecord() {
             if (idx !== -1) appState.adjustments[idx] = updatedObj;
         }
 
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         bootstrap.Modal.getInstance(document.getElementById('adjustModal')).hide();
         AppToast.success(`單據【${id}】已成功儲存！`);
     } catch (err) {
         AppToast.error("寫入失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存單據變更');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 
@@ -1166,7 +1064,7 @@ async function deleteAdjustmentRecord(id) {
     try {
         await SheetAdapter.sendRequest('DELETE', '盤點調撥', id, []);
         appState.adjustments = appState.adjustments.filter(a => a.id !== id);
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`單據【${id}】已成功刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗: " + err.message);
@@ -1176,36 +1074,6 @@ async function deleteAdjustmentRecord(id) {
 // ==========================================================================
 // 8. 4 大試算表連線設定與匯出
 // ==========================================================================
-function openConfigModal() {
-    $('#cfgSheetPsi').val(SPREADSHEET_CONFIG.sheetPsi);
-    $('#cfgSheetOrg').val(SPREADSHEET_CONFIG.sheetOrg);
-    $('#cfgSheetPrd').val(SPREADSHEET_CONFIG.sheetPrd);
-    $('#cfgSheetCrm').val(SPREADSHEET_CONFIG.sheetCrm);
-    $('#cfgGasDeploymentId').val(SPREADSHEET_CONFIG.gasDeploymentId);
-    new bootstrap.Modal(document.getElementById('configModal')).show();
-}
-
-function saveSpreadsheetConfig() {
-    SPREADSHEET_CONFIG.sheetPsi = $('#cfgSheetPsi').val().trim();
-    SPREADSHEET_CONFIG.sheetOrg = $('#cfgSheetOrg').val().trim();
-    SPREADSHEET_CONFIG.sheetPrd = $('#cfgSheetPrd').val().trim();
-    SPREADSHEET_CONFIG.sheetCrm = $('#cfgSheetCrm').val().trim();
-    SPREADSHEET_CONFIG.gasDeploymentId = $('#cfgGasDeploymentId').val().trim();
-
-    localStorage.setItem('cfg_adj_sheet_psi', SPREADSHEET_CONFIG.sheetPsi);
-    localStorage.setItem('cfg_adj_sheet_org', SPREADSHEET_CONFIG.sheetOrg);
-    localStorage.setItem('cfg_adj_sheet_prd', SPREADSHEET_CONFIG.sheetPrd);
-    localStorage.setItem('cfg_adj_sheet_crm', SPREADSHEET_CONFIG.sheetCrm);
-    localStorage.setItem('cfg_adj_gas_id', SPREADSHEET_CONFIG.gasDeploymentId);
-
-    if (window.SheetAdapter) {
-        SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
-    }
-    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
-    AppToast.success("4 大試算表連線組態已更新，開始重新同步...");
-    fetchAllGoogleSheetsData();
-}
-
 function exportAdjustmentsCsv() {
     const csv = Papa.unparse(appState.adjustments);
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });

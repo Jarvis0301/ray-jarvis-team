@@ -2,11 +2,11 @@
 // 1. 系統組態與 4 大試算表來源定義
 // ==========================================================================
 const SPREADSHEET_CONFIG = {
-    sheetPsi: '1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo',
-    sheetOrg: '1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg',
-    sheetPrd: '18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I',
-    sheetCrm: '1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw',
-    gasDeploymentId: 'AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt'
+    sheetPsi: APP_CONFIG.SHEETS.PSI,
+    sheetOrg: APP_CONFIG.SHEETS.ORG,
+    sheetPrd: APP_CONFIG.SHEETS.PRD,
+    sheetCrm: APP_CONFIG.SHEETS.CRM,
+    gasDeploymentId: APP_CONFIG.GAS.PSI
 };
 
 // 系統資料狀態庫 (全面移除預設假資料)
@@ -54,79 +54,23 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com",
-            "jarvis.lin@gmail.com",
-            "ray.weng@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
-
 // ==========================================================================
-// 3. 個人與實體名稱權重解析核心 (展示名稱 > 中文 > 英文 > 暱稱)
+// 3. 實體名稱權重解析核心 (接軌 EntityResolver)
 // ==========================================================================
-function getPersonResolvedName(personId) {
-    if (!personId) return '';
-    const person = appState.persons.find(p => p.person_id === personId);
-    if (!person) return personId;
-
-    if (person.display_name && person.display_name.trim()) return person.display_name.trim();
-    if (person.name_zh && person.name_zh.trim()) return person.name_zh.trim();
-    if (person.name_en && person.name_en.trim()) return person.name_en.trim();
-    if (person.preferred_name && person.preferred_name.trim()) return person.preferred_name.trim();
-    return personId;
+function getPersonResolvedName(personId, displayMode = 1) {
+    return EntityResolver.person(personId, appState.persons, displayMode);
 }
 
-function getPartnerResolvedName(partnerId) {
-    if (!partnerId) return '-';
-    const partner = appState.partners.find(p => p.partner_id === partnerId || p.member_no === partnerId);
-    if (partner && partner.person_id) {
-        const name = getPersonResolvedName(partner.person_id);
-        if (name && name !== partner.person_id) return name;
-    }
-    if (partner && partner.name_zh && partner.name_zh.trim()) return partner.name_zh.trim();
-    return getPersonResolvedName(partnerId);
+function getPartnerResolvedName(partnerId, displayMode = 1) {
+    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
 }
 
-function getCustomerResolvedName(customerId) {
-    if (!customerId) return '-';
-    const customer = appState.customers.find(c => c.customer_id === customerId);
-    if (customer && customer.person_id) {
-        const name = getPersonResolvedName(customer.person_id);
-        if (name && name !== customer.person_id) return name;
-    }
-    return customerId;
+function getCustomerResolvedName(customerId, displayMode = 1) {
+    return EntityResolver.customer(customerId, appState.customers, appState.persons, displayMode);
 }
 
-function getWarehouseDisplayName(whId) {
-    const wh = appState.warehouses.find(w => w.id === whId);
-    return wh ? `${wh.warehouse_name} (${wh.id})` : whId;
-}
-
-function getWarehouseTypeOrder(type = '') {
-    const t = String(type).trim();
-    if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
-    if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
-    if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
-    if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
-    return 99;
+function getWarehouseDisplayName(whId, displayMode = 2) {
+    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
 // ==========================================================================
@@ -137,14 +81,12 @@ window.addEventListener('AppReady', async () => {
         SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
     }
     await initOutboundApp();
-    applyUIPermissions();
 });
 
 async function initOutboundApp() {
     if (isInitialized) return;
     isInitialized = true;
-
-    $('#hudSyncTime').text(getFormattedNow());
+    
     initEvents();
     await fetchAllGoogleSheetsData();
 }
@@ -158,12 +100,11 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
     return (parsed.data || []).slice(1);
 }
 
+/**
+ * 資料拉取引擎
+ */
 async function fetchAllGoogleSheetsData() {
-    if (window.AppLoading) {
-        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在連動同步 4 大試算表...', '銷貨出庫雲端同步');
-    }
-    const $btn = $('#btnSyncSheets');
-    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawOutbounds, rawOutboundItems, rawPersons, rawPartners, rawProducts, rawCustomers] = await Promise.all([
@@ -187,15 +128,14 @@ async function fetchAllGoogleSheetsData() {
         });
 
         refreshAllViews();
-        AppToast.success(`已完成 4 大試算表連動同步 (${appState.outbounds.length} 筆銷貨單據)`);
+        $('#hudSyncTime').text(getFormattedNow());
+
+        AppToast.success(`4 大試算表同步完成 (${appState.outbounds.length} 筆銷貨單據)`);
     } catch (err) {
         console.error("試算表同步異常:", err);
-        AppToast.error("部分試算表連線失敗，請檢查試算表 ID 與共用權限");
+        AppToast.error("部分試算表連線失敗，請檢查 4 大試算表共用權限");
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 重新同步');
-        if (window.AppLoading) {
-            AppLoading.hide();
-        }
+        AppLoading.hide();
     }
 }
 
@@ -340,48 +280,32 @@ function refreshAllViews() {
 }
 
 function populateFormOptions() {
-    const $whFilter = $('#filterWarehouse').empty().append('<option value="">全部出貨倉庫 (All Warehouses)</option>');
-    const $whField = $('#fieldWarehouseId').empty().append('<option value="">-- 請選擇實體扣庫倉庫 --</option>');
-    const $orderCenterField = $('#fieldOrderCenter').empty().append('<option value="">-- 請選擇出貨調度中心 --</option>');
-
-    // 依自用 -> 海外 -> 官方 -> 物流排序倉儲，無假資料
-    const sortedWarehouses = [...appState.warehouses].sort((a, b) => {
-        const orderA = getWarehouseTypeOrder(a.warehouse_type);
-        const orderB = getWarehouseTypeOrder(b.warehouse_type);
-        if (orderA !== orderB) return orderA - orderB;
-        return a.id.localeCompare(b.id);
+    // 倉儲
+    ['#filterWarehouse', '#fieldWarehouseId', '#fieldOrderCenter'].forEach(target => {
+        UISelectOptions.warehouse.populate({
+            target,
+            warehouses: appState.warehouses,
+            placeholder: target === '#filterWarehouse' ? '全部出貨倉庫 (All Warehouses)' : '-- 請選擇倉儲據點 --',
+            dropdownParent: target.startsWith('#field') ? '#outboundModal' : null
+        });
     });
 
-    sortedWarehouses.forEach(w => {
-        const opt = `<option value="${w.id}">${w.warehouse_name} (${w.id})</option>`;
-        $whFilter.append(opt);
-        $whField.append(opt);
-        $orderCenterField.append(opt);
+    // 夥伴
+    ['#fieldOperatorPartnerId', '#fieldRecipientPartnerId'].forEach(target => {
+        UISelectOptions.partner.populate({
+            target,
+            partners: appState.partners,
+            persons: appState.persons,
+            dropdownParent: '#outboundModal'
+        });
     });
 
-    // 經手開單夥伴 & 收件夥伴 (依中文排序)
-    const $opField = $('#fieldOperatorPartnerId').empty().append('<option value="">-- 請選擇經手開單夥伴 --</option>');
-    const $recPartnerField = $('#fieldRecipientPartnerId').empty().append('<option value="">-- 請選擇關聯夥伴 --</option>');
-
-    const sortedPartners = [...appState.partners].map(p => ({
-        id: p.partner_id,
-        label: `${getPartnerResolvedName(p.partner_id)} (${p.member_no || p.partner_id})`
-    })).sort((a, b) => a.label.localeCompare(b.label, 'zh-Hant'));
-
-    sortedPartners.forEach(p => {
-        $opField.append(`<option value="${p.id}">${p.label}</option>`);
-        $recPartnerField.append(`<option value="${p.id}">${p.label}</option>`);
-    });
-
-    // 客戶選單
-    const $recCustomerField = $('#fieldRecipientCustomerId').empty().append('<option value="">-- 請選擇關聯客戶 --</option>');
-    const sortedCustomers = [...appState.customers].map(c => ({
-        id: c.customer_id,
-        label: `${getCustomerResolvedName(c.customer_id)} (${c.customer_id})`
-    })).sort((a, b) => a.label.localeCompare(b.label, 'zh-Hant'));
-
-    sortedCustomers.forEach(c => {
-        $recCustomerField.append(`<option value="${c.id}">${c.label}</option>`);
+    // 客戶
+    UISelectOptions.customer.populate({
+        target: '#fieldRecipientCustomerId',
+        customers: appState.customers,
+        persons: appState.persons,
+        dropdownParent: '#outboundModal'
     });
 
     // 業績月份選單
@@ -454,11 +378,7 @@ function renderInspectorStage() {
     $('#inspWarehouseId').text(getWarehouseDisplayName(item.warehouse_id));
     $('#inspOrderCategory').text(item.order_category);
 
-    if (item.is_pre_order_hold === 'Y') {
-        $('#inspPreOrderHoldBadge').html('<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock"></i> 預扣鎖定中 (Y)</span>');
-    } else {
-        $('#inspPreOrderHoldBadge').html('<span class="badge badge-success-subtle"><i class="fa-solid fa-lock-open"></i> 正常交付出清 (N)</span>');
-    }
+    $('#inspPreOrderHoldBadge').html(UIBadges.psi.preOrderHold(item.is_pre_order_hold, true));
 
     $('#inspDeliveryMethod').text(item.delivery_method);
     $('#inspTrackingNo').text(item.tracking_no || '(無物流單號/自取)');
@@ -469,11 +389,9 @@ function renderInspectorStage() {
     const sign = item.total_profit_amount >= 0 ? '+' : '';
     $('#inspAmountAndProfit').text(`$${Number(item.total_sales_amount).toLocaleString()} / ${sign}$${Number(item.total_profit_amount).toLocaleString()}`);
 
-    let badgeClass = 'badge-muted-subtle';
-    if (item.fulfillment_status === '已交付') badgeClass = 'badge-success-subtle';
-    else if (item.fulfillment_status === '已寄出') badgeClass = 'badge-info-subtle';
-    else if (item.fulfillment_status === '待取貨') badgeClass = 'badge-purple-subtle';
-    $('#inspectorFulfillBadge').attr('class', `badge ${badgeClass}`).html(`<i class="fa-solid fa-truck-ramp-box"></i> ${item.fulfillment_status}`);
+    $('#inspectorFulfillBadge').replaceWith(
+        $(UIBadges.psi.outboundStatus(item.fulfillment_status)).attr('id', 'inspectorFulfillBadge')
+    );
 }
 
 function renderChart() {
@@ -566,9 +484,6 @@ function renderDataTable() {
     } else {
         outboundDataTableInstance = $('#outboundDataTable').DataTable({
             data: formattedRows,
-            responsive: true,
-            pageLength: 10,
-            ordering: true,
             order: [[3, 'desc']],
             columns: [
                 { data: 'id_and_cat' },
@@ -608,23 +523,14 @@ function getFilteredData() {
 }
 
 function formatTableRow(item) {
-    const hasAdminRights = isMasterAdmin();
-
-    let statusBadge = '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i>草稿</span>';
-    if (item.fulfillment_status === '待取貨') statusBadge = '<span class="badge badge-purple-subtle"><i class="fa-solid fa-clock me-1"></i>待取貨</span>';
-    else if (item.fulfillment_status === '已寄出') statusBadge = '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i>已寄出</span>';
-    else if (item.fulfillment_status === '已交付') statusBadge = '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>已交付</span>';
-    else if (item.fulfillment_status === '已取消') statusBadge = '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i>已取消</span>';
+    const statusBadge = UIBadges.psi.outboundStatus(item.fulfillment_status);
+    const holdBadge = UIBadges.psi.preOrderHold(item.is_pre_order_hold, false);
 
     const recipientResolved = (item.recipient_type === '經營者')
         ? getPartnerResolvedName(item.recipient_partner_id) || item.recipient_name
         : getCustomerResolvedName(item.recipient_customer_id) || item.recipient_name;
 
     const operatorResolved = getPartnerResolvedName(item.operator_partner_id);
-
-    const holdBadge = item.is_pre_order_hold === 'Y'
-        ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i>預扣</span>'
-        : '<span class="text-secondary small">正常</span>';
 
     const profitSign = item.total_profit_amount >= 0 ? '+' : '';
 
@@ -636,14 +542,14 @@ function formatTableRow(item) {
             <button class="btn btn-sm btn-outline-info py-0 px-2" title="查看銷貨細項" onclick="openDetailModal('${item.id}')">
                 <i class="fa-solid fa-list-ul"></i>
             </button>
-            ${hasAdminRights ? `
-                <button class="btn btn-sm btn-outline-primary py-0 px-2 admin-action-btn" title="編輯單據" onclick="openEditOutboundModal('${item.id}')">
+            ${`
+                <button class="btn btn-sm btn-outline-primary" title="編輯單據" onclick="openEditOutboundModal('${item.id}')">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger py-0 px-2 admin-action-btn" title="廢止單據" onclick="deleteOutboundOrder('${item.id}')">
+                <button class="btn btn-sm btn-outline-danger" title="廢止單據" onclick="deleteOutboundOrder('${item.id}')">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
-            ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>'}
+            `}
         </div>
     `;
 
@@ -888,7 +794,7 @@ function openDetailModal(orderId) {
                         <div class="text-secondary small">${it.official_product_code || '-'}</div>
                     </td>
                     <td>
-                        <span class="badge ${it.is_fee_item === 'Y' ? 'badge-muted-subtle' : 'badge-purple-subtle'}">${it.is_fee_item === 'Y' ? '費用' : '實物'}</span>
+                        ${UIBadges.psi.feeItem(it.is_fee_item)}
                         <span class="badge badge-muted-subtle">${it.sales_unit}</span>
                     </td>
                     <td>$${it.unit_price.toLocaleString()}</td>
@@ -1024,14 +930,16 @@ async function saveOutboundOrder() {
             if (idx !== -1) appState.outbounds[idx] = updatedObj;
         }
 
+        await fetchAllGoogleSheetsData();
+
         appState.selectedOutboundId = orderId;
-        refreshAllViews();
+        renderInspectorStage();
         bootstrap.Modal.getInstance(document.getElementById('outboundModal')).hide();
         AppToast.success(`銷貨單據【${orderId}】儲存成功！`);
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存銷貨出庫單');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 
@@ -1076,7 +984,7 @@ async function quickMarkDelivered() {
 
     try {
         await SheetAdapter.sendRequest('UPDATE', '銷貨主檔', item.id, rowDataArray);
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`銷貨單【${item.id}】已標記交付，實體庫存成功扣減！`);
     } catch (err) {
         AppToast.error("交付狀態更新失敗：" + err.message);
@@ -1100,7 +1008,7 @@ async function deleteOutboundOrder(id) {
         if (appState.selectedOutboundId === id) {
             appState.selectedOutboundId = appState.outbounds.length > 0 ? appState.outbounds[0].id : '';
         }
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`銷貨單【${id}】已成功自雲端刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗：" + err.message);
@@ -1110,36 +1018,6 @@ async function deleteOutboundOrder(id) {
 // ==========================================================================
 // 7. 試算表連線設定與匯出
 // ==========================================================================
-function openConfigModal() {
-    $('#cfgSheetPsi').val(SPREADSHEET_CONFIG.sheetPsi);
-    $('#cfgSheetOrg').val(SPREADSHEET_CONFIG.sheetOrg);
-    $('#cfgSheetPrd').val(SPREADSHEET_CONFIG.sheetPrd);
-    $('#cfgSheetCrm').val(SPREADSHEET_CONFIG.sheetCrm);
-    $('#cfgGasDeploymentId').val(SPREADSHEET_CONFIG.gasDeploymentId);
-    new bootstrap.Modal(document.getElementById('configModal')).show();
-}
-
-function saveSpreadsheetConfig() {
-    SPREADSHEET_CONFIG.sheetPsi = $('#cfgSheetPsi').val().trim();
-    SPREADSHEET_CONFIG.sheetOrg = $('#cfgSheetOrg').val().trim();
-    SPREADSHEET_CONFIG.sheetPrd = $('#cfgSheetPrd').val().trim();
-    SPREADSHEET_CONFIG.sheetCrm = $('#cfgSheetCrm').val().trim();
-    SPREADSHEET_CONFIG.gasDeploymentId = $('#cfgGasDeploymentId').val().trim();
-
-    localStorage.setItem('cfg_out_sheet_psi', SPREADSHEET_CONFIG.sheetPsi);
-    localStorage.setItem('cfg_out_sheet_org', SPREADSHEET_CONFIG.sheetOrg);
-    localStorage.setItem('cfg_out_sheet_prd', SPREADSHEET_CONFIG.sheetPrd);
-    localStorage.setItem('cfg_out_sheet_crm', SPREADSHEET_CONFIG.sheetCrm);
-    localStorage.setItem('cfg_out_gas_id', SPREADSHEET_CONFIG.gasDeploymentId);
-
-    if (window.SheetAdapter) {
-        SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
-    }
-    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
-    AppToast.success("4 大試算表連線組態已更新，重新同步中...");
-    fetchAllGoogleSheetsData();
-}
-
 function exportOutboundCSV() {
     const csv = Papa.unparse(appState.outbounds);
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });

@@ -1,9 +1,9 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
-const SPREADSHEET_ID_PRD = "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I";        // 獨立產品主檔試算表 (表 101 prd_items)
-const GAS_DEPLOY_ID = "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.PSI;            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
+const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;        // 獨立產品主檔試算表 (表 101 prd_items)
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI; // GAS 部署 ID
 const SHEET_PRODUCTS = "產品主檔";   // 表 101: prd_items
 const SHEET_WAREHOUSES = "據點倉儲"; // 表 301: psi_warehouses
 const SHEET_ALERTS = "庫存預警";     // 表 308: psi_alerts
@@ -48,20 +48,12 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-/**
- * 取得據點中文名稱
- */
-function getWarehouseName(whId) {
-    if (!whId) return '-';
-    return appState.warehouses[whId]?.name || whId;
+function getWarehouseName(whId, displayMode = 1) {
+    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
-/**
- * 取得產品簡稱 (優先 short_name，次之完整 name)
- */
-function getProductShortName(prdId) {
-    if (!prdId) return '-';
-    return appState.products[prdId]?.short_name || appState.products[prdId]?.name || prdId;
+function getProductShortName(prdId, displayMode = 1) {
+    return EntityResolver.product(prdId, appState.products, displayMode);
 }
 
 // ==========================================================================
@@ -88,7 +80,6 @@ window.addEventListener('AppReady', async () => {
         SheetAdapter.init(GAS_DEPLOY_ID);
     }
     await initAlertsApp();
-    applyUIPermissions();
 });
 
 async function initAlertsApp() {
@@ -99,34 +90,12 @@ async function initAlertsApp() {
     await fetchGoogleSheetsData();
 }
 
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddThreshold').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
-
 // ==========================================================================
 // 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步預警與主檔資料...', '連線 Google 試算表');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    
     try {
         // 擴充支援傳入特定試算表 ID (預設為 SPREADSHEET_ID)
         const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
@@ -283,7 +252,6 @@ function refreshView() {
     renderHudMetrics();
     renderAlertsDataTable();
     renderThresholdsDataTable();
-    applyUIPermissions();
 }
 
 function renderHudMetrics() {
@@ -342,12 +310,10 @@ function filterAlertsTable() {
 }
 
 function formatAlertRow(a) {
-    const hasAdminRights = isMasterAdmin();
-
-    // 改接 UIBadges.stockAlert 核心模組
-    const typeBadge = UIBadges.stockAlert.type(a.alert_type);
-    const levelBadge = UIBadges.stockAlert.level(a.alert_level);
-    const statusBadge = UIBadges.stockAlert.status(a.status);
+    // 改接 UIBadges.psi 核心模組
+    const typeBadge = UIBadges.psi.alertType(a.alert_type);
+    const levelBadge = UIBadges.psi.alertLevel(a.alert_level);
+    const statusBadge = UIBadges.psi.alertStatus(a.status);
 
     // 效期倒數顯示
     let daysDisplay = '<span class="text-secondary">-</span>';
@@ -361,11 +327,11 @@ function formatAlertRow(a) {
         }
     }
 
-    const actionBtn = hasAdminRights ? `
+    const actionBtn = `
         <button class="btn btn-sm btn-secondary" onclick="openResolveAlertModal('${a.id}')">
             <i class="fa-solid fa-bolt"></i> 處置
         </button>
-    ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+    `;
 
     return {
         checkbox: `<input type="checkbox" class="alert-item-check form-check-input" value="${a.id}">`,
@@ -408,10 +374,9 @@ function renderThresholdsDataTable() {
 }
 
 function formatThresholdRow(t) {
-    const hasAdminRights = isMasterAdmin();
     const monitoredPill = UIBadges.common.boolean(t.is_monitored, '監控中', '暫停');
 
-    const actionButtons = hasAdminRights ? `
+    const actionButtons = `
         <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-primary" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
                 <i class="fa-solid fa-pen"></i>
@@ -420,7 +385,7 @@ function formatThresholdRow(t) {
                 <i class="fa-solid fa-trash-alt"></i>
             </button>
         </div>
-    ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+    `;
 
     return {
         id: `<span class="fw-bold text-info">${t.id}</span>`,
@@ -433,18 +398,6 @@ function formatThresholdRow(t) {
 }
 
 /**
- * 取得倉儲類型排序權重 (自用 -> 海外 -> 官方 -> 物流)
- */
-function getWarehouseTypeOrder(type = '') {
-    const t = String(type).trim().toUpperCase();
-    if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
-    if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
-    if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
-    if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
-    return 99;
-}
-
-/**
  * 動態填入門檻 Modal 之下拉選單 (改接 UISelectOptions 共用模組)
  * 1. 倉儲：依自用 -> 海外 -> 官方 -> 物流排序，可搜尋、不分組
  * 2. 產品：依 TW / MY / 其他市場分組，品號升冪排序，可搜尋、分組
@@ -453,67 +406,23 @@ function populateThresholdSelectOptions() {
     const $wh = $('#fieldThresholdWarehouse');
     const $prd = $('#fieldThresholdProduct');
 
-    // 1. 倉儲選單資料排序 (自用 -> 海外 -> 官方 -> 物流)
-    const sortedWarehouses = Object.values(appState.warehouses).sort((a, b) => {
-        const orderA = getWarehouseTypeOrder(a.type);
-        const orderB = getWarehouseTypeOrder(b.type);
-        if (orderA !== orderB) return orderA - orderB;
-        return a.id.localeCompare(b.id);
-    });
-
-    // 渲染「據點倉儲」下拉選單
-    UISelectOptions.core.render({
-        target: $wh,
-        data: sortedWarehouses,
-        valueKey: 'id',
-        textKey: (wh) => `${wh.name} (${wh.id})${wh.type ? ` [${wh.type}]` : ''}`,
-        placeholder: '-- 請選擇據點倉儲 --',
-        selectedValue: $wh.val() || '',
-        searchable: true,
-        creatable: false,
-        grouped: false,
-        dropdownParent: '#thresholdModal'
-    });
-
-    // 2. 產品選單資料結構化與排序 (TW 優先 -> MY 次之 -> 其他市場，內部依品號排序)
-    const regionPriority = { 'TW': 1, 'MY': 2 };
-    const structuredProducts = Object.values(appState.products)
-        .sort((a, b) => {
-            const prioA = regionPriority[a.region] || 99;
-            const prioB = regionPriority[b.region] || 99;
-            if (prioA !== prioB) return prioA - prioB;
-            return a.code.localeCompare(b.code);
-        })
-        .map(prd => ({
-            ...prd,
-            group: prd.region === 'TW' ? '🇹🇼 台灣市場' : (prd.region === 'MY' ? '🇲🇾 馬來西亞市場' : '🌐 其他市場')
-        }));
-
-    // 渲染「產品品項」下拉選單 (分組)
-    UISelectOptions.core.render({
-        target: $prd,
-        data: structuredProducts,
-        valueKey: 'code',
-        textKey: (prd) => `${prd.short_name} (${prd.code})`,
-        groupKey: 'group',
-        placeholder: '-- 請選擇產品品項 --',
-        selectedValue: $prd.val() || '',
-        searchable: true,
-        creatable: false,
-        grouped: true,
-        dropdownParent: '#thresholdModal'
-    });
-
-    // 綁定選取變更事件，於新增模式下即時聯動生成主鍵 ID
-    $wh.off('change.autoId').on('change.autoId', function() {
-        if ($('#thresholdFormMode').val() === 'add') {
-            updateGeneratedThresholdId();
+    UISelectOptions.warehouse.populate({
+        target: '#fieldThresholdWarehouse',
+        warehouses: appState.warehouses,
+        selectedValue: $('#fieldThresholdWarehouse').val() || '',
+        dropdownParent: '#thresholdModal',
+        onChange: () => {
+            if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
         }
     });
 
-    $prd.off('change.autoId').on('change.autoId', function() {
-        if ($('#thresholdFormMode').val() === 'add') {
-            updateGeneratedThresholdId();
+    UISelectOptions.product.populate({
+        target: '#fieldThresholdProduct',
+        products: appState.products,
+        selectedValue: $('#fieldThresholdProduct').val() || '',
+        dropdownParent: '#thresholdModal',
+        onChange: () => {
+            if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
         }
     });
 }
@@ -663,7 +572,7 @@ async function saveThresholdItem() {
     } catch (err) {
         AppToast.error("門檻寫入失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存門檻規則');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 
@@ -694,7 +603,7 @@ function openResolveAlertModal(alertId) {
 
     $('#resolveAlertId').val(a.id);
     $('#resolveAlertIdDisplay').text(a.id);
-    $('#resolveAlertTypeBadge').html(UIBadges.stockAlert.type(a.alert_type));
+    $('#resolveAlertTypeBadge').html(UIBadges.psi.alertType(a.alert_type));
     $('#resolveAlertItemText').text(`${getProductShortName(a.product_id)} (${a.product_id})`);
     $('#resolveAlertWhText').text(`${getWarehouseName(a.warehouse_id)} (${a.warehouse_id})`);
     $('#resolveAlertSuggestedText').text(a.remarks || '常規調撥備貨防線');

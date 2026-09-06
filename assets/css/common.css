@@ -9507,6 +9507,22 @@ body {
   box-shadow: 0 0 40px var(--uvaco-primary-glow);
 }
 
+.hud-sentinel-bar {
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hud-sentinel-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6), var(--uvaco-accent, #ec4899));
+  box-shadow: 0 0 12px var(--uvaco-accent, #ec4899);
+}
+
 @keyframes ctaPulseGlow {
   0%, 100% {
     box-shadow: 0 0 15px var(--uvaco-border-glow);

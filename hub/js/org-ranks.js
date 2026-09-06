@@ -3,8 +3,8 @@
 // 對接 SheetAdapter, UIBadges, AppDialog, AppToast, AppLoading
 // ==========================================================================
 
-const SPREADSHEET_ID = "1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg";
-const GAS_DEPLOY_ID = "AKfycbwCHIswVrVHuvEusFZrg2KjTCCwYhlf-3h-QbWhro8YVekUt1wNa4oDxxBxzPc_z6cd";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.ORG;
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.ORG;
 
 // ==========================================================================
 // 工具函式與數值/日期轉換
@@ -130,18 +130,9 @@ let historyDataTable = null;
 let singlePartnerDataTable = null;
 let partnerRankChartInstance = null;
 
-function getPartnerDisplayName(partnerId) {
+function getPartnerDisplayName(partnerId, displayMode = 2) {
     if (!partnerId) return '-';
-    const partner = appState.partners.find(ptn => ptn.partner_id === partnerId);
-    if (!partner) return partnerId;
-
-    const person = appState.persons.find(psn => psn.person_id === partner.person_id);
-    const name = (person && (person.name_zh || person.name_en || person.preferred_name)) 
-        ? (person.name_zh || person.name_en || person.preferred_name) 
-        : (partner.partner_name_zh || partner.partner_id);
-    const memberNo = (partner && partner.member_no) ? ` (${partner.member_no})` : '';
-    
-    return `${name}${memberNo} [${partner.partner_id}]`;
+    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
 }
 
 // ==========================================================================
@@ -152,36 +143,15 @@ window.addEventListener('AppReady', async () => {
         SheetAdapter.init(GAS_DEPLOY_ID);
     }
     await fetchGoogleSheetsData();
-    applyUIPermissions();
 });
-
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return true;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = ["jarvis20250807@gmail.com", "fish7548@gmail.com", "jarvis.lin@gmail.com", "ray.weng@gmail.com"];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
 
 // ==========================================================================
 // 資料讀取引擎 (解析 4 張中文工作表)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    
     try {
-        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步職級標準、歷程、夥伴與個人主檔...', '讀取雲端試算表');
-
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
@@ -470,16 +440,14 @@ function populatePartnerDropdown() {
         : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
 
     // 透過共用模組渲染夥伴戰情下拉選單 (可搜尋、不可自訂新增)
-    UISelectOptions.core.render({
+    UISelectOptions.partner.populate({
         target: $select,
-        data: partnerList,
-        valueKey: 'partner_id',
-        textKey: (p) => getPartnerDisplayName(p.partner_id),
+        partners: partnerList,
+        persons: appState.persons,
+        displayMode: 2,
         placeholder: '請選擇或搜尋夥伴...',
         selectedValue: $select.val() || (partnerList[0]?.partner_id || ''),
-        searchable: true,
-        creatable: false,
-        grouped: false
+        searchable: true
     });
 
     $select.off('change.partnerDash').on('change.partnerDash', function () {
@@ -752,7 +720,6 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
 
 // 在 org-ranks.js 中替換原 renderPartnerSingleTable 內部迴圈與標頭提示
 function renderPartnerSingleTable(ptnHistory, delegation = null) {
-    const hasAdminRights = isMasterAdmin();
     const isDelegated = delegation && delegation.isDelegated;
     const primaryDisplayName = isDelegated ? getPartnerDisplayName(delegation.targetPartnerId) : '';
 
@@ -764,13 +731,11 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         if (isDelegated) {
             // 共同經營者採動態同步，提示需至主要經營者處異動
             actionBtns = `<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate"></i> 共同經營同步</span>`;
-        } else if (hasAdminRights) {
+        } else {
             actionBtns = `
                 <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
                 <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
             `;
-        } else {
-            actionBtns = '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
         }
 
         const noteSyncTag = isDelegated 
@@ -823,12 +788,11 @@ function renderHistoryTable() {
     const formatted = appState.history.map(h => {
         const prevRank = appState.ranks.find(r => r.rank_id === h.previous_rank_id);
         const newRank = appState.ranks.find(r => r.rank_id === h.new_rank_id);
-        const hasAdminRights = isMasterAdmin();
 
-        const actionBtns = hasAdminRights ? `
+        const actionBtns = `
             <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
             <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
-        ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+        `;
 
         return {
             partner_name: `<strong class="text-white">${getPartnerDisplayName(h.partner_id)}</strong>`,
@@ -877,16 +841,14 @@ function initPartnerSelect2() {
         : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
 
     // 透過共用模組渲染晉升登記之夥伴選單 (綁定 Modal 父層與防脫軌滾動守衛)
-    UISelectOptions.core.render({
+    UISelectOptions.partner.populate({
         target: $partnerSelect,
-        data: partnerList,
-        valueKey: 'partner_id',
-        textKey: (p) => getPartnerDisplayName(p.partner_id),
+        partners: partnerList,
+        persons: appState.persons,
+        displayMode: 2,
         placeholder: '請選擇或搜尋夥伴...',
         selectedValue: $partnerSelect.val() || '',
         searchable: true,
-        creatable: false,
-        grouped: false,
         dropdownParent: '#rankHistoryModal'
     });
 

@@ -1,7 +1,8 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與資料庫核心轉接器
 // ==========================================================================
-const SPREADSHEET_ID = "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.SYS;
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.SYS;
 
 /**
  * 試算表欄位索引安全取值工具函式
@@ -54,9 +55,8 @@ let isInitialized = false;
 // 3. 系統生命週期與事件初始化
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
-    SheetAdapter.init("AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA");
+    SheetAdapter.init(GAS_DEPLOY_ID);
     await initApp();
-    applyUIPermissions();
 });
 
 async function initApp() {
@@ -73,40 +73,12 @@ async function initApp() {
     }
 }
 
-/**
- * 檢查當前登入者是否為最高管理者
- */
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-/**
- * UI 動態權限檢查
- */
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
-
 // ==========================================================================
 // 4. 資料讀取引擎 (依 Schema 索引順序讀取選單架構)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步選單...', '載入最新結構');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    
     try {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
@@ -408,11 +380,11 @@ function renderMenuDataTable() {
     }
 }
 
-function formatTableRow(m) {const hasAdminRights = isMasterAdmin();
-    const actionButtons = hasAdminRights ? `
+function formatTableRow(m) {
+    const actionButtons = `
         <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="openEditModal('${m.menu_id}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" onclick="deleteMenuItem('${m.menu_id}')"><i class="fa-solid fa-trash-alt"></i></button>
-    ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+    `;
 
     return {
         menu_id: `<span class="fw-bold">${m.menu_id}</span>`,

@@ -2,10 +2,10 @@
 // 1. 系統組態與三張試算表來源定義
 // ==========================================================================
 const SPREADSHEET_CONFIG = {
-    sheetPsi: '1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo',
-    sheetOrg: '1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg',
-    sheetPrd: '18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I',
-    gasDeploymentId: 'AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt'
+    sheetPsi: APP_CONFIG.SHEETS.PSI,
+    sheetOrg: APP_CONFIG.SHEETS.ORG,
+    sheetPrd: APP_CONFIG.SHEETS.PRD,
+    gasDeploymentId: APP_CONFIG.GAS.PSI
 };
 
 // 系統資料狀態庫 (不注入預設假資料)
@@ -51,67 +51,15 @@ function getFormattedNow() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com",
-            "jarvis.lin@gmail.com",
-            "ray.weng@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
-
 // ==========================================================================
-// 3. 夥伴名稱權重解析核心 (展示名稱 > 中文 > 英文 > 暱稱)
+// 3. 實體名稱權重解析核心 (接軌 EntityResolver)
 // ==========================================================================
-function getPartnerResolvedName(partnerId) {
-    if (!partnerId) return '-';
-    const partner = appState.partners.find(p => p.partner_id === partnerId || p.member_no === partnerId);
-    const personId = partner ? partner.person_id : partnerId;
-    const person = appState.persons.find(p => p.person_id === personId || p.person_id === partnerId);
-
-    let chosenName = '';
-    if (person) {
-        if (person.display_name && person.display_name.trim()) chosenName = person.display_name.trim();
-        else if (person.name_zh && person.name_zh.trim()) chosenName = person.name_zh.trim();
-        else if (person.name_en && person.name_en.trim()) chosenName = person.name_en.trim();
-        else if (person.preferred_name && person.preferred_name.trim()) chosenName = person.preferred_name.trim();
-    }
-
-    if (!chosenName && partner) {
-        if (partner.name_zh && partner.name_zh.trim()) chosenName = partner.name_zh.trim();
-    }
-
-    return chosenName || partnerId;
+function getPartnerResolvedName(partnerId, displayMode = 1) {
+    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
 }
 
-function getWarehouseDisplayName(whId) {
-    const wh = appState.warehouses.find(w => w.id === whId);
-    return wh ? `${wh.warehouse_name} (${wh.id})` : whId;
-}
-
-function getWarehouseTypeOrder(type = '') {
-    const t = String(type).trim();
-    if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
-    if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
-    if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
-    if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
-    return 99;
+function getWarehouseDisplayName(whId, displayMode = 2) {
+    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
 // ==========================================================================
@@ -122,14 +70,12 @@ window.addEventListener('AppReady', async () => {
         SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
     }
     await initInboundApp();
-    applyUIPermissions();
 });
 
 async function initInboundApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    $('#hudSyncTime').text(getFormattedNow());
     initFormEvents();
     await fetchAllGoogleSheetsData();
 }
@@ -143,17 +89,13 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
     return (parsed.data || []).slice(1); // 略過第 0 列標題
 }
 
+/**
+ * 資料讀取引擎
+ */
 async function fetchAllGoogleSheetsData() {
-    if (window.AppLoading) {
-        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在連動同步 3 大試算表...', '進貨入庫雲端同步');
-    }
-    const $btn = $('#btnSyncSheets');
-    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
-        // 試算表 1：據點倉儲、進貨主檔、進貨明細
-        // 試算表 2：個人主檔、夥伴主檔
-        // 試算表 3：產品主檔
         const [rawWarehouses, rawInbounds, rawInboundItems, rawPersons, rawPartners, rawProducts] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '據點倉儲').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '進貨主檔').catch(() => []),
@@ -173,15 +115,14 @@ async function fetchAllGoogleSheetsData() {
         });
 
         refreshAllViews();
+        $('#hudSyncTime').text(getFormattedNow());
+
         AppToast.success(`已完成 3 大試算表連動同步 (${appState.inbounds.length} 筆進貨單據)`);
     } catch (err) {
         console.error("試算表同步異常:", err);
         AppToast.error("部分試算表連線失敗，請檢查試算表 ID 與共用權限");
-    } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 重新同步');
-        if (window.AppLoading) {
-            AppLoading.hide();
-        }
+} finally {
+    AppLoading.hide();
     }
 }
 
@@ -292,39 +233,27 @@ function refreshAllViews() {
 }
 
 function populateFilterOptions() {
-    const $whFilter = $('#filterWarehouse').empty().append('<option value="">全部收貨倉庫 (All Warehouses)</option>');
-    const $whField = $('#fieldWarehouseId').empty().append('<option value="">-- 請選擇入庫實體據點 --</option>');
-    const $centerField = $('#fieldOrderCenter').empty().append('<option value="網路">網路 (APP / 官方電商)</option>');
-
-    // 依自用 -> 海外 -> 官方 -> 物流排序倉儲
-    const sortedWarehouses = [...appState.warehouses].sort((a, b) => {
-        const orderA = getWarehouseTypeOrder(a.warehouse_type);
-        const orderB = getWarehouseTypeOrder(b.warehouse_type);
-        if (orderA !== orderB) return orderA - orderB;
-        return a.id.localeCompare(b.id);
+    // 倉儲
+    UISelectOptions.warehouse.populate({
+        target: '#filterWarehouse',
+        warehouses: appState.warehouses,
+        placeholder: '全部收貨倉庫 (All Warehouses)'
+    });
+    UISelectOptions.warehouse.populate({
+        target: '#fieldWarehouseId',
+        warehouses: appState.warehouses,
+        dropdownParent: '#inboundModal'
     });
 
-    sortedWarehouses.forEach(w => {
-        const opt = `<option value="${w.id}">${w.warehouse_name} (${w.id})</option>`;
-        $whFilter.append(opt);
-        $whField.append(opt);
-        if (w.warehouse_type === 'OFFICIAL_CENTER' || (w.warehouse_type && w.warehouse_type.includes('官方'))) {
-            $centerField.append(`<option value="${w.warehouse_name}">${w.warehouse_name}</option>`);
-        }
-    });
-
-    // 夥伴下拉選單：依據展示名稱排序，完全依賴主檔無假資料
-    const $purchaser = $('#fieldPurchaserPartnerId').empty().append('<option value="">-- 請選擇出資夥伴 --</option>');
-    const $svOwner = $('#fieldSvOwnerPartnerId').empty().append('<option value="">-- 請選擇點數歸屬人 --</option>');
-
-    const sortedPartners = [...appState.partners].map(p => ({
-        id: p.partner_id,
-        label: `${getPartnerResolvedName(p.partner_id)} (${p.member_no || p.partner_id})`
-    })).sort((a, b) => a.label.localeCompare(b.label, 'zh-Hant'));
-
-    sortedPartners.forEach(p => {
-        $purchaser.append(`<option value="${p.id}">${p.label}</option>`);
-        $svOwner.append(`<option value="${p.id}">${p.label}</option>`);
+    // 夥伴
+    ['#fieldPurchaserPartnerId', '#fieldSvOwnerPartnerId'].forEach(target => {
+        UISelectOptions.partner.populate({
+            target,
+            partners: appState.partners,
+            persons: appState.persons,
+            placeholder: target.includes('Purchaser') ? '-- 請選擇出資夥伴 --' : '-- 請選擇點數歸屬人 --',
+            dropdownParent: '#inboundModal'
+        });
     });
 
     // 月份選單
@@ -455,9 +384,6 @@ function renderDataTable() {
     } else {
         inboundDataTableInstance = $('#inboundDataTable').DataTable({
             data: formattedRows,
-            responsive: true,
-            pageLength: 10,
-            ordering: true,
             order: [[3, 'desc']],
             columns: [
                 { data: 'order_id' },
@@ -490,17 +416,7 @@ function getFilteredData() {
 }
 
 function formatTableRow(item) {
-    const hasAdminRights = isMasterAdmin();
-
-    // 狀態標籤全面套用筆記本共用 subtle 類別
-    let statusBadge = '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i>草稿</span>';
-    if (item.status === '運輸中') {
-        statusBadge = '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i>運輸中</span>';
-    } else if (item.status === '已入庫驗收') {
-        statusBadge = '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>已入庫驗收</span>';
-    } else if (item.status === '已作廢') {
-        statusBadge = '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i>已作廢</span>';
-    }
+    const statusBadge = UIBadges.psi.inboundStatus(item.status);
 
     const purchaserName = getPartnerResolvedName(item.purchaser_partner_id);
     const svOwnerName = getPartnerResolvedName(item.sv_owner_partner_id);
@@ -519,19 +435,19 @@ function formatTableRow(item) {
             <button class="btn btn-sm btn-outline-info py-0 px-2" title="查看明細項" onclick="openDetailModal('${item.id}')">
                 <i class="fa-solid fa-list-ul"></i>
             </button>
-            ${hasAdminRights ? `
-                <button class="btn btn-sm btn-outline-primary py-0 px-2 admin-action-btn" title="編輯單據" onclick="openEditModal('${item.id}')">
+            ${`
+                <button class="btn btn-sm btn-outline-primary" title="編輯單據" onclick="openEditModal('${item.id}')">
                     <i class="fa-solid fa-pen"></i>
                 </button>
                 ${item.status === '運輸中' ? `
-                    <button class="btn btn-sm btn-outline-success py-0 px-2 admin-action-btn" title="驗收入庫歸戶" onclick="quickVerifyInbound('${item.id}')">
+                    <button class="btn btn-sm btn-outline-success" title="驗收入庫歸戶" onclick="quickVerifyInbound('${item.id}')">
                         <i class="fa-solid fa-stamp"></i>
                     </button>
                 ` : ''}
-                <button class="btn btn-sm btn-outline-danger py-0 px-2 admin-action-btn" title="刪除單據" onclick="deleteInboundItem('${item.id}')">
+                <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteInboundItem('${item.id}')">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
-            ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>'}
+            `}
         </div>
     `;
 
@@ -691,7 +607,7 @@ function openDetailModal(orderId) {
                         <div class="fw-bold text-white">${it.product_name_snapshot || '-'}</div>
                         <div class="text-secondary small">${it.official_product_code || '-'}</div>
                     </td>
-                    <td><span class="badge ${it.is_fee_item === 'Y' ? 'badge-muted-subtle' : 'badge-purple-subtle'}">${it.is_fee_item === 'Y' ? '費用' : '實體商品'}</span></td>
+                    <td>${UIBadges.psi.feeItem(it.is_fee_item)}</td>
                     <td>$${it.unit_cost.toLocaleString()}</td>
                     <td class="text-warning">${it.unit_sv} SV</td>
                     <td>${it.ordered_qty}</td>
@@ -796,13 +712,13 @@ async function saveInboundItem() {
             if (idx !== -1) appState.inbounds[idx] = updatedObj;
         }
 
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         bootstrap.Modal.getInstance(document.getElementById('inboundModal')).hide();
         AppToast.success(`進貨單據【${orderId}】儲存成功！`);
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存單據變更');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 
@@ -838,7 +754,7 @@ async function quickVerifyInbound(orderId) {
 
     try {
         await SheetAdapter.sendRequest('UPDATE', '進貨主檔', item.id, rowDataArray);
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`單號【${item.id}】已驗收合格，正式歸戶入庫！`);
     } catch (err) {
         AppToast.error("驗收狀態更新失敗：" + err.message);
@@ -859,7 +775,7 @@ async function deleteInboundItem(orderId) {
     try {
         await SheetAdapter.sendRequest('DELETE', '進貨主檔', orderId, []);
         appState.inbounds = appState.inbounds.filter(d => d.id !== orderId);
-        refreshAllViews();
+        await fetchAllGoogleSheetsData();
         AppToast.success(`進貨單【${item.id}】已成功刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗：" + err.message);
@@ -869,33 +785,6 @@ async function deleteInboundItem(orderId) {
 // ==========================================================================
 // 7. 試算表連線設定與匯出
 // ==========================================================================
-function openConfigModal() {
-    $('#cfgSheetPsi').val(SPREADSHEET_CONFIG.sheetPsi);
-    $('#cfgSheetOrg').val(SPREADSHEET_CONFIG.sheetOrg);
-    $('#cfgSheetPrd').val(SPREADSHEET_CONFIG.sheetPrd);
-    $('#cfgGasDeploymentId').val(SPREADSHEET_CONFIG.gasDeploymentId);
-    new bootstrap.Modal(document.getElementById('configModal')).show();
-}
-
-function saveSpreadsheetConfig() {
-    SPREADSHEET_CONFIG.sheetPsi = $('#cfgSheetPsi').val().trim();
-    SPREADSHEET_CONFIG.sheetOrg = $('#cfgSheetOrg').val().trim();
-    SPREADSHEET_CONFIG.sheetPrd = $('#cfgSheetPrd').val().trim();
-    SPREADSHEET_CONFIG.gasDeploymentId = $('#cfgGasDeploymentId').val().trim();
-
-    localStorage.setItem('cfg_sheet_psi', SPREADSHEET_CONFIG.sheetPsi);
-    localStorage.setItem('cfg_sheet_org', SPREADSHEET_CONFIG.sheetOrg);
-    localStorage.setItem('cfg_sheet_prd', SPREADSHEET_CONFIG.sheetPrd);
-    localStorage.setItem('cfg_gas_id', SPREADSHEET_CONFIG.gasDeploymentId);
-
-    if (window.SheetAdapter) {
-        SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
-    }
-    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
-    AppToast.success("試算表連線配置已更新，開始重新同步...");
-    fetchAllGoogleSheetsData();
-}
-
 function exportCsv() {
     const csv = Papa.unparse(appState.inbounds);
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });

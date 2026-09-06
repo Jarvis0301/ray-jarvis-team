@@ -1,7 +1,7 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與全域狀態管理 (State Management)
 // ==========================================================================
-const SPREADSHEET_ID = '1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw'; // 雲端試算表 ID
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.SYS; // 雲端試算表 ID
 const SHEET_NAME = '選單架構'; // 工作表名稱
 const CURRENT_APP_TRACK = '公開版'; // 當前系統版本：'公開版' | '團隊版' | '核心版'
 

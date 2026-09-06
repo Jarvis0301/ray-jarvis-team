@@ -1,8 +1,8 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與核心常數
 // ==========================================================================
-const SPREADSHEET_ID = "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo";
-const GAS_DEPLOY_ID = "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt";
+const SPREADSHEET_ID = APP_CONFIG.SHEETS.PSI;
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI;
 const SHEET_NAME = "據點倉儲"; // 對應表 301 psi_warehouses
 
 /**
@@ -61,43 +61,14 @@ window.addEventListener('AppReady', async () => {
     
     bindUIEvents();
     await fetchGoogleSheetsData();
-    applyUIPermissions();
 });
-
-/**
- * 檢查當前登入者是否為最高管理者 (Ray 或 Jarvis)
- */
-function isMasterAdmin() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return false;
-    try {
-        const session = JSON.parse(rawSession);
-        const adminEmails = [
-            "jarvis20250807@gmail.com",
-            "fish7548@gmail.com"
-        ];
-        return adminEmails.includes((session.user || '').toLowerCase().trim());
-    } catch (e) {
-        return false;
-    }
-}
-
-/**
- * UI 動態權限檢查
- */
-function applyUIPermissions() {
-    const hasAdminRights = isMasterAdmin();
-    if (!hasAdminRights) {
-        $('#btnOpenAddModal').hide();
-        $('.admin-action-btn').addClass('disabled').prop('disabled', true);
-    }
-}
 
 // ==========================================================================
 // 4. 資料讀取引擎 (嚴格依據表 301 欄位順序解析，移除任何預設假資料)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在同步據點...', '載入最新結構');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    
     try {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
@@ -197,7 +168,6 @@ function refreshView() {
     renderStats(appState.warehouses);
     renderGridCards(filtered);
     renderWarehouseDataTable(filtered);
-    applyUIPermissions();
 }
 
 function getFilteredList() {
@@ -248,28 +218,26 @@ function renderGridCards(list) {
         return;
     }
 
-    const hasAdminRights = isMasterAdmin();
-
     list.forEach(w => {
         const isActive = w.is_active === 'Y';
         const flagClass = (w.country_code || 'tw').toLowerCase() === 'my' ? 'flag-my' : 'flag-tw';
         
-        // 呼叫 UIBadges.warehouse 共用標籤工廠
-        const typeBadge = UIBadges.warehouse.type(w.warehouse_type);
+        // 呼叫 UIBadges.psi 共用標籤工廠
+        const typeBadge = UIBadges.psi.warehouseType(w.warehouse_type);
         const statusBadge = UIBadges.common.boolean(isActive, '營運中', '已停用');
 
         const navUrl = (w.latitude && w.longitude)
             ? `https://www.google.com/maps/search/?api=1&query=${w.latitude},${w.longitude}`
             : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.address || w.warehouse_name)}`;
 
-        const adminControls = hasAdminRights ? `
+        const adminControls = `
             <button class="btn btn-outline-secondary btn-sm py-1 px-2" onclick="openEditModal('${w.id}')" title="編輯據點">
                 <i class="fa-solid fa-pen"></i>
             </button>
             <button class="btn btn-outline-danger btn-sm py-1 px-2 ms-1" onclick="deleteWarehouseItem('${w.id}')" title="刪除據點">
                 <i class="fa-solid fa-trash-alt"></i>
             </button>
-        ` : '';
+        `;
         
         const address = w.address
             ? `${w.address}`
@@ -375,19 +343,18 @@ function renderWarehouseDataTable(list) {
 }
 
 function formatTableRow(w) {
-    const hasAdminRights = isMasterAdmin();
     const flagClass = (w.country_code || 'tw').toLowerCase() === 'my' ? 'flag-my' : 'flag-tw';
 
     // 呼叫 UIBadges 共用標籤工廠
-    const typeBadge = UIBadges.warehouse.type(w.warehouse_type);
+    const typeBadge = UIBadges.psi.warehouseType(w.warehouse_type);
     const countryBadge = UIBadges.common.country(w.country_code);
 
     const activePill = UIBadges.common.boolean(w.is_active === 'Y', '營運中', '已停用');
 
-    const actionButtons = hasAdminRights ? `
+    const actionButtons = `
         <button class="btn btn-sm btn-outline-purple py-1 px-2" onclick="openEditModal('${w.id}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" onclick="deleteWarehouseItem('${w.id}')"><i class="fa-solid fa-trash-alt"></i></button>
-    ` : '<span class="text-muted small"><i class="fa-solid fa-lock"></i> 唯讀</span>';
+    `;
 
     return {
         name: `
@@ -534,7 +501,7 @@ async function saveWarehouseItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存據點資料');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
     }
 }
 

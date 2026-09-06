@@ -2,6 +2,37 @@
  * assets/js/common.js
  * 監聽 VendorReady 事件，載入團隊內部核心 JS 模組並發射 AppReady
  */
+
+// ==========================================================================
+// 系統全域環境設定 (直接掛載於全域 window)
+// ==========================================================================
+const APP_CONFIG = {
+    // 試算表 ID (Spreadsheets)
+    SHEETS: {
+        PRD: "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I",        // 01_產品 (prd)
+        TRN: "",        // 02_培訓 (trn)
+        PSI: "1_plHUdfzIublSv1apN5qQ5reO6YxqBkI1MdnQeDbAxo",        // 03_進銷存 (psi)
+        ORG: "1N-HniBDo7wJHidfsKyG-dr7kh0-UTNtFpM7nyFDL3eg",        // 04_組織 (org)
+        CRM: "1AWPJNZd3d8MstqtwG8OI5RaDWku5a1wK3XV3GORhRyk",        // 05_客戶 (crm)
+        FIN: "",        // 06_財務 (fin)
+        SYS: "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw",        // 07_系統 (sys)
+        MY: "",        // 08_馬來西亞 (my)
+        TOOL: ""         // 09_工具 (tool)
+    },
+    // Google Apps Script 部署 ID
+    GAS: {
+        PRD: "AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H",
+        TRN: "",
+        PSI: "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt",
+        ORG: "AKfycbwCHIswVrVHuvEusFZrg2KjTCCwYhlf-3h-QbWhro8YVekUt1wNa4oDxxBxzPc_z6cd",
+        CRM: "AKfycbw_7r40UQSTCBCGqZC5IbmPMgSmpVOWKUOjSLyQAsX62Z1p5D-2sR45Jvy2Nc-jz5zYXw",
+        FIN: "",
+        SYS: "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA",
+        MY: "",
+        TOOL: ""
+    }
+};
+
 (function() {
     'use strict';
 
@@ -11,7 +42,8 @@
         '../assets/js/dialog.js',
         '../assets/js/sheet-adapter.js',
         '../assets/js/ui-badges.js',
-        '../assets/js/ui-select-options.js'
+        '../assets/js/ui-select-options.js',
+        '../assets/js/entity-resolver.js'
     ];
 
     /**

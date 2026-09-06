@@ -353,45 +353,32 @@ const UIBadges = (function () {
         },
 
         // ====================================================================
-        // 6. 倉儲與物流領域 (UIBadges.warehouse.*)
+        // 6. 進銷存與倉儲調度領域 (UIBadges.psi.*)
         // ====================================================================
-        warehouse: {
+        psi: {
             /**
-             * 據點倉儲類型標籤
-             * 官方：badge-blue-subtle
-             * 自用：badge-teal-subtle
-             * 海外：badge-outline-cyan
-             * 物流：badge-outline-white
+             * 倉儲類型標籤
              */
-            type(warehouseType) {
+            warehouseType(warehouseType) {
                 const type = (warehouseType || '').trim();
                 switch (type) {
-                    case 'OFFICIAL_CENTER':
                     case '官方營運中心':
                         return '<span class="badge badge-blue-subtle"><i class="fa-solid fa-building-flag me-1"></i> 官方營運中心</span>';
-                    case 'PRIVATE_HUB':
                     case '自用常備倉':
                         return '<span class="badge badge-teal-subtle"><i class="fa-solid fa-vault me-1"></i> 自用常備倉</span>';
-                    case 'TRANSIT_OVERSEAS':
                     case '海外商務倉':
                         return '<span class="badge badge-outline-cyan"><i class="fa-solid fa-plane-departure me-1"></i> 海外商務倉</span>';
-                    case 'LOGISTICS_IN_TRANSIT':
                     case '物流在途倉':
                         return '<span class="badge badge-outline-white"><i class="fa-solid fa-truck-fast me-1"></i> 物流在途倉</span>';
                     default:
                         return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
-            }
-        },
+            },
 
-        // ====================================================================
-        // 7. 庫存告警與安全調度領域 (UIBadges.stockAlert.*)
-        // ====================================================================
-        stockAlert: {
             /**
              * 庫存預警類型標籤
              */
-            type(alertType) {
+            alertType(alertType) {
                 const type = clean(alertType, '日常提示');
                 switch (type) {
                     case '低於安全水位':
@@ -410,9 +397,9 @@ const UIBadges = (function () {
             },
 
             /**
-             * 預警嚴重性等級標籤
+             * 庫存預警等級標籤
              */
-            level(alertLevel) {
+            alertLevel(alertLevel) {
                 const lvl = clean(alertLevel, '一般');
                 switch (lvl) {
                     case '緊急':
@@ -426,9 +413,9 @@ const UIBadges = (function () {
             },
 
             /**
-             * 告警處置狀態標籤
+             * 庫存預警狀態標籤
              */
-            status(statusCode) {
+            alertStatus(statusCode) {
                 const s = clean(statusCode, '未處理');
                 switch (s) {
                     case '已知悉':
@@ -441,6 +428,90 @@ const UIBadges = (function () {
                     default:
                         return '<span class="badge badge-muted-subtle">未處理</span>';
                 }
+            },
+
+            /**
+             * 盤點與調撥異動類型標籤
+             */
+            adjustType(type) {
+                const t = clean(type, '跨倉調撥');
+                switch (t) {
+                    case '盤盈': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-plus me-1"></i>盤盈</span>';
+                    case '盤虧': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-minus me-1"></i>盤虧</span>';
+                    case '破損過期': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>破損過期</span>';
+                    case '自用消耗': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-box-archive me-1"></i>自用消耗</span>';
+                    case '試用發放': return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hand-holding-heart me-1"></i>試用發放</span>';
+                    case '拆盒解封': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-box-open me-1"></i>拆盒解封</span>';
+                    case '跨倉調撥':
+                    default:
+                        return `<span class="badge badge-info-subtle"><i class="fa-solid fa-right-left me-1"></i>${t}</span>`;
+                }
+            },
+
+            /**
+             * 進貨單據生命週期狀態
+             */
+            inboundStatus(status) {
+                const s = clean(status, '草稿');
+                switch (s) {
+                    case '運輸中': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i>運輸中</span>';
+                    case '已入庫驗收': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>已入庫驗收</span>';
+                    case '已作廢': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i>已作廢</span>';
+                    case '草稿':
+                    default:
+                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i>草稿</span>';
+                }
+            },
+
+            /**
+             * 銷貨履行狀態標籤
+             */
+            outboundStatus(status) {
+                const s = clean(status, '草稿');
+                switch (s) {
+                    case '待取貨': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-clock me-1"></i>待取貨</span>';
+                    case '已寄出': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i>已寄出</span>';
+                    case '已交付': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>已交付</span>';
+                    case '已取消': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i>已取消</span>';
+                    case '草稿':
+                    default:
+                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i>草稿</span>';
+                }
+            },
+
+            /**
+             * 庫存批號出庫管制狀態 (自由流通 / 凍結禁出)
+             */
+            stockLock(isLocked) {
+                const locked = (isLocked === 'Y' || isLocked === true);
+                return locked
+                    ? '<span class="badge badge-danger-subtle"><i class="fa-solid fa-lock me-1"></i>凍結禁出</span>'
+                    : '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>自由流通</span>';
+            },
+
+            /**
+             * 預扣鎖定狀態 (isDetailed: true 用於裝箱檢驗艙，false 用於表格)
+             */
+            preOrderHold(isHold, isDetailed = false) {
+                const isY = (isHold === 'Y' || isHold === true);
+                if (isDetailed) {
+                    return isY
+                        ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i>預扣鎖定中</span>'
+                        : '<span class="badge badge-success-subtle"><i class="fa-solid fa-lock-open me-1"></i>正常交付出清</span>';
+                }
+                return isY
+                    ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i>預扣</span>'
+                    : '<span class="text-secondary small">正常</span>';
+            },
+
+            /**
+             * 費用 / 實體商品性質標籤
+             */
+            feeItem(isFee) {
+                const fee = (isFee === 'Y' || isFee === true);
+                return fee
+                    ? `<span class="badge badge-muted-subtle">作業費用</span>`
+                    : `<span class="badge badge-purple-subtle">實體商品</span>`;
             }
         }
     };

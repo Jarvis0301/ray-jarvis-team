@@ -313,12 +313,295 @@ const UISelectOptions = (function () {
                 dropdownParent,
                 onCustomCreate
             });
+        },
+    };
+
+// ========================================================================
+    // 3. 倉儲據點領域 (UISelectOptions.warehouse.*)
+    // displayMode: 1 ->「name」 | 2 ->「name [id]」
+    // ========================================================================
+    const warehouse = {
+        getSortOrder(type = '') {
+            const t = String(type).trim().toUpperCase();
+            if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
+            if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
+            if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
+            if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
+            return 99;
+        },
+
+        populate({
+            target,
+            warehouses = [],
+            displayMode = 2, // 1: name | 2: name [id]
+            placeholder = '-- 請選擇據點倉儲 --',
+            selectedValue = '',
+            searchable = true,
+            dropdownParent = null,
+            filterFn = null,
+            onChange = null
+        }) {
+            const rawList = Array.isArray(warehouses) ? warehouses : Object.values(warehouses || {});
+            const filtered = typeof filterFn === 'function' ? rawList.filter(filterFn) : rawList;
+
+            const sorted = [...filtered].sort((a, b) => {
+                const orderA = warehouse.getSortOrder(a.warehouse_type || a.type);
+                const orderB = warehouse.getSortOrder(b.warehouse_type || b.type);
+                if (orderA !== orderB) return orderA - orderB;
+                return String(a.id || '').localeCompare(String(b.id || ''));
+            });
+
+            core.render({
+                target,
+                data: sorted,
+                valueKey: 'id',
+                textKey: (w) => {
+                    const name = w.warehouse_name || w.name || w.id;
+                    return displayMode === 1 ? name : `${name} [${w.id}]`;
+                },
+                placeholder,
+                selectedValue,
+                searchable,
+                creatable: false,
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        }
+    };
+
+    // ========================================================================
+    // 4. 產品品項領域 (UISelectOptions.product.*)
+    // displayMode: 1 ->「name」 | 2 ->「name [code]」
+    // ========================================================================
+    const product = {
+        populate({
+            target,
+            products = [],
+            displayMode = 2, // 1: name | 2: name [code]
+            placeholder = '-- 請選擇產品品項 --',
+            selectedValue = '',
+            searchable = true,
+            grouped = true,
+            dropdownParent = null,
+            filterFn = null,
+            onChange = null
+        }) {
+            const rawList = Array.isArray(products) ? products : Object.values(products || {});
+            const filtered = typeof filterFn === 'function' ? rawList.filter(filterFn) : rawList;
+
+            const regionPriority = { 'TW': 1, 'MY': 2 };
+            const structured = [...filtered].map(p => {
+                const code = p.product_code || p.code || p.id || '';
+                const region = (p.region_code || p.region || 'TW').toUpperCase();
+                const group = region === 'TW' ? '🇹🇼 台灣市場' : (region === 'MY' ? '🇲🇾 馬來西亞市場' : '🌐 其他市場');
+                return {
+                    ...p,
+                    _code: code,
+                    _region: region,
+                    _group: group
+                };
+            }).sort((a, b) => {
+                const prioA = regionPriority[a._region] || 99;
+                const prioB = regionPriority[b._region] || 99;
+                if (prioA !== prioB) return prioA - prioB;
+                return a._code.localeCompare(b._code);
+            });
+
+            core.render({
+                target,
+                data: structured,
+                valueKey: '_code',
+                textKey: (p) => {
+                    const name = p.short_name || p.name || p._code;
+                    return displayMode === 1 ? name : `${name} [${p._code}]`;
+                },
+                groupKey: '_group',
+                placeholder,
+                selectedValue,
+                searchable,
+                creatable: false,
+                grouped,
+                dropdownParent,
+                onChange
+            });
+        }
+    };
+
+    // ========================================================================
+    // 5. 個人主檔領域 (UISelectOptions.person.*)
+    // 權重解析：前端顯示名稱 > 中文 > 英文 > 暱稱
+    // displayMode: 1 ->「姓名」 | 2 ->「姓名 [person id]」
+    // ========================================================================
+    const person = {
+        resolveName(target, persons = []) {
+            if (!target) return '';
+            let p = target;
+            if (typeof target === 'string') {
+                const list = Array.isArray(persons) ? persons : Object.values(persons || {});
+                p = list.find(item => (item.person_id || item.id) === target);
+                if (!p) return target;
+            }
+
+            if (p.display_name && String(p.display_name).trim()) return String(p.display_name).trim();
+            if (p.name_zh && String(p.name_zh).trim()) return String(p.name_zh).trim();
+            if (p.name_en && String(p.name_en).trim()) return String(p.name_en).trim();
+            if (p.preferred_name && String(p.preferred_name).trim()) return String(p.preferred_name).trim();
+            return p.person_id || p.id || '';
+        },
+
+        populate({
+            target,
+            persons = [],
+            displayMode = 2, // 1: 姓名 | 2: 姓名 [person id]
+            placeholder = '-- 請選擇人員 --',
+            selectedValue = '',
+            searchable = true,
+            dropdownParent = null,
+            filterFn = null,
+            onChange = null
+        }) {
+            const rawList = Array.isArray(persons) ? persons : Object.values(persons || {});
+            const filtered = typeof filterFn === 'function' ? rawList.filter(filterFn) : rawList;
+
+            const structured = filtered.map(p => {
+                const personId = p.person_id || p.id || '';
+                const name = person.resolveName(p);
+                const label = displayMode === 1 ? name : `${name} [${personId}]`;
+
+                return {
+                    ...p,
+                    _id: personId,
+                    _label: label
+                };
+            }).sort((a, b) => a._label.localeCompare(b._label, 'zh-TW'));
+
+            core.render({
+                target,
+                data: structured,
+                valueKey: '_id',
+                textKey: '_label',
+                placeholder,
+                selectedValue,
+                searchable,
+                creatable: false,
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        }
+    };
+
+    // ========================================================================
+    // 6. 夥伴組織領域 (UISelectOptions.partner.*)
+    // displayMode: 1 ->「姓名」 | 2 ->「姓名 (member no) [partner id]」
+    // ========================================================================
+    const partner = {
+        populate({
+            target,
+            partners = [],
+            persons = [],
+            displayMode = 2, // 1: 姓名 | 2: 姓名 (member no) [partner id]
+            placeholder = '-- 請選擇夥伴 --',
+            selectedValue = '',
+            searchable = true,
+            dropdownParent = null,
+            filterFn = null,
+            onChange = null
+        }) {
+            const rawPartners = Array.isArray(partners) ? partners : Object.values(partners || {});
+            const filtered = typeof filterFn === 'function' ? rawPartners.filter(filterFn) : rawPartners;
+
+            const structured = filtered.map(p => {
+                const partnerId = p.partner_id || p.id || '';
+                const personId = p.person_id || partnerId;
+                const name = person.resolveName(personId, persons) || p.name_zh || partnerId;
+
+                let label = name;
+                if (displayMode === 2) {
+                    const memberNoPart = p.member_no ? ` (${p.member_no})` : '';
+                    label = `${name}${memberNoPart} [${partnerId}]`;
+                }
+
+                return {
+                    ...p,
+                    _id: partnerId,
+                    _label: label
+                };
+            }).sort((a, b) => a._label.localeCompare(b._label, 'zh-TW'));
+
+            core.render({
+                target,
+                data: structured,
+                valueKey: '_id',
+                textKey: '_label',
+                placeholder,
+                selectedValue,
+                searchable,
+                creatable: false,
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        }
+    };
+
+    // ========================================================================
+    // 7. 客戶主檔領域 (UISelectOptions.customer.*)
+    // displayMode: 1 ->「姓名」 | 2 ->「姓名 [customer id]」
+    // ========================================================================
+    const customer = {
+        populate({
+            target,
+            customers = [],
+            persons = [],
+            displayMode = 2, // 1: 姓名 | 2: 姓名 [customer id]
+            placeholder = '-- 請選擇客戶 --',
+            selectedValue = '',
+            searchable = true,
+            dropdownParent = null,
+            filterFn = null,
+            onChange = null
+        }) {
+            const rawCustomers = Array.isArray(customers) ? customers : Object.values(customers || {});
+            const filtered = typeof filterFn === 'function' ? rawCustomers.filter(filterFn) : rawCustomers;
+
+            const structured = filtered.map(c => {
+                const customerId = c.customer_id || c.id || '';
+                const personId = c.person_id || customerId;
+                const name = person.resolveName(personId, persons) || customerId;
+                const label = displayMode === 1 ? name : `${name} [${customerId}]`;
+
+                return {
+                    ...c,
+                    _id: customerId,
+                    _label: label
+                };
+            }).sort((a, b) => a._label.localeCompare(b._label, 'zh-TW'));
+
+            core.render({
+                target,
+                data: structured,
+                valueKey: '_id',
+                textKey: '_label',
+                placeholder,
+                selectedValue,
+                searchable,
+                creatable: false,
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
         }
     };
 
     return {
         core,
-        geo
+        geo,
+        warehouse,
+        product,
+        partner,
+        customer
     };
 })();
 
