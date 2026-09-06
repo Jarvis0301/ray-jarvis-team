@@ -325,8 +325,8 @@ function renderStockDataTable() {
                 { data: 'reserved' },
                 { data: 'available' },
                 { data: 'cost_sv' },
-                { data: 'status' },
-                { data: 'actions' }
+                { data: 'status', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
 
@@ -365,17 +365,15 @@ function formatStockRow(s) {
     const statusBadge = UIBadges.psi.stockLock(s.is_locked);
 
     const actionButtons = `
-        <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary" onclick="openEditStockModal('${s.id}')" title="編輯批號">
-                <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="btn ${isLocked ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleStockLock('${s.id}')" title="${isLocked ? '解凍批號' : '凍結出庫'}">
-                <i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-lock'}"></i>
-            </button>
-            <button class="btn btn-outline-danger" onclick="deleteStockItem('${s.id}')" title="刪除庫存項目">
-                <i class="fa-solid fa-trash-alt"></i>
-            </button>
-        </div>
+        <button class="btn btn-sm btn-outline-primary" onclick="openEditStockModal('${s.id}')" title="編輯批號">
+            <i class="fa-solid fa-pen"></i>
+        </button>
+        <button class="btn btn-sm ${isLocked ? 'btn-outline-success' : 'btn-outline-warning'}" onclick="toggleStockLock('${s.id}')" title="${isLocked ? '解凍批號' : '凍結出庫'}">
+            <i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-lock'}"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteStockItem('${s.id}')" title="刪除庫存項目">
+            <i class="fa-solid fa-trash-alt"></i>
+        </button>
     `;
 
     return {

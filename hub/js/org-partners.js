@@ -760,7 +760,7 @@ function getVal(row, colIndex, defaultVal = '') {
     return defaultVal;
 }
 
-function formatEmpty(val, placeholder = '—') {
+function formatEmpty(val, placeholder = '-') {
     if (val === undefined || val === null || String(val).trim() === '' || String(val).trim() === '未填寫' || String(val).trim() === '未設定') {
         return `<span class="text-muted">${placeholder}</span>`;
     }
@@ -801,7 +801,7 @@ function getRankInfo(rankId) {
     if (rankId && ranksMap[rankId]) return ranksMap[rankId];
     return {
         rank_id: '',
-        rank_code: '—',
+        rank_code: '-',
         rank_name_zh: '未設定',
         badge_icon_class: 'fa-solid fa-circle-question',
         badge_color_hex: '#64748b'
@@ -1113,21 +1113,19 @@ function renderDataTableView(list) {
                 <td class="text-center">${UIBadges.common.country(p.country_code)}</td>
                 <td>${UIBadges.rank.badge(currentRank)}</td>
                 <td>${UIBadges.rank.badge(highestRank)}</td>
-                <td><span class="text-white">${mentorName || '—'}</span></td>
-                <td><span class="text-light">${person.current_residence || '—'}</span></td>
-                <td><span class="text-light">${person.highest_education || '—'}</span></td>
-                <td><span class="text-light">${person.occupation_background || '—'}</span></td>
+                <td><span class="text-white">${mentorName || '-'}</span></td>
+                <td><span class="text-light">${person.current_residence || '-'}</span></td>
+                <td><span class="text-light">${person.highest_education || '-'}</span></td>
+                <td><span class="text-light">${person.occupation_background || '-'}</span></td>
                 <td class="text-center">${UIBadges.partner.healthStatus(person.health_status)}</td>
                 <td class="text-center">${UIBadges.partner.financialStatus(person.financial_status)}</td>
                 <td class="text-center">${UIBadges.partner.relation(p.relation_type, p.partner_id)}</td>
                 <td class="text-center">${UIBadges.partner.activityLevel(p.activity_level)}</td>
                 <td class="text-center">${UIBadges.partner.memberStatus(p.member_status)}</td>
                 <td class="text-end">
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${p.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <button class="btn btn-outline-secondary py-1 px-2" onclick="openPartnerModalForEdit('${p.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="btn btn-outline-danger py-1 px-2" onclick="deletePartnerRecord('${p.partner_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
+                    <button class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${p.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="openPartnerModalForEdit('${p.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="deletePartnerRecord('${p.partner_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
             </tr>
         `;
@@ -1136,8 +1134,8 @@ function renderDataTableView(list) {
 
     dataTableInstance = $('#partners-datatable').DataTable({
         columnDefs: [
-            { targets: [1, 8, 9, 10, 11, 12], className: 'text-center' },
-            { targets: [13], className: 'text-end', orderable: false }
+            { targets: [1, 2, 3, 8, 9, 10, 11, 12, 13], className: 'text-center' },
+            { targets: [13], orderable: false }
         ]
     });
 

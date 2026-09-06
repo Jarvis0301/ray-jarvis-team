@@ -419,7 +419,7 @@ function renderAdjustmentsTable() {
                 { data: 'sv_breakdown' },
                 { data: 'parties' },
                 { data: 'date_info' },
-                { data: 'actions' }
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
@@ -489,7 +489,7 @@ function renderTransfersTable() {
                 { data: 'sv' },
                 { data: 'operator' },
                 { data: 'reason' },
-                { data: 'actions' }
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }

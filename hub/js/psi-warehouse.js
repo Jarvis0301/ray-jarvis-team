@@ -330,13 +330,13 @@ function renderWarehouseDataTable(list) {
             pageLength: -1,
             columns: [
                 { data: 'name' },
-                { data: 'type' },
-                { data: 'country' },
+                { data: 'type', className: 'text-center' },
+                { data: 'country', className: 'text-center' },
                 { data: 'address' },
                 { data: 'phone' },
                 { data: 'hours' },
-                { data: 'status' },
-                { data: 'actions' }
+                { data: 'status', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }

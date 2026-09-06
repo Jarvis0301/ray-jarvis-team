@@ -451,8 +451,8 @@ function renderMasterTable() {
                 { data: 'subcategory' },
                 { data: 'type' },
                 { data: 'spec' },
-                { data: 'price', className: 'text-end' },
-                { data: 'sv', className: 'text-end' },
+                { data: 'price', className: 'text-center' },
+                { data: 'sv', className: 'text-center' },
                 { data: 'launch_status', className: 'text-center' },
                 { data: 'stock_status', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
@@ -918,8 +918,8 @@ function renderCrossBorderMatrix() {
 
         const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
         const actionBtn = targetCode
-            ? `<button type="button" class="btn btn-sm btn-outline-info py-1 px-2" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass"></i> 詳情</button>`
-            : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban"></i> 無貨</button>`;
+            ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass"></i> 詳情</button>`
+            : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban"></i> 無貨</button>`;
 
         $tbody.append(`
             <tr>

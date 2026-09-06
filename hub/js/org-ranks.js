@@ -734,7 +734,7 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         } else {
             actionBtns = `
                 <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
             `;
         }
 
@@ -762,8 +762,8 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         singlePartnerDataTable = $('#partnerSingleHistoryTable').DataTable({
             data: formatted,
             columns: [
-                { data: 'previous' },
-                { data: 'new_rank' },
+                { data: 'previous', className: 'text-center' },
+                { data: 'new_rank', className: 'text-center' },
                 { data: 'effective_month' },
                 { data: 'consecutive' },
                 { data: 'cum_sv' },
@@ -771,7 +771,7 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
                 { data: 'pearl_legs' },
                 { data: 'recognition' },
                 { data: 'notes' },
-                { data: 'actions', orderable: false }
+                { data: 'actions', className: 'text-center', orderable: false }
             ],
             searching: false,
             info: false,
@@ -791,7 +791,7 @@ function renderHistoryTable() {
 
         const actionBtns = `
             <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
         `;
 
         return {
@@ -816,8 +816,8 @@ function renderHistoryTable() {
             data: formatted,
             columns: [
                 { data: 'partner_name' },
-                { data: 'previous' },
-                { data: 'new_rank' },
+                { data: 'previous', className: 'text-center' },
+                { data: 'new_rank', className: 'text-center' },
                 { data: 'effective_month' },
                 { data: 'consecutive' },
                 { data: 'cum_sv' },
@@ -825,7 +825,7 @@ function renderHistoryTable() {
                 { data: 'pearl_legs' },
                 { data: 'recognition' },
                 { data: 'notes' },
-                { data: 'actions', orderable: false }
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }

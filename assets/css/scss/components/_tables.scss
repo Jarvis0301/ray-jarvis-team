@@ -1,4 +1,4 @@
-/* _tables.scss 或 common.css */
+/* _tables.scss */
 
 .table-dark-custom {
     --bs-table-bg: transparent;
@@ -9,14 +9,14 @@
     margin-bottom: 0 !important;
 
     thead th {
-        background-color: var(--uvaco-bg-card) !important;
+        background-color: var(--uvaco-bg-card-hover) !important;
         color: var(--uvaco-secondary) !important;
         border-bottom: 2px solid var(--uvaco-border-color) !important;
         font-weight: 600;
         padding: 0.75rem 1rem !important;   /* 左右 padding 必須與 td 嚴格一致 */
         vertical-align: middle;
         white-space: nowrap !important;     /* 避免表頭折行造成欄寬計算偏差 */
-        text-align: left;
+        text-align: center !important;      /* 加上 !important 防止被 DataTables / BS5 預設靠左覆蓋 */
     }
 
     tbody tr {
@@ -178,6 +178,90 @@
             background: var(--uvaco-bg-card-hover) !important;
             border-color: var(--uvaco-border-glow) !important;
             color: var(--uvaco-text-primary) !important;
+        }
+    }
+}
+
+/* ==========================================================================
+   DataTables 自訂文字排序符號 (⇅ / ▲ / ▼)
+   ========================================================================== */
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+
+    /* 1. 清除所有原生箭頭並保留右側文字符號空間 */
+    &.sorting,
+    &.sorting_asc,
+    &.sorting_desc,
+    &.dt-orderable-asc,
+    &.dt-orderable-desc,
+    &.dt-ordering-asc,
+    &.dt-ordering-desc {
+        position: relative !important;
+        padding-right: 1.8rem !important;
+        background-image: none !important; /* 清除 DT 1.x 原生圖片 */
+        cursor: pointer !important;
+        user-select: none;
+
+        /* 清除 Bootstrap 5 原生 ::before 向上箭頭與 DT 2.x DOM */
+        &::before {
+            content: none !important;
+            display: none !important;
+        }
+        .dt-column-order {
+            display: none !important;
+        }
+
+        /* 統一由 ::after 輸出符號 */
+        &::after {
+            position: absolute !important;
+            right: 0.75rem !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            transition: color 0.2s ease, opacity 0.2s ease, text-shadow 0.2s ease;
+        }
+    }
+
+    /* 2. 未排序狀態：顯示淡灰色雙向箭頭 ⇅ */
+    &:is(.sorting, .dt-orderable-asc, .dt-orderable-desc):not(.sorting_asc, .sorting_desc, .dt-ordering-asc, .dt-ordering-desc)::after {
+        content: "⇅" !important;
+        color: var(--uvaco-text-secondary) !important;
+        opacity: 0.5;
+    }
+
+    &:is(.sorting, .dt-orderable-asc, .dt-orderable-desc):hover::after {
+        opacity: 0.9;
+    }
+
+    /* 3. 升冪排序狀態：高亮主題色 ▲ */
+    &:is(.sorting_asc, .dt-ordering-asc) {
+        &::after {
+            content: "▲" !important;
+            color: var(--uvaco-secondary) !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 8px var(--uvaco-border-glow);
+        }
+    }
+
+    /* 4. 降冪排序狀態：高亮主題色 ▼ */
+    &:is(.sorting_desc, .dt-ordering-desc) {
+        &::after {
+            content: "▼" !important;
+            color: var(--uvaco-secondary) !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 8px var(--uvaco-border-glow);
+        }
+    }
+
+    /* 5. 禁用排序欄位：隱藏符號 */
+    &.sorting_disabled {
+        cursor: default !important;
+        padding-right: 1rem !important;
+
+        &::before,
+        &::after {
+            content: none !important;
+            display: none !important;
         }
     }
 }

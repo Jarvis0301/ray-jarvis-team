@@ -490,13 +490,13 @@ function renderDataTable() {
                 { data: 'center_and_warehouse' },
                 { data: 'parties' },
                 { data: 'dates' },
-                { data: 'perf_month' },
+                { data: 'perf_month', className: 'text-center' },
                 { data: 'quantities' },
                 { data: 'financials' },
                 { data: 'sv' },
-                { data: 'hold' },
-                { data: 'status' },
-                { data: 'actions' }
+                { data: 'hold', className: 'text-center' },
+                { data: 'status', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
@@ -536,10 +536,10 @@ function formatTableRow(item) {
 
     const actionButtons = `
         <div class="d-flex align-items-center justify-content-end gap-1">
-            <button class="btn btn-sm btn-outline-info py-0 px-2" title="置入裝箱檢驗艙" onclick="selectOutbound('${item.id}')">
+            <button class="btn btn-sm btn-outline-info" title="置入裝箱檢驗艙" onclick="selectOutbound('${item.id}')">
                 <i class="fa-solid fa-eye"></i>
             </button>
-            <button class="btn btn-sm btn-outline-info py-0 px-2" title="查看銷貨細項" onclick="openDetailModal('${item.id}')">
+            <button class="btn btn-sm btn-outline-info" title="查看銷貨細項" onclick="openDetailModal('${item.id}')">
                 <i class="fa-solid fa-list-ul"></i>
             </button>
             ${`

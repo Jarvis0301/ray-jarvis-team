@@ -366,15 +366,15 @@ function renderMenuDataTable() {
             columns: [
                 { data: 'menu_id' },
                 { data: 'names' },
-                { data: 'track' },
-                { data: 'level' },
+                { data: 'track', className: 'text-center' },
+                { data: 'level', className: 'text-center' },
                 { data: 'parent' },
-                { data: 'sort' },
+                { data: 'sort', className: 'text-center' },
                 { data: 'url' },
-                { data: 'icon' },
-                { data: 'status' },
-                { data: 'active' },
-                { data: 'actions' }
+                { data: 'icon', className: 'text-center' },
+                { data: 'status', className: 'text-center' },
+                { data: 'active', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }

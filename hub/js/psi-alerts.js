@@ -283,17 +283,17 @@ function renderAlertsDataTable() {
         alertsDataTableInstance = $('#alertsDataTable').DataTable({
             data: formatted,
             columns: [
-                { data: 'checkbox' },
+                { data: 'checkbox', className: 'text-center' },
                 { data: 'id' },
-                { data: 'type' },
+                { data: 'type', className: 'text-center' },
                 { data: 'warehouse' },
                 { data: 'product' },
                 { data: 'batch' },
                 { data: 'qty' },
                 { data: 'days' },
-                { data: 'level' },
-                { data: 'status' },
-                { data: 'actions' }
+                { data: 'level', className: 'text-center' },
+                { data: 'status', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
@@ -366,8 +366,8 @@ function renderThresholdsDataTable() {
                 { data: 'warehouse' },
                 { data: 'product' },
                 { data: 'qty' },
-                { data: 'monitored' },
-                { data: 'actions' }
+                { data: 'monitored', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
@@ -377,14 +377,12 @@ function formatThresholdRow(t) {
     const monitoredPill = UIBadges.common.boolean(t.is_monitored, '監控中', '暫停');
 
     const actionButtons = `
-        <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
-                <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="btn btn-outline-danger" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
-                <i class="fa-solid fa-trash-alt"></i>
-            </button>
-        </div>
+        <button class="btn btn-sm btn-outline-primary" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
+            <i class="fa-solid fa-pen"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
+            <i class="fa-solid fa-trash-alt"></i>
+        </button>
     `;
 
     return {

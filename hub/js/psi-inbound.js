@@ -390,12 +390,12 @@ function renderDataTable() {
                 { data: 'center_and_warehouse' },
                 { data: 'four_flow' },
                 { data: 'order_dates' },
-                { data: 'perf_month' },
+                { data: 'perf_month', className: 'text-center' },
                 { data: 'total_boxes' },
                 { data: 'cost_breakdown' },
                 { data: 'total_sv' },
-                { data: 'status' },
-                { data: 'actions' }
+                { data: 'status', className: 'text-center' },
+                { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
@@ -432,7 +432,7 @@ function formatTableRow(item) {
 
     const actionButtons = `
         <div class="d-flex align-items-center justify-content-end gap-1">
-            <button class="btn btn-sm btn-outline-info py-0 px-2" title="查看明細項" onclick="openDetailModal('${item.id}')">
+            <button class="btn btn-sm btn-outline-info" title="查看明細項" onclick="openDetailModal('${item.id}')">
                 <i class="fa-solid fa-list-ul"></i>
             </button>
             ${`

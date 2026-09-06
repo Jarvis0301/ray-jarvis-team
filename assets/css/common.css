@@ -8896,7 +8896,7 @@ body {
   transition: margin-top 0.15s ease-out;
 }
 
-/* _tables.scss 或 common.css */
+/* _tables.scss */
 .table-dark-custom {
   --bs-table-bg: transparent;
   --bs-table-color: var(--uvaco-text-light);
@@ -8906,14 +8906,14 @@ body {
   margin-bottom: 0 !important;
 }
 .table-dark-custom thead th {
-  background-color: var(--uvaco-bg-card) !important;
+  background-color: var(--uvaco-bg-card-hover) !important;
   color: var(--uvaco-secondary) !important;
   border-bottom: 2px solid var(--uvaco-border-color) !important;
   font-weight: 600;
   padding: 0.75rem 1rem !important; /* 左右 padding 必須與 td 嚴格一致 */
   vertical-align: middle;
   white-space: nowrap !important; /* 避免表頭折行造成欄寬計算偏差 */
-  text-align: left;
+  text-align: center !important; /* 加上 !important 防止被 DataTables / BS5 預設靠左覆蓋 */
 }
 .table-dark-custom tbody tr {
   background-color: transparent !important;
@@ -9061,6 +9061,82 @@ body {
   background: var(--uvaco-bg-card-hover) !important;
   border-color: var(--uvaco-border-glow) !important;
   color: var(--uvaco-text-primary) !important;
+}
+
+/* ==========================================================================
+   DataTables 自訂文字排序符號 (⇅ / ▲ / ▼)
+   ========================================================================== */
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+  /* 1. 清除所有原生箭頭並保留右側文字符號空間 */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_asc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_desc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-asc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-desc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-asc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-desc {
+  position: relative !important;
+  padding-right: 1.8rem !important;
+  background-image: none !important; /* 清除 DT 1.x 原生圖片 */
+  cursor: pointer !important;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  /* 清除 Bootstrap 5 原生 ::before 向上箭頭與 DT 2.x DOM */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_asc::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_desc::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-asc::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-desc::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-asc::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-desc::before {
+  content: none !important;
+  display: none !important;
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting .dt-column-order, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_asc .dt-column-order, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_desc .dt-column-order, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-asc .dt-column-order, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-desc .dt-column-order, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-asc .dt-column-order, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-desc .dt-column-order {
+  display: none !important;
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_asc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_desc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-asc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-desc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-asc, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-desc {
+  /* 統一由 ::after 輸出符號 */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting::after, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_asc::after, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_desc::after, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-asc::after, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-orderable-desc::after, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-asc::after, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.dt-ordering-desc::after {
+  position: absolute !important;
+  right: 0.75rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 0.8rem !important;
+  line-height: 1 !important;
+  transition: color 0.2s ease, opacity 0.2s ease, text-shadow 0.2s ease;
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+  /* 2. 未排序狀態：顯示淡灰色雙向箭頭 ⇅ */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th:is(.sorting, .dt-orderable-asc, .dt-orderable-desc):not(.sorting_asc, .sorting_desc, .dt-ordering-asc, .dt-ordering-desc)::after {
+  content: "⇅" !important;
+  color: var(--uvaco-text-secondary) !important;
+  opacity: 0.5;
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th:is(.sorting, .dt-orderable-asc, .dt-orderable-desc):hover::after {
+  opacity: 0.9;
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+  /* 3. 升冪排序狀態：高亮主題色 ▲ */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th:is(.sorting_asc, .dt-ordering-asc)::after {
+  content: "▲" !important;
+  color: var(--uvaco-secondary) !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 8px var(--uvaco-border-glow);
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+  /* 4. 降冪排序狀態：高亮主題色 ▼ */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th:is(.sorting_desc, .dt-ordering-desc)::after {
+  content: "▼" !important;
+  color: var(--uvaco-secondary) !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 8px var(--uvaco-border-glow);
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+  /* 5. 禁用排序欄位：隱藏符號 */
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_disabled {
+  cursor: default !important;
+  padding-right: 1rem !important;
+}
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_disabled::before, :is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th.sorting_disabled::after {
+  content: none !important;
+  display: none !important;
 }
 
 .form-label {
