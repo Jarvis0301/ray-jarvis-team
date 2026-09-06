@@ -29,20 +29,3 @@
     border-color: transparent;
     box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
 }
-
-/* 狀態指示呼吸燈 */
-.live-pulse {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--uvaco-neon-emerald, #10b981);
-    box-shadow: 0 0 8px var(--uvaco-neon-emerald, #10b981);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}

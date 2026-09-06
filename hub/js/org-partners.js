@@ -2202,13 +2202,11 @@ window.openPartnerModalForCreate = function () {
 
     $('#form-person-id')
         .val(autoPersonId)
-        .prop('readonly', true)
-        .addClass('bg-black bg-opacity-40 text-muted border-secondary');
+        .prop('readonly', true);
 
     $('#form-partner-id')
         .val(autoPartnerId)
-        .prop('readonly', true)
-        .addClass('bg-black bg-opacity-40 text-muted border-secondary');
+        .prop('readonly', true);
 
     $('#form-gender').val('男');
     $('#form-avatar-url').val('');
@@ -2252,13 +2250,11 @@ window.openPartnerModalForEdit = function (partnerId) {
 
     $('#form-person-id')
         .val(person.person_id || partner.person_id)
-        .prop('readonly', true)
-        .addClass('bg-black bg-opacity-40 text-muted border-secondary');
+        .prop('readonly', true);
 
     $('#form-partner-id')
         .val(partner.partner_id)
-        .prop('readonly', true)
-        .addClass('bg-black bg-opacity-40 text-muted border-secondary');
+        .prop('readonly', true);
 
     $('#form-current-rank-id, #form-highest-rank-id')
         .prop('disabled', true)

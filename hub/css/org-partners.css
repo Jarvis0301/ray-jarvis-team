@@ -3,27 +3,7 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. 頂部戰術指揮 HUD 數據膠囊 (Command & Filter HUD)
-   -------------------------------------------------------------------------- */
-.stat-chip {
-    background: rgba(139, 92, 246, 0.08);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-    border-radius: var(--uvaco-border-radius-md, 14px);
-    padding: 0.6rem 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: all 0.25s ease;
-
-    &:hover {
-        border-color: var(--uvaco-primary, #8b5cf6);
-        background: rgba(139, 92, 246, 0.15);
-        transform: translateY(-2px);
-    }
-}
-
-/* --------------------------------------------------------------------------
-   2. 戰術控制列與 Select2 根節點搜尋器
+   1. 戰術控制列與 Select2 根節點搜尋器
    -------------------------------------------------------------------------- */
 .tree-root-selector-wrap {
     width: 220px;
@@ -58,7 +38,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. 夥伴卡片視圖 (Partner Cards View)
+   2. 夥伴卡片視圖 (Partner Cards View)
    -------------------------------------------------------------------------- */
 .partner-card {
     background: var(--uvaco-bg-card, #191233);
@@ -118,7 +98,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   4. 組織拓撲樹狀圖畫布與多樹森林 (Org Chart Canvas & Forest)
+   3. 組織拓撲樹狀圖畫布與多樹森林 (Org Chart Canvas & Forest)
    -------------------------------------------------------------------------- */
 .org-chart-viewport {
     width: 100%;
@@ -168,7 +148,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   5. 拓撲結構連接線幾何引擎 (全路徑動態虛實線路)
+   45. 拓撲結構連接線幾何引擎 (全路徑動態虛實線路)
    -------------------------------------------------------------------------- */
 .org-tree, 
 .org-tree ul {
@@ -355,7 +335,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   6. 節點卡片 (單人卡片與夫妻雙核雙欄卡片)
+   5. 節點卡片 (單人卡片與夫妻雙核雙欄卡片)
    -------------------------------------------------------------------------- */
 .org-node-wrapper {
     display: inline-flex;
@@ -451,7 +431,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   7. 篩選聯動高亮與弱化特效 (Filter Match & Dimming)
+   6. 篩選聯動高亮與弱化特效 (Filter Match & Dimming)
    -------------------------------------------------------------------------- */
 .org-node-card.tree-node-matched {
     border-color: var(--uvaco-primary, #8b5cf6) !important;
@@ -471,33 +451,8 @@
 }
 
 /* --------------------------------------------------------------------------
-   8. 夥伴 360° 檔案編輯器與全景戰術視窗 (Modal & Dossier)
+   7. 夥伴 360° 檔案編輯器與全景戰術視窗 (Modal & Dossier)
    -------------------------------------------------------------------------- */
-.form-tabs-mobile-nav {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
-    gap: 0.35rem;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
-
-    .nav-link {
-        font-size: 0.84rem;
-        padding: 0.4rem 0.85rem;
-        border-radius: 9999px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18));
-        color: var(--uvaco-text-muted, #94a3b8);
-
-        &.active {
-            background: var(--uvaco-primary, #8b5cf6);
-            color: #fff;
-            border-color: var(--uvaco-primary, #8b5cf6);
-        }
-    }
-}
 
 .dossier-hero-card {
     background: linear-gradient(135deg, rgba(32, 17, 66, 0.9) 0%, rgba(19, 14, 36, 0.95) 100%);
@@ -544,7 +499,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   9. 動態子表格與批次維護視圖 (DataTables & Batch Editor)
+   10. 動態子表格與批次維護視圖 (DataTables & Batch Editor)
    -------------------------------------------------------------------------- */
 .table-dynamic-action-btn {
     padding: 0.2rem 0.45rem;
@@ -612,57 +567,4 @@ tr.is-dragging-row {
     opacity: 0.45 !important;
     background: rgba(139, 92, 246, 0.25) !important;
     border: 1px dashed var(--uvaco-primary, #8b5cf6) !important;
-}
-
-/* --------------------------------------------------------------------------
-   四大視圖切換 Nav Tabs 樣式
-   -------------------------------------------------------------------------- */
-.nav-tabs-tactical {
-    gap: 0.5rem;
-
-    .nav-link {
-        color: var(--uvaco-text-muted, #94a3b8);
-        border: 1px solid transparent;
-        border-bottom: none;
-        border-radius: 12px 12px 0 0;
-        padding: 0.6rem 1.25rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        background: rgba(255, 255, 255, 0.03);
-        transition: all 0.25s ease;
-
-        &:hover {
-            color: #ffffff;
-            background: rgba(139, 92, 246, 0.12);
-            border-color: rgba(139, 92, 246, 0.25) rgba(139, 92, 246, 0.25) transparent;
-        }
-
-        &.active {
-            color: #ffffff;
-            background: rgba(139, 92, 246, 0.22);
-            border-color: rgba(139, 92, 246, 0.45) rgba(139, 92, 246, 0.45) transparent;
-            border-bottom: 2px solid var(--uvaco-primary, #8b5cf6);
-            box-shadow: 0 -4px 12px rgba(139, 92, 246, 0.15);
-        }
-    }
-}
-
-@media (max-width: 767.98px) {
-    .nav-tabs-tactical {
-        border-bottom: none !important;
-        gap: 0;
-
-        .nav-link {
-            border-radius: 10px;
-            border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.18)) !important;
-            padding: 0.55rem 0.5rem;
-            font-size: 0.85rem;
-
-            &.active {
-                border-color: var(--uvaco-primary, #8b5cf6) !important;
-                background: rgba(139, 92, 246, 0.25);
-                box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
-            }
-        }
-    }
 }

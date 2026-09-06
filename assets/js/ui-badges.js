@@ -23,7 +23,7 @@ const UIBadges = (function () {
              */
             custom({ text, icon = '', className = '', color = '', bg = '', border = '' }) {
                 const safeText = clean(text, '未設定');
-                const iconHtml = icon ? `<i class="${icon} me-1"></i>` : '';
+                const iconHtml = icon ? `<i class="${icon} me-1"></i> ` : '';
                 const styleParts = [];
 
                 if (color) styleParts.push(`color: ${color}`);
@@ -116,10 +116,10 @@ const UIBadges = (function () {
                     case '停滯': return '<span class="badge badge-outline-warning-subtle">停滯</span>';
                     case '沉睡': return '<span class="badge badge-outline-danger-subtle">沉睡</span>';
                     case '凍結': return '<span class="badge badge-outline-gray-subtle">凍結</span>';
-                    case '身故停止': return '<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i>身故停止</span>';
-                    case '因繼承原權停止': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-code-merge me-1"></i>因繼承原權停止</span>';
-                    case '因結婚合併停止': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-people-arrows me-1"></i>因結婚合併停止</span>';
-                    case '因離婚協議退出': return '<span class="badge badge-orange-subtle"><i class="fa-solid fa-user-xmark me-1"></i>因離婚協議退出</span>';
+                    case '身故停止': return '<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i> 身故停止</span>';
+                    case '因繼承原權停止': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-code-merge me-1"></i> 因繼承原權停止</span>';
+                    case '因結婚合併停止': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-people-arrows me-1"></i> 因結婚合併停止</span>';
+                    case '因離婚協議退出': return '<span class="badge badge-orange-subtle"><i class="fa-solid fa-user-xmark me-1"></i> 因離婚協議退出</span>';
                     default: return '<span class="badge badge-muted-subtle">未設定</span>';
                 }
             },
@@ -382,15 +382,15 @@ const UIBadges = (function () {
                 const type = clean(alertType, '日常提示');
                 switch (type) {
                     case '低於安全水位':
-                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>低於安全水位</span>';
+                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i> 低於安全水位</span>';
                     case '90天近效期':
-                        return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hourglass-half me-1"></i>90天近效期</span>';
+                        return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hourglass-half me-1"></i> 90天近效期</span>';
                     case '30天極危效期':
-                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>30天極危效期</span>';
+                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i> 30天極危效期</span>';
                     case '已過期':
-                        return '<span class="badge badge-danger"><i class="fa-solid fa-skull me-1"></i>已過期</span>';
+                        return '<span class="badge badge-danger"><i class="fa-solid fa-skull me-1"></i> 已過期</span>';
                     case '品質鎖定':
-                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-lock me-1"></i>品質鎖定</span>';
+                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-lock me-1"></i> 品質鎖定</span>';
                     default:
                         return `<span class="badge badge-purple-subtle">${type}</span>`;
                 }
@@ -403,9 +403,9 @@ const UIBadges = (function () {
                 const lvl = clean(alertLevel, '一般');
                 switch (lvl) {
                     case '緊急':
-                        return '<span class="badge badge-danger-subtle fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i>緊急</span>';
+                        return '<span class="badge badge-danger-subtle fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 緊急</span>';
                     case '注意':
-                        return '<span class="badge badge-warning-subtle fw-bold">注意</span>';
+                        return '<span class="badge badge-warning-subtle fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i> 注意</span>';
                     case '一般':
                     default:
                         return '<span class="badge badge-muted-subtle">一般</span>';
@@ -436,15 +436,15 @@ const UIBadges = (function () {
             adjustType(type) {
                 const t = clean(type, '跨倉調撥');
                 switch (t) {
-                    case '盤盈': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-plus me-1"></i>盤盈</span>';
-                    case '盤虧': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-minus me-1"></i>盤虧</span>';
-                    case '破損過期': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i>破損過期</span>';
-                    case '自用消耗': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-box-archive me-1"></i>自用消耗</span>';
-                    case '試用發放': return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hand-holding-heart me-1"></i>試用發放</span>';
-                    case '拆盒解封': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-box-open me-1"></i>拆盒解封</span>';
+                    case '盤盈': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-plus me-1"></i> 盤盈</span>';
+                    case '盤虧': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-minus me-1"></i> 盤虧</span>';
+                    case '破損過期': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i> 破損過期</span>';
+                    case '自用消耗': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-box-archive me-1"></i> 自用消耗</span>';
+                    case '試用發放': return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hand-holding-heart me-1"></i> 試用發放</span>';
+                    case '拆盒解封': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-box-open me-1"></i> 拆盒解封</span>';
                     case '跨倉調撥':
                     default:
-                        return `<span class="badge badge-info-subtle"><i class="fa-solid fa-right-left me-1"></i>${t}</span>`;
+                        return `<span class="badge badge-info-subtle"><i class="fa-solid fa-right-left me-1"></i> ${t}</span>`;
                 }
             },
 
@@ -454,12 +454,12 @@ const UIBadges = (function () {
             inboundStatus(status) {
                 const s = clean(status, '草稿');
                 switch (s) {
-                    case '運輸中': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i>運輸中</span>';
-                    case '已入庫驗收': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>已入庫驗收</span>';
-                    case '已作廢': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i>已作廢</span>';
+                    case '運輸中': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i> 運輸中</span>';
+                    case '已入庫驗收': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i> 已入庫驗收</span>';
+                    case '已作廢': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i> 已作廢</span>';
                     case '草稿':
                     default:
-                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i>草稿</span>';
+                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i> 草稿</span>';
                 }
             },
 
@@ -469,13 +469,13 @@ const UIBadges = (function () {
             outboundStatus(status) {
                 const s = clean(status, '草稿');
                 switch (s) {
-                    case '待取貨': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-clock me-1"></i>待取貨</span>';
-                    case '已寄出': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i>已寄出</span>';
-                    case '已交付': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>已交付</span>';
-                    case '已取消': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i>已取消</span>';
+                    case '待取貨': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-clock me-1"></i> 待取貨</span>';
+                    case '已寄出': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-truck-fast me-1"></i> 已寄出</span>';
+                    case '已交付': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i> 已交付</span>';
+                    case '已取消': return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-ban me-1"></i> 已取消</span>';
                     case '草稿':
                     default:
-                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i>草稿</span>';
+                        return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-pen-ruler me-1"></i> 草稿</span>';
                 }
             },
 
@@ -485,8 +485,8 @@ const UIBadges = (function () {
             stockLock(isLocked) {
                 const locked = (isLocked === 'Y' || isLocked === true);
                 return locked
-                    ? '<span class="badge badge-danger-subtle"><i class="fa-solid fa-lock me-1"></i>凍結禁出</span>'
-                    : '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>自由流通</span>';
+                    ? '<span class="badge badge-danger-subtle"><i class="fa-solid fa-lock me-1"></i> 凍結禁出</span>'
+                    : '<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-check me-1"></i> 自由流通</span>';
             },
 
             /**
@@ -496,11 +496,11 @@ const UIBadges = (function () {
                 const isY = (isHold === 'Y' || isHold === true);
                 if (isDetailed) {
                     return isY
-                        ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i>預扣鎖定中</span>'
-                        : '<span class="badge badge-success-subtle"><i class="fa-solid fa-lock-open me-1"></i>正常交付出清</span>';
+                        ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i> 預扣鎖定中</span>'
+                        : '<span class="badge badge-success-subtle"><i class="fa-solid fa-lock-open me-1"></i> 正常交付出清</span>';
                 }
                 return isY
-                    ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i>預扣</span>'
+                    ? '<span class="badge badge-warning-subtle"><i class="fa-solid fa-lock me-1"></i> 預扣</span>'
                     : '<span class="text-secondary small">正常</span>';
             },
 

@@ -23,7 +23,7 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
 
-            <header class="glass-panel hud-sentinel-bar mb-4">
+            <header class="glass-panel hud-bar mb-3">
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-xl-6">
                         <div class="h4 fw-bold text-white">
@@ -32,49 +32,29 @@
                     </div>
 
                     <div class="col-12 col-xl-6">
-                        <div class="row g-2">
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-2">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger"></i> 低於安全水位</span>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-danger mb-0" id="stat-stockout-count">0</span>
-                                        <span class="text-secondary">項 (緊急)</span>
-                                    </div>
+                        <div class="row row-cols-2 row-cols-xl-4 g-2">
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 低於水位</span>
+                                    <span class="text-danger fs-6 fw-bold mono-num" id="stat-stockout-count">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-2">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning"></i> 接近有效日期</span>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-warning mb-0" id="stat-expiry-count">0</span>
-                                        <span class="text-secondary">批 (&le;90天)</span>
-                                    </div>
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 近有效日期</span>
+                                    <span class="text-warning fs-6 fw-bold mono-num" id="stat-expiry-count">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-2">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary"><i class="fa-solid fa-sliders text-success"></i> 門檻規則</span>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-success mb-0" id="stat-monitored-rules">0</span>
-                                        <span class="text-secondary">組</span>
-                                    </div>
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="fa-solid fa-sliders text-success me-1"></i> 門檻規則</span>
+                                    <span class="text-success fs-6 fw-bold mono-num" id="stat-monitored-rules">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-2">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary"><i class="fa-solid fa-bell text-info"></i> 待處理預警</span>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-info mb-0" id="stat-pending-count">0</span>
-                                        <span class="text-secondary">筆待辦</span>
-                                    </div>
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="fa-solid fa-bell text-info me-1"></i> 待處理預警</span>
+                                    <span class="text-info fs-6 fw-bold mono-num" id="stat-pending-count">0</span>
                                 </div>
                             </div>
                         </div>
@@ -94,7 +74,7 @@
                     </div>
 
                     <div class="col-12 col-md-5 text-md-end">
-                        <button type="button" class="btn btn-sm btn-purple text-white fw-bold" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
+                        <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
                             <i class="fa-solid fa-plus"></i> 新增門檻規則
                         </button>
                     </div>
@@ -104,13 +84,12 @@
             <section id="workspace-alerts" class="glass-panel p-3 mb-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
                     <div class="d-flex flex-wrap align-items-center gap-2">
-                        <span class="text-white fw-bold"><i class="fa-solid fa-filter text-primary"></i> 預警類別：</span>
-                        <button type="button" class="filter-pill-btn active" data-alert-filter="ALL">全部</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="低於安全水位">低於安全水位</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="90天近效期">90天近效期</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="30天極危效期">30天極危效期</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="已過期">已過期</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="品質鎖定">品質鎖定</button>
+                        <button type="button" class="filter-pill-btn active" data-alert-filter="ALL"><i class="fa-solid fa-border-all me-1"></i> 全部</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="低於安全水位"><i class="fa-solid fa-triangle-exclamation me-1"></i> 低於安全水位</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="90天近效期"><i class="fa-solid fa-hourglass-half me-1"></i> 90天近效期</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="30天極危效期"><i class="fa-solid fa-triangle-exclamation me-1"></i> 30天極危效期</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="已過期"><i class="fa-solid fa-skull me-1"></i> 已過期</button>
+                        <button type="button" class="filter-pill-btn" data-alert-filter="品質鎖定"><i class="fa-solid fa-lock me-1"></i> 品質鎖定</button>
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
@@ -191,7 +170,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label" for="fieldThresholdId">門檻唯一識別碼 (id) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm bg-dark text-info fw-bold" id="fieldThresholdId" placeholder="由系統依據點與產品自動生成..." readonly required>
+                                <input type="text" class="form-control form-control-sm" id="fieldThresholdId" placeholder="由系統依據點與產品自動生成..." readonly required>
                                 <div class="form-text text-muted small">主鍵 (PK)，依「倉儲據點ID_產品SKU ID」格式自動生成（例如：WH-TW-TP_TW0101001）</div>
                             </div>
 

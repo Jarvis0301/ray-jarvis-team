@@ -24,7 +24,7 @@
 
         <!-- 主內容容器 -->
         <main class="container-fluid p-3 p-md-4">
-            <header class="glass-panel hud-sentinel-bar mb-3">
+            <header class="glass-panel hud-bar mb-3">
                 <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-2">
                         <h4 class="mb-0 fw-bold text-white text-nowrap">
@@ -33,26 +33,26 @@
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center gap-2">
-                        <div class="stat-chip flex-fill flex-md-grow-0 justify-content-between justify-content-md-start">
-                            <span class="text-secondary"><i class="fa-solid fa-users text-primary"></i> 夥伴總數</span>
-                            <span class="fw-bold text-primary fs-6" id="hud-total-partners">0</span>
+                        <div class="stat-chip">
+                            <span class="text-secondary"><i class="fa-solid fa-users text-primary me-1"></i> 夥伴總數</span>
+                            <span class="fw-bold text-primary fs-6 fw-bold mono-num" id="hud-total-partners">0</span>
                         </div>
-                        <div class="stat-chip flex-fill flex-md-grow-0 justify-content-between justify-content-md-start">
-                            <span class="text-secondary"><i class="fa-solid fa-people-group text-warning"></i> 團隊人數</span>
-                            <span class="fw-bold text-warning fs-6" id="hud-team-partners">0</span>
+                        <div class="stat-chip">
+                            <span class="text-secondary"><i class="fa-solid fa-people-group text-warning me-"></i> 團隊人數</span>
+                            <span class="fw-bold text-warning fs-6 fw-bold mono-num" id="hud-team-partners">0</span>
                         </div>
-                        <div class="stat-chip flex-fill flex-md-grow-0 justify-content-between justify-content-md-start">
-                            <span class="text-secondary"><i class="fa-solid fa-earth-americas text-info"></i> 大馬團隊</span>
-                            <span class="fw-bold text-info fs-6" id="hud-my-team-partners">0</span>
+                        <div class="stat-chip">
+                            <span class="text-secondary"><i class="fa-solid fa-earth-americas text-info me-"></i> 大馬團隊</span>
+                            <span class="fw-bold text-info fs-6 fw-bold mono-num" id="hud-my-team-partners">0</span>
                         </div>
-                        <div class="stat-chip flex-fill flex-md-grow-0 justify-content-between justify-content-md-start">
-                            <span class="text-secondary"><i class="fa-solid fa-bolt text-success"></i> 活躍成員</span>
-                            <span class="fw-bold text-success fs-6" id="hud-active-team-partners">0</span>
+                        <div class="stat-chip">
+                            <span class="text-secondary"><i class="fa-solid fa-bolt text-success me-"></i> 活躍成員</span>
+                            <span class="fw-bold text-success fs-6 fw-bold mono-num" id="hud-active-team-partners">0</span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <button class="btn btn-secondary btn-sm rounded-pill w-100 w-xl-auto px-3 py-2 text-nowrap" id="btn-open-create-modal" onclick="openPartnerModalForCreate()">
+                        <button class="btn btn-secondary btn-sm rounded-pill" id="btn-open-create-modal" onclick="openPartnerModalForCreate()">
                             <i class="fa-solid fa-user-plus"></i> 新增成員
                         </button>
                     </div>
@@ -187,28 +187,30 @@
             <!-- ========================================================================== -->
             <section class="views-wrapper">
                 <!-- 4 大視圖 Nav Tabs 頁籤切換列 -->
-                <ul class="nav nav-tabs nav-tabs-tactical row g-2 g-md-0 border-bottom border-secondary border-opacity-25 mb-3" id="viewModeTabs" role="tablist">
-                    <li class="nav-item col-6 col-md-auto" role="presentation">
-                        <button class="nav-link w-100 text-center active" id="tab-cards" data-bs-toggle="tab" data-bs-target="#container-cards-view" type="button" role="tab" aria-controls="container-cards-view" aria-selected="true">
-                            <i class="fa-solid fa-address-card"></i> 夥伴卡片
-                        </button>
-                    </li>
-                    <li class="nav-item col-6 col-md-auto" role="presentation">
-                        <button class="nav-link w-100 text-center" id="tab-table" data-bs-toggle="tab" data-bs-target="#container-table-view" type="button" role="tab" aria-controls="container-table-view" aria-selected="false">
-                            <i class="fa-solid fa-list-check"></i> 夥伴列表
-                        </button>
-                    </li>
-                    <li class="nav-item col-6 col-md-auto" role="presentation">
-                        <button class="nav-link w-100 text-center" id="tab-tree" data-bs-toggle="tab" data-bs-target="#container-tree-view" type="button" role="tab" aria-controls="container-tree-view" aria-selected="false">
-                            <i class="fa-solid fa-network-wired"></i> 組織拓譜
-                        </button>
-                    </li>
-                    <li class="nav-item col-6 col-md-auto" role="presentation">
-                        <button class="nav-link w-100 text-center" id="tab-charts" data-bs-toggle="tab" data-bs-target="#container-charts-view" type="button" role="tab" aria-controls="container-charts-view" aria-selected="false">
-                            <i class="fa-solid fa-chart-pie"></i> 統計圖表
-                        </button>
-                    </li>
-                </ul>
+                <nav aria-label="組織成員頁籤" class="mb-3">
+                    <ul class="nav nav-tabs" id="viewModeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-cards" data-bs-toggle="tab" data-bs-target="#container-cards-view" type="button" role="tab" aria-controls="container-cards-view" aria-selected="true">
+                                <i class="fa-solid fa-address-card"></i> 夥伴卡片
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-table" data-bs-toggle="tab" data-bs-target="#container-table-view" type="button" role="tab" aria-controls="container-table-view" aria-selected="false">
+                                <i class="fa-solid fa-list-check"></i> 夥伴列表
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-tree" data-bs-toggle="tab" data-bs-target="#container-tree-view" type="button" role="tab" aria-controls="container-tree-view" aria-selected="false">
+                                <i class="fa-solid fa-network-wired"></i> 組織拓譜
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-charts" data-bs-toggle="tab" data-bs-target="#container-charts-view" type="button" role="tab" aria-controls="container-charts-view" aria-selected="false">
+                                <i class="fa-solid fa-chart-pie"></i> 統計圖表
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
 
                 <!-- 4 大視圖 Tab 內容容器 -->
                 <div class="tab-content" id="viewModeTabContent">
@@ -374,73 +376,73 @@
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-id-badge text-primary"></i> 1. 人脈身分類型</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-identity-type-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-identity-type-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-tag text-info"></i> 2. 使用身分類型</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-usage-identity-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-usage-identity-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-cake-candles text-warning"></i> 3. 年齡層級分佈</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-age-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-age-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-venus-mars text-danger"></i> 4. 生理性別比例</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-gender-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-gender-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-flag text-success"></i> 5. 國籍分佈比例</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-nationality-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-nationality-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-people-group text-accent"></i> 6. 種族族裔比例</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-ethnicity-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-ethnicity-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-house-user text-primary"></i> 7. 家鄉城市分佈</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-hometown-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-hometown-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-map-location-dot text-info"></i> 8. 現居地 / 行政區</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-residence-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-residence-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-handshake text-success"></i> 9. 認識年份分佈</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-met-year-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-met-year-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-graduation-cap text-warning"></i> 10. 最高學歷分佈</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-education-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-education-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-heart-pulse text-danger"></i> 11. 健康狀況比例</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-health-status-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-health-status-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-wallet text-accent"></i> 12. 財務狀況比例</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-financial-status-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-financial-status-split"></canvas></div>
                                     </div>
                                 </div>
                             </div>
@@ -458,73 +460,73 @@
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-globe text-info"></i> 1. 所屬國家市場</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-market-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-market-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-stairs text-warning"></i> 2. 當前實際職級</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-current-rank-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-current-rank-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-award text-warning"></i> 3. 官方最高職級</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-highest-rank-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-highest-rank-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-shield-halved text-success"></i> 4. 團隊直轄 vs 旁線</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-team-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-team-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-bolt text-accent"></i> 5. 團隊參與狀態</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-activity-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-activity-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-id-badge text-success"></i> 6. 官方會籍狀態</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-member-status-pie"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-member-status-pie"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-link text-primary"></i> 7. 上線連結模式</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-upline-link-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-upline-link-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-people-arrows text-warning"></i> 8. 組織關係屬性</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-relation-split"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-relation-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-toggle-on text-info"></i> 9. 營運狀態佔比</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-operator-status"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-operator-status"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-shield text-success"></i> 10. 經營身分類型</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-account-holder-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-account-holder-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-gear text-accent"></i> 11. 經營權模式佔比</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-mode-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-mode-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-heart-pulse text-danger"></i> 12. 入會動機比例</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-motive-distribution"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-motive-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
@@ -542,13 +544,13 @@
                                 <div class="col-12 col-md-6 col-xl-6">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-chart-line text-info"></i> 15. 簽約加入年份趨勢</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-join-year-line"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-join-year-line"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
                                     <div class="card">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-arrow-trend-down text-danger"></i> 16. 退出解約年份趨勢</h6>
-                                        <div style="position: relative; height: 260px;"><canvas id="chart-exit-year-line"></canvas></div>
+                                        <div class="chart-card-container"><canvas id="chart-exit-year-line"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
@@ -648,7 +650,7 @@
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">常用稱呼 / 暱稱</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-preferred-name" placeholder="如：Ray、Jarvis、菲姐">
+                                            <input type="text" class="form-control form-control-sm" id="form-preferred-name" placeholder="如：Ray、Jarvis">
                                         </div>
                                     </div>
 

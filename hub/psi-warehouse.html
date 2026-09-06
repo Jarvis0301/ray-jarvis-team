@@ -23,46 +23,38 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
 
-            <header class="glass-panel hud-sentinel-bar mb-4">
+            <header class="glass-panel hud-bar mb-3">
                 <div class="row align-items-center g-3">
-                    <div class="col-12 col-xl-5">
+                    <div class="col-12 col-xl-6">
                         <div class="h4 fw-bold text-white">
                             <i class="fa-solid fa-map-location-dot text-primary"></i> 據點倉儲
                         </div>
                     </div>
 
-                    <div class="col-12 col-xl-7">
-                        <div class="row g-2 text-center text-md-start">
-                            <div class="col-6 col-sm-3">
-                                <div class="hud-pill">
-                                    <div class="text-secondary">
-                                        <span class="flag-icon flag-tw me-1"></span> 台灣據點
-                                    </div>
-                                    <div class="h5 mb-0 fw-bold mono-num text-info mt-1" id="stat-tw-count">0 處</div>
+                    <div class="col-12 col-xl-6">
+                        <div class="row row-cols-2 row-cols-xl-4 g-2">
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="flag-icon flag-tw me-1"></i> 台灣據點</span>
+                                    <span class="text-info fs-6 fw-bold mono-num" id="stat-tw-count">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-sm-3">
-                                <div class="hud-pill">
-                                    <div class="text-secondary">
-                                        <span class="flag-icon flag-my me-1"></span> 大馬據點
-                                    </div>
-                                    <div class="h5 mb-0 fw-bold mono-num text-warning mt-1" id="stat-my-count">0 處</div>
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="flag-icon flag-my me-1"></i> 大馬據點</span>
+                                    <span class="text-warning fs-6 fw-bold mono-num" id="stat-my-count">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-sm-3">
-                                <div class="hud-pill">
-                                    <div class="text-secondary">
-                                        <i class="fa-solid fa-vault text-secondary"></i> 自用常備倉
-                                    </div>
-                                    <div class="h5 mb-0 fw-bold mono-num text-white mt-1" id="stat-private-count">0 處</div>
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="fa-solid fa-building-flag text-primary me-1"></i> 官方中心</span>
+                                    <span class="text-primary fs-6 fw-bold mono-num" id="stat-official-count">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-sm-3">
-                                <div class="hud-pill">
-                                    <div class="text-secondary">
-                                        <i class="fa-solid fa-circle-check text-success"></i> 營運中比例
-                                    </div>
-                                    <div class="h5 mb-0 fw-bold mono-num text-success mt-1" id="stat-active-rate">0%</div>
+                            <div class="col">
+                                <div class="stat-chip w-100 justify-content-between">
+                                    <span class="text-secondary"><i class="fa-solid fa-vault text-success me-1"></i> 自用常備倉</span>
+                                    <span class="text-success fs-6 fw-bold mono-num" id="stat-private-count">0</span>
                                 </div>
                             </div>
                         </div>
@@ -74,19 +66,19 @@
                     <div class="col-12 col-lg-7">
                         <div class="d-flex flex-wrap gap-2 align-items-center">
                             <button type="button" class="filter-pill-btn active" data-filter="ALL">
-                                <i class="fa-solid fa-border-all"></i> 全部 (<span id="count-all">0</span>)
+                                <i class="fa-solid fa-border-all me-1"></i> 全部 (<span id="count-all">0</span>)
                             </button>
                             <button type="button" class="filter-pill-btn" data-filter="官方營運中心">
-                                <i class="fa-solid fa-building-flag"></i> 官方營運中心 (<span id="count-official">0</span>)
+                                <i class="fa-solid fa-building-flag me-1"></i> 官方營運中心 (<span id="count-official">0</span>)
                             </button>
                             <button type="button" class="filter-pill-btn" data-filter="自用常備倉">
-                                <i class="fa-solid fa-vault"></i> 自用常備倉 (<span id="count-private">0</span>)
+                                <i class="fa-solid fa-vault me-1"></i> 自用常備倉 (<span id="count-private">0</span>)
                             </button>
                             <button type="button" class="filter-pill-btn" data-filter="海外商務倉">
-                                <i class="fa-solid fa-plane-departure"></i> 海外商務倉 (<span id="count-overseas">0</span>)
+                                <i class="fa-solid fa-plane-departure me-1"></i> 海外商務倉 (<span id="count-overseas">0</span>)
                             </button>
                             <button type="button" class="filter-pill-btn" data-filter="物流在途倉">
-                                <i class="fa-solid fa-truck-fast"></i> 物流在途倉 (<span id="count-transit">0</span>)
+                                <i class="fa-solid fa-truck-fast me-1"></i> 物流在途倉 (<span id="count-transit">0</span>)
                             </button>
                         </div>
                     </div>

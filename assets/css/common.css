@@ -2527,6 +2527,12 @@ body {
   box-shadow: 0 0 2rem var(--uvaco-border-glow);
 }
 
+.chart-card-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
 /* 1. 先定義國旗圖標的通用外觀（與 Font Awesome 對齊） */
 .flag-icon {
   display: inline-block;
@@ -8896,6 +8902,102 @@ body {
   transition: margin-top 0.15s ease-out;
 }
 
+/* ==========================================================================
+   assets/css/scss/components/_navbar.scss
+   全域標籤頁元件庫 (Nav Tabs & Mobile Form Pills)
+   ========================================================================== */
+.nav-tabs {
+  border-bottom: 2px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.2));
+  gap: 0.35rem;
+}
+.nav-tabs .nav-link {
+  color: var(--uvaco-text-muted, #94a3b8);
+  background: var(--uvaco-bg-card-secondary);
+  border: 1px solid var(--uvaco-border-glow);
+  border-bottom: none;
+  border-top-left-radius: var(--uvaco-border-radius-md, 10px);
+  border-top-right-radius: var(--uvaco-border-radius-md, 10px);
+  padding: 0.6rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.nav-tabs .nav-link:hover {
+  color: var(--uvaco-text-primary, #ffffff);
+  background: var(--uvaco-bg-card-secondary-hover, rgba(139, 92, 246, 0.12));
+  border-color: var(--uvaco-border-color, rgba(139, 92, 246, 0.25)) var(--uvaco-border-color, rgba(139, 92, 246, 0.25)) transparent;
+}
+.nav-tabs .nav-link.active {
+  color: var(--uvaco-text-primary, #ffffff);
+  background: var(--uvaco-bg-card-light, #1a122d);
+  border-color: var(--uvaco-border-color, rgba(139, 92, 246, 0.4)) var(--uvaco-border-color, rgba(139, 92, 246, 0.4)) var(--uvaco-bg-card, #1a122d);
+  border-top: 2px solid var(--uvaco-primary, #8b5cf6);
+  border-bottom: 2px solid var(--uvaco-primary, #8b5cf6);
+  box-shadow: 0 -4px 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.2));
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .nav-tabs {
+    border-bottom: none !important;
+    gap: 0.25rem;
+  }
+  .nav-tabs .nav-item {
+    flex: 1 1 calc(50% - 0.25rem);
+  }
+  .nav-tabs .nav-link {
+    border-radius: var(--uvaco-border-radius-sm, 8px);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.18)) !important;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .nav-tabs .nav-link.active {
+    border-color: var(--uvaco-primary, #8b5cf6) !important;
+    background: var(--uvaco-bg-card-hover, rgba(139, 92, 246, 0.25));
+    box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.3));
+  }
+}
+.form-tabs-mobile-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  gap: 0.35rem;
+}
+.form-tabs-mobile-nav::-webkit-scrollbar {
+  display: none;
+}
+.form-tabs-mobile-nav {
+  scrollbar-width: none;
+}
+.form-tabs-mobile-nav .nav-link {
+  font-size: 0.84rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.18));
+  color: var(--uvaco-text-muted, #94a3b8);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.form-tabs-mobile-nav .nav-link:hover {
+  color: #ffffff;
+  background: var(--uvaco-bg-card-hover, rgba(139, 92, 246, 0.15));
+}
+.form-tabs-mobile-nav .nav-link.active {
+  background: var(--uvaco-primary, #8b5cf6);
+  color: #ffffff;
+  border-color: var(--uvaco-primary, #8b5cf6);
+  box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.35));
+}
+
 /* _tables.scss */
 .table-dark-custom {
   --bs-table-bg: transparent;
@@ -9159,6 +9261,18 @@ body {
   border-color: var(--uvaco-secondary);
   color: var(--uvaco-text-primary);
   box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow);
+}
+.form-control:-moz-read-only {
+  background-color: var(-bg-dark);
+  border-color: var(--uvaco-secondary);
+  color: var(--uvaco-primary);
+  font-weight: 600;
+}
+.form-control:read-only {
+  background-color: var(-bg-dark);
+  border-color: var(--uvaco-secondary);
+  color: var(--uvaco-primary);
+  font-weight: 600;
 }
 
 .form-check-input {
@@ -9583,12 +9697,12 @@ body {
   box-shadow: 0 0 40px var(--uvaco-primary-glow);
 }
 
-.hud-sentinel-bar {
+.hud-bar {
   padding: 1.25rem 1.5rem;
   position: relative;
   overflow: hidden;
 }
-.hud-sentinel-bar::before {
+.hud-bar::before {
   content: "";
   position: absolute;
   top: 0;
@@ -9597,6 +9711,24 @@ body {
   height: 100%;
   background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6), var(--uvaco-accent, #ec4899));
   box-shadow: 0 0 12px var(--uvaco-accent, #ec4899);
+}
+
+.stat-chip {
+  background: var(--uvaco-bg-primary);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: var(--uvaco-border-radius-md);
+  padding: 0.5rem 1rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.25s ease;
+}
+.stat-chip:hover {
+  background: var(--uvaco-bg-card-hover);
+  border: 1px solid var(--uvaco-border-highlight);
+  box-shadow: 0 0 0.5rem var(--uvaco-border-glow);
+  transform: translateY(-2px);
 }
 
 @keyframes ctaPulseGlow {

@@ -189,13 +189,15 @@ function getFilteredList() {
 function renderStats(list) {
     const twCount = list.filter(w => w.country_code === 'TW').length;
     const myCount = list.filter(w => w.country_code === 'MY').length;
+    const officialCount = list.filter(w => w.warehouse_type === '官方營運中心' || w.warehouse_type === 'OFFICIAL_CENTER').length;
     const privateCount = list.filter(w => w.warehouse_type === '自用常備倉' || w.warehouse_type === 'PRIVATE_HUB').length;
     const activeCount = list.filter(w => w.is_active === 'Y').length;
     const activeRate = list.length ? Math.round((activeCount / list.length) * 100) : 0;
 
-    $('#stat-tw-count').text(`${twCount} 處`);
-    $('#stat-my-count').text(`${myCount} 處`);
-    $('#stat-private-count').text(`${privateCount} 處`);
+    $('#stat-tw-count').text(`${twCount}`);
+    $('#stat-my-count').text(`${myCount}`);
+    $('#stat-official-count').text(`${officialCount}`);
+    $('#stat-private-count').text(`${privateCount}`);
     $('#stat-active-rate').text(`${activeRate}%`);
 
     $('#count-all').text(list.length);
