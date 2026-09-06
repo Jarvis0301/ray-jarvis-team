@@ -655,7 +655,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
         <div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary"></i> 直屬合格經理線拓撲</span>
-                <span class="badge badge-purple">${lines} 條實動線</span>
+                <span class="badge badge-secondary">${lines} 條實動線</span>
             </div>
             <div class="d-flex gap-1 flex-wrap">
                 ${Array.from({ length: Math.max(10, lines) }).map((_, i) => {
@@ -672,11 +672,11 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     `);
 
     const rescueStatusHtml = hasAutoRescue
-        ? `<div class="p-3 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-50">
+        ? `<div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-warning border-opacity-50">
                 <div class="d-flex align-items-center gap-2 text-warning fw-bold small mb-1">
                     <i class="fa-solid fa-shield-cat fs-5"></i> 第 5 條線業績自動補救已啟動
                 </div>
-                <div class="text-muted small" style="font-size: 0.78rem;">
+                <div class="text-warning small" style="font-size: 0.78rem;">
                     您已培育 5 條以上合格經理線，第 5 條經理線之小組業績已自動填補您本人 3,200 SV 小組缺口，免除保級顧慮。
                 </div>
            </div>`
