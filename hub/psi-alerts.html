@@ -23,10 +23,11 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
 
+            <!-- 1. 頂部 HUD 狀態區塊（移除原底部按鈕列，維持純淨數據面板） -->
             <header class="glass-panel hud-bar mb-3">
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-md-2 col-xl-6">
-                        <div class="h4 fw-bold text-white">
+                        <div class="h4 fw-bold text-white mb-0">
                             <i class="fa-solid fa-triangle-exclamation text-primary"></i> 庫存預警
                         </div>
                     </div>
@@ -60,40 +61,63 @@
                         </div>
                     </div>
                 </div>
+            </header>
 
-                <div class="row align-items-center justify-content-between g-3 mt-3 border-top border-purple-subtle">
-                    <div class="col-12 col-xl-10">
-                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                            <button type="button" class="filter-pill-btn active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')">
-                                <i class="fa-solid fa-triangle-exclamation"></i> 即時預警 (<span id="count-alerts-total">0</span>)
-                            </button>
-                            <button type="button" class="filter-pill-btn" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')">
-                                <i class="fa-solid fa-sliders"></i> 門檻規則 (<span id="count-thresholds-total">0</span>)
-                            </button>
+            <!-- 2. 主視圖切換頁籤（拉出為獨立 nav 語意化共用元件） -->
+            <nav aria-label="庫存預警工作區頁籤" class="mb-3">
+                <ul class="nav nav-tabs" id="psiAlertTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')" role="tab">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> 即時預警
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')" role="tab">
+                            <i class="fa-solid fa-sliders me-1"></i> 門檻規則
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <section id="workspace-alerts" class="glass-panel p-3 mb-4">
+                <div class="row align-items-center g-3 pb-3 border-bottom">
+                    <div class="col-12 col-md-12 col-xl-11">
+                        <div class="row row-cols-2 row-cols-md-auto g-2">
+                            <div class="col col-12">
+                                <button type="button" class="filter-pill-btn w-100 active" data-alert-filter="ALL">
+                                    <i class="fa-solid fa-border-all me-1"></i> 全部
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-alert-filter="低於安全水位">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> 低於安全水位
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-alert-filter="90天近效期">
+                                    <i class="fa-solid fa-hourglass-half me-1"></i> 90天近效期
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-alert-filter="30天極危效期">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> 30天極危效期
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-alert-filter="已過期">
+                                    <i class="fa-solid fa-skull me-1"></i> 已過期
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-alert-filter="品質鎖定">
+                                    <i class="fa-solid fa-lock me-1"></i> 品質鎖定
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-xl-2 text-xl-end">
-                        <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
-                            <i class="fa-solid fa-plus"></i> 新增門檻規則
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <section id="workspace-alerts" class="glass-panel p-3 mb-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
-                    <div class="d-flex flex-wrap align-items-center gap-2">
-                        <button type="button" class="filter-pill-btn active" data-alert-filter="ALL"><i class="fa-solid fa-border-all me-1"></i> 全部</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="低於安全水位"><i class="fa-solid fa-triangle-exclamation me-1"></i> 低於安全水位</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="90天近效期"><i class="fa-solid fa-hourglass-half me-1"></i> 90天近效期</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="30天極危效期"><i class="fa-solid fa-triangle-exclamation me-1"></i> 30天極危效期</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="已過期"><i class="fa-solid fa-skull me-1"></i> 已過期</button>
-                        <button type="button" class="filter-pill-btn" data-alert-filter="品質鎖定"><i class="fa-solid fa-lock me-1"></i> 品質鎖定</button>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="triggerBatchResolve()" title="批次知悉處理">
+                    <div class="col-12 col-md-2 col-xl-1 d-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" onclick="triggerBatchResolve()" title="批次知悉處理">
                             <i class="fa-solid fa-check-double"></i> 批次知悉
                         </button>
                     </div>
@@ -123,14 +147,19 @@
             </section>
 
             <section id="workspace-thresholds" class="glass-panel p-3 mb-4 d-none">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--uvaco-border, rgba(168, 85, 247, 0.2)) !important;">
-                    <div>
+                <div class="row align-items-center g-3 pb-3 border-bottom">
+                    <div class="col-12 col-md-10 col-xl-10">
                         <h5 class="fw-bold text-white mb-0">
                             <i class="fa-solid fa-sliders text-primary"></i> 各據點安全水位門檻規則
                         </h5>
                         <div class="text-secondary small mt-1">
                             <i class="fa-solid fa-info-circle"></i> 自由可用庫存 &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
                         </div>
+                    </div>
+                    <div class="col-12 col-md-2 col-xl-2 d-flex justify-content-md-end">
+                        <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
+                            <i class="fa-solid fa-plus"></i> 新增門檻規則
+                        </button>
                     </div>
                 </div>
 
