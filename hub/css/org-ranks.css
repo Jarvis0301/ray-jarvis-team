@@ -22,30 +22,36 @@
     cursor: pointer;
     transition: all 0.25s ease;
     position: relative;
-}
 
-.rank-node-btn:hover {
-    background: var(--uvaco-bg-card-hover, #1e0f3d);
-    border-color: var(--uvaco-secondary, #c084fc);
-    transform: translateY(-2px);
-}
+    &:hover {
+        background: var(--uvaco-bg-card-hover, #1e0f3d);
+        border-color: var(--uvaco-secondary, #c084fc);
+        transform: translateY(-2px);
+    }
 
-.rank-node-btn.active {
-    background: var(--uvaco-bg-card-accent, #2b1022);
-    border-color: var(--uvaco-accent, #ec4899);
-    box-shadow: 0 0 15px var(--uvaco-accent-glow, rgba(236, 72, 153, 0.4));
-}
+    &.active {
+        background: var(--uvaco-bg-card-accent, #2b1022);
+        border-color: var(--uvaco-accent, #ec4899);
+        box-shadow: 0 0 15px var(--uvaco-accent-glow, rgba(236, 72, 153, 0.4));
 
-.rank-node-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 12px;
-    height: 12px;
-    background: var(--uvaco-accent, #ec4899);
-    clip-path: polygon(50% 100%, 0 0, 100% 0);
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--uvaco-accent, #ec4899);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+        }
+
+        .rank-badge-icon {
+            background: rgba(13, 6, 31, 0.95);
+            border-color: currentColor;
+            box-shadow: 0 0 12px currentColor;
+        }
+    }
 }
 
 .rank-badge-icon {
@@ -61,18 +67,4 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
     transition: all 0.3s ease;
-}
-
-.rank-node-btn.active .rank-badge-icon {
-    background: rgba(13, 6, 31, 0.95);
-    border-color: currentColor;
-    box-shadow: 0 0 12px currentColor;
-}
-
-/* 核心指標膠囊卡片 */
-.metric-pill {
-    background: var(--uvaco-bg-card-inner, #0d061f);
-    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.2));
-    border-radius: var(--uvaco-border-radius-md, 10px);
-    padding: 10px 12px;
 }

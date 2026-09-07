@@ -493,7 +493,7 @@ function renderSitemapFooter() {
 
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">
-                <div class="fw-bold text-purple mb-2">
+                <div class="fw-bold text-primary mb-2">
                     <i class="${iconClass} me-1"></i> ${root.titleCn}
                 </div>`;
 

@@ -398,18 +398,22 @@ function updateSubSeriesDropdown(mainCode) {
 
 function renderTypeFilterButtons() {
     let html = `
-        <button class="type-btn ${appState.productType === 'ALL' ? 'active' : ''}" data-type="ALL">
-            <i class="fa-solid fa-border-all"></i> 全部型態
-        </button>
+        <div class="col col-12">
+            <button class="filter-pill-btn w-100 ${appState.productType === 'ALL' ? 'active' : ''}" data-type="ALL">
+                <i class="fa-solid fa-border-all"></i> 全部
+            </button>
+        </div>
     `;
 
     appState.typeList.forEach(t => {
         const typeInfo = getTypeInfo(t.type_code, appState.country);
         const isActive = appState.productType === t.type_code ? 'active' : '';
         html += `
-            <button class="type-btn ${isActive}" data-type="${t.type_code}">
-                <i class="${typeInfo.icon}"></i> ${typeInfo.name}
-            </button>
+            <div class="col">
+                <button class="filter-pill-btn w-100 ${isActive}" data-type="${t.type_code}">
+                    <i class="${typeInfo.icon}"></i> ${typeInfo.name}
+                </button>
+            </div>
         `;
     });
 
@@ -493,8 +497,8 @@ function bindEvents() {
         renderProducts();
     });
 
-    $("#typeFilterContainer").on("click", ".type-btn", function () {
-        $("#typeFilterContainer .type-btn").removeClass("active");
+    $("#typeFilterContainer").on("click", ".filter-pill-btn", function () {
+        $("#typeFilterContainer .filter-pill-btn").removeClass("active");
         $(this).addClass("active");
         appState.productType = $(this).data("type");
         renderProducts();
@@ -507,7 +511,7 @@ function bindEvents() {
     $("#btn-view-card").on("click", function () {
         if (currentView !== "card") {
             currentView = "card";
-            $(".view-switch-btn").removeClass("active");
+            $("#btn-view-table").removeClass("active");
             $(this).addClass("active");
             $("#productGrid").removeClass("d-none");
             $("#productTableCard").addClass("d-none");
@@ -518,7 +522,7 @@ function bindEvents() {
     $("#btn-view-table").on("click", function () {
         if (currentView !== "table") {
             currentView = "table";
-            $(".view-switch-btn").removeClass("active");
+            $("#btn-view-card").removeClass("active");
             $(this).addClass("active");
             $("#productGrid").addClass("d-none");
             $("#productTableCard").removeClass("d-none");

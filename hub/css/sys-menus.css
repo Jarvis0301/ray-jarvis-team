@@ -25,24 +25,24 @@
     font-weight: 600;
     border-radius: 8px;
     transition: all 0.25s ease;
-}
 
-.portal-btn.active[data-portal="核心版"] {
-    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-}
+    &.active[data-portal="核心版"] {
+        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    }
 
-.portal-btn.active[data-portal="團隊版"] {
-    background: linear-gradient(135deg, #0284c7, #0369a1);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
-}
+    &.active[data-portal="團隊版"] {
+        background: linear-gradient(135deg, #0284c7, #0369a1);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+    }
 
-.portal-btn.active[data-portal="公開版"] {
-    background: linear-gradient(135deg, #10b981, #047857);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    &.active[data-portal="公開版"] {
+        background: linear-gradient(135deg, #10b981, #047857);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
 }
 
 .quadrant-card {
@@ -53,20 +53,20 @@
     position: relative;
     overflow: hidden;
     transition: transform 0.2s ease, border-color 0.2s ease;
-}
 
-.quadrant-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--uvaco-primary-hover, rgba(168, 85, 247, 0.5));
-}
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--uvaco-primary-hover, rgba(168, 85, 247, 0.5));
+    }
 
-.quadrant-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+    }
 }
 
 .quadrant-active::before { background: var(--uvaco-success, #10b981); }
@@ -88,18 +88,18 @@
     margin-bottom: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-}
 
-.tree-node-item:hover {
-    background: var(--uvaco-bg-card-hover, #26123e);
-    border-color: var(--uvaco-primary, #8b5cf6);
-    transform: translateX(4px);
-}
+    &:hover {
+        background: var(--uvaco-bg-card-hover, #26123e);
+        border-color: var(--uvaco-primary, #8b5cf6);
+        transform: translateX(4px);
+    }
 
-.tree-node-item.selected {
-    background: rgba(139, 92, 246, 0.18);
-    border: 1px solid var(--uvaco-primary, #8b5cf6);
-    box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+    &.selected {
+        background: rgba(139, 92, 246, 0.18);
+        border: 1px solid var(--uvaco-primary, #8b5cf6);
+        box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+    }
 }
 
 .tree-node-level-0 {

@@ -25,34 +25,34 @@
 
             <header class="glass-panel hud-bar mb-3">
                 <div class="row align-items-center g-3">
-                    <div class="col-12 col-xl-6">
+                    <div class="col-12 col-md-2 col-xl-6">
                         <div class="h4 fw-bold text-white">
                             <i class="fa-solid fa-triangle-exclamation text-primary"></i> 庫存預警
                         </div>
                     </div>
 
-                    <div class="col-12 col-xl-6">
-                        <div class="row row-cols-2 row-cols-xl-4 g-2">
+                    <div class="col-12 col-md-10 col-xl-6">
+                        <div class="row row-cols-2 row-cols-md-4 g-2">
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 低於水位</span>
                                     <span class="text-danger fs-6 fw-bold mono-num" id="stat-stockout-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 近有效日期</span>
                                     <span class="text-warning fs-6 fw-bold mono-num" id="stat-expiry-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-sliders text-success me-1"></i> 門檻規則</span>
                                     <span class="text-success fs-6 fw-bold mono-num" id="stat-monitored-rules">0</span>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-bell text-info me-1"></i> 待處理預警</span>
                                     <span class="text-info fs-6 fw-bold mono-num" id="stat-pending-count">0</span>
                                 </div>
@@ -62,7 +62,7 @@
                 </div>
 
                 <div class="row align-items-center justify-content-between g-3 mt-3 border-top border-purple-subtle">
-                    <div class="col-12 col-md-7">
+                    <div class="col-12 col-xl-10">
                         <div class="d-flex flex-wrap gap-2 align-items-center">
                             <button type="button" class="filter-pill-btn active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')">
                                 <i class="fa-solid fa-triangle-exclamation"></i> 即時預警 (<span id="count-alerts-total">0</span>)
@@ -73,7 +73,7 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-5 text-md-end">
+                    <div class="col-12 col-xl-2 text-xl-end">
                         <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
                             <i class="fa-solid fa-plus"></i> 新增門檻規則
                         </button>

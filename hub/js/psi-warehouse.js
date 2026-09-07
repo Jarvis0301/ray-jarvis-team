@@ -228,9 +228,11 @@ function renderGridCards(list) {
         const typeBadge = UIBadges.psi.warehouseType(w.warehouse_type);
         const statusBadge = UIBadges.common.boolean(isActive, '營運中', '已停用');
 
-        const navUrl = (w.latitude && w.longitude)
-            ? `https://www.google.com/maps/search/?api=1&query=${w.latitude},${w.longitude}`
-            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.address || w.warehouse_name)}`;
+        const navUrl = w.address
+            ? ((w.latitude && w.longitude)
+                ? `https://www.google.com/maps/search/?api=1&query=${w.latitude},${w.longitude}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.address || w.warehouse_name)}`)
+            : '';
 
         const adminControls = `
             <button class="btn btn-outline-secondary btn-sm py-1 px-2" onclick="openEditModal('${w.id}')" title="編輯據點">
@@ -297,9 +299,11 @@ function renderGridCards(list) {
 
                         <div class="d-flex justify-content-between align-items-center pt-2 border-top border-purple-subtle">
                             <div class="d-flex gap-1">
-                                <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm py-1 px-2" title="地圖導航">
-                                    <i class="fa-solid fa-location-arrow"></i> 導航
-                                </a>
+                                ${navUrl ? `
+                                    <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm py-1 px-2" title="地圖導航">
+                                        <i class="fa-solid fa-location-arrow"></i> 導航
+                                    </a>
+                                ` : ''}
                                 ${w.contact_phone ? `
                                     <a href="tel:${w.contact_phone}" class="btn btn-outline-secondary btn-sm py-1 px-2" title="撥打專線">
                                         <i class="fa-solid fa-phone"></i>

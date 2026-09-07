@@ -12,18 +12,18 @@
     padding: 1rem 1.5rem;
     overflow-x: auto;
     gap: 0.75rem;
-}
 
-.pipeline-stepper::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 4%;
-    right: 4%;
-    height: 2px;
-    background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(192, 132, 252, 0.6), rgba(139, 92, 246, 0.2));
-    z-index: 1;
-    transform: translateY(-50%);
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 4%;
+        right: 4%;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(192, 132, 252, 0.6), rgba(139, 92, 246, 0.2));
+        z-index: 1;
+        transform: translateY(-50%);
+    }
 }
 
 .step-node {
@@ -42,19 +42,24 @@
     cursor: pointer;
     transition: all 0.25s ease;
     white-space: nowrap;
-}
 
-.step-node:hover {
-    color: #ffffff;
-    border-color: var(--uvaco-primary, #8b5cf6);
-}
+    &:hover {
+        color: #ffffff;
+        border-color: var(--uvaco-primary, #8b5cf6);
+    }
 
-.step-node.active {
-    background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6), #6d28d9);
-    border-color: var(--uvaco-secondary, #c084fc);
-    color: #ffffff;
-    box-shadow: 0 0 18px rgba(139, 92, 246, 0.55);
-    transform: scale(1.04);
+    &.active {
+        background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6), #6d28d9);
+        border-color: var(--uvaco-secondary, #c084fc);
+        color: #ffffff;
+        box-shadow: 0 0 18px rgba(139, 92, 246, 0.55);
+        transform: scale(1.04);
+
+        .step-count {
+            background: #ffffff;
+            color: #6d28d9;
+        }
+    }
 }
 
 .step-count {
@@ -68,11 +73,6 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
-}
-
-.step-node.active .step-count {
-    background: #ffffff;
-    color: #6d28d9;
 }
 
 /* 明細子表格特定間距 */

@@ -2,9 +2,12 @@
  * ============================================================================
  * 全域共用下拉選單中樞 (ui-select-options.js)
  * 涵蓋：
- * 1. core.render(): 支援固定/動態資料、指定 value/text 欄位、8 種組合 (搜尋/新增/分組)
- * 2. 手動新增 (creatable) 與頁面 CRUD 資料表回呼連動
- * 3. 領域特化層 (geo 行政區劃等固定資料選單)
+ * 1. 共用領域：core (核心渲染引擎)、geo (行政區劃)
+ * 2. 產品領域：product (產品品項)
+ * 3. 進銷存領域：warehouse (倉儲據點)
+ * 4. 人員領域：person (個人主檔，內建「翁榮祥」、「林承志」置頂排序)
+ * 5. 夥伴領域：partner (夥伴組織，內建「翁榮祥」、「林承志」置頂排序)
+ * 6. 客戶領域：customer (客戶主檔)
  * ============================================================================
  */
 const UISelectOptions = (function () {
@@ -20,7 +23,6 @@ const UISelectOptions = (function () {
         isScrollGuardInitialized = true;
 
         const handleScroll = function (e) {
-            // 若滾動目標是 Select2 下拉選單本體的選項列表，允許正常滾動，不觸發關閉
             if (e.target && (
                 (e.target.classList && e.target.classList.contains('select2-results__options')) ||
                 $(e.target).closest('.select2-dropdown').length > 0
@@ -28,16 +30,13 @@ const UISelectOptions = (function () {
                 return;
             }
 
-            // 只要外部視窗、父視窗、Modal 或 modal-body 發生滾動，立即收合開啟中的下拉選單
             if ($('.select2-container--open').length > 0) {
                 $('select.select2-hidden-accessible').select2('close');
             }
         };
 
-        // 1. 監聽當前視窗 (true: 開啟 capture 捕獲階段，確保能攔截到 modal-body 的滾動)
         window.addEventListener('scroll', handleScroll, true);
 
-        // 2. 適配 iFrame 架構：監聽父層主視窗滾動
         if (window.self !== window.top) {
             try {
                 window.parent.addEventListener('scroll', handleScroll, true);
@@ -48,7 +47,7 @@ const UISelectOptions = (function () {
     }
 
     // ========================================================================
-    // 0. 通用 Select2 設定產生器 (對應 8 種功能組合)
+    // 通用 Select2 設定產生器
     // ========================================================================
     function buildSelect2Config({
         searchable = false,
@@ -72,12 +71,10 @@ const UISelectOptions = (function () {
             config.dropdownParent = $(dropdownParent);
         }
 
-        // 維度 1：是否可搜尋 (searchable)
         if (!searchable) {
-            config.minimumResultsForSearch = Infinity; // 隱藏搜尋輸入框
+            config.minimumResultsForSearch = Infinity;
         }
 
-        // 維度 2：是否可手動鍵入新增 (creatable / tags)
         if (creatable) {
             config.tags = true;
             config.createTag = function (params) {
@@ -102,24 +99,11 @@ const UISelectOptions = (function () {
     }
 
     // ========================================================================
-    // 1. 通用核心渲染引擎 (UISelectOptions.core.*)
+    // 1. 共用領域 (UISelectOptions.core.* / UISelectOptions.geo.*)
     // ========================================================================
     const core = {
         /**
          * 通用下拉選單渲染器
-         * @param {Object} opts
-         * @param {string|jQuery} opts.target 目標 select 元素
-         * @param {Array<Object|string>} opts.data 資料來源 (靜態陣列或資料表動態物件陣列)
-         * @param {string} [opts.valueKey='value'] 指定 value 取值的欄位屬性名
-         * @param {string|Function} [opts.textKey='text'] 指定顯示文字的屬性名或產生函式
-         * @param {string} [opts.groupKey='group'] 指定分組名稱的屬性名 (若為分組模式)
-         * @param {string} [opts.placeholder=''] 預設未選提示文字
-         * @param {string} [opts.selectedValue=''] 預設選中值
-         * @param {boolean} [opts.searchable=false] 是否開放搜尋
-         * @param {boolean} [opts.creatable=false] 是否可手動鍵入新增
-         * @param {boolean} [opts.grouped=false] 是否進行分組 (Optgroup)
-         * @param {string|jQuery} [opts.dropdownParent=null] Modal 彈窗父層容器
-         * @param {Function} [opts.onCustomCreate=null] 手動新增時觸發的 CRUD 資料表非同步/同步回呼
          */
         render({
             target,
@@ -138,7 +122,6 @@ const UISelectOptions = (function () {
             const $select = $(target);
             if (!$select.length) return;
 
-            // 自動識別：若未手動指定 dropdownParent，但元素位於 .modal 內，自動鎖定該 modal
             let finalDropdownParent = dropdownParent;
             if (!finalDropdownParent) {
                 const $closestModal = $select.closest('.modal');
@@ -154,7 +137,6 @@ const UISelectOptions = (function () {
                 $select.append(`<option value="">${placeholder}</option>`);
             }
 
-            // 輔助函式：提取單項之 value 與 text
             const parseItem = (item) => {
                 if (typeof item === 'string' || typeof item === 'number') {
                     return { val: String(item), txt: String(item) };
@@ -169,7 +151,6 @@ const UISelectOptions = (function () {
                 return { val, txt };
             };
 
-            // 維度 3：是否分組 (grouped)
             if (grouped) {
                 const groupMap = new Map();
                 data.forEach(item => {
@@ -195,7 +176,6 @@ const UISelectOptions = (function () {
                 });
             }
 
-            // 處理選取值還原 (若為可新增模式且值不在清單中，動態預先建立選項)
             if (currentVal !== '') {
                 if (creatable && $select.find(`option[value="${currentVal}"]`).length === 0) {
                     $select.append(new Option(currentVal, currentVal, true, true));
@@ -204,9 +184,7 @@ const UISelectOptions = (function () {
                 }
             }
 
-            // 若滿足 Select2 條件 (可搜尋、可新增或包含自訂父容器)
             if ($.fn.select2) {
-                // 若已初始化過先銷毀以重新套用
                 if ($select.hasClass('select2-hidden-accessible')) {
                     $select.select2('destroy');
                 }
@@ -221,14 +199,12 @@ const UISelectOptions = (function () {
 
                 $select.select2(s2Config);
 
-                // 綁定手動新增與個別頁面 CRUD 資料庫連動
                 if (creatable && typeof onCustomCreate === 'function') {
                     $select.off('select2:select.crudSync').on('select2:select.crudSync', async function (e) {
                         const data = e.params.data;
                         if (data && data.newTag) {
                             try {
                                 const newCreatedVal = await onCustomCreate(data.id, $select);
-                                // 若回呼有回傳特定識別碼或物件，進行值更新
                                 if (newCreatedVal) {
                                     $select.val(newCreatedVal).trigger('change');
                                 }
@@ -246,9 +222,6 @@ const UISelectOptions = (function () {
         }
     };
 
-    // ========================================================================
-    // 2. 特化領域層：行政區劃 (UISelectOptions.geo.*)
-    // ========================================================================
     const REGIONS_DATABASE = {
         TW: [
             "臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市",
@@ -285,11 +258,9 @@ const UISelectOptions = (function () {
             const standardSet = new Set([...REGIONS_DATABASE.TW, ...REGIONS_DATABASE.MY]);
             const structuredData = [];
 
-            // 1. 台灣群組
             REGIONS_DATABASE.TW.forEach(r => structuredData.push({ group: '🇹🇼 台灣 (TW)', name: r, id: r }));
-            // 2. 馬來西亞群組
             REGIONS_DATABASE.MY.forEach(r => structuredData.push({ group: '🇲🇾 馬來西亞 (MY)', name: r, id: r }));
-            // 3. 外部資料表已存在的自訂地區
+
             if (Array.isArray(customRegions)) {
                 customRegions.forEach(r => {
                     const clean = String(r || '').trim();
@@ -307,78 +278,24 @@ const UISelectOptions = (function () {
                 groupKey: 'group',
                 placeholder,
                 selectedValue,
-                searchable: true,   // 可搜尋
-                creatable: true,    // 可手動輸入新增
-                grouped: true,      // 有分組
+                searchable: true,
+                creatable: true,
+                grouped: true,
                 dropdownParent,
                 onCustomCreate
-            });
-        },
-    };
-
-// ========================================================================
-    // 3. 倉儲據點領域 (UISelectOptions.warehouse.*)
-    // displayMode: 1 ->「name」 | 2 ->「name [id]」
-    // ========================================================================
-    const warehouse = {
-        getSortOrder(type = '') {
-            const t = String(type).trim().toUpperCase();
-            if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
-            if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
-            if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
-            if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
-            return 99;
-        },
-
-        populate({
-            target,
-            warehouses = [],
-            displayMode = 2, // 1: name | 2: name [id]
-            placeholder = '-- 請選擇據點倉儲 --',
-            selectedValue = '',
-            searchable = true,
-            dropdownParent = null,
-            filterFn = null,
-            onChange = null
-        }) {
-            const rawList = Array.isArray(warehouses) ? warehouses : Object.values(warehouses || {});
-            const filtered = typeof filterFn === 'function' ? rawList.filter(filterFn) : rawList;
-
-            const sorted = [...filtered].sort((a, b) => {
-                const orderA = warehouse.getSortOrder(a.warehouse_type || a.type);
-                const orderB = warehouse.getSortOrder(b.warehouse_type || b.type);
-                if (orderA !== orderB) return orderA - orderB;
-                return String(a.id || '').localeCompare(String(b.id || ''));
-            });
-
-            core.render({
-                target,
-                data: sorted,
-                valueKey: 'id',
-                textKey: (w) => {
-                    const name = w.warehouse_name || w.name || w.id;
-                    return displayMode === 1 ? name : `${name} [${w.id}]`;
-                },
-                placeholder,
-                selectedValue,
-                searchable,
-                creatable: false,
-                grouped: false,
-                dropdownParent,
-                onChange
             });
         }
     };
 
     // ========================================================================
-    // 4. 產品品項領域 (UISelectOptions.product.*)
+    // 2. 產品品項領域 (UISelectOptions.product.*)
     // displayMode: 1 ->「name」 | 2 ->「name [code]」
     // ========================================================================
     const product = {
         populate({
             target,
             products = [],
-            displayMode = 2, // 1: name | 2: name [code]
+            displayMode = 2,
             placeholder = '-- 請選擇產品品項 --',
             selectedValue = '',
             searchable = true,
@@ -429,11 +346,77 @@ const UISelectOptions = (function () {
     };
 
     // ========================================================================
-    // 5. 個人主檔領域 (UISelectOptions.person.*)
-    // 權重解析：前端顯示名稱 > 中文 > 英文 > 暱稱
+    // 3. 進銷存與倉儲領域 (UISelectOptions.warehouse.*)
+    // displayMode: 1 ->「name」 | 2 ->「name [id]」
+    // ========================================================================
+    const warehouse = {
+        getSortOrder(type = '') {
+            const t = String(type).trim().toUpperCase();
+            if (t.includes('自用') || t === 'PRIVATE_HUB') return 1;
+            if (t.includes('海外') || t === 'TRANSIT_OVERSEAS') return 2;
+            if (t.includes('官方') || t === 'OFFICIAL_CENTER') return 3;
+            if (t.includes('物流') || t === 'LOGISTICS_IN_TRANSIT') return 4;
+            return 99;
+        },
+
+        populate({
+            target,
+            warehouses = [],
+            displayMode = 2,
+            placeholder = '-- 請選擇據點倉儲 --',
+            selectedValue = '',
+            searchable = true,
+            dropdownParent = null,
+            filterFn = null,
+            onChange = null
+        }) {
+            const rawList = Array.isArray(warehouses) ? warehouses : Object.values(warehouses || {});
+            const filtered = typeof filterFn === 'function' ? rawList.filter(filterFn) : rawList;
+
+            const sorted = [...filtered].sort((a, b) => {
+                const orderA = warehouse.getSortOrder(a.warehouse_type || a.type);
+                const orderB = warehouse.getSortOrder(b.warehouse_type || b.type);
+                if (orderA !== orderB) return orderA - orderB;
+                return String(a.id || '').localeCompare(String(b.id || ''));
+            });
+
+            core.render({
+                target,
+                data: sorted,
+                valueKey: 'id',
+                textKey: (w) => {
+                    const name = w.warehouse_name || w.name || w.id;
+                    return displayMode === 1 ? name : `${name} [${w.id}]`;
+                },
+                placeholder,
+                selectedValue,
+                searchable,
+                creatable: false,
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        }
+    };
+
+    // ========================================================================
+    // 4. 個人主檔領域 (UISelectOptions.person.*)
     // displayMode: 1 ->「姓名」 | 2 ->「姓名 [person id]」
     // ========================================================================
     const person = {
+        /**
+         * 優先排序判定：翁榮祥 (1) -> 林承志 (2) -> 其餘依照中文語系排序 (99)
+         */
+        getSortPriority(target, resolvedName = '') {
+            if (!target) return 99;
+            const id = String(target.partner_id || target.person_id || target.id || target._id || '').trim().toUpperCase();
+            const name = String(resolvedName || target.display_name || target.name_zh || target._name || '').trim();
+
+            if (id === 'PTN-0001' || id === 'PTN-001' || id === 'PSN-0001' || id === 'PSN-TW-001' || id === 'PSN-00001' || name.includes('翁榮祥')) return 1;
+            if (id === 'PTN-0002' || id === 'PTN-002' || id === 'PSN-0002' || id === 'PSN-TW-002' || id === 'PSN-00002' || name.includes('林承志')) return 2;
+            return 99;
+        },
+
         resolveName(target, persons = []) {
             if (!target) return '';
             let p = target;
@@ -453,7 +436,7 @@ const UISelectOptions = (function () {
         populate({
             target,
             persons = [],
-            displayMode = 2, // 1: 姓名 | 2: 姓名 [person id]
+            displayMode = 2,
             placeholder = '-- 請選擇人員 --',
             selectedValue = '',
             searchable = true,
@@ -472,9 +455,15 @@ const UISelectOptions = (function () {
                 return {
                     ...p,
                     _id: personId,
+                    _name: name,
                     _label: label
                 };
-            }).sort((a, b) => a._label.localeCompare(b._label, 'zh-TW'));
+            }).sort((a, b) => {
+                const prioA = person.getSortPriority(a, a._name);
+                const prioB = person.getSortPriority(b, b._name);
+                if (prioA !== prioB) return prioA - prioB;
+                return a._label.localeCompare(b._label, 'zh-TW');
+            });
 
             core.render({
                 target,
@@ -493,7 +482,7 @@ const UISelectOptions = (function () {
     };
 
     // ========================================================================
-    // 6. 夥伴組織領域 (UISelectOptions.partner.*)
+    // 5. 夥伴組織領域 (UISelectOptions.partner.*)
     // displayMode: 1 ->「姓名」 | 2 ->「姓名 (member no) [partner id]」
     // ========================================================================
     const partner = {
@@ -501,7 +490,7 @@ const UISelectOptions = (function () {
             target,
             partners = [],
             persons = [],
-            displayMode = 2, // 1: 姓名 | 2: 姓名 (member no) [partner id]
+            displayMode = 2,
             placeholder = '-- 請選擇夥伴 --',
             selectedValue = '',
             searchable = true,
@@ -526,9 +515,15 @@ const UISelectOptions = (function () {
                 return {
                     ...p,
                     _id: partnerId,
+                    _name: name,
                     _label: label
                 };
-            }).sort((a, b) => a._label.localeCompare(b._label, 'zh-TW'));
+            }).sort((a, b) => {
+                const prioA = person.getSortPriority(a, a._name);
+                const prioB = person.getSortPriority(b, b._name);
+                if (prioA !== prioB) return prioA - prioB;
+                return a._label.localeCompare(b._label, 'zh-TW');
+            });
 
             core.render({
                 target,
@@ -547,7 +542,7 @@ const UISelectOptions = (function () {
     };
 
     // ========================================================================
-    // 7. 客戶主檔領域 (UISelectOptions.customer.*)
+    // 6. 客戶主檔領域 (UISelectOptions.customer.*)
     // displayMode: 1 ->「姓名」 | 2 ->「姓名 [customer id]」
     // ========================================================================
     const customer = {
@@ -555,7 +550,7 @@ const UISelectOptions = (function () {
             target,
             customers = [],
             persons = [],
-            displayMode = 2, // 1: 姓名 | 2: 姓名 [customer id]
+            displayMode = 2,
             placeholder = '-- 請選擇客戶 --',
             selectedValue = '',
             searchable = true,
@@ -575,6 +570,7 @@ const UISelectOptions = (function () {
                 return {
                     ...c,
                     _id: customerId,
+                    _name: name,
                     _label: label
                 };
             }).sort((a, b) => a._label.localeCompare(b._label, 'zh-TW'));
@@ -598,8 +594,9 @@ const UISelectOptions = (function () {
     return {
         core,
         geo,
-        warehouse,
         product,
+        warehouse,
+        person,
         partner,
         customer
     };

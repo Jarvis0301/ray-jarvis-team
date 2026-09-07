@@ -62,49 +62,49 @@
                 <!-- 7 大晉升門檻指標卡片網格 -->
                 <div class="row g-2 mb-3">
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-user-check text-info"></i> 當月個人業績</div>
                             <div class="h6 fw-bold text-white mb-0" id="activePersonalSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-users text-primary"></i> 當月小組責任額</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeMonthGroupSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-chart-pie text-accent"></i> 當月整組總業績</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeMonthOrgSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-coins text-warning"></i> 整組累計業績</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeCumSv">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-sitemap text-success"></i> 經理線 (合格線)</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeQualifiedLines">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-gem text-accent"></i> 珍珠線 (實動線)</div>
                             <div class="h6 fw-bold text-white mb-0" id="activePearlLines">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-calendar-days text-secondary"></i> 連續考核月</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeConsecutiveMonths">-</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="metric-pill text-center">
+                        <div class="card text-center">
                             <div class="text-muted small mb-1"><i class="fa-solid fa-hourglass-half text-warning"></i> 考核冷卻期</div>
                             <div class="h6 fw-bold text-white mb-0" id="activeCoolingMonths">-</div>
                         </div>
@@ -174,15 +174,14 @@
 
             <!-- 區塊四：全團隊夥伴晉升歷程 -->
             <section class="glass-panel p-4" aria-label="夥伴晉升歷程">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                    <div>
-                        <h5 class="fw-bold mb-1 text-white">
+                <div class="row align-items-center g-3 mb-4">
+                    <div class="col-12 col-md-10">
+                        <h5 class="fw-bold text-white">
                             <i class="fa-solid fa-timeline text-secondary"></i> 夥伴晉升歷程
                         </h5>
-                        <p class="text-muted small mb-0">夥伴升階生效年月、連續達標月數、合格線數與官方表揚狀態</p>
                     </div>
-                    <div>
-                        <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddRankModal()">
+                    <div class="col-12 col-md-2 justify-content-md-end">
+                        <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddRankModal()">
                             <i class="fa-solid fa-plus"></i> 新增夥伴晉升
                         </button>
                     </div>

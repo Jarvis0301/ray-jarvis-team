@@ -1,15 +1,46 @@
 /**
  * ============================================================================
  * 全域實體與名稱權重解析中樞 (entity-resolver.js)
- * 專職負責各領域實體（個人/夥伴/客戶/倉儲/產品）之名稱權重判定與標準化顯示
+ * 專職負責各領域實體（產品/進銷存/人員/夥伴/客戶）之名稱權重判定與標準化顯示
+ * 排序架構：共用 -> 產品 -> 培訓 -> 進銷存 -> 人員 -> 夥伴 -> 客戶 -> 財務 -> 系統 -> 馬來西亞 -> 工具
  * ============================================================================
  */
 const EntityResolver = (function () {
     'use strict';
 
     return {
-        // 1. 個人主檔：前端顯示名稱 > 中文 > 英文 > 暱稱
+        // ====================================================================
+        // 1. 產品品項領域 (Product)
+        // displayMode: 1 ->「name」 | 2 ->「name [code]」
+        // ====================================================================
+        product(prdCode, products = [], displayMode = 1) {
+            if (!prdCode) return '-';
+            const list = Array.isArray(products) ? products : Object.values(products || {});
+            const prd = list.find(p => (p.product_code || p.code) === prdCode);
+            if (!prd) return prdCode;
+            const name = prd.short_name || prd.name || prdCode;
+            const code = prd.product_code || prd.code || prdCode;
+            return displayMode === 2 ? `${name} [${code}]` : name;
+        },
+
+        // ====================================================================
+        // 2. 進銷存與倉儲據點領域 (PSI / Warehouse)
+        // displayMode: 1 ->「name」 | 2 ->「name [id]」
+        // ====================================================================
+        warehouse(whId, warehouses = [], displayMode = 1) {
+            if (!whId) return '-';
+            const list = Array.isArray(warehouses) ? warehouses : Object.values(warehouses || {});
+            const wh = list.find(w => w.id === whId);
+            if (!wh) return whId;
+            const name = wh.warehouse_name || wh.name || whId;
+            return displayMode === 2 ? `${name} [${wh.id}]` : name;
+        },
+
+        // ====================================================================
+        // 3. 個人主檔領域 (Person)
+        // 權重解析：前端顯示名稱 > 中文 > 英文 > 暱稱
         // displayMode: 1 ->「姓名」 | 2 ->「姓名 [person_id]」
+        // ====================================================================
         person(target, persons = [], displayMode = 1) {
             if (!target) return '';
             let p = target;
@@ -27,8 +58,10 @@ const EntityResolver = (function () {
             return displayMode === 2 ? `${name} [${pid}]` : name;
         },
 
-        // 2. 夥伴組織：關聯 Person 解析名稱
+        // ====================================================================
+        // 4. 夥伴組織領域 (Partner)
         // displayMode: 1 ->「姓名」 | 2 ->「姓名 (member_no) [partner_id]」
+        // ====================================================================
         partner(target, partners = [], persons = [], displayMode = 1) {
             if (!target) return '-';
             let p = typeof target === 'object' ? target : null;
@@ -49,8 +82,10 @@ const EntityResolver = (function () {
             return name;
         },
 
-        // 3. 客戶主檔：關聯 Person 解析名稱
+        // ====================================================================
+        // 5. 客戶主檔領域 (Customer)
         // displayMode: 1 ->「姓名」 | 2 ->「姓名 [customer_id]」
+        // ====================================================================
         customer(target, customers = [], persons = [], displayMode = 1) {
             if (!target) return '-';
             let c = typeof target === 'object' ? target : null;
@@ -65,29 +100,6 @@ const EntityResolver = (function () {
             const name = this.person(personId, persons, 1) || c.customer_name || c.name || cid;
 
             return displayMode === 2 ? `${name} [${cid}]` : name;
-        },
-
-        // 4. 倉儲據點
-        // displayMode: 1 ->「name」 | 2 ->「name [id]」
-        warehouse(whId, warehouses = [], displayMode = 1) {
-            if (!whId) return '-';
-            const list = Array.isArray(warehouses) ? warehouses : Object.values(warehouses || {});
-            const wh = list.find(w => w.id === whId);
-            if (!wh) return whId;
-            const name = wh.warehouse_name || wh.name || whId;
-            return displayMode === 2 ? `${name} [${wh.id}]` : name;
-        },
-
-        // 5. 產品品項
-        // displayMode: 1 ->「name」 | 2 ->「name [code]」
-        product(prdCode, products = [], displayMode = 1) {
-            if (!prdCode) return '-';
-            const list = Array.isArray(products) ? products : Object.values(products || {});
-            const prd = list.find(p => (p.product_code || p.code) === prdCode);
-            if (!prd) return prdCode;
-            const name = prd.short_name || prd.name || prdCode;
-            const code = prd.product_code || prd.code || prdCode;
-            return displayMode === 2 ? `${name} [${code}]` : name;
         }
     };
 })();

@@ -114,3 +114,30 @@ $expanded-theme-colors: (
         box-shadow: 0 0 15px $subtle-bg;
     }
 }
+
+/* 篩選按鈕 */
+.filter-pill-btn {
+    background: var(--uvaco-bg-card-secondary);
+    border: 1px solid var(--uvaco-border-color);
+    color: var(--uvaco-text-secondary);
+    border-radius: var(--uvaco-border-radius-pill);
+    padding: 0.3rem 1rem;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--uvaco-bg-card-secondary-hover);
+        border: 1px solid var(--uvaco-border-highlight);
+        color: var(--uvaco-text-primary);
+    }
+
+    &.active {
+        //background: var(--uvaco-primary);
+        background: linear-gradient(90deg, var(--uvaco-primary) 0%, var(--uvaco-secondary-hover) 100%);
+        color: var(--uvaco-primary-contrast);
+        border: 1px solid var(--uvaco-border-highlight);
+        box-shadow: 0 0px 16px var(--uvaco-border-glow);
+    }
+}

@@ -1,18 +1,54 @@
+/* 統計小卡 */
 .stat-chip {
     background: var(--uvaco-bg-primary);
     border: 1px solid var(--uvaco-border-highlight);
     border-radius: var(--uvaco-border-radius-md);
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.5rem;
     display: inline-flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
+    width: 100%;
     gap: 1rem;
     transition: all 0.25s ease;
 
     &:hover {
+        /*
         background: var(--uvaco-bg-card-hover);
         border: 1px solid var(--uvaco-border-highlight);
         box-shadow: 0 0 0.5rem var(--uvaco-border-glow);
+        */
+        background: var(--uvaco-bg-card-accent-hover);
+        border: 1px solid var(--uvaco-accent);
+        box-shadow: 0 0 0.5rem var(--uvaco-accent-glow);
         transform: translateY(-2px);
+    }
+}
+
+// 行動端 RWD
+@media (max-width: 768px) {
+    .stat-chip {
+        padding: 0.5rem 0.25rem;
+        gap: 0.5rem;
+
+        &:hover {
+            background: var(--uvaco-bg-card-accent-hover);
+            border: 1px solid var(--uvaco-accent);
+            box-shadow: 0 0 0.5rem var(--uvaco-accent-glow);
+            transform: translateY(0px);
+        }
+    }
+}
+
+@media (max-width: 1200px) {
+    .stat-chip {
+        padding: 0.5rem 0.25rem;
+        gap: 0.5rem;
+
+        &:hover {
+            background: var(--uvaco-bg-card-accent-hover);
+            border: 1px solid var(--uvaco-accent);
+            box-shadow: 0 0 0.5rem var(--uvaco-accent-glow);
+            transform: translateY(0px);
+        }
     }
 }

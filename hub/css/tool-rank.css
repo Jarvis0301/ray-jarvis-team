@@ -45,25 +45,6 @@
     justify-content: space-between;
 }
 
-/* 預設範例按鈕群組 */
-.btn-preset {
-    background: rgba(30, 15, 61, 0.7);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
-    color: var(--uvaco-primary-light, #c084fc);
-    border-radius: 8px;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-preset:hover, .btn-preset.active {
-    background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
-    color: #ffffff;
-    border-color: transparent;
-    box-shadow: 0 2px 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.35));
-}
-
 /* 進度條與標籤 */
 .progress-thin {
     height: 8px;
@@ -90,12 +71,12 @@
     font-size: 0.82rem;
     margin-right: 0.4rem;
     margin-bottom: 0.4rem;
-}
 
-.badge-right-pill.gold {
-    background: rgba(251, 191, 36, 0.12);
-    color: var(--uvaco-accent, #fbbf24);
-    border-color: rgba(251, 191, 36, 0.35);
+    &.gold {
+        background: rgba(251, 191, 36, 0.12);
+        color: var(--uvaco-gold, #fbbf24);
+        border-color: rgba(251, 191, 36, 0.35);
+    }
 }
 
 /* 缺口警示盒 */

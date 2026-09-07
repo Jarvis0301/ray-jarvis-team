@@ -24,36 +24,36 @@
         <main class="container-fluid p-3 p-md-4">
 
             <header class="glass-panel hud-bar mb-3">
-                <div class="row align-items-center g-3">
-                    <div class="col-12 col-xl-6">
+                <div class="row align-items-center g-3 mb-2">
+                    <div class="col-12 col-md-2 col-xl-6">
                         <div class="h4 fw-bold text-white">
                             <i class="fa-solid fa-map-location-dot text-primary"></i> 據點倉儲
                         </div>
                     </div>
 
-                    <div class="col-12 col-xl-6">
-                        <div class="row row-cols-2 row-cols-xl-4 g-2">
+                    <div class="col-12 col-md-10 col-xl-6">
+                        <div class="row row-cols-2 row-cols-md-4 g-2">
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="flag-icon flag-tw me-1"></i> 台灣據點</span>
                                     <span class="text-info fs-6 fw-bold mono-num" id="stat-tw-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="flag-icon flag-my me-1"></i> 大馬據點</span>
                                     <span class="text-warning fs-6 fw-bold mono-num" id="stat-my-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
+                                <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-building-flag text-primary me-1"></i> 官方中心</span>
                                     <span class="text-primary fs-6 fw-bold mono-num" id="stat-official-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="stat-chip w-100 justify-content-between">
-                                    <span class="text-secondary"><i class="fa-solid fa-vault text-success me-1"></i> 自用常備倉</span>
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-vault text-success me-1"></i> 自用倉儲</span>
                                     <span class="text-success fs-6 fw-bold mono-num" id="stat-private-count">0</span>
                                 </div>
                             </div>
@@ -62,49 +62,61 @@
                 </div>
 
                 <!-- 控制列 -->
-                <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top border-purple-subtle">
-                    <div class="col-12 col-lg-7">
-                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                            <button type="button" class="filter-pill-btn active" data-filter="ALL">
-                                <i class="fa-solid fa-border-all me-1"></i> 全部 (<span id="count-all">0</span>)
-                            </button>
-                            <button type="button" class="filter-pill-btn" data-filter="官方營運中心">
-                                <i class="fa-solid fa-building-flag me-1"></i> 官方營運中心 (<span id="count-official">0</span>)
-                            </button>
-                            <button type="button" class="filter-pill-btn" data-filter="自用常備倉">
-                                <i class="fa-solid fa-vault me-1"></i> 自用常備倉 (<span id="count-private">0</span>)
-                            </button>
-                            <button type="button" class="filter-pill-btn" data-filter="海外商務倉">
-                                <i class="fa-solid fa-plane-departure me-1"></i> 海外商務倉 (<span id="count-overseas">0</span>)
-                            </button>
-                            <button type="button" class="filter-pill-btn" data-filter="物流在途倉">
-                                <i class="fa-solid fa-truck-fast me-1"></i> 物流在途倉 (<span id="count-transit">0</span>)
-                            </button>
+                <div class="row align-items-center g-3 mt-2 border-top border-purple-subtle">
+                    <div class="col-12 col-md-12 col-xl-7">
+                        <div class="row row-cols-2 row-cols-md-auto g-2">
+                            <div class="col col-12">
+                                <button type="button" class="filter-pill-btn w-100 active" data-filter="ALL">
+                                    <i class="fa-solid fa-border-all me-1"></i> 全部
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-filter="官方營運中心">
+                                    <i class="fa-solid fa-building-flag me-1"></i> 官方營運中心
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-filter="自用常備倉">
+                                    <i class="fa-solid fa-vault me-1"></i> 自用常備倉
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-filter="海外商務倉">
+                                    <i class="fa-solid fa-plane-departure me-1"></i> 海外商務倉
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="filter-pill-btn w-100" data-filter="物流在途倉">
+                                    <i class="fa-solid fa-truck-fast me-1"></i> 物流在途倉
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-lg-4">
-                        <div class="d-flex justify-content-lg-end gap-2">
-                            <div class="input-group input-group-sm" style="max-width: 50%">
-                                <span class="input-group-text bg-dark border-purple text-secondary">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </span>
-                                <input type="text" id="quick-search" class="form-control form-control-sm" placeholder="代碼 / 名稱...">
-                            </div>
+                    <div class="col-12 col-md-6 col-xl-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-dark border-purple text-secondary">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="quick-search" class="form-control form-control-sm" placeholder="代碼 / 名稱...">
+                        </div>
+                    </div>
 
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-secondary active" id="view-grid-btn" title="網格卡片視圖">
+                    <div class="col-12 col-md-4 col-xl-2">
+                        <div class="row">
+                            <div class="col btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary btn-sm active" id="view-grid-btn" title="網格卡片視圖">
                                     <i class="fa-solid fa-grip"></i> 卡片
                                 </button>
-                                <button class="btn btn-outline-secondary" id="view-table-btn" title="數據表格視圖">
+                                <button class="btn btn-outline-secondary btn-sm" id="view-table-btn" title="數據表格視圖">
                                     <i class="fa-solid fa-table-list"></i> 表格
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-lg-1 d-flex justify-content-lg-end">
-                        <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddModal()">
+                    <div class="col-12 col-md-2 col-xl-1 d-flex justify-content-md-end">
+                        <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddModal()">
                             <i class="fa-solid fa-plus"></i> 新增據點
                         </button>
                     </div>
