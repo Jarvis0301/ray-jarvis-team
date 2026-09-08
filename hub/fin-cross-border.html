@@ -1422,7 +1422,7 @@
                 $("#modalNotes").text(item.notes || '無備忘紀錄');
                 $("#modalTwPartner").text(item.tw_partner_name);
                 $("#modalMyPartner").text(item.my_partner_id);
-                $("#modalSvRatio").text(`${item.tw_total_sv_target} / ${item.my_actual_sv} SV (差額: ${item.sv_difference})`);
+                $("#modalSvRatio").text(`${item.tw_total_sv_target} / ${item.my_actual_sv} SV (差額：${item.sv_difference})`);
                 $("#modalCashDiff").text(`NT$ ${Math.round(item.cash_difference_twd)}`);
 
                 const modal = new bootstrap.Modal(document.getElementById("modalSwapDetail"));
@@ -1449,7 +1449,7 @@
         });
 
         function deleteSwap(id) {
-            if (confirm(`確定刪除此筆跨境對沖單 (ID: ${id})？`)) {
+            if (confirm(`確定刪除此筆跨境對沖單 (ID：${id})？`)) {
                 swapsDatabase = swapsDatabase.filter(s => s.id !== id);
                 const updatedStats = calculateStatistics();
                 initCharts(updatedStats);

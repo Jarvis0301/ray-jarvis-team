@@ -1378,7 +1378,7 @@
         }
 
         function deletePayoutSlip(payoutId) {
-            if (confirm(`確定刪除此筆撥款水單 (ID: ${payoutId})？`)) {
+            if (confirm(`確定刪除此筆撥款水單 (ID：${payoutId})？`)) {
                 bonusDatabase = bonusDatabase.filter(b => b.payout_id !== payoutId);
                 const updatedStats = calculateBonusStats();
                 initBonusCharts(updatedStats);

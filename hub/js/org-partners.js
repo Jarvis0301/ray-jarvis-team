@@ -556,7 +556,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 錯誤: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 錯誤：${res.status}`);
             const text = await res.text();
             const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
             return (parsed.data || []).slice(1);
@@ -1012,7 +1012,7 @@ function renderCardsView(list) {
                             <div class="d-flex align-items-center gap-3">
                                 <div class="partner-avatar-wrap">
                                     <img src="${avatarUrl}" class="partner-avatar" alt="${dispName}" onerror="this.src='${getDefaultAvatar(gender)}'">
-                                    <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${currentRank.badge_color_hex}; color: ${currentRank.badge_color_hex};">
+                                    <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${currentRank.badge_color_hex}; color：${currentRank.badge_color_hex};">
                                         <i class="${currentRank.badge_icon_class}"></i> ${currentRank.rank_name_zh}
                                     </span>
                                 </div>
@@ -1498,7 +1498,7 @@ const getPieTooltipOptions = () => ({
                     const dataset = context.chart.data.datasets[context.datasetIndex];
                     const total = dataset.data.reduce((acc, cur) => acc + Number(cur), 0);
                     const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                    return ` ${label}: ${val} 人 (${percentage}%)`;
+                    return ` ${label}：${val} 人 (${percentage}%)`;
                 }
             }
         }
@@ -2468,8 +2468,8 @@ window.openPartnerModalForView = function (partnerId) {
     if (!successorName && !surrenderedName) {
         $('#view-successor-surrendered').html('<span class="text-muted">無</span>');
     } else {
-        const succHtml = successorName ? `<span class="text-info"><i class="fa-solid fa-user-check me-1"></i> 承接: ${successorName}</span>` : '';
-        const surrHtml = surrenderedName ? `<span class="text-warning ms-1"><i class="fa-solid fa-code-merge me-1"></i> 歸併: ${surrenderedName}</span>` : '';
+        const succHtml = successorName ? `<span class="text-info"><i class="fa-solid fa-user-check me-1"></i> 承接：${successorName}</span>` : '';
+        const surrHtml = surrenderedName ? `<span class="text-warning ms-1"><i class="fa-solid fa-code-merge me-1"></i> 歸併：${surrenderedName}</span>` : '';
         $('#view-successor-surrendered').html(`${succHtml} ${surrHtml}`);
     }
 
@@ -2508,10 +2508,10 @@ window.openPartnerModalForView = function (partnerId) {
                     <div class="d-flex gap-2">
                         <strong class="text-white">${l.language_name}</strong>
                         ${l.notes ? `<span class="text-muted" style="font-size: 0.72rem;">${l.notes}</span>` : ''}
-                        <span class="text-secondary">聽: ${UIBadges.partner.languageProficiency(l.listening_level)}</span>
-                        <span class="text-secondary">說: ${UIBadges.partner.languageProficiency(l.speaking_level)}</span>
-                        <span class="text-secondary">讀: ${UIBadges.partner.languageProficiency(l.reading_level)}</span>
-                        <span class="text-secondary">寫: ${UIBadges.partner.languageProficiency(l.writing_level)}</span>
+                        <span class="text-secondary">聽：${UIBadges.partner.languageProficiency(l.listening_level)}</span>
+                        <span class="text-secondary">說：${UIBadges.partner.languageProficiency(l.speaking_level)}</span>
+                        <span class="text-secondary">讀：${UIBadges.partner.languageProficiency(l.reading_level)}</span>
+                        <span class="text-secondary">寫：${UIBadges.partner.languageProficiency(l.writing_level)}</span>
                     </div>
                 </div>
             `);

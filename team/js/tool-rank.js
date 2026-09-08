@@ -103,7 +103,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼：${res.status}`);
             const text = await res.text();
 
             const parsed = Papa.parse(text, {
@@ -738,7 +738,7 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
                                 const val = context.parsed;
                                 const total = context.dataset.data.reduce((acc, cur) => acc + cur, 0);
                                 const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                return ` ${context.label}: ${currencySymbol} ${val.toLocaleString()} (${percentage}%)`;
+                                return ` ${context.label}：${currencySymbol} ${val.toLocaleString()} (${percentage}%)`;
                             }
                         }
                     }
@@ -811,7 +811,7 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
                     tooltip: {
                         callbacks: {
                             label: function (ctx) {
-                                return ` 基準預估: ${currencySymbol} ${ctx.parsed.y.toLocaleString()}`;
+                                return ` 基準預估：${currencySymbol} ${ctx.parsed.y.toLocaleString()}`;
                             }
                         }
                     }
@@ -859,7 +859,7 @@ function renderRankDataTable() {
 
         const badgeHtml = (typeof UIBadges !== 'undefined' && UIBadges.rank && UIBadges.rank.badge)
             ? UIBadges.rank.badge(r)
-            : `<span class="badge" style="background-color: ${r.badge_color_hex || '#6c757d'}"><i class="${r.badge_icon_class || 'fa-solid fa-award'} me-1"></i>${r.rank_name_zh}</span>`;
+            : `<span class="badge" style="background-color：${r.badge_color_hex || '#6c757d'}"><i class="${r.badge_icon_class || 'fa-solid fa-award'} me-1"></i>${r.rank_name_zh}</span>`;
 
         $tbody.append(`
             <tr>

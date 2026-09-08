@@ -155,7 +155,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`通訊失敗: ${res.status}`);
+            if (!res.ok) throw new Error(`通訊失敗：${res.status}`);
             const text = await res.text();
             const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
             return (parsed.data || []).slice(1);
@@ -184,7 +184,7 @@ async function fetchGoogleSheetsData() {
         AppToast.success("試算表資料同步完成");
     } catch (err) {
         console.error("Google Sheets 讀取異常:", err);
-        AppToast.error(`資料讀取失敗: ${err.message}`);
+        AppToast.error(`資料讀取失敗：${err.message}`);
     } finally {
         AppLoading.hide();
     }
@@ -311,7 +311,7 @@ function renderRankOrbit() {
         const isSelected = rank.rank_id === appState.selectedRankId ? 'active' : '';
         const html = `
             <div class="rank-node-btn ${isSelected}" data-rank-id="${rank.rank_id}" onclick="selectRank('${rank.rank_id}')">
-                <div class="rank-badge-icon" style="color: ${rank.badge_color_hex};">
+                <div class="rank-badge-icon" style="color：${rank.badge_color_hex};">
                     <i class="${rank.badge_icon_class}"></i>
                 </div>
                 <div class="fw-bold text-white">${rank.rank_name_zh}</div>
@@ -333,7 +333,7 @@ function selectRank(rankId) {
 
     $('#activeRankCode').text(`代碼：${rank.rank_code}`).css('color', rank.badge_color_hex);
     $('#activeRankName').html(`
-        <i class="${rank.badge_icon_class} me-2" style="color: ${rank.badge_color_hex};"></i>
+        <i class="${rank.badge_icon_class} me-2" style="color：${rank.badge_color_hex};"></i>
         <span>${rank.rank_name_zh} ${rank.rank_name_en ? '(' + rank.rank_name_en + ')' : ''}</span>
     `);
     $('#activeRebateRate').text(`${(rank.direct_rebate_rate * 100).toFixed(2)}%`);
@@ -372,7 +372,7 @@ function selectRank(rankId) {
     // 購車基金 3.5% 資格與具體方案說明
     addFlag(`購車基金 3.5%`, rank.has_car_fund === 'Y', 'fa-solid fa-car-side');
     if (rank.car_reward_type && rank.car_reward_type !== '無') {
-        addFlag(`方案: ${rank.car_reward_type}`, true, 'fa-solid fa-car');
+        addFlag(`方案：${rank.car_reward_type}`, true, 'fa-solid fa-car');
     }
 }
 

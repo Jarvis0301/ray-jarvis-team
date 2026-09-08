@@ -75,7 +75,7 @@ async function fetchGoogleSheetMenu() {
     try {
         const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼：${res.status}`);
         const text = await res.text();
 
         const parsed = Papa.parse(text, {

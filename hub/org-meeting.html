@@ -683,7 +683,7 @@
                 item.host_name,
                 item.actions ? item.actions.length : 0,
                 `<div class="progress" style="height: 6px; width: 80px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${item.action_completion_rate}%"></div>
+                    <div class="progress-bar bg-primary" role="progressbar" style="width：${item.action_completion_rate}%"></div>
                 </div> <span class="small text-muted ms-1">${item.action_completion_rate}%</span>`,
                 `<span class="badge bg-${item.meeting_status === 'CLOSED' ? 'dark' : (item.meeting_status === 'COMPLETED' ? 'success' : 'warning')} bg-opacity-25 border">${item.meeting_status}</span>`,
                 `<button class="btn btn-sm btn-outline-light btn-view-row" data-id="${item.meeting_id}"><i class="fa-solid fa-arrow-up-right-from-square"></i> 載入</button>`

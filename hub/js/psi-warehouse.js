@@ -73,7 +73,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼：${res.status}`);
             const text = await res.text();
 
             const parsed = Papa.parse(text, {
@@ -101,7 +101,7 @@ async function fetchGoogleSheetsData() {
         console.error("Google Sheets 據點倉儲讀取失敗:", err);
         appState.warehouses = [];
         refreshView();
-        AppToast.error(`試算表同步中斷: ${err.message}`);
+        AppToast.error(`試算表同步中斷：${err.message}`);
     } finally {
         AppLoading.hide();
     }

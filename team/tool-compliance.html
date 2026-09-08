@@ -887,7 +887,7 @@
 
                     const escapedKeyword = escapeHtml(rule.keyword);
                     const regex = new RegExp(escapedKeyword, 'g');
-                    highlightedText = highlightedText.replace(regex, `<span class="risk-tag ${tagClass}" title="違規項目: ${rule.category} (${rule.fine_range})" data-keyword="${escapedKeyword}" data-replacement="${escapeHtml(rule.suggested_replacement)}"><i class="fa-solid fa-triangle-exclamation"></i> ${escapedKeyword}</span>`);
+                    highlightedText = highlightedText.replace(regex, `<span class="risk-tag ${tagClass}" title="違規項目：${rule.category} (${rule.fine_range})" data-keyword="${escapedKeyword}" data-replacement="${escapeHtml(rule.suggested_replacement)}"><i class="fa-solid fa-triangle-exclamation"></i> ${escapedKeyword}</span>`);
                 });
 
                 $('#xrayDisplayOverlay').html(highlightedText);

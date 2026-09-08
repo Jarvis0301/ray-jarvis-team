@@ -1,48 +1,48 @@
 /* 產品網格卡片 */
 .product-item-card {
     background-color: var(--uvaco-bg-card, #150a2a);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
-    border-radius: 10px;
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    border-radius: var(--uvaco-border-radius-md, 10px);
     padding: 1rem;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: var(--uvaco-transition-fast, transform 0.2s ease, border-color 0.2s ease);
 
     &:hover {
         transform: translateY(-3px);
-        border-color: var(--uvaco-primary-light, #c084fc);
+        border-color: var(--uvaco-secondary, #c084fc);
         background-color: var(--uvaco-bg-card-hover, #1e0f3d);
-        box-shadow: 0 6px 18px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+        box-shadow: var(--uvaco-shadow-base, 0 6px 18px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25)));
     }
 }
 
 .product-badge {
     font-size: 0.75rem;
     padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    background-color: rgba(139, 92, 246, 0.15);
-    color: var(--uvaco-primary-light, #c084fc);
-    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: var(--uvaco-border-radius-sm, 4px);
+    background-color: var(--uvaco-bg-muted, rgba(139, 92, 246, 0.15));
+    color: var(--uvaco-secondary, #c084fc);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
 }
 
 .product-title {
     font-size: 1.05rem;
     font-weight: 600;
-    color: var(--uvaco-text-main, #faf5ff);
+    color: var(--uvaco-text-primary, #faf5ff);
     margin-top: 0.4rem;
     margin-bottom: 0.4rem;
 }
 
 .price-num {
-    color: var(--uvaco-accent, #fde047);
+    color: var(--uvaco-yellow, #fde047);
     font-weight: 700;
     font-size: 1.1rem;
 }
 
 .sv-num {
-    color: var(--uvaco-primary-light, #c084fc);
+    color: var(--uvaco-cyan, #c084fc);
     font-weight: 600;
 }
 
@@ -62,16 +62,16 @@
     align-items: center;
     justify-content: center;
     background-color: var(--uvaco-bg-surface, #170b2e);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
-    color: var(--uvaco-primary-light, #c084fc);
-    border-radius: 6px;
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-secondary, #c084fc);
+    border-radius: var(--uvaco-border-radius-sm, 6px);
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: var(--uvaco-transition-fast, all 0.15s ease);
 
     &:hover {
         background-color: var(--uvaco-primary, #8b5cf6);
-        color: #ffffff;
+        color: var(--uvaco-text-light, #ffffff);
         border-color: var(--uvaco-primary, #8b5cf6);
     }
 }
@@ -80,10 +80,10 @@
     width: 46px;
     height: 30px;
     text-align: center;
-    background-color: var(--uvaco-bg-surface, #170b2e);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
-    color: var(--uvaco-text-main, #faf5ff);
-    border-radius: 6px;
+    background-color: var(--uvaco-bg-input, #170b2e);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-text-primary, #faf5ff);
+    border-radius: var(--uvaco-border-radius-sm, 6px);
     font-weight: 600;
     font-size: 0.9rem;
 }
@@ -101,12 +101,12 @@
 .cart-summary-card {
     position: sticky;
     top: 20px;
-    background: linear-gradient(180deg, #1e0f37 0%, #150a2a 100%);
+    background: linear-gradient(180deg, var(--uvaco-bg-dark, #1e0f37) 0%, var(--uvaco-bg-card, #150a2a) 100%);
     border: 1px solid var(--uvaco-primary, #8b5cf6);
-    border-radius: 12px;
+    border-radius: var(--uvaco-border-radius-lg, 12px);
     padding: 1.25rem;
     margin-bottom: 1.25rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    box-shadow: var(--uvaco-shadow-base, 0 8px 25px rgba(0, 0, 0, 0.5)), 0 0 15px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
 }
 
 .cart-item-row {
@@ -115,7 +115,7 @@
     justify-content: space-between;
     gap: 0.4rem;
     padding: 0.45rem 0;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+    border-bottom: 1px dashed var(--uvaco-border-color, rgba(255, 255, 255, 0.15));
     font-size: 0.85rem;
 
     .qty-control {
@@ -128,20 +128,20 @@
         width: 24px;
         height: 24px;
         font-size: 0.75rem;
-        border-radius: 4px;
+        border-radius: var(--uvaco-border-radius-sm, 4px);
     }
 
     .qty-input {
         width: 38px;
         height: 24px;
         font-size: 0.82rem;
-        border-radius: 4px;
+        border-radius: var(--uvaco-border-radius-sm, 4px);
         padding: 0;
     }
 }
 
 .cart-item-title {
-    color: var(--uvaco-text-main, #faf5ff);
+    color: var(--uvaco-text-primary, #faf5ff);
     font-weight: 500;
     flex: 1 1 auto;
     min-width: 0;
@@ -167,7 +167,7 @@
     cursor: pointer;
     padding: 0 0.2rem;
     font-size: 0.85rem;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: var(--uvaco-transition-fast, opacity 0.2s ease, transform 0.2s ease);
     flex: 0 0 auto;
 
     &:hover {
@@ -179,72 +179,72 @@
 .progress-shipping {
     height: 8px;
     background-color: var(--uvaco-bg-surface, #170b2e);
-    border-radius: 4px;
+    border-radius: var(--uvaco-border-radius-sm, 4px);
     overflow: hidden;
     margin-top: 0.4rem;
 }
 
 .progress-bar-custom {
-    background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%);
+    background: linear-gradient(90deg, var(--uvaco-primary, #8b5cf6) 0%, var(--uvaco-accent, #ec4899) 100%);
     height: 100%;
-    transition: width 0.4s ease;
+    transition: width var(--uvaco-transition-slow, 0.4s ease);
 }
 
 .stat-highlight-box {
-    background-color: rgba(13, 6, 31, 0.75);
-    border-radius: 8px;
+    background-color: var(--uvaco-bg-card-inner, rgba(13, 6, 31, 0.75));
+    border-radius: var(--uvaco-border-radius-md, 8px);
     padding: 0.75rem;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
     margin-bottom: 0.75rem;
 }
 
 /* 操作按鈕群 */
 .btn-action-excel {
-    background: linear-gradient(135deg, #107c41 0%, #0b582e 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--uvaco-success, #10b981) 0%, var(--uvaco-success-hover, #059669) 100%);
+    color: var(--uvaco-text-light, #ffffff);
     font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--uvaco-border-radius-md, 8px);
     padding: 0.6rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(16, 124, 65, 0.3);
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    box-shadow: 0 4px 12px var(--uvaco-success-glow, rgba(16, 124, 65, 0.3));
 
     &:hover {
-        background: linear-gradient(135deg, #13984f 0%, #084323 100%);
-        color: #ffffff;
+        background: linear-gradient(135deg, var(--uvaco-success-hover, #059669) 0%, #084323 100%);
+        color: var(--uvaco-text-light, #ffffff);
         transform: translateY(-1px);
     }
 }
 
 .btn-action-pdf {
-    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--uvaco-danger, #ef4444) 0%, #991b1b 100%);
+    color: var(--uvaco-text-light, #ffffff);
     font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--uvaco-border-radius-md, 8px);
     padding: 0.6rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    box-shadow: var(--uvaco-shadow-sm, 0 4px 12px rgba(220, 38, 38, 0.3));
 
     &:hover {
-        background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%);
-        color: #ffffff;
+        background: linear-gradient(135deg, var(--uvaco-danger, #ef4444) 0%, #7f1d1d 100%);
+        color: var(--uvaco-text-light, #ffffff);
         transform: translateY(-1px);
     }
 }
 
 .btn-action-clear {
     background-color: transparent;
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
     color: var(--uvaco-text-muted, #9e8eb3);
-    border-radius: 8px;
+    border-radius: var(--uvaco-border-radius-md, 8px);
     padding: 0.5rem;
     width: 100%;
-    transition: all 0.2s ease;
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
     font-size: 0.85rem;
 
     &:hover {
-        background-color: rgba(248, 113, 113, 0.15);
+        background-color: var(--uvaco-bg-danger, rgba(248, 113, 113, 0.15));
         color: var(--uvaco-danger, #ef4444);
         border-color: var(--uvaco-danger, #ef4444);
     }
@@ -254,11 +254,11 @@
 .analytics-section-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--uvaco-text-primary, #ffffff);
     margin-top: 1.5rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    border-bottom: 2px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -266,15 +266,15 @@
 
 .chart-standalone-card {
     background-color: var(--uvaco-bg-card, #150a2a);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
-    border-radius: 12px;
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    border-radius: var(--uvaco-border-radius-lg, 12px);
     padding: 1.25rem;
     height: 100%;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.25s ease;
+    box-shadow: var(--uvaco-shadow-base, 0 4px 15px rgba(0, 0, 0, 0.3));
+    transition: var(--uvaco-transition-base, all 0.25s ease);
 
     &:hover {
-        border-color: var(--uvaco-primary-light, rgba(192, 132, 252, 0.85));
+        border-color: var(--uvaco-secondary, rgba(192, 132, 252, 0.85));
         box-shadow: 0 6px 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     }
 }
@@ -294,16 +294,16 @@
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 999999;
+    z-index: var(--uvaco-zindex-fixed, 1030);
     width: min(86%, 920px);
-    background: rgba(21, 10, 42, 0.94);
-    border: 1px solid rgba(139, 92, 246, 0.5);
-    border-radius: 16px;
+    background: var(--uvaco-bg-card-dark, rgba(21, 10, 42, 0.94));
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.5));
+    border-radius: var(--uvaco-border-radius-xl, 16px);
     padding: 0.75rem 1.25rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    box-shadow: var(--uvaco-shadow-lg, 0 10px 30px rgba(0, 0, 0, 0.7)), 0 0 20px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: var(--uvaco-transition-base, opacity 0.3s ease, transform 0.3s ease);
 }
 
 .floating-island-bar.is-hidden {
@@ -324,23 +324,23 @@
 }
 
 .btn-toggle-floating {
-    background: rgba(139, 92, 246, 0.15);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
-    color: var(--uvaco-primary-light, #c084fc);
-    border-radius: 20px;
+    background: var(--uvaco-bg-muted, rgba(139, 92, 246, 0.15));
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.35));
+    color: var(--uvaco-secondary, #c084fc);
+    border-radius: var(--uvaco-border-radius-pill, 20px);
     padding: 0.35rem 0.85rem;
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
+    transition: var(--uvaco-transition-fast, all 0.2s ease);
+    display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     white-space: nowrap;
 
     &:hover {
         background-color: var(--uvaco-primary, #8b5cf6);
-        color: #ffffff;
+        color: var(--uvaco-text-light, #ffffff);
         box-shadow: 0 0 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     }
 }
@@ -349,23 +349,23 @@
     position: fixed;
     bottom: 25px;
     left: 25px;
-    z-index: 999998;
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    color: #ffffff;
-    border: 1px solid var(--uvaco-primary-light, #c084fc);
-    border-radius: 30px;
+    z-index: var(--uvaco-zindex-fixed, 1030);
+    background: linear-gradient(135deg, var(--uvaco-primary-hover, #7c3aed) 0%, #6d28d9 100%);
+    color: var(--uvaco-text-light, #ffffff);
+    border: 1px solid var(--uvaco-secondary, #c084fc);
+    border-radius: var(--uvaco-border-radius-pill, 30px);
     padding: 0.6rem 1.1rem;
     font-size: 0.88rem;
     font-weight: 600;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 14px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
+    box-shadow: var(--uvaco-shadow-base, 0 6px 20px rgba(0, 0, 0, 0.6)), 0 0 14px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.25));
     cursor: pointer;
     display: none;
-    transition: all 0.25s ease;
+    transition: var(--uvaco-transition-base, all 0.25s ease);
 
     &:hover {
         transform: translateY(-2px) scale(1.03);
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 18px rgba(192, 132, 252, 0.5);
+        background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6) 0%, var(--uvaco-primary-hover, #7c3aed) 100%);
+        box-shadow: var(--uvaco-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.7)), 0 0 18px var(--uvaco-secondary-glow, rgba(192, 132, 252, 0.5));
     }
 }
 

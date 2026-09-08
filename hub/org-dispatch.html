@@ -711,7 +711,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <div class="fw-bold text-white fs-6">${item.partner_name} <span class="badge bg-secondary bg-opacity-50 text-light ms-1" style="font-size:0.7rem;">${item.rank_name}</span></div>
-                                <div class="text-muted small">輔導上線: ${item.sponsor_name}</div>
+                                <div class="text-muted small">輔導上線：${item.sponsor_name}</div>
                             </div>
                             ${getRiskBadge(item.breakaway_risk_level)}
                         </div>
@@ -722,7 +722,7 @@
                                 <span class="${item.personal_gap_sv === 0 ? 'text-success' : 'text-danger'} fw-bold">${item.current_personal_sv} / 160 SV</span>
                             </div>
                             <div class="qualification-track mb-2">
-                                <div class="qualification-fill-personal" style="width: ${personalPct}%;"></div>
+                                <div class="qualification-fill-personal" style="width：${personalPct}%;"></div>
                             </div>
 
                             <div class="d-flex justify-content-between small mb-1">
@@ -730,13 +730,13 @@
                                 <span class="${item.group_gap_sv === 0 ? 'text-success' : 'text-warning'} fw-bold">${item.current_group_sv.toLocaleString()} SV</span>
                             </div>
                             <div class="qualification-track">
-                                <div class="qualification-fill-group" style="width: ${groupPct}%;"></div>
+                                <div class="qualification-fill-group" style="width：${groupPct}%;"></div>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 mt-2">
                             <span class="small text-muted">
-                                <i class="fa-solid fa-cart-flatbed text-info me-1"></i> 排程補足: <strong class="text-info">${item.scheduled_boost_sv} SV</strong>
+                                <i class="fa-solid fa-cart-flatbed text-info me-1"></i> 排程補足：<strong class="text-info">${item.scheduled_boost_sv} SV</strong>
                             </span>
                             <span class="badge bg-purple-subtle text-purple border border-purple-subtle" style="font-size:0.7rem;">
                                 ${item.dispatch_status}

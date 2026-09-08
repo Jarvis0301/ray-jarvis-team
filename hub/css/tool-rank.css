@@ -14,9 +14,9 @@
 
 .kpi-card {
     padding: 1.25rem;
-    border-radius: 16px;
-    background: linear-gradient(145deg, rgba(18, 8, 36, 0.6) 0%, rgba(21, 10, 42, 0.9) 100%);
-    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.25));
+    border-radius: var(--uvaco-border-radius-xl, 16px);
+    background: linear-gradient(145deg, var(--uvaco-bg-secondary, rgba(18, 8, 36, 0.6)) 0%, var(--uvaco-bg-dark, rgba(21, 10, 42, 0.9)) 100%);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.25));
     position: relative;
 }
 
@@ -33,7 +33,7 @@
 .kpi-value {
     font-size: 1.75rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--uvaco-text-primary, #ffffff);
     line-height: 1.2;
 }
 
@@ -48,48 +48,48 @@
 /* 進度條與標籤 */
 .progress-thin {
     height: 8px;
-    background-color: rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
+    background-color: var(--uvaco-bg-light, rgba(255, 255, 255, 0.08));
+    border-radius: var(--uvaco-border-radius-pill, 999px);
     overflow: hidden;
 }
 
 .progress-bar-purple {
-    background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+    background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6) 0%, var(--uvaco-secondary, #c084fc) 100%);
     height: 100%;
-    transition: width 0.4s ease;
+    transition: width var(--uvaco-transition-slow, 0.4s ease);
 }
 
 .badge-right-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--uvaco-primary-light, #c084fc);
-    border: 1px solid rgba(192, 132, 252, 0.3);
-    border-radius: 8px;
+    background: var(--uvaco-bg-muted, rgba(139, 92, 246, 0.15));
+    color: var(--uvaco-secondary, #c084fc);
+    border: 1px solid var(--uvaco-border-color, rgba(192, 132, 252, 0.3));
+    border-radius: var(--uvaco-border-radius-md, 8px);
     padding: 0.4rem 0.75rem;
     font-size: 0.82rem;
     margin-right: 0.4rem;
     margin-bottom: 0.4rem;
 
     &.gold {
-        background: rgba(251, 191, 36, 0.12);
-        color: var(--uvaco-gold, #fbbf24);
+        background: var(--uvaco-bg-warning, rgba(251, 191, 36, 0.12));
+        color: var(--uvaco-text-warning, #fbbf24);
         border-color: rgba(251, 191, 36, 0.35);
     }
 }
 
 /* 缺口警示盒 */
 .gap-alert-card {
-    background: rgba(244, 63, 94, 0.08);
-    border: 1px dashed rgba(244, 63, 94, 0.4);
-    border-radius: 12px;
+    background: var(--uvaco-bg-danger, rgba(244, 63, 94, 0.08));
+    border: 1px dashed var(--uvaco-danger, rgba(244, 63, 94, 0.4));
+    border-radius: var(--uvaco-border-radius-lg, 12px);
     padding: 1.1rem;
 }
 
 .gap-alert-card.qualified {
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px dashed rgba(16, 185, 129, 0.4);
+    background: var(--uvaco-bg-success, rgba(16, 185, 129, 0.08));
+    border: 1px dashed var(--uvaco-success, rgba(16, 185, 129, 0.4));
 }
 
 .section-header {
@@ -97,7 +97,7 @@
     padding-left: 10px;
     margin-bottom: 1.25rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--uvaco-text-primary, #ffffff);
 }
 
 @media (max-width: 576px) {

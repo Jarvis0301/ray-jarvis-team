@@ -119,7 +119,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`工作表【${sheetName}】通訊狀態碼: ${res.status}`);
+            if (!res.ok) throw new Error(`工作表【${sheetName}】通訊狀態碼：${res.status}`);
             const text = await res.text();
 
             const parsed = Papa.parse(text, {
@@ -643,7 +643,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${c.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge" style="color: ${c.text_color}; background-color: ${c.bg_color || c.text_color + '20'}; border: 1px solid ${c.text_color};">
+                    <span class="badge" style="color：${c.text_color}; background-color：${c.bg_color || c.text_color + '20'}; border: 1px solid ${c.text_color};">
                         <i class="${c.icon_class}"></i> ${c.text_color}
                     </span>
                 </td>
@@ -669,7 +669,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${s.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge" style="color: ${s.text_color}; background-color: ${s.bg_color || s.text_color + '20'}; border: 1px solid ${s.text_color};">
+                    <span class="badge" style="color：${s.text_color}; background-color：${s.bg_color || s.text_color + '20'}; border: 1px solid ${s.text_color};">
                         <i class="${s.icon_class}"></i> ${s.text_color}
                     </span>
                 </td>
@@ -695,7 +695,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${t.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge badge-type" style="color: ${t.text_color}; background-color: ${t.bg_color || t.text_color + '20'}; border-color: ${t.text_color};">
+                    <span class="badge badge-type" style="color：${t.text_color}; background-color：${t.bg_color || t.text_color + '20'}; border-color：${t.text_color};">
                         <i class="${t.icon_class}"></i> ${t.text_color}
                     </span>
                 </td>
@@ -956,7 +956,7 @@ function getDoughnutTooltipOptions() {
                         const dataset = context.dataset;
                         const total = dataset.data.reduce((acc, curr) => acc + Number(curr), 0);
                         const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return ` ${label}: ${value} 筆 (${percentage}%)`;
+                        return ` ${label}：${value} 筆 (${percentage}%)`;
                     }
                 }
             },
@@ -993,7 +993,7 @@ function renderAnalyticsCharts() {
     const latestItem = sortedByLaunch[0] || null;
 
     $('#statTotalSku').text(total);
-    $('#statRegionBreakdown').text(`台灣: ${twProducts.length} / 馬來西亞: ${myProducts.length}`);
+    $('#statRegionBreakdown').text(`台灣：${twProducts.length} / 馬來西亞：${myProducts.length}`);
 
     if (currentAnalyticsRegion === 'MY') {
         $('#statAvgPrice').text(`RM${myAvgPrice.toLocaleString()}`);
@@ -1007,11 +1007,11 @@ function renderAnalyticsCharts() {
     }
 
     $('#statAvgSv').text(`${avgSv} SV`);
-    $('#statValidRatio').text(`有效上架率: ${validRate}%`);
+    $('#statValidRatio').text(`有效上架率：${validRate}%`);
 
     if (latestItem) {
         $('#statLatestProduct').text(latestItem.name);
-        $('#statLatestProductDate').text(`上市日期: ${latestItem.launch_date}`);
+        $('#statLatestProductDate').text(`上市日期：${latestItem.launch_date}`);
     } else {
         $('#statLatestProduct').text('暫無數據');
         $('#statLatestProductDate').text('-');
@@ -1178,7 +1178,7 @@ function renderAnalyticsCharts() {
                             label: (ctx) => {
                                 const item = topPriceProducts[ctx.dataIndex];
                                 const prefix = (item.currency === 'MYR' || item.region_code === 'MY') ? 'RM' : 'NT$';
-                                return ` 售價: ${prefix}${Number(ctx.parsed.x).toLocaleString()}`;
+                                return ` 售價：${prefix}${Number(ctx.parsed.x).toLocaleString()}`;
                             }
                         }
                     }
@@ -1255,7 +1255,7 @@ function renderAnalyticsCharts() {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: (ctx) => ` 點數貢獻: ${ctx.parsed.x} ${unitText}`
+                            label: (ctx) => ` 點數貢獻：${ctx.parsed.x} ${unitText}`
                         }
                     }
                 },
@@ -1309,7 +1309,7 @@ function renderAnalyticsCharts() {
                         callbacks: {
                             label: (ctx) => {
                                 const item = weightList[ctx.dataIndex];
-                                return ` 規格重量: ${item.rawDisplay} (${ctx.parsed.x} g/ml)`;
+                                return ` 規格重量：${item.rawDisplay} (${ctx.parsed.x} g/ml)`;
                             }
                         }
                     }
@@ -1358,7 +1358,7 @@ function renderAnalyticsCharts() {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: (ctx) => ` 上市商品數: ${ctx.parsed.y} 項`
+                            label: (ctx) => ` 上市商品數：${ctx.parsed.y} 項`
                         }
                     }
                 },

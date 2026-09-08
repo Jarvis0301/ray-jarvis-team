@@ -376,7 +376,7 @@ function renderAdjustmentsTable() {
             product_batch: `
                 <div>
                     <div class="fw-bold text-white">${a.product_name_snaps || '-'}</div>
-                    <span class="batch-chip">LOT: ${a.batch_no || '-'}</span>
+                    <span class="batch-chip">LOT：${a.batch_no || '-'}</span>
                 </div>
             `,
             quantity_unit: `
@@ -460,7 +460,7 @@ function renderTransfersTable() {
             product: `
                 <div>
                     <div class="fw-bold text-white">${t.product_name_snaps || '-'}</div>
-                    <span class="batch-chip">LOT: ${t.batch_no || '-'}</span>
+                    <span class="batch-chip">LOT：${t.batch_no || '-'}</span>
                 </div>
             `,
             quantity: `<span class="badge badge-info-subtle px-2 py-1">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,

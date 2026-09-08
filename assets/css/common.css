@@ -9789,7 +9789,7 @@ body {
 }
 
 /* ==========================================================================
-   方案 A：HUD 戰術呼吸膠囊 (Tactical Capsule Pill)
+   風格 A：HUD 戰術呼吸膠囊 (Tactical Capsule Pill)
    ========================================================================== */
 .stat-chip-pill {
   position: relative;
@@ -9832,9 +9832,9 @@ body {
   min-width: 0;
 }
 .stat-chip-pill .chip-content .chip-caption {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   line-height: 1;
-  color: var(--uvaco-text-muted, #819b8f);
+  color: var(--uvaco-text-secondary, #819b8f);
   letter-spacing: 0.03em;
   margin-bottom: 0.15rem;
   white-space: nowrap;
@@ -9842,7 +9842,7 @@ body {
   text-overflow: ellipsis;
 }
 .stat-chip-pill .chip-content .chip-num {
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1;
   color: var(--uvaco-text-primary, #ecfdf5);
@@ -9911,7 +9911,7 @@ body {
     font-size: 0.75rem;
   }
   .stat-chip-pill .chip-content .chip-num {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 }
 
@@ -9930,9 +9930,9 @@ body {
   }
 }
 /* ==========================================================================
-   方案 B：賽博切角戰術晶片 (Cyber Chamfered HUD Chip)
+   風格 B：賽博切角戰術晶片 (Cyber Chamfered HUD Chip)
    ========================================================================== */
-.stat-chip-chamfer {
+.stat-chip-cyber {
   position: relative;
   display: flex;
   align-items: stretch;
@@ -9947,7 +9947,7 @@ body {
   transition: all 0.25s ease;
   /* 頂部戰術極細螢光導軌 */
 }
-.stat-chip-chamfer::after {
+.stat-chip-cyber::after {
   content: "";
   position: absolute;
   top: 0;
@@ -9958,52 +9958,52 @@ body {
   box-shadow: 0 0 6px var(--uvaco-primary, #10b981);
   transition: width 0.3s ease;
 }
-.stat-chip-chamfer {
+.stat-chip-cyber {
   /* 1. 左側戰術幾何框圖示 */
 }
-.stat-chip-chamfer .chip-hud-symbol {
+.stat-chip-cyber .chip-hud-symbol {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.2rem;
+  width: 3rem;
   flex-shrink: 0;
   background: rgba(0, 0, 0, 0.25);
   border-left: 2px solid var(--uvaco-primary, #10b981);
   color: var(--uvaco-secondary, #34d399);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
-.stat-chip-chamfer {
+.stat-chip-cyber {
   /* 2. 中央指標數據欄 */
 }
-.stat-chip-chamfer .chip-hud-data {
+.stat-chip-cyber .chip-hud-data {
   display: flex;
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
   min-width: 0;
 }
-.stat-chip-chamfer .chip-hud-data .hud-label {
-  font-size: 0.68rem;
+.stat-chip-cyber .chip-hud-data .hud-label {
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--uvaco-text-muted, #819b8f);
+  color: var(--uvaco-text-secondary, #819b8f);
   margin-bottom: 0.15rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.stat-chip-chamfer .chip-hud-data .hud-metric {
+.stat-chip-cyber .chip-hud-data .hud-metric {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.1;
   color: var(--uvaco-text-primary, #ecfdf5);
   letter-spacing: -0.01em;
 }
-.stat-chip-chamfer {
+.stat-chip-cyber {
   /* 3. 右側戰術刻度標籤 (Tag) */
 }
-.stat-chip-chamfer .chip-hud-tag {
+.stat-chip-cyber .chip-hud-tag {
   align-self: flex-start;
   font-size: 0.65rem;
   padding: 0.15rem 0.4rem;
@@ -10013,39 +10013,363 @@ body {
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
-.stat-chip-chamfer {
+.stat-chip-cyber {
   /* 懸停動態反饋 */
 }
-.stat-chip-chamfer:hover {
+.stat-chip-cyber:hover {
   border-color: var(--uvaco-primary, #10b981);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%), var(--uvaco-bg-card, #10241b);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   transform: translateY(-2px);
 }
-.stat-chip-chamfer:hover::after {
+.stat-chip-cyber:hover::after {
   width: 100%; /* 頂部導軌滿版充能發光 */
   box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(16, 185, 129, 0.5));
 }
-.stat-chip-chamfer:hover .chip-hud-symbol {
+.stat-chip-cyber:hover .chip-hud-symbol {
   color: #ffffff;
   border-left-color: var(--uvaco-accent, #f59e0b);
 }
-.stat-chip-chamfer {
+.stat-chip-cyber {
   /* 行動端 RWD */
 }
 @media (max-width: 768px) {
-  .stat-chip-chamfer {
+  .stat-chip-cyber {
     padding: 0.45rem 0.65rem;
     gap: 0.5rem;
   }
-  .stat-chip-chamfer .chip-hud-symbol {
+  .stat-chip-cyber .chip-hud-symbol {
     width: 1.8rem;
     font-size: 0.85rem;
   }
-  .stat-chip-chamfer .chip-hud-data .hud-metric {
+  .stat-chip-cyber .chip-hud-data .hud-metric {
     font-size: 1rem;
   }
-  .stat-chip-chamfer:hover {
+  .stat-chip-cyber:hover {
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   風格 C：微型進度軌道儀 (Tactical Micro-Gauge Chip)
+   ========================================================================== */
+.stat-chip-gauge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.65rem 0.85rem 0.5rem 0.85rem;
+  background: rgba(10, 17, 32, 0.65);
+  border: 1px solid var(--uvaco-border-color, rgba(56, 189, 248, 0.25));
+  border-radius: 0.375rem;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  transition: all 0.25s ease;
+  /* 頂部標題列與即時達成率 */
+}
+.stat-chip-gauge .chip-gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+.stat-chip-gauge .chip-gauge-header .chip-gauge-title {
+  font-size: 0.75rem;
+  color: var(--uvaco-text-secondary, #94a3b8);
+  letter-spacing: 0.02em;
+}
+.stat-chip-gauge .chip-gauge-header .chip-gauge-title i {
+  margin-right: 0.5rem;
+  color: var(--uvaco-primary, #38bdf8);
+}
+.stat-chip-gauge .chip-gauge-header .chip-gauge-percent {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--uvaco-secondary, #34d399);
+  font-family: ui-monospace, monospace;
+}
+.stat-chip-gauge {
+  /* 中央主數值 */
+}
+.stat-chip-gauge .chip-gauge-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--uvaco-text-primary, #f8fafc);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.stat-chip-gauge .chip-gauge-value .unit {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--uvaco-text-muted, #94a3b8);
+  margin-left: 0.25rem;
+}
+.stat-chip-gauge {
+  /* 底部目標微型進度軌道 */
+}
+.stat-chip-gauge .chip-gauge-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stat-chip-gauge .chip-gauge-track .chip-gauge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--uvaco-primary, #38bdf8), var(--uvaco-secondary, #34d399));
+  box-shadow: 0 0 8px var(--uvaco-primary-glow, rgba(56, 189, 248, 0.6));
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stat-chip-gauge {
+  /* 懸停動態反饋 */
+}
+.stat-chip-gauge:hover {
+  background: var(--uvaco-bg-light, #38bdf8);
+  border-color: var(--uvaco-primary, #38bdf8);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 10px var(--uvaco-primary-glow, rgba(56, 189, 248, 0.3));
+  transform: translateY(-2px);
+}
+.stat-chip-gauge:hover .chip-gauge-fill {
+  filter: brightness(1.2);
+}
+.stat-chip-gauge {
+  /* 行動端 RWD 緊湊微調 */
+}
+@media (max-width: 768px) {
+  .stat-chip-gauge {
+    padding: 0.5rem 0.65rem 0.45rem 0.65rem;
+  }
+  .stat-chip-gauge .chip-gauge-value {
+    font-size: 1.1rem;
+  }
+  .stat-chip-gauge:hover {
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   風格 D：雙子裂隙戰術晶片 (Dual-Segment Telemetry Chip)
+   ========================================================================== */
+.stat-chip-telemetry {
+  display: flex;
+  width: 100%;
+  border-radius: 0.25rem;
+  background: var(--uvaco-bg-card, #112240);
+  border: 1px solid var(--uvaco-border-color, rgba(56, 189, 248, 0.2));
+  overflow: hidden;
+  transition: all 0.25s ease;
+  /* 左側分類徽章區塊 */
+}
+.stat-chip-telemetry .telemetry-tag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--uvaco-primary, #38bdf8) 0%, rgba(2, 132, 199, 0.8) 100%);
+  color: #ffffff;
+  padding: 0.5rem 0.25rem;
+  position: relative;
+}
+.stat-chip-telemetry .telemetry-tag i {
+  font-size: 1.1rem;
+  margin-bottom: 0.15rem;
+}
+.stat-chip-telemetry .telemetry-tag .tag-code {
+  font-size: 0.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  font-family: ui-monospace, monospace;
+}
+.stat-chip-telemetry {
+  /* 中央裂隙邊界 (Dashed Separation) */
+}
+.stat-chip-telemetry .telemetry-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 0.45rem 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-left: 1px dashed rgba(255, 255, 255, 0.15);
+  min-width: 0;
+}
+.stat-chip-telemetry .telemetry-body .telemetry-caption {
+  font-size: 0.75rem;
+  color: var(--uvaco-text-secondary, #94a3b8);
+  margin-bottom: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-chip-telemetry .telemetry-body .telemetry-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.stat-chip-telemetry .telemetry-body .telemetry-stat .stat-num {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--uvaco-text-primary, #ecfdf5);
+  letter-spacing: -0.01em;
+}
+.stat-chip-telemetry .telemetry-body .telemetry-stat .stat-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.2rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--uvaco-secondary, #34d399);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.stat-chip-telemetry {
+  /* 懸停動態反饋 */
+}
+.stat-chip-telemetry:hover {
+  border-color: var(--uvaco-primary, #38bdf8);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 10px var(--uvaco-primary-glow, rgba(56, 189, 248, 0.35));
+  transform: translateY(-2px);
+}
+.stat-chip-telemetry:hover .telemetry-tag {
+  filter: brightness(1.15);
+}
+.stat-chip-telemetry {
+  /* 行動端 RWD */
+}
+@media (max-width: 768px) {
+  .stat-chip-telemetry .telemetry-tag {
+    width: 2.5rem;
+  }
+  .stat-chip-telemetry .telemetry-tag i {
+    font-size: 0.95rem;
+  }
+  .stat-chip-telemetry .telemetry-body {
+    padding: 0.4rem 0.6rem;
+  }
+  .stat-chip-telemetry .telemetry-body .telemetry-stat .stat-num {
+    font-size: 1.05rem;
+  }
+  .stat-chip-telemetry:hover {
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   風格 E：極光浮雕玻璃光帶 (Aurora Floating Glass Ribbon)
+   ========================================================================== */
+.stat-chip-aurora {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  gap: 0.85rem;
+  background: rgba(255, 255, 255, 0.015);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 左下角漫射極光氛圍層 */
+}
+.stat-chip-aurora::before {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: -20px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--uvaco-primary, #38bdf8);
+  filter: blur(28px);
+  opacity: 0.18;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.stat-chip-aurora {
+  /* 圖示浮雕外框 */
+}
+.stat-chip-aurora .chip-aurora-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex-shrink: 0;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--uvaco-primary, #38bdf8);
+  font-size: 0.95rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+.stat-chip-aurora {
+  /* 內容主體 */
+}
+.stat-chip-aurora .chip-aurora-meta {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+.stat-chip-aurora .chip-aurora-meta .meta-title {
+  font-size: 1rem;
+  color: var(--uvaco-text-secondary, #819b8f);
+  margin-bottom: 0.1rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-chip-aurora .chip-aurora-meta .meta-number {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--uvaco-text-primary, #ffffff);
+  letter-spacing: -0.02em;
+}
+.stat-chip-aurora {
+  /* 懸停動態 (極光增幅並向外擴散) */
+}
+.stat-chip-aurora:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+.stat-chip-aurora:hover::before {
+  opacity: 0.4;
+  transform: scale(1.3);
+}
+.stat-chip-aurora:hover .chip-aurora-symbol {
+  transform: scale(1.08);
+  color: #ffffff;
+  border-color: var(--uvaco-primary, #38bdf8);
+}
+.stat-chip-aurora {
+  /* 行動端 RWD */
+}
+@media (max-width: 768px) {
+  .stat-chip-aurora {
+    padding: 0.45rem 0.75rem;
+    gap: 0.65rem;
+  }
+  .stat-chip-aurora .chip-aurora-symbol {
+    width: 1.9rem;
+    height: 1.9rem;
+    font-size: 0.85rem;
+  }
+  .stat-chip-aurora .chip-aurora-meta .meta-number {
+    font-size: 1.05rem;
+  }
+  .stat-chip-aurora:hover {
     transform: translateY(0);
   }
 }

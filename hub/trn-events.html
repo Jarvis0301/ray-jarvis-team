@@ -745,7 +745,7 @@
             if (!item) return;
 
             const isMeet = item.evt_region === '線上';
-            const locationDisplay = isMeet ? `線上視訊 (會議房號: ${item.evt_addr})` : `${item.evt_location} (${item.evt_addr})`;
+            const locationDisplay = isMeet ? `線上視訊 (會議房號：${item.evt_addr})` : `${item.evt_location} (${item.evt_addr})`;
 
             // 自動生成 LINE/WhatsApp 轉發邀請文案
             tempCopyText = `🔥【${item.evt_title}】🔥\n` +

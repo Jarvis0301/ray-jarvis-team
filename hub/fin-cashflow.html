@@ -1393,7 +1393,7 @@
         }
 
         function deleteTransaction(transId) {
-            if (confirm(`確定作廢此筆收支單據 (ID: ${transId})？`)) {
+            if (confirm(`確定作廢此筆收支單據 (ID：${transId})？`)) {
                 const target = transactionsDatabase.find(t => t.trans_id === transId);
                 if (target) {
                     target.status = "VOID";

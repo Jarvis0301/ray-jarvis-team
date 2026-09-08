@@ -66,17 +66,55 @@ function generateStockId() {
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
 let appState = {
-    stocks: [],            // 表 302: psi_stocks[cite: 11]
-    warehouses: {},        // 表 301: psi_warehouses 映射[cite: 11]
-    products: {},          // 表 101: prd_items 映射[cite: 4]
+    stocks: [],            // 表 302: psi_stocks
+    warehouses: {},        // 表 301: psi_warehouses 映射
+    products: {},          // 表 101: prd_items 映射
     currentWhFilter: 'ALL',
+    currentPrdFilter: 'ALL',
+    currentExpiryFilter: 'ALL',
     currentStatusFilter: 'ALL'
 };
 
+let chartInstances = {
+    warehouse: null,
+    product: null,
+    expiry: null,
+    status: null
+};
+
 let stockDataTableInstance = null;
-let chartShareInstance = null;
-let chartExpiryInstance = null;
 let isInitialized = false;
+
+/**
+ * 取得符合當前 4 維度篩選條件的庫存資料集
+ */
+function getFilteredStocks() {
+    return appState.stocks.filter(row => {
+        // 1. 據點倉儲
+        if (appState.currentWhFilter && appState.currentWhFilter !== 'ALL' && row.warehouse_id !== appState.currentWhFilter) {
+            return false;
+        }
+        // 2. 產品品項
+        if (appState.currentPrdFilter && appState.currentPrdFilter !== 'ALL' && row.product_id !== appState.currentPrdFilter) {
+            return false;
+        }
+        // 3. 時效區間
+        if (appState.currentExpiryFilter && appState.currentExpiryFilter !== 'ALL') {
+            const days = getDaysToExpiry(row.expiry_date);
+            if (!row.expiry_date) return false;
+            if (appState.currentExpiryFilter === 'NORMAL' && days <= 90) return false;
+            if (appState.currentExpiryFilter === 'WARNING' && (days > 90 || days <= 0)) return false;
+            if (appState.currentExpiryFilter === 'DANGER' && (days > 30 || days <= 0)) return false;
+            if (appState.currentExpiryFilter === 'EXPIRED' && days > 0) return false;
+        }
+        // 4. 庫存狀態
+        if (appState.currentStatusFilter && appState.currentStatusFilter !== 'ALL') {
+            if (appState.currentStatusFilter === 'NORMAL' && row.is_locked === 'Y') return false;
+            if (appState.currentStatusFilter === 'LOCKED' && row.is_locked !== 'Y') return false;
+        }
+        return true;
+    });
+}
 
 // ==========================================================================
 // 3. 生命週期與權限管理 (對齊 common.js 共用規範)[cite: 5, 11]
@@ -109,7 +147,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
             const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 錯誤碼: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 錯誤碼：${res.status}`);
             const text = await res.text();
 
             const parsed = Papa.parse(text, {
@@ -164,7 +202,7 @@ async function fetchGoogleSheetsData() {
         AppToast.success(`已自雲端同步 ${appState.stocks.length} 筆批號庫存主檔`);
     } catch (err) {
         console.error("Google Sheets 庫存同步異常:", err);
-        AppToast.error(`雲端連線異常: ${err.message}`);
+        AppToast.error(`雲端連線異常：${err.message}`);
     } finally {
         AppLoading.hide();
     }
@@ -218,6 +256,25 @@ function getProductShortName(prdId, displayMode = 1) {
 }
 
 function populateStockSelectOptions() {
+    // 1. 頂部篩選列 - 據點倉儲
+    UISelectOptions.warehouse.populate({
+        target: '#filterWarehouse',
+        warehouses: appState.warehouses,
+        placeholder: '全部據點倉儲',
+        selectedValue: appState.currentWhFilter === 'ALL' ? '' : appState.currentWhFilter,
+        searchable: true
+    });
+
+    // 2. 頂部篩選列 - 產品品項
+    UISelectOptions.product.populate({
+        target: '#filterProduct',
+        products: appState.products,
+        placeholder: '全部產品品項',
+        selectedValue: appState.currentPrdFilter === 'ALL' ? '' : appState.currentPrdFilter,
+        searchable: true
+    });
+
+    // 3. Modal 編輯表單 - 據點倉儲
     UISelectOptions.warehouse.populate({
         target: '#fieldWarehouseId',
         warehouses: appState.warehouses,
@@ -226,6 +283,7 @@ function populateStockSelectOptions() {
         dropdownParent: '#stockModal'
     });
 
+    // 4. Modal 編輯表單 - 產品品項
     UISelectOptions.product.populate({
         target: '#fieldProductId',
         products: appState.products,
@@ -253,18 +311,29 @@ function bindUIEvents() {
         $('#fieldAvailableQty').val(Math.max(0, q - r));
     });
 
-    $('[data-filter-wh]').on('click', function() {
-        $('[data-filter-wh]').removeClass('active');
-        $(this).addClass('active');
-        appState.currentWhFilter = $(this).data('filter-wh');
+    // 4 個下拉選單變更事件：同時觸發表格重繪與圖表聯動
+    $('#filterWarehouse').on('change', function() {
+        appState.currentWhFilter = $(this).val() || 'ALL';
         if (stockDataTableInstance) stockDataTableInstance.draw();
+        renderTacticalCharts();
     });
 
-    $('[data-filter-status]').on('click', function() {
-        $('[data-filter-status]').removeClass('active');
-        $(this).addClass('active');
-        appState.currentStatusFilter = $(this).data('filter-status');
+    $('#filterProduct').on('change', function() {
+        appState.currentPrdFilter = $(this).val() || 'ALL';
         if (stockDataTableInstance) stockDataTableInstance.draw();
+        renderTacticalCharts();
+    });
+
+    $('#filterExpiry').on('change', function() {
+        appState.currentExpiryFilter = $(this).val() || 'ALL';
+        if (stockDataTableInstance) stockDataTableInstance.draw();
+        renderTacticalCharts();
+    });
+
+    $('#filterStatus').on('change', function() {
+        appState.currentStatusFilter = $(this).val() || 'ALL';
+        if (stockDataTableInstance) stockDataTableInstance.draw();
+        renderTacticalCharts();
     });
 }
 
@@ -313,7 +382,6 @@ function renderStockDataTable() {
         stockDataTableInstance = $('#stockMasterTable').DataTable({
             data: formatted,
             columns: [
-                { data: 'id' },
                 { data: 'warehouse' },
                 { data: 'product' },
                 { data: 'batch' },
@@ -327,27 +395,41 @@ function renderStockDataTable() {
             ]
         });
 
+        // 4 維度正交聯合過濾引擎
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const row = appState.stocks[dataIndex];
             if (!row) return true;
 
-            if (appState.currentWhFilter !== 'ALL' && row.warehouse_id !== appState.currentWhFilter) {
+            // 1. 據點倉儲維度
+            if (appState.currentWhFilter && appState.currentWhFilter !== 'ALL' && row.warehouse_id !== appState.currentWhFilter) {
                 return false;
             }
 
-            if (appState.currentStatusFilter !== 'ALL') {
+            // 2. 產品品項維度
+            if (appState.currentPrdFilter && appState.currentPrdFilter !== 'ALL' && row.product_id !== appState.currentPrdFilter) {
+                return false;
+            }
+
+            // 3. 時效區間維度
+            if (appState.currentExpiryFilter && appState.currentExpiryFilter !== 'ALL') {
                 const days = getDaysToExpiry(row.expiry_date);
-                if (appState.currentStatusFilter === 'NORMAL' && (row.is_locked === 'Y' || days <= 90)) return false;
-                if (appState.currentStatusFilter === 'WARNING_EXPIRY' && days > 90) return false;
+                if (!row.expiry_date) return false;
+
+                if (appState.currentExpiryFilter === 'NORMAL' && days <= 90) return false;
+                if (appState.currentExpiryFilter === 'WARNING' && (days > 90 || days <= 0)) return false;
+                if (appState.currentExpiryFilter === 'DANGER' && (days > 30 || days <= 0)) return false;
+                if (appState.currentExpiryFilter === 'EXPIRED' && days > 0) return false;
+            }
+
+            // 4. 庫存狀態維度
+            if (appState.currentStatusFilter && appState.currentStatusFilter !== 'ALL') {
+                if (appState.currentStatusFilter === 'NORMAL' && row.is_locked === 'Y') return false;
                 if (appState.currentStatusFilter === 'LOCKED' && row.is_locked !== 'Y') return false;
             }
 
             return true;
         });
     }
-
-    const info = stockDataTableInstance.page.info();
-    $('#tableRecordBadge').text(`${info.recordsTotal} 個批號項目`);
 }
 
 function formatStockRow(s) {
@@ -375,29 +457,29 @@ function formatStockRow(s) {
 
     return {
         id: `<span class="fw-bold text-info">${s.id}</span>`,
-        warehouse: `<div><div class="text-white">${getWarehouseName(s.warehouse_id)}</div><span class="badge bg-dark border border-purple-subtle small">${s.warehouse_id}</span></div>`,
+        warehouse: `<div><div class="text-white">${getWarehouseName(s.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${s.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(s.product_id)}</div><span class="small text-secondary">${s.product_id}</span></div>`,
         batch: `<span class="batch-chip fw-bold"><i class="fa-solid fa-barcode"></i> ${s.batch_no || '--'}</span>`,
         expiry: `
             <div style="min-width: 110px;">
                 <div class="d-flex justify-content-between small mb-1">
                     <span class="text-light">${s.expiry_date || '--'}</span>
-                    <span class="fw-bold ${expiryColor.split(' ')[1]}">${days} 天</span>
+                    <span class="fw-bold ${expiryColor.split(' ')[1]}">${days.toLocaleString()} 天</span>
                 </div>
                 <div class="expiry-progress">
-                    <div class="progress-bar ${expiryColor.split(' ')[0]}" style="width: ${expiryPercent}%;"></div>
+                    <div class="progress-bar ${expiryColor.split(' ')[0]}" style="width：${expiryPercent}%;"></div>
                 </div>
             </div>
         `,
         quantity: `
             <div>
                 <span class="fw-bold text-white">${s.quantity}</span> <span class="small text-muted">盒</span>
-                ${s.pieces_qty > 0 ? `<div class="mt-1"><span class="badge badge-purple-subtle small">+${s.pieces_qty} 支/條</span></div>` : ''}
+                ${s.pieces_qty > 0 ? `<div class="mt-1"><span class="badge badge-secondary-subtle small">+${s.pieces_qty} 支/條</span></div>` : ''}
             </div>
         `,
-        reserved: `<span class="text-warning">${s.reserved_qty}</span>`,
-        available: `<span class="fw-bold text-success">${s.available_qty}</span>`,
-        cost_sv: `<div><span class="small text-light">${s.currency_code} ${s.cost_price}</span><div class="small text-secondary">${s.sv_point} SV</div></div>`,
+        reserved: `<span class="text-warning">${s.reserved_qty.toLocaleString()}</span>`,
+        available: `<span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span>`,
+        cost_sv: `<div><span class="small text-light">${s.currency_code==='TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="small text-secondary">${s.sv_point.toLocaleString()} SV</div></div>`,
         status: statusBadge,
         actions: actionButtons
     };
@@ -407,71 +489,138 @@ function formatStockRow(s) {
 // 8. 視覺化圖表渲染 (Chart.js)
 // ==========================================================================
 function renderTacticalCharts() {
-    const ctxShareEl = document.getElementById('chartWarehouseShare');
-    const ctxExpiryEl = document.getElementById('chartExpiryTimeline');
-    if (!ctxShareEl || !ctxExpiryEl) return;
-
-    // 1. 跨倉實體庫存容積佔比 Doughnut
-    const whTotals = {};
-    appState.stocks.forEach(s => {
-        const whLabel = getWarehouseName(s.warehouse_id);
-        whTotals[whLabel] = (whTotals[whLabel] || 0) + s.quantity;
+    // 1. 銷毀舊有圖表實例避免記憶體洩漏與渲染殘影
+    Object.keys(chartInstances).forEach(k => {
+        if (chartInstances[k]) {
+            chartInstances[k].destroy();
+            chartInstances[k] = null;
+        }
     });
 
-    if (chartShareInstance) chartShareInstance.destroy();
-    chartShareInstance = new Chart(ctxShareEl.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(whTotals),
-            datasets: [{
-                data: Object.values(whTotals),
-                backgroundColor: ['#a855f7', '#ec4899', '#38bdf8', '#f59e0b', '#10b981'],
-                borderWidth: 0,
-                hoverOffset: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } }
+    // 2. 取得經過 4 維度篩選後的有效資料集
+    const filtered = getFilteredStocks();
+
+    // 通用甜甜圈圖設定（懸浮 Tooltip 即時精算百分比）
+    const getDoughnutConfig = (labels, data, colors) => {
+        const total = data.reduce((acc, cur) => acc + Number(cur), 0);
+        const isEmpty = total === 0 || labels.length === 0;
+
+        return {
+            type: 'doughnut',
+            data: {
+                labels: isEmpty ? ['暫無庫存現貨'] : labels,
+                datasets: [{
+                    data: isEmpty ? [1] : data,
+                    backgroundColor: isEmpty ? ['#334155'] : colors,
+                    borderWidth: 0,
+                    hoverOffset: isEmpty ? 0 : 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#94a3b8',
+                            boxWidth: 8,
+                            padding: 8,
+                            font: { size: 10 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (isEmpty) return ' 0 盒 (0.0%)';
+                                const label = context.label || '';
+                                const val = Number(context.parsed) || 0;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+                                return ` ${label}：${val.toLocaleString()} 盒 (${pct}%)`;
+                            }
+                        }
+                    }
                 }
             }
-        }
-    });
+        };
+    };
 
-    // 2. FIFO 效期階梯時空圖 Bar
-    const validExpiryStocks = appState.stocks.filter(s => s.expiry_date);
-    const labels = validExpiryStocks.map(s => (s.batch_no ? s.batch_no.substring(0, 8) : s.id));
-    const daysData = validExpiryStocks.map(s => getDaysToExpiry(s.expiry_date));
-    const barColors = daysData.map(d => (d <= 30 ? '#f43f5e' : d <= 90 ? '#f59e0b' : '#10b981'));
+    // --- 圖表 1：據點倉儲容積佔比 ---
+    const ctxWh = document.getElementById('chartWarehouseShare');
+    if (ctxWh) {
+        const whTotals = {};
+        filtered.forEach(s => {
+            const name = getWarehouseName(s.warehouse_id);
+            whTotals[name] = (whTotals[name] || 0) + s.quantity;
+        });
+        chartInstances.warehouse = new Chart(ctxWh.getContext('2d'), getDoughnutConfig(
+            Object.keys(whTotals),
+            Object.values(whTotals),
+            ['#a855f7', '#ec4899', '#38bdf8', '#f59e0b', '#10b981', '#6366f1']
+        ));
+    }
 
-    if (chartExpiryInstance) chartExpiryInstance.destroy();
-    chartExpiryInstance = new Chart(ctxExpiryEl.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: '剩餘天數',
-                data: daysData,
-                backgroundColor: barColors,
-                borderRadius: 4,
-                barThickness: 14
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-                y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(168, 85, 247, 0.1)' } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
+    // --- 圖表 2：產品品項分佈佔比 ---
+    const ctxPrd = document.getElementById('chartProductShare');
+    if (ctxPrd) {
+        const prdTotals = {};
+        filtered.forEach(s => {
+            const name = getProductShortName(s.product_id);
+            prdTotals[name] = (prdTotals[name] || 0) + s.quantity;
+        });
+        chartInstances.product = new Chart(ctxPrd.getContext('2d'), getDoughnutConfig(
+            Object.keys(prdTotals),
+            Object.values(prdTotals),
+            ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#fbbf24', '#34d399', '#f97316']
+        ));
+    }
+
+    // --- 圖表 3：時效區間階梯佔比 ---
+    const ctxExp = document.getElementById('chartExpiryShare');
+    if (ctxExp) {
+        const expTotals = { '效期充裕 (>90天)': 0, '近效期 (31-90天)': 0, '極限警示 (1-30天)': 0, '已逾期 (≤0天)': 0 };
+        filtered.forEach(s => {
+            if (!s.expiry_date) return;
+            const days = getDaysToExpiry(s.expiry_date);
+            if (days <= 0) expTotals['已逾期 (≤0天)'] += s.quantity;
+            else if (days <= 30) expTotals['極限警示 (1-30天)'] += s.quantity;
+            else if (days <= 90) expTotals['近效期 (31-90天)'] += s.quantity;
+            else expTotals['效期充裕 (>90天)'] += s.quantity;
+        });
+
+        // 僅保留有現貨盒數的項目呈現
+        const activeExpKeys = Object.keys(expTotals).filter(k => expTotals[k] > 0);
+        const expColorMap = {
+            '效期充裕 (>90天)': '#10b981',
+            '近效期 (31-90天)': '#f59e0b',
+            '極限警示 (1-30天)': '#f43f5e',
+            '已逾期 (≤0天)': '#64748b'
+        };
+
+        chartInstances.expiry = new Chart(ctxExp.getContext('2d'), getDoughnutConfig(
+            activeExpKeys.length > 0 ? activeExpKeys : Object.keys(expTotals),
+            activeExpKeys.length > 0 ? activeExpKeys.map(k => expTotals[k]) : Object.values(expTotals),
+            activeExpKeys.length > 0 ? activeExpKeys.map(k => expColorMap[k]) : ['#10b981', '#f59e0b', '#f43f5e', '#64748b']
+        ));
+    }
+
+    // --- 圖表 4：管制狀態佔比 ---
+    const ctxStatus = document.getElementById('chartStatusShare');
+    if (ctxStatus) {
+        let normalQty = 0;
+        let lockedQty = 0;
+        filtered.forEach(s => {
+            if (s.is_locked === 'Y') lockedQty += s.quantity;
+            else normalQty += s.quantity;
+        });
+
+        chartInstances.status = new Chart(ctxStatus.getContext('2d'), getDoughnutConfig(
+            ['自由流通', '凍結禁出'],
+            [normalQty, lockedQty],
+            ['#10b981', '#ef4444']
+        ));
+    }
 }
 
 // ==========================================================================

@@ -4,6 +4,7 @@
     margin: 0 auto;
 }
 
+/* KPI 戰術指標方塊 */
 .kpi-matrix {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -13,9 +14,9 @@
 
 .kpi-card {
     padding: 1.25rem;
-    border-radius: 16px;
-    background: linear-gradient(145deg, rgba(19, 35, 60, 0.6) 0%, rgba(12, 24, 43, 0.9) 100%);
-    border: 1px solid var(--uvaco-border, rgba(56, 189, 248, 0.22));
+    border-radius: var(--uvaco-border-radius-xl, 16px);
+    background: linear-gradient(145deg, var(--uvaco-bg-secondary, rgba(18, 8, 36, 0.6)) 0%, var(--uvaco-bg-dark, rgba(21, 10, 42, 0.9)) 100%);
+    border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.25));
     position: relative;
 }
 
@@ -23,7 +24,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--uvaco-text-muted, #94a3b8);
+    color: var(--uvaco-text-muted, #9e8eb3);
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.6rem;
@@ -32,7 +33,7 @@
 .kpi-value {
     font-size: 1.75rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--uvaco-text-primary, #ffffff);
     line-height: 1.2;
 }
 
@@ -44,57 +45,59 @@
     justify-content: space-between;
 }
 
+/* 進度條與標籤 */
 .progress-thin {
     height: 8px;
-    background-color: rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
+    background-color: var(--uvaco-bg-light, rgba(255, 255, 255, 0.08));
+    border-radius: var(--uvaco-border-radius-pill, 999px);
     overflow: hidden;
 }
 
-.progress-bar-blue {
-    background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+.progress-bar-purple {
+    background: linear-gradient(135deg, var(--uvaco-primary, #8b5cf6) 0%, var(--uvaco-secondary, #c084fc) 100%);
     height: 100%;
-    transition: width 0.4s ease;
+    transition: width var(--uvaco-transition-slow, 0.4s ease);
 }
 
 .badge-right-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    background: rgba(56, 189, 248, 0.12);
-    color: var(--uvaco-secondary, #7dd3fc);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    border-radius: 8px;
+    background: var(--uvaco-bg-muted, rgba(139, 92, 246, 0.15));
+    color: var(--uvaco-secondary, #c084fc);
+    border: 1px solid var(--uvaco-border-color, rgba(192, 132, 252, 0.3));
+    border-radius: var(--uvaco-border-radius-md, 8px);
     padding: 0.4rem 0.75rem;
     font-size: 0.82rem;
     margin-right: 0.4rem;
     margin-bottom: 0.4rem;
 
     &.gold {
-        background: rgba(250, 204, 21, 0.12);
-        color: var(--uvaco-gold, #facc15);
-        border-color: rgba(250, 204, 21, 0.3);
+        background: var(--uvaco-bg-warning, rgba(251, 191, 36, 0.12));
+        color: var(--uvaco-text-warning, #fbbf24);
+        border-color: rgba(251, 191, 36, 0.35);
     }
 }
 
+/* 缺口警示盒 */
 .gap-alert-card {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px dashed rgba(239, 68, 68, 0.4);
-    border-radius: 12px;
+    background: var(--uvaco-bg-danger, rgba(244, 63, 94, 0.08));
+    border: 1px dashed var(--uvaco-danger, rgba(244, 63, 94, 0.4));
+    border-radius: var(--uvaco-border-radius-lg, 12px);
     padding: 1.1rem;
 }
 
 .gap-alert-card.qualified {
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px dashed rgba(16, 185, 129, 0.4);
+    background: var(--uvaco-bg-success, rgba(16, 185, 129, 0.08));
+    border: 1px dashed var(--uvaco-success, rgba(16, 185, 129, 0.4));
 }
 
 .section-header {
-    border-left: 4px solid var(--uvaco-primary, #0284c7);
+    border-left: 4px solid var(--uvaco-primary, #8b5cf6);
     padding-left: 10px;
     margin-bottom: 1.25rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--uvaco-text-primary, #ffffff);
 }
 
 @media (max-width: 576px) {

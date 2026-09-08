@@ -101,7 +101,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
             const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 錯誤碼: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 錯誤碼：${res.status}`);
             const text = await res.text();
 
             const parsed = Papa.parse(text, {
@@ -161,7 +161,7 @@ async function fetchGoogleSheetsData() {
         appState.alerts = [];
         appState.thresholds = [];
         refreshView();
-        AppToast.error(`資料同步異常: ${err.message}`);
+        AppToast.error(`資料同步異常：${err.message}`);
     } finally {
         AppLoading.hide();
     }
@@ -627,7 +627,7 @@ async function saveAlertResolution() {
 
     // 更新系統建議/備註欄位 (Col 12)
     const updatedRemarks = userRemarks 
-        ? (alertItem.remarks ? `${alertItem.remarks} ‧ [處置: ${userRemarks}]` : userRemarks)
+        ? (alertItem.remarks ? `${alertItem.remarks} ‧ [處置：${userRemarks}]` : userRemarks)
         : alertItem.remarks;
 
     // 嚴格依照表 308 (psi_alerts) 欄位順序 Index 0 ~ 18

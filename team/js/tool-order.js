@@ -87,7 +87,7 @@ async function fetchGoogleSheetsData() {
         const fetchSheet = async (sheetName) => {
             const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
             const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP 錯誤狀態碼: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP 錯誤狀態碼：${res.status}`);
             const text = await res.text();
             
             const parsed = Papa.parse(text, {
@@ -656,8 +656,8 @@ function renderProducts() {
                         </div>
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span>售價: <span class="price-num">${currencySymbol}${price.toLocaleString()}</span></span>
-                                <span>積分: <span class="sv-num">${sv.toLocaleString()} SV</span></span>
+                                <span>售價：<span class="price-num">${currencySymbol}${price.toLocaleString()}</span></span>
+                                <span>積分：<span class="sv-num">${sv.toLocaleString()} SV</span></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <div class="qty-control">
@@ -720,12 +720,12 @@ function renderProducts() {
                         <td><span class="product-badge">${item.product_code}</span></td>
                         <td class="fw-bold text-white">${item.name}${nameTagHtml}</td>
                         <td>
-                            <span class="badge border" style="color: ${subInfo.color}; border-color: ${subInfo.color} !important; background-color: ${subInfo.bg};">
+                            <span class="badge border" style="color：${subInfo.color}; border-color：${subInfo.color} !important; background-color：${subInfo.bg};">
                                 <i class="${subInfo.icon}"></i> ${subInfo.name}
                             </span>
                         </td>
                         <td>
-                            <span class="badge border" style="color: ${typeInfo.color}; border-color: ${typeInfo.color} !important; background-color: ${typeInfo.bg};">
+                            <span class="badge border" style="color：${typeInfo.color}; border-color：${typeInfo.color} !important; background-color：${typeInfo.bg};">
                                 <i class="${typeInfo.icon}"></i> ${typeInfo.name}
                             </span>
                         </td>
@@ -1045,9 +1045,11 @@ selectedKeys.forEach(code => {
         estimatedRebateDisplay = (totalSV * rankRatio * 3.5) * rate;
     }
 
+    const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
+
     $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
     $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
-    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : "免運費");
+    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : isPickup ? "-" : "免運費");
     $("#summary-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
     $("#summary-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#summary-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);
@@ -1094,7 +1096,7 @@ function initAllCharts() {
                                 const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                 const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
                                 const symbol = chart1Metric === 'SV' ? ' SV' : (chart1Metric === 'MYR' ? ' RM' : ' NT$');
-                                return ` ${label}: ${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
+                                return ` ${label}：${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
                             }
                         }
                     }
@@ -1448,7 +1450,7 @@ function renderSubSeriesChartCards() {
         const html = `
             <div class="col-12 col-md-6 mb-3">
                 <div class="p-3 rounded bg-dark-subtle border border-secondary border-opacity-50 h-100">
-                    <div class="fw-bold mb-2" style="color: ${cat.color};">
+                    <div class="fw-bold mb-2" style="color：${cat.color};">
                         <i class="${cat.icon}"></i> ${cat.code} ${cat.name}
                     </div>
                     <div style="height: 180px; position: relative;">
@@ -1491,7 +1493,7 @@ function renderSubSeriesChartCards() {
                                     const total = context.chart.data.datasets[0].data.reduce((a, b) => a + (Number(b) || 0), 0);
                                     const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
                                     const symbol = chart1Metric === 'SV' ? ' SV' : (chart1Metric === 'MYR' ? ' RM' : ' NT$');
-                                    return ` ${label}: ${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
+                                    return ` ${label}：${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
                                 }
                             }
                         }
@@ -2062,9 +2064,11 @@ function updateCartSummaryTotalsOnly() {
         estimatedRebateDisplay = (totalSV * rankRatio * 3.5) * rate;
     }
 
+    const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
+
     $("#total-qty-badge").text(`${totalItemsCount} 件商品`);
     $("#summary-subtotal").text(`${currSymbol}${Math.round(subtotalDisplay).toLocaleString()}`);
-    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : "免運費");
+    $("#summary-shipping").text(shippingFeeInDisplay > 0 ? `${currSymbol}${Math.round(shippingFeeInDisplay).toLocaleString()}` : isPickup ? "-" : "免運費");
     $("#summary-grand-total").text(`${currSymbol}${Math.round(grandTotal).toLocaleString()}`);
     $("#summary-total-sv").text(`${totalSV.toLocaleString()} SV`);
     $("#summary-rebate-cash").text(`${currSymbol}${Math.round(estimatedRebateDisplay).toLocaleString()}`);

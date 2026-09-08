@@ -910,7 +910,7 @@
                             else if (c.platform_name.includes('電話')) icon = 'fa-solid fa-phone text-warning';
 
                             contactPillsHtml += `
-                                <span class="quick-contact-pill" title="${c.platform_name}: ${c.contact_value}">
+                                <span class="quick-contact-pill" title="${c.platform_name}：${c.contact_value}">
                                     <i class="${icon}"></i> ${c.contact_value}
                                 </span>
                             `;
@@ -996,7 +996,7 @@
 
                 personMasterDataset.forEach(item => {
                     const primaryContact = (item.contacts && item.contacts.length > 0) ? 
-                                           `${item.contacts[0].platform_name}: ${item.contacts[0].contact_value}` : (item.phone || '無');
+                                           `${item.contacts[0].platform_name}：${item.contacts[0].contact_value}` : (item.phone || '無');
 
                     const languages = (item.languages && item.languages.length > 0) ? 
                                       item.languages.map(l => `${l.language_name}(${l.speaking_level})`).join(', ') : '中文';

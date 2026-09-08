@@ -128,10 +128,10 @@
                 <div class="col-xl-4">
                     <div class="cart-summary-card">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 text-white font-weight-bold">
+                            <h5 class="mb-0 text-white fw-bold">
                                 <i class="fa-solid fa-receipt text-secondary"></i> 訂購明細摘要
                             </h5>
-                            <span class="badge bg-secondary text-dark font-weight-bold" id="total-qty-badge">0 件商品</span>
+                            <span class="badge bg-secondary text-dark fw-bold" id="total-qty-badge">0 件商品</span>
                         </div>
 
                         <!-- 幣別與匯率設定 -->
@@ -139,7 +139,7 @@
                             <div class="p-2 rounded bg-dark-subtle border border-secondary border-opacity-50">
                                 <div class="row g-2 align-items-center">
                                     <div class="col-6">
-                                        <label for="displayCurrencySelect" class="form-label small text-muted mb-1">
+                                        <label for="displayCurrencySelect" class="form-label small mb-1">
                                             <i class="fa-solid fa-coins text-warning"></i> 結算幣別
                                         </label>
                                         <select id="displayCurrencySelect" class="form-select form-select-sm">
@@ -148,7 +148,7 @@
                                         </select>
                                     </div>
                                     <div class="col-6">
-                                        <label for="exchangeRateInput" class="form-label small text-muted mb-1">
+                                        <label for="exchangeRateInput" class="form-label small mb-1">
                                             <i class="fa-solid fa-arrow-right-arrow-left text-info"></i> 匯率 (1 MYR = ? TWD)
                                         </label>
                                         <input type="number" id="exchangeRateInput" class="form-control form-control-sm" value="8.0" step="0.1" min="0.1">
@@ -156,7 +156,7 @@
 
                                     <!-- 台灣配送區域 -->
                                     <div class="col-12 mt-2" id="twRegionBlock">
-                                        <label class="form-label small text-muted mb-1 d-block">
+                                        <label class="form-label small mb-1 d-block">
                                             <i class="fa-solid fa-map-location-dot text-success"></i> 台灣運費
                                         </label>
                                         <div class="btn-group w-100" role="group">
@@ -169,7 +169,7 @@
 
                                     <!-- 馬來西亞配送區域 -->
                                     <div class="col-12 mt-2 d-none" id="myRegionBlock">
-                                        <label class="form-label small text-muted mb-1 d-block">
+                                        <label class="form-label small mb-1 d-block">
                                             <i class="fa-solid fa-map-location-dot text-success"></i> 馬來西亞運費
                                         </label>
                                         <div class="btn-group w-100" role="group">
@@ -197,7 +197,7 @@
                         <div class="mb-3" id="shipping-progress-container">
                             <div class="d-flex justify-content-between small">
                                 <span class="text-muted"><i class="fa-solid fa-truck-fast"></i> 免運費門檻</span>
-                                <span id="shipping-progress-text" class="text-secondary font-weight-bold">0 / 400 SV</span>
+                                <span id="shipping-progress-text" class="text-secondary fw-bold">0 / 400 SV</span>
                             </div>
                             <div class="progress-shipping">
                                 <div class="progress-bar-custom" id="shipping-progress-bar" style="width: 0%;"></div>
@@ -207,25 +207,25 @@
                         <!-- 金額與 SV 計算 Highlight 區塊 -->
                         <div class="stat-highlight-box">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted small"><i class="fa-solid fa-coins"></i> 產品金額總計：</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-coins text-yellow"></i> 產品金額總計：</span>
                                 <span class="h5 mb-0 price-num" id="summary-subtotal">NT$ 0</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted small"><i class="fa-solid fa-truck"></i> 物流運費：</span>
-                                <span class="text-white font-weight-bold" id="summary-shipping">NT$ 0</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-truck text-primary"></i> 物流運費：</span>
+                                <span class="text-white fw-bold" id="summary-shipping">NT$ 0</span>
                             </div>
                             <hr class="my-2 border-secondary border-opacity-50">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-white font-weight-bold"><i class="fa-solid fa-wallet"></i> 應付總金額：</span>
-                                <span class="h4 mb-0 text-warning font-weight-bold" id="summary-grand-total">NT$ 0</span>
+                                <span class="text-secondary fw-bold"><i class="fa-solid fa-wallet text-warning"></i> 應付總金額：</span>
+                                <span class="h4 mb-0 text-warning fw-bold" id="summary-grand-total">NT$ 0</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted small"><i class="fa-solid fa-chart-line"></i> 累積總積分 (SV)：</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-chart-line text-cyan"></i> 累積總積分：</span>
                                 <span class="h5 mb-0 sv-num" id="summary-total-sv">0 SV</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted small"><i class="fa-solid fa-hand-holding-dollar"></i> 預估回饋金 (現金)：</span>
-                                <span class="text-success font-weight-bold" id="summary-rebate-cash">NT$ 0</span>
+                                <span class="text-secondary small"><i class="fa-solid fa-hand-holding-dollar text-success"></i> 預估回饋金：</span>
+                                <span class="text-success fw-bold" id="summary-rebate-cash">NT$ 0</span>
                             </div>
                         </div>
 
@@ -259,7 +259,7 @@
                 
                 <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-lg-auto justify-content-start justify-content-lg-end">
                     <div class="d-flex align-items-center bg-dark-subtle p-1 rounded border border-secondary border-opacity-50">
-                        <span class="small text-muted px-2"><i class="fa-solid fa-hashtag text-secondary"></i> 列印數據：</span>
+                        <span class="small text-secondary px-2"><i class="fa-solid fa-hashtag text-secondary"></i> 列印數據：</span>
                         <div class="btn-group btn-group-sm" role="group" id="btnGroupShowData">
                             <button type="button" class="btn btn-outline-secondary active" data-value="true">
                                 <i class="fa-solid fa-eye"></i> 顯示數值
@@ -270,7 +270,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-sm btn-secondary text-dark font-weight-bold rounded-pill px-3" id="btnPrintAnalytics">
+                    <button class="btn btn-sm btn-secondary text-dark fw-bold rounded-pill px-3" id="btnPrintAnalytics">
                         <i class="fa-solid fa-file-pdf"></i> 列印戰情圖表 (PDF)
                     </button>
                 </div>
@@ -288,7 +288,7 @@
                                     <button type="button" class="btn btn-outline-cyan chart1-metric-btn" data-metric="MYR">MYR</button>
                                     <button type="button" class="btn btn-outline-cyan chart1-metric-btn" data-metric="SV">SV</button>
                                 </div>
-                                <button class="btn btn-sm btn-cyan font-weight-bold" id="btnOpenSubSeriesModal" title="查看子系列細節">
+                                <button class="btn btn-sm btn-cyan fw-bold" id="btnOpenSubSeriesModal" title="查看子系列細節">
                                     <i class="fa-solid fa-sitemap"></i> 子系列明細
                                 </button>
                             </div>

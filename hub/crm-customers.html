@@ -1119,7 +1119,7 @@
                                         ${depletionBadge}
                                     </div>
                                     <div class="progress depletion-progress">
-                                        <div class="progress-bar ${progressBarColor}" style="width: ${progressWidth}%"></div>
+                                        <div class="progress-bar ${progressBarColor}" style="width：${progressWidth}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1185,7 +1185,7 @@
                     `<div><strong>${item.customer_name}</strong><br><span class="hub-code text-muted small">${item.customer_id}</span></div>`,
                     `<span class="badge-stage ${stageClass}">${stageText}</span>`,
                     `<div><i class="fa-solid fa-phone text-muted"></i> ${item.mobile_phone}<br><i class="fa-brands fa-line text-success"></i> ${item.line_user_id}</div>`,
-                    `<div class="small"><strong>訴求:</strong> ${item.health_concerns}<br><span class="text-muted">過敏: ${item.allergy_history}</span></div>`,
+                    `<div class="small"><strong>訴求:</strong> ${item.health_concerns}<br><span class="text-muted">過敏：${item.allergy_history}</span></div>`,
                     `<div class="small">${item.last_purchase_product}<br><span class="text-warning">${item.days_remaining <= 0 ? '已逾期耗盡' : '剩餘 ' + item.days_remaining + ' 天'}</span></div>`,
                     `<span class="hub-code text-accent fw-bold">${item.total_accumulated_sv.toLocaleString()}</span>`,
                     `<span class="small" style="color: var(--uvaco-text-sub);">${item.assigned_partner_name}</span>`,
