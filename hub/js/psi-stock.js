@@ -292,13 +292,10 @@ function renderHudMetrics() {
         }
     });
 
-    const qtyDisplay = totalPieces > 0 
-        ? `${totalQty.toLocaleString()} 盒 <span class="small text-secondary fw-normal">(+${totalPieces} 散裝)</span>`
-        : `${totalQty.toLocaleString()} 盒`;
-
-    $('#hudTotalQty').html(qtyDisplay);
+    $('#hudTotalQty').html(totalQty.toLocaleString());
     $('#hudAvailableQty').text(totalAvailable.toLocaleString());
     $('#hudReservedQty').text(totalReserved.toLocaleString());
+    $('#hudTotalPieces').html(totalPieces.toLocaleString());
     $('#hudExpiringBatches').text(expiringBatches);
 }
 

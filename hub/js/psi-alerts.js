@@ -256,12 +256,16 @@ function refreshView() {
 
 function renderHudMetrics() {
     const stockout = appState.alerts.filter(a => a.alert_type === '低於安全水位').length;
-    const expiring = appState.alerts.filter(a => a.alert_type.includes('效期') || a.days_to_expire <= 90).length;
+    const expiring90 = appState.alerts.filter(a => a.alert_type === '90天近效期').length;
+    const expiring30 = appState.alerts.filter(a => a.alert_type === '30天極危效期').length;
+    const expired = appState.alerts.filter(a => a.alert_type === '已過期').length;
     const monitored = appState.thresholds.filter(t => t.is_monitored === 'Y').length;
     const pending = appState.alerts.filter(a => a.status === '未處理').length;
 
     $('#stat-stockout-count').text(stockout);
-    $('#stat-expiry-count').text(expiring);
+    $('#stat-expiry90-count').text(expiring90);
+    $('#stat-expiry30-count').text(expiring30);
+    $('#stat-expired-count').text(expired);
     $('#stat-monitored-rules').text(monitored);
     $('#stat-pending-count').text(pending);
 

@@ -3,13 +3,15 @@
     background: var(--uvaco-bg-primary);
     border: 1px solid var(--uvaco-border-highlight);
     border-radius: var(--uvaco-border-radius-md);
+    backdrop-filter: blur(8px);
+    font-weight: 500;
     padding: 0.5rem 0.5rem;
     display: inline-flex;
     justify-content: space-around;
     align-items: center;
     width: 100%;
     gap: 1rem;
-    transition: all 0.25s ease;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 
     &:hover {
         /*

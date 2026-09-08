@@ -27,70 +27,46 @@
                 1. 戰備物資態勢抬頭 (Sentinel Stock HUD)
                 ========================================================================== -->
             <header class="glass-panel hud-bar mb-3">
-                <div class="row align-items-center g-3">
-                    <div class="col-12 col-xl-5">
-                        <div class="h4 fw-bold text-white">
-                            <i class="fa-solid fa-boxes-stacked text-primary"></i> 庫存管理
+                <div class="row align-items-center g-3 mb-3">
+                    <div class="col-12 col-md-2 col-xl-6">
+                        <div class="fs-5 fw-bold text-white">
+                            <i class="fa-solid fa-boxes-stacked text-primary me-1"></i> 庫存管理
                         </div>
                     </div>
 
                     <!-- 四聯動態指標卡 -->
-                    <div class="col-12 col-xl-7">
-                        <div class="row g-2">
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">在線實體總盒數</span>
-                                        <i class="fa-solid fa-box-open text-primary"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-white mb-0" id="hudTotalQty">0</span>
-                                        <span class="text-secondary small">盒</span>
-                                    </div>
+                    <div class="col-12 col-md-10 col-xl-6">
+                        <div class="row row-cols-2 row-cols-md-4 g-2">
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-box-open text-primary me-1"></i> 整盒庫存</span>
+                                    <span class="text-primary fs-6 fw-bold mono-num" id="hudTotalQty">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">自由可用現貨</span>
-                                        <i class="fa-solid fa-circle-check text-success"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-success mb-0" id="hudAvailableQty">0</span>
-                                        <span class="text-secondary small">盒</span>
-                                    </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-success me-1"></i> 自由可用</span>
+                                    <span class="text-success fs-6 fw-bold mono-num" id="hudAvailableQty">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">代領預扣鎖定</span>
-                                        <i class="fa-solid fa-lock text-warning"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-warning mb-0" id="hudReservedQty">0</span>
-                                        <span class="text-secondary small">盒</span>
-                                    </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-lock text-warning me-1"></i> 預扣鎖定</span>
+                                    <span class="text-warning fs-6 fw-bold mono-num" id="hudReservedQty">0</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <div class="card h-100 p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-secondary small">有效期限預警批數</span>
-                                        <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="h4 fw-bold text-danger mb-0" id="hudExpiringBatches">0</span>
-                                        <span class="text-secondary small">批 (&le;90天)</span>
-                                    </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-shapes text-info me-1"></i> 散裝庫存</span>
+                                    <span class="text-info fs-6 fw-bold mono-num" id="hudTotalPieces">0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                <!-- 據點維度篩選與操作按鈕 -->
-                <div class="row align-items-center justify-content-between g-3 mt-2 pt-3 border-top border-purple-subtle">
-                    <div class="col-12 col-md-7">
+                <div class="row align-items-center g-3 mt-2 border-top border-purple-subtle">
+                    <div class="col-12 col-md-10 col-xl-11">
                         <div class="d-flex flex-wrap gap-2 align-items-center">
                             <span class="text-secondary small fw-bold"><i class="fa-solid fa-warehouse text-primary"></i> 據點維度：</span>
                             <button type="button" class="filter-pill-btn active" data-filter-wh="ALL">
@@ -108,9 +84,9 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-5 text-md-end">
+                    <div class="col-12 col-md-2 col-xl-1 d-flex justify-content-md-end">
                         <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddStockModal()">
-                            <i class="fa-solid fa-plus"></i> 新增庫存批號
+                            <i class="fa-solid fa-plus"></i> 新增庫存
                         </button>
                     </div>
                 </div>

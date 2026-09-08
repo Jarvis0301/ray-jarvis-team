@@ -12,44 +12,33 @@
         <script src="../assets/js/vendor-loader.js"></script>
 
         <!-- 共用核心模組 -->
-        <link rel="stylesheet" href="../assets/css/common.css">
         <script src="../assets/js/common.js"></script>
+        <link rel="stylesheet" href="../assets/css/common.css">
+        
 
         <!-- 頁面專屬 -->
-        <link rel="stylesheet" href="./css/psi-alerts.css">
         <script src="./js/psi-alerts.js" defer></script>
+        <link rel="stylesheet" href="./css/psi-alerts.css">
     </head>
 
     <body>
         <main class="container-fluid p-3 p-md-4">
 
-            <!-- 1. 頂部 HUD 狀態區塊（移除原底部按鈕列，維持純淨數據面板） -->
-            <header class="glass-panel hud-bar mb-3">
-                <div class="row align-items-center g-3">
-                    <div class="col-12 col-md-2 col-xl-6">
-                        <div class="h4 fw-bold text-white mb-0">
-                            <i class="fa-solid fa-triangle-exclamation text-primary"></i> 庫存預警
-                        </div>
-                    </div>
+            <!-- 1. 頂部 HUD 狀態區塊 -->
+            <header class="row align-items-center mb-3">
+                <h4 class="fw-bold mb-0 text-light">
+                    <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i> 庫存預警
+                </h4>
+            </header>
 
-                    <div class="col-12 col-md-10 col-xl-6">
-                        <div class="row row-cols-2 row-cols-md-4 g-2">
+            <section class="mb-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-12">
+                        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 低於水位</span>
-                                    <span class="text-danger fs-6 fw-bold mono-num" id="stat-stockout-count">0</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 近有效日期</span>
-                                    <span class="text-warning fs-6 fw-bold mono-num" id="stat-expiry-count">0</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-sliders text-success me-1"></i> 門檻規則</span>
-                                    <span class="text-success fs-6 fw-bold mono-num" id="stat-monitored-rules">0</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-primary me-1"></i> 預警數量</span>
+                                    <span class="text-primary fs-6 fw-bold mono-num" id="count-alerts-total">0</span>
                                 </div>
                             </div>
                             <div class="col">
@@ -58,10 +47,34 @@
                                     <span class="text-info fs-6 fw-bold mono-num" id="stat-pending-count">0</span>
                                 </div>
                             </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-circle-exclamation text-orange me-1"></i> 低於水位</span>
+                                    <span class="text-orange fs-6 fw-bold mono-num" id="stat-stockout-count">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 接近有效日期</span>
+                                    <span class="text-warning fs-6 fw-bold mono-num" id="stat-expiry90-count">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 即將過期</span>
+                                    <span class="text-danger fs-6 fw-bold mono-num" id="stat-expiry30-count">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-skull text-accent me-1"></i> 已過期</span>
+                                    <span class="text-accent fs-6 fw-bold mono-num" id="stat-expired-count">0</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </header>
+            </section>
 
             <!-- 2. 主視圖切換頁籤（拉出為獨立 nav 語意化共用元件） -->
             <nav aria-label="庫存預警工作區頁籤" class="mb-3">

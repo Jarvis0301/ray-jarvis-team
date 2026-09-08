@@ -162,7 +162,7 @@ const UIBadges = (function () {
                 const type = clean(alertType, '日常提示');
                 switch (type) {
                     case '低於安全水位':
-                        return '<span class="badge badge-danger-subtle"><i class="fa-solid fa-triangle-exclamation me-1"></i> 低於安全水位</span>';
+                        return '<span class="badge badge-orange-subtle"><i class="fa-solid fa-circle-exclamation me-1"></i> 低於安全水位</span>';
                     case '90天近效期':
                         return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-hourglass-half me-1"></i> 90天近效期</span>';
                     case '30天極危效期':

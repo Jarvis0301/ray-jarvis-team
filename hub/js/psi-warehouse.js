@@ -191,6 +191,7 @@ function renderStats(list) {
     const myCount = list.filter(w => w.country_code === 'MY').length;
     const officialCount = list.filter(w => w.warehouse_type === '官方營運中心' || w.warehouse_type === 'OFFICIAL_CENTER').length;
     const privateCount = list.filter(w => w.warehouse_type === '自用常備倉' || w.warehouse_type === 'PRIVATE_HUB').length;
+    const overseasCount = list.filter(w => w.warehouse_type === '海外商務倉' || w.warehouse_type === 'TRANSIT_OVERSEAS').length;
     const activeCount = list.filter(w => w.is_active === 'Y').length;
     const activeRate = list.length ? Math.round((activeCount / list.length) * 100) : 0;
 
@@ -198,6 +199,8 @@ function renderStats(list) {
     $('#stat-my-count').text(`${myCount}`);
     $('#stat-official-count').text(`${officialCount}`);
     $('#stat-private-count').text(`${privateCount}`);
+    $('#stat-overseas-count').text(`${overseasCount}`);
+    $('#stat-active-count').text(`${activeCount}`);
     $('#stat-active-rate').text(`${activeRate}%`);
 
     $('#count-all').text(list.length);

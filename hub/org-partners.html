@@ -24,15 +24,15 @@
 
         <!-- 主內容容器 -->
         <main class="container-fluid p-3 p-md-4">
-            <header class="glass-panel hud-bar mb-3">
-                <div class="row align-items-center g-3">
-                    <div class="col-12 col-md-2 col-xl-5">
-                        <div class="h4 fw-bold text-white">
-                            <i class="fa-solid fa-users text-primary"></i> 組織成員
-                        </div>
-                    </div>
+            <header class="row align-items-center mb-3">
+                <h4 class="fw-bold mb-0 text-light">
+                    <i class="fa-solid fa-users text-primary me-1"></i> 組織成員
+                </h4>
+            </header>
 
-                    <div class="col-12 col-md-8 col-xl-6">
+            <section class="glass-panel hud-bar mb-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-md-10 col-xl-6">
                         <div class="row row-cols-2 row-cols-md-4 g-2">
                             <div class="col">
                                 <div class="stat-chip">
@@ -42,23 +42,25 @@
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-people-group text-warning me-"></i> 團隊人數</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-people-group text-warning me-1"></i> 團隊人數</span>
                                     <span class="fw-bold text-warning fs-6 fw-bold mono-num" id="hud-team-partners">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-earth-americas text-info me-"></i> 大馬團隊</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-earth-americas text-info me-1"></i> 大馬團隊</span>
                                     <span class="fw-bold text-info fs-6 fw-bold mono-num" id="hud-my-team-partners">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-bolt text-success me-"></i> 活躍成員</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-bolt text-success me-1"></i> 活躍成員</span>
                                     <span class="fw-bold text-success fs-6 fw-bold mono-num" id="hud-active-team-partners">0</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-12 col-md-0 col-xl-5 d-none d-xl-block">
                     </div>
                     <div class="col-12 col-md-2 col-xl-1 d-flex justify-content-md-end">
                         <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btn-open-create-modal" onclick="openPartnerModalForCreate()">
@@ -66,7 +68,7 @@
                         </button>
                     </div>
                 </div>
-            </header>
+            </section>
 
             <section class="glass-panel mb-3">
                 <div class="row g-2 filter-dock-grid" id="filter-controls-dock">
