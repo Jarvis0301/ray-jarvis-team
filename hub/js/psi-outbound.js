@@ -26,6 +26,8 @@ let appState = {
 let outboundDataTableInstance = null;
 let isInitialized = false;
 
+let currentDetailOrderId = null; // 當前正在檢視明細的銷貨單號
+
 // ==========================================================================
 // 2. 欄位物理索引取值器 (0-Based 絕對物理順序)
 // ==========================================================================
@@ -317,6 +319,7 @@ function populateFormOptions() {
 function renderCounters() {
     const list = appState.outbounds;
     $('#countAll').text(list.length);
+    $('#countDraft').text(list.filter(d => d.fulfillment_status === '草稿').length);
     $('#countPending').text(list.filter(d => d.fulfillment_status === '待取貨').length);
     $('#countShipped').text(list.filter(d => d.fulfillment_status === '已寄出').length);
     $('#countHold').text(list.filter(d => d.is_pre_order_hold === 'Y').length);
@@ -363,6 +366,7 @@ function renderInspectorStage() {
         $('#inspBoxesAndSv').text('0 盒 / 0 支 / 0 SV');
         $('#inspAmountAndProfit').text('$0 / +$0');
         $('#inspectorFulfillBadge').text('無選取');
+        $('#btnMarkDelivered').prop('disabled', true);
         return;
     }
 
@@ -392,6 +396,19 @@ function renderInspectorStage() {
     $('#inspectorFulfillBadge').replaceWith(
         $(UIBadges.psi.outboundStatus(item.fulfillment_status)).attr('id', 'inspectorFulfillBadge')
     );
+
+    // 依據出庫狀態控制扣庫結案按鈕
+    const canDeliver = (item.fulfillment_status === '待取貨' || item.fulfillment_status === '已寄出');
+    if (canDeliver) {
+        $('#btnMarkDelivered').prop('disabled', false).removeClass('opacity-50')
+            .html('<i class="fa-solid fa-stamp"></i> 標記為已交付（執行實體扣庫）');
+    } else if (item.fulfillment_status === '已交付') {
+        $('#btnMarkDelivered').prop('disabled', true).addClass('opacity-50')
+            .html('<i class="fa-solid fa-circle-check"></i> 此單據已核銷交付');
+    } else {
+        $('#btnMarkDelivered').prop('disabled', true).addClass('opacity-50')
+            .html('<i class="fa-solid fa-ban"></i> 此狀態不可直接交付');
+    }
 }
 
 function renderChart() {
@@ -550,6 +567,86 @@ function formatTableRow(item) {
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `}
+        </div>
+    `;
+
+    return {
+        id_and_cat: `
+            <div>
+                <div class="fw-bold text-white">${item.id}</div>
+                <span class="badge badge-purple-subtle">${item.order_category}</span>
+            </div>
+        `,
+        center_and_warehouse: `
+            <div>
+                <span class="badge badge-purple-subtle">${getWarehouseDisplayName(item.warehouse_id)}</span>
+                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck"></i> ${item.delivery_method}</div>
+            </div>
+        `,
+        parties: `
+            <div>
+                <div class="small text-white fw-bold"><i class="fa-solid fa-user-tag text-info"></i> ${recipientResolved}</div>
+                <div class="small text-secondary"><i class="fa-solid fa-hand-holding-dollar text-warning"></i> 經手：${operatorResolved}</div>
+            </div>
+        `,
+        dates: `
+            <div>
+                <div class="text-light">${item.order_date || '-'}</div>
+                <div class="text-secondary small">交：${item.outbound_date || '未交付'}</div>
+            </div>
+        `,
+        perf_month: `<span class="badge badge-purple-subtle">${item.performance_month}</span>`,
+        quantities: `
+            <div>
+                <span class="fw-bold text-white">${item.total_boxes}</span> 盒
+                ${item.total_pieces > 0 ? `<div class="text-secondary small">${item.total_pieces} 支/條</div>` : ''}
+            </div>
+        `,
+        financials: `
+            <div>
+                <div class="fw-bold text-success">$${item.total_sales_amount.toLocaleString()}</div>
+                <div class="text-secondary small">${profitSign}$${item.total_profit_amount.toLocaleString()} 毛利</div>
+            </div>
+        `,
+        sv: `<span class="text-warning fw-bold">${item.total_sv.toLocaleString()} SV</span>`,
+        hold: holdBadge,
+        status: statusBadge,
+        actions: actionButtons
+    };
+}function formatTableRow(item) {
+    const statusBadge = UIBadges.psi.outboundStatus(item.fulfillment_status);
+    const holdBadge = UIBadges.psi.preOrderHold(item.is_pre_order_hold, false);
+
+    const recipientResolved = (item.recipient_type === '經營者')
+        ? getPartnerResolvedName(item.recipient_partner_id) || item.recipient_name
+        : getCustomerResolvedName(item.recipient_customer_id) || item.recipient_name;
+
+    const operatorResolved = getPartnerResolvedName(item.operator_partner_id);
+    const profitSign = item.total_profit_amount >= 0 ? '+' : '';
+
+    // 依據出庫狀態，計算 CRUD 權限開關
+    const isDelivered = (item.fulfillment_status === '已交付');
+    const isCancelled = (item.fulfillment_status === '已取消');
+
+    // 已交付不允許刪除（防止庫存脫鉤）；草稿、已取消允許刪除
+    const deleteBtnDisabled = isDelivered ? 'disabled title="已交付單據已完成庫存核銷，禁止刪除"' : 'title="刪除/作廢單據"';
+    // 已取消單據禁止再進行編輯
+    const editBtnDisabled = isCancelled ? 'disabled title="已取消單據禁止編輯"' : 'title="編輯銷貨單"';
+
+    const actionButtons = `
+        <div class="d-flex align-items-center justify-content-end gap-1">
+            <button class="btn btn-sm btn-outline-info" title="置入裝箱檢驗艙" onclick="selectOutbound('${item.id}')">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" title="查看銷貨細項" onclick="openDetailModal('${item.id}')">
+                <i class="fa-solid fa-list-ul"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary" ${editBtnDisabled} onclick="openEditOutboundModal('${item.id}')">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" ${deleteBtnDisabled} onclick="deleteOutboundOrder('${item.id}')">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
         </div>
     `;
 
@@ -770,22 +867,72 @@ function openDetailModal(orderId) {
     const item = appState.outbounds.find(d => d.id === orderId);
     if (!item) return;
 
+    currentDetailOrderId = orderId;
+    closeInlineItemForm();
+
     const recipientResolved = (item.recipient_type === '經營者')
         ? getPartnerResolvedName(item.recipient_partner_id) || item.recipient_name
         : getCustomerResolvedName(item.recipient_customer_id) || item.recipient_name;
 
+    // 1. 上方狀態資訊卡填值 (含訂單日期、交付日期、業績月份、經手、倉庫據點、出庫狀態)
     $('#detailModalOutboundId').text(item.id);
+    $('#detailModalOrderDate').text(item.order_date || '-');
+    $('#detailModalOutboundDate').text(item.outbound_date || '未交付');
+    $('#detailModalPerfMonth').text(item.performance_month || '-');
     $('#detailModalRecipient').text(recipientResolved);
     $('#detailModalOperator').text(getPartnerResolvedName(item.operator_partner_id));
-    $('#detailModalStatus').text(item.fulfillment_status);
+    $('#detailModalWarehouse').text(getWarehouseDisplayName(item.warehouse_id));
+    $('#detailModalStatusBadge').html(UIBadges.psi.outboundStatus(item.fulfillment_status));
 
+    // 2. 狀態機權限控制：若是「已交付」或「已取消」，鎖定明細不可再進行增修刪
+    const isLocked = (item.fulfillment_status === '已交付' || item.fulfillment_status === '已取消');
+    if (isLocked) {
+        $('#btnToggleAddOutboundItem').prop('disabled', true).addClass('opacity-50')
+            .attr('title', `單據處於【${item.fulfillment_status}】狀態，明細已全唯讀鎖定`);
+    } else {
+        $('#btnToggleAddOutboundItem').prop('disabled', false).removeClass('opacity-50')
+            .removeAttr('title');
+    }
+
+    // 3. 透過共用 Select2 模組填裝產品下拉選單
+    populateInlineProductOptions();
+
+    // 4. 渲染明細表格與計算底部統計
+    renderOutboundItemsTable(orderId, isLocked);
+
+    new bootstrap.Modal(document.getElementById('outboundDetailModal')).show();
+}
+
+function renderOutboundItemsTable(orderId, isLocked) {
     const matchedItems = appState.outboundItems.filter(it => it.outbound_id === orderId);
     const $tbody = $('#outboundItemsTableBody').empty();
 
+    let sumBoxes = 0;
+    let sumPieces = 0;
+    let sumSales = 0;
+    let sumCost = 0;
+    let sumProfit = 0;
+    let sumSv = 0;
+
     if (matchedItems.length === 0) {
-        $tbody.append('<tr><td colspan="13" class="text-center text-secondary py-3">本銷貨單暫無細項明細數據</td></tr>');
+        $tbody.append('<tr><td colspan="14" class="text-center text-secondary py-3">本銷貨單暫無細項明細數據</td></tr>');
     } else {
         matchedItems.forEach(it => {
+            const isBox = (it.sales_unit === '盒' || it.sales_unit === '組' || it.sales_unit === '箱');
+            if (isBox) {
+                sumBoxes += (parseInt(it.shipped_qty, 10) || 0);
+            } else if (it.is_fee_item !== 'Y') {
+                sumPieces += (parseInt(it.shipped_qty, 10) || 0);
+            }
+
+            sumSales += (parseFloat(it.subtotal_amount) || 0);
+            sumCost += (parseFloat(it.subtotal_cost) || 0);
+            sumProfit += (parseFloat(it.subtotal_profit) || 0);
+            sumSv += (parseInt(it.subtotal_sv, 10) || 0);
+
+            // 操作按鈕受狀態機鎖定控制
+            const opBtnDisabled = isLocked ? 'disabled' : '';
+
             $tbody.append(`
                 <tr>
                     <td class="text-secondary">${it.item_seq}</td>
@@ -795,7 +942,7 @@ function openDetailModal(orderId) {
                     </td>
                     <td>
                         ${UIBadges.psi.feeItem(it.is_fee_item)}
-                        <span class="badge badge-muted-subtle">${it.sales_unit}</span>
+                        <span class="badge badge-purple-subtle">${it.sales_unit}</span>
                     </td>
                     <td>$${it.unit_price.toLocaleString()}</td>
                     <td>$${it.unit_cost.toLocaleString()}</td>
@@ -810,12 +957,244 @@ function openDetailModal(orderId) {
                         <div class="text-secondary small">${it.expiry_date || '-'}</div>
                     </td>
                     <td class="text-secondary">${it.stock_id || '-'}</td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" ${opBtnDisabled} title="編輯明細" onclick="editInlineItem('${it.id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" ${opBtnDisabled} title="刪除明細" onclick="deleteInlineItem('${it.id}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `);
         });
     }
 
-    new bootstrap.Modal(document.getElementById('outboundDetailModal')).show();
+    // 5. 更新底部統計區塊
+    $('#sumItemCount').text(matchedItems.length);
+    $('#sumBoxes').text(sumBoxes);
+    $('#sumPieces').text(sumPieces);
+    $('#sumSalesAmount').text(sumSales.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+    $('#sumCostAmount').text(sumCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+    $('#sumProfitAmount').text(sumProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+    $('#sumTotalSv').text(sumSv.toLocaleString());
+}
+
+function populateInlineProductOptions() {
+    UISelectOptions.product.populate({
+        target: '#inlineProductSelect',
+        products: appState.products,
+        displayMode: 2, // 格式：品名 [代碼]
+        placeholder: '-- 請選擇產品品項 --',
+        searchable: true,
+        grouped: true,
+        dropdownParent: '#outboundDetailModal'
+    });
+
+    // 監聽 Select2 選取事件，自動連動價格、預估成本與單件 SV
+    $('#inlineProductSelect').off('select2:select.productSync').on('select2:select.productSync', function (e) {
+        const selectedCode = $(this).val();
+        if (!selectedCode) return;
+
+        const prod = appState.products.find(p => p.product_code === selectedCode);
+        if (prod) {
+            $('#inlineUnitPrice').val(prod.price || 0);
+            // 經理進貨成本基準約為定價 8 折
+            const estimatedCost = Math.round((prod.price || 0) * 0.8);
+            $('#inlineUnitCost').val(estimatedCost);
+            $('#inlineUnitSv').val(prod.sv_point || 0);
+        }
+        calcInlineSubtotals();
+    });
+}
+
+function toggleInlineItemForm() {
+    const $collapse = $('#outboundItemInlineCollapse');
+    if ($collapse.hasClass('show')) {
+        closeInlineItemForm();
+    } else {
+        openInlineAddForm();
+    }
+}
+
+function openInlineAddForm() {
+    $('#inlineFormTitle').html('<i class="fa-solid fa-file-circle-plus text-primary"></i> 新增單筆明細');
+    $('#inlineItemId').val('');
+    $('#inlineItemForm')[0].reset();
+    
+    // 清空產品 Select2 選取狀態並觸發 UI 更新
+    $('#inlineProductSelect').val('').trigger('change.select2');
+    
+    $('#inlineSalesUnit').val('盒');
+    $('#inlineOrderedQty').val(1);
+    $('#inlineShippedQty').val(1);
+    $('#outboundItemInlineCollapse').collapse('show');
+}
+
+function closeInlineItemForm() {
+    $('#outboundItemInlineCollapse').collapse('hide');
+    $('#inlineItemId').val('');
+    $('#inlineProductSelect').val('').trigger('change.select2');
+}
+
+function onInlineProductChange() {
+    const code = $('#inlineProductSelect').val();
+    const prod = appState.products.find(p => p.product_code === code);
+    if (!prod) return;
+
+    $('#inlineUnitPrice').val(prod.price);
+    // 葡眾經理進貨成本一般為定價約 8 折（或自庫存檔動態帶入）
+    const estimatedCost = Math.round(prod.price * 0.8);
+    $('#inlineUnitCost').val(estimatedCost);
+    $('#inlineUnitSv').val(prod.sv_point);
+    calcInlineSubtotals();
+}
+
+function calcInlineSubtotals() {
+    const qty = parseInt($('#inlineShippedQty').val(), 10) || 0;
+    const price = parseFloat($('#inlineUnitPrice').val()) || 0;
+    const cost = parseFloat($('#inlineUnitCost').val()) || 0;
+    const sv = parseInt($('#inlineUnitSv').val(), 10) || 0;
+    // 即時計算（此處供使用者預覽，送出時會精準封裝）
+}
+
+function editInlineItem(itemId) {
+    const it = appState.outboundItems.find(d => d.id === itemId);
+    if (!it) return;
+
+    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯明細【項次 ${it.item_seq}】`);
+    $('#inlineItemId').val(it.id);
+
+    // 回填產品並驅動 Select2 同步顯示高亮
+    const targetProductCode = it.product_id || it.official_product_code;
+    $('#inlineProductSelect').val(targetProductCode).trigger('change.select2');
+
+    $('#inlineSalesUnit').val(it.sales_unit || '盒');
+    $('#inlineUnitPrice').val(it.unit_price);
+    $('#inlineUnitCost').val(it.unit_cost);
+    $('#inlineUnitSv').val(it.unit_sv);
+    $('#inlineOrderedQty').val(it.ordered_qty);
+    $('#inlineShippedQty').val(it.shipped_qty);
+    $('#inlineBatchNo').val(it.batch_no || '');
+    $('#inlineExpiryDate').val(it.expiry_date || '');
+    $('#inlineStockId').val(it.stock_id || '');
+    $('#inlineIsFeeItem').prop('checked', it.is_fee_item === 'Y');
+    $('#inlineIsSampleDemo').prop('checked', it.is_sample_demo === 'Y');
+    $('#inlineRemarks').val(it.remarks || '');
+
+    $('#outboundItemInlineCollapse').collapse('show');
+}
+
+async function saveInlineOutboundItem() {
+    const orderId = currentDetailOrderId;
+    if (!orderId) return;
+
+    const itemId = $('#inlineItemId').val().trim();
+    // 自 Select2 取得選定之產品代碼
+    const productCode = $('#inlineProductSelect').val();
+    if (!productCode) {
+        AppToast.warning("請選擇產品品項！");
+        return;
+    }
+
+    const prod = appState.products.find(p => p.product_code === productCode);
+    const productName = prod ? prod.name : ($('#inlineProductSelect option:selected').text() || '自訂項目');
+    const salesUnit = $('#inlineSalesUnit').val();
+    const unitPrice = parseFloat($('#inlineUnitPrice').val()) || 0;
+    const unitCost = parseFloat($('#inlineUnitCost').val()) || 0;
+    const unitSv = parseInt($('#inlineUnitSv').val(), 10) || 0;
+    const orderedQty = parseInt($('#inlineOrderedQty').val(), 10) || 1;
+    const shippedQty = parseInt($('#inlineShippedQty').val(), 10) || 1;
+
+    const subAmount = shippedQty * unitPrice;
+    const subCost = shippedQty * unitCost;
+    const subProfit = subAmount - subCost;
+    const subSv = shippedQty * unitSv;
+
+    const isFee = $('#inlineIsFeeItem').is(':checked') ? 'Y' : 'N';
+    const isSample = $('#inlineIsSampleDemo').is(':checked') ? 'Y' : 'N';
+    const batchNo = $('#inlineBatchNo').val().trim();
+    const expiryDate = $('#inlineExpiryDate').val();
+    const stockId = $('#inlineStockId').val().trim();
+    const remarks = $('#inlineRemarks').val().trim();
+
+    const currentUser = getCurrentUser();
+    const nowStr = getFormattedNow();
+
+    const $btn = $('#btnSaveInlineItem');
+    try {
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 儲存中...');
+
+        if (!itemId) {
+            // 新增明細
+            const existingItems = appState.outboundItems.filter(it => it.outbound_id === orderId);
+            const nextSeq = existingItems.length + 1;
+            const seqStr = String(nextSeq).padStart(2, '0');
+            const newId = `${orderId}-${seqStr}`;
+
+            // 表 306 (psi_outbound_items) 實體欄位順序 0 ~ 26
+            const rowData = [
+                newId, orderId, nextSeq, productCode, productName,
+                productCode, isFee, salesUnit, 'TWD',
+                unitPrice, unitCost, unitSv, orderedQty, shippedQty,
+                subAmount, subCost, subProfit, subSv,
+                batchNo, expiryDate, stockId, isSample, remarks,
+                currentUser, nowStr, currentUser, nowStr
+            ];
+
+            await SheetAdapter.sendRequest('CREATE', '銷貨明細', newId, rowData);
+            AppToast.success(`明細【項次 ${nextSeq}】已成功新增！`);
+        } else {
+            // 更新明細
+            const existing = appState.outboundItems.find(it => it.id === itemId);
+            const itemSeq = existing ? existing.item_seq : 1;
+
+            const rowData = [
+                itemId, orderId, itemSeq, productCode, productName,
+                productCode, isFee, salesUnit, 'TWD',
+                unitPrice, unitCost, unitSv, orderedQty, shippedQty,
+                subAmount, subCost, subProfit, subSv,
+                batchNo, expiryDate, stockId, isSample, remarks,
+                existing ? existing.created_by : currentUser,
+                existing ? existing.created_at : nowStr,
+                currentUser, nowStr
+            ];
+
+            await SheetAdapter.sendRequest('UPDATE', '銷貨明細', itemId, rowData);
+            AppToast.success(`明細【${itemId}】已更新成功！`);
+        }
+
+        closeInlineItemForm();
+        await fetchAllGoogleSheetsData();
+        renderOutboundItemsTable(orderId, false);
+    } catch (err) {
+        AppToast.error("明細儲存失敗：" + err.message);
+    } finally {
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-check"></i> 確認儲存明細');
+    }
+}
+
+async function deleteInlineItem(itemId) {
+    const it = appState.outboundItems.find(d => d.id === itemId);
+    if (!it) return;
+
+    const confirmed = await AppDialog.confirm(`確定要自雲端刪除明細項次【${it.item_seq} - ${it.product_name_snapshot}】嗎？`, {
+        title: '刪除明細項目',
+        confirmText: '確定刪除',
+        confirmClass: 'btn-danger'
+    });
+    if (!confirmed) return;
+
+    try {
+        await SheetAdapter.sendRequest('DELETE', '銷貨明細', itemId, []);
+        AppToast.success(`明細已成功刪除！`);
+        await fetchAllGoogleSheetsData();
+        renderOutboundItemsTable(currentDetailOrderId, false);
+    } catch (err) {
+        AppToast.error("刪除失敗：" + err.message);
+    }
 }
 
 async function saveOutboundOrder() {

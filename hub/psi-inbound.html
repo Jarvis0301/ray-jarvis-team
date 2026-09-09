@@ -52,16 +52,20 @@
                     <i class="fa-solid fa-pen-ruler"></i> 草稿待出運
                     <span class="step-count" id="countDraft">0</span>
                 </div>
+                <div class="step-node" data-status-filter="待自取" onclick="filterByPipeline('待自取', this)">
+                    <i class="fa-solid fa-store"></i> 營運中心待自取
+                    <span class="step-count" id="countPickup">0</span>
+                </div>
                 <div class="step-node" data-status-filter="運輸中" onclick="filterByPipeline('運輸中', this)">
-                    <i class="fa-solid fa-truck-fast"></i> 現場在途/提貨中
+                    <i class="fa-solid fa-truck-fast"></i> 物流在途運送中
                     <span class="step-count" id="countTransit">0</span>
                 </div>
-                <div class="step-node" data-status-filter="已入庫驗收" onclick="filterByPipeline('已入庫驗收', this)">
-                    <i class="fa-solid fa-boxes-packing"></i> 已驗收歸戶上架
+                <div class="step-node" data-status-filter="已入庫" onclick="filterByPipeline('已入庫', this)">
+                    <i class="fa-solid fa-boxes-packing"></i> 已驗收入庫歸戶
                     <span class="step-count" id="countCompleted">0</span>
                 </div>
-                <div class="step-node" data-status-filter="已作廢" onclick="filterByPipeline('已作廢', this)">
-                    <i class="fa-solid fa-ban"></i> 已作廢失效
+                <div class="step-node" data-status-filter="已取消" onclick="filterByPipeline('已取消', this)">
+                    <i class="fa-solid fa-ban"></i> 已取消作廢
                     <span class="step-count" id="countVoid">0</span>
                 </div>
             </section>
@@ -208,9 +212,7 @@
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldOrderCenter">官方訂購中心 <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="fieldOrderCenter" required>
-                                        <option value="網路">網路 (APP / 官方電商)</option>
-                                    </select>
+                                    <select class="form-select form-select-sm" id="fieldOrderCenter" required></select>
                                 </div>
                             </div>
 
@@ -279,9 +281,10 @@
                                     <label class="form-label" for="fieldStatus">入庫狀態 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldStatus" required>
                                         <option value="草稿">草稿 (DRAFT)</option>
+                                        <option value="待自取">待自取 (PENDING_PICKUP)</option>
                                         <option value="運輸中">運輸中 (IN_TRANSIT)</option>
-                                        <option value="已入庫驗收">已入庫驗收 (COMPLETED)</option>
-                                        <option value="已作廢">已作廢 (VOID)</option>
+                                        <option value="已入庫">已入庫 (COMPLETED)</option>
+                                        <option value="已取消">已取消 (CANCELLED)</option>
                                     </select>
                                 </div>
                             </div>
@@ -331,21 +334,122 @@
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
-                        <h5 class="modal-title fw-bold text-white">
-                            <i class="fa-solid fa-list-ol text-info"></i> 進貨單商品與費用明細清單
-                        </h5>
+                        <div class="d-flex align-items-center justify-content-between w-100 me-2">
+                            <h5 class="modal-title fw-bold text-white mb-0">
+                                <i class="fa-solid fa-list-ol text-info"></i> 進貨單商品與費用明細清單
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-outline-purple rounded-pill" id="btnToggleAddItem" onclick="toggleInlineItemForm()">
+                                <i class="fa-solid fa-plus"></i> 新增單筆明細
+                            </button>
+                        </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
                     <div class="modal-body p-3 p-md-4">
-                        <article class="card p-3 mb-3">
-                            <div class="row g-2 small">
-                                <div class="col-md-3"><span class="text-secondary">單號：</span><span class="text-white fw-bold" id="detailOrderNo">-</span></div>
-                                <div class="col-md-3"><span class="text-secondary">官方訂單：</span><span class="text-white" id="detailOfficialNo">-</span></div>
-                                <div class="col-md-3"><span class="text-secondary">出資人：</span><span class="text-white fw-bold" id="detailPurchaser">-</span></div>
-                                <div class="col-md-3"><span class="text-secondary">點數歸屬：</span><span class="text-warning fw-bold" id="detailSvOwner">-</span></div>
+                        <!-- 上方單據狀態與核心資訊卡片 -->
+                        <article class="card p-3 mb-3 bg-dark-subtle border-secondary border-opacity-25">
+                            <div class="row g-2 small align-items-center">
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">進貨單號：</span>
+                                    <span class="text-white fw-bold" id="detailOrderNo">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">官方單號：</span>
+                                    <span class="text-white" id="detailOfficialNo">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">訂購日期：</span>
+                                    <span class="text-white" id="detailOrderDate">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">業績月份：</span>
+                                    <span class="badge badge-purple-subtle" id="detailPerfMonth">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">出資夥伴：</span>
+                                    <span class="text-white fw-bold" id="detailPurchaser">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">掛點歸屬：</span>
+                                    <span class="text-warning fw-bold" id="detailSvOwner">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">倉庫據點：</span>
+                                    <span class="text-white" id="detailWarehouse">-</span>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="text-secondary">入庫狀態：</span>
+                                    <span id="detailStatusBadge">-</span>
+                                </div>
                             </div>
                         </article>
 
+                        <!-- 行內折疊式明細新增/編輯抽屜 (免去彈窗疊彈窗) -->
+                        <div class="collapse mb-3" id="itemInlineFormCollapse">
+                            <div class="card p-3 border-purple border-opacity-50" style="background: rgba(28, 15, 48, 0.7);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-white small" id="inlineFormTitle">
+                                        <i class="fa-solid fa-pen-to-square text-primary"></i> 編輯明細項目
+                                    </span>
+                                    <button type="button" class="btn-close btn-close-white small" onclick="closeInlineItemForm()"></button>
+                                </div>
+                                <form id="inlineItemForm">
+                                    <input type="hidden" id="inlineItemId" value="">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label small text-secondary mb-1">產品品項 / 費用項目 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" id="inlineFieldProduct" required></select>
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">性質</label>
+                                            <select class="form-select form-select-sm" id="inlineFieldIsFee">
+                                                <option value="N">實體商品</option>
+                                                <option value="Y">費用項(運費等)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">單價 (TWD) <span class="text-danger">*</span></label>
+                                            <input type="number" step="0.01" class="form-control form-control-sm" id="inlineFieldUnitCost" required oninput="calcInlineSubtotal()">
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">單件 SV</label>
+                                            <input type="number" class="form-control form-control-sm" id="inlineFieldUnitSv" oninput="calcInlineSubtotal()">
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">訂購量 <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control form-control-sm" id="inlineFieldOrderedQty" min="1" value="1" required oninput="calcInlineSubtotal()">
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">實收盒數</label>
+                                            <input type="number" class="form-control form-control-sm" id="inlineFieldReceivedQty" min="0" value="0">
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">生產批號</label>
+                                            <input type="text" class="form-control form-control-sm" id="inlineFieldBatchNo" placeholder="外盒鋼印號碼">
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small text-secondary mb-1">有效日期</label>
+                                            <input type="date" class="form-control form-control-sm" id="inlineFieldExpiryDate">
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <label class="form-label small text-secondary mb-1">備註說明</label>
+                                            <input type="text" class="form-control form-control-sm" id="inlineFieldRemarks" placeholder="規格備註、外盒狀態...">
+                                        </div>
+                                        <div class="col-6 col-md-3 text-end d-flex align-items-end justify-content-end gap-2">
+                                            <button type="button" class="btn btn-muted btn-sm rounded-pill" onclick="closeInlineItemForm()">
+                                                <i class="fa-solid fa-xmark"></i> 取消
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveInlineItem" onclick="saveInlineItem()">
+                                                <i class="fa-solid fa-check"></i> 確認儲存細項
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- 明細資料表格 (移除關聯庫存碼，替換為操作欄位) -->
                         <div class="table-responsive">
                             <table class="table table-dark-custom table-sm align-middle sub-table">
                                 <thead>
@@ -361,12 +465,39 @@
                                         <th>金額小計</th>
                                         <th>SV 小計</th>
                                         <th>生產批號 / 效期</th>
-                                        <th>關聯庫存碼</th>
+                                        <th>入庫單號</th>
+                                        <th class="text-end">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="inboundItemsTableBody"></tbody>
                             </table>
                         </div>
+
+                        <!-- 下方即時統計資訊卡片區塊 -->
+                        <footer class="card p-3 mt-3 border-secondary border-opacity-25" id="detailSummaryFooter">
+                            <div class="row g-3 text-center align-items-center">
+                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                    <div class="text-secondary small">項目種類</div>
+                                    <div class="h6 mb-0 text-white fw-bold"><span id="sumItemCount">0</span> 項</div>
+                                </div>
+                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                    <div class="text-secondary small">總訂購盒數</div>
+                                    <div class="h6 mb-0 text-white fw-bold"><span id="sumOrderedQty">0</span> 盒</div>
+                                </div>
+                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                    <div class="text-secondary small">總實收盒數</div>
+                                    <div class="h6 mb-0 text-success fw-bold"><span id="sumReceivedQty">0</span> 盒</div>
+                                </div>
+                                <div class="col-6 col-md-3 border-end border-secondary border-opacity-25">
+                                    <div class="text-secondary small">商品金額小計</div>
+                                    <div class="h6 mb-0 text-white fw-bold">$<span id="sumTotalAmount">0</span></div>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <div class="text-secondary small">總計考核 SV</div>
+                                    <div class="h6 mb-0 text-warning fw-bold"><span id="sumTotalSv">0</span> SV</div>
+                                </div>
+                            </div>
+                        </footer>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">

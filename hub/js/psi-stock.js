@@ -382,6 +382,7 @@ function renderStockDataTable() {
         stockDataTableInstance = $('#stockMasterTable').DataTable({
             data: formatted,
             columns: [
+                { data: 'id' },
                 { data: 'warehouse' },
                 { data: 'product' },
                 { data: 'batch' },
