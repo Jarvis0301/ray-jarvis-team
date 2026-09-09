@@ -467,7 +467,7 @@ function renderTransfersTable() {
             cost: `<span class="text-white fw-bold">$${t.total_cost.toLocaleString()} ${t.currency_code}</span>`,
             sv: `<span class="text-warning fw-bold">${t.total_sv.toLocaleString()} SV</span>`,
             operator: `<span class="small text-light">${operatorResolved}</span>`,
-            reason: `<div class="small text-secondary text-truncate" style="max-width: 140px;" title="${t.reason_desc}">${t.reason_desc || '-'}</div>`,
+            reason: `<div class="small text-secondary" style="max-width: 140px;" title="${t.reason_desc}">${t.reason_desc || '-'}</div>`,
             actions: actionButtons
         };
     });

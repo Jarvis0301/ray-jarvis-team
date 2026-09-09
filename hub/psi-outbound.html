@@ -136,7 +136,7 @@
                                     <span class="fw-bold text-white" id="inspOutboundId">-</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-secondary small">收件對象 (依權重解析)</span>
+                                    <span class="text-secondary small">收件對象</span>
                                     <span class="fw-bold text-warning" id="inspRecipientResolvedName">-</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -263,15 +263,15 @@
                                     <tr>
                                         <th>銷貨單號 / 類別</th>
                                         <th>調度中心 / 倉庫</th>
-                                        <th>開單夥伴 / 收件人 (權重解析)</th>
+                                        <th>開單夥伴 / 收件人</th>
                                         <th>訂單日 / 交付日</th>
-                                        <th>業績月</th>
+                                        <th>業績月份</th>
                                         <th>盒數 / 散支</th>
                                         <th>銷售實收 / 成本 / 毛利</th>
                                         <th>出庫 SV</th>
                                         <th>預扣狀態</th>
                                         <th>履約狀態</th>
-                                        <th class="text-end">戰術操作</th>
+                                        <th>操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="outboundTableBody"></tbody>
@@ -344,7 +344,7 @@
                             <div class="card p-3 mb-3">
                                 <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
                                     <span class="badge badge-purple-subtle">
-                                        <i class="fa-solid fa-users me-1"></i>收件人身分客情關聯（展示名稱 &gt; 中文 &gt; 英文 &gt; 暱稱）
+                                        <i class="fa-solid fa-users me-1"></i>收件人身分客情關聯
                                     </span>
                                 </div>
                                 <div class="row g-3">
@@ -405,8 +405,8 @@
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldCurrencyCode">交易幣別 <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm" id="fieldCurrencyCode" required>
-                                            <option value="TWD">TWD (新台幣)</option>
-                                            <option value="MYR">MYR (馬來幣)</option>
+                                            <option value="TWD">TWD</option>
+                                            <option value="MYR">MYR</option>
                                         </select>
                                     </div>
                                     <div class="col-6 col-md-2">
@@ -519,7 +519,7 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
                     <div class="modal-body p-3 p-md-4">
-                        <!-- 上方狀態與核心單據資訊卡片 (8 欄對稱 RWD 響應排版) -->
+                        <!-- 上方狀態與核心單據資訊卡片 -->
                         <article class="card p-3 mb-3 bg-dark-subtle border-secondary border-opacity-25">
                             <div class="row g-2 small align-items-center">
                                 <div class="col-6 col-md-3">
@@ -569,7 +569,7 @@
                                 <form id="inlineItemForm">
                                     <input type="hidden" id="inlineItemId" value="">
                                     <div class="row g-2 mb-2">
-                                        <!-- 產品選單 (由共用 UISelectOptions.product.populate 初始化 Select2) -->
+                                        <!-- 產品選單 -->
                                         <div class="col-12 col-md-4">
                                             <label class="form-label small text-secondary mb-1" for="inlineProductSelect">商品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
@@ -578,10 +578,13 @@
                                             <label class="form-label small text-secondary mb-1" for="inlineSalesUnit">計量單位 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineSalesUnit" onchange="calcInlineSubtotals()">
                                                 <option value="盒">盒 (整盒)</option>
+                                                <option value="組">組 (套組)</option>
+                                                <option value="箱">箱 (整箱)</option>
                                                 <option value="支">支 (散裝)</option>
                                                 <option value="條">條 (散包)</option>
                                                 <option value="瓶">瓶 (單瓶)</option>
-                                                <option value="組">組 (套組)</option>
+                                                <option value="包">包 (散包)</option>
+                                                <option value="顆">顆 (散顆)</option>
                                                 <option value="項">項 (費用)</option>
                                             </select>
                                         </div>
@@ -651,7 +654,7 @@
                             </div>
                         </div>
 
-                        <!-- 明細資料表格與下方統計區塊 (維持原樣) -->
+                        <!-- 明細資料表格與下方統計區塊 -->
                         <div class="table-responsive">
                             <table class="table table-dark-custom table-sm align-middle sub-table">
                                 <thead>
@@ -669,7 +672,7 @@
                                         <th>SV 小計</th>
                                         <th>批號 / 效期</th>
                                         <th>扣庫單號</th>
-                                        <th class="text-end">操作</th>
+                                        <th>操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="outboundItemsTableBody"></tbody>
