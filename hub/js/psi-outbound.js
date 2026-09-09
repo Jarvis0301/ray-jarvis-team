@@ -106,7 +106,7 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
  * 資料拉取引擎
  */
 async function fetchAllGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawOutbounds, rawOutboundItems, rawPersons, rawPartners, rawProducts, rawCustomers] = await Promise.all([
@@ -401,13 +401,13 @@ function renderInspectorStage() {
     const canDeliver = (item.fulfillment_status === '待取貨' || item.fulfillment_status === '已寄出');
     if (canDeliver) {
         $('#btnMarkDelivered').prop('disabled', false).removeClass('opacity-50')
-            .html('<i class="fa-solid fa-stamp"></i> 標記為已交付（執行實體扣庫）');
+            .html('<i class="fa-solid fa-stamp me-1"></i>標記為已交付（執行實體扣庫）');
     } else if (item.fulfillment_status === '已交付') {
         $('#btnMarkDelivered').prop('disabled', true).addClass('opacity-50')
-            .html('<i class="fa-solid fa-circle-check"></i> 此單據已核銷交付');
+            .html('<i class="fa-solid fa-circle-check me-1"></i>此單據已核銷交付');
     } else {
         $('#btnMarkDelivered').prop('disabled', true).addClass('opacity-50')
-            .html('<i class="fa-solid fa-ban"></i> 此狀態不可直接交付');
+            .html('<i class="fa-solid fa-ban me-1"></i>此狀態不可直接交付');
     }
 }
 
@@ -580,13 +580,13 @@ function formatTableRow(item) {
         center_and_warehouse: `
             <div>
                 <span class="badge badge-purple-subtle">${getWarehouseDisplayName(item.warehouse_id)}</span>
-                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck"></i> ${item.delivery_method}</div>
+                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck me-1"></i>${item.delivery_method}</div>
             </div>
         `,
         parties: `
             <div>
-                <div class="small text-white fw-bold"><i class="fa-solid fa-user-tag text-info"></i> ${recipientResolved}</div>
-                <div class="small text-secondary"><i class="fa-solid fa-hand-holding-dollar text-warning"></i> 經手：${operatorResolved}</div>
+                <div class="small text-white fw-bold"><i class="fa-solid fa-user-tag text-info me-1"></i>${recipientResolved}</div>
+                <div class="small text-secondary"><i class="fa-solid fa-hand-holding-dollar text-warning me-1"></i>經手：${operatorResolved}</div>
             </div>
         `,
         dates: `
@@ -660,13 +660,13 @@ function formatTableRow(item) {
         center_and_warehouse: `
             <div>
                 <span class="badge badge-purple-subtle">${getWarehouseDisplayName(item.warehouse_id)}</span>
-                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck"></i> ${item.delivery_method}</div>
+                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck me-1"></i>${item.delivery_method}</div>
             </div>
         `,
         parties: `
             <div>
-                <div class="small text-white fw-bold"><i class="fa-solid fa-user-tag text-info"></i> ${recipientResolved}</div>
-                <div class="small text-secondary"><i class="fa-solid fa-hand-holding-dollar text-warning"></i> 經手：${operatorResolved}</div>
+                <div class="small text-white fw-bold"><i class="fa-solid fa-user-tag text-info me-1"></i>${recipientResolved}</div>
+                <div class="small text-secondary"><i class="fa-solid fa-hand-holding-dollar text-warning me-1"></i>經手：${operatorResolved}</div>
             </div>
         `,
         dates: `
@@ -769,7 +769,7 @@ function calculateFinancials() {
 }
 
 function openCreateOutboundModal() {
-    $('#outboundModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary"></i> 開立銷貨出庫單據');
+    $('#outboundModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>開立銷貨出庫單據');
     $('#formMode').val('add');
     $('#outboundForm')[0].reset();
 
@@ -811,7 +811,7 @@ function openEditOutboundModal(id) {
     const item = appState.outbounds.find(d => d.id === id);
     if (!item) return;
 
-    $('#outboundModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯銷貨出庫單');
+    $('#outboundModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯銷貨出庫單');
     $('#formMode').val('edit');
 
     $('#fieldId').val(item.id);
@@ -1020,7 +1020,7 @@ function toggleInlineItemForm() {
 }
 
 function openInlineAddForm() {
-    $('#inlineFormTitle').html('<i class="fa-solid fa-file-circle-plus text-primary"></i> 新增單筆明細');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增單筆明細');
     $('#inlineItemId').val('');
     $('#inlineItemForm')[0].reset();
     
@@ -1064,7 +1064,7 @@ function editInlineItem(itemId) {
     const it = appState.outboundItems.find(d => d.id === itemId);
     if (!it) return;
 
-    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯明細【項次 ${it.item_seq}】`);
+    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細【項次 ${it.item_seq}】`);
     $('#inlineItemId').val(it.id);
 
     // 回填產品並驅動 Select2 同步顯示高亮
@@ -1125,7 +1125,7 @@ async function saveInlineOutboundItem() {
 
     const $btn = $('#btnSaveInlineItem');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 儲存中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存中...');
 
         if (!itemId) {
             // 新增明細
@@ -1172,7 +1172,7 @@ async function saveInlineOutboundItem() {
     } catch (err) {
         AppToast.error("明細儲存失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-check"></i> 確認儲存明細');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i>確認儲存明細');
     }
 }
 
@@ -1298,7 +1298,7 @@ async function saveOutboundOrder() {
 
     const $btn = $('#btnSaveOutbound');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入雲端中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入雲端中...');
 
         if (mode === 'add') {
             await SheetAdapter.sendRequest('CREATE', '銷貨主檔', orderId, rowDataArray);
@@ -1318,7 +1318,7 @@ async function saveOutboundOrder() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

@@ -183,7 +183,7 @@
                             <span class="badge bg-dark border border-secondary text-light">表15: trn_policy_docs</span>
                         </div>
                         <p class="text-muted mb-0 small mt-1">
-                            <i class="fa-solid fa-shield-halved"></i> 葡眾官方營業守則、處分規章與多層次傳銷合規文件總樞
+                            <i class="fa-solid fa-shield-halved me-1"></i>葡眾官方營業守則、處分規章與多層次傳銷合規文件總樞
                         </p>
                     </div>
                 </div>
@@ -204,10 +204,10 @@
                     </div>
                     <div class="col-12 col-sm-6 d-flex align-items-center justify-content-sm-end gap-2 mt-2 mt-sm-0">
                         <button class="btn btn-outline-light border-secondary btn-sm px-3" id="btnRefreshData">
-                            <i class="fa-solid fa-rotate"></i> 同步試算表
+                            <i class="fa-solid fa-rotate me-1"></i>同步試算表
                         </button>
                         <button class="btn btn-primary btn-sm px-3 shadow" style="background: linear-gradient(135deg, #7c3aed, #9333ea); border: none;" data-bs-toggle="modal" data-bs-target="#docFormModal">
-                            <i class="fa-solid fa-plus"></i> 發布新規章
+                            <i class="fa-solid fa-plus me-1"></i>發布新規章
                         </button>
                     </div>
                 </div>
@@ -221,27 +221,27 @@
                 <ul class="nav nav-pills nav-pills-custom mb-0" id="categoryTabs">
                     <li class="nav-item">
                         <a class="nav-link active" href="#" data-filter="ALL">
-                            <i class="fa-solid fa-layer-group"></i> 全部規章
+                            <i class="fa-solid fa-layer-group me-1"></i>全部規章
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-filter="RULES">
-                            <i class="fa-solid fa-book-bookmark"></i> 營業守則
+                            <i class="fa-solid fa-book-bookmark me-1"></i>營業守則
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-filter="CLAUSE">
-                            <i class="fa-solid fa-file-lines"></i> 制度條文
+                            <i class="fa-solid fa-file-lines me-1"></i>制度條文
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-filter="NOTICE">
-                            <i class="fa-solid fa-bullhorn"></i> 官方函文
+                            <i class="fa-solid fa-bullhorn me-1"></i>官方函文
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-filter="PENALTY">
-                            <i class="fa-solid fa-triangle-exclamation"></i> 處分規範
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>處分規範
                         </a>
                     </li>
                 </ul>
@@ -281,7 +281,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="docFormModalLabel">
-                    <i class="fa-solid fa-file-pen text-primary"></i> 規章公文發布 / 維護終端
+                    <i class="fa-solid fa-file-pen text-primary me-1"></i>規章公文發布 / 維護終端
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -339,7 +339,7 @@
                         <div class="form-check form-switch mt-2">
                             <input class="form-check-input" type="checkbox" id="formIsActive" checked>
                             <label class="form-check-label text-light" for="formIsActive">
-                                <i class="fa-solid fa-circle-check text-success"></i> 啟用此公文（若關閉將歸檔為歷史作廢）
+                                <i class="fa-solid fa-circle-check text-success me-1"></i>啟用此公文（若關閉將歸檔為歷史作廢）
                             </label>
                         </div>
                     </div>
@@ -348,7 +348,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary btn-sm px-4" id="btnSaveDoc" style="background: linear-gradient(135deg, #7c3aed, #9333ea); border: none;">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> 儲存並寫入試算表
+                    <i class="fa-solid fa-cloud-arrow-up me-1"></i>儲存並寫入試算表
                 </button>
             </div>
         </div>
@@ -358,7 +358,7 @@
 <div class="offcanvas offcanvas-end" tabindex="-1" id="docPreviewOffcanvas" aria-labelledby="docPreviewLabel" style="width: 500px;">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title text-white fw-bold" id="docPreviewLabel">
-            <i class="fa-solid fa-file-shield text-info"></i> 公文全景與權限透視
+            <i class="fa-solid fa-file-shield text-info me-1"></i>公文全景與權限透視
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
@@ -487,7 +487,7 @@
             "PENALTY": { text: "處分規範", class: "badge-cat-penalty", icon: "fa-triangle-exclamation" }
         };
         const config = catMap[category] || { text: category, class: "badge-cat-rules", icon: "fa-file" };
-        return `<span class="badge ${config.class} px-2 py-1"><i class="fa-solid ${config.icon}"></i> ${config.text}</span>`;
+        return `<span class="badge ${config.class} px-2 py-1"><i class="fa-solid ${config.icon} me-1"></i>${config.text}</span>`;
     }
 
     /**
@@ -501,7 +501,7 @@
             "DIA": { name: "藍鑽級 (DIA)", color: "text-danger", border: "border-danger" }
         };
         const r = rankMap[rank] || { name: rank, color: "text-light", border: "border-secondary" };
-        return `<span class="rank-pill ${r.border} ${r.color}"><i class="fa-solid fa-id-badge"></i> ${r.name}</span>`;
+        return `<span class="rank-pill ${r.border} ${r.color}"><i class="fa-solid fa-id-badge me-1"></i>${r.name}</span>`;
     }
 
     /**
@@ -517,8 +517,8 @@
 
         data.forEach(item => {
             const statusHtml = item.is_active 
-                ? `<span class="badge bg-success bg-opacity-25 text-success border border-success"><i class="fa-solid fa-check"></i> 現行生效</span>`
-                : `<span class="badge bg-secondary bg-opacity-25 text-muted border border-secondary"><i class="fa-solid fa-box-archive"></i> 歷史作廢</span>`;
+                ? `<span class="badge bg-success bg-opacity-25 text-success border border-success"><i class="fa-solid fa-check me-1"></i>現行生效</span>`
+                : `<span class="badge bg-secondary bg-opacity-25 text-muted border border-secondary"><i class="fa-solid fa-box-archive me-1"></i>歷史作廢</span>`;
 
             const tr = `
                 <tr data-category="${item.category}" data-id="${item.doc_id}">
@@ -526,11 +526,11 @@
                     <td>${renderCategoryBadge(item.category)}</td>
                     <td>
                         <div class="fw-bold text-white mb-0">${item.title}</div>
-                        <small class="text-muted"><i class="fa-regular fa-file-pdf text-danger"></i> ${(item.file_size_kb / 1024).toFixed(2)} MB</small>
+                        <small class="text-muted"><i class="fa-regular fa-file-pdf text-danger me-1"></i>${(item.file_size_kb / 1024).toFixed(2)} MB</small>
                     </td>
                     <td><span class="badge bg-dark border border-secondary text-info">${item.version}</span></td>
                     <td>${renderRankBadge(item.min_required_rank)}</td>
-                    <td><small class="text-muted"><i class="fa-regular fa-calendar"></i> ${item.effective_date}</small></td>
+                    <td><small class="text-muted"><i class="fa-regular fa-calendar me-1"></i>${item.effective_date}</small></td>
                     <td>${statusHtml}</td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm">
@@ -592,33 +592,33 @@
 
             <div class="list-group list-group-flush mb-4 rounded-3 border border-secondary overflow-hidden">
                 <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
-                    <span class="text-muted"><i class="fa-solid fa-tag"></i> 規章類別</span>
+                    <span class="text-muted"><i class="fa-solid fa-tag me-1"></i>規章類別</span>
                     <span>${renderCategoryBadge(doc.category)}</span>
                 </div>
                 <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
-                    <span class="text-muted"><i class="fa-solid fa-shield-halved"></i> 最低授權職級</span>
+                    <span class="text-muted"><i class="fa-solid fa-shield-halved me-1"></i>最低授權職級</span>
                     <span>${renderRankBadge(doc.min_required_rank)}</span>
                 </div>
                 <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
-                    <span class="text-muted"><i class="fa-solid fa-calendar-check"></i> 實施生效日</span>
+                    <span class="text-muted"><i class="fa-solid fa-calendar-check me-1"></i>實施生效日</span>
                     <span>${doc.effective_date}</span>
                 </div>
                 <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
-                    <span class="text-muted"><i class="fa-solid fa-hard-drive"></i> 檔案容量</span>
+                    <span class="text-muted"><i class="fa-solid fa-hard-drive me-1"></i>檔案容量</span>
                     <span>${(doc.file_size_kb / 1024).toFixed(2)} MB</span>
                 </div>
                 <div class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between">
-                    <span class="text-muted"><i class="fa-solid fa-clock-rotate-left"></i> 最後更新</span>
+                    <span class="text-muted"><i class="fa-solid fa-clock-rotate-left me-1"></i>最後更新</span>
                     <span>${doc.updated_at}</span>
                 </div>
             </div>
 
             <div class="d-grid gap-2">
                 <a href="${doc.file_url}" target="_blank" class="btn btn-outline-info">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟 Google Drive 雲端檢視
+                    <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>開啟 Google Drive 雲端檢視
                 </a>
                 <button class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
-                    <i class="fa-solid fa-xmark"></i> 關閉檢視
+                    <i class="fa-solid fa-xmark me-1"></i>關閉檢視
                 </button>
             </div>
         `);
@@ -679,7 +679,7 @@
             $('#formFileSize').val(doc.file_size_kb);
             $('#formIsActive').prop('checked', doc.is_active);
 
-            $('#docFormModalLabel').html('<i class="fa-solid fa-file-pen text-warning"></i> 編輯現有規章公文');
+            $('#docFormModalLabel').html('<i class="fa-solid fa-file-pen text-warning me-1"></i>編輯現有規章公文');
             $('#docFormModal').modal('show');
         });
 

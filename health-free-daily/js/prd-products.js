@@ -56,7 +56,7 @@ async function initApp() {
 // 4. 解析 Google Sheets 數據 (依 Schema 索引順序讀取)
 // ==========================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName) => {
@@ -373,7 +373,7 @@ function renderTypeFilterButtons() {
     let html = `
         <input type="radio" class="btn-check" name="product-type" id="type-btn-all" value="ALL" autocomplete="off" ${appState.productType === 'ALL' ? 'checked' : ''}>
         <label class="btn btn-outline-primary btn-sm rounded-pill" for="type-btn-all">
-            <i class="fa-solid fa-border-all"></i> 全部型態
+            <i class="fa-solid fa-border-all me-1"></i>全部型態
         </label>
     `;
 
@@ -385,7 +385,7 @@ function renderTypeFilterButtons() {
         html += `
             <input type="radio" class="btn-check" name="product-type" id="${inputId}" value="${t.type_code}" autocomplete="off" ${isChecked}>
             <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">
-                <i class="${typeInfo.icon}"></i> ${typeInfo.name}
+                <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
             </label>
         `;
     });
@@ -476,7 +476,7 @@ function renderProducts() {
 
     const countElem = document.getElementById('resultsCount');
     if (countElem) {
-        countElem.innerHTML = `<i class="fa-solid fa-list-check"></i> 找到 ${filtered.length} 項符合條件的產品`;
+        countElem.innerHTML = `<i class="fa-solid fa-list-check me-1"></i>找到 ${filtered.length} 項符合條件的產品`;
     }
 
     if (filtered.length === 0) {
@@ -528,10 +528,10 @@ function renderProducts() {
                     <p class="product-desc small text-muted mb-3 text-truncate-2">${item.short_summary || '暫無產品簡介'}</p>
                     <div class="price-sv-block mt-auto mb-3 p-2 rounded d-flex justify-content-between align-items-center bg-dark-subtle">
                         <div class="price-tag fw-bold text-warning">${formattedPrice}</div>
-                        <div class="sv-tag small text-warning"><i class="fa-solid fa-star"></i> ${item.sv_point} SV</div>
+                        <div class="sv-tag small text-warning"><i class="fa-solid fa-star me-1"></i>${item.sv_point} SV</div>
                     </div>
                     <a href="${detailUrl}" target="_blank" class="btn btn-outline-primary w-100 text-center fw-bold">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> 查看產品詳情
+                        <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>查看產品詳情
                     </a>
                 </div>
             </div>

@@ -25,9 +25,9 @@ function initCalendarThemeToggle() {
         $wrapper.toggleClass('light-mode');
 
         if ($wrapper.hasClass('light-mode')) {
-            $(this).html('<i class="fa-solid fa-moon"></i> 切換深色模式');
+            $(this).html('<i class="fa-solid fa-moon me-1"></i>切換深色模式');
         } else {
-            $(this).html('<i class="fa-solid fa-circle-half-stroke"></i> 切換深/淺模式');
+            $(this).html('<i class="fa-solid fa-circle-half-stroke me-1"></i>切換深/淺模式');
         }
     });
 }
@@ -148,23 +148,23 @@ function renderEventsTable(data) {
         const speaker = getDecoupledValue(row, ['主講', '講師', 'speaker', 'host'], '核心幹部');
         const location = getDecoupledValue(row, ['地點', '連結', 'location', 'link'], '線上 Zoom');
 
-        let badgeHtml = '<span class="badge badge-online"><i class="fa-solid fa-video"></i> 線上</span>';
+        let badgeHtml = '<span class="badge badge-online"><i class="fa-solid fa-video me-1"></i>線上</span>';
         if (category.includes('線下') || category.includes('實體')) {
-            badgeHtml = '<span class="badge badge-offline"><i class="fa-solid fa-users"></i> 實體</span>';
+            badgeHtml = '<span class="badge badge-offline"><i class="fa-solid fa-users me-1"></i>實體</span>';
         } else if (category.includes('高階') || category.includes('領導')) {
-            badgeHtml = '<span class="badge badge-leadership"><i class="fa-solid fa-crown"></i> 領導</span>';
+            badgeHtml = '<span class="badge badge-leadership"><i class="fa-solid fa-crown me-1"></i>領導</span>';
         }
 
         const trHtml = `
             <tr>
-                <td class="text-nowrap"><i class="fa-regular fa-clock text-info"></i> ${dateStr}</td>
+                <td class="text-nowrap"><i class="fa-regular fa-clock text-info me-1"></i>${dateStr}</td>
                 <td>${badgeHtml}</td>
                 <td class="fw-bold text-light">${title}</td>
-                <td><i class="fa-solid fa-user-circle text-secondary"></i> ${speaker}</td>
+                <td><i class="fa-solid fa-user-circle text-secondary me-1"></i>${speaker}</td>
                 <td><small class="text-secondary">${location}</small></td>
                 <td>
                     <button class="btn btn-sm btn-outline-custom" onclick="copyEventDetail('${title}', '${dateStr}', '${location}')">
-                        <i class="fa-solid fa-share-nodes"></i> 分享
+                        <i class="fa-solid fa-share-nodes me-1"></i>分享
                     </button>
                 </td>
             </tr>

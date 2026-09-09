@@ -62,7 +62,7 @@ window.addEventListener('AppReady', async () => {
 // 3. 讀取並關聯該產品之完整資料
 // ==========================================
 async function loadProductDetail(productCode, region) {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName) => {
@@ -294,7 +294,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (detail.phrase_tags) {
         const tagsHtml = detail.phrase_tags.split(',').map(tag => `
             <span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25 me-1">
-                <i class="fa-solid fa-hashtag"></i> ${tag.trim()}
+                <i class="fa-solid fa-hashtag me-1"></i>${tag.trim()}
             </span>
         `).join('');
         $('#phraseTagsContainer').html(tagsHtml).removeClass('d-none');
@@ -308,7 +308,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.price !== undefined && product.price !== null && product.price !== '') {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-tags text-warning"></i> 建議售價：<span class="text-warning fw-bold fs-5">${currencyPrefix}${Number(product.price).toLocaleString()}</span>
+                <i class="fa-solid fa-tags text-warning me-1"></i>建議售價：<span class="text-warning fw-bold fs-5">${currencyPrefix}${Number(product.price).toLocaleString()}</span>
             </p>
         `);
     }
@@ -316,7 +316,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.sv_point !== undefined && product.sv_point !== null && product.sv_point !== '') {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-star text-info"></i> 全球積分：<span class="text-info fw-bold">${Number(product.sv_point).toLocaleString()} SV</span>
+                <i class="fa-solid fa-star text-info me-1"></i>全球積分：<span class="text-info fw-bold">${Number(product.sv_point).toLocaleString()} SV</span>
             </p>
         `);
     }
@@ -324,7 +324,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.package_spec) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-box text-success"></i> 包裝規格：<span class="text-light">${product.package_spec}</span>
+                <i class="fa-solid fa-box text-success me-1"></i>包裝規格：<span class="text-light">${product.package_spec}</span>
             </p>
         `);
     }
@@ -332,7 +332,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.product_weight) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-weight-scale text-secondary"></i> 產品淨重：<span class="text-light">${product.product_weight}</span>
+                <i class="fa-solid fa-weight-scale text-secondary me-1"></i>產品淨重：<span class="text-light">${product.product_weight}</span>
             </p>
         `);
     }
@@ -340,7 +340,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.product_code) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-barcode text-secondary"></i> 產品編號：<span class="text-light">${product.product_code}</span>
+                <i class="fa-solid fa-barcode text-secondary me-1"></i>產品編號：<span class="text-light">${product.product_code}</span>
             </p>
         `);
     }
@@ -348,21 +348,21 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.is_featured) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-crown text-warning"></i> 明星商品：${UIBadges.product.featured(true)}
+                <i class="fa-solid fa-crown text-warning me-1"></i>明星商品：${UIBadges.product.featured(true)}
             </p>
         `);
     }
 
     specsHtml.push(`
         <p class="mb-2 text-muted">
-            <i class="fa-solid fa-signal text-info"></i> 上市狀態：${UIBadges.product.launchStatus(product.market_status.code)}
+            <i class="fa-solid fa-signal text-info me-1"></i>上市狀態：${UIBadges.product.launchStatus(product.market_status.code)}
         </p>
     `);
 
     if (product.launch_date) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-calendar-day text-primary"></i> 上市日期：<span class="text-light">${product.launch_date}</span>
+                <i class="fa-solid fa-calendar-day text-primary me-1"></i>上市日期：<span class="text-light">${product.launch_date}</span>
             </p>
         `);
     }
@@ -370,7 +370,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.delist_date) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-calendar-xmark text-danger"></i> 下市日期：<span class="text-danger">${product.delist_date}</span>
+                <i class="fa-solid fa-calendar-xmark text-danger me-1"></i>下市日期：<span class="text-danger">${product.delist_date}</span>
             </p>
         `);
     }
@@ -378,7 +378,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (detail.certifications) {
         specsHtml.push(`
             <p class="mb-0 text-muted">
-                <i class="fa-solid fa-certificate text-danger"></i> 品質認證：<span class="text-light">${detail.certifications}</span>
+                <i class="fa-solid fa-certificate text-danger me-1"></i>品質認證：<span class="text-light">${detail.certifications}</span>
             </p>
         `);
     }
@@ -406,7 +406,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
             tabsHtml += `
                 <li class="nav-item" role="presentation">
                     <button class="nav-link ${isActive} btn-sm py-1 px-3 me-2" id="${tabId}-tab" data-bs-toggle="pill" data-bs-target="#${tabId}" type="button">
-                        <i class="fa-solid fa-bullhorn"></i> ${c.copy_type || c.title}
+                        <i class="fa-solid fa-bullhorn me-1"></i>${c.copy_type || c.title}
                     </button>
                 </li>
             `;
@@ -433,7 +433,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
                 <div class="accordion-item bg-dark border border-secondary border-opacity-50 mb-2 rounded overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-dark text-light small py-2" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
-                            <i class="fa-solid fa-circle-question text-info"></i> ${f.question}
+                            <i class="fa-solid fa-circle-question text-info me-1"></i>${f.question}
                         </button>
                     </h2>
                     <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">

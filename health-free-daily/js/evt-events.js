@@ -55,7 +55,7 @@ function handleFetchError(err) {
     
     // 清空資料並重設狀態
     rawEventsData = [];
-    $('#loadingSpinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+    $('#loadingSpinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i>無法載入活動資料，請檢查試算表權限。</div>');
     filterAndRender();
 
     // 呼叫 AppDialog.alert 提示使用者
@@ -268,25 +268,25 @@ function filterAndRender() {
 function createEventCardHtml(item) {
     // 狀態標籤
     const statusBadge = item.isExpired
-        ? `<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-dot"></i> 活動已結束</span>`
-        : `<span class="badge badge-muted-subtle"><i class="fa-solid fa-circle-dot"></i> 開放報名中</span>`;
+        ? `<span class="badge badge-success-subtle"><i class="fa-solid fa-circle-dot me-1"></i>活動已結束</span>`
+        : `<span class="badge badge-muted-subtle"><i class="fa-solid fa-circle-dot me-1"></i>開放報名中</span>`;
 
     // 類型標籤
-    const typeBadge = `<span class="badge badge-primary-subtle"><i class="fa-solid fa-tag"></i> ${item.type}</span>`;
+    const typeBadge = `<span class="badge badge-primary-subtle"><i class="fa-solid fa-tag me-1"></i>${item.type}</span>`;
 
     // 表演藝人標籤 (若無藝人資料則不渲染)
     const performerBadge = item.performer
-        ? `<span class="badge bg-accent"><i class="fa-solid fa-microphone-lines"></i> 藝人：${item.performer}</span>`
+        ? `<span class="badge bg-accent"><i class="fa-solid fa-microphone-lines me-1"></i>藝人：${item.performer}</span>`
         : '';
 
     // 按鈕邏輯
     let actionBtnHtml = '';
     if (item.isExpired) {
-        actionBtnHtml = `<div class="btn btn-muted w-100"><i class="fa-solid fa-lock"></i> 活動已結束</div>`;
+        actionBtnHtml = `<div class="btn btn-muted w-100"><i class="fa-solid fa-lock me-1"></i>活動已結束</div>`;
     } else if (item.regUrl && item.regUrl.trim() !== '') {
-        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary w-100"><i class="fa-solid fa-paper-plane"></i> 立即線上報名</a>`;
+        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary w-100"><i class="fa-solid fa-paper-plane me-1"></i>立即線上報名</a>`;
     } else {
-        actionBtnHtml = `<div class="btn btn-secondary w-100"><i class="fa-solid fa-circle-info"></i> 現場自由入場 / 聯繫我們</div>`;
+        actionBtnHtml = `<div class="btn btn-secondary w-100"><i class="fa-solid fa-circle-info me-1"></i>現場自由入場 / 聯繫我們</div>`;
     }
 
     const expiredClass = item.isExpired ? 'expired' : '';
@@ -298,22 +298,22 @@ function createEventCardHtml(item) {
 
     // 活動時間獨立模組化
     const timeHtml = timeDisplay
-        ? `<div class="info-item"><i class="fa-regular fa-clock"></i> <div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-regular fa-clock me-1"></i><div>活動時間：<span class="highlight">${timeDisplay}</span></div></div>`
         : '';
 
     // 活動地區獨立模組化
     const locationHtml = item.location
-        ? `<div class="info-item"><i class="fa-solid fa-earth-asia"></i> <div>活動地區：<span class="highlight">${item.location}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-solid fa-earth-asia me-1"></i><div>活動地區：<span class="highlight">${item.location}</span></div></div>`
         : '';
 
     // 活動場地獨立模組化
     const venueHtml = item.venue
-        ? `<div class="info-item"><i class="fa-solid fa-building"></i> <div>活動場地：<span class="highlight">${item.venue}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-solid fa-building me-1"></i><div>活動場地：<span class="highlight">${item.venue}</span></div></div>`
         : '';
 
     // 活動地址獨立模組化
     const addressHtml = item.address
-        ? `<div class="info-item"><i class="fa-solid fa-map-pin"></i> <div>活動地址：<span class="highlight">${item.address}</span></div></div>`
+        ? `<div class="info-item"><i class="fa-solid fa-map-pin me-1"></i><div>活動地址：<span class="highlight">${item.address}</span></div></div>`
         : '';
 
     let html = `

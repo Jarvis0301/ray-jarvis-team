@@ -218,7 +218,7 @@
                     <div class="col-sm-3 col-6">
                         <div class="hud-stat-pill">
                             <div class="text-muted small mb-1">
-                                <i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 經理斷代高危
+                                <i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>經理斷代高危
                             </div>
                             <div class="d-flex align-items-baseline">
                                 <h3 class="mb-0 fw-bold text-danger" id="countBreakaway">2</h3>
@@ -229,7 +229,7 @@
                     <div class="col-sm-3 col-6">
                         <div class="hud-stat-pill">
                             <div class="text-muted small mb-1">
-                                <i class="fa-solid fa-user-xmark text-warning me-1"></i> 160 SV 差額
+                                <i class="fa-solid fa-user-xmark text-warning me-1"></i>160 SV 差額
                             </div>
                             <div class="d-flex align-items-baseline">
                                 <h3 class="mb-0 fw-bold text-warning" id="countPersonalGap">5</h3>
@@ -240,7 +240,7 @@
                     <div class="col-sm-3 col-6">
                         <div class="hud-stat-pill">
                             <div class="text-muted small mb-1">
-                                <i class="fa-solid fa-bed text-info me-1"></i> 沉睡 > 60 天
+                                <i class="fa-solid fa-bed text-info me-1"></i>沉睡 > 60 天
                             </div>
                             <div class="d-flex align-items-baseline">
                                 <h3 class="mb-0 fw-bold text-info" id="countDormant">14</h3>
@@ -251,7 +251,7 @@
                     <div class="col-sm-3 col-6">
                         <div class="hud-stat-pill">
                             <div class="text-muted small mb-1">
-                                <i class="fa-solid fa-bolt text-success me-1"></i> 今日待處置
+                                <i class="fa-solid fa-bolt text-success me-1"></i>今日待處置
                             </div>
                             <div class="d-flex align-items-baseline">
                                 <h3 class="mb-0 fw-bold text-success" id="countPendingAction">7</h3>
@@ -268,17 +268,17 @@
         <ul class="nav nav-pills nav-pills-custom" id="alertTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="tab-defense-btn" data-bs-toggle="pill" data-bs-target="#tab-defense" type="button" role="tab">
-                    <i class="fa-solid fa-shield-halved me-1"></i> 合格保衛與斷代防禦
+                    <i class="fa-solid fa-shield-halved me-1"></i>合格保衛與斷代防禦
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab-dormant-btn" data-bs-toggle="pill" data-bs-target="#tab-dormant" type="button" role="tab">
-                    <i class="fa-solid fa-moon me-1"></i> 沉睡甦醒與流失阻斷
+                    <i class="fa-solid fa-moon me-1"></i>沉睡甦醒與流失阻斷
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab-database-btn" data-bs-toggle="pill" data-bs-target="#tab-database" type="button" role="tab">
-                    <i class="fa-solid fa-table-list me-1"></i> 全景風控資料清冊
+                    <i class="fa-solid fa-table-list me-1"></i>全景風控資料清冊
                 </button>
             </li>
         </ul>
@@ -289,7 +289,7 @@
                 <input type="text" id="quickSearchInput" class="form-control form-control-sm bg-dark text-light border-secondary" placeholder="搜尋夥伴姓名/代碼...">
             </div>
             <button class="btn btn-sm btn-outline-primary" id="btnSyncGoogleSheet">
-                <i class="fa-solid fa-rotate me-1"></i> 同步試算表
+                <i class="fa-solid fa-rotate me-1"></i>同步試算表
             </button>
         </div>
     </div>
@@ -334,7 +334,7 @@
     <div class="offcanvas offcanvas-end offcanvas-custom" tabindex="-1" id="offcanvasCareAction" style="width: 420px;">
         <div class="offcanvas-header border-bottom border-secondary pb-3">
             <h5 class="offcanvas-title fw-bold" id="offcanvasCareTitle">
-                <i class="fa-brands fa-line text-success me-2"></i> 專屬關懷文案產生器
+                <i class="fa-brands fa-line text-success me-2 me-1"></i>專屬關懷文案產生器
             </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
@@ -362,10 +362,10 @@
 
             <div class="d-grid gap-2">
                 <button class="btn btn-success" id="btnCopyCareText">
-                    <i class="fa-solid fa-copy me-1"></i> 一鍵複製關懷文案
+                    <i class="fa-solid fa-copy me-1"></i>一鍵複製關懷文案
                 </button>
                 <button class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
-                    <i class="fa-solid fa-check me-1"></i> 標記為已關懷跟進
+                    <i class="fa-solid fa-check me-1"></i>標記為已關懷跟進
                 </button>
             </div>
         </div>
@@ -512,7 +512,7 @@
                                     <span class="badge ${badgeColor} me-1">${item.risk_level === 'CRITICAL' ? '危急斷代' : '注意觀察'}</span>
                                     <span class="badge bg-secondary">${item.current_rank}</span>
                                 </div>
-                                <span class="small text-danger fw-bold"><i class="fa-regular fa-clock me-1"></i> 剩 ${item.days_left} 天結算</span>
+                                <span class="small text-danger fw-bold"><i class="fa-regular fa-clock me-1"></i>剩 ${item.days_left} 天結算</span>
                             </div>
                             
                             <h5 class="fw-bold text-white mb-1">${item.partner_name} <span class="small text-muted font-monospace">(${item.partner_id})</span></h5>
@@ -529,15 +529,15 @@
                             </div>
 
                             <div class="p-2 rounded-3 mb-3 small" style="background: rgba(9, 5, 20, 0.6); border: 1px dashed rgba(139, 92, 246, 0.25);">
-                                <i class="fa-solid fa-lightbulb text-warning me-1"></i> ${item.action_strategy}
+                                <i class="fa-solid fa-lightbulb text-warning me-1"></i>${item.action_strategy}
                             </div>
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-outline-light flex-grow-1" onclick="openCareDrawer('${item.partner_name}', '資格缺額差 ${item.gap_val} SV')">
-                                    <i class="fa-brands fa-line text-success me-1"></i> 發送關懷
+                                    <i class="fa-brands fa-line text-success me-1"></i>發送關懷
                                 </button>
                                 <button class="btn btn-sm btn-primary flex-grow-1" onclick="alert('已轉跳至 H44000 門檻調度沙盤，為 ${item.partner_name} 安排轉點調配！')">
-                                    <i class="fa-solid fa-arrows-split-up-and-left me-1"></i> 轉點調度
+                                    <i class="fa-solid fa-arrows-split-up-and-left me-1"></i>轉點調度
                                 </button>
                             </div>
                         </div>
@@ -560,7 +560,7 @@
                                 <div>
                                     <span class="churn-score-badge">流失指數：${item.churn_score}%</span>
                                 </div>
-                                <span class="small text-muted"><i class="fa-solid fa-clock-rotate-left me-1"></i> 未回購 ${item.days_inactive} 天</span>
+                                <span class="small text-muted"><i class="fa-solid fa-clock-rotate-left me-1"></i>未回購 ${item.days_inactive} 天</span>
                             </div>
 
                             <h5 class="fw-bold text-white mb-1">
@@ -570,15 +570,15 @@
                             <div class="small text-muted mb-2">上次主力產品：<span class="text-light">${item.last_product}</span></div>
 
                             <div class="p-2 rounded-3 mb-3 small" style="background: rgba(9, 5, 20, 0.6); border: 1px dashed rgba(139, 92, 246, 0.25);">
-                                <i class="fa-solid fa-route text-info me-1"></i> ${item.action_strategy}
+                                <i class="fa-solid fa-route text-info me-1"></i>${item.action_strategy}
                             </div>
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-success flex-grow-1" onclick="openCareDrawer('${item.partner_name}', '未訂購 ${item.days_inactive} 天 (流失指數 ${item.churn_score}%)')">
-                                    <i class="fa-solid fa-heart me-1"></i> 啟動喚醒劇本
+                                    <i class="fa-solid fa-heart me-1"></i>啟動喚醒劇本
                                 </button>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="alert('已將 ${item.partner_name} 加入下週實體研討會 VIP 邀約名單！')">
-                                    <i class="fa-solid fa-calendar-plus me-1"></i> 邀約活動
+                                    <i class="fa-solid fa-calendar-plus me-1"></i>邀約活動
                                 </button>
                             </div>
                         </div>
@@ -599,7 +599,7 @@
                     gap: `缺 ${q.gap_val} SV`,
                     strategy: q.action_strategy,
                     status: `<span class="badge bg-secondary">${q.status}</span>`,
-                    action: `<button class="btn btn-xs btn-outline-primary" onclick="openCareDrawer('${q.partner_name}', '資格缺額')"><i class="fa-solid fa-bolt me-1"></i> 處置</button>`
+                    action: `<button class="btn btn-xs btn-outline-primary" onclick="openCareDrawer('${q.partner_name}', '資格缺額')"><i class="fa-solid fa-bolt me-1"></i>處置</button>`
                 })),
                 ...mockDormantAlerts.map(d => ({
                     type: '<span class="badge bg-info bg-opacity-25 text-info border border-info">沉睡流失</span>',
@@ -609,7 +609,7 @@
                     gap: `停購 ${d.days_inactive} 天`,
                     strategy: d.action_strategy,
                     status: `<span class="badge bg-secondary">${d.status}</span>`,
-                    action: `<button class="btn btn-xs btn-outline-success" onclick="openCareDrawer('${d.partner_name}', '沉睡喚醒')"><i class="fa-solid fa-heart me-1"></i> 喚醒</button>`
+                    action: `<button class="btn btn-xs btn-outline-success" onclick="openCareDrawer('${d.partner_name}', '沉睡喚醒')"><i class="fa-solid fa-heart me-1"></i>喚醒</button>`
                 }))
             ];
 
@@ -691,10 +691,10 @@
             // 模擬解耦同步 Google 試算表
             $('#btnSyncGoogleSheet').on('click', function () {
                 const $btn = $(this);
-                $btn.html('<i class="fa-solid fa-spinner me-1"></i> 同步中...').prop('disabled', true);
+                $btn.html('<i class="fa-solid fa-spinner me-1"></i>同步中...').prop('disabled', true);
 
                 setTimeout(() => {
-                    $btn.html('<i class="fa-solid fa-rotate me-1"></i> 同步試算表').prop('disabled', false);
+                    $btn.html('<i class="fa-solid fa-rotate me-1"></i>同步試算表').prop('disabled', false);
                     alert('【Google 試算表防腐層同步成功】已解耦重載 411 資格預警與 410 沉睡夥伴最新數據！');
                 }, 900);
             });

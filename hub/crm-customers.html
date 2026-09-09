@@ -328,10 +328,10 @@
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge px-2 py-1 rounded-pill hub-code" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.35);">
-                            <i class="fa-solid fa-address-book"></i> H51000 / H52000
+                            <i class="fa-solid fa-address-book me-1"></i>H51000 / H52000
                         </span>
                         <span class="badge px-2 py-1 rounded-pill" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">
-                            <i class="fa-solid fa-shield-halved"></i> 核心極密雙表垂直隔離 (501+502)
+                            <i class="fa-solid fa-shield-halved me-1"></i>核心極密雙表垂直隔離 (501+502)
                         </span>
                     </div>
                     <h1 class="h3 mb-0 hub-title">客戶名簿與健康檔案總覽</h1>
@@ -343,13 +343,13 @@
                 <!-- 戰略操作按鈕群 -->
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGviz" title="透過 PapaParse / GViz 解耦轉接同步 Google 試算表">
-                        <i class="fa-solid fa-arrows-rotate"></i> 試算表雲端同步
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>試算表雲端同步
                     </button>
                     <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnToggleHealthMatrix" data-bs-toggle="collapse" data-bs-target="#healthMatrixCollapse">
-                        <i class="fa-solid fa-chart-pie"></i> 體質分佈洞察
+                        <i class="fa-solid fa-chart-pie me-1"></i>體質分佈洞察
                     </button>
                     <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewCustomer">
-                        <i class="fa-solid fa-user-plus"></i> 新增客戶建檔
+                        <i class="fa-solid fa-user-plus me-1"></i>新增客戶建檔
                     </button>
                 </div>
             </div>
@@ -359,22 +359,22 @@
                 <div class="col-12 col-xl-7">
                     <div class="d-flex flex-wrap gap-2" id="filterPills">
                         <a href="javascript:void(0)" class="glass-pill active" data-filter="ALL">
-                            <i class="fa-solid fa-users"></i> 全體名單 <span class="badge rounded-pill bg-dark ms-1" id="countAll">0</span>
+                            <i class="fa-solid fa-users me-1"></i>全體名單 <span class="badge rounded-pill bg-dark ms-1" id="countAll">0</span>
                         </a>
                         <a href="javascript:void(0)" class="glass-pill" data-filter="REGULAR">
-                            <i class="fa-solid fa-repeat"></i> 穩定食用 <span class="badge rounded-pill bg-success ms-1" id="countRegular">0</span>
+                            <i class="fa-solid fa-repeat me-1"></i>穩定食用 <span class="badge rounded-pill bg-success ms-1" id="countRegular">0</span>
                         </a>
                         <a href="javascript:void(0)" class="glass-pill" data-filter="REORDER_WARN">
-                            <i class="fa-solid fa-bell"></i> 7日耗盡預警 <span class="badge rounded-pill bg-warning text-dark ms-1" id="countWarn">0</span>
+                            <i class="fa-solid fa-bell me-1"></i>7日耗盡預警 <span class="badge rounded-pill bg-warning text-dark ms-1" id="countWarn">0</span>
                         </a>
                         <a href="javascript:void(0)" class="glass-pill" data-filter="VIP">
-                            <i class="fa-solid fa-crown"></i> 高價值 VIP <span class="badge rounded-pill bg-primary ms-1" id="countVip">0</span>
+                            <i class="fa-solid fa-crown me-1"></i>高價值 VIP <span class="badge rounded-pill bg-primary ms-1" id="countVip">0</span>
                         </a>
                         <a href="javascript:void(0)" class="glass-pill" data-filter="DORMANT">
-                            <i class="fa-solid fa-bed"></i> 沉睡待挽回 <span class="badge rounded-pill bg-danger ms-1" id="countDormant">0</span>
+                            <i class="fa-solid fa-bed me-1"></i>沉睡待挽回 <span class="badge rounded-pill bg-danger ms-1" id="countDormant">0</span>
                         </a>
                         <a href="javascript:void(0)" class="glass-pill" data-filter="PROSPECT_TEAM">
-                            <i class="fa-solid fa-user-gear"></i> 評估加盟 <span class="badge rounded-pill bg-info ms-1" id="countProspect">0</span>
+                            <i class="fa-solid fa-user-gear me-1"></i>評估加盟 <span class="badge rounded-pill bg-info ms-1" id="countProspect">0</span>
                         </a>
                     </div>
                 </div>
@@ -405,7 +405,7 @@
             <div class="row g-3">
                 <div class="col-12 col-lg-4">
                     <div class="glass-panel p-3 h-100">
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse text-danger"></i> 體質健康困擾分佈</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse text-danger me-1"></i>體質健康困擾分佈</h6>
                         <div style="height: 200px; position: relative;">
                             <canvas id="healthConcernChart"></canvas>
                         </div>
@@ -413,7 +413,7 @@
                 </div>
                 <div class="col-12 col-lg-4">
                     <div class="glass-panel p-3 h-100">
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-simple text-warning"></i> 消費力與預算分層</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-simple text-warning me-1"></i>消費力與預算分層</h6>
                         <div style="height: 200px; position: relative;">
                             <canvas id="budgetTierChart"></canvas>
                         </div>
@@ -421,7 +421,7 @@
                 </div>
                 <div class="col-12 col-lg-4">
                     <div class="glass-panel p-3 h-100">
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline text-info"></i> 耗盡回購生命週期概覽</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline text-info me-1"></i>耗盡回購生命週期概覽</h6>
                         <div class="p-2">
                             <div class="d-flex justify-content-between mb-1 small">
                                 <span>即將用盡 (7天內)</span>
@@ -499,22 +499,22 @@
             <ul class="nav nav-tabs nav-tabs-custom px-3 pt-2" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabHealthProfile">
-                        <i class="fa-solid fa-notes-medical"></i> 體質健康 (502)
+                        <i class="fa-solid fa-notes-medical me-1"></i>體質健康 (502)
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPurchaseExhaust">
-                        <i class="fa-solid fa-box-open"></i> 採購與耗盡 (505)
+                        <i class="fa-solid fa-box-open me-1"></i>採購與耗盡 (505)
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabInteractionCare">
-                        <i class="fa-solid fa-comments"></i> 關懷筆記 (504)
+                        <i class="fa-solid fa-comments me-1"></i>關懷筆記 (504)
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabDispatchSchedule">
-                        <i class="fa-solid fa-calendar-check"></i> 門檻調度 (506)
+                        <i class="fa-solid fa-calendar-check me-1"></i>門檻調度 (506)
                     </button>
                 </li>
             </ul>
@@ -524,7 +524,7 @@
                 <div class="tab-pane fade show active" id="tabHealthProfile">
                     <div class="alert alert-dark border border-purple-subtle p-3 rounded-3 mb-3" style="background: rgba(139,92,246,0.1);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse"></i> 核心調養目標</span>
+                            <span class="fw-bold" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse me-1"></i>核心調養目標</span>
                             <span class="badge bg-warning text-dark">月預算：3K-8K</span>
                         </div>
                         <p class="mb-0 text-light small" id="drawerHealthConcerns">嚴重胃食道逆流、排便不順（3天一次）、淺眠易醒。</p>
@@ -557,7 +557,7 @@
                         </div>
                     </div>
 
-                    <h6 class="mt-4 mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-shield-virus"></i> 好轉反應 (瞑眩反應) 衛教備忘</h6>
+                    <h6 class="mt-4 mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-shield-virus me-1"></i>好轉反應 (瞑眩反應) 衛教備忘</h6>
                     <div class="p-3 rounded bg-black bg-opacity-30 border border-secondary border-opacity-20 text-muted small" id="drawerHealingReaction">
                         食用衛傑+康爾喜初期第 3~5 天有微脹氣與排氣增多現象，已安撫為有益菌群定殖調整，建議溫開水增加至每日 2000c.c.。
                     </div>
@@ -567,7 +567,7 @@
                 <div class="tab-pane fade" id="tabPurchaseExhaust">
                     <div class="glass-panel p-3 mb-3 border-warning border-opacity-50">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation"></i> 耗盡雷達警報</span>
+                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation me-1"></i>耗盡雷達警報</span>
                             <span class="text-muted small">推算耗盡日：<strong class="text-warning">2026-08-25</strong></span>
                         </div>
                         <h6 class="text-light mb-1">衛傑膠囊 (100粒/盒) × 2 盒</h6>
@@ -582,8 +582,8 @@
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-receipt"></i> 歷史採購明細</h6>
-                        <button class="btn btn-sm btn-neon-ghost"><i class="fa-solid fa-cart-plus"></i> 登錄新採購</button>
+                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-receipt me-1"></i>歷史採購明細</h6>
+                        <button class="btn btn-sm btn-neon-ghost"><i class="fa-solid fa-cart-plus me-1"></i>登錄新採購</button>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-custom table-sm small">
@@ -616,9 +616,9 @@
                 <!-- 頁籤三：關懷互動紀錄 (Schema 504) -->
                 <div class="tab-pane fade" id="tabInteractionCare">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline"></i> 關懷維護軌跡 (1:N)</h6>
+                        <h6 class="mb-0" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-timeline me-1"></i>關懷維護軌跡 (1:N)</h6>
                         <button class="btn btn-sm btn-neon-primary" data-bs-toggle="modal" data-bs-target="#modalQuickInteraction">
-                            <i class="fa-solid fa-pen-to-square"></i> 寫關懷筆記
+                            <i class="fa-solid fa-pen-to-square me-1"></i>寫關懷筆記
                         </button>
                     </div>
 
@@ -649,7 +649,7 @@
                 <!-- 頁籤四：160 / 12,000 SV 門檻調度協調 (Schema 506) -->
                 <div class="tab-pane fade" id="tabDispatchSchedule">
                     <div class="alert alert-dark border border-info border-opacity-30 p-3 rounded-3 mb-3">
-                        <h6 class="text-info mb-1"><i class="fa-solid fa-calendar-check"></i> Ray 戰術：經理合格調度中樞</h6>
+                        <h6 class="text-info mb-1"><i class="fa-solid fa-calendar-check me-1"></i>Ray 戰術：經理合格調度中樞</h6>
                         <p class="small text-muted mb-0">協調愛用客戶採購時間（先買補足當月合格 / 延買保留次月衝刺），達成 12,000 SV 效益最大化。</p>
                     </div>
 
@@ -662,16 +662,16 @@
                         <div class="small text-light mb-2">約定下單日：<strong class="text-warning">2026-08-20 (配合當月20日結算)</strong></div>
                         <div class="small text-muted">協調贈禮：贈送 3 包百克斯體驗包 + 1 包餐包</div>
                     </div>
-                    <button class="btn btn-sm btn-neon-ghost w-100"><i class="fa-solid fa-clock-rotate-left"></i> 修改調度協調排程</button>
+                    <button class="btn btn-sm btn-neon-ghost w-100"><i class="fa-solid fa-clock-rotate-left me-1"></i>修改調度協調排程</button>
                 </div>
             </div>
         </div>
         <div class="offcanvas-footer border-top border-secondary border-opacity-25 p-3 d-flex gap-2">
             <a href="https://line.me" target="_blank" class="btn btn-sm btn-success flex-fill" id="drawerBtnLine">
-                <i class="fa-brands fa-line"></i> LINE 私域關懷
+                <i class="fa-brands fa-line me-1"></i>LINE 私域關懷
             </a>
             <button class="btn btn-sm btn-neon-primary flex-fill" data-bs-dismiss="offcanvas">
-                <i class="fa-solid fa-check"></i> 完成檢閱
+                <i class="fa-solid fa-check me-1"></i>完成檢閱
             </button>
         </div>
     </div>
@@ -681,12 +681,12 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-secondary border-opacity-25">
-                    <h5 class="modal-title hub-title"><i class="fa-solid fa-user-plus text-primary"></i> 建立新客戶與體質檔案</h5>
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-user-plus text-primary me-1"></i>建立新客戶與體質檔案</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="formNewCustomer">
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-id-card"></i> 基本資料 (Schema 501)</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-id-card me-1"></i>基本資料 (Schema 501)</h6>
                         <div class="row g-3 mb-4">
                             <div class="col-12 col-md-6">
                                 <label class="form-label small text-muted">客戶真實姓名 / 社群暱稱 <span class="text-danger">*</span></label>
@@ -720,7 +720,7 @@
                             </div>
                         </div>
 
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse"></i> 健康畫像與隱私 (Schema 502)</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-heart-pulse me-1"></i>健康畫像與隱私 (Schema 502)</h6>
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label small text-muted">主要健康訴求 / 調養目標</label>
@@ -744,7 +744,7 @@
                 <div class="modal-footer border-secondary border-opacity-25">
                     <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-neon-primary" id="btnSaveNewCustomer">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存並同步至試算表
+                        <i class="fa-solid fa-floppy-disk me-1"></i>儲存並同步至試算表
                     </button>
                 </div>
             </div>
@@ -756,7 +756,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-secondary border-opacity-25">
-                    <h5 class="modal-title hub-title"><i class="fa-solid fa-pen-nib text-accent"></i> 登錄關懷互動紀錄</h5>
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-pen-nib text-accent me-1"></i>登錄關懷互動紀錄</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -792,7 +792,7 @@
                 <div class="modal-footer border-secondary border-opacity-25">
                     <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-neon-accent" id="btnSaveCareNote">
-                        <i class="fa-solid fa-check"></i> 儲存關懷歷程
+                        <i class="fa-solid fa-check me-1"></i>儲存關懷歷程
                     </button>
                 </div>
             </div>
@@ -999,10 +999,10 @@
             // 試算表 GViz 雲端同步按鈕事件 (解耦架構實踐)
             $('#btnSyncGviz').on('click', function() {
                 const btn = $(this);
-                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...');
                 setTimeout(function() {
-                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 試算表同步完成');
-                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表雲端同步'), 2500);
+                    btn.html('<i class="fa-solid fa-circle-check text-success me-1"></i>試算表同步完成');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>試算表雲端同步'), 2500);
                 }, 1200);
             });
 
@@ -1070,15 +1070,15 @@
                 let progressBarColor = 'bg-success';
                 
                 if (item.days_remaining <= 0) {
-                    depletionBadge = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation"></i> 已逾期耗盡 (${Math.abs(item.days_remaining)}天)</span>`;
+                    depletionBadge = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>已逾期耗盡 (${Math.abs(item.days_remaining)}天)</span>`;
                     progressWidth = 100;
                     progressBarColor = 'bg-danger';
                 } else if (item.days_remaining <= 7) {
-                    depletionBadge = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-clock-rotate-left"></i> 倒數 ${item.days_remaining} 天耗盡</span>`;
+                    depletionBadge = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-clock-rotate-left me-1"></i>倒數 ${item.days_remaining} 天耗盡</span>`;
                     progressWidth = Math.max(15, (item.days_remaining / 30) * 100);
                     progressBarColor = 'bg-warning';
                 } else {
-                    depletionBadge = `<span class="badge bg-secondary"><i class="fa-solid fa-circle-check"></i> 週期正常 (${item.days_remaining}天)</span>`;
+                    depletionBadge = `<span class="badge bg-secondary"><i class="fa-solid fa-circle-check me-1"></i>週期正常 (${item.days_remaining}天)</span>`;
                     progressWidth = Math.min(100, (item.days_remaining / 45) * 100);
                     progressBarColor = 'bg-success';
                 }
@@ -1104,11 +1104,11 @@
 
                                 <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
                                     <div class="d-flex justify-content-between small text-muted mb-1">
-                                        <span><i class="fa-solid fa-heart-pulse text-danger"></i> 調養目標：</span>
+                                        <span><i class="fa-solid fa-heart-pulse text-danger me-1"></i>調養目標：</span>
                                         <span class="text-light text-truncate" style="max-width: 170px;">${item.health_concerns}</span>
                                     </div>
                                     <div class="d-flex justify-content-between small text-muted">
-                                        <span><i class="fa-solid fa-box text-info"></i> 近期品項：</span>
+                                        <span><i class="fa-solid fa-box text-info me-1"></i>近期品項：</span>
                                         <span class="text-light">${item.last_purchase_product}</span>
                                     </div>
                                 </div>
@@ -1179,12 +1179,12 @@
             customersDatabase.forEach(item => {
                 const stageText = getStageText(item.conversion_stage);
                 const stageClass = getStageBadgeClass(item.conversion_stage);
-                const actionBtn = `<button class="btn btn-sm btn-neon-ghost py-1 px-2 btnOpenDetail" data-id="${item.customer_id}"><i class="fa-solid fa-folder-open"></i> 檔案</button>`;
+                const actionBtn = `<button class="btn btn-sm btn-neon-ghost py-1 px-2 btnOpenDetail" data-id="${item.customer_id}"><i class="fa-solid fa-folder-open me-1"></i>檔案</button>`;
                 
                 dataTableInstance.row.add([
                     `<div><strong>${item.customer_name}</strong><br><span class="hub-code text-muted small">${item.customer_id}</span></div>`,
                     `<span class="badge-stage ${stageClass}">${stageText}</span>`,
-                    `<div><i class="fa-solid fa-phone text-muted"></i> ${item.mobile_phone}<br><i class="fa-brands fa-line text-success"></i> ${item.line_user_id}</div>`,
+                    `<div><i class="fa-solid fa-phone text-muted me-1"></i>${item.mobile_phone}<br><i class="fa-brands fa-line text-success me-1"></i>${item.line_user_id}</div>`,
                     `<div class="small"><strong>訴求:</strong> ${item.health_concerns}<br><span class="text-muted">過敏：${item.allergy_history}</span></div>`,
                     `<div class="small">${item.last_purchase_product}<br><span class="text-warning">${item.days_remaining <= 0 ? '已逾期耗盡' : '剩餘 ' + item.days_remaining + ' 天'}</span></div>`,
                     `<span class="hub-code text-accent fw-bold">${item.total_accumulated_sv.toLocaleString()}</span>`,

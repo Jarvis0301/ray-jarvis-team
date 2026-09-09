@@ -104,7 +104,7 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
  * 資料讀取引擎
  */
 async function fetchAllGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawAdjustments, rawPersons, rawPartners, rawProducts, rawCustomers] = await Promise.all([
@@ -370,7 +370,7 @@ function renderAdjustmentsTable() {
             warehouses: `
                 <div>
                     <span class="badge badge-purple-subtle">${getWarehouseDisplayName(a.from_warehouse_id)}</span>
-                    ${a.to_warehouse_id ? `<div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long"></i> ${getWarehouseDisplayName(a.to_warehouse_id)}</div>` : ''}
+                    ${a.to_warehouse_id ? `<div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${getWarehouseDisplayName(a.to_warehouse_id)}</div>` : ''}
                 </div>
             `,
             product_batch: `
@@ -393,8 +393,8 @@ function renderAdjustmentsTable() {
             sv_breakdown: `<span class="text-warning fw-bold">${a.total_sv.toLocaleString()} SV</span>`,
             parties: `
                 <div>
-                    <div class="small text-white fw-bold"><i class="fa-solid fa-user-shield text-primary"></i> ${operatorResolved}</div>
-                    ${prospectResolved ? `<div class="small text-info"><i class="fa-solid fa-user text-warning"></i> 對象：${prospectResolved}</div>` : ''}
+                    <div class="small text-white fw-bold"><i class="fa-solid fa-user-shield text-primary me-1"></i>${operatorResolved}</div>
+                    ${prospectResolved ? `<div class="small text-info"><i class="fa-solid fa-user text-warning me-1"></i>對象：${prospectResolved}</div>` : ''}
                 </div>
             `,
             date_info: `<span class="text-light">${a.adj_date}</span>`,
@@ -454,7 +454,7 @@ function renderTransfersTable() {
             route: `
                 <div>
                     <span class="badge badge-purple-subtle">${getWarehouseDisplayName(t.from_warehouse_id)}</span>
-                    <div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long"></i> ${getWarehouseDisplayName(t.to_warehouse_id) || '未指定'}</div>
+                    <div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${getWarehouseDisplayName(t.to_warehouse_id) || '未指定'}</div>
                 </div>
             `,
             product: `
@@ -589,16 +589,16 @@ function calculateAuditVariance() {
     const $reasonBox = $('#auditReasonContainer');
 
     if (diff === 0) {
-        $tag.attr('class', 'variance-tag variance-balanced').html('<i class="fa-solid fa-check"></i> 帳實相符 (0)');
+        $tag.attr('class', 'variance-tag variance-balanced').html('<i class="fa-solid fa-check me-1"></i>帳實相符 (0)');
         $lblCost.text('$0 TWD');
         $reasonBox.addClass('d-none');
     } else if (diff < 0) {
-        $tag.attr('class', 'variance-tag variance-loss').html(`<i class="fa-solid fa-triangle-exclamation"></i> 盤虧短少 (${diff})`);
+        $tag.attr('class', 'variance-tag variance-loss').html(`<i class="fa-solid fa-triangle-exclamation me-1"></i>盤虧短少 (${diff})`);
         $lblCost.text(`-$${totalCost.toLocaleString()} TWD`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤虧');
     } else {
-        $tag.attr('class', 'variance-tag variance-gain').html(`<i class="fa-solid fa-plus"></i> 盤盈溢出 (+${diff})`);
+        $tag.attr('class', 'variance-tag variance-gain').html(`<i class="fa-solid fa-plus me-1"></i>盤盈溢出 (+${diff})`);
         $lblCost.text(`+$${totalCost.toLocaleString()} TWD`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤盈');
@@ -739,7 +739,7 @@ async function commitAuditRecord() {
 
     const $btn = $('#btnSubmitAudit');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
         await fetchAllGoogleSheetsData();
@@ -747,7 +747,7 @@ async function commitAuditRecord() {
     } catch (err) {
         AppToast.error("寫入失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 寫入盤點覆核單據');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>寫入盤點覆核單據');
     }
 }
 
@@ -887,7 +887,7 @@ function calculateModalTotals() {
 }
 
 function openAddAdjustmentModal() {
-    $('#adjustModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary"></i> 發起盤點調撥單據');
+    $('#adjustModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>發起盤點調撥單據');
     $('#formMode').val('add');
     $('#adjustForm')[0].reset();
 
@@ -915,7 +915,7 @@ function openEditAdjustmentModal(id) {
     const adj = appState.adjustments.find(a => a.id === id);
     if (!adj) return;
 
-    $('#adjustModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯盤點調撥單據');
+    $('#adjustModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯盤點調撥單據');
     $('#formMode').val('edit');
 
     $('#fieldId').val(adj.id);
@@ -1027,7 +1027,7 @@ async function saveAdjustmentRecord() {
 
     const $btn = $('#btnSaveAdjust');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
         if (mode === 'add') {
             await SheetAdapter.sendRequest('CREATE', '盤點調撥', id, rowDataArray);
             appState.adjustments.unshift(updatedObj);
@@ -1043,7 +1043,7 @@ async function saveAdjustmentRecord() {
     } catch (err) {
         AppToast.error("寫入失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

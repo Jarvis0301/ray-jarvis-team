@@ -149,7 +149,7 @@ window.addEventListener('AppReady', async () => {
 // 資料讀取引擎 (解析 4 張中文工作表)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
         const fetchSheet = async (sheetName) => {
@@ -353,7 +353,7 @@ function selectRank(rankId) {
         $flags.append(`
             <div class="col-12 col-md-4">
                 <div class="fs-6 p-2 rounded ${badgeClass} d-flex align-items-center gap-2">
-                    <i class="${icon}"></i> ${label}
+                    <i class="${icon} me-1"></i>${label}
                 </div>
             </div>
         `);
@@ -730,7 +730,7 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         let actionBtns = '';
         if (isDelegated) {
             // 共同經營者採動態同步，提示需至主要經營者處異動
-            actionBtns = `<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate"></i> 共同經營同步</span>`;
+            actionBtns = `<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate me-1"></i>共同經營同步</span>`;
         } else {
             actionBtns = `
                 <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
@@ -739,7 +739,7 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         }
 
         const noteSyncTag = isDelegated 
-            ? `<span class="badge bg-dark text-secondary me-1"><i class="fa-solid fa-user-group"></i> 共同經營</span>` 
+            ? `<span class="badge bg-dark text-secondary me-1"><i class="fa-solid fa-user-group me-1"></i>共同經營</span>` 
             : '';
 
         return {
@@ -866,7 +866,7 @@ function initPartnerSelect2() {
 }
 
 function openAddRankModal() {
-    $('#modalHistoryTitle').html('<i class="fa-solid fa-plus text-accent"></i> 登錄夥伴職級晉升');
+    $('#modalHistoryTitle').html('<i class="fa-solid fa-plus text-accent me-1"></i>登錄夥伴職級晉升');
     $('#fieldHistoryMode').val('add');
     $('#formRankHistory')[0].reset();
     $('#fieldHistoryId').val(''); // 選擇夥伴後動態產生
@@ -896,7 +896,7 @@ function openEditHistoryModal(historyId) {
     const item = appState.history.find(h => h.history_id === historyId);
     if (!item) return;
 
-    $('#modalHistoryTitle').html('<i class="fa-solid fa-pen-to-square text-accent"></i> 編輯晉升紀錄');
+    $('#modalHistoryTitle').html('<i class="fa-solid fa-pen-to-square text-accent me-1"></i>編輯晉升紀錄');
     $('#fieldHistoryMode').val('edit');
     $('#fieldHistoryId').val(item.history_id);
     $('#fieldPartnerId').val(item.partner_id).trigger('change');

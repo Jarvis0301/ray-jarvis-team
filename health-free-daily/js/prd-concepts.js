@@ -178,7 +178,7 @@ function renderCategoryFilter(data) {
     categories.forEach(cat => {
         const label = cat === 'ALL' ? '全部主題' : cat;
         const activeClass = cat === 'ALL' ? 'active btn-primary' : 'btn-outline-primary';
-        const icon = cat === 'ALL' ? '<i class="fa-solid fa-layer-group"></i> ' : '<i class="fa-solid fa-hashtag"></i> ';
+        const icon = cat === 'ALL' ? '<i class="fa-solid fa-layer-group me-1"></i>' : '<i class="fa-solid fa-hashtag me-1"></i>';
         
         container.append(`
             <button class="btn btn-sm ${activeClass} me-2 text-nowrap category-btn" data-category="${cat}">
@@ -218,7 +218,7 @@ function renderGridCards(data) {
                     <div class="poster-wrapper">
                         ${posterHtml}
                         <span class="poster-badge">
-                            <i class="fa-solid fa-tag"></i> ${item.category}
+                            <i class="fa-solid fa-tag me-1"></i>${item.category}
                         </span>
                     </div>
                     <div class="card-body-custom">
@@ -226,10 +226,10 @@ function renderGridCards(data) {
                         <p class="concept-summary">${item.summary}</p>
                         <div class="d-flex align-items-center justify-content-between mt-auto pt-3 border-top border-secondary">
                             <span class="text-muted small">
-                                <i class="fa-solid fa-calendar-day"></i> ${item.date}
+                                <i class="fa-solid fa-calendar-day me-1"></i>${item.date}
                             </span>
                             <button class="btn btn-sm btn-primary btn-open-detail" data-id="${item.id}">
-                                <i class="fa-solid fa-arrow-right"></i> 閱讀全文
+                                <i class="fa-solid fa-arrow-right me-1"></i>閱讀全文
                             </button>
                         </div>
                     </div>
@@ -244,7 +244,7 @@ function getPlaceholderHtml() {
     return `
         <div class="poster-placeholder">
             <i class="fa-solid fa-image fs-1 mb-2 opacity-50"></i>
-            <span class="small opacity-75"><i class="fa-solid fa-leaf"></i> 榮祥團隊 專屬海報空間</span>
+            <span class="small opacity-75"><i class="fa-solid fa-leaf me-1"></i>榮祥團隊 專屬海報空間</span>
         </div>
     `;
 }
@@ -263,7 +263,7 @@ function renderDataTable(data) {
             <tr>
                 <td>
                     <span class="badge bg-success-subtle text-success border border-success-subtle">
-                        <i class="fa-solid fa-tag"></i> ${item.category}
+                        <i class="fa-solid fa-tag me-1"></i>${item.category}
                     </span>
                 </td>
                 <td class="fw-bold text-white">${item.title}</td>
@@ -271,7 +271,7 @@ function renderDataTable(data) {
                 <td class="text-nowrap small text-muted">${item.date}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-primary btn-open-detail" data-id="${item.id}">
-                        <i class="fa-solid fa-eye"></i> 查看
+                        <i class="fa-solid fa-eye me-1"></i>查看
                     </button>
                 </td>
             </tr>
@@ -357,7 +357,7 @@ function openDetailModal(conceptId) {
     const item = globalConceptsData.find(c => c.id === conceptId);
     if (!item) return;
 
-    $('#modalCategoryBadge').html(`<i class="fa-solid fa-tag"></i> ${item.category}`);
+    $('#modalCategoryBadge').html(`<i class="fa-solid fa-tag me-1"></i>${item.category}`);
     $('#modalTitle').text(item.title);
     $('#modalAuthor').text(item.author);
     $('#modalDate').text(item.date);

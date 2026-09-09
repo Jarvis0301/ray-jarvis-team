@@ -325,7 +325,7 @@ function loadPage(pageUrl) {
                         <i class="fa-solid fa-hammer text-purple display-4 mb-3"></i>
                         <h3>本頁面建置中，敬請期待！</h3>
                         <button class="btn btn-outline-purple mt-2" onclick="loadPage('home.html')">
-                            <i class="fa-solid fa-house me-1"></i> 返回首頁
+                            <i class="fa-solid fa-house me-1"></i>返回首頁
                         </button>
                     </div>
                 </div>
@@ -494,7 +494,7 @@ function renderSitemapFooter() {
         let sitemapBlockHtml = `
             <div class="col-lg-3 col-md-4">
                 <div class="fw-bold text-purple mb-2">
-                    <i class="${iconClass} me-1"></i> ${root.titleCn}
+                    <i class="${iconClass} me-1"></i>${root.titleCn}
                 </div>`;
 
         if (children.length > 0) {
@@ -509,7 +509,7 @@ function renderSitemapFooter() {
                 sitemapBlockHtml += `
                     <li>
                         <a href="${child.link}" ${targetAttr} ${clickHandler}>
-                            <i class="${child.icon} me-1"></i> ${child.titleCn}
+                            <i class="${child.icon} me-1"></i>${child.titleCn}
                         </a>
                     </li>`;
             });

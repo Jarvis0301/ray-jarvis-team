@@ -100,7 +100,7 @@ window.addEventListener('AppReady', function() {
                 data: 'url',
                 render: function(data) {
                     return `<a href="${data}" target="_blank" class="btn btn-sm btn-outline-info">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> 前往下載
+                        <i class="fa-solid fa-cloud-arrow-down me-1"></i>前往下載
                     </a>`;
                 }
             }
@@ -128,7 +128,7 @@ window.addEventListener('AppReady', function() {
                 });
 
                 dataTable.clear().rows.add(parsedData).draw();
-                $('#syncStatus').html('<i class="fa-solid fa-circle-check text-success"></i> 已同步最新雲端資料');
+                $('#syncStatus').html('<i class="fa-solid fa-circle-check text-success me-1"></i>已同步最新雲端資料');
             } else {
                 renderFallback();
             }
@@ -141,7 +141,7 @@ window.addEventListener('AppReady', function() {
     // 連線失敗或無 Sheet ID 時載入備份數據
     function renderFallback() {
         dataTable.clear().rows.add(fallbackData).draw();
-        $('#syncStatus').html('<i class="fa-solid fa-triangle-exclamation text-warning"></i> 使用預設離線清單');
+        $('#syncStatus').html('<i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>使用預設離線清單');
     }
 
 });

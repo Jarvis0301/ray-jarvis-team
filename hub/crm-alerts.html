@@ -225,10 +225,10 @@
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge px-2 py-1 rounded-pill hub-code" style="background: rgba(139,92,246,0.18); color: #c084fc; border: 1px solid rgba(139,92,246,0.35);">
-                            <i class="fa-solid fa-triangle-exclamation"></i> H54000 / crm-alerts
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>H54000 / crm-alerts
                         </span>
                         <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3);">
-                            <i class="fa-solid fa-bullseye"></i> 7日耗盡與門檻調度閉環
+                            <i class="fa-solid fa-bullseye me-1"></i>7日耗盡與門檻調度閉環
                         </span>
                     </div>
                     <h1 class="h3 mb-0 hub-title">客戶預警與回購雷達中樞</h1>
@@ -239,13 +239,13 @@
 
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGviz">
-                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表預警
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表預警
                     </button>
                     <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#analyticsCollapse">
-                        <i class="fa-solid fa-chart-pie"></i> 預警趨勢洞察
+                        <i class="fa-solid fa-chart-pie me-1"></i>預警趨勢洞察
                     </button>
                     <button class="btn btn-neon-accent btn-sm px-3 py-2" id="btnBatchActionModal" data-bs-toggle="modal" data-bs-target="#modalBatchDispatch">
-                        <i class="fa-solid fa-paper-plane"></i> 批次關懷推播
+                        <i class="fa-solid fa-paper-plane me-1"></i>批次關懷推播
                     </button>
                 </div>
             </div>
@@ -255,7 +255,7 @@
                 <div class="col-6 col-lg-3">
                     <div class="stat-radar-pill active" data-filter="ALL">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="small text-muted"><i class="fa-solid fa-list-check"></i> 全部待處置</span>
+                            <span class="small text-muted"><i class="fa-solid fa-list-check me-1"></i>全部待處置</span>
                             <span class="badge bg-secondary rounded-pill hub-code" id="cntAll">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold text-light" id="totalActiveAlerts">0 <small class="fs-6 fw-normal text-muted">件</small></h4>
@@ -264,7 +264,7 @@
                 <div class="col-6 col-lg-3">
                     <div class="stat-radar-pill" data-filter="REORDER_7D">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="small" style="color: #fbbf24;"><i class="fa-solid fa-hourglass-half"></i> 7日即將耗盡</span>
+                            <span class="small" style="color: #fbbf24;"><i class="fa-solid fa-hourglass-half me-1"></i>7日即將耗盡</span>
                             <span class="badge bg-warning text-dark rounded-pill hub-code" id="cnt7d">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold text-warning" id="totalReorder7d">0 <small class="fs-6 fw-normal text-muted">人</small></h4>
@@ -273,7 +273,7 @@
                 <div class="col-6 col-lg-3">
                     <div class="stat-radar-pill" data-filter="HEALING_CHECK">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="small" style="color: #38bdf8;"><i class="fa-solid fa-notes-medical"></i> 好轉反應關懷</span>
+                            <span class="small" style="color: #38bdf8;"><i class="fa-solid fa-notes-medical me-1"></i>好轉反應關懷</span>
                             <span class="badge bg-info text-dark rounded-pill hub-code" id="cntHealing">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold text-info" id="totalHealing">0 <small class="fs-6 fw-normal text-muted">人</small></h4>
@@ -282,7 +282,7 @@
                 <div class="col-6 col-lg-3">
                     <div class="stat-radar-pill" data-filter="SCHEDULE_DISPATCH">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="small" style="color: #c084fc;"><i class="fa-solid fa-calendar-check"></i> 門檻調度約定</span>
+                            <span class="small" style="color: #c084fc;"><i class="fa-solid fa-calendar-check me-1"></i>門檻調度約定</span>
                             <span class="badge bg-purple rounded-pill hub-code" style="background: var(--uvaco-primary);" id="cntDispatch">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold" style="color: #c084fc;" id="totalDispatch">0 <small class="fs-6 fw-normal text-muted">單</small></h4>
@@ -296,7 +296,7 @@
             <div class="row g-3">
                 <div class="col-12 col-lg-6">
                     <div class="glass-panel p-3 h-100">
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-pie text-accent"></i> 預警類型分佈佔比</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-chart-pie text-accent me-1"></i>預警類型分佈佔比</h6>
                         <div style="height: 220px; position: relative;">
                             <canvas id="alertTypeChart"></canvas>
                         </div>
@@ -304,7 +304,7 @@
                 </div>
                 <div class="col-12 col-lg-6">
                     <div class="glass-panel p-3 h-100">
-                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-gauge-high text-success"></i> 預警處置效率與回購轉化率</h6>
+                        <h6 class="mb-3" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-gauge-high text-success me-1"></i>預警處置效率與回購轉化率</h6>
                         <div style="height: 220px; position: relative;">
                             <canvas id="conversionChart"></canvas>
                         </div>
@@ -377,21 +377,21 @@
         <div class="offcanvas-body p-3 p-lg-4">
             <div class="alert alert-dark border border-purple-subtle p-3 rounded-3 mb-3" style="background: rgba(139,92,246,0.1);">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <strong style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-lightbulb"></i> 戰術行動指引</strong>
+                    <strong style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-lightbulb me-1"></i>戰術行動指引</strong>
                     <span class="badge bg-danger" id="drawerUrgency">極緊急 (剩餘 2 天)</span>
                 </div>
                 <p class="small text-light mb-0" id="drawerSuggestion">客戶食用衛傑已達 46 天，即將斷盒。建議詢問腸胃排便改善體感，並告知本週團隊有滿額贈百克斯活動，引導回購 2 盒。</p>
             </div>
 
-            <h6 class="mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-brands fa-line text-success"></i> 智能推薦 LINE 私聊關懷話術</h6>
+            <h6 class="mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-brands fa-line text-success me-1"></i>智能推薦 LINE 私聊關懷話術</h6>
             <div class="position-relative mb-3">
                 <textarea class="form-control form-control-sm" id="lineScriptBox" rows="5" style="background: rgba(0,0,0,0.3); color: #f3e8ff; border: 1px solid rgba(139,92,246,0.3); font-size: 0.9rem;"></textarea>
                 <button class="btn btn-sm btn-neon-ghost position-absolute bottom-0 end-0 m-2" id="btnCopyScript">
-                    <i class="fa-solid fa-copy"></i> 複製話術
+                    <i class="fa-solid fa-copy me-1"></i>複製話術
                 </button>
             </div>
 
-            <h6 class="mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-clipboard-check"></i> 處置結果登錄</h6>
+            <h6 class="mb-2" style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-clipboard-check me-1"></i>處置結果登錄</h6>
             <form id="drawerActionForm">
                 <div class="mb-3">
                     <label class="form-label small text-muted">處置狀態</label>
@@ -410,10 +410,10 @@
         </div>
         <div class="offcanvas-footer border-top border-secondary border-opacity-25 p-3 d-flex gap-2">
             <a href="https://line.me" target="_blank" class="btn btn-sm btn-success flex-fill" id="btnDrawerOpenLine">
-                <i class="fa-brands fa-line"></i> 開啟 LINE 私聊
+                <i class="fa-brands fa-line me-1"></i>開啟 LINE 私聊
             </a>
             <button class="btn btn-sm btn-neon-primary flex-fill" id="btnSaveDrawerAction">
-                <i class="fa-solid fa-floppy-disk"></i> 儲存處置結果
+                <i class="fa-solid fa-floppy-disk me-1"></i>儲存處置結果
             </button>
         </div>
     </div>
@@ -423,19 +423,19 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-secondary border-opacity-25">
-                    <h5 class="modal-title hub-title"><i class="fa-solid fa-paper-plane text-accent"></i> 批次發送回購關懷清單</h5>
+                    <h5 class="modal-title hub-title"><i class="fa-solid fa-paper-plane text-accent me-1"></i>批次發送回購關懷清單</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <p class="small text-muted">系統已自動為當前篩選出的 <strong class="text-warning" id="batchTargetCount">3</strong> 位即將耗盡客戶打包 LINE 關懷短訊範本。</p>
                     <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-20 mb-3 small" style="color: var(--uvaco-text-sub);">
-                        <i class="fa-solid fa-circle-info text-info"></i> 批次處理後，所有告警將自動轉為「處理中」並記錄時間戳記。
+                        <i class="fa-solid fa-circle-info text-info me-1"></i>批次處理後，所有告警將自動轉為「處理中」並記錄時間戳記。
                     </div>
                 </div>
                 <div class="modal-footer border-secondary border-opacity-25">
                     <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-neon-accent" id="btnConfirmBatch">
-                        <i class="fa-solid fa-check"></i> 確認批次標記
+                        <i class="fa-solid fa-check me-1"></i>確認批次標記
                     </button>
                 </div>
             </div>
@@ -581,10 +581,10 @@
             // 試算表同步
             $('#btnSyncGviz').on('click', function() {
                 const btn = $(this);
-                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 掃描中...');
+                btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>掃描中...');
                 setTimeout(function() {
-                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 預警掃描完成');
-                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表預警'), 2000);
+                    btn.html('<i class="fa-solid fa-circle-check text-success me-1"></i>預警掃描完成');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表預警'), 2000);
                 }, 1000);
             });
 
@@ -593,7 +593,7 @@
                 const text = $('#lineScriptBox').val();
                 navigator.clipboard.writeText(text).then(() => {
                     const originalText = $(this).html();
-                    $(this).html('<i class="fa-solid fa-check text-success"></i> 已複製');
+                    $(this).html('<i class="fa-solid fa-check text-success me-1"></i>已複製');
                     setTimeout(() => $(this).html(originalText), 1500);
                 });
             });
@@ -645,11 +645,11 @@
 
                 let countdownHtml = '';
                 if (item.days_remaining < 0) {
-                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation"></i> 逾期 ${Math.abs(item.days_remaining)} 天</span>`;
+                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>逾期 ${Math.abs(item.days_remaining)} 天</span>`;
                 } else if (item.days_remaining <= 3) {
-                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-clock"></i> 倒數 ${item.days_remaining} 天</span>`;
+                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-clock me-1"></i>倒數 ${item.days_remaining} 天</span>`;
                 } else {
-                    countdownHtml = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-start"></i> 倒數 ${item.days_remaining} 天</span>`;
+                    countdownHtml = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-start me-1"></i>倒數 ${item.days_remaining} 天</span>`;
                 }
 
                 const cardHtml = `
@@ -665,19 +665,19 @@
                                 </div>
 
                                 <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-2">
-                                    <div class="small text-muted mb-1"><i class="fa-solid fa-box text-info"></i> 品項：<strong class="text-light">${item.product_name}</strong></div>
-                                    <div class="small text-muted"><i class="fa-solid fa-spoon text-warning"></i> 用量：${item.daily_dosage}</div>
+                                    <div class="small text-muted mb-1"><i class="fa-solid fa-box text-info me-1"></i>品項：<strong class="text-light">${item.product_name}</strong></div>
+                                    <div class="small text-muted"><i class="fa-solid fa-spoon text-warning me-1"></i>用量：${item.daily_dosage}</div>
                                 </div>
 
                                 <p class="small text-light mb-3" style="color: var(--uvaco-text-sub) !important;">
-                                    <i class="fa-solid fa-lightbulb text-warning"></i> <strong>建議對策：</strong>${item.suggested_action}
+                                    <i class="fa-solid fa-lightbulb text-warning me-1"></i><strong>建議對策：</strong>${item.suggested_action}
                                 </p>
                             </div>
 
                             <div class="pt-2 border-top border-secondary border-opacity-15 d-flex justify-content-between align-items-center">
-                                <span class="small text-muted"><i class="fa-solid fa-user-tie"></i> ${item.assigned_partner}</span>
+                                <span class="small text-muted"><i class="fa-solid fa-user-tie me-1"></i>${item.assigned_partner}</span>
                                 <button class="btn btn-sm btn-neon-primary btnOpenActionDrawer" data-id="${item.alert_id}">
-                                    <i class="fa-solid fa-bolt"></i> 立即處置
+                                    <i class="fa-solid fa-bolt me-1"></i>立即處置
                                 </button>
                             </div>
                         </div>
@@ -719,7 +719,7 @@
 
             alertsDatabase.forEach(item => {
                 const badgeInfo = getAlertTypeBadge(item.alert_type);
-                const actionBtn = `<button class="btn btn-sm btn-neon-primary py-1 px-2 btnOpenActionDrawer" data-id="${item.alert_id}"><i class="fa-solid fa-bolt"></i> 處置</button>`;
+                const actionBtn = `<button class="btn btn-sm btn-neon-primary py-1 px-2 btnOpenActionDrawer" data-id="${item.alert_id}"><i class="fa-solid fa-bolt me-1"></i>處置</button>`;
                 
                 alertDataTableInstance.row.add([
                     `<div><strong>${item.customer_name}</strong><br><span class="hub-code text-muted small">${item.alert_id}</span></div>`,

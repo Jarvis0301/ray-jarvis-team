@@ -61,7 +61,7 @@ async function initApp() {
 // 4. 解析 Google Sheets 數據 (依 Schema 索引順序讀取)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
         const fetchSheet = async (sheetName) => {
@@ -324,7 +324,7 @@ function renderCart() {
                 </div>
                 <div class="fw-bold text-white mb-1 fs-6">對沖艙目前無品項</div>
                 <p class="small text-light-emphasis mb-0">
-                    請至下方「產品對照庫」點擊 <span class="badge badge-secondary-subtle"><i class="fa-solid fa-plus"></i> 加入</span> 進行跨境平帳試算
+                    請至下方「產品對照庫」點擊 <span class="badge badge-secondary-subtle"><i class="fa-solid fa-plus me-1"></i>加入</span> 進行跨境平帳試算
                 </p>
             </div>
         `);
@@ -428,15 +428,15 @@ function updateCartTotals(totalSV, totalTWD, totalMYR) {
 
     if (cashDifferenceTwd > 0) {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-arrow-trend-up text-warning"></i> 大馬需補貼台灣代墊差額：<span class="text-warning fw-bold">NT$ ${Math.round(cashDifferenceTwd).toLocaleString()}</span>
+            <i class="fa-solid fa-arrow-trend-up text-warning me-1"></i>大馬需補貼台灣代墊差額：<span class="text-warning fw-bold">NT$ ${Math.round(cashDifferenceTwd).toLocaleString()}</span>
         `);
     } else if (cashDifferenceTwd < 0) {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-arrow-trend-down text-warning"></i> 台灣需退款大馬溢付差額：<span class="text-warning fw-bold">NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}</span>
+            <i class="fa-solid fa-arrow-trend-down text-warning me-1"></i>台灣需退款大馬溢付差額：<span class="text-warning fw-bold">NT$ ${Math.abs(Math.round(cashDifferenceTwd)).toLocaleString()}</span>
         `);
     } else {
         $('#cartArbitrageText').html(`
-            <i class="fa-solid fa-scale-balanced text-success"></i> 兩地對沖帳目完全兩平 (${rate.toFixed(2)} 匯率基準)
+            <i class="fa-solid fa-scale-balanced text-success me-1"></i>兩地對沖帳目完全兩平 (${rate.toFixed(2)} 匯率基準)
         `);
     }
 }
@@ -485,7 +485,7 @@ function recalculateSolver() {
 
     $('#solverRecommendationBox').html(`
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold text-primary small"><i class="fa-solid fa-lightbulb"></i> 演算法最佳推薦配置</span>
+            <span class="fw-bold text-primary small"><i class="fa-solid fa-lightbulb me-1"></i>演算法最佳推薦配置</span>
             <span class="badge badge-warning-subtle">${accumulatedSV.toLocaleString()} SV 達成</span>
         </div>
         <div class="mb-2 d-flex flex-wrap">${itemsHtml}</div>
@@ -565,10 +565,10 @@ function renderCrossBorderMatrix() {
         }
 
         const actionBtn = twProd
-            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus"></i> 加入</button>`
+            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
             : (myProd
-                ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${myProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus"></i> 加入</button>`
-                : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban"></i> 無貨</button>`);
+                ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${myProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
+                : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`);
 
         $tbody.append(`
             <tr>
@@ -623,7 +623,7 @@ function renderRawProductTable() {
                 <td>${costDisplay}</td>
                 <td>
                     <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="加入跨境對沖沙盒">
-                        <i class="fa-solid fa-plus"></i> 加入
+                        <i class="fa-solid fa-plus me-1"></i>加入
                     </button>
                 </td>
             </tr>

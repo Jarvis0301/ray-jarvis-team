@@ -48,9 +48,9 @@ window.addEventListener('AppReady', function () {
     // 4. 刷新按鈕事件
     $('#btnRefreshHub').on('click', function () {
         const $btn = $(this);
-        $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+        $btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...');
         setTimeout(function () {
-            $btn.html('<i class="fa-solid fa-arrows-rotate"></i> 刷新戰情快取');
+            $btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>刷新戰情快取');
             const now = new Date();
             const timeStr = now.getFullYear() + '-' + 
                 String(now.getMonth() + 1).padStart(2, '0') + '-' + 
@@ -245,7 +245,7 @@ function initPsiDataTable() {
             { 
                 data: 'warehouseName',
                 render: function (data) {
-                    return `<span class="fw-semibold text-white"><i class="fa-solid fa-location-dot text-purple me-1"></i> ${data}</span>`;
+                    return `<span class="fw-semibold text-white"><i class="fa-solid fa-location-dot text-purple me-1"></i>${data}</span>`;
                 }
             },
             { 
@@ -278,11 +278,11 @@ function initPsiDataTable() {
                 data: 'alertType',
                 render: function (data) {
                     if (data === 'CRITICAL') {
-                        return '<span class="badge bg-danger text-white rounded-pill px-2 py-1"><i class="fa-solid fa-skull-crossbones"></i> 極急迫</span>';
+                        return '<span class="badge bg-danger text-white rounded-pill px-2 py-1"><i class="fa-solid fa-skull-crossbones me-1"></i>極急迫</span>';
                     } else if (data === 'LOW_STOCK') {
-                        return '<span class="badge bg-warning text-dark rounded-pill px-2 py-1"><i class="fa-solid fa-arrow-down-short-wide"></i> 存量告急</span>';
+                        return '<span class="badge bg-warning text-dark rounded-pill px-2 py-1"><i class="fa-solid fa-arrow-down-short-wide me-1"></i>存量告急</span>';
                     } else {
-                        return '<span class="badge bg-purple-subtle text-secondary rounded-pill px-2 py-1"><i class="fa-solid fa-clock"></i> 近效期</span>';
+                        return '<span class="badge bg-purple-subtle text-secondary rounded-pill px-2 py-1"><i class="fa-solid fa-clock me-1"></i>近效期</span>';
                     }
                 }
             },

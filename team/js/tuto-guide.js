@@ -114,7 +114,7 @@ window.addEventListener('AppReady', function() {
                         const note = row[keys.find(k => k.includes('注意') || k.includes('備註') || k.includes('Note'))] || '-';
 
                         table.row.add([
-                            `<span class="badge badge-category"><i class="fa-solid fa-tag me-1"></i> ${category}</span>`,
+                            `<span class="badge badge-category"><i class="fa-solid fa-tag me-1"></i>${category}</span>`,
                             target,
                             painPoint,
                             script,

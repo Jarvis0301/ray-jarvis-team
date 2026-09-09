@@ -81,7 +81,7 @@ async function initApp() {
 // 4. 解析 Google Sheets 數據 (解耦合載入)
 // ==========================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
         const fetchSheet = async (sheetName) => {
@@ -400,7 +400,7 @@ function renderTypeFilterButtons() {
     let html = `
         <div class="col col-12">
             <button class="filter-pill-btn w-100 ${appState.productType === 'ALL' ? 'active' : ''}" data-type="ALL">
-                <i class="fa-solid fa-border-all"></i> 全部
+                <i class="fa-solid fa-border-all me-1"></i>全部
             </button>
         </div>
     `;
@@ -411,7 +411,7 @@ function renderTypeFilterButtons() {
         html += `
             <div class="col">
                 <button class="filter-pill-btn w-100 ${isActive}" data-type="${t.type_code}">
-                    <i class="${typeInfo.icon}"></i> ${typeInfo.name}
+                    <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
                 </button>
             </div>
         `;
@@ -710,9 +710,9 @@ function renderProducts() {
 
                 let nameTagHtml = '';
                 if (item.status === 'COMING_SOON') {
-                    nameTagHtml = ' <span class="badge badge-warning"><i class="fa-solid fa-clock"></i> 即將上市</span>';
+                    nameTagHtml = ' <span class="badge badge-warning"><i class="fa-solid fa-clock me-1"></i>即將上市</span>';
                 } else if (item.is_featured) {
-                    nameTagHtml = ' <span class="badge badge-danger"><i class="fa-solid fa-fire"></i> 明星商品</span>';
+                    nameTagHtml = ' <span class="badge badge-danger"><i class="fa-solid fa-fire me-1"></i>明星商品</span>';
                 }
 
                 const rowHtml = `
@@ -721,12 +721,12 @@ function renderProducts() {
                         <td class="fw-bold text-white">${item.name}${nameTagHtml}</td>
                         <td>
                             <span class="badge border" style="color：${subInfo.color}; border-color：${subInfo.color} !important; background-color：${subInfo.bg};">
-                                <i class="${subInfo.icon}"></i> ${subInfo.name}
+                                <i class="${subInfo.icon} me-1"></i>${subInfo.name}
                             </span>
                         </td>
                         <td>
                             <span class="badge border" style="color：${typeInfo.color}; border-color：${typeInfo.color} !important; background-color：${typeInfo.bg};">
-                                <i class="${typeInfo.icon}"></i> ${typeInfo.name}
+                                <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
                             </span>
                         </td>
                         <td class="text-end price-num">${currencySymbol}${price.toLocaleString()}</td>
@@ -915,7 +915,7 @@ function updateCartSummary() {
     if (selectedKeys.length === 0) {
         $container.html(`
             <div class="text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height: 150px;" id="empty-cart-msg">
-                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50"></i> 尚未選擇任何商品，請點擊數量增減選擇。
+                <i class="fa-solid fa-basket-shopping fa-2x mb-2 opacity-50 me-1"></i>尚未選擇任何商品，請點擊數量增減選擇。
             </div>
         `);
 
@@ -970,7 +970,7 @@ function updateCartSummary() {
             $container.append(`
                 <div class="cart-item-row" data-row-id="${product.product_code}">
                     <div class="cart-item-title" title="${product.name} (${product.product_code})">
-                        <i class="fa-solid fa-box text-info"></i> ${displayName}
+                        <i class="fa-solid fa-box text-info me-1"></i>${displayName}
                     </div>
                     <div class="qty-control">
                         <button type="button" class="btn-qty btn-cart-minus" data-id="${product.product_code}">
@@ -1451,7 +1451,7 @@ function renderSubSeriesChartCards() {
             <div class="col-12 col-md-6 mb-3">
                 <div class="p-3 rounded bg-dark-subtle border border-secondary border-opacity-50 h-100">
                     <div class="fw-bold mb-2" style="color：${cat.color};">
-                        <i class="${cat.icon}"></i> ${cat.code} ${cat.name}
+                        <i class="${cat.icon} me-1"></i>${cat.code} ${cat.name}
                     </div>
                     <div style="height: 180px; position: relative;">
                         <canvas id="${canvasId}"></canvas>
@@ -1691,7 +1691,7 @@ function exportAnalyticsReport() {
     const $btn = $('#btnPrintAnalytics');
     const originalHtml = $btn.html();
 
-    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 報表產生中...');
+    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>報表產生中...');
 
     setTimeout(() => {
         try {

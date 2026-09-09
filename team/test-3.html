@@ -217,17 +217,17 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> 戰術裝備庫</span>
+                <span class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles me-1"></i>戰術裝備庫</span>
                 <span class="text-secondary small font-mono">T55000 / tool-bundles.html</span>
             </div>
-            <h3 class="fw-bold mb-0 text-white"><i class="fa-solid fa-layer-group"></i> 組合推薦配置中樞</h3>
+            <h3 class="fw-bold mb-0 text-white"><i class="fa-solid fa-layer-group me-1"></i>組合推薦配置中樞</h3>
         </div>
         <div class="d-flex align-items-center gap-2">
             <button id="btnSyncGoogleSheets" class="btn btn-outline-info btn-sm">
-                <i class="fa-solid fa-arrows-rotate"></i> 同步試算表數據
+                <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表數據
             </button>
             <button id="btnResetBundle" class="btn btn-outline-secondary btn-sm">
-                <i class="fa-solid fa-rotate-left"></i> 重設配方
+                <i class="fa-solid fa-rotate-left me-1"></i>重設配方
             </button>
         </div>
     </div>
@@ -237,7 +237,7 @@
         <div class="col-12 col-xl-8">
             <div class="tactical-panel mb-3">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-bolt text-warning"></i> 痛點情境速配預設</h5>
+                    <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-bolt text-warning me-1"></i>痛點情境速配預設</h5>
                     <span class="text-muted small">點擊快速載入專業戰術配方</span>
                 </div>
                 <div id="presetChipsContainer" class="d-flex flex-wrap gap-2">
@@ -247,7 +247,7 @@
             <div class="tactical-panel">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-25">
                     <div>
-                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-boxes-packing text-info"></i> 自訂配方清單 (SKU Sandbox)</h5>
+                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-boxes-packing text-info me-1"></i>自訂配方清單 (SKU Sandbox)</h5>
                         <small class="text-muted">可自由調配各產品盒數與食用週期</small>
                     </div>
                     <div class="d-flex align-items-center gap-2">
@@ -268,7 +268,7 @@
                         <option value="">-- 選擇其他產品加入配方 --</option>
                     </select>
                     <button id="btnAddSkuToBundle" class="btn btn-primary btn-sm px-3">
-                        <i class="fa-solid fa-plus"></i> 加入配方
+                        <i class="fa-solid fa-plus me-1"></i>加入配方
                     </button>
                 </div>
             </div>
@@ -277,7 +277,7 @@
         <div class="col-12 col-xl-4">
             
             <div class="tactical-panel mb-3">
-                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-calculator text-success"></i> 配單效益與考核試算</h5>
+                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-calculator text-success me-1"></i>配單效益與考核試算</h5>
                 
                 <div class="row g-2 mb-3">
                     <div class="col-6">
@@ -308,7 +308,7 @@
 
                 <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-25">
                     <div class="d-flex justify-content-between text-secondary small mb-1">
-                        <span><i class="fa-solid fa-trophy text-warning"></i> 經理合格 (3,200 SV) 貢獻</span>
+                        <span><i class="fa-solid fa-trophy text-warning me-1"></i>經理合格 (3,200 SV) 貢獻</span>
                         <span id="svProgressText" class="font-mono text-cyan">0%</span>
                     </div>
                     <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.1);">
@@ -319,9 +319,9 @@
 
             <div class="tactical-panel">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-share-nodes text-cyan"></i> 轉化推廣話術</h5>
+                    <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-share-nodes text-cyan me-1"></i>轉化推廣話術</h5>
                     <button id="btnCopyScript" class="btn btn-outline-warning btn-sm">
-                        <i class="fa-solid fa-copy"></i> 複製話術
+                        <i class="fa-solid fa-copy me-1"></i>複製話術
                     </button>
                 </div>
                 <div class="script-box font-mono" id="generatedScriptBox">
@@ -329,7 +329,7 @@
                 </div>
                 <div class="d-grid gap-2 mt-3">
                     <button id="btnOpenLineShare" class="btn btn-success fw-bold">
-                        <i class="fa-brands fa-line"></i> 分享至 LINE 客戶
+                        <i class="fa-brands fa-line me-1"></i>分享至 LINE 客戶
                     </button>
                 </div>
             </div>
@@ -443,7 +443,7 @@
                 PRESET_TACTICAL_BUNDLES.forEach((preset, index) => {
                     const $chip = $(`
                         <div class="preset-chip ${index === 0 ? 'active' : ''}" data-preset-id="${preset.id}">
-                            <i class="${preset.icon}"></i> ${preset.name}
+                            <i class="${preset.icon} me-1"></i>${preset.name}
                         </div>
                     `);
                     $container.append($chip);
@@ -653,7 +653,7 @@
                 navigator.clipboard.writeText(text).then(() => {
                     const $btn = $(this);
                     const originalHtml = $btn.html();
-                    $btn.removeClass('btn-outline-warning').addClass('btn-success').html('<i class="fa-solid fa-check"></i> 已複製');
+                    $btn.removeClass('btn-outline-warning').addClass('btn-success').html('<i class="fa-solid fa-check me-1"></i>已複製');
                     setTimeout(() => {
                         $btn.removeClass('btn-success').addClass('btn-outline-warning').html(originalHtml);
                     }, 2000);
@@ -670,11 +670,11 @@
             // 18. Google 試算表 GViz / PapaParse 解耦同步示範
             $('#btnSyncGoogleSheets').on('click', function () {
                 const $btn = $(this);
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...');
                 
                 // 模擬抓取非同步試算表並透過解耦字典對齊
                 setTimeout(() => {
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表數據');
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表數據');
                     alert('已成功與 Google 試算表完成欄位解耦同步！');
                 }, 1000);
             });

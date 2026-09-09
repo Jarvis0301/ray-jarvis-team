@@ -190,7 +190,7 @@ function renderLeadershipCards(members) {
         const avatarUrl = m.avatar && m.avatar.startsWith('http') ? m.avatar : defaultAvatar;
 
         const tagsHtml = m.expertise.split(',').map(tag => 
-            `<span class="tag-badge"><i class="fa-solid fa-tag"></i> ${tag.trim()}</span>`
+            `<span class="tag-badge"><i class="fa-solid fa-tag me-1"></i>${tag.trim()}</span>`
         ).join(' ');
 
         const cardHtml = `
@@ -198,17 +198,17 @@ function renderLeadershipCards(members) {
                 <div class="member-card text-center p-3">
                     <div class="member-avatar-wrapper">
                         <img src="${avatarUrl}" alt="${m.name}" class="member-avatar" onerror="this.src='${defaultAvatar}'">
-                        <span class="rank-badge"><i class="fa-solid fa-crown"></i> ${m.rank}</span>
+                        <span class="rank-badge"><i class="fa-solid fa-crown me-1"></i>${m.rank}</span>
                     </div>
                     <h4 class="h5 fw-bold text-light mb-1 mt-2">${m.name}</h4>
-                    <p class="text-info small mb-2"><i class="fa-solid fa-user-shield"></i> ${m.role}</p>
+                    <p class="text-info small mb-2"><i class="fa-solid fa-user-shield me-1"></i>${m.role}</p>
                     <p class="text-muted small mb-3 text-truncate" title="${m.intro}">"${m.intro}"</p>
                     <div class="mb-3">
                         ${tagsHtml}
                     </div>
                     <div class="pt-2 border-top border-secondary">
                         <a href="${m.social_link}" target="_blank" class="btn btn-sm btn-outline-info w-100">
-                            <i class="fa-solid fa-comments"></i> 聯繫夥伴
+                            <i class="fa-solid fa-comments me-1"></i>聯繫夥伴
                         </a>
                     </div>
                 </div>
@@ -237,19 +237,19 @@ function renderDataTable(members) {
         const rowHtml = `
             <tr>
                 <td class="fw-bold text-light">
-                    <i class="fa-solid fa-user-circle text-info"></i> ${m.name}
+                    <i class="fa-solid fa-user-circle text-info me-1"></i>${m.name}
                 </td>
                 <td>
                     <span class="badge ${getRankBadgeStyle(m.rank)}">
-                        <i class="fa-solid fa-award"></i> ${m.rank}
+                        <i class="fa-solid fa-award me-1"></i>${m.rank}
                     </span>
                 </td>
-                <td class="text-muted"><i class="fa-solid fa-briefcase"></i> ${m.role}</td>
-                <td><i class="fa-solid fa-location-dot text-danger"></i> ${m.location}</td>
+                <td class="text-muted"><i class="fa-solid fa-briefcase me-1"></i>${m.role}</td>
+                <td><i class="fa-solid fa-location-dot text-danger me-1"></i>${m.location}</td>
                 <td>${tags}</td>
                 <td>
                     <a href="${m.social_link}" target="_blank" class="btn btn-xs btn-outline-primary btn-sm">
-                        <i class="fa-solid fa-paper-plane"></i> 聯絡
+                        <i class="fa-solid fa-paper-plane me-1"></i>聯絡
                     </a>
                 </td>
             </tr>

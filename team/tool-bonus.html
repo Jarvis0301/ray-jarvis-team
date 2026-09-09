@@ -231,11 +231,11 @@
         <div class="container">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div>
-                    <span class="badge bg-primary text-white mb-2"><i class="fa-solid fa-user-shield"></i> 榮祥葡眾團隊私域專用</span>
-                    <h1 class="h3 header-title mb-0"><i class="fa-solid fa-calculator"></i> 獎金試算戰情小工具</h1>
+                    <span class="badge bg-primary text-white mb-2"><i class="fa-solid fa-user-shield me-1"></i>榮祥葡眾團隊私域專用</span>
+                    <h1 class="h3 header-title mb-0"><i class="fa-solid fa-calculator me-1"></i>獎金試算戰情小工具</h1>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <span class="text-muted small"><i class="fa-solid fa-sliders"></i> PV換算比率：</span>
+                    <span class="text-muted small"><i class="fa-solid fa-sliders me-1"></i>PV換算比率：</span>
                     <input type="number" id="pvRatioInput" class="form-control form-control-sm text-center" style="width: 80px;" value="1.51" step="0.01" min="1">
                 </div>
             </div>
@@ -245,23 +245,23 @@
     <main class="container-fluid p-3 p-md-4">
         
         <div class="disclaimer-box mb-4">
-            <i class="fa-solid fa-triangle-exclamation text-warning"></i> 內部戰略提示：本工具僅提供《榮祥葡眾團隊》夥伴作為事業規劃與業績推演之模擬試算，實際發放金額與晉升資格請以葡眾企業官方月結對帳單為準。
+            <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>內部戰略提示：本工具僅提供《榮祥葡眾團隊》夥伴作為事業規劃與業績推演之模擬試算，實際發放金額與晉升資格請以葡眾企業官方月結對帳單為準。
         </div>
 
         <ul class="nav nav-pills mb-4" id="calcTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="tab-products-tab" data-bs-toggle="pill" data-bs-target="#tab-products" type="button" role="tab">
-                    <i class="fa-solid fa-cart-flatbed"></i> 熱銷產品組合試算
+                    <i class="fa-solid fa-cart-flatbed me-1"></i>熱銷產品組合試算
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab-custom-tab" data-bs-toggle="pill" data-bs-target="#tab-custom" type="button" role="tab">
-                    <i class="fa-solid fa-sliders"></i> 個人與組織差額試算
+                    <i class="fa-solid fa-sliders me-1"></i>個人與組織差額試算
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab-matrix-tab" data-bs-toggle="pill" data-bs-target="#tab-matrix" type="button" role="tab">
-                    <i class="fa-solid fa-sitemap"></i> 職級與提撥階梯對照
+                    <i class="fa-solid fa-sitemap me-1"></i>職級與提撥階梯對照
                 </button>
             </li>
         </ul>
@@ -274,10 +274,10 @@
                         <div class="calc-card">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="card-header-title mb-0 border-0 pb-0">
-                                    <i class="fa-solid fa-boxes-packing"></i> 選擇擬採購產品與數量
+                                    <i class="fa-solid fa-boxes-packing me-1"></i>選擇擬採購產品與數量
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-cyan" id="resetProductsBtn">
-                                    <i class="fa-solid fa-rotate-left"></i> 清空數量
+                                    <i class="fa-solid fa-rotate-left me-1"></i>清空數量
                                 </button>
                             </div>
 
@@ -302,11 +302,11 @@
                     <div class="col-lg-4">
                         <div class="calc-card">
                             <div class="card-header-title">
-                                <i class="fa-solid fa-chart-pie"></i> 個人購買回饋試算
+                                <i class="fa-solid fa-chart-pie me-1"></i>個人購買回饋試算
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label"><i class="fa-solid fa-clock-rotate-left"></i> 原有累積總積分 (SV)</label>
+                                <label class="form-label"><i class="fa-solid fa-clock-rotate-left me-1"></i>原有累積總積分 (SV)</label>
                                 <input type="number" id="existingSvInput" class="form-control form-control-sm" value="0" min="0" step="100" placeholder="請輸入過往累積SV">
                                 <div class="form-text text-muted">包含本次採購前的歷史總 SV。</div>
                             </div>
@@ -316,20 +316,20 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-6">
                                     <div class="stat-box">
-                                        <div class="stat-label"><i class="fa-solid fa-receipt"></i> 本次消費金額</div>
+                                        <div class="stat-label"><i class="fa-solid fa-receipt me-1"></i>本次消費金額</div>
                                         <div class="stat-value" id="prodTotalNT">NT$ 0</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="stat-box">
-                                        <div class="stat-label"><i class="fa-solid fa-star"></i> 本次獲得 SV</div>
+                                        <div class="stat-label"><i class="fa-solid fa-star me-1"></i>本次獲得 SV</div>
                                         <div class="stat-value" id="prodTotalSV">0 SV</div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="stat-box mb-3">
-                                <div class="stat-label"><i class="fa-solid fa-layer-group"></i> 採購後總累積 SV / 對應職級</div>
+                                <div class="stat-label"><i class="fa-solid fa-layer-group me-1"></i>採購後總累積 SV / 對應職級</div>
                                 <div class="stat-value" id="prodCombinedSV">0 SV</div>
                                 <div class="mt-2" id="prodRankBadge">
                                     <span class="rank-badge rank-0">未達資格 (0%)</span>
@@ -337,13 +337,13 @@
                             </div>
 
                             <div class="stat-box mb-4">
-                                <div class="stat-label"><i class="fa-solid fa-hand-holding-dollar"></i> 本次預估現金回饋</div>
+                                <div class="stat-label"><i class="fa-solid fa-hand-holding-dollar me-1"></i>本次預估現金回饋</div>
                                 <div class="stat-value-gold" id="prodBonusCash">NT$ 0</div>
                                 <div class="small text-muted mt-1" id="prodFormulaDetail">計算式：0 SV × 0% × 1.51</div>
                             </div>
 
                             <div class="alert alert-info bg-dark text-info border-info small mb-0">
-                                <i class="fa-solid fa-lightbulb"></i> 戰略提示：葡眾制度具備「越吃越便宜、累積不歸零」特點，達到高職級後將永久享有較高回饋%！
+                                <i class="fa-solid fa-lightbulb me-1"></i>戰略提示：葡眾制度具備「越吃越便宜、累積不歸零」特點，達到高職級後將永久享有較高回饋%！
                             </div>
                         </div>
                     </div>
@@ -355,14 +355,14 @@
                     <div class="col-lg-7">
                         <div class="calc-card">
                             <div class="card-header-title">
-                                <i class="fa-solid fa-network-wired"></i> 組織架構與當月點數設定
+                                <i class="fa-solid fa-network-wired me-1"></i>組織架構與當月點數設定
                             </div>
 
                             <div class="p-3 mb-4 rounded" style="background-color: #132238; border: 1px solid var(--border-color);">
-                                <h6 class="text-info font-weight-bold mb-3"><i class="fa-solid fa-user-gear"></i> 我的當月經營數據</h6>
+                                <h6 class="text-info font-weight-bold mb-3"><i class="fa-solid fa-user-gear me-1"></i>我的當月經營數據</h6>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label"><i class="fa-solid fa-user"></i> 我的當月職級</label>
+                                        <label class="form-label"><i class="fa-solid fa-user me-1"></i>我的當月職級</label>
                                         <select id="myRankSelect" class="form-select form-select-sm">
                                             <option value="5">會員 (5%)</option>
                                             <option value="10">專員 (10%)</option>
@@ -371,16 +371,16 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label"><i class="fa-solid fa-box"></i> 我的當月個人 SV</label>
+                                        <label class="form-label"><i class="fa-solid fa-box me-1"></i>我的當月個人 SV</label>
                                         <input type="number" id="myPersonalSv" class="form-control form-control-sm" value="1500" min="0" step="100">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="text-cyan font-weight-bold mb-0"><i class="fa-solid fa-users"></i> 第一代（直育）組織成員業績</h6>
+                                <h6 class="text-cyan font-weight-bold mb-0"><i class="fa-solid fa-users me-1"></i>第一代（直育）組織成員業績</h6>
                                 <button type="button" class="btn btn-sm btn-outline-cyan" id="addDownlineBtn">
-                                    <i class="fa-solid fa-user-plus"></i> 新增下線夥伴
+                                    <i class="fa-solid fa-user-plus me-1"></i>新增下線夥伴
                                 </button>
                             </div>
 
@@ -388,7 +388,7 @@
                                 </div>
 
                             <p class="small text-muted mb-0">
-                                <i class="fa-solid fa-circle-info"></i> 提示：當上線職級高於下線職級時，上線可領取兩者職級之「差額獎金」。
+                                <i class="fa-solid fa-circle-info me-1"></i>提示：當上線職級高於下線職級時，上線可領取兩者職級之「差額獎金」。
                             </p>
                         </div>
                     </div>
@@ -396,37 +396,37 @@
                     <div class="col-lg-5">
                         <div class="calc-card">
                             <div class="card-header-title">
-                                <i class="fa-solid fa-file-invoice-dollar"></i> 組織月總獎金試算結果
+                                <i class="fa-solid fa-file-invoice-dollar me-1"></i>組織月總獎金試算結果
                             </div>
 
                             <div class="stat-box mb-3">
-                                <div class="stat-label"><i class="fa-solid fa-users-viewfinder"></i> 當月組織小組總 SV</div>
+                                <div class="stat-label"><i class="fa-solid fa-users-viewfinder me-1"></i>當月組織小組總 SV</div>
                                 <div class="stat-value" id="orgTotalGroupSV">0 SV</div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-6">
                                     <div class="stat-box">
-                                        <div class="stat-label"><i class="fa-solid fa-user-check"></i> 個人銷售回饋</div>
+                                        <div class="stat-label"><i class="fa-solid fa-user-check me-1"></i>個人銷售回饋</div>
                                         <div class="stat-value" id="orgPersonalBonus">NT$ 0</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="stat-box">
-                                        <div class="stat-label"><i class="fa-solid fa-diagram-next"></i> 組織差額獎金</div>
+                                        <div class="stat-label"><i class="fa-solid fa-diagram-next me-1"></i>組織差額獎金</div>
                                         <div class="stat-value" id="orgDiffBonus">NT$ 0</div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="stat-box mb-4">
-                                <div class="stat-label"><i class="fa-solid fa-sack-dollar"></i> 當月預估總獎金 (個人 + 差額)</div>
+                                <div class="stat-label"><i class="fa-solid fa-sack-dollar me-1"></i>當月預估總獎金 (個人 + 差額)</div>
                                 <div class="stat-value-gold" id="orgGrandTotalBonus">NT$ 0</div>
                                 <div class="small text-muted mt-1">含 PV 轉換係數估算</div>
                             </div>
 
                             <div class="p-3 rounded" style="background-color: #0f172a; border: 1px solid var(--border-color);">
-                                <div class="small text-info mb-2 font-weight-bold"><i class="fa-solid fa-list-check"></i> 組織差額獎金拆解說明：</div>
+                                <div class="small text-info mb-2 font-weight-bold"><i class="fa-solid fa-list-check me-1"></i>組織差額獎金拆解說明：</div>
                                 <div id="orgBreakdownList" class="small text-muted d-flex flex-column gap-2">
                                     </div>
                             </div>
@@ -438,7 +438,7 @@
             <div class="tab-pane fade" id="tab-matrix" role="tabpanel">
                 <div class="calc-card">
                     <div class="card-header-title">
-                        <i class="fa-solid fa-stairs"></i> 葡眾職級晉升門檻與銷售獎金提撥對照表
+                        <i class="fa-solid fa-stairs me-1"></i>葡眾職級晉升門檻與銷售獎金提撥對照表
                     </div>
 
                     <div class="table-responsive mb-4">
@@ -454,28 +454,28 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><span class="rank-badge rank-5"><i class="fa-solid fa-user"></i> 會員</span></td>
+                                    <td><span class="rank-badge rank-5"><i class="fa-solid fa-user me-1"></i>會員</span></td>
                                     <td>1,000 ~ 29,999 SV</td>
                                     <td class="text-info font-weight-bold">5%</td>
                                     <td>每年 160 SV</td>
                                     <td>入門消費，享受現金回饋</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="rank-badge rank-10"><i class="fa-solid fa-user-tag"></i> 專員</span></td>
+                                    <td><span class="rank-badge rank-10"><i class="fa-solid fa-user-tag me-1"></i>專員</span></td>
                                     <td>30,000 ~ 149,999 SV</td>
                                     <td class="text-info font-weight-bold">10%</td>
                                     <td>每年 160 SV</td>
                                     <td>累積不歸零，職級不下聘</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="rank-badge rank-15"><i class="fa-solid fa-user-tie"></i> 主任</span></td>
+                                    <td><span class="rank-badge rank-15"><i class="fa-solid fa-user-tie me-1"></i>主任</span></td>
                                     <td>150,000 ~ 299,999 SV</td>
                                     <td class="text-info font-weight-bold">15%</td>
                                     <td>每年 160 SV</td>
                                     <td>團隊消費額可共同採計</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="rank-badge rank-20"><i class="fa-solid fa-crown"></i> 經理</span></td>
+                                    <td><span class="rank-badge rank-20"><i class="fa-solid fa-crown me-1"></i>經理</span></td>
                                     <td>300,000 SV 以上</td>
                                     <td class="text-gold font-weight-bold">20%</td>
                                     <td>每年 160 SV + 小組合格</td>
@@ -488,19 +488,19 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="stat-box text-start">
-                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-shield-halved"></i> 1. 累積不歸零</div>
+                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-shield-halved me-1"></i>1. 累積不歸零</div>
                                 <div class="small text-muted">所有購買的產品點數永久累計，沒有月底歸零的業績歸零壓力，時間是夥伴最好的朋友。</div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="stat-box text-start">
-                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-lock-open"></i> 2. 職級不下聘</div>
+                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-lock-open me-1"></i>2. 職級不下聘</div>
                                 <div class="small text-muted">一旦晉升至專員、主任或經理，職級永久維持，不會因為單月沒做業績而遭降階。</div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="stat-box text-start">
-                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-infinity"></i> 3. 無每月低銷壓力</div>
+                                <div class="text-info font-weight-bold mb-2"><i class="fa-solid fa-infinity me-1"></i>3. 無每月低銷壓力</div>
                                 <div class="small text-muted">只要每年維持 160 SV（約數千元），即可保有一整年的會員資格與領獎權益。</div>
                             </div>
                         </div>
@@ -639,7 +639,7 @@
 
             $("#prodRankBadge").html(`
                 <span class="rank-badge rank-${rankInfo.rate}">
-                    <i class="fa-solid fa-award"></i> ${rankInfo.title} (${rankInfo.rate}%)
+                    <i class="fa-solid fa-award me-1"></i>${rankInfo.title} (${rankInfo.rate}%)
                 </span>
             `);
 
