@@ -237,7 +237,7 @@ function populateFilterOptions() {
     UISelectOptions.warehouse.populate({
         target: '#filterWarehouse',
         warehouses: appState.warehouses,
-        placeholder: '全部收貨倉庫 (All Warehouses)'
+        placeholder: '全部收貨倉庫'
     });
     UISelectOptions.warehouse.populate({
         target: '#fieldWarehouseId',
@@ -258,7 +258,7 @@ function populateFilterOptions() {
 
     // 月份選單
     const months = Array.from(new Set(appState.inbounds.map(d => d.performance_month))).filter(Boolean).sort().reverse();
-    const $mFilter = $('#filterPerformanceMonth').empty().append('<option value="">全部業績月份 (All Months)</option>');
+    const $mFilter = $('#filterPerformanceMonth').empty().append('<option value="">全部業績月份</option>');
     months.forEach(m => $mFilter.append(`<option value="${m}">${m}</option>`));
 }
 

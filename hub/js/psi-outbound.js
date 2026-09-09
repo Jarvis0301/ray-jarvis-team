@@ -285,7 +285,7 @@ function populateFormOptions() {
         UISelectOptions.warehouse.populate({
             target,
             warehouses: appState.warehouses,
-            placeholder: target === '#filterWarehouse' ? '全部出貨倉庫 (All Warehouses)' : '-- 請選擇倉儲據點 --',
+            placeholder: target === '#filterWarehouse' ? '全部出貨倉庫' : '-- 請選擇倉儲據點 --',
             dropdownParent: target.startsWith('#field') ? '#outboundModal' : null
         });
     });
@@ -310,7 +310,7 @@ function populateFormOptions() {
 
     // 業績月份選單
     const months = Array.from(new Set(appState.outbounds.map(d => d.performance_month))).filter(Boolean).sort().reverse();
-    const $mFilter = $('#filterPerformanceMonth').empty().append('<option value="">全部業績月份 (All Months)</option>');
+    const $mFilter = $('#filterPerformanceMonth').empty().append('<option value="">全部業績月份</option>');
     months.forEach(m => $mFilter.append(`<option value="${m}">${m}</option>`));
 }
 
