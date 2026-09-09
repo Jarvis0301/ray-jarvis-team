@@ -133,7 +133,7 @@ function handleFetchError(regionName, err) {
     announcementCache[regionName] = [];
     $('#announcement-container').html(`
         <div class="text-center text-danger py-4">
-            <i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入【${regionName}】公告，請檢查網路連線或試算表權限。
+            <i class="fa-solid fa-circle-exclamation me-1"></i>無法載入【${regionName}】公告，請檢查網路連線或試算表權限。
         </div>
     `);
 
@@ -155,7 +155,7 @@ function renderFilteredAnnouncements(keyword) {
     $container.empty();
 
     if (rawData.length === 0) {
-        $container.html('<div class="text-center text-muted py-4"><i class="fa-regular fa-folder-open me-1"></i> 目前尚無最新公告資料</div>');
+        $container.html('<div class="text-center text-muted py-4"><i class="fa-regular fa-folder-open me-1"></i>目前尚無最新公告資料</div>');
         return;
     }
 
@@ -169,7 +169,7 @@ function renderFilteredAnnouncements(keyword) {
     if (filteredData.length === 0) {
         $container.html(`
             <div class="text-center py-4">
-                <i class="fa-solid fa-magnifying-glass me-1"></i> 查無符合條件的公告內容
+                <i class="fa-solid fa-magnifying-glass me-1"></i>查無符合條件的公告內容
             </div>
         `);
         return;
@@ -190,7 +190,7 @@ function renderFilteredAnnouncements(keyword) {
                             </span>
                         </div>
                         <div class="announcement-date">
-                            <i class="fa-regular fa-calendar-days me-1"></i> ${item.dateStr}
+                            <i class="fa-regular fa-calendar-days me-1"></i>${item.dateStr}
                         </div>
                     </div>
                 </div>

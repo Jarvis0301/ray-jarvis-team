@@ -286,10 +286,10 @@
                 </div>
 
                 <button class="btn btn-action-tactical" id="btnSyncGviz">
-                    <i class="fa-solid fa-arrows-rotate"></i> 試算表同步
+                    <i class="fa-solid fa-arrows-rotate me-1"></i>試算表同步
                 </button>
                 <button class="btn btn-cta" id="btnOpenDispatch">
-                    <i class="fa-solid fa-bolt"></i> 點數調度沙盤
+                    <i class="fa-solid fa-bolt me-1"></i>點數調度沙盤
                 </button>
             </div>
         </div>
@@ -373,7 +373,7 @@
             <div class="hud-panel h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-shield-halved text-primary"></i> 經理小組業績 (3,200 SV) 與合格防禦雷達
+                        <i class="fa-solid fa-shield-halved text-primary me-1"></i>經理小組業績 (3,200 SV) 與合格防禦雷達
                     </h6>
                     <span class="text-muted small">每 10 分鐘自動計算安全邊際</span>
                 </div>
@@ -387,7 +387,7 @@
             <div class="hud-panel h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-users-viewfinder text-accent"></i> 160 SV 責任額達標分佈
+                        <i class="fa-solid fa-users-viewfinder text-accent me-1"></i>160 SV 責任額達標分佈
                     </h6>
                 </div>
                 <div style="height: 200px; position: relative;">
@@ -416,17 +416,17 @@
             <ul class="nav nav-tactical" id="perfFilterTabs">
                 <li class="nav-item">
                     <a class="nav-link active" href="javascript:void(0)" data-filter="ALL">
-                        <i class="fa-solid fa-list-ul"></i> 全部組織成員 (<span id="tabCountAll">32</span>)
+                        <i class="fa-solid fa-list-ul me-1"></i>全部組織成員 (<span id="tabCountAll">32</span>)
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" data-filter="WARNING">
-                        <i class="fa-solid fa-triangle-exclamation text-warning"></i> 門檻差額預警 (<span id="tabCountWarning">4</span>)
+                        <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>門檻差額預警 (<span id="tabCountWarning">4</span>)
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="javascript:void(0)" data-filter="LOAN">
-                        <i class="fa-solid fa-handshake-angle text-info"></i> 借點對沖中 (<span id="tabCountLoan">2</span>)
+                        <i class="fa-solid fa-handshake-angle text-info me-1"></i>借點對沖中 (<span id="tabCountLoan">2</span>)
                     </a>
                 </li>
             </ul>
@@ -460,7 +460,7 @@
 <div class="offcanvas offcanvas-end offcanvas-tactical" tabindex="-1" id="offcanvasDispatch" style="width: 420px;">
     <div class="offcanvas-header border-bottom border-secondary">
         <h5 class="offcanvas-title fw-bold d-flex align-items-center gap-2">
-            <i class="fa-solid fa-sliders text-accent"></i> SV 戰術調度與對沖推演
+            <i class="fa-solid fa-sliders text-accent me-1"></i>SV 戰術調度與對沖推演
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
@@ -503,7 +503,7 @@
 
             <div class="hud-panel p-3 mb-4" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3);">
                 <h6 class="text-accent fw-bold small mb-2">
-                    <i class="fa-solid fa-calculator"></i> 對沖模擬精算結果
+                    <i class="fa-solid fa-calculator me-1"></i>對沖模擬精算結果
                 </h6>
                 <div class="d-flex justify-content-between small mb-1">
                     <span class="text-muted">調配後小組業績：</span>
@@ -520,7 +520,7 @@
             </div>
 
             <button type="button" class="btn btn-cta w-100" id="btnConfirmDispatch">
-                <i class="fa-solid fa-check"></i> 確認寫入 SV 借貸對沖排程
+                <i class="fa-solid fa-check me-1"></i>確認寫入 SV 借貸對沖排程
             </button>
         </form>
     </div>
@@ -733,7 +733,7 @@
                         return `
                             <div>
                                 <strong class="${isOk ? 'text-light' : 'text-danger'}">${sv.toLocaleString()} SV</strong>
-                                ${!isOk ? `<small class="text-danger d-block"><i class="fa-solid fa-circle-exclamation"></i> 尚差 ${target - sv} SV</small>` : ''}
+                                ${!isOk ? `<small class="text-danger d-block"><i class="fa-solid fa-circle-exclamation me-1"></i>尚差 ${target - sv} SV</small>` : ''}
                             </div>
                         `;
                     }
@@ -748,10 +748,10 @@
                     data: null,
                     render: function(row) {
                         if (row.sv_loan_in > 0) {
-                            return `<span class="badge badge-cyber badge-cyber-amber"><i class="fa-solid fa-arrow-down"></i> 借入 ${row.sv_loan_in} SV</span>`;
+                            return `<span class="badge badge-cyber badge-cyber-amber"><i class="fa-solid fa-arrow-down me-1"></i>借入 ${row.sv_loan_in} SV</span>`;
                         }
                         if (row.sv_loan_out > 0) {
-                            return `<span class="badge badge-cyber badge-cyber-purple"><i class="fa-solid fa-arrow-up"></i> 借出 ${row.sv_loan_out} SV</span>`;
+                            return `<span class="badge badge-cyber badge-cyber-purple"><i class="fa-solid fa-arrow-up me-1"></i>借出 ${row.sv_loan_out} SV</span>`;
                         }
                         return `<span class="text-muted small">無借貸</span>`;
                     }
@@ -763,8 +763,8 @@
                             return `<span class="text-muted small">--</span>`;
                         }
                         return isQual 
-                            ? `<span class="badge badge-cyber badge-cyber-emerald"><i class="fa-solid fa-check"></i> 合格</span>` 
-                            : `<span class="badge badge-cyber badge-cyber-pink"><i class="fa-solid fa-triangle-exclamation"></i> 脫離預警</span>`;
+                            ? `<span class="badge badge-cyber badge-cyber-emerald"><i class="fa-solid fa-check me-1"></i>合格</span>` 
+                            : `<span class="badge badge-cyber badge-cyber-pink"><i class="fa-solid fa-triangle-exclamation me-1"></i>脫離預警</span>`;
                     }
                 },
                 {
@@ -774,7 +774,7 @@
                     render: function(row) {
                         return `
                             <button class="btn btn-action-tactical btn-sm" onclick="openSimForPartner('${row.partner_id}')">
-                                <i class="fa-solid fa-sliders"></i> 調度
+                                <i class="fa-solid fa-sliders me-1"></i>調度
                             </button>
                         `;
                     }
@@ -907,10 +907,10 @@
         // 試算表 GViz 解耦同步按鈕模擬
         $('#btnSyncGviz').on('click', function() {
             const btn = $(this);
-            btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...').prop('disabled', true);
+            btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...').prop('disabled', true);
 
             setTimeout(() => {
-                btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表同步').prop('disabled', false);
+                btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>試算表同步').prop('disabled', false);
                 alert('【防腐化解耦層已同步】成功自 Google 試算表更新 32 筆組織月度業績數據！');
             }, 800);
         });

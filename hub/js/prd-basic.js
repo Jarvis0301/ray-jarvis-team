@@ -113,7 +113,7 @@ async function initApp() {
 // 4. 資料讀取與 5 表解析引擎 (依欄位順序解析)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName) => {
@@ -585,7 +585,7 @@ function openDetailModal(productCode) {
     $('#viewPrdPrice').text(priceText);
     $('#viewPrdSv').text(`${item.sv_point} SV`);
 
-    $('#viewPrdFeatured').html(item.is_featured ? '<span class="badge badge-warning"><i class="fa-solid fa-star"></i> 明星商品</span>' : '<span class="text-muted">否</span>');
+    $('#viewPrdFeatured').html(item.is_featured ? '<span class="badge badge-warning"><i class="fa-solid fa-star me-1"></i>明星商品</span>' : '<span class="text-muted">否</span>');
     $('#viewPrdStock').html(`${stockBadge}`);
     $('#viewPrdIsValid').html(`<div>${launchStatus.badge}</div>`);
 
@@ -609,7 +609,7 @@ function openDetailModal(productCode) {
     $('#viewPrdIngredients').html(item.ingredients ? item.ingredients.replace(/\n/g, '<br>') : '<span class="text-muted">請參閱產品外包裝標示</span>');
 
     if (item.official_site_url && item.official_site_url.startsWith('http')) {
-        $('#viewPrdOfficialSite').html(`<a href="${item.official_site_url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> 前往官方產品頁面</a>`);
+        $('#viewPrdOfficialSite').html(`<a href="${item.official_site_url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i>前往官方產品頁面</a>`);
     } else {
         $('#viewPrdOfficialSite').html('<span class="text-muted">未設定官方網站連結</span>');
     }
@@ -639,12 +639,12 @@ function renderTaxonomyTables() {
             <tr>
                 <td><span class="font-monospace text-secondary">${c.category_code}</span></td>
                 <td>
-                    <div class="fw-bold text-light"><i class="${c.icon_class} text-primary me-1"></i> ${c.name_zh}</div>
+                    <div class="fw-bold text-light"><i class="${c.icon_class} text-primary me-1"></i>${c.name_zh}</div>
                     <div class="text-muted small">${c.name_en || '-'}</div>
                 </td>
                 <td>
                     <span class="badge" style="color：${c.text_color}; background-color：${c.bg_color || c.text_color + '20'}; border: 1px solid ${c.text_color};">
-                        <i class="${c.icon_class}"></i> ${c.text_color}
+                        <i class="${c.icon_class} me-1"></i>${c.text_color}
                     </span>
                 </td>
                 <td class="text-center">
@@ -665,12 +665,12 @@ function renderTaxonomyTables() {
             <tr>
                 <td><span class="font-monospace text-secondary">${s.subcategory_code}</span></td>
                 <td>
-                    <div class="fw-bold text-light"><i class="${s.icon_class} text-secondary me-1"></i> ${s.name_zh}</div>
+                    <div class="fw-bold text-light"><i class="${s.icon_class} text-secondary me-1"></i>${s.name_zh}</div>
                     <div class="text-muted small">${s.name_en || '-'}</div>
                 </td>
                 <td>
                     <span class="badge" style="color：${s.text_color}; background-color：${s.bg_color || s.text_color + '20'}; border: 1px solid ${s.text_color};">
-                        <i class="${s.icon_class}"></i> ${s.text_color}
+                        <i class="${s.icon_class} me-1"></i>${s.text_color}
                     </span>
                 </td>
                 <td class="text-center">
@@ -691,12 +691,12 @@ function renderTaxonomyTables() {
             <tr>
                 <td><span class="font-monospace text-secondary">${t.type_code}</span></td>
                 <td>
-                    <div class="fw-bold text-light"><i class="${t.icon_class} text-info me-1"></i> ${t.name_zh}</div>
+                    <div class="fw-bold text-light"><i class="${t.icon_class} text-info me-1"></i>${t.name_zh}</div>
                     <div class="text-muted small">${t.name_en || '-'}</div>
                 </td>
                 <td>
                     <span class="badge badge-type" style="color：${t.text_color}; background-color：${t.bg_color || t.text_color + '20'}; border-color：${t.text_color};">
-                        <i class="${t.icon_class}"></i> ${t.text_color}
+                        <i class="${t.icon_class} me-1"></i>${t.text_color}
                     </span>
                 </td>
                 <td class="text-center">
@@ -731,7 +731,7 @@ function openTaxonomyModal(type, code = null) {
     }
 
     const typeTitle = type === 'category' ? '產品主系列' : (type === 'subcategory' ? '產品次系列' : '產品型態');
-    const headingText = code ? `<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯${typeTitle}` : `<i class="fa-solid fa-plus text-primary"></i> 新增${typeTitle}`;
+    const headingText = code ? `<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯${typeTitle}` : `<i class="fa-solid fa-plus text-primary me-1"></i>新增${typeTitle}`;
     $('#modalTaxonomyHeading').html(headingText);
 
     if (code) {
@@ -780,7 +780,7 @@ async function saveTaxonomyItem() {
     const $btnSave = $('#btnSaveTaxonomy');
 
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 儲存中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存中...');
 
         if (type === 'category') {
             const sheetName = 'prd_categories';
@@ -827,7 +827,7 @@ async function saveTaxonomyItem() {
     } catch (err) {
         AppToast.error("儲存失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 
@@ -918,8 +918,8 @@ function renderCrossBorderMatrix() {
 
         const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
         const actionBtn = targetCode
-            ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass"></i> 詳情</button>`
-            : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban"></i> 無貨</button>`;
+            ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass me-1"></i>詳情</button>`
+            : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`;
 
         $tbody.append(`
             <tr>
@@ -1222,7 +1222,7 @@ function renderAnalyticsCharts() {
     const isMyr = currentAnalyticsRegion === 'MY';
     const multiplier = isMyr ? 100 : 1000;
     const unitText = isMyr ? 'SV / 百元 (MYR)' : 'SV / 千元 (TWD)';
-    $('#titleSvEfficiencyRank').html(`<i class="fa-solid fa-bolt text-warning"></i> 每${isMyr ? '百' : '千'}元 SV 貢獻率排行 (Top 5)`);
+    $('#titleSvEfficiencyRank').html(`<i class="fa-solid fa-bolt text-warning me-1"></i>每${isMyr ? '百' : '千'}元 SV 貢獻率排行 (Top 5)`);
 
     const svEfficiencyList = dataset
         .filter(p => Number(p.price) > 0 && Number(p.sv_point) > 0)
@@ -1375,7 +1375,7 @@ function renderAnalyticsCharts() {
 // 12. Modal 產品主檔與規格彈窗維護
 // ==========================================================================
 function openAddModal() {
-    $('#productModalHeading').html('<i class="fa-solid fa-plus text-primary"></i> 新增產品資料與規格詳情');
+    $('#productModalHeading').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增產品資料與規格詳情');
     const form = document.getElementById('formFullProduct');
     form.reset();
     $(form).data('mode', 'add').data('code', '');
@@ -1392,7 +1392,7 @@ function openEditModal(productCode) {
     const item = appState.products.find(p => p.product_code === String(productCode));
     if (!item) return;
 
-    $('#productModalHeading').html(`<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯產品：${item.name} (${item.product_code})`);
+    $('#productModalHeading').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯產品：${item.name} (${item.product_code})`);
     const form = document.getElementById('formFullProduct');
     form.reset();
     $(form).data('mode', 'edit').data('code', item.product_code);
@@ -1529,7 +1529,7 @@ async function saveProductItem() {
 
     const $btnSave = $('#btnSaveFullProduct');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入雲端中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入雲端中...');
 
         if (mode === 'add') {
             await Promise.all([
@@ -1552,7 +1552,7 @@ async function saveProductItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

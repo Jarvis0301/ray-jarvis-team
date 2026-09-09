@@ -311,8 +311,8 @@ function updateFormAutoCalculatedFields() {
     
     $('#badge-calc-relation').text(result.relationType);
     $('#badge-calc-team').html(result.isOurTeam === 'Y' 
-        ? '<i class="fa-solid fa-star text-warning"></i> 直轄團隊' 
-        : '<i class="fa-solid fa-globe text-secondary"></i> 旁線/友軍');
+        ? '<i class="fa-solid fa-star text-warning me-1"></i>直轄團隊' 
+        : '<i class="fa-solid fa-globe text-secondary me-1"></i>旁線/友軍');
 }
 
 function initCoOperatorFormLinkage() {
@@ -550,7 +550,7 @@ function initOrgChartPan() {
 // 6. 雲端資料同步與解析引擎 (Data Fetch & Parse)
 // ============================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName) => {
@@ -996,8 +996,8 @@ function renderCardsView(list) {
         const genderAgeResidenceHtml = `${genderDisplay} ‧ ${ageDisplay} ‧ ${residenceDisplay}`;
 
         const skillsHtml = (p.team_skills && p.team_skills.trim()) 
-            ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i> ${p.team_skills}</span></div>` 
-            : `<div class="mb-2"><span class="text-muted small"><i class="fa-solid fa-tags text-secondary me-1"></i> 未設定專長標籤</span></div>`;
+            ? `<div class="mb-2"><span class="badge badge-dark"><i class="fa-solid fa-tags me-1"></i>${p.team_skills}</span></div>` 
+            : `<div class="mb-2"><span class="text-muted small"><i class="fa-solid fa-tags text-secondary me-1"></i>未設定專長標籤</span></div>`;
 
         const notesText = (p.team_notes && p.team_notes.trim()) || (person.financial_notes && person.financial_notes.trim()) || '';
         const notesHtml = notesText 
@@ -1013,7 +1013,7 @@ function renderCardsView(list) {
                                 <div class="partner-avatar-wrap">
                                     <img src="${avatarUrl}" class="partner-avatar" alt="${dispName}" onerror="this.src='${getDefaultAvatar(gender)}'">
                                     <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${currentRank.badge_color_hex}; color：${currentRank.badge_color_hex};">
-                                        <i class="${currentRank.badge_icon_class}"></i> ${currentRank.rank_name_zh}
+                                        <i class="${currentRank.badge_icon_class} me-1"></i>${currentRank.rank_name_zh}
                                     </span>
                                 </div>
                                 <div>
@@ -1037,26 +1037,26 @@ function renderCardsView(list) {
 
                         <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-award text-warning"></i> 葡眾官方最高職級</span>
+                                <span class="text-secondary"><i class="fa-solid fa-award text-warning me-1"></i>葡眾官方最高職級</span>
                                 ${UIBadges.rank.badge(highestRank)}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-people-arrows"></i> 關係屬性 / 營運</span>
+                                <span class="text-secondary"><i class="fa-solid fa-people-arrows me-1"></i>關係屬性 / 營運</span>
                                 <div>
                                     ${UIBadges.partner.relation(p.relation_type, p.partner_id)}
                                     ${UIBadges.partner.operatorStatus(p.operator_status)}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-person-chalkboard text-info"></i> 實質輔導上線</span>
+                                <span class="text-secondary"><i class="fa-solid fa-person-chalkboard text-info me-1"></i>實質輔導上線</span>
                                 ${mentorHtml}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary"></i> 性別/年齡/現居地</span>
+                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i>性別/年齡/現居地</span>
                                 <div class="text-end text-light small">${genderAgeResidenceHtml}</div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent"></i> 身份 / 使用身份</span>
+                                <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent me-1"></i>身份 / 使用身份</span>
                                 <div class="d-flex align-items-center gap-1">
                                     ${UIBadges.partner.identityType(person.identity_type)}
                                     ${UIBadges.partner.usageIdentity(person.usage_identity)}
@@ -1225,7 +1225,7 @@ window.downloadOrgChartPng = async function () {
     const targetEl = document.getElementById('org-chart-container');
     if (!targetEl) return;
 
-    AppLoading.show('<i class="fa-solid fa-image text-primary"></i> 正在產生組織圖高畫質圖片...', '圖片匯出中');
+    AppLoading.show('<i class="fa-solid fa-image text-primary me-1"></i>正在產生組織圖高畫質圖片...', '圖片匯出中');
     try {
         if (typeof html2canvas === 'undefined') {
             await new Promise((resolve, reject) => {
@@ -1418,8 +1418,8 @@ function renderTreeView() {
         const gapInfo = parentPartner ? getRelationGapInfo(parentPartner, partner) : { isUnknown: false, gapCount: 0 };
         const liClass = gapInfo.isUnknown ? 'class="link-unknown"' : 'class="link-direct"';
         const gapBadgeHtml = (gapInfo.isUnknown && gapInfo.gapCount > 0)
-            ? `<div class="org-gap-badge"><i class="fa-solid fa-arrows-split-up-and-left"></i> 間隔 ${gapInfo.gapCount} 人・中繼斷層</div>`
-            : (gapInfo.isUnknown ? `<div class="org-gap-badge"><i class="fa-solid fa-ellipsis"></i> 中間未知斷層</div>` : '');
+            ? `<div class="org-gap-badge"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i>間隔 ${gapInfo.gapCount} 人・中繼斷層</div>`
+            : (gapInfo.isUnknown ? `<div class="org-gap-badge"><i class="fa-solid fa-ellipsis me-1"></i>中間未知斷層</div>` : '');
 
         const children = getChildren(partner, isCoOp ? spouse : null);
 
@@ -2191,7 +2191,7 @@ window.openPartnerModalForCreate = function () {
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
 
-    $('#partnerModalTitle').html('<i class="fa-solid fa-user-plus text-primary"></i> 登錄新成員檔案');
+    $('#partnerModalTitle').html('<i class="fa-solid fa-user-plus text-primary me-1"></i>登錄新成員檔案');
     $('#form-submit-btn').show();
     $('#form-mode').val('CREATE');
     $('#partnerForm')[0].reset();
@@ -2244,7 +2244,7 @@ window.openPartnerModalForEdit = function (partnerId) {
     const person = getPersonMaster(partner.person_id);
     populateSelect2Options();
 
-    $('#partnerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary"></i> 編輯檔案 - ${getPartnerDisplayName(partner)}`);
+    $('#partnerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary me-1"></i>編輯檔案 - ${getPartnerDisplayName(partner)}`);
     $('#form-submit-btn').show();
     $('#form-mode').val('UPDATE');
 
@@ -2377,7 +2377,7 @@ window.openPartnerModalForView = function (partnerId) {
     $('#view-name-pref').html(formatEmpty(person.preferred_name));
 
     $('#view-country-badge').html(UIBadges.common.country(partner.country_code));
-    $('#view-current-rank-badge').html(`<i class="${currentRank.badge_icon_class}"></i> ${currentRank.rank_name_zh}`).css({
+    $('#view-current-rank-badge').html(`<i class="${currentRank.badge_icon_class} me-1"></i>${currentRank.rank_name_zh}`).css({
         'background-color': '#130e24',
         'border': `1px solid ${currentRank.badge_color_hex}`,
         'color': currentRank.badge_color_hex
@@ -2416,9 +2416,9 @@ window.openPartnerModalForView = function (partnerId) {
 
     if (person.life_status === '身故') {
         const dDate = person.deceased_date ? ` (${person.deceased_date})` : '';
-        $('#view-life-status').html(`<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i> 身故</span>${dDate}`);
+        $('#view-life-status').html(`<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i>身故</span>${dDate}`);
     } else {
-        $('#view-life-status').html('<span class="badge badge-success-subtle"><i class="fa-solid fa-heart me-1"></i> 存活</span>');
+        $('#view-life-status').html('<span class="badge badge-success-subtle"><i class="fa-solid fa-heart me-1"></i>存活</span>');
     }
     
     const hometownText = person.hometown ? `${person.hometown} → ` : '';
@@ -2455,7 +2455,7 @@ window.openPartnerModalForView = function (partnerId) {
     const starMap = ['非藍鑽', '一星藍鑽', '二星藍鑽', '三星藍鑽', '四星藍鑽', '五星藍鑽', '六星藍鑽', '耀星藍鑽'];
     const starLevelNum = parseInt(partner.diamond_star_level, 10) || 0;
     const starBadge = starLevelNum > 0 
-        ? `<span class="badge badge-info-subtle"><i class="fa-solid fa-gem me-1"></i> ${starMap[starLevelNum] || (starLevelNum + '星')}</span>` 
+        ? `<span class="badge badge-info-subtle"><i class="fa-solid fa-gem me-1"></i>${starMap[starLevelNum] || (starLevelNum + '星')}</span>` 
         : '<span class="text-secondary small">非藍鑽</span>';
     const evalDateText = partner.star_eval_eligible_date ? `<span class="font-monospace ms-1 small">(${partner.star_eval_eligible_date})</span>` : '';
     $('#view-diamond-star-eval').html(`${starBadge} ${evalDateText}`);
@@ -2468,8 +2468,8 @@ window.openPartnerModalForView = function (partnerId) {
     if (!successorName && !surrenderedName) {
         $('#view-successor-surrendered').html('<span class="text-muted">無</span>');
     } else {
-        const succHtml = successorName ? `<span class="text-info"><i class="fa-solid fa-user-check me-1"></i> 承接：${successorName}</span>` : '';
-        const surrHtml = surrenderedName ? `<span class="text-warning ms-1"><i class="fa-solid fa-code-merge me-1"></i> 歸併：${surrenderedName}</span>` : '';
+        const succHtml = successorName ? `<span class="text-info"><i class="fa-solid fa-user-check me-1"></i>承接：${successorName}</span>` : '';
+        const surrHtml = surrenderedName ? `<span class="text-warning ms-1"><i class="fa-solid fa-code-merge me-1"></i>歸併：${surrenderedName}</span>` : '';
         $('#view-successor-surrendered').html(`${succHtml} ${surrHtml}`);
     }
 
@@ -2487,7 +2487,7 @@ window.openPartnerModalForView = function (partnerId) {
 
             $contactsWrap.append(`
                 <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-secondary border-opacity-10">
-                    <span class="text-secondary"><i class="fa-solid fa-tag text-primary me-1"></i> ${c.platform_name} (${c.category})${isPrimaryBadge}</span>
+                    <span class="text-secondary"><i class="fa-solid fa-tag text-primary me-1"></i>${c.platform_name} (${c.category})${isPrimaryBadge}</span>
                     <div class="text-end">
                         ${valHtml}
                         ${c.notes ? `<div class="text-muted" style="font-size: 0.72rem;">${c.notes}</div>` : ''}
@@ -2912,10 +2912,10 @@ async function savePartnerRecord(e) {
     const btnSubmit = $('#form-submit-btn');
     const silentOpt = { silent: true };
 
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary"></i> 正在平行同步全域組織與檔案...', '資料庫寫入中');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i>正在平行同步全域組織與檔案...', '資料庫寫入中');
 
     try {
-        btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 儲存寫入中...');
+        btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存寫入中...');
 
         const deletePromises = [];
         personContactsList.filter(c => c.person_id === personId).forEach(c => {
@@ -2997,7 +2997,7 @@ async function savePartnerRecord(e) {
         AppLoading.hide();
         AppToast.error('寫入試算表失敗: ' + err.message);
     } finally {
-        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 
@@ -3011,7 +3011,7 @@ window.deletePartnerRecord = function (partnerId) {
     AppDialog.confirm(
         `確定要自雲端試算表中移除成員【${dispName} (${partnerId})】嗎？<br><small class="text-warning">若該夥伴為共同經營者，關聯之主要經營者將自動回滾為「個人經營」狀態。</small>`,
         async function () {
-            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger"></i> 正在刪除成員檔案並連動回滾配偶權益...', '雲端同步處理');
+            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i>正在刪除成員檔案並連動回滾配偶權益...', '雲端同步處理');
             try {
                 const deletePromises = [];
                 const silentOpt = { silent: true };

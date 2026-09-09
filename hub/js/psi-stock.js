@@ -141,7 +141,7 @@ async function initStockApp() {
  * 資料讀取引擎
  */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
@@ -460,7 +460,7 @@ function formatStockRow(s) {
         id: `<span class="fw-bold text-info">${s.id}</span>`,
         warehouse: `<div><div class="text-white">${getWarehouseName(s.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${s.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(s.product_id)}</div><span class="small text-secondary">${s.product_id}</span></div>`,
-        batch: `<span class="batch-chip fw-bold"><i class="fa-solid fa-barcode"></i> ${s.batch_no || '--'}</span>`,
+        batch: `<span class="batch-chip fw-bold"><i class="fa-solid fa-barcode me-1"></i>${s.batch_no || '--'}</span>`,
         expiry: `
             <div style="min-width: 110px;">
                 <div class="d-flex justify-content-between small mb-1">
@@ -628,7 +628,7 @@ function renderTacticalCharts() {
 // 9. 表單 CRUD 操作 (嚴格依據 表 302 欄位順序 0～16 封裝)[cite: 11]
 // ==========================================================================
 function openAddStockModal() {
-    $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary"></i> 新增庫存批號');
+    $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增庫存批號');
     $('#formMode').val('add');
     $('#stockForm')[0].reset();
 
@@ -656,7 +656,7 @@ function openEditStockModal(stockId) {
     const s = appState.stocks.find(item => item.id === stockId);
     if (!s) return;
 
-    $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯庫存批號');
+    $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯庫存批號');
     $('#formMode').val('edit');
     $('#fieldId').prop('readonly', true).val(s.id);
     $('#fieldBatchNo').val(s.batch_no);
@@ -739,7 +739,7 @@ async function saveStockItem() {
 
     const $btn = $('button[onclick="saveStockItem()"]');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_STOCKS, id, rowDataArray, GAS_DEPLOY_ID);
@@ -761,7 +761,7 @@ async function saveStockItem() {
     } catch (err) {
         AppToast.error("庫存批號儲存失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

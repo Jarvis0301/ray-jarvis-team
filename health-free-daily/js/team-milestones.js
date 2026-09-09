@@ -97,7 +97,7 @@ function renderFilteredTimeline(keyword) {
     $container.empty();
 
     if (rawItems.length === 0) {
-        $container.html('<div class="text-center text-muted py-5"><i class="fa-regular fa-folder-open me-2"></i> 目前尚無相關歷史大事記資料</div>');
+        $container.html('<div class="text-center text-muted py-5"><i class="fa-regular fa-folder-open me-2 me-1"></i>目前尚無相關歷史大事記資料</div>');
         return;
     }
 
@@ -112,7 +112,7 @@ function renderFilteredTimeline(keyword) {
     if (filteredItems.length === 0) {
         $container.html(`
             <div class="text-center py-5">
-                <i class="fa-solid fa-magnifying-glass me-2"></i> 查無符合條件的大事記記錄
+                <i class="fa-solid fa-magnifying-glass me-2 me-1"></i>查無符合條件的大事記記錄
             </div>
         `);
         return;
@@ -139,7 +139,7 @@ function renderFilteredTimeline(keyword) {
             <div class="timeline-year-block">
                 <div class="timeline-year-header">
                     <div class="year-badge">
-                        <i class="fa-solid fa-flag-checkered me-2 text-warning"></i> ${year}
+                        <i class="fa-solid fa-flag-checkered me-2 text-warning me-1"></i>${year}
                     </div>
                 </div>
         `;
@@ -167,7 +167,7 @@ function renderFilteredTimeline(keyword) {
 
                     <div class="timeline-content-card ${cardStyleClass}">
                         <div class="badge ${pillStyleClass} rounded-pill px-3 py-2 mb-2">
-                            <i class="${pillIconClass} me-1"></i> ${monthText}
+                            <i class="${pillIconClass} me-1"></i>${monthText}
                         </div>
                         <div class="card-body-wrapper ${hasPhoto ? 'has-image' : ''}">
                             ${hasPhoto ? `

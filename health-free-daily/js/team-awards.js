@@ -54,7 +54,7 @@ function updateSubCategoryTabs() {
         html += `
             <input type="radio" class="btn-check" name="sub-category" id="${inputId}" value="${opt.val}" autocomplete="off" ${isChecked}>
             <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">
-                <i class="fa-solid ${opt.icon} me-1"></i> ${opt.label}
+                <i class="fa-solid ${opt.icon} me-1"></i>${opt.label}
             </label>
         `;
     });
@@ -192,7 +192,7 @@ function renderAwards() {
     if (filtered.length === 0) {
         $grid.html(`
             <div class="text-center py-5 col-12">
-                <i class="fa-solid fa-magnifying-glass me-2"></i> 目前無符合條件的榮譽紀錄
+                <i class="fa-solid fa-magnifying-glass me-2 me-1"></i>目前無符合條件的榮譽紀錄
             </div>
         `);
         return;
@@ -224,7 +224,7 @@ function renderAwards() {
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="award-year-tag">${item.year}</span>
                             <span class="award-badge ${badgeInfo.class}">
-                                <i class="${badgeInfo.icon} me-1"></i> ${badgeInfo.label}
+                                <i class="${badgeInfo.icon} me-1"></i>${badgeInfo.label}
                             </span>
                         </div>
                         <div class="award-title">${escapeHtml(item.title)}</div>

@@ -95,7 +95,7 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
  * 資料讀取引擎
  */
 async function fetchAllGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawInbounds, rawInboundItems, rawPersons, rawPartners, rawProducts] = await Promise.all([
@@ -476,13 +476,13 @@ function formatTableRow(item) {
         center_and_warehouse: `
             <div>
                 <span class="badge badge-purple-subtle">${getWarehouseDisplayName(item.warehouse_id)}</span>
-                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck"></i> ${item.order_center || '-'} / ${item.delivery_method || '-'}</div>
+                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck me-1"></i>${item.order_center || '-'} / ${item.delivery_method || '-'}</div>
             </div>
         `,
         four_flow: `
             <div>
-                <div class="small"><i class="fa-solid fa-credit-card text-secondary"></i> 出資：<span class="text-white fw-bold">${purchaserName}</span></div>
-                <div class="small"><i class="fa-solid fa-award text-warning"></i> 掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
+                <div class="small"><i class="fa-solid fa-credit-card text-secondary me-1"></i>出資：<span class="text-white fw-bold">${purchaserName}</span></div>
+                <div class="small"><i class="fa-solid fa-award text-warning me-1"></i>掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
                 ${isDecoupled ? '<span class="badge badge-purple-subtle mt-1">四流分離</span>' : ''}
             </div>
         `,
@@ -544,7 +544,7 @@ function calculateTotalCost() {
 }
 
 function openAddModal() {
-    $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary"></i> 新增進貨入庫單據');
+    $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增進貨入庫單據');
     $('#formMode').val('add');
     $('#inboundForm')[0].reset();
 
@@ -583,7 +583,7 @@ function openEditModal(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
 
-    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯進貨單據');
+    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯進貨單據');
     $('#formMode').val('edit');
 
     $('#fieldId').val(item.id);
@@ -674,7 +674,7 @@ function renderInboundItemsTable(orderId, isLocked) {
 
             // 入庫單號顯示徽章
             const stockBadge = it.stock_id 
-                ? `<span class="badge badge-purple-subtle font-monospace"><i class="fa-solid fa-boxes-stacked text-primary"></i> ${it.stock_id}</span>`
+                ? `<span class="badge badge-purple-subtle font-monospace"><i class="fa-solid fa-boxes-stacked text-primary me-1"></i>${it.stock_id}</span>`
                 : '<span class="text-secondary small">未入庫</span>';
 
             $tbody.append(`
@@ -830,7 +830,7 @@ function populateInlineProductOptions() {
 }
 
 function toggleInlineItemForm() {
-    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary"></i> 新增明細細項');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增明細細項');
     $('#inlineItemId').val('');
     $('#inlineItemForm')[0].reset();
 
@@ -866,7 +866,7 @@ function editInlineItem(itemId) {
     const item = appState.inboundItems.find(it => it.id === itemId);
     if (!item) return;
 
-    $('#inlineFormTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯明細細項');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細細項');
     $('#inlineItemId').val(item.id);
 
     // 判斷是否為費用項並同步至 Select2
@@ -967,7 +967,7 @@ async function saveInlineItem() {
 
     const $btn = $('#btnSaveInlineItem');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (!isEdit) {
             await SheetAdapter.sendRequest('CREATE', '進貨明細', finalItemId, rowDataArray);
@@ -982,7 +982,7 @@ async function saveInlineItem() {
     } catch (err) {
         AppToast.error("細項寫入失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-check"></i> 確認儲存細項');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i>確認儲存細項');
     }
 }
 
@@ -1083,7 +1083,7 @@ async function saveInboundItem() {
 
     const $btnSave = $('#btnSaveInbound');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.sendRequest('CREATE', '進貨主檔', orderId, rowDataArray);
@@ -1100,7 +1100,7 @@ async function saveInboundItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

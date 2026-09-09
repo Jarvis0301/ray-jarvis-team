@@ -27,7 +27,7 @@
             <!-- 1. 頂部 HUD 狀態區塊 -->
             <header class="row align-items-center mb-3">
                 <h4 class="fw-bold mb-0 text-light">
-                    <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i> 庫存預警
+                    <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i>庫存預警
                 </h4>
             </header>
 
@@ -37,37 +37,37 @@
                         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-primary me-1"></i> 預警數量</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-primary me-1"></i>預警數量</span>
                                     <span class="text-primary fs-6 fw-bold mono-num" id="count-alerts-total">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-bell text-info me-1"></i> 待處理預警</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-bell text-info me-1"></i>待處理預警</span>
                                     <span class="text-info fs-6 fw-bold mono-num" id="stat-pending-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-circle-exclamation text-orange me-1"></i> 低於水位</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-circle-exclamation text-orange me-1"></i>低於水位</span>
                                     <span class="text-orange fs-6 fw-bold mono-num" id="stat-stockout-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 接近有效日期</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i>接近有效日期</span>
                                     <span class="text-warning fs-6 fw-bold mono-num" id="stat-expiry90-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> 即將過期</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>即將過期</span>
                                     <span class="text-danger fs-6 fw-bold mono-num" id="stat-expiry30-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-skull text-accent me-1"></i> 已過期</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-skull text-accent me-1"></i>已過期</span>
                                     <span class="text-accent fs-6 fw-bold mono-num" id="stat-expired-count">0</span>
                                 </div>
                             </div>
@@ -81,12 +81,12 @@
                 <ul class="nav nav-tabs" id="psiAlertTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button type="button" class="nav-link active" id="tab-btn-alerts" onclick="switchMainWorkspace('ALERTS')" role="tab">
-                            <i class="fa-solid fa-triangle-exclamation me-1"></i> 即時預警
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>即時預警
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button type="button" class="nav-link" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')" role="tab">
-                            <i class="fa-solid fa-sliders me-1"></i> 門檻規則
+                            <i class="fa-solid fa-sliders me-1"></i>門檻規則
                         </button>
                     </li>
                 </ul>
@@ -98,32 +98,32 @@
                         <div class="row row-cols-2 row-cols-md-auto g-2">
                             <div class="col col-12">
                                 <button type="button" class="filter-pill-btn w-100 active" data-alert-filter="ALL">
-                                    <i class="fa-solid fa-border-all me-1"></i> 全部
+                                    <i class="fa-solid fa-border-all me-1"></i>全部
                                 </button>
                             </div>
                             <div class="col">
                                 <button type="button" class="filter-pill-btn w-100" data-alert-filter="低於安全水位">
-                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> 低於安全水位
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>低於安全水位
                                 </button>
                             </div>
                             <div class="col">
                                 <button type="button" class="filter-pill-btn w-100" data-alert-filter="90天近效期">
-                                    <i class="fa-solid fa-hourglass-half me-1"></i> 90天近效期
+                                    <i class="fa-solid fa-hourglass-half me-1"></i>90天近效期
                                 </button>
                             </div>
                             <div class="col">
                                 <button type="button" class="filter-pill-btn w-100" data-alert-filter="30天極危效期">
-                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> 30天極危效期
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>30天極危效期
                                 </button>
                             </div>
                             <div class="col">
                                 <button type="button" class="filter-pill-btn w-100" data-alert-filter="已過期">
-                                    <i class="fa-solid fa-skull me-1"></i> 已過期
+                                    <i class="fa-solid fa-skull me-1"></i>已過期
                                 </button>
                             </div>
                             <div class="col">
                                 <button type="button" class="filter-pill-btn w-100" data-alert-filter="品質鎖定">
-                                    <i class="fa-solid fa-lock me-1"></i> 品質鎖定
+                                    <i class="fa-solid fa-lock me-1"></i>品質鎖定
                                 </button>
                             </div>
                         </div>
@@ -131,7 +131,7 @@
 
                     <div class="col-12 col-md-2 col-xl-1 d-flex justify-content-md-end">
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" onclick="triggerBatchResolve()" title="批次知悉處理">
-                            <i class="fa-solid fa-check-double"></i> 批次知悉
+                            <i class="fa-solid fa-check-double me-1"></i>批次知悉
                         </button>
                     </div>
                 </div>
@@ -163,15 +163,15 @@
                 <div class="row align-items-center g-3 pb-3 border-bottom">
                     <div class="col-12 col-md-10 col-xl-10">
                         <h5 class="fw-bold text-white mb-0">
-                            <i class="fa-solid fa-sliders text-primary"></i> 各據點安全水位門檻規則
+                            <i class="fa-solid fa-sliders text-primary me-1"></i>各據點安全水位門檻規則
                         </h5>
                         <div class="text-secondary small mt-1">
-                            <i class="fa-solid fa-info-circle"></i> 自由可用庫存 &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
+                            <i class="fa-solid fa-info-circle me-1"></i>自由可用庫存 &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
                         </div>
                     </div>
                     <div class="col-12 col-md-2 col-xl-2 d-flex justify-content-md-end">
                         <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
-                            <i class="fa-solid fa-plus"></i> 新增門檻規則
+                            <i class="fa-solid fa-plus me-1"></i>新增門檻規則
                         </button>
                     </div>
                 </div>
@@ -200,7 +200,7 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
-                            <i class="fa-solid fa-sliders text-primary"></i> 門檻規則調整
+                            <i class="fa-solid fa-sliders text-primary me-1"></i>門檻規則調整
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
@@ -243,17 +243,17 @@
                             <div class="form-check form-switch mt-3">
                                 <input class="form-check-input" type="checkbox" role="switch" id="fieldThresholdIsMonitored" checked>
                                 <label class="form-check-label" for="fieldThresholdIsMonitored">
-                                    <i class="fa-solid fa-bell text-warning"></i> 啟動門檻即時監控
+                                    <i class="fa-solid fa-bell text-warning me-1"></i>啟動門檻即時監控
                                 </label>
                             </div>
                         </form>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 取消
+                            <i class="fa-solid fa-xmark me-1"></i>取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveThresholdItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存
+                            <i class="fa-solid fa-floppy-disk me-1"></i>儲存
                         </button>
                     </footer>
                 </section>
@@ -265,7 +265,7 @@
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white">
-                            <i class="fa-solid fa-wand-magic-sparkles text-primary"></i> 執行告警戰術處置
+                            <i class="fa-solid fa-wand-magic-sparkles text-primary me-1"></i>執行告警戰術處置
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
@@ -288,7 +288,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label"><i class="fa-solid fa-code-branch"></i> 變更處理狀態 (status)</label>
+                            <label class="form-label"><i class="fa-solid fa-code-branch me-1"></i>變更處理狀態 (status)</label>
                             <select class="form-select form-select-sm" id="resolveStatusSelect">
                                 <option value="已知悉">已知悉 (排入日常監控)</option>
                                 <option value="已轉特惠促銷/試用">已轉特惠促銷/試用 (優先消化)</option>
@@ -298,16 +298,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label"><i class="fa-solid fa-comment-dots"></i> 結案備註或調度說明</label>
+                            <label class="form-label"><i class="fa-solid fa-comment-dots me-1"></i>結案備註或調度說明</label>
                             <input type="text" class="form-control form-control-sm" id="resolveRemarksInput" placeholder="輸入處置動作例如：已自台北總倉調撥 30 盒至大馬...">
                         </div>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 取消
+                            <i class="fa-solid fa-xmark me-1"></i>取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveAlertResolution()">
-                            <i class="fa-solid fa-check"></i> 確認處置並回寫
+                            <i class="fa-solid fa-check me-1"></i>確認處置並回寫
                         </button>
                     </footer>
                 </div>

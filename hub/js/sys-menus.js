@@ -77,7 +77,7 @@ async function initApp() {
 // 4. 資料讀取引擎 (依 Schema 索引順序讀取選單架構)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
         const fetchSheet = async (sheetName) => {
@@ -208,7 +208,7 @@ function renderTreeTopology() {
     const hiddenNodes = list.filter(m => m.menu_level === -1 || m.parent_id === 'hide').sort((a, b) => a.sort_order - b.sort_order);
 
     if (roots.length === 0 && hiddenNodes.length === 0) {
-        $container.html('<div class="text-center text-muted p-4"><i class="fa-solid fa-circle-exclamation"></i> 該版本尚無選單節點</div>');
+        $container.html('<div class="text-center text-muted p-4"><i class="fa-solid fa-circle-exclamation me-1"></i>該版本尚無選單節點</div>');
         return;
     }
 
@@ -223,7 +223,7 @@ function renderTreeTopology() {
     if (hiddenNodes.length > 0) {
         $container.append(`
             <div class="mt-3 mb-2 text-info small fw-bold">
-                <i class="fa-solid fa-route"></i> 獨立隱藏落地頁 (Level -1 / hide)
+                <i class="fa-solid fa-route me-1"></i>獨立隱藏落地頁 (Level -1 / hide)
             </div>
         `);
         hiddenNodes.forEach(node => {
@@ -284,7 +284,7 @@ function renderInspector() {
         $('#inspectMenuLevel').text('-');
         $('#inspectRelatedTables').text('-');
         $('#inspectFunctionDesc').text('-');
-        $('#inspectActiveBadge').attr('class', 'badge badge-secondary').html('<i class="fa-solid fa-circle-question"></i> 未選取');
+        $('#inspectActiveBadge').attr('class', 'badge badge-secondary').html('<i class="fa-solid fa-circle-question me-1"></i>未選取');
         $('#inspectDevStatusBadge').attr('class', 'badge badge-secondary').text('-');
         $('#inspectAuditTrail').text('最後異動：-');
         return;
@@ -299,7 +299,7 @@ function renderInspector() {
     $('#inspectMenuNameEn').text(node.menu_name_en || 'None');
     $('#inspectParentId').text(node.parent_id);
     $('#inspectRouteUrl').text(node.route_url);
-    $('#inspectFaIcon').html(`<i class="${node.fa_icon}"></i> ${node.fa_icon}`);
+    $('#inspectFaIcon').html(`<i class="${node.fa_icon} me-1"></i>${node.fa_icon}`);
     $('#inspectMenuLevel').text(`${node.menu_level} (${node.menu_level === 0 ? '頂層大類' : node.menu_level === 1 ? '二級子功能' : '隱藏落地頁'})`);
     $('#inspectRelatedTables').text(node.related_tables || '無對應資料表 (靜態)');
     $('#inspectFunctionDesc').text(node.function_desc || '無特定業務說明');
@@ -307,11 +307,11 @@ function renderInspector() {
     if (node.is_active === 'Y') {
         $('#inspectActiveBadge')
             .attr('class', 'badge badge-success-subtle')
-            .html('<i class="fa-solid fa-circle-check"></i> 啟用中');
+            .html('<i class="fa-solid fa-circle-check me-1"></i>啟用中');
     } else {
         $('#inspectActiveBadge')
             .attr('class', 'badge badge-danger-subtle')
-            .html('<i class="fa-solid fa-ban"></i> 已停用');
+            .html('<i class="fa-solid fa-ban me-1"></i>已停用');
     }
 
     let devClass = 'badge-secondary';
@@ -335,7 +335,7 @@ function renderNavbarSandbox() {
     visibleRoots.forEach(r => {
         $sandbox.append(`
             <div class="sandbox-nav-pill">
-                <i class="${r.fa_icon} text-primary"></i> ${r.menu_name_zh}
+                <i class="${r.fa_icon} text-primary me-1"></i>${r.menu_name_zh}
             </div>
         `);
     });
@@ -394,7 +394,7 @@ function formatTableRow(m) {
         parent: `<code class="text-info">${m.parent_id}</code>`,
         sort: m.sort_order,
         url: `<span class="small">${m.route_url}</span>`,
-        icon: `<i class="${m.fa_icon}"></i> `,
+        icon: `<i class="${m.fa_icon} me-1"></i>`,
         status: UIBadges.system.devStatus(m.dev_status),
         active: UIBadges.common.boolean(m.is_active === 'Y', '啟用', '停用'),
         actions: actionButtons
@@ -405,7 +405,7 @@ function formatTableRow(m) {
 // 6. Modal 表單操作 (CRUD)
 // ==========================================================================
 function openAddModal() {
-    $('#modalTitle').html('<i class="fa-solid fa-plus text-primary"></i> 新增選單節點');
+    $('#modalTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增選單節點');
     $('#formMode').val('add');
     $('#menuForm')[0].reset();
     $('#fieldMenuId').prop('readonly', false).val('');
@@ -432,7 +432,7 @@ function openEditModal(menuId) {
     const node = appState.menus.find(m => m.menu_id === menuId);
     if (!node) return;
 
-    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯選單節點');
+    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯選單節點');
     $('#formMode').val('edit');
     $('#fieldMenuId').prop('readonly', true).val(node.menu_id);
     $('#fieldAppTrack').val(node.app_track);
@@ -510,7 +510,7 @@ async function saveMenuItem() {
 
     const $btnSave = $('button[onclick="saveMenuItem()"]');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow('選單架構', menuId, rowDataArray);
@@ -536,7 +536,7 @@ async function saveMenuItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

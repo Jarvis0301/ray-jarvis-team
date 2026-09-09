@@ -130,7 +130,7 @@ function showMobileReceiptModal(orderData) {
                 <div class="modal-content bg-dark text-light border-secondary">
                     <div class="modal-header border-secondary">
                         <h5 class="modal-title">
-                            <i class="fa-solid fa-receipt text-info"></i> 訂購試算單明細
+                            <i class="fa-solid fa-receipt text-info me-1"></i>訂購試算單明細
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -138,13 +138,13 @@ function showMobileReceiptModal(orderData) {
                     </div>
                     <div class="modal-footer border-secondary flex-column flex-sm-row gap-2">
                         <button type="button" class="btn btn-outline-info btn-sm w-100 w-sm-auto rounded-pill" id="btnDownloadReceiptHtml">
-                            <i class="fa-solid fa-file-arrow-down"></i> 下載單據檔 (.html)
+                            <i class="fa-solid fa-file-arrow-down me-1"></i>下載單據檔 (.html)
                         </button>
                         <button type="button" class="btn btn-outline-success btn-sm w-100 w-sm-auto rounded-pill" id="btnCopyReceiptText">
-                            <i class="fa-solid fa-copy"></i> 複製文字明細
+                            <i class="fa-solid fa-copy me-1"></i>複製文字明細
                         </button>
                         <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto rounded-pill" id="btnTryMobilePrint">
-                            <i class="fa-solid fa-print"></i> 嘗試系統列印
+                            <i class="fa-solid fa-print me-1"></i>嘗試系統列印
                         </button>
                     </div>
                 </div>
@@ -175,7 +175,7 @@ function showMobileReceiptModal(orderData) {
 
     document.getElementById('mobileReceiptModalBody').innerHTML = `
         <div class="p-2 mb-3 bg-light bg-opacity-10 rounded small text-secondary">
-            <i class="fa-solid fa-circle-info text-warning"></i> 若您使用的是 LINE 或 FB 內建瀏覽器，建議直接點擊下方<b>「下載單據檔」</b>或<b>「複製文字明細」</b>進行儲存。
+            <i class="fa-solid fa-circle-info text-warning me-1"></i>若您使用的是 LINE 或 FB 內建瀏覽器，建議直接點擊下方<b>「下載單據檔」</b>或<b>「複製文字明細」</b>進行儲存。
         </div>
         <div class="mb-3">${itemsHtml}</div>
         <div class="p-3 bg-dark-subtle rounded border border-secondary border-opacity-50">
@@ -283,7 +283,7 @@ function printAnalyticsReport(reportData) {
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #fafafa;">
             <div style="width: 52%; text-align: center;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-pie me-1"></i> 1. 主系列整體占比分析 (${chart1.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-pie me-1"></i>1. 主系列整體占比分析 (${chart1.metric})</h4>
                 <img src="${chart1.img}" style="max-width: 100%; max-height: 180px; object-fit: contain;">
             </div>
             <div style="width: 48%;">
@@ -302,25 +302,25 @@ function printAnalyticsReport(reportData) {
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center;">
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-column me-1"></i> 2. 各系列採購數據 (${chart2.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-column me-1"></i>2. 各系列採購數據 (${chart2.metric})</h4>
                 <img src="${chart2.img}" style="max-width: 100%; max-height: 170px; object-fit: contain;">
             </div>
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-simple me-1"></i> 3. 型態訂購數量統計</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-simple me-1"></i>3. 型態訂購數量統計</h4>
                 <img src="${chart3.img}" style="max-width: 100%; max-height: 170px; object-fit: contain;">
             </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start;">
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-trophy me-1"></i> 4. 單品採購 Top 5 (${chart4.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-trophy me-1"></i>4. 單品採購 Top 5 (${chart4.metric})</h4>
                 <img src="${chart4.img}" style="max-width: 100%; max-height: 150px; object-fit: contain;">
                 <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 6px;">
                     <tbody>${chart4TableHtml}</tbody>
                 </table>
             </div>
             <div style="width: 50%; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fafafa;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-radar me-1"></i> 5. 型態貢獻雷達圖 (${chart5.metric})</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b;"><i class="fa-solid fa-chart-radar me-1"></i>5. 型態貢獻雷達圖 (${chart5.metric})</h4>
                 <img src="${chart5.img}" style="max-width: 100%; max-height: 200px; object-fit: contain;">
             </div>
         </div>
@@ -344,7 +344,7 @@ function showMobileAnalyticsModal(reportData) {
                 <div class="modal-content bg-light text-dark border-secondary">
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title text-primary">
-                            <i class="fa-solid fa-chart-pie"></i> 戰情圖表報告預覽
+                            <i class="fa-solid fa-chart-pie me-1"></i>戰情圖表報告預覽
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -352,10 +352,10 @@ function showMobileAnalyticsModal(reportData) {
                     </div>
                     <div class="modal-footer border-top flex-column flex-sm-row gap-2">
                         <button type="button" class="btn btn-outline-primary btn-sm w-100 w-sm-auto rounded-pill" id="btnDownloadAnalyticsHtml">
-                            <i class="fa-solid fa-file-arrow-down"></i> 下載電子報告檔 (.html)
+                            <i class="fa-solid fa-file-arrow-down me-1"></i>下載電子報告檔 (.html)
                         </button>
                         <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto rounded-pill" id="btnTryAnalyticsPrint">
-                            <i class="fa-solid fa-print"></i> 嘗試系統列印 / PDF
+                            <i class="fa-solid fa-print me-1"></i>嘗試系統列印 / PDF
                         </button>
                     </div>
                 </div>
@@ -374,7 +374,7 @@ function showMobileAnalyticsModal(reportData) {
 
     document.getElementById('mobileAnalyticsModalBody').innerHTML = `
         <div class="p-2 mb-3 bg-light border rounded small text-secondary">
-            <i class="fa-solid fa-circle-info text-warning"></i> 若使用 LINE 或 FB 內建瀏覽器，點擊下方<b>「下載電子報告檔」</b>即可儲存包含完整戰情圖表的白底明亮檔案。
+            <i class="fa-solid fa-circle-info text-warning me-1"></i>若使用 LINE 或 FB 內建瀏覽器，點擊下方<b>「下載電子報告檔」</b>即可儲存包含完整戰情圖表的白底明亮檔案。
         </div>
 
         <div class="row g-3">

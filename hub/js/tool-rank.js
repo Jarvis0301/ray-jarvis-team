@@ -96,7 +96,7 @@ async function initApp() {
 // ==========================================================================
 async function fetchGoogleSheetsData() {
     if (typeof AppLoading !== 'undefined') {
-        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+        AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     }
     
     try {
@@ -477,26 +477,26 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
     if (isQualified) {
         $box.addClass('qualified');
         $title.removeClass('text-warning').addClass('text-success')
-              .html(`<i class="fa-solid fa-circle-check"></i> 恭喜！您已完全符合【${target.rank_name_zh}】晉升標準`);
-        $list.append(`<li class="text-success"><i class="fa-solid fa-check"></i> 各項個人責任額、責任小組、經理線與連續考核期均已達標。</li>`);
+              .html(`<i class="fa-solid fa-circle-check me-1"></i>恭喜！您已完全符合【${target.rank_name_zh}】晉升標準`);
+        $list.append(`<li class="text-success"><i class="fa-solid fa-check me-1"></i>各項個人責任額、責任小組、經理線與連續考核期均已達標。</li>`);
         if (target.cooling_period_month > 0) {
-            $list.append(`<li class="text-info"><i class="fa-solid fa-hourglass-half"></i> 提醒：藍鑽以上晉升下一階等需期滿冷卻考核 ${target.cooling_period_month} 個月。</li>`);
+            $list.append(`<li class="text-info"><i class="fa-solid fa-hourglass-half me-1"></i>提醒：藍鑽以上晉升下一階等需期滿冷卻考核 ${target.cooling_period_month} 個月。</li>`);
         }
         $('#dispProgressLabel').text('已完全達標');
     } else {
         $box.removeClass('qualified');
         $title.addClass('text-warning').removeClass('text-success')
-              .html(`<i class="fa-solid fa-triangle-exclamation"></i> 衝刺【${target.rank_name_zh}】尚缺以下核心指標：`);
+              .html(`<i class="fa-solid fa-triangle-exclamation me-1"></i>衝刺【${target.rank_name_zh}】尚缺以下核心指標：`);
 
-        if (gapP > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 個人業績尚差：<strong class="text-danger">${gapP} SV</strong> (需達 ${target.month_personal_sv_req} SV)</li>`);
-        if (gapC > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 整組累計尚差：<strong class="text-warning">${gapC.toLocaleString()} SV</strong> (門檻 ${target.cum_group_sv_req.toLocaleString()} SV)</li>`);
-        if (gapM > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 小組責任額尚差：<strong class="text-warning">${gapM.toLocaleString()} SV</strong> (需達 ${target.month_group_sv_req.toLocaleString()} SV)</li>`);
-        if (gapOrg > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 整組總業績尚差：<strong class="text-warning">${gapOrg.toLocaleString()} SV</strong> (需達 ${target.month_total_org_sv_req.toLocaleString()} SV)</li>`);
-        if (gapLines > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 經理線尚缺：<strong class="text-warning">${gapLines} 條</strong> (門檻 ${target.qualified_lines_req} 條)</li>`);
-        if (gapPearl > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 實動珍珠線尚缺：<strong class="text-warning">${gapPearl} 條</strong> (需達 ${target.pearl_lines_req} 條)</li>`);
-        if (gapMonths > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary"></i> 連續考核月份尚缺：<strong class="text-warning">${gapMonths} 個月</strong> (需連續 ${target.consecutive_months_req} 個月)</li>`);
+        if (gapP > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>個人業績尚差：<strong class="text-danger">${gapP} SV</strong> (需達 ${target.month_personal_sv_req} SV)</li>`);
+        if (gapC > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>整組累計尚差：<strong class="text-warning">${gapC.toLocaleString()} SV</strong> (門檻 ${target.cum_group_sv_req.toLocaleString()} SV)</li>`);
+        if (gapM > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>小組責任額尚差：<strong class="text-warning">${gapM.toLocaleString()} SV</strong> (需達 ${target.month_group_sv_req.toLocaleString()} SV)</li>`);
+        if (gapOrg > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>整組總業績尚差：<strong class="text-warning">${gapOrg.toLocaleString()} SV</strong> (需達 ${target.month_total_org_sv_req.toLocaleString()} SV)</li>`);
+        if (gapLines > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>經理線尚缺：<strong class="text-warning">${gapLines} 條</strong> (門檻 ${target.qualified_lines_req} 條)</li>`);
+        if (gapPearl > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>實動珍珠線尚缺：<strong class="text-warning">${gapPearl} 條</strong> (需達 ${target.pearl_lines_req} 條)</li>`);
+        if (gapMonths > 0) $list.append(`<li><i class="fa-solid fa-arrow-right text-secondary me-1"></i>連續考核月份尚缺：<strong class="text-warning">${gapMonths} 個月</strong> (需連續 ${target.consecutive_months_req} 個月)</li>`);
         if (target.cooling_period_month > 0) {
-            $list.append(`<li class="text-secondary"><i class="fa-solid fa-clock-rotate-left"></i> 晉升冷卻制度：達標後需期滿 ${target.cooling_period_month} 個月方可進階下階等。</li>`);
+            $list.append(`<li class="text-secondary"><i class="fa-solid fa-clock-rotate-left me-1"></i>晉升冷卻制度：達標後需期滿 ${target.cooling_period_month} 個月方可進階下階等。</li>`);
         }
         $('#dispProgressLabel').text(`衝刺中 (${progressPct}%)`);
     }
@@ -654,7 +654,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     $container.append(`
         <div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary"></i> 直屬合格經理線拓撲</span>
+                <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary me-1"></i>直屬合格經理線拓撲</span>
                 <span class="badge badge-secondary">${lines} 條實動線</span>
             </div>
             <div class="d-flex gap-1 flex-wrap">
@@ -674,7 +674,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     const rescueStatusHtml = hasAutoRescue
         ? `<div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-warning border-opacity-50">
                 <div class="d-flex align-items-center gap-2 text-warning fw-bold small mb-1">
-                    <i class="fa-solid fa-shield-cat fs-5"></i> 第 5 條線業績自動補救已啟動
+                    <i class="fa-solid fa-shield-cat fs-5 me-1"></i>第 5 條線業績自動補救已啟動
                 </div>
                 <div class="text-warning small" style="font-size: 0.78rem;">
                     您已培育 5 條以上合格經理線，第 5 條經理線之小組業績已自動填補您本人 3,200 SV 小組缺口，免除保級顧慮。
@@ -682,7 +682,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
            </div>`
         : `<div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
                 <div class="d-flex align-items-center gap-2 text-secondary fw-bold small mb-1">
-                    <i class="fa-solid fa-shield text-secondary"></i> 業績自動補救機制守則
+                    <i class="fa-solid fa-shield text-secondary me-1"></i>業績自動補救機制守則
                 </div>
                 <div class="text-secondary small" style="font-size: 0.78rem;">
                     珍珠級以上經營者若培育達 5 條合格經理線，將啟動自動補救機制，免受每月 3,200 SV 考核限制。

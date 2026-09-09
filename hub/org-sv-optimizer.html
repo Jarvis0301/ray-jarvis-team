@@ -288,7 +288,7 @@
                         </div>
                         <div class="vr bg-secondary opacity-50"></div>
                         <div class="d-flex align-items-center gap-2 flex-grow-1">
-                            <span class="small text-nowrap text-muted"><i class="fa-solid fa-box-open"></i> 進貨 SV 池:</span>
+                            <span class="small text-nowrap text-muted"><i class="fa-solid fa-box-open me-1"></i>進貨 SV 池:</span>
                             <div class="input-group input-group-sm">
                                 <input type="number" id="inputPoolSv" class="form-control form-control-sm bg-dark text-light border-secondary font-mono fw-bold text-end" value="38500" step="500">
                                 <span class="input-group-text bg-dark text-muted border-secondary font-mono">SV</span>
@@ -300,17 +300,17 @@
                 <div class="col-xl-4 col-lg-12 d-flex justify-content-xl-end gap-2 align-items-center flex-wrap">
                     <div class="d-flex gap-2">
                         <button type="button" class="strategy-pill active" data-goal="MAX_BONUS">
-                            <i class="fa-solid fa-sack-dollar me-1"></i> 獲利最大化
+                            <i class="fa-solid fa-sack-dollar me-1"></i>獲利最大化
                         </button>
                         <button type="button" class="strategy-pill" data-goal="PREVENT_BREAKAWAY">
-                            <i class="fa-solid fa-shield-halved me-1"></i> 經理保級優先
+                            <i class="fa-solid fa-shield-halved me-1"></i>經理保級優先
                         </button>
                         <button type="button" class="strategy-pill" data-goal="BALANCED">
-                            <i class="fa-solid fa-scale-balanced me-1"></i> 均衡發展
+                            <i class="fa-solid fa-scale-balanced me-1"></i>均衡發展
                         </button>
                     </div>
                     <button id="btnRunOptimizer" class="btn btn-neon-action btn-sm px-3">
-                        <i class="fa-solid fa-bolt"></i> 執行 AI 求解
+                        <i class="fa-solid fa-bolt me-1"></i>執行 AI 求解
                     </button>
                 </div>
             </div>
@@ -321,7 +321,7 @@
                 <div class="tactical-panel p-4 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center gap-2">
-                            <h5 class="fw-bold m-0"><i class="fa-solid fa-diagram-project text-neon-purple" style="color: var(--neon-violet);"></i> 推薦落點節點網絡</h5>
+                            <h5 class="fw-bold m-0"><i class="fa-solid fa-diagram-project text-neon-purple" style="color: var(--neon-violet); me-1"></i>推薦落點節點網絡</h5>
                             <span id="nodeCountBadge" class="tactical-badge badge-cyan">4 個重點目標</span>
                         </div>
                         <div class="small text-muted">
@@ -336,10 +336,10 @@
 
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary border-opacity-25 small text-muted">
                         <div>
-                            <i class="fa-solid fa-circle-info"></i> 可直接拖動各節點分配滑桿手動微調，HUD 收益將即時重新計算。
+                            <i class="fa-solid fa-circle-info me-1"></i>可直接拖動各節點分配滑桿手動微調，HUD 收益將即時重新計算。
                         </div>
                         <button id="btnResetPlan" class="btn btn-link btn-sm text-decoration-none text-muted p-0">
-                            <i class="fa-solid fa-rotate-left"></i> 還原演算法推薦值
+                            <i class="fa-solid fa-rotate-left me-1"></i>還原演算法推薦值
                         </button>
                     </div>
                 </div>
@@ -348,33 +348,33 @@
             <div class="col-xl-4 col-lg-5">
                 <div class="d-flex flex-column gap-3">
                     <div class="tactical-panel p-4">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-radar" style="color: var(--neon-cyan);"></i> 即時戰術效益評估</h5>
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-radar" style="color: var(--neon-cyan); me-1"></i>即時戰術效益評估</h5>
                         
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="hud-stat-box">
-                                    <div class="text-muted small mb-1"><i class="fa-solid fa-hand-holding-dollar"></i> 預估增量回饋</div>
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-hand-holding-dollar me-1"></i>預估增量回饋</div>
                                     <div id="statEstimatedRoi" class="hud-value font-mono text-success">+$28,450</div>
                                     <div class="text-dim small mt-1 font-mono">TWD 淨收益增幅</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="hud-stat-box">
-                                    <div class="text-muted small mb-1"><i class="fa-solid fa-user-shield"></i> 保全合格經理</div>
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-user-shield me-1"></i>保全合格經理</div>
                                     <div id="statProtectedMgrs" class="hud-value font-mono text-neon-purple" style="color: var(--neon-violet);">3 <span class="fs-6 text-muted">位</span></div>
                                     <div class="text-dim small mt-1">避開向上緊縮損失</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="hud-stat-box">
-                                    <div class="text-muted small mb-1"><i class="fa-solid fa-arrows-split-up-and-left"></i> SV 總分配率</div>
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i>SV 總分配率</div>
                                     <div id="statAllocatedRate" class="hud-value font-mono text-cyan" style="color: var(--neon-cyan);">100%</div>
                                     <div id="statAllocatedDetail" class="text-dim small mt-1 font-mono">38,500 / 38,500</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="hud-stat-box">
-                                    <div class="text-muted small mb-1"><i class="fa-solid fa-hourglass-half"></i> 剩餘未配置 SV</div>
+                                    <div class="text-muted small mb-1"><i class="fa-solid fa-hourglass-half me-1"></i>剩餘未配置 SV</div>
                                     <div id="statRemainingSv" class="hud-value font-mono text-muted">0</div>
                                     <div class="text-dim small mt-1">無浪費之有效積點</div>
                                 </div>
@@ -383,7 +383,7 @@
 
                         <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small fw-bold text-muted"><i class="fa-solid fa-chart-pie"></i> 各線夥伴 SV 落點佔比</span>
+                                <span class="small fw-bold text-muted"><i class="fa-solid fa-chart-pie me-1"></i>各線夥伴 SV 落點佔比</span>
                                 <span id="planCodeBadge" class="tactical-badge badge-purple font-mono">OPT-202608-A</span>
                             </div>
                             <div style="height: 180px; position: relative;">
@@ -393,17 +393,17 @@
                     </div>
 
                     <div class="tactical-panel p-4">
-                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-brain" style="color: var(--neon-purple);"></i> 演算法落點策略建議理由</h6>
+                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-brain" style="color: var(--neon-purple); me-1"></i>演算法落點策略建議理由</h6>
                         <p id="solverReasoningText" class="small text-muted leading-relaxed mb-3">
                             優先注水 6,200 SV 助陳副理達成 12,000 SV 晉升經理，並保全第 2 代經理組織線；同時以 160 SV 啟用林專員之領取資格，剩餘 32,140 SV 佈局於 Ray 直屬高差額線，使整組收益最大化。
                         </p>
                         
                         <div class="d-grid gap-2">
                             <button id="btnCommitAllocation" class="btn btn-neon-action">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> 採納並寫入官方排單草稿 (409表)
+                                <i class="fa-solid fa-cloud-arrow-up me-1"></i>採納並寫入官方排單草稿 (409表)
                             </button>
                             <button id="btnExportCsv" class="btn btn-outline-secondary btn-sm text-light border-secondary">
-                                <i class="fa-solid fa-file-arrow-down"></i> 匯出落點掛單清單 (.CSV)
+                                <i class="fa-solid fa-file-arrow-down me-1"></i>匯出落點掛單清單 (.CSV)
                             </button>
                         </div>
                     </div>
@@ -416,7 +416,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--neon-purple); color: var(--text-main);">
                 <div class="modal-header border-bottom border-secondary border-opacity-25">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-circle-check text-success"></i> 方案已成功歸檔</h5>
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-circle-check text-success me-1"></i>方案已成功歸檔</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body py-4">
@@ -642,7 +642,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mt-2 small">
-                                <span class="text-muted"><i class="fa-solid fa-lightbulb text-warning me-1"></i> ${p.reason}</span>
+                                <span class="text-muted"><i class="fa-solid fa-lightbulb text-warning me-1"></i>${p.reason}</span>
                                 <span class="text-neon-cyan font-mono">目標狀態：${p.targetRank}</span>
                             </div>
                         </div>

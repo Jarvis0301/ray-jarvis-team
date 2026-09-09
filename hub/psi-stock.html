@@ -28,7 +28,7 @@
                 ========================================================================== -->
             <header class="row align-items-center mb-3">
                 <h4 class="fw-bold mb-0 text-light">
-                    <i class="fa-solid fa-boxes-stacked text-primary me-1"></i> 庫存管理
+                    <i class="fa-solid fa-boxes-stacked text-primary me-1"></i>庫存管理
                 </h4>
             </header>
             
@@ -39,35 +39,35 @@
                         <div class="row row-cols-2 row-cols-md-4 g-2">
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-box-open text-primary me-1"></i> 整盒庫存</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-box-open text-primary me-1"></i>整盒庫存</span>
                                     <span class="text-primary fs-6 fw-bold mono-num" id="hudTotalQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-success me-1"></i> 自由可用</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-success me-1"></i>自由可用</span>
                                     <span class="text-success fs-6 fw-bold mono-num" id="hudAvailableQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-lock text-warning me-1"></i> 預扣鎖定</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-lock text-warning me-1"></i>預扣鎖定</span>
                                     <span class="text-warning fs-6 fw-bold mono-num" id="hudReservedQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-shapes text-info me-1"></i> 散裝庫存</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-shapes text-info me-1"></i>散裝庫存</span>
                                     <span class="text-info fs-6 fw-bold mono-num" id="hudTotalPieces">0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-0 col-xl-5 d-none d-xl-block">
+                    <div class="col-12 col-md-0 col-xl-4 d-none d-xl-block">
                     </div>
-                    <div class="col-12 col-md-2 col-xl-1 d-flex justify-content-md-end">
+                    <div class="col-12 col-md-2 col-xl-2 d-flex justify-content-md-end">
                         <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddStockModal()">
-                            <i class="fa-solid fa-plus"></i> 新增庫存
+                            <i class="fa-solid fa-plus me-1"></i>新增庫存
                         </button>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                     <!-- 1. 據點下拉 (由 UISelectOptions 動態注入) -->
                     <div class="col-12 col-md-3 col-xl-3">
                         <label class="form-label text-secondary fw-bold mb-1" for="filterWarehouse">
-                            <i class="fa-solid fa-warehouse text-primary me-1"></i> 據點倉儲
+                            <i class="fa-solid fa-warehouse text-primary me-1"></i>據點倉儲
                         </label>
                         <select class="form-select form-select-sm" id="filterWarehouse">
                             <option value="ALL">全部據點倉儲</option>
@@ -86,7 +86,7 @@
                     <!-- 2. 產品下拉 (由 UISelectOptions 動態注入) -->
                     <div class="col-12 col-md-3 col-xl-3">
                         <label class="form-label text-secondary fw-bold mb-1" for="filterProduct">
-                            <i class="fa-solid fa-box text-info me-1"></i> 產品品項
+                            <i class="fa-solid fa-box text-info me-1"></i>產品品項
                         </label>
                         <select class="form-select form-select-sm" id="filterProduct">
                             <option value="ALL">全部產品品項</option>
@@ -96,7 +96,7 @@
                     <!-- 3. 時效下拉 -->
                     <div class="col-6 col-md-3 col-xl-3">
                         <label class="form-label text-secondary fw-bold mb-1" for="filterExpiry">
-                            <i class="fa-solid fa-hourglass-half text-warning me-1"></i> 時效區間
+                            <i class="fa-solid fa-hourglass-half text-warning me-1"></i>時效區間
                         </label>
                         <select class="form-select form-select-sm" id="filterExpiry">
                             <option value="ALL">全部時效</option>
@@ -110,7 +110,7 @@
                     <!-- 4. 狀態下拉 -->
                     <div class="col-6 col-md-3 col-xl-3">
                         <label class="form-label text-secondary fw-bold mb-1" for="filterStatus">
-                            <i class="fa-solid fa-shield-halved text-success me-1"></i> 庫存狀態
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i>庫存狀態
                         </label>
                         <select class="form-select form-select-sm" id="filterStatus">
                             <option value="ALL">全部狀態</option>
@@ -129,7 +129,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="card card-custom h-100 p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="fw-bold text-white"><i class="fa-solid fa-warehouse text-primary me-1"></i> 據點容積佔比</span>
+                            <span class="fw-bold text-white"><i class="fa-solid fa-warehouse text-primary me-1"></i>據點容積佔比</span>
                             <span class="badge badge-secondary">現貨盒數</span>
                         </div>
                         <div style="height: 180px; position: relative;">
@@ -142,7 +142,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="card card-custom h-100 p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="fw-bold text-white"><i class="fa-solid fa-box text-info me-1"></i> 產品品項佔比</span>
+                            <span class="fw-bold text-white"><i class="fa-solid fa-box text-info me-1"></i>產品品項佔比</span>
                             <span class="badge badge-secondary">現貨盒數</span>
                         </div>
                         <div style="height: 180px; position: relative;">
@@ -155,7 +155,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="card card-custom h-100 p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="fw-bold text-white"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 效期狀態佔比</span>
+                            <span class="fw-bold text-white"><i class="fa-solid fa-hourglass-half text-warning me-1"></i>效期狀態佔比</span>
                             <span class="badge badge-secondary">現貨盒數</span>
                         </div>
                         <div style="height: 180px; position: relative;">
@@ -168,7 +168,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="card card-custom h-100 p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="fw-bold text-white"><i class="fa-solid fa-shield-halved text-success me-1"></i> 管制狀態佔比</span>
+                            <span class="fw-bold text-white"><i class="fa-solid fa-shield-halved text-success me-1"></i>管制狀態佔比</span>
                             <span class="badge badge-secondary">現貨盒數</span>
                         </div>
                         <div style="height: 180px; position: relative;">
@@ -184,7 +184,7 @@
             <section class="glass-panel p-3 mb-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-white fw-bold"><i class="fa-solid fa-table-list text-primary me-1"></i> 批號庫存清單</span>
+                        <span class="text-white fw-bold"><i class="fa-solid fa-table-list text-primary me-1"></i>批號庫存清單</span>
                     </div>
                 </div>
 
@@ -221,7 +221,7 @@
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white" id="stockModalLabel">
-                            <i class="fa-solid fa-box-archive text-primary"></i> 庫存批號主檔編輯
+                            <i class="fa-solid fa-box-archive text-primary me-1"></i>庫存批號主檔編輯
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
@@ -310,17 +310,17 @@
                             <div class="form-check form-switch mt-2">
                                 <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
                                 <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
-                                    <i class="fa-solid fa-lock text-danger"></i> 品質異常或盤點凍結出庫標記
+                                    <i class="fa-solid fa-lock text-danger me-1"></i>品質異常或盤點凍結出庫標記
                                 </label>
                             </div>
                         </form>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 取消
+                            <i class="fa-solid fa-xmark me-1"></i>取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveStockItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存
+                            <i class="fa-solid fa-floppy-disk me-1"></i>儲存
                         </button>
                     </footer>
                 </section>

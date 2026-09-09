@@ -67,7 +67,7 @@ window.addEventListener('AppReady', async () => {
 // 4. 資料讀取引擎 (嚴格依據表 301 欄位順序解析，移除任何預設假資料)
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
         const fetchSheet = async (sheetName) => {
@@ -260,7 +260,7 @@ function renderGridCards(list) {
 
         const remarksHtml = w.remarks ? `
             <div class="small text-warning-emphasis mb-2 text-truncate" title="${w.remarks}">
-                <i class="fa-solid fa-note-sticky me-1 text-warning"></i> ${w.remarks}
+                <i class="fa-solid fa-note-sticky me-1 text-warning me-1"></i>${w.remarks}
             </div>
         ` : '';
 
@@ -286,15 +286,15 @@ function renderGridCards(list) {
                             </h5>
 
                             <div class="small text-secondary mb-2">
-                                <i class="fa-solid fa-location-dot me-1"></i> 地址：${address}
+                                <i class="fa-solid fa-location-dot me-1"></i>地址：${address}
                             </div>
 
                             <div class="small text-secondary mb-2">
-                                <i class="fa-solid fa-phone me-1"></i> 電話：<span class="mono-num">${contact_phone}</span>
+                                <i class="fa-solid fa-phone me-1"></i>電話：<span class="mono-num">${contact_phone}</span>
                             </div>
 
                             <div class="small text-secondary mb-2">
-                                <i class="fa-solid fa-clock me-1"></i> 時間：${operating_hours}
+                                <i class="fa-solid fa-clock me-1"></i>時間：${operating_hours}
                             </div>
 
                             ${remarksHtml}
@@ -304,7 +304,7 @@ function renderGridCards(list) {
                             <div class="d-flex gap-1">
                                 ${navUrl ? `
                                     <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm py-1 px-2" title="地圖導航">
-                                        <i class="fa-solid fa-location-arrow"></i> 導航
+                                        <i class="fa-solid fa-location-arrow me-1"></i>導航
                                     </a>
                                 ` : ''}
                                 ${w.contact_phone ? `
@@ -388,7 +388,7 @@ function formatTableRow(w) {
 // 6. Modal 表單操作 (嚴格依據表 301 欄位物理順序寫入)
 // ==========================================================================
 function openAddModal() {
-    $('#warehouseModalLabel').html('<i class="fa-solid fa-plus text-primary"></i> 新增據點倉儲');
+    $('#warehouseModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增據點倉儲');
     $('#formMode').val('add');
     $('#warehouseForm')[0].reset();
     $('#fieldId').prop('readonly', false).val('');
@@ -405,7 +405,7 @@ function openEditModal(warehouseId) {
     const w = appState.warehouses.find(item => item.id === warehouseId);
     if (!w) return;
 
-    $('#warehouseModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯據點倉儲');
+    $('#warehouseModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯據點倉儲');
     $('#formMode').val('edit');
     $('#fieldId').prop('readonly', true).val(w.id);
     $('#fieldName').val(w.warehouse_name);
@@ -480,7 +480,7 @@ async function saveWarehouseItem() {
 
     const $btnSave = $('button[onclick="saveWarehouseItem()"]');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (window.SheetAdapter) {
             if (mode === 'add') {
@@ -510,7 +510,7 @@ async function saveWarehouseItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

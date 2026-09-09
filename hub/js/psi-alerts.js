@@ -94,7 +94,7 @@ async function initAlertsApp() {
 // 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
         // 擴充支援傳入特定試算表 ID (預設為 SPREADSHEET_ID)
@@ -323,9 +323,9 @@ function formatAlertRow(a) {
     let daysDisplay = '<span class="text-secondary">-</span>';
     if (a.days_to_expire !== null && !isNaN(a.days_to_expire)) {
         if (a.days_to_expire <= 0) {
-            daysDisplay = `<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark"></i> 逾期 ${Math.abs(a.days_to_expire)} 天</span>`;
+            daysDisplay = `<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>逾期 ${Math.abs(a.days_to_expire)} 天</span>`;
         } else if (a.days_to_expire <= 90) {
-            daysDisplay = `<span class="text-warning fw-bold"><i class="fa-solid fa-clock"></i> 剩 ${a.days_to_expire} 天</span>`;
+            daysDisplay = `<span class="text-warning fw-bold"><i class="fa-solid fa-clock me-1"></i>剩 ${a.days_to_expire} 天</span>`;
         } else {
             daysDisplay = `<span class="text-secondary">剩 ${a.days_to_expire} 天</span>`;
         }
@@ -333,7 +333,7 @@ function formatAlertRow(a) {
 
     const actionBtn = `
         <button class="btn btn-sm btn-secondary" onclick="openResolveAlertModal('${a.id}')">
-            <i class="fa-solid fa-bolt"></i> 處置
+            <i class="fa-solid fa-bolt me-1"></i>處置
         </button>
     `;
 
@@ -447,7 +447,7 @@ function updateGeneratedThresholdId() {
  * 開啟新增門檻 Modal
  */
 function openAddThresholdModal() {
-    $('#thresholdModalLabel').html('<i class="fa-solid fa-plus text-primary"></i> 新增安全門檻規則');
+    $('#thresholdModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增安全門檻規則');
     $('#thresholdFormMode').val('add');
     $('#thresholdForm')[0].reset();
 
@@ -474,7 +474,7 @@ function openEditThresholdModal(thresholdId) {
     const t = appState.thresholds.find(item => item.id === thresholdId);
     if (!t) return;
 
-    $('#thresholdModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯安全門檻規則');
+    $('#thresholdModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯安全門檻規則');
     $('#thresholdFormMode').val('edit');
 
     // 載入主鍵，並鎖定據點與產品（複合主鍵禁止直接修改）
@@ -553,7 +553,7 @@ async function saveThresholdItem() {
 
     const $btn = $('button[onclick="saveThresholdItem()"]');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID);
@@ -574,7 +574,7 @@ async function saveThresholdItem() {
     } catch (err) {
         AppToast.error("門檻寫入失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

@@ -25,15 +25,15 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h1 class="page-title h2 mb-2">
-                            <i class="fa-solid fa-users-gear"></i> 團隊成員夥伴目錄
+                            <i class="fa-solid fa-users-gear me-1"></i>團隊成員夥伴目錄
                         </h1>
                         <p class="text-muted mb-0">
-                            <i class="fa-solid fa-sitemap"></i> 榮祥葡眾團隊核心領導人、專長軍備庫與組織夥伴名冊
+                            <i class="fa-solid fa-sitemap me-1"></i>榮祥葡眾團隊核心領導人、專長軍備庫與組織夥伴名冊
                         </p>
                     </div>
                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
                         <button id="btnRefresh" class="btn btn-outline-info text-light">
-                            <i class="fa-solid fa-rotate"></i> 重新整理資料
+                            <i class="fa-solid fa-rotate me-1"></i>重新整理資料
                         </button>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                             <i class="fa-solid fa-user-group"></i>
                         </div>
                         <div>
-                            <div class="text-muted small"><i class="fa-solid fa-circle-info"></i> 總夥伴數</div>
+                            <div class="text-muted small"><i class="fa-solid fa-circle-info me-1"></i>總夥伴數</div>
                             <div class="h3 fw-bold mb-0 text-light" id="statTotalMembers">--</div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                             <i class="fa-solid fa-gem"></i>
                         </div>
                         <div>
-                            <div class="text-muted small"><i class="fa-solid fa-crown"></i> 高階領導人</div>
+                            <div class="text-muted small"><i class="fa-solid fa-crown me-1"></i>高階領導人</div>
                             <div class="h3 fw-bold mb-0 text-light" id="statLeaders">--</div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                             <i class="fa-solid fa-map-location-dot"></i>
                         </div>
                         <div>
-                            <div class="text-muted small"><i class="fa-solid fa-location-dot"></i> 涵蓋縣市</div>
+                            <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i>涵蓋縣市</div>
                             <div class="h3 fw-bold mb-0 text-light" id="statLocations">--</div>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                             <i class="fa-solid fa-bolt"></i>
                         </div>
                         <div>
-                            <div class="text-muted small"><i class="fa-solid fa-shield-halved"></i> 運營狀態</div>
+                            <div class="text-muted small"><i class="fa-solid fa-shield-halved me-1"></i>運營狀態</div>
                             <div class="h3 fw-bold mb-0 text-info">雲端連線中</div>
                         </div>
                     </div>
@@ -90,16 +90,16 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="h5 text-info mb-0">
-                    <i class="fa-solid fa-star"></i> 核心領導人與創始團隊
+                    <i class="fa-solid fa-star me-1"></i>核心領導人與創始團隊
                 </h3>
-                <span class="badge bg-secondary"><i class="fa-solid fa-layer-group"></i> Leadership Team</span>
+                <span class="badge bg-secondary"><i class="fa-solid fa-layer-group me-1"></i>Leadership Team</span>
             </div>
             <div class="row g-4 mb-5" id="leadershipGrid">
                 <div class="col-12 text-center py-4 loading-spinner">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">載入中...</span>
                     </div>
-                    <div class="mt-2 text-muted"><i class="fa-solid fa-cloud-arrow-down"></i> 正在抓取 Google 試算表成員資料...</div>
+                    <div class="mt-2 text-muted"><i class="fa-solid fa-cloud-arrow-down me-1"></i>正在抓取 Google 試算表成員資料...</div>
                 </div>
             </div>
 
@@ -107,7 +107,7 @@
                 <div class="col-md-6">
                     <div class="chart-container">
                         <h5 class="h6 text-info mb-3">
-                            <i class="fa-solid fa-chart-pie"></i> 組織職級結構分佈
+                            <i class="fa-solid fa-chart-pie me-1"></i>組織職級結構分佈
                         </h5>
                         <canvas id="chartRank"></canvas>
                     </div>
@@ -115,7 +115,7 @@
                 <div class="col-md-6">
                     <div class="chart-container">
                         <h5 class="h6 text-info mb-3">
-                            <i class="fa-solid fa-chart-column"></i> 夥伴駐點區域分佈
+                            <i class="fa-solid fa-chart-column me-1"></i>夥伴駐點區域分佈
                         </h5>
                         <canvas id="chartLocation"></canvas>
                     </div>
@@ -124,21 +124,21 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="h5 text-info mb-0">
-                    <i class="fa-solid fa-table-list"></i> 全體團隊夥伴名冊明細
+                    <i class="fa-solid fa-table-list me-1"></i>全體團隊夥伴名冊明細
                 </h3>
-                <span class="text-muted small"><i class="fa-solid fa-filter"></i> 支援即時關鍵字搜尋與欄位排序</span>
+                <span class="text-muted small"><i class="fa-solid fa-filter me-1"></i>支援即時關鍵字搜尋與欄位排序</span>
             </div>
             <div class="table-custom-wrapper">
                 <div class="table-responsive">
                     <table id="membersTable" class="table table-hover w-100">
                         <thead>
                             <tr>
-                                <th><i class="fa-solid fa-user"></i> 姓名</th>
-                                <th><i class="fa-solid fa-award"></i> 職級</th>
-                                <th><i class="fa-solid fa-user-tag"></i> 團隊角色</th>
-                                <th><i class="fa-solid fa-location-dot"></i> 駐點區域</th>
-                                <th><i class="fa-solid fa-lightbulb"></i> 核心專長</th>
-                                <th><i class="fa-solid fa-link"></i> 聯絡 / 社群</th>
+                                <th><i class="fa-solid fa-user me-1"></i>姓名</th>
+                                <th><i class="fa-solid fa-award me-1"></i>職級</th>
+                                <th><i class="fa-solid fa-user-tag me-1"></i>團隊角色</th>
+                                <th><i class="fa-solid fa-location-dot me-1"></i>駐點區域</th>
+                                <th><i class="fa-solid fa-lightbulb me-1"></i>核心專長</th>
+                                <th><i class="fa-solid fa-link me-1"></i>聯絡 / 社群</th>
                             </tr>
                         </thead>
                         <tbody>

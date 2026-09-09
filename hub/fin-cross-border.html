@@ -305,13 +305,13 @@
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge px-2 py-1 rounded-pill mono-num" style="background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid rgba(139,92,246,0.4);">
-                            <i class="fa-solid fa-arrows-split-up-and-left"></i> H66000 跨境對沖
+                            <i class="fa-solid fa-arrows-split-up-and-left me-1"></i>H66000 跨境對沖
                         </span>
                         <span class="badge px-2 py-1 rounded-pill" style="background: rgba(236,72,153,0.18); color: #f472b6; border: 1px solid rgba(236,72,153,0.35);">
-                            <i class="fa-solid fa-plane-departure"></i> 台馬雙向現貨交付 ⇄ 當地官網下單補點
+                            <i class="fa-solid fa-plane-departure me-1"></i>台馬雙向現貨交付 ⇄ 當地官網下單補點
                         </span>
                         <span class="badge px-2 py-1 rounded-pill" style="background: rgba(6,182,212,0.18); color: #22d3ee; border: 1px solid rgba(6,182,212,0.35);">
-                            <i class="fa-solid fa-database"></i> 表 6：fin_cross_border_swaps
+                            <i class="fa-solid fa-database me-1"></i>表 6：fin_cross_border_swaps
                         </span>
                     </div>
                     <h1 class="h3 mb-0 hub-title">跨境現貨交付與點數平帳總控中樞</h1>
@@ -323,13 +323,13 @@
                 <!-- 頂部操作按鈕群 -->
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     <button class="btn btn-neon-ghost btn-sm px-3 py-2" id="btnSyncGoogleSheets" title="透過 PapaParse / GViz 抓取 Google 試算表">
-                        <i class="fa-solid fa-arrows-rotate"></i> 試算表同步
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>試算表同步
                     </button>
                     <button class="btn btn-neon-ghost btn-sm px-3 py-2" data-bs-toggle="collapse" data-bs-target="#collapseAnalyticsPanel">
-                        <i class="fa-solid fa-chart-line"></i> 對沖差額雷達
+                        <i class="fa-solid fa-chart-line me-1"></i>對沖差額雷達
                     </button>
                     <button class="btn btn-neon-accent btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalNewSwap">
-                        <i class="fa-solid fa-plus"></i> 新增跨境對沖單
+                        <i class="fa-solid fa-plus me-1"></i>新增跨境對沖單
                     </button>
                 </div>
             </div>
@@ -340,7 +340,7 @@
                 <div class="col-6 col-md-3 hud-stat-pill">
                     <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.2);">
                         <div class="small text-muted d-flex justify-content-between">
-                            <span><i class="fa-solid fa-list-check text-primary"></i> 執行中對沖單</span>
+                            <span><i class="fa-solid fa-list-check text-primary me-1"></i>執行中對沖單</span>
                             <span class="badge bg-primary bg-opacity-25 text-primary small">ACTIVE</span>
                         </div>
                         <div class="h5 mono-num text-light mb-0 mt-1" id="statActiveSwaps">4 筆單據</div>
@@ -351,7 +351,7 @@
                 <div class="col-6 col-md-3 hud-stat-pill">
                     <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.2);">
                         <div class="small text-muted d-flex justify-content-between">
-                            <span><i class="fa-solid fa-box-open text-info"></i> 台灣交付 SV 目標</span>
+                            <span><i class="fa-solid fa-box-open text-info me-1"></i>台灣交付 SV 目標</span>
                             <span class="badge bg-info bg-opacity-25 text-info small">TW TARGET</span>
                         </div>
                         <div class="h5 mono-num text-info mb-0 mt-1" id="statTotalTargetSv">4,850.00 SV</div>
@@ -362,7 +362,7 @@
                 <div class="col-6 col-md-3 hud-stat-pill">
                     <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(236,72,153,0.2);">
                         <div class="small text-muted d-flex justify-content-between">
-                            <span><i class="fa-solid fa-cart-shopping text-accent"></i> 大馬已補下單 SV</span>
+                            <span><i class="fa-solid fa-cart-shopping text-accent me-1"></i>大馬已補下單 SV</span>
                             <span class="badge bg-pink bg-opacity-25 text-accent small">MY ACTUAL</span>
                         </div>
                         <div class="h5 mono-num text-accent mb-0 mt-1" id="statTotalActualSv">4,620.00 SV</div>
@@ -373,7 +373,7 @@
                 <div class="col-6 col-md-3 hud-stat-pill">
                     <div class="p-2.5 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(245,158,11,0.2);">
                         <div class="small text-muted d-flex justify-content-between">
-                            <span><i class="fa-solid fa-scale-unbalanced text-warning"></i> 雙向差價平帳淨額</span>
+                            <span><i class="fa-solid fa-scale-unbalanced text-warning me-1"></i>雙向差價平帳淨額</span>
                             <span class="badge bg-warning bg-opacity-25 text-warning small">CASH DIFF</span>
                         </div>
                         <div class="h5 mono-num text-warning mb-0 mt-1" id="statTotalCashDiff">NT$ +1,642</div>
@@ -384,21 +384,21 @@
             <!-- 階段快篩膠囊與視圖切換 -->
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2">
                 <div class="d-flex flex-wrap gap-2 align-items-center" id="stageFilterPills">
-                    <span class="small fw-semibold text-muted me-1"><i class="fa-solid fa-filter"></i> 階段快篩：</span>
+                    <span class="small fw-semibold text-muted me-1"><i class="fa-solid fa-filter me-1"></i>階段快篩：</span>
                     <a href="javascript:void(0)" class="glass-pill active" data-stage="ALL">
-                        <i class="fa-solid fa-layer-group"></i> 全部單據
+                        <i class="fa-solid fa-layer-group me-1"></i>全部單據
                     </a>
                     <a href="javascript:void(0)" class="glass-pill" data-stage="STAGE1_TW_DELIVERED">
-                        <i class="fa-solid fa-plane-departure text-warning"></i> 階段一：台灣已交貨
+                        <i class="fa-solid fa-plane-departure text-warning me-1"></i>階段一：台灣已交貨
                     </a>
                     <a href="javascript:void(0)" class="glass-pill" data-stage="STAGE2_MY_ORDERED">
-                        <i class="fa-solid fa-cart-check text-info"></i> 階段二：大馬已下單
+                        <i class="fa-solid fa-cart-check text-info me-1"></i>階段二：大馬已下單
                     </a>
                     <a href="javascript:void(0)" class="glass-pill" data-stage="STAGE3_BALANCED">
-                        <i class="fa-solid fa-scale-balanced text-primary"></i> 階段三：帳目兩平
+                        <i class="fa-solid fa-scale-balanced text-primary me-1"></i>階段三：帳目兩平
                     </a>
                     <a href="javascript:void(0)" class="glass-pill" data-stage="SETTLED">
-                        <i class="fa-solid fa-circle-check text-success"></i> 已結案核銷
+                        <i class="fa-solid fa-circle-check text-success me-1"></i>已結案核銷
                     </a>
                 </div>
 
@@ -423,14 +423,14 @@
             <div class="glass-panel p-3 p-lg-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="mb-0 fw-bold text-light">
-                        <i class="fa-solid fa-chart-pie text-primary"></i> 跨境對沖 SV 達成率與台馬金流差額分佈
+                        <i class="fa-solid fa-chart-pie text-primary me-1"></i>跨境對沖 SV 達成率與台馬金流差額分佈
                     </h6>
                     <span class="badge bg-dark border border-secondary text-muted">匯率基準：1 MYR = 7.1500 TWD</span>
                 </div>
                 <div class="row g-3">
                     <div class="col-12 col-md-6 col-xl-4">
                         <div class="p-3 rounded-3 h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
-                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-donut text-info"></i> 各階段對沖單量分佈</div>
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-donut text-info me-1"></i>各階段對沖單量分佈</div>
                             <div style="height: 210px; position: relative;">
                                 <canvas id="chartStageDoughnut"></canvas>
                             </div>
@@ -438,7 +438,7 @@
                     </div>
                     <div class="col-12 col-md-6 col-xl-4">
                         <div class="p-3 rounded-3 h-100" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
-                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-bar text-accent"></i> 交付 SV 目標 vs 實際下單 SV</div>
+                            <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-chart-bar text-accent me-1"></i>交付 SV 目標 vs 實際下單 SV</div>
                             <div style="height: 210px; position: relative;">
                                 <canvas id="chartSvComparisonBar"></canvas>
                             </div>
@@ -447,7 +447,7 @@
                     <div class="col-12 col-xl-4">
                         <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(139,92,246,0.15);">
                             <div>
-                                <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-shield-halved text-warning"></i> 跨境對沖核銷規則</div>
+                                <div class="small fw-bold text-light mb-2"><i class="fa-solid fa-shield-halved text-warning me-1"></i>跨境對沖核銷規則</div>
                                 <ul class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
                                     <li><strong>階段一 (TW Delivered)</strong>：台灣現貨交貨並扣減 psi_stocks 庫存，鎖定目標 SV。</li>
                                     <li><strong>階段二 (MY Ordered)</strong>：大馬夥伴於官網下單同等 SV 產品並回填訂單號。</li>
@@ -557,10 +557,10 @@
                 
                 <div class="d-flex gap-2">
                     <button class="btn btn-sm btn-neon-ghost" onclick="exportSwapsCsv()">
-                        <i class="fa-solid fa-file-csv"></i> 匯出對沖 CSV
+                        <i class="fa-solid fa-file-csv me-1"></i>匯出對沖 CSV
                     </button>
                     <button class="btn btn-sm btn-neon-ghost" id="btnBatchSettle">
-                        <i class="fa-solid fa-check-double"></i> 批次兩平核銷
+                        <i class="fa-solid fa-check-double me-1"></i>批次兩平核銷
                     </button>
                 </div>
             </div>
@@ -612,7 +612,7 @@
             <div class="modal-content">
                 <div class="modal-header border-secondary border-opacity-25">
                     <h5 class="modal-title hub-title">
-                        <i class="fa-solid fa-plane-departure text-primary"></i> 開立跨境現貨交付對沖單 (fin_cross_border_swaps)
+                        <i class="fa-solid fa-plane-departure text-primary me-1"></i>開立跨境現貨交付對沖單 (fin_cross_border_swaps)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -639,7 +639,7 @@
                             <!-- 台灣現貨端 -->
                             <div class="col-12">
                                 <h6 class="small fw-bold text-info border-bottom border-secondary border-opacity-25 pb-1 mb-1">
-                                    <i class="fa-solid fa-box text-primary"></i> 1. 台灣交付現貨品項與目標 SV
+                                    <i class="fa-solid fa-box text-primary me-1"></i>1. 台灣交付現貨品項與目標 SV
                                 </h6>
                             </div>
                             <div class="col-12 col-md-6">
@@ -666,7 +666,7 @@
                             <!-- 大馬下單端 -->
                             <div class="col-12">
                                 <h6 class="small fw-bold text-accent border-bottom border-secondary border-opacity-25 pb-1 mb-1">
-                                    <i class="fa-solid fa-cart-shopping text-accent"></i> 2. 大馬在地官網下單對沖補點
+                                    <i class="fa-solid fa-cart-shopping text-accent me-1"></i>2. 大馬在地官網下單對沖補點
                                 </h6>
                             </div>
                             <div class="col-12 col-md-4">
@@ -685,7 +685,7 @@
                             <!-- 差額與平帳 -->
                             <div class="col-12">
                                 <h6 class="small fw-bold text-warning border-bottom border-secondary border-opacity-25 pb-1 mb-1">
-                                    <i class="fa-solid fa-scale-balanced text-warning"></i> 3. 匯率折算與差價平帳試算
+                                    <i class="fa-solid fa-scale-balanced text-warning me-1"></i>3. 匯率折算與差價平帳試算
                                 </h6>
                             </div>
                             <div class="col-12 col-md-3">
@@ -720,7 +720,7 @@
                 <div class="modal-footer border-secondary border-opacity-25">
                     <button type="button" class="btn btn-neon-ghost" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-neon-primary" id="btnSubmitSwap">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存對沖單據
+                        <i class="fa-solid fa-floppy-disk me-1"></i>儲存對沖單據
                     </button>
                 </div>
             </div>
@@ -733,7 +733,7 @@
             <div class="modal-content">
                 <div class="modal-header border-secondary border-opacity-25">
                     <h6 class="modal-title fw-bold text-light" id="previewSwapTitle">
-                        <i class="fa-solid fa-scale-balanced text-primary"></i> 跨境對沖單據審驗
+                        <i class="fa-solid fa-scale-balanced text-primary me-1"></i>跨境對沖單據審驗
                     </h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -769,7 +769,7 @@
                 <div class="modal-footer border-secondary border-opacity-25">
                     <button type="button" class="btn btn-sm btn-neon-ghost" data-bs-dismiss="modal">關閉</button>
                     <button type="button" class="btn btn-sm btn-neon-accent" id="btnAdvanceStage">
-                        <i class="fa-solid fa-forward"></i> 推進至下一階段
+                        <i class="fa-solid fa-forward me-1"></i>推進至下一階段
                     </button>
                 </div>
             </div>
@@ -1122,10 +1122,10 @@
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-1.5">
                                 <span class="badge bg-dark border border-purple-subtle mono-num text-muted small">${item.swap_no}</span>
-                                <span class="small mono-num text-light"><i class="fa-solid fa-user-tag text-primary"></i> ${item.tw_partner_name.split(' ')[0]}</span>
+                                <span class="small mono-num text-light"><i class="fa-solid fa-user-tag text-primary me-1"></i>${item.tw_partner_name.split(' ')[0]}</span>
                             </div>
                             <h6 class="fw-bold text-light mb-1">${item.tw_product_name} <span class="text-accent">x${item.tw_delivered_qty}</span></h6>
-                            <div class="small text-muted mb-2"><i class="fa-solid fa-arrow-right text-info"></i> 受領：${item.my_partner_id}</div>
+                            <div class="small text-muted mb-2"><i class="fa-solid fa-arrow-right text-info me-1"></i>受領：${item.my_partner_id}</div>
                         </div>
                         
                         <div class="p-2 rounded mb-2" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.15);">
@@ -1142,7 +1142,7 @@
                         <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-15">
                             <span class="badge bg-dark border border-secondary text-muted small">${item.my_order_no || '尚未下單'}</span>
                             <button class="btn btn-xs btn-neon-ghost py-0.5 px-2" onclick="previewSwap('${item.swap_no}')">
-                                <i class="fa-solid fa-eye"></i> 審驗
+                                <i class="fa-solid fa-eye me-1"></i>審驗
                             </button>
                         </div>
                     </div>
@@ -1173,8 +1173,8 @@
 
                             <div class="hedge-balance-bridge mb-2">
                                 <div class="d-flex justify-content-between small">
-                                    <span class="text-info"><i class="fa-solid fa-plane-departure"></i> 台灣成本：NT$ ${item.tw_total_cost_twd.toLocaleString()}</span>
-                                    <span class="text-accent"><i class="fa-solid fa-cart-shopping"></i> 大馬付款：RM ${item.my_order_amount_myr.toLocaleString()}</span>
+                                    <span class="text-info"><i class="fa-solid fa-plane-departure me-1"></i>台灣成本：NT$ ${item.tw_total_cost_twd.toLocaleString()}</span>
+                                    <span class="text-accent"><i class="fa-solid fa-cart-shopping me-1"></i>大馬付款：RM ${item.my_order_amount_myr.toLocaleString()}</span>
                                 </div>
                                 <div class="d-flex justify-content-between small mt-1 pt-1 border-top border-secondary border-opacity-15">
                                     <span class="text-muted">SV 平帳目標：${item.tw_total_sv_target}</span>
@@ -1185,7 +1185,7 @@
                             <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-15">
                                 <span class="small text-muted">${item.tw_partner_name.split(' ')[0]} ➔ ${item.my_partner_id}</span>
                                 <button class="btn btn-sm btn-neon-primary py-0.5 px-3" onclick="previewSwap('${item.swap_no}')">
-                                    <i class="fa-solid fa-magnifying-glass"></i> 詳細審計
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i>詳細審計
                                 </button>
                             </div>
                         </div>
@@ -1197,10 +1197,10 @@
 
         function getStageBadge(stage) {
             switch(stage) {
-                case "STAGE1_TW_DELIVERED": return '<span class="badge bg-warning text-dark"><i class="fa-solid fa-plane-departure"></i> 台灣已交貨</span>';
-                case "STAGE2_MY_ORDERED": return '<span class="badge bg-info text-dark"><i class="fa-solid fa-cart-check"></i> 大馬已下單</span>';
-                case "STAGE3_BALANCED": return '<span class="badge bg-primary"><i class="fa-solid fa-scale-balanced"></i> 帳目兩平</span>';
-                case "SETTLED": return '<span class="badge bg-success"><i class="fa-solid fa-circle-check"></i> 已結案核銷</span>';
+                case "STAGE1_TW_DELIVERED": return '<span class="badge bg-warning text-dark"><i class="fa-solid fa-plane-departure me-1"></i>台灣已交貨</span>';
+                case "STAGE2_MY_ORDERED": return '<span class="badge bg-info text-dark"><i class="fa-solid fa-cart-check me-1"></i>大馬已下單</span>';
+                case "STAGE3_BALANCED": return '<span class="badge bg-primary"><i class="fa-solid fa-scale-balanced me-1"></i>帳目兩平</span>';
+                case "SETTLED": return '<span class="badge bg-success"><i class="fa-solid fa-circle-check me-1"></i>已結案核銷</span>';
                 default: return '<span class="badge bg-secondary">未知階段</span>';
             }
         }
@@ -1386,10 +1386,10 @@
             // Google 試算表 GViz / PapaParse 同步
             $("#btnSyncGoogleSheets").on("click", function() {
                 const btn = $(this);
-                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...');
                 setTimeout(() => {
-                    btn.html('<i class="fa-solid fa-circle-check text-success"></i> 對沖總帳已同步');
-                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate"></i> 試算表同步'), 2000);
+                    btn.html('<i class="fa-solid fa-circle-check text-success me-1"></i>對沖總帳已同步');
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>試算表同步'), 2000);
                 }, 1200);
             });
 

@@ -26,17 +26,17 @@
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-xl-6">
                         <div class="fs-5 fw-bold text-white">
-                            <i class="fa-solid fa-truck-ramp-box text-primary me-1"></i> 進貨入庫
+                            <i class="fa-solid fa-truck-ramp-box text-primary me-1"></i>進貨入庫
                         </div>
                     </div>
 
                     <div class="col-12 col-xl-6 text-xl-end">
                         <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
                             <button type="button" class="btn btn-sm btn-outline-purple" onclick="exportCsv()">
-                                <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+                                <i class="fa-solid fa-file-csv me-1"></i>匯出 CSV
                             </button>
                             <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddModal()">
-                                <i class="fa-solid fa-plus"></i> 新增進貨單據
+                                <i class="fa-solid fa-plus me-1"></i>新增進貨單據
                             </button>
                         </div>
                     </div>
@@ -45,27 +45,27 @@
 
             <section class="glass-panel pipeline-stepper mb-4">
                 <div class="step-node active" data-status-filter="ALL" onclick="filterByPipeline('ALL', this)">
-                    <i class="fa-solid fa-list-check"></i> 全域進貨總覽
+                    <i class="fa-solid fa-list-check me-1"></i>全域進貨總覽
                     <span class="step-count" id="countAll">0</span>
                 </div>
                 <div class="step-node" data-status-filter="草稿" onclick="filterByPipeline('草稿', this)">
-                    <i class="fa-solid fa-pen-ruler"></i> 草稿待出運
+                    <i class="fa-solid fa-pen-ruler me-1"></i>草稿待出運
                     <span class="step-count" id="countDraft">0</span>
                 </div>
                 <div class="step-node" data-status-filter="待自取" onclick="filterByPipeline('待自取', this)">
-                    <i class="fa-solid fa-store"></i> 營運中心待自取
+                    <i class="fa-solid fa-store me-1"></i>營運中心待自取
                     <span class="step-count" id="countPickup">0</span>
                 </div>
                 <div class="step-node" data-status-filter="運輸中" onclick="filterByPipeline('運輸中', this)">
-                    <i class="fa-solid fa-truck-fast"></i> 物流在途運送中
+                    <i class="fa-solid fa-truck-fast me-1"></i>物流在途運送中
                     <span class="step-count" id="countTransit">0</span>
                 </div>
                 <div class="step-node" data-status-filter="已入庫" onclick="filterByPipeline('已入庫', this)">
-                    <i class="fa-solid fa-boxes-packing"></i> 已驗收入庫歸戶
+                    <i class="fa-solid fa-boxes-packing me-1"></i>已驗收入庫歸戶
                     <span class="step-count" id="countCompleted">0</span>
                 </div>
                 <div class="step-node" data-status-filter="已取消" onclick="filterByPipeline('已取消', this)">
-                    <i class="fa-solid fa-ban"></i> 已取消作廢
+                    <i class="fa-solid fa-ban me-1"></i>已取消作廢
                     <span class="step-count" id="countVoid">0</span>
                 </div>
             </section>
@@ -121,7 +121,7 @@
             <section class="card p-3 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#analyticsChartContainer">
                     <div class="fw-bold text-white small">
-                        <i class="fa-solid fa-chart-line text-primary"></i> 月度進貨 SV 與採購支出戰術圖表
+                        <i class="fa-solid fa-chart-line text-primary me-1"></i>月度進貨 SV 與採購支出戰術圖表
                     </div>
                     <div class="text-secondary small">
                         <i class="fa-solid fa-chevron-down"></i>
@@ -186,7 +186,7 @@
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white" id="modalTitle">
-                            <i class="fa-solid fa-file-circle-plus text-primary"></i> 新增進貨入庫單據
+                            <i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增進貨入庫單據
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
@@ -241,7 +241,7 @@
                             <div class="card p-3 mb-3">
                                 <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
                                     <span class="badge badge-purple-subtle">
-                                        <i class="fa-solid fa-arrows-split-up-and-left"></i> 四流分離戰術架構配置
+                                        <i class="fa-solid fa-arrows-split-up-and-left me-1"></i>四流分離戰術架構配置
                                     </span>
                                     <span class="text-secondary small">依權重排序：展示名稱 &gt; 中文 &gt; 英文 &gt; 暱稱</span>
                                 </div>
@@ -320,10 +320,10 @@
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 取消
+                            <i class="fa-solid fa-xmark me-1"></i>取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveInbound" onclick="saveInboundItem()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存
+                            <i class="fa-solid fa-floppy-disk me-1"></i>儲存
                         </button>
                     </footer>
                 </section>
@@ -336,10 +336,10 @@
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <div class="d-flex align-items-center justify-content-between w-100 me-2">
                             <h5 class="modal-title fw-bold text-white mb-0">
-                                <i class="fa-solid fa-list-ol text-info"></i> 進貨單商品與費用明細清單
+                                <i class="fa-solid fa-list-ol text-info me-1"></i>進貨單商品與費用明細清單
                             </h5>
                             <button type="button" class="btn btn-sm btn-outline-purple rounded-pill" id="btnToggleAddItem" onclick="toggleInlineItemForm()">
-                                <i class="fa-solid fa-plus"></i> 新增單筆明細
+                                <i class="fa-solid fa-plus me-1"></i>新增單筆明細
                             </button>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -388,7 +388,7 @@
                             <div class="card p-3 border-purple border-opacity-50" style="background: rgba(28, 15, 48, 0.7);">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="fw-bold text-white small" id="inlineFormTitle">
-                                        <i class="fa-solid fa-pen-to-square text-primary"></i> 編輯明細項目
+                                        <i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細項目
                                     </span>
                                     <button type="button" class="btn-close btn-close-white small" onclick="closeInlineItemForm()"></button>
                                 </div>
@@ -438,10 +438,10 @@
                                         </div>
                                         <div class="col-6 col-md-3 text-end d-flex align-items-end justify-content-end gap-2">
                                             <button type="button" class="btn btn-muted btn-sm rounded-pill" onclick="closeInlineItemForm()">
-                                                <i class="fa-solid fa-xmark"></i> 取消
+                                                <i class="fa-solid fa-xmark me-1"></i>取消
                                             </button>
                                             <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveInlineItem" onclick="saveInlineItem()">
-                                                <i class="fa-solid fa-check"></i> 確認儲存細項
+                                                <i class="fa-solid fa-check me-1"></i>確認儲存細項
                                             </button>
                                         </div>
                                     </div>
@@ -501,7 +501,7 @@
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 關閉
+                            <i class="fa-solid fa-xmark me-1"></i>關閉
                         </button>
                     </footer>
                 </section>

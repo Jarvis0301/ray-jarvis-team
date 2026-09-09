@@ -54,7 +54,7 @@ function handleFetchError(err) {
     console.error('資料讀取失敗:', err);
 
     rawEventsData = [];
-    $('#loading-spinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> 無法載入活動資料，請檢查試算表權限。</div>');
+    $('#loading-spinner').html('<div class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i>無法載入活動資料，請檢查試算表權限。</div>');
     filterAndRender();
 
     if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
@@ -250,21 +250,21 @@ function createEventCardHtml(item) {
         : `<span class="status-badge"><span class="status-dot"></span> 開放報名中</span>`;
 
     // 類型標籤
-    const typeBadge = `<span class="type-badge"><i class="fa-solid fa-tag me-1"></i> ${item.type}</span>`;
+    const typeBadge = `<span class="type-badge"><i class="fa-solid fa-tag me-1"></i>${item.type}</span>`;
 
     // 表演藝人標籤 (若無藝人資料則不渲染)
     const performerBadge = item.performer
-        ? `<span class="performer-badge"><i class="fa-solid fa-microphone-lines me-1"></i> 藝人：${item.performer}</span>`
+        ? `<span class="performer-badge"><i class="fa-solid fa-microphone-lines me-1"></i>藝人：${item.performer}</span>`
         : '';
 
     // 按鈕邏輯
     let actionBtnHtml = '';
     if (item.isExpired) {
-        actionBtnHtml = `<div class="btn-uvaco-disabled"><i class="fa-solid fa-lock me-1"></i> 活動已結束</div>`;
+        actionBtnHtml = `<div class="btn-uvaco-disabled"><i class="fa-solid fa-lock me-1"></i>活動已結束</div>`;
     } else if (item.regUrl && item.regUrl.trim() !== '') {
-        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-uvaco-primary"><i class="fa-solid fa-paper-plane me-1"></i> 立即線上報名</a>`;
+        actionBtnHtml = `<a href="${item.regUrl}" target="_blank" rel="noopener noreferrer" class="btn-uvaco-primary"><i class="fa-solid fa-paper-plane me-1"></i>立即線上報名</a>`;
     } else {
-        actionBtnHtml = `<div class="btn-uvaco-secondary"><i class="fa-solid fa-circle-info me-1"></i> 現場自由入場 / 聯繫我們</div>`;
+        actionBtnHtml = `<div class="btn-uvaco-secondary"><i class="fa-solid fa-circle-info me-1"></i>現場自由入場 / 聯繫我們</div>`;
     }
 
     const expiredClass = item.isExpired ? 'expired' : '';

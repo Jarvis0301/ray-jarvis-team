@@ -26,17 +26,17 @@
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-xl-5">
                         <div class="fs-5 fw-bold text-white">
-                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> 盤點調撥
+                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i>盤點調撥
                         </div>
                     </div>
 
                     <div class="col-12 col-xl-4 text-center">
                         <div class="mode-pill-toggle">
                             <button type="button" class="btn active" id="btnModeAudit" onclick="switchTacticalMode('AUDIT')">
-                                <i class="fa-solid fa-clipboard-check"></i> 實物盤點與動態平帳
+                                <i class="fa-solid fa-clipboard-check me-1"></i>實物盤點與動態平帳
                             </button>
                             <button type="button" class="btn" id="btnModeTransfer" onclick="switchTacticalMode('TRANSFER')">
-                                <i class="fa-solid fa-truck-ramp-box"></i> 跨據點在途調撥
+                                <i class="fa-solid fa-truck-ramp-box me-1"></i>跨據點在途調撥
                             </button>
                         </div>
                     </div>
@@ -44,10 +44,10 @@
                     <div class="col-12 col-xl-3 text-xl-end">
                         <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
                             <button type="button" class="btn btn-sm btn-outline-purple" onclick="exportAdjustmentsCsv()">
-                                <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+                                <i class="fa-solid fa-file-csv me-1"></i>匯出 CSV
                             </button>
                             <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddAdjustmentModal()">
-                                <i class="fa-solid fa-plus"></i> 發起新單據
+                                <i class="fa-solid fa-plus me-1"></i>發起新單據
                             </button>
                         </div>
                     </div>
@@ -103,23 +103,23 @@
                         <div>
                             <header class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-barcode text-primary"></i> 現場實物盤點與損益試算
+                                    <i class="fa-solid fa-barcode text-primary me-1"></i>現場實物盤點與損益試算
                                 </h3>
                                 <span class="badge badge-purple-subtle">
                                     盲盤覆核模式
                                 </span>
                             </header>
                             <p class="text-secondary small mb-3">
-                                清點現場實體庫存數量並與庫存主檔進行比對，系統自動核算成本損益與 SV 影響，即時產生對齊資料表 307 之標準異動單據。
+                                清點現場實體庫存數量並與庫存主檔進行比對，系統自動核算成本損益與 SV 影響，即時產生異動單據。
                             </p>
 
                             <div class="row g-2 mb-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label" for="auditWarehouseSelect">盤點倉儲據點 (from_warehouse_id) *</label>
+                                    <label class="form-label" for="auditWarehouseSelect">盤點倉儲據點 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="auditWarehouseSelect" onchange="loadProductStockForAudit()"></select>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label" for="auditProductSelect">盤點品項 (product_id) *</label>
+                                    <label class="form-label" for="auditProductSelect">盤點品項 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="auditProductSelect" onchange="loadProductStockForAudit()"></select>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                                     <div class="row g-2 align-items-center">
                                         <div class="col-7">
                                             <label class="form-label small fw-bold text-info mb-1" for="auditInputPhysicalQty">
-                                                <i class="fa-solid fa-calculator"></i> 現場實盤數量 (Physical Count)
+                                                <i class="fa-solid fa-calculator me-1"></i>現場實盤數量
                                             </label>
                                             <div class="input-group">
                                                 <button class="btn btn-outline-purple" type="button" onclick="adjustCountStep(-1)"><i class="fa-solid fa-minus"></i></button>
@@ -161,7 +161,7 @@
                                             </div>
                                         </div>
                                         <div class="col-5">
-                                            <label class="form-label small fw-bold text-secondary mb-1" for="auditAdjUnit">計量單位 (adj_unit)</label>
+                                            <label class="form-label small fw-bold text-secondary mb-1" for="auditAdjUnit">計量單位</label>
                                             <select class="form-select form-select-sm" id="auditAdjUnit">
                                                 <option value="盒">盒</option>
                                                 <option value="組">組</option>
@@ -180,7 +180,7 @@
                                     <span class="small text-secondary">試算差異結果：</span>
                                     <div class="d-flex align-items-center gap-2" id="auditVarianceBadgeContainer">
                                         <span class="variance-tag variance-balanced" id="auditTagVarianceStatus">
-                                            <i class="fa-solid fa-check"></i> 帳實相符 (0)
+                                            <i class="fa-solid fa-check me-1"></i>帳實相符 (0)
                                         </span>
                                         <span class="small text-warning" id="auditLblVarianceCost">$0 TWD</span>
                                     </div>
@@ -188,7 +188,7 @@
 
                                 <div class="mt-3 d-none" id="auditReasonContainer">
                                     <label class="form-label small text-warning fw-bold">
-                                        <i class="fa-solid fa-triangle-exclamation"></i> 異動類型判定與說明事由 (必填)
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i>異動類型判定與說明事由 (必填)
                                     </label>
                                     <div class="row g-2">
                                         <div class="col-5">
@@ -210,11 +210,11 @@
 
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
-                                    <label class="form-label" for="auditOperatorSelect">執行經手人 (operator_partner_id) *</label>
+                                    <label class="form-label" for="auditOperatorSelect">執行經手人 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="auditOperatorSelect"></select>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label" for="auditProspectSelect">關聯客戶 (target_prospect_id)</label>
+                                    <label class="form-label" for="auditProspectSelect">關聯客戶</label>
                                     <select class="form-select form-select-sm" id="auditProspectSelect">
                                         <option value="">-- 非試用體驗無須選擇 --</option>
                                     </select>
@@ -224,10 +224,10 @@
 
                         <footer class="d-flex gap-2 mt-auto">
                             <button type="button" class="btn btn-outline-purple flex-grow-1" onclick="resetAuditForm()">
-                                <i class="fa-solid fa-rotate-left"></i> 重置清空
+                                <i class="fa-solid fa-rotate-left me-1"></i>重置清空
                             </button>
                             <button type="button" class="btn btn-purple text-white flex-grow-1 fw-bold" id="btnSubmitAudit" onclick="commitAuditRecord()">
-                                <i class="fa-solid fa-floppy-disk"></i> 寫入盤點覆核單據
+                                <i class="fa-solid fa-floppy-disk me-1"></i>寫入盤點覆核單據
                             </button>
                         </footer>
                     </div>
@@ -238,11 +238,8 @@
                         <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <div>
                                 <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-list-check text-primary"></i> 表 307：盤點調撥覆核審計大盤 (psi_adjustments)
+                                    <i class="fa-solid fa-list-check text-primary me-1"></i>盤點調撥表
                                 </h3>
-                                <div class="text-secondary small mt-1">
-                                    嚴格對齊 25 個物理欄位架構，支援 8 大計量單位與個人名稱權重解析
-                                </div>
                             </div>
                         </header>
 
@@ -274,7 +271,7 @@
                         <div>
                             <header class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-route text-info"></i> 發起跨倉調撥單 (psi_adjustments)
+                                    <i class="fa-solid fa-route text-info me-1"></i>發起跨倉調撥單
                                 </h3>
                                 <span class="badge badge-info-subtle">
                                     跨國/島內流轉
@@ -288,7 +285,7 @@
                                 <div class="row align-items-center g-2">
                                     <div class="col-5">
                                         <label class="form-label small text-secondary fw-bold mb-1" for="trFromWarehouseSelect">
-                                            <i class="fa-solid fa-warehouse text-primary"></i> 調出來源倉 (From) *
+                                            <i class="fa-solid fa-warehouse text-primary me-1"></i>調出來源倉 <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-sm" id="trFromWarehouseSelect" onchange="updateTransferCostCalc()"></select>
                                     </div>
@@ -299,7 +296,7 @@
                                     </div>
                                     <div class="col-5">
                                         <label class="form-label small text-secondary fw-bold mb-1" for="trToWarehouseSelect">
-                                            <i class="fa-solid fa-location-dot text-info"></i> 調入目的倉 (To) *
+                                            <i class="fa-solid fa-location-dot text-info me-1"></i>調入目的倉 <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-sm" id="trToWarehouseSelect"></select>
                                     </div>
@@ -307,17 +304,17 @@
                             </article>
 
                             <div class="mb-3">
-                                <label class="form-label" for="trProductSelect">調撥品項 (product_id) *</label>
+                                <label class="form-label" for="trProductSelect">調撥品項 <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm" id="trProductSelect" onchange="updateTransferCostCalc()"></select>
                             </div>
 
                             <div class="row g-2 mb-3">
                                 <div class="col-4">
-                                    <label class="form-label" for="trQtyInput">調撥數量 *</label>
+                                    <label class="form-label" for="trQtyInput">調撥數量 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm" id="trQtyInput" value="10" min="1" oninput="updateTransferCostCalc()">
                                 </div>
                                 <div class="col-4">
-                                    <label class="form-label" for="trAdjUnit">計量單位 *</label>
+                                    <label class="form-label" for="trAdjUnit">計量單位 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="trAdjUnit">
                                         <option value="盒">盒</option>
                                         <option value="組">組</option>
@@ -328,7 +325,7 @@
                                     </select>
                                 </div>
                                 <div class="col-4">
-                                    <label class="form-label" for="trCurrencySelect">幣別 *</label>
+                                    <label class="form-label" for="trCurrencySelect">幣別 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="trCurrencySelect" onchange="updateTransferCostCalc()">
                                         <option value="TWD">TWD</option>
                                         <option value="MYR">MYR</option>
@@ -338,17 +335,17 @@
 
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
-                                    <label class="form-label" for="trOperatorSelect">執行經手夥伴 (operator) *</label>
+                                    <label class="form-label" for="trOperatorSelect">執行經手夥伴 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="trOperatorSelect"></select>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label" for="trAdjDate">調撥日期 (adj_date) *</label>
+                                    <label class="form-label" for="trAdjDate">調撥日期 <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="trAdjDate">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label" for="trReasonInput">調撥事由與物流追蹤說明 (reason_desc) *</label>
+                                <label class="form-label" for="trReasonInput">調撥事由與物流追蹤說明 <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm" id="trReasonInput" placeholder="例：航空空運跨境支援旗艦倉展業">
                             </div>
 
@@ -366,7 +363,7 @@
 
                         <footer class="d-flex gap-2 mt-auto">
                             <button type="button" class="btn btn-purple text-white flex-grow-1 fw-bold" onclick="commitTransferOrder()">
-                                <i class="fa-solid fa-paper-plane"></i> 建立跨倉調撥單據
+                                <i class="fa-solid fa-paper-plane me-1"></i>建立跨倉調撥單據
                             </button>
                         </footer>
                     </div>
@@ -377,7 +374,7 @@
                         <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <div>
                                 <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-truck-fast text-info"></i> 跨據點調撥流通清冊 (Transfer Records)
+                                    <i class="fa-solid fa-truck-fast text-info me-1"></i>跨據點調撥流通清冊
                                 </h3>
                                 <div class="text-secondary small mt-1">
                                     篩選 <code>adj_type = '跨倉調撥'</code> 之所有跨境與島內流轉單據
@@ -412,7 +409,7 @@
                     <div class="card p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="small text-secondary fw-bold">
-                                <i class="fa-solid fa-chart-line text-primary"></i> 跨倉調撥與異動流通月度趨勢
+                                <i class="fa-solid fa-chart-line text-primary me-1"></i>跨倉調撥與異動流通月度趨勢
                             </span>
                             <span class="badge badge-purple-subtle">月度統計</span>
                         </div>
@@ -426,7 +423,7 @@
                     <div class="card p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="small text-secondary fw-bold">
-                                <i class="fa-solid fa-chart-pie text-warning"></i> 庫存異動類型佔比分佈 (7 大類型)
+                                <i class="fa-solid fa-chart-pie text-warning me-1"></i>庫存異動類型佔比分佈 (7 大類型)
                             </span>
                             <span class="badge badge-warning-subtle">結構分流</span>
                         </div>
@@ -443,7 +440,7 @@
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white" id="adjustModalTitle">
-                            <i class="fa-solid fa-file-circle-plus text-primary"></i> 新增盤點調撥單據
+                            <i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增盤點調撥單據
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
@@ -453,11 +450,11 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldId">調撥單號主鍵 (id) *</label>
+                                    <label class="form-label" for="fieldId">調撥單號主鍵 (id) <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldId" required readonly>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldAdjType">異動類型 (adj_type) *</label>
+                                    <label class="form-label" for="fieldAdjType">異動類型 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldAdjType" required onchange="handleModalAdjTypeChange()">
                                         <option value="跨倉調撥">跨倉調撥</option>
                                         <option value="盤盈">盤盈</option>
@@ -469,22 +466,22 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldAdjDate">調整發生日期 (adj_date) *</label>
+                                    <label class="form-label" for="fieldAdjDate">調整發生日期 <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="fieldAdjDate" required>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldOperatorPartnerId">經手夥伴 (operator_partner_id) *</label>
+                                    <label class="form-label" for="fieldOperatorPartnerId">經手夥伴 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldOperatorPartnerId" required></select>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label" for="fieldFromWarehouseId">調出/發生倉儲 (from_warehouse_id) *</label>
+                                    <label class="form-label" for="fieldFromWarehouseId">調出/發生倉儲 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldFromWarehouseId" required></select>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label" for="fieldToWarehouseId">調入倉儲 (to_warehouse_id)</label>
+                                    <label class="form-label" for="fieldToWarehouseId">調入倉儲</label>
                                     <select class="form-select form-select-sm" id="fieldToWarehouseId">
                                         <option value="">-- 單倉異動無須填寫 --</option>
                                     </select>
@@ -494,27 +491,27 @@
                             <article class="card p-3 mb-3">
                                 <div class="row g-3">
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldProductId">產品品項 (product_id) *</label>
+                                        <label class="form-label" for="fieldProductId">產品品項 <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm" id="fieldProductId" required onchange="handleModalProductChange()"></select>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldOfficialProductCode">葡眾官方商品編號 (official_product_code) *</label>
+                                        <label class="form-label" for="fieldOfficialProductCode">葡眾官方商品編號 <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm" id="fieldOfficialProductCode" required readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldProductNameSnaps">異動產品名稱快照 (product_name_snaps) *</label>
+                                        <label class="form-label" for="fieldProductNameSnaps">異動產品名稱快照 <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm" id="fieldProductNameSnaps" required readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldStockId">關聯庫存單號 (stock_id) *</label>
+                                        <label class="form-label" for="fieldStockId">關聯庫存單號 <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm" id="fieldStockId" required placeholder="如 STK-20260301-0001">
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldBatchNo">異動生產批號 (batch_no) *</label>
+                                        <label class="form-label" for="fieldBatchNo">異動生產批號 <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm" id="fieldBatchNo" required placeholder="如 LOT20260715A">
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldExpiryDate">異動有效日期 (expiry_date) *</label>
+                                        <label class="form-label" for="fieldExpiryDate">異動有效日期 <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control form-control-sm" id="fieldExpiryDate" required>
                                     </div>
                                 </div>
@@ -522,7 +519,7 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldAdjUnit">計量單位 (adj_unit) *</label>
+                                    <label class="form-label" for="fieldAdjUnit">計量單位 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldAdjUnit" required>
                                         <option value="盒">盒</option>
                                         <option value="組">組</option>
@@ -535,43 +532,43 @@
                                     </select>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldQuantity">調整數量 (quantity) *</label>
+                                    <label class="form-label" for="fieldQuantity">調整數量 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm" id="fieldQuantity" required oninput="calculateModalTotals()">
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldCurrencyCode">幣別 (currency) *</label>
+                                    <label class="form-label" for="fieldCurrencyCode">幣別 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldCurrencyCode" required>
                                         <option value="TWD">TWD</option>
                                         <option value="MYR">MYR</option>
                                     </select>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldUnitCost">單件成本 (unit_cost) *</label>
+                                    <label class="form-label" for="fieldUnitCost">單件成本 <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" class="form-control form-control-sm" id="fieldUnitCost" required oninput="calculateModalTotals()">
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldUnitSv">單件 SV (unit_sv) *</label>
+                                    <label class="form-label" for="fieldUnitSv">單件 SV <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm" id="fieldUnitSv" required oninput="calculateModalTotals()">
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldTotalCost">總成本 (total_cost)</label>
+                                    <label class="form-label" for="fieldTotalCost">總成本</label>
                                     <input type="number" step="0.01" class="form-control form-control-sm" id="fieldTotalCost" readonly>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldTargetProspectId">試用對象客戶 (target_prospect_id)</label>
+                                    <label class="form-label" for="fieldTargetProspectId">試用對象客戶</label>
                                     <select class="form-select form-select-sm" id="fieldTargetProspectId">
                                         <option value="">-- 非試用發放無須選擇 --</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldTotalSv">影響總 SV (total_sv)</label>
+                                    <label class="form-label" for="fieldTotalSv">影響總 SV</label>
                                     <input type="number" class="form-control form-control-sm" id="fieldTotalSv" readonly>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldReasonDesc">詳細事由 (reason_desc) *</label>
+                                    <label class="form-label" for="fieldReasonDesc">詳細事由 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldReasonDesc" required placeholder="如「中心調撥支援」、「線下沙龍拆盒發放」">
                                 </div>
                             </div>
@@ -579,10 +576,10 @@
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark"></i> 取消
+                            <i class="fa-solid fa-xmark me-1"></i>取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3"  id="btnSaveAdjust" onclick="saveAdjustmentRecord()">
-                            <i class="fa-solid fa-floppy-disk"></i> 儲存
+                            <i class="fa-solid fa-floppy-disk me-1"></i>儲存
                         </button>
                     </footer>
                 </section>

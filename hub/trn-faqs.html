@@ -235,12 +235,12 @@
                     <div class="hub-header">
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-purple-subtle text-purple px-2 py-1" style="background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3);">
-                                <i class="fa-solid fa-shield-halved"></i> 模組二：培訓中台
+                                <i class="fa-solid fa-shield-halved me-1"></i>模組二：培訓中台
                             </span>
                             <span class="text-secondary small font-monospace">H220000 / prd-faqs.html</span>
                         </div>
                         <h2 class="h3 fw-bold mt-2 mb-0 text-white tracking-wide">
-                            <i class="fa-solid fa-messages-question text-purple me-1"></i> 通用問答知識庫
+                            <i class="fa-solid fa-messages-question text-purple me-1"></i>通用問答知識庫
                         </h2>
                     </div>
                 </div>
@@ -248,18 +248,18 @@
                 <div class="col-12 col-lg-7">
                     <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-2">
                         <button class="btn btn-outline-light border-secondary-subtle px-3" id="btnSyncGoogleSheet">
-                            <i class="fa-solid fa-arrows-rotate"></i> 同步試算表 (表14)
+                            <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表 (表14)
                         </button>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-outline-purple active" id="btnViewCards" style="border-color: var(--uvaco-border);">
-                                <i class="fa-solid fa-layer-group"></i> 戰術卡片流
+                                <i class="fa-solid fa-layer-group me-1"></i>戰術卡片流
                             </button>
                             <button type="button" class="btn btn-outline-purple" id="btnViewTable" style="border-color: var(--uvaco-border);">
-                                <i class="fa-solid fa-table-list"></i> 資料矩陣
+                                <i class="fa-solid fa-table-list me-1"></i>資料矩陣
                             </button>
                         </div>
                         <button class="btn btn-neon-primary px-3" id="btnOpenAddModal">
-                            <i class="fa-solid fa-plus"></i> 新增通用問答
+                            <i class="fa-solid fa-plus me-1"></i>新增通用問答
                         </button>
                     </div>
                 </div>
@@ -276,7 +276,7 @@
                 </div>
                 <div class="col-12 col-md-7 col-xl-8">
                     <div class="d-flex flex-wrap gap-2 align-items-center" id="categoryFilterContainer">
-                        <span class="text-secondary small me-1"><i class="fa-solid fa-filter"></i> 分類：</span>
+                        <span class="text-secondary small me-1"><i class="fa-solid fa-filter me-1"></i>分類：</span>
                         <button class="btn-filter-pill active" data-cat="ALL">全部分類 (<span id="count-ALL">0</span>)</button>
                         <button class="btn-filter-pill" data-cat="JOIN">事業加盟 (<span id="count-JOIN">0</span>)</button>
                         <button class="btn-filter-pill" data-cat="SYS">制度說明 (<span id="count-SYS">0</span>)</button>
@@ -322,7 +322,7 @@
     </div>
 
     <div id="copyToast" class="copy-toast-badge">
-        <i class="fa-solid fa-circle-check"></i> 話術已成功複製至剪貼簿！
+        <i class="fa-solid fa-circle-check me-1"></i>話術已成功複製至剪貼簿！
     </div>
 
     <div class="modal fade" id="faqEditModal" tabindex="-1" aria-hidden="true">
@@ -330,7 +330,7 @@
             <div class="modal-content glass-panel text-light border-0" style="background: rgba(18, 10, 42, 0.96);">
                 <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
                     <h5 class="modal-title fw-bold" id="modalTitle">
-                        <i class="fa-solid fa-pen-to-square text-purple me-1"></i> 編輯通用問答 (trn_general_faqs)
+                        <i class="fa-solid fa-pen-to-square text-purple me-1"></i>編輯通用問答 (trn_general_faqs)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -390,7 +390,7 @@
                 <div class="modal-footer border-top border-secondary border-opacity-25 pt-3">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-neon-primary px-4" id="btnSaveFaq">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存問答
+                        <i class="fa-solid fa-floppy-disk me-1"></i>儲存問答
                     </button>
                 </div>
             </div>
@@ -567,11 +567,11 @@
                 list.forEach(item => {
                     const meta = getCategoryMeta(item.category);
                     const tagsHtml = item.tags 
-                        ? item.tags.split(',').map(t => `<span class="badge bg-dark border border-secondary text-secondary me-1"><i class="fa-solid fa-hashtag text-purple"></i> ${t.trim()}</span>`).join('') 
+                        ? item.tags.split(',').map(t => `<span class="badge bg-dark border border-secondary text-secondary me-1"><i class="fa-solid fa-hashtag text-purple me-1"></i>${t.trim()}</span>`).join('') 
                         : '';
                     
                     const pinnedBadge = item.is_pinned 
-                        ? `<span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50"><i class="fa-solid fa-thumbtack"></i> 置頂話術</span>`
+                        ? `<span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50"><i class="fa-solid fa-thumbtack me-1"></i>置頂話術</span>`
                         : '';
 
                     const cardHtml = `
@@ -581,7 +581,7 @@
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="badge ${meta.badge} px-2 py-1">
-                                                <i class="fa-solid ${meta.icon}"></i> ${meta.text}
+                                                <i class="fa-solid ${meta.icon} me-1"></i>${meta.text}
                                             </span>
                                             ${pinnedBadge}
                                         </div>
@@ -603,14 +603,14 @@
 
                                 <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
                                     <span class="text-secondary small">
-                                        <i class="fa-solid fa-fire text-danger"></i> 查閱熱度：${item.view_count.toLocaleString()}
+                                        <i class="fa-solid fa-fire text-danger me-1"></i>查閱熱度：${item.view_count.toLocaleString()}
                                     </span>
                                     <div class="d-flex gap-2">
                                         <button class="btn btn-sm btn-outline-info btn-copy-script" data-answer="${encodeURIComponent(item.answer)}" data-question="${encodeURIComponent(item.question)}">
-                                            <i class="fa-solid fa-copy"></i> 複製話術
+                                            <i class="fa-solid fa-copy me-1"></i>複製話術
                                         </button>
                                         <button class="btn btn-sm btn-outline-purple btn-edit-faq" data-id="${item.faq_id}">
-                                            <i class="fa-solid fa-pen"></i> 編輯
+                                            <i class="fa-solid fa-pen me-1"></i>編輯
                                         </button>
                                     </div>
                                 </div>
@@ -643,7 +643,7 @@
                             <td class="font-monospace small text-purple">${item.faq_id}</td>
                             <td>
                                 <span class="badge ${meta.badge}">
-                                    <i class="fa-solid ${meta.icon}"></i> ${meta.text}
+                                    <i class="fa-solid ${meta.icon} me-1"></i>${meta.text}
                                 </span>
                             </td>
                             <td class="fw-medium text-white">${item.question}</td>
@@ -761,7 +761,7 @@
 
                 // 新增 Modal 開啟
                 $('#btnOpenAddModal').on('click', function () {
-                    $('#modalTitle').html('<i class="fa-solid fa-plus text-purple me-1"></i> 新增通用問答 (trn_general_faqs)');
+                    $('#modalTitle').html('<i class="fa-solid fa-plus text-purple me-1"></i>新增通用問答 (trn_general_faqs)');
                     $('#faqForm')[0].reset();
                     $('#formFaqId').val('');
                     $('#formIsActive').prop('checked', true);
@@ -775,7 +775,7 @@
                     const target = faqData.find(item => item.faq_id === id);
                     if (!target) return;
 
-                    $('#modalTitle').html(`<i class="fa-solid fa-pen-to-square text-purple me-1"></i> 編輯問答 [${id}]`);
+                    $('#modalTitle').html(`<i class="fa-solid fa-pen-to-square text-purple me-1"></i>編輯問答 [${id}]`);
                     $('#formFaqId').val(target.faq_id);
                     $('#formCategory').val(target.category);
                     $('#formQuestion').val(target.question);
@@ -852,7 +852,7 @@
                 $('#btnSyncGoogleSheet').on('click', function () {
                     const btn = $(this);
                     const originalHtml = btn.html();
-                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 正在解耦讀取...');
+                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>正在解耦讀取...');
 
                     setTimeout(() => {
                         // 模擬自 Google 試算表 GViz 獲取包含中文標題的解耦資料
@@ -870,7 +870,7 @@
                             renderTableView();
                         }
 
-                        btn.prop('disabled', false).html('<i class="fa-solid fa-circle-check text-success"></i> 同步完成');
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-circle-check text-success me-1"></i>同步完成');
                         setTimeout(() => btn.html(originalHtml), 2000);
                     }, 1000);
                 });
