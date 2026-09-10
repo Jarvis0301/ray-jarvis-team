@@ -71,7 +71,7 @@
                             <span class="text-secondary small fw-bold">盤損與過期報廢成本</span>
                             <i class="fa-solid fa-scale-unbalanced-flip text-danger"></i>
                         </div>
-                        <div class="h4 mb-0 fw-bold text-danger" id="statLossAmount">$0</div>
+                        <div class="h4 mb-0 fw-bold text-danger" id="statLossAmount">NT$ 0</div>
                         <div class="text-secondary small mt-1">累計損耗盒數：<span class="text-danger fw-bold" id="statLossBoxes">0</span> 盒</div>
                     </div>
                 </div>
@@ -125,26 +125,40 @@
                             </div>
 
                             <article class="card p-3 mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <span class="badge badge-info-subtle" id="auditLblProductCode">-</span>
-                                        <h4 class="h6 fw-bold text-white mb-0 mt-1" id="auditLblProductName">請先選擇盤點品項</h4>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-12 col-md-7">
+                                        <label class="form-label small text-secondary mb-1">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="auditInputProductName" readonly placeholder="請先選擇盤點品項">
                                     </div>
-                                    <span class="batch-chip" id="auditLblBatchNo">LOT: -</span>
+                                    <div class="col-12 col-md-5">
+                                        <label class="form-label small text-secondary mb-1">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly font-monospace" id="auditInputBatchNo" readonly placeholder="LOT: -">
+                                    </div>
                                 </div>
 
-                                <div class="row g-2 mt-2">
+                                <div class="row g-2 mb-2">
                                     <div class="col-4">
+                                        <label class="form-label small text-secondary mb-1">幣別 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="auditInputCurrency" readonly value="TWD">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label small text-secondary mb-1">單件成本 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="auditInputUnitCost" readonly value="NT$ 0">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label small text-secondary mb-1">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="auditInputUnitSv" readonly value="0 SV">
+                                    </div>
+                                </div>
+
+                                <div class="row g-2 mt-1 pt-2 border-top border-secondary border-opacity-25">
+                                    <div class="col-6">
                                         <div class="text-secondary small">帳面在庫量</div>
                                         <div class="fs-5 fw-bold text-white-50" id="auditValBookQty">0 <span class="fs-6">盒</span></div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="text-secondary small">成本單價 (經理價)</div>
-                                        <div class="fs-6 fw-bold text-success" id="auditLblUnitCost">$0</div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-labe">單件 SV 權重</div>
-                                        <div class="fs-6 fw-bold text-warning" id="auditLblUnitSv">0 SV</div>
+                                    <div class="col-6 text-end">
+                                        <div class="text-secondary small">官方商品編號</div>
+                                        <span class="badge badge-info-subtle font-monospace" id="auditLblProductCode">-</span>
                                     </div>
                                 </div>
 
@@ -152,7 +166,7 @@
                                     <div class="row g-2 align-items-center">
                                         <div class="col-7">
                                             <label class="form-label small fw-bold text-info mb-1" for="auditInputPhysicalQty">
-                                                <i class="fa-solid fa-calculator me-1"></i>現場實盤數量
+                                                <i class="fa-solid fa-calculator me-1"></i> 現場實盤數量
                                             </label>
                                             <div class="input-group">
                                                 <button class="btn btn-outline-purple" type="button" onclick="adjustCountStep(-1)"><i class="fa-solid fa-minus"></i></button>
@@ -180,15 +194,15 @@
                                     <span class="small text-secondary">試算差異結果：</span>
                                     <div class="d-flex align-items-center gap-2" id="auditVarianceBadgeContainer">
                                         <span class="variance-tag variance-balanced" id="auditTagVarianceStatus">
-                                            <i class="fa-solid fa-check me-1"></i>帳實相符 (0)
+                                            <i class="fa-solid fa-check me-1"></i> 帳實相符 (0)
                                         </span>
-                                        <span class="small text-warning" id="auditLblVarianceCost">$0 TWD</span>
+                                        <span class="small text-warning" id="auditLblVarianceCost">NT$ 0</span>
                                     </div>
                                 </div>
 
                                 <div class="mt-3 d-none" id="auditReasonContainer">
                                     <label class="form-label small text-warning fw-bold">
-                                        <i class="fa-solid fa-triangle-exclamation me-1"></i>異動類型判定與說明事由 <span class="text-danger">*</span>
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> 異動類型判定與說明事由 <span class="text-danger">*</span>
                                     </label>
                                     <div class="row g-2">
                                         <div class="col-5">
@@ -202,7 +216,7 @@
                                             </select>
                                         </div>
                                         <div class="col-7">
-                                            <input type="text" class="form-control" id="auditTxtReason" placeholder="例：現場盤點短少、包裝破損報廢">
+                                            <input type="text" class="form-control form-control-sm" id="auditTxtReason" placeholder="例：現場盤點短少、包裝破損報廢">
                                         </div>
                                     </div>
                                 </div>
@@ -303,17 +317,48 @@
                                 </div>
                             </article>
 
+                            <!-- 跨倉調撥工作台：品項選定後之唯讀規格快照面板 -->
                             <div class="mb-3">
                                 <label class="form-label" for="trProductSelect">調撥品項 <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="trProductSelect" onchange="updateTransferCostCalc()"></select>
+                                <select class="form-select form-select-sm" id="trProductSelect" onchange="loadProductStockForTransfer()"></select>
                             </div>
 
-                            <div class="row g-2 mb-3">
-                                <div class="col-4">
-                                    <label class="form-label" for="trQtyInput">調撥數量 <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="trQtyInput" value="10" min="1" oninput="updateTransferCostCalc()">
+                            <!-- 系統自動帶出且不可修改之品項明細屬性卡 -->
+                            <article class="card p-3 mb-3 border-secondary border-opacity-25" style="background: rgba(19, 10, 33, 0.45);">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-12 col-md-7">
+                                        <label class="form-label small text-secondary mb-1">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="trInputProductName" readonly placeholder="請先選擇調撥品項">
+                                    </div>
+                                    <div class="col-12 col-md-5">
+                                        <label class="form-label small text-secondary mb-1">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly font-monospace" id="trInputBatchNo" readonly placeholder="LOT: -">
+                                    </div>
                                 </div>
-                                <div class="col-4">
+
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <label class="form-label small text-secondary mb-1">幣別 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="trInputCurrency" readonly value="TWD">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label small text-secondary mb-1">單件成本 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="trInputUnitCost" readonly value="NT$ 0">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label small text-secondary mb-1">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="trInputUnitSv" readonly value="0 SV">
+                                    </div>
+                                </div>
+                            </article>
+
+                            <!-- 調撥數量與單位 -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label" for="trQtyInput">調撥數量 <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control form-control-sm" id="trQtyInput" value="10" min="1">
+                                </div>
+                                <div class="col-6">
                                     <label class="form-label" for="trAdjUnit">計量單位 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="trAdjUnit">
                                         <option value="盒">盒</option>
@@ -324,13 +369,6 @@
                                         <option value="瓶">瓶</option>
                                         <option value="包">包</option>
                                         <option value="顆">顆</option>
-                                    </select>
-                                </div>
-                                <div class="col-4">
-                                    <label class="form-label" for="trCurrencySelect">幣別 <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="trCurrencySelect" onchange="updateTransferCostCalc()">
-                                        <option value="TWD">TWD</option>
-                                        <option value="MYR">MYR</option>
                                     </select>
                                 </div>
                             </div>
@@ -351,16 +389,17 @@
                                 <input type="text" class="form-control form-control-sm" id="trReasonInput" placeholder="例：航空空運跨境支援旗艦倉展業">
                             </div>
 
-                            <article class="p-3 rounded-3 mb-3" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25);">
-                                <div class="d-flex justify-content-between small text-secondary mb-1">
-                                    <span>調撥轉移總值：</span>
-                                    <span class="text-info fw-bold" id="trLblTotalCost">$0 TWD</span>
+                            <!-- 系統自動計算之總成本與總 SV 面板 (2 項唯讀鎖定) -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label" for="trInputTotalCost">成本 (總額) <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <input type="text" class="form-control form-control-sm form-control-readonly" id="trInputTotalCost" readonly value="NT$ 0">
                                 </div>
-                                <div class="d-flex justify-content-between small text-secondary">
-                                    <span>調撥影響總 SV：</span>
-                                    <span class="text-warning fw-bold" id="trLblTotalSv">0 SV</span>
+                                <div class="col-6">
+                                    <label class="form-label" for="trInputTotalSv">SV (總額) <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <input type="text" class="form-control form-control-sm form-control-readonly" id="trInputTotalSv" readonly value="0 SV">
                                 </div>
-                            </article>
+                            </div>
                         </div>
 
                         <footer class="d-flex gap-2 mt-auto">
@@ -497,24 +536,24 @@
                                         <select class="form-select form-select-sm" id="fieldProductId" required onchange="handleModalProductChange()"></select>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldOfficialProductCode">葡眾官方商品編號 <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control form-control-sm" id="fieldOfficialProductCode" required readonly>
+                                        <label class="form-label" for="fieldOfficialProductCode">葡眾官方商品編號 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="fieldOfficialProductCode" required readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldProductNameSnaps">異動產品名稱快照 <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control form-control-sm" id="fieldProductNameSnaps" required readonly>
+                                        <label class="form-label" for="fieldProductNameSnaps">異動產品名稱快照 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="fieldProductNameSnaps" required readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldStockId">關聯庫存單號 <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control form-control-sm" id="fieldStockId" required placeholder="如 STK-20260301-0001">
+                                        <label class="form-label" for="fieldStockId">關聯庫存單號 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="fieldStockId" required readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldBatchNo">異動生產批號 <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control form-control-sm" id="fieldBatchNo" required placeholder="如 LOT20260715A">
+                                        <label class="form-label" for="fieldBatchNo">異動生產批號 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                        <input type="text" class="form-control form-control-sm form-control-readonly" id="fieldBatchNo" required readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldExpiryDate">異動有效日期 <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control form-control-sm" id="fieldExpiryDate" required>
+                                        <label class="form-label" for="fieldExpiryDate">異動有效日期 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                        <input type="date" class="form-control form-control-sm form-control-readonly" id="fieldExpiryDate" required readonly>
                                     </div>
                                 </div>
                             </article>
@@ -538,23 +577,20 @@
                                     <input type="number" class="form-control form-control-sm" id="fieldQuantity" required oninput="calculateModalTotals()">
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldCurrencyCode">幣別 <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="fieldCurrencyCode" required>
-                                        <option value="TWD">TWD</option>
-                                        <option value="MYR">MYR</option>
-                                    </select>
+                                    <label class="form-label" for="fieldCurrencyCode">幣別 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <input type="text" class="form-control form-control-sm form-control-readonly" id="fieldCurrencyCode" required readonly>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldUnitCost">單件成本 <span class="text-danger">*</span></label>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" id="fieldUnitCost" required oninput="calculateModalTotals()">
+                                    <label class="form-label" for="fieldUnitCost">單件成本 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm form-control-readonly" id="fieldUnitCost" required readonly>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldUnitSv">單件 SV <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldUnitSv" required oninput="calculateModalTotals()">
+                                    <label class="form-label" for="fieldUnitSv">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <input type="number" class="form-control form-control-sm form-control-readonly" id="fieldUnitSv" required readonly>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label" for="fieldTotalCost">總成本</label>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" id="fieldTotalCost" readonly>
+                                    <label class="form-label" for="fieldTotalCost">成本總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <input type="number" step="0.01" class="form-control form-control-sm form-control-readonly" id="fieldTotalCost" readonly>
                                 </div>
                             </div>
 
@@ -566,8 +602,8 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldTotalSv">影響總 SV</label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldTotalSv" readonly>
+                                    <label class="form-label" for="fieldTotalSv">影響總 SV <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <input type="number" class="form-control form-control-sm form-control-readonly" id="fieldTotalSv" readonly>
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label" for="fieldReasonDesc">詳細事由 <span class="text-danger">*</span></label>

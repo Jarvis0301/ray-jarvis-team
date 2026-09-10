@@ -49,11 +49,11 @@
                     <span class="step-count" id="countAll">0</span>
                 </div>
                 <div class="step-node" data-status-filter="草稿" onclick="filterByPipeline('草稿', this)">
-                    <i class="fa-solid fa-file-pen me-1"></i>草稿擬定
+                    <i class="fa-solid fa-file-pen me-1"></i>草稿待排單
                     <span class="step-count" id="countDraft">0</span>
                 </div>
                 <div class="step-node" data-status-filter="待取貨" onclick="filterByPipeline('待取貨', this)">
-                    <i class="fa-solid fa-clock me-1"></i>待取貨/待撿貨
+                    <i class="fa-solid fa-clock me-1"></i>待取貨/待備貨
                     <span class="step-count" id="countPending">0</span>
                 </div>
                 <div class="step-node" data-status-filter="已寄出" onclick="filterByPipeline('已寄出', this)">
@@ -90,7 +90,7 @@
                             <span class="text-secondary small fw-bold">銷售實收總額 (TWD)</span>
                             <i class="fa-solid fa-sack-dollar text-success"></i>
                         </div>
-                        <div class="h4 mb-0 fw-bold text-success" id="kpiTotalSales">$0</div>
+                        <div class="h4 mb-0 fw-bold text-success" id="kpiTotalSales">NT$ 0</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
@@ -111,7 +111,7 @@
                             <span class="text-secondary small fw-bold">實質毛利/價差總計</span>
                             <i class="fa-solid fa-hand-holding-dollar text-info"></i>
                         </div>
-                        <div class="h4 mb-0 fw-bold text-info" id="kpiTotalProfit">$0</div>
+                        <div class="h4 mb-0 fw-bold text-info" id="kpiTotalProfit">NT$ 0</div>
                     </div>
                 </div>
             </section>
@@ -219,41 +219,73 @@
                     <div class="card p-3 mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#outboundChartContainer">
                             <div class="fw-bold text-white small">
-                                <i class="fa-solid fa-chart-line text-primary me-1"></i>銷貨出庫月度財務走勢 (銷售實收 vs 毛利價差)
+                                <i class="fa-solid fa-chart-line text-primary"></i> 銷貨出庫財務規模 vs 毛利趨勢雙軌分析
                             </div>
                             <div class="text-secondary small">
                                 <i class="fa-solid fa-chevron-down"></i>
                             </div>
                         </div>
                         <div class="collapse show" id="outboundChartContainer">
-                            <div style="height: 180px; position: relative;">
-                                <canvas id="outboundChart"></canvas>
+                            <div class="row g-3">
+                                <div class="col-12 col-xl-6">
+                                    <div class="p-2 rounded-3 bg-dark-subtle border border-secondary border-opacity-10">
+                                        <div class="text-secondary small fw-bold mb-2">
+                                            <i class="fa-solid fa-scale-balanced text-primary"></i> 銷貨規模與考核走勢 (實收 NT$ vs 出庫 SV)
+                                        </div>
+                                        <div style="height: 190px; position: relative;">
+                                            <canvas id="outboundScaleChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xl-6">
+                                    <div class="p-2 rounded-3 bg-dark-subtle border border-secondary border-opacity-10">
+                                        <div class="text-secondary small fw-bold mb-2">
+                                            <i class="fa-solid fa-hand-holding-dollar text-info"></i> 實質毛利價差趨勢 (獨立刻度監控)
+                                        </div>
+                                        <div style="height: 190px; position: relative;">
+                                            <canvas id="outboundProfitChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="glass-panel p-3 p-lg-4">
                         <div class="row g-2 align-items-center mb-3">
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-3">
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-dark border-secondary text-secondary">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <i class="fa-solid fa-calendar-days me-1"></i>訂單日期起
                                     </span>
-                                    <input type="text" id="customTableSearch" class="form-control form-control-sm" placeholder="搜尋銷貨單號、收件人、倉庫或備註...">
+                                    <input type="date" id="filterOrderDateStart" class="form-control form-control-sm" onchange="applyFilters()">
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <select id="filterWarehouse" class="form-select form-select-sm">
+                            <div class="col-12 col-md-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary">
+                                        <i class="fa-solid fa-calendar-days me-1"></i>訂單日期迄
+                                    </span>
+                                    <input type="date" id="filterOrderDateEnd" class="form-control form-control-sm" onchange="applyFilters()">
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-dark border-secondary text-secondary">
+                                        <i class="fa-solid fa-calendar-check me-1"></i>業績月份
+                                    </span>
+                                    <input type="month" id="filterPerformanceMonth" class="form-control form-control-sm" onchange="applyFilters()">
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <select id="filterWarehouse" class="form-select form-select-sm" onchange="applyFilters()">
                                     <option value="">全部出貨倉庫</option>
                                 </select>
                             </div>
-                            <div class="col-6 col-md-3">
-                                <select id="filterPerformanceMonth" class="form-select form-select-sm">
-                                    <option value="">全部業績月份</option>
+                            <div class="col-12 col-md-2">
+                                <select id="filterOperator" class="form-select form-select-sm" onchange="applyFilters()">
+                                    <option value="">全部開單夥伴</option>
                                 </select>
-                            </div>
-                            <div class="col-12 col-md-2 text-end">
-                                <span class="badge badge-purple-subtle" id="tableSummaryInfo">載入數據中...</span>
                             </div>
                         </div>
 
@@ -262,16 +294,16 @@
                                 <thead>
                                     <tr>
                                         <th>銷貨單號 / 類別</th>
-                                        <th>調度中心 / 倉庫</th>
+                                        <th>調度中心 / 出庫倉庫</th>
                                         <th>開單夥伴 / 收件人</th>
                                         <th>訂單日 / 交付日</th>
-                                        <th>業績月份</th>
+                                        <th>業績月</th>
                                         <th>盒數 / 散支</th>
                                         <th>銷售實收 / 成本 / 毛利</th>
                                         <th>出庫 SV</th>
                                         <th>預扣狀態</th>
-                                        <th>履約狀態</th>
-                                        <th>操作</th>
+                                        <th>出庫狀態</th>
+                                        <th class="text-end">戰術操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="outboundTableBody"></tbody>
@@ -405,48 +437,48 @@
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldCurrencyCode">交易幣別 <span class="text-danger">*</span></label>
                                         <select class="form-select form-select-sm" id="fieldCurrencyCode" required>
-                                            <option value="TWD">TWD</option>
-                                            <option value="MYR">MYR</option>
+                                            <option value="TWD">TWD (新台幣)</option>
+                                            <option value="MYR">MYR (馬來幣)</option>
                                         </select>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldTotalBoxes">整盒盒數 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control form-control-sm" id="fieldTotalBoxes" min="0" value="1" required>
+                                        <label class="form-label" for="fieldTotalBoxes">整盒盒數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" class="form-control form-control-sm form-control-readonly" id="fieldTotalBoxes" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldTotalPieces">散裝支數 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control form-control-sm" id="fieldTotalPieces" min="0" value="0" required>
+                                        <label class="form-label" for="fieldTotalPieces">散裝支數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" class="form-control form-control-sm form-control-readonly" id="fieldTotalPieces" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldTotalSv">出庫 SV <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control form-control-sm" id="fieldTotalSv" min="0" value="0" required>
+                                        <label class="form-label" for="fieldTotalSv">出庫 SV <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" class="form-control form-control-sm form-control-readonly" id="fieldTotalSv" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldProductAmount">商品實收小計 <span class="text-danger">*</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldProductAmount" min="0" value="0" required onchange="calculateFinancials()">
+                                        <label class="form-label" for="fieldProductAmount">商品實收小計 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" step="0.01" class="form-control form-control-sm form-control-readonly" id="fieldProductAmount" min="0" value="0.00" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldShippingFee">向客收運費 <span class="text-danger">*</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldShippingFee" min="0" value="0" required onchange="calculateFinancials()">
+                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldShippingFee" min="0" value="0.00" required onchange="calculateFinancials()">
                                     </div>
                                     <div class="col-6 col-md-4">
-                                        <label class="form-label" for="fieldTotalSalesAmount">整單實收總額</label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm text-success fw-bold" id="fieldTotalSalesAmount" readonly>
+                                        <label class="form-label" for="fieldTotalSalesAmount">整單實收總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" step="0.01" class="form-control form-control-sm form-control-readonly text-success fw-bold" id="fieldTotalSalesAmount" readonly>
                                     </div>
                                     <div class="col-6 col-md-4">
-                                        <label class="form-label" for="fieldTotalCostAmount">進貨成本總額 <span class="text-danger">*</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldTotalCostAmount" min="0" value="0" required onchange="calculateFinancials()">
+                                        <label class="form-label" for="fieldTotalCostAmount">進貨成本總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" step="0.01" class="form-control form-control-sm form-control-readonly" id="fieldTotalCostAmount" min="0" value="0.00" readonly>
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldTotalProfitAmount">實質毛利價差</label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldTotalProfitAmount" readonly>
+                                        <label class="form-label" for="fieldTotalProfitAmount">實質毛利價差 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="number" step="0.01" class="form-control form-control-sm form-control-readonly text-info fw-bold" id="fieldTotalProfitAmount" readonly>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldFulfillmentStatus">履約狀態 <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="fieldFulfillmentStatus">出庫狀態 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldFulfillmentStatus" required>
                                         <option value="草稿">草稿 (DRAFT)</option>
                                         <option value="待取貨">待取貨 (PENDING)</option>
@@ -480,7 +512,6 @@
                                         <option value="合庫">合庫</option>
                                         <option value="郵局">郵局</option>
                                         <option value="LINE Pay">LINE Pay</option>
-                                        <option value="LINE Pay Money">LINE Pay Money</option>
                                         <option value="Touch n Go">Touch n Go (MY)</option>
                                     </select>
                                 </div>
@@ -547,7 +578,7 @@
                                     <span class="text-white" id="detailModalOperator">-</span>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <span class="text-secondary">倉庫據點：</span>
+                                    <span class="text-secondary">出庫倉庫：</span>
                                     <span class="text-white fw-bold" id="detailModalWarehouse">-</span>
                                 </div>
                                 <div class="col-6 col-md-3">
@@ -556,7 +587,7 @@
                                 </div>
                             </div>
                         </article>
-
+                        
                         <!-- 行內折疊式明細新增/編輯抽屜 -->
                         <div class="collapse mb-3" id="outboundItemInlineCollapse">
                             <div class="card p-3 border-purple border-opacity-50" style="background: rgba(28, 15, 48, 0.85);">
@@ -568,10 +599,10 @@
                                 </div>
                                 <form id="inlineItemForm">
                                     <input type="hidden" id="inlineItemId" value="">
+                                    <input type="hidden" id="inlineIsFeeItem" value="N">
                                     <div class="row g-2 mb-2">
-                                        <!-- 產品選單 -->
                                         <div class="col-12 col-md-4">
-                                            <label class="form-label small text-secondary mb-1" for="inlineProductSelect">商品品項 / 費用項目 <span class="text-danger">*</span></label>
+                                            <label class="form-label small text-secondary mb-1" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
                                         </div>
                                         <div class="col-6 col-md-2">
@@ -589,7 +620,7 @@
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineUnitPrice">銷售單價 (TWD) <span class="text-danger">*</span></label>
+                                            <label class="form-label small text-secondary mb-1" for="inlineUnitPrice">銷售單價 <span class="text-danger">*</span></label>
                                             <input type="number" step="0.01" class="form-control form-control-sm text-success fw-bold" id="inlineUnitPrice" min="0" value="0" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
@@ -623,16 +654,10 @@
                                             <input type="text" class="form-control form-control-sm" id="inlineStockId" placeholder="指定庫存代號">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1">性質標記</label>
-                                            <div class="d-flex gap-2 mt-1">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" id="inlineIsFeeItem">
-                                                    <label class="form-check-label small text-secondary" for="inlineIsFeeItem">費用項</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" id="inlineIsSampleDemo">
-                                                    <label class="form-check-label small text-secondary" for="inlineIsSampleDemo">試用品</label>
-                                                </div>
+                                            <label class="form-label small text-secondary mb-1">推廣標記</label>
+                                            <div class="form-check mt-1">
+                                                <input class="form-check-input" type="checkbox" id="inlineIsSampleDemo">
+                                                <label class="form-check-label small text-secondary" for="inlineIsSampleDemo">體驗試用品</label>
                                             </div>
                                         </div>
                                     </div>
