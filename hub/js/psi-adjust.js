@@ -325,13 +325,13 @@ function switchTacticalMode(mode) {
         $('#btnModeTransfer').removeClass('active');
         $('#sectionAuditWorkbench').removeClass('d-none');
         $('#sectionTransferWorkbench').addClass('d-none');
-        if (dtAdjustmentsInstance) dtAdjustmentsInstance.columns.adjust().responsive.recalc();
+        if (dtAdjustmentsInstance) dtAdjustmentsInstance.columns.adjust().responsive;
     } else {
         $('#btnModeTransfer').addClass('active');
         $('#btnModeAudit').removeClass('active');
         $('#sectionTransferWorkbench').removeClass('d-none');
         $('#sectionAuditWorkbench').addClass('d-none');
-        if (dtTransfersInstance) dtTransfersInstance.columns.adjust().responsive.recalc();
+        if (dtTransfersInstance) dtTransfersInstance.columns.adjust().responsive;
     }
 }
 
