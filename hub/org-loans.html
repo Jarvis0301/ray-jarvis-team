@@ -180,10 +180,10 @@
             <div class="col-12 col-xl-7">
                 <div class="d-flex align-items-center flex-wrap gap-3">
                     <h2 class="mb-0 fw-bold d-flex align-items-center text-white">
-                        <i class="fa-solid fa-arrows-split-up-and-left text-neon me-2" style="color: var(--neon-accent); me-1"></i>轉點與代墊借貸對帳系統
+                        <i class="fa-solid fa-arrows-split-up-and-left text-neon me-2" style="color: var(--neon-accent);"></i>轉點與代墊借貸對帳系統
                     </h2>
                     <span class="hud-title-badge">
-                        <i class="fa-solid fa-shield-halved text-neon-emerald me-1" style="color: var(--neon-emerald); me-1"></i>Ray & Jarvis 核心戰備協議已載入
+                        <i class="fa-solid fa-shield-halved text-neon-emerald me-1" style="color: var(--neon-emerald);"></i>Ray & Jarvis 核心戰備協議已載入
                     </span>
                 </div>
                 <p class="text-muted small mt-1 mb-0">
@@ -244,7 +244,7 @@
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small fw-semibold"><i class="fa-solid fa-hand-holding-dollar text-neon-accent" style="color: var(--neon-accent); me-1"></i>實應催收淨額</span>
+                        <span class="text-muted small fw-semibold"><i class="fa-solid fa-hand-holding-dollar text-neon-accent" style="color: var(--neon-accent);"></i>實應催收淨額</span>
                         <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">-20% 回饋折抵</span>
                     </div>
                     <div class="d-flex align-items-baseline">
@@ -280,7 +280,7 @@
                 <div class="glass-panel p-4 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 fw-bold text-white d-flex align-items-center">
-                            <i class="fa-solid fa-calculator text-neon me-2" style="color: var(--neon-accent); me-1"></i>轉點借貸與 20% 利潤試算工坊
+                            <i class="fa-solid fa-calculator text-neon me-2" style="color: var(--neon-accent);"></i>轉點借貸與 20% 利潤試算工坊
                         </h5>
                         <span class="badge rounded-pill bg-dark border border-secondary text-muted">即時試算</span>
                     </div>
@@ -405,7 +405,7 @@
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
                 <div>
                     <h5 class="mb-0 fw-bold text-white d-flex align-items-center">
-                        <i class="fa-solid fa-table-list text-neon me-2" style="color: var(--neon-accent); me-1"></i>轉點借貸對帳與沖銷總帳 (org_sv_loans)
+                        <i class="fa-solid fa-table-list text-neon me-2" style="color: var(--neon-accent);"></i>轉點借貸對帳與沖銷總帳 (org_sv_loans)
                     </h5>
                     <div class="text-muted small mt-1">
                         <i class="fa-solid fa-circle-info me-1"></i>欄位已與 Google 試算表 `org_sv_loans` / `fin_sv_assistances` 欄位別名完全解耦
@@ -452,7 +452,7 @@
             <div class="modal-content" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-highlight); color: var(--text-main);">
                 <div class="modal-header border-secondary border-opacity-25">
                     <h5 class="modal-title fw-bold text-white d-flex align-items-center">
-                        <i class="fa-solid fa-hand-holding-dollar text-neon me-2" style="color: var(--neon-accent); me-1"></i>建立轉點借貸單 (SV Lending Protocol)
+                        <i class="fa-solid fa-hand-holding-dollar text-neon me-2" style="color: var(--neon-accent);"></i>建立轉點借貸單 (SV Lending Protocol)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -460,18 +460,18 @@
                     <form id="form-create-loan">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-user-tie me-1"></i>出借人 (Lender)</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user-tie me-1"></i>出借人 (Lender) <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm sim-input-box" id="modal-lender" required>
                                     <option value="Ray" selected>翁榮祥 (Ray)</option>
                                     <option value="Jarvis">林承志 (Jarvis)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-user me-1"></i>借點夥伴 (Borrower)</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-user me-1"></i>借點夥伴 (Borrower) <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm sim-input-box" id="modal-borrower" placeholder="輸入夥伴姓名或經銷商號" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-bullseye me-1"></i>借點用途</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-bullseye me-1"></i>借點用途 <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm sim-input-box" id="modal-purpose" required>
                                     <option value="PERSONAL_160">湊個人 160 SV</option>
                                     <option value="MANAGER_12000" selected>經理 12,000 SV 保級</option>
@@ -479,19 +479,19 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-coins me-1"></i>出借點數 (SV)</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-coins me-1"></i>出借點數 (SV) <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control form-control-sm sim-input-box" id="modal-sv" value="2000" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-receipt me-1"></i>官方訂單/掛點單號</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-receipt me-1"></i>官方訂單/掛點單號 <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm sim-input-box" id="modal-official-order" placeholder="選填，如 UV2026082001">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar me-1"></i>借點發生日</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar me-1"></i>借點發生日 <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control form-control-sm sim-input-box" id="modal-loan-date" value="2026-08-20" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-check me-1"></i>約定發薪沖銷日</label>
+                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-check me-1"></i>約定發薪沖銷日 <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control form-control-sm sim-input-box" id="modal-due-date" value="2026-09-20" required>
                             </div>
                             <div class="col-12">

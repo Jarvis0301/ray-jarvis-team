@@ -235,15 +235,15 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
                     <div class="modal-body p-4">
-                        <form id="menuForm">
+                        <form id="menuForm" novalidate>
                             <input type="hidden" id="formMode" value="add">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-fingerprint me-1"></i>選單 ID</label>
+                                    <label class="form-label"><i class="fa-solid fa-fingerprint me-1"></i>選單 ID <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldMenuId" placeholder="如: H74000, T51000" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-layer-group me-1"></i>所屬版本</label>
+                                    <label class="form-label"><i class="fa-solid fa-layer-group me-1"></i>所屬版本 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldAppTrack" required>
                                         <option value="核心版">核心版</option>
                                         <option value="團隊版">團隊版</option>
@@ -251,7 +251,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-sitemap me-1"></i>所屬階層</label>
+                                    <label class="form-label"><i class="fa-solid fa-sitemap me-1"></i>所屬階層 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldMenuLevel" required>
                                         <option value="0">0: 頂層大類</option>
                                         <option value="1">1: 二級子功能</option>
@@ -260,7 +260,7 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fa-solid fa-language me-1"></i>中文名稱</label>
+                                    <label class="form-label"><i class="fa-solid fa-language me-1"></i>中文名稱 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldMenuNameZh" placeholder="如: 選單管理 (4~5字)" required>
                                 </div>
                                 <div class="col-md-6">
@@ -276,7 +276,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><i class="fa-solid fa-arrow-down-1-9 me-1"></i>排序權重</label>
+                                    <label class="form-label"><i class="fa-solid fa-arrow-down-1-9 me-1"></i>排序權重 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm" id="fieldSortOrder" value="10" required>
                                 </div>
                                 <div class="col-md-4">
@@ -289,7 +289,7 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fa-solid fa-link me-1"></i>路由路徑</label>
+                                    <label class="form-label"><i class="fa-solid fa-link me-1"></i>路由路徑 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldRouteUrl" placeholder="如: sys-menus.html 或 #" required>
                                 </div>
                                 <div class="col-md-6">

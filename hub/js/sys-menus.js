@@ -456,8 +456,29 @@ function openEditModal(menuId) {
 async function saveMenuItem() {
     const mode = $('#formMode').val();
     const menuId = $('#fieldMenuId').val().trim();
+    const menuNameZh = $('#fieldMenuNameZh').val().trim();
+    const appTrack = $('#fieldAppTrack').val();
+    const routeUrl = $('#fieldRouteUrl').val().trim();
+
+    // AppToast 欄位檢核與自動聚焦
     if (!menuId) {
-        AppToast.warning("選單 ID 為必填欄位！");
+        AppToast.warning("請輸入「選單 ID」！");
+        $('#fieldMenuId').focus();
+        return;
+    }
+    if (!appTrack) {
+        AppToast.warning("請選擇「所屬版本」！");
+        $('#fieldAppTrack').focus();
+        return;
+    }
+    if (!menuNameZh) {
+        AppToast.warning("請輸入「中文名稱」！");
+        $('#fieldMenuNameZh').focus();
+        return;
+    }
+    if (!routeUrl) {
+        AppToast.warning("請輸入「路由路徑」！");
+        $('#fieldRouteUrl').focus();
         return;
     }
 

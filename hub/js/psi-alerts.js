@@ -495,9 +495,21 @@ async function saveThresholdItem() {
     const mode = $('#thresholdFormMode').val();
     const wh = $('#fieldThresholdWarehouse').val();
     const prd = $('#fieldThresholdProduct').val();
+    const qtyVal = $('#fieldThresholdQty').val().trim();
 
-    if (!wh || !prd) {
-        AppToast.warning("請完整選擇「據點倉儲」與「產品品項」！");
+    if (!wh) {
+        AppToast.warning("請選擇「據點倉儲」！");
+        $('#fieldThresholdWarehouse').select2('open');
+        return;
+    }
+    if (!prd) {
+        AppToast.warning("請選擇「產品品項」！");
+        $('#fieldThresholdProduct').select2('open');
+        return;
+    }
+    if (qtyVal === '' || parseInt(qtyVal, 10) < 0) {
+        AppToast.warning("請填寫大於或等於 0 的「安全存量門檻盒數」！");
+        $('#fieldThresholdQty').focus();
         return;
     }
 

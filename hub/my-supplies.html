@@ -383,7 +383,7 @@
                 <div class="modal-body p-4">
                     <form id="addSupplyForm">
                         <div class="mb-3">
-                            <label class="form-label small text-secondary">物資類別</label>
+                            <label class="form-label small text-secondary">物資類別 <span class="text-danger">*</span></label>
                             <select class="form-select form-select-sm cyber-input" id="newCategory" required>
                                 <option value="樣品">產品樣品 (關聯庫存)</option>
                                 <option value="設備">招商硬體設備</option>
@@ -393,22 +393,22 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small text-secondary">品項名稱 / 規格</label>
+                            <label class="form-label small text-secondary">品項名稱 / 規格 <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-sm cyber-input" id="newItemName" placeholder="例如：康爾喜膠囊試用包 (20條/袋)" required>
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <label class="form-label small text-secondary">應帶數量</label>
+                                <label class="form-label small text-secondary">應帶數量 <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control form-control-sm cyber-input" id="newTargetQty" min="1" value="1" required>
                             </div>
                             <div class="col-6">
-                                <label class="form-label small text-secondary">單位</label>
+                                <label class="form-label small text-secondary">單位 <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm cyber-input" id="newUnit" value="份" required>
                             </div>
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <label class="form-label small text-secondary">攜帶負責人</label>
+                                <label class="form-label small text-secondary">攜帶負責人 <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm cyber-input" id="newAssignee" required>
                                     <option value="Ray">Ray</option>
                                     <option value="Jarvis">Jarvis</option>

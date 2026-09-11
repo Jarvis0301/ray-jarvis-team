@@ -398,7 +398,7 @@
                     <form id="form-meeting">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">會議類型 (meeting_type)</label>
+                                <label class="form-label small text-muted">會議類型 (meeting_type) <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm" id="form-meeting-type" required>
                                     <option value="STRATEGY">STRATEGY 戰略決策會</option>
                                     <option value="WEEKLY">WEEKLY 每週常態進度會</option>
@@ -408,12 +408,12 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-8">
-                                <label class="form-label small text-muted">會議標題 (meeting_title)</label>
+                                <label class="form-label small text-muted">會議標題 (meeting_title) <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm" id="form-meeting-title" placeholder="例：8 月份經理達標線最後衝刺與 SV 對沖會議" required>
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">召開日期</label>
+                                <label class="form-label small text-muted">召開日期 <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control form-control-sm" id="form-meeting-date" required>
                             </div>
                             <div class="col-6 col-md-4">
@@ -683,7 +683,7 @@
                 item.host_name,
                 item.actions ? item.actions.length : 0,
                 `<div class="progress" style="height: 6px; width: 80px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width：${item.action_completion_rate}%"></div>
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${item.action_completion_rate}%"></div>
                 </div> <span class="small text-muted ms-1">${item.action_completion_rate}%</span>`,
                 `<span class="badge bg-${item.meeting_status === 'CLOSED' ? 'dark' : (item.meeting_status === 'COMPLETED' ? 'success' : 'warning')} bg-opacity-25 border">${item.meeting_status}</span>`,
                 `<button class="btn btn-sm btn-outline-light btn-view-row" data-id="${item.meeting_id}"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i>載入</button>`

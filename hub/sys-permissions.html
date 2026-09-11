@@ -419,7 +419,7 @@
                 <div class="cyber-glass-panel p-3 p-lg-4 h-100">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple-500" style="border-color: var(--border-glow) !important;">
                         <div>
-                            <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-user-shield text-purple" style="color: var(--primary-light); me-1"></i>701 身份權限與白名單矩陣</h5>
+                            <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-user-shield text-purple" style="color: var(--primary-light);"></i>701 身份權限與白名單矩陣</h5>
                             <span class="text-muted small">精確控制檢視 (R)、新增 (C)、修改 (U)、刪除 (D) 與匯出 (E) 行為</span>
                         </div>
                         <div class="btn-group btn-group-sm mt-2 mt-sm-0" role="group">
@@ -438,7 +438,7 @@
             <div class="col-12 col-xl-5">
                 <div class="cyber-glass-panel p-3 p-lg-4 h-100 d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: var(--border-glow) !important;">
-                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-chart-area text-purple" style="color: var(--accent-pink); me-1"></i>24H 存取與攔截流量態勢</h5>
+                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-chart-area text-purple" style="color: var(--accent-pink);"></i>24H 存取與攔截流量態勢</h5>
                         <span class="badge bg-dark font-mono text-muted border border-secondary">即時連線流</span>
                     </div>
                     <div class="flex-grow-1" style="min-height: 240px; position: relative;">
@@ -467,7 +467,7 @@
                 <div class="cyber-glass-panel p-3 p-lg-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                         <div>
-                            <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-list-check text-purple" style="color: var(--primary-light); me-1"></i>702 存取與操作安全日誌流 (sys_access_logs)</h5>
+                            <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-list-check text-purple" style="color: var(--primary-light);"></i>702 存取與操作安全日誌流 (sys_access_logs)</h5>
                             <span class="text-muted small">全域即時紀錄 IP、存取路徑、操作指令、狀態碼與零信任風險指標</span>
                         </div>
                         <div class="d-flex gap-2 mt-2 mt-md-0">
@@ -512,7 +512,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="modal-title"><i class="fa-solid fa-user-gear text-purple" style="color: var(--primary-light); me-1"></i>編輯 701 白名單權限設定</h5>
+                    <h5 class="modal-title fw-bold" id="modal-title"><i class="fa-solid fa-user-gear text-purple" style="color: var(--primary-light);"></i>編輯 701 白名單權限設定</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -521,11 +521,11 @@
                         
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">Google 帳號信箱 (OAuth ID)</label>
+                                <label class="form-label text-muted small fw-bold">Google 帳號信箱 (OAuth ID) <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control form-control-sm form-control-cyber font-mono" id="perm-user-email" placeholder="example@gmail.com" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label text-muted small fw-bold">夥伴姓名 / 代號</label>
+                                <label class="form-label text-muted small fw-bold">夥伴姓名 / 代號 <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm form-control-cyber" id="perm-user-name" placeholder="例如：Ray (創始人) 或 王小美" required>
                             </div>
                             <div class="col-12 col-md-6">
@@ -748,7 +748,7 @@
                             <span class="ms-auto text-muted font-mono" style="font-size: 0.7rem;">更新：${item.updatedAt}</span>
                         </div>
                         <div class="mt-2 text-muted small" style="font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.35rem 0.6rem; border-radius: 0.4rem;">
-                            <i class="fa-solid fa-circle-info text-purple" style="color: var(--primary-light); me-1"></i>${item.remarks}
+                            <i class="fa-solid fa-circle-info text-purple" style="color: var(--primary-light);"></i>${item.remarks}
                         </div>
                     </div>
                 `;
@@ -959,7 +959,7 @@
 
             // 打開新增白名單 Modal
             $('#btn-add-whitelist').on('click', function () {
-                $('#modal-title').html('<i class="fa-solid fa-user-plus text-purple" style="color:var(--primary-light); me-1"></i>新增 701 白名單帳號');
+                $('#modal-title').html('<i class="fa-solid fa-user-plus text-purple" style="color:var(--primary-light);"></i>新增 701 白名單帳號');
                 $('#form-permission')[0].reset();
                 $('#perm-record-id').val('');
                 $('#btn-delete-perm').addClass('d-none');
@@ -971,7 +971,7 @@
                 const id = $(this).data('id');
                 const user = permissionsData.find(u => u.id === id);
                 if (user) {
-                    $('#modal-title').html('<i class="fa-solid fa-user-pen text-purple" style="color:var(--primary-light); me-1"></i>編輯 701 白名單權限');
+                    $('#modal-title').html('<i class="fa-solid fa-user-pen text-purple" style="color:var(--primary-light);"></i>編輯 701 白名單權限');
                     $('#perm-record-id').val(user.id);
                     $('#perm-user-email').val(user.email);
                     $('#perm-user-name').val(user.name);

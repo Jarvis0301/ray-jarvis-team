@@ -643,7 +643,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${c.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge" style="color：${c.text_color}; background-color：${c.bg_color || c.text_color + '20'}; border: 1px solid ${c.text_color};">
+                    <span class="badge" style="color: ${c.text_color}; background-color: ${c.bg_color || c.text_color + '20'}; border: 1px solid ${c.text_color};">
                         <i class="${c.icon_class} me-1"></i>${c.text_color}
                     </span>
                 </td>
@@ -669,7 +669,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${s.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge" style="color：${s.text_color}; background-color：${s.bg_color || s.text_color + '20'}; border: 1px solid ${s.text_color};">
+                    <span class="badge" style="color: ${s.text_color}; background-color: ${s.bg_color || s.text_color + '20'}; border: 1px solid ${s.text_color};">
                         <i class="${s.icon_class} me-1"></i>${s.text_color}
                     </span>
                 </td>
@@ -695,7 +695,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${t.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge badge-type" style="color：${t.text_color}; background-color：${t.bg_color || t.text_color + '20'}; border-color：${t.text_color};">
+                    <span class="badge badge-type" style="color: ${t.text_color}; background-color: ${t.bg_color || t.text_color + '20'}; border-color: ${t.text_color};">
                         <i class="${t.icon_class} me-1"></i>${t.text_color}
                     </span>
                 </td>
@@ -770,8 +770,14 @@ async function saveTaxonomyItem() {
     const bgColor = $('#taxBgColor').val().trim() || '';
     const sortOrder = parseInt($('#taxSortOrder').val(), 10) || 0;
 
-    if (!code || !nameZh) {
-        AppToast.warning("代碼與中文名稱為必填項目！");
+    if (!code) {
+        AppToast.warning("請輸入「唯一代碼」！");
+        $('#taxCode').focus();
+        return;
+    }
+    if (!nameZh) {
+        AppToast.warning("請輸入「中文名稱」！");
+        $('#taxNameZh').focus();
         return;
     }
 
@@ -1454,10 +1460,48 @@ function openEditModal(productCode) {
 async function saveProductItem() {
     const form = document.getElementById('formFullProduct');
     const mode = $(form).data('mode') || 'add';
+
     const productCode = form.elements['product_code'].value.trim();
+    const baseCode = form.elements['base_code'].value.trim();
+    const name = form.elements['name'].value.trim();
+    const typeCode = (form.elements['type_code'] ? form.elements['type_code'].value : '').trim();
+    const subcategoryCode = (form.elements['subcategory_code'] ? form.elements['subcategory_code'].value : '').trim();
+    const price = form.elements['price'].value.trim();
+    const svPoint = form.elements['sv_point'].value.trim();
+
+    // 輔助函式：切回產品主檔分頁並聚焦提示
+    const warnMasterField = (msg, inputElem) => {
+        AppToast.warning(msg);
+        $('#tab-btn-prd-master').tab('show');
+        if (inputElem) inputElem.focus();
+    };
 
     if (!productCode) {
-        AppToast.warning("產品編號 (product_code) 為必填欄位！");
+        warnMasterField("請輸入「完整產品編號」！", form.elements['product_code']);
+        return;
+    }
+    if (!baseCode) {
+        warnMasterField("請輸入「跨國基本編號」！", form.elements['base_code']);
+        return;
+    }
+    if (!typeCode) {
+        warnMasterField("請選擇「產品型態」！", form.elements['type_code']);
+        return;
+    }
+    if (!name) {
+        warnMasterField("請輸入「官方完整品名」！", form.elements['name']);
+        return;
+    }
+    if (!subcategoryCode) {
+        warnMasterField("請選擇「次系列歸屬」！", form.elements['subcategory_code']);
+        return;
+    }
+    if (price === '') {
+        warnMasterField("請輸入「售價」！", form.elements['price']);
+        return;
+    }
+    if (svPoint === '') {
+        warnMasterField("請輸入「全球統一 SV」！", form.elements['sv_point']);
         return;
     }
 
@@ -1467,9 +1511,6 @@ async function saveProductItem() {
 
     const createdBy = (mode === 'edit' && existingNode) ? (existingNode.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existingNode) ? (existingNode.created_at || nowStr) : nowStr;
-
-    const subcategoryCode = (form.elements['subcategory_code'] ? form.elements['subcategory_code'].value : '').trim();
-    const typeCode = (form.elements['type_code'] ? form.elements['type_code'].value : '').trim();
 
     let categoryCode = (form.elements['category_code'] ? form.elements['category_code'].value : '').trim();
     if (!categoryCode && subcategoryCode) {

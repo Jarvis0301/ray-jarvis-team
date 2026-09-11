@@ -1239,22 +1239,39 @@ async function saveInlineOutboundItem() {
     const orderId = currentDetailOrderId;
     if (!orderId) return;
 
-    const itemId = $('#inlineItemId').val().trim();
-    // 自 Select2 取得選定之產品代碼
     const productCode = $('#inlineProductSelect').val();
+    const shippedQty = parseInt($('#inlineShippedQty').val(), 10) || 0;
+    const unitPrice = $('#inlineUnitPrice').val().trim();
+    const unitCost = $('#inlineUnitCost').val().trim();
+
     if (!productCode) {
-        AppToast.warning("請選擇產品品項！");
+        AppToast.warning("請選擇「產品品項 / 費用項目」！");
+        $('#inlineProductSelect').select2('open');
         return;
     }
+    if (shippedQty <= 0) {
+        AppToast.warning("「實體出庫量」必須大於 0！");
+        $('#inlineShippedQty').focus();
+        return;
+    }
+    if (unitPrice === '') {
+        AppToast.warning("請填寫「銷售單價」！");
+        $('#inlineUnitPrice').focus();
+        return;
+    }
+    if (unitCost === '') {
+        AppToast.warning("請填寫「進貨成本單價」！");
+        $('#inlineUnitCost').focus();
+        return;
+    }
+
+    const itemId = $('#inlineItemId').val().trim();
 
     const prod = appState.products.find(p => p.product_code === productCode);
     const productName = prod ? prod.name : ($('#inlineProductSelect option:selected').text() || '自訂項目');
     const salesUnit = $('#inlineSalesUnit').val();
-    const unitPrice = parseFloat($('#inlineUnitPrice').val()) || 0;
-    const unitCost = parseFloat($('#inlineUnitCost').val()) || 0;
     const unitSv = parseInt($('#inlineUnitSv').val(), 10) || 0;
     const orderedQty = parseInt($('#inlineOrderedQty').val(), 10) || 1;
-    const shippedQty = parseInt($('#inlineShippedQty').val(), 10) || 1;
 
     const subAmount = shippedQty * unitPrice;
     const subCost = shippedQty * unitCost;
@@ -1348,8 +1365,51 @@ async function deleteInlineItem(itemId) {
 async function saveOutboundOrder() {
     const mode = $('#formMode').val();
     const orderId = $('#fieldId').val().trim();
+    const orderCenter = $('#fieldOrderCenter').val();
+    const perfMonth = $('#fieldPerformanceMonth').val();
+    const orderDate = $('#fieldOrderDate').val();
+    const whId = $('#fieldWarehouseId').val();
+    const operatorId = $('#fieldOperatorPartnerId').val();
+    const recipientName = $('#fieldRecipientName').val().trim();
+    const shippingFee = $('#fieldShippingFee').val().trim();
+
     if (!orderId) {
-        AppToast.warning("銷貨單號為必填主鍵！");
+        AppToast.warning("銷貨單號不可為空！");
+        return;
+    }
+    if (!orderCenter) {
+        AppToast.warning("請選擇「出貨調度中心」！");
+        $('#fieldOrderCenter').focus();
+        return;
+    }
+    if (!perfMonth) {
+        AppToast.warning("請選擇「業績計入月份」！");
+        $('#fieldPerformanceMonth').focus();
+        return;
+    }
+    if (!orderDate) {
+        AppToast.warning("請選擇「出單建立日期」！");
+        $('#fieldOrderDate').focus();
+        return;
+    }
+    if (!whId) {
+        AppToast.warning("請選擇「實體扣庫倉庫」！");
+        $('#fieldWarehouseId').focus();
+        return;
+    }
+    if (!operatorId) {
+        AppToast.warning("請選擇「經手開單夥伴」！");
+        $('#fieldOperatorPartnerId').focus();
+        return;
+    }
+    if (!recipientName) {
+        AppToast.warning("請填寫「收件人姓名」！");
+        $('#fieldRecipientName').focus();
+        return;
+    }
+    if (shippingFee === '') {
+        AppToast.warning("請填寫「向客收運費」（無運費請填 0）！");
+        $('#fieldShippingFee').focus();
         return;
     }
 
@@ -1360,7 +1420,6 @@ async function saveOutboundOrder() {
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
     const productAmount = parseFloat($('#fieldProductAmount').val()) || 0;
-    const shippingFee = parseFloat($('#fieldShippingFee').val()) || 0;
     const totalSales = productAmount + shippingFee;
     const totalCost = parseFloat($('#fieldTotalCostAmount').val()) || 0;
     const totalProfit = totalSales - totalCost;

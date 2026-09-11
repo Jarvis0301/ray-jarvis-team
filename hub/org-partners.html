@@ -629,7 +629,7 @@
                     </header>
 
                     <div class="modal-body p-3 p-md-4">
-                        <form id="partnerForm">
+                        <form id="partnerForm" novalidate>
                             <input type="hidden" id="form-mode" value="CREATE">
 
                             <div class="tab-content" id="partnerEditTabContent">
@@ -652,15 +652,15 @@
                                             <input type="text" class="form-control form-control-sm font-monospace" id="form-person-id" readonly placeholder="系統自動生成">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">中文姓名 <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control form-control-sm" id="form-name-zh" required placeholder="如：翁榮祥、林承志">
+                                            <label class="form-label">中文姓名 <span class="badge badge-warning small">擇一必填</span></label>
+                                            <input type="text" class="form-control form-control-sm" id="form-name-zh" placeholder="如：翁榮祥、林承志">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">英文姓名</label>
+                                            <label class="form-label">英文姓名 <span class="badge badge-warning small">擇一必填</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-name-en" placeholder="如：Ray Weng, Jarvis Lin">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">常用稱呼 / 暱稱</label>
+                                            <label class="form-label">常用稱呼 / 暱稱 <span class="badge badge-warning small">擇一必填</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-preferred-name" placeholder="如：Ray、Jarvis">
                                         </div>
                                     </div>
@@ -683,8 +683,8 @@
                                         <div class="col-12 col-md-6 col-xl-3">
                                             <label class="form-label">使用身份 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="form-usage-identity">
-                                                <option value="經營者">經營者</option>
-                                                <option value="消費者" selected>消費者</option>
+                                                <option value="經營者" selected>經營者</option>
+                                                <option value="消費者">消費者</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">

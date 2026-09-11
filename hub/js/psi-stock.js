@@ -468,7 +468,7 @@ function formatStockRow(s) {
                     <span class="fw-bold ${expiryColor.split(' ')[1]}">${days.toLocaleString()} 天</span>
                 </div>
                 <div class="expiry-progress">
-                    <div class="progress-bar ${expiryColor.split(' ')[0]}" style="width：${expiryPercent}%;"></div>
+                    <div class="progress-bar ${expiryColor.split(' ')[0]}" style="width: ${expiryPercent}%;"></div>
                 </div>
             </div>
         `,
@@ -697,8 +697,43 @@ async function saveStockItem() {
     const isLocked = $('#fieldIsLocked').is(':checked') ? 'Y' : 'N';
     const remarks = $('#fieldRemarks').val().trim();
 
-    if (!id || !batch || !exp) {
-        AppToast.warning("請完整填寫庫存代碼、批號與有效期限！");
+    if (!id) {
+        AppToast.warning("庫存唯一代碼不可為空！");
+        return;
+    }
+    if (!wh) {
+        AppToast.warning("請選擇「存放據點倉儲」！");
+        $('#fieldWarehouseId').select2('open');
+        return;
+    }
+    if (!prd) {
+        AppToast.warning("請選擇「產品品項 SKU」！");
+        $('#fieldProductId').select2('open');
+        return;
+    }
+    if (!batch) {
+        AppToast.warning("請填寫「官方生產批號」！");
+        $('#fieldBatchNo').focus();
+        return;
+    }
+    if (!exp) {
+        AppToast.warning("請選擇「有效截止日期」！");
+        $('#fieldExpiryDate').focus();
+        return;
+    }
+    if (qty === '') {
+        AppToast.warning("請填寫「密封整盒現貨」數量！");
+        $('#fieldQuantity').focus();
+        return;
+    }
+    if (pieces === '') {
+        AppToast.warning("請填寫「散裝剩餘支/條」數量！");
+        $('#fieldPiecesQty').focus();
+        return;
+    }
+    if (reserved === '') {
+        AppToast.warning("請填寫「代領預扣盒數」數量！");
+        $('#fieldReservedQty').focus();
         return;
     }
 

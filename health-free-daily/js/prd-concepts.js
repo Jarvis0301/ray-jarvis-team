@@ -328,7 +328,7 @@ function renderChart(data) {
         const count = counts[idx];
         legendList.append(`
             <li class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center py-2">
-                <span><i class="fa-solid fa-circle me-2" style="color：${categoryChartInstance.data.datasets[0].backgroundColor[idx]};"></i>${label}</span>
+                <span><i class="fa-solid fa-circle me-2" style="color:${categoryChartInstance.data.datasets[0].backgroundColor[idx]};"></i>${label}</span>
                 <span class="badge bg-success rounded-pill">${count} 篇</span>
             </li>
         `);

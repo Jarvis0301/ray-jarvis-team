@@ -280,7 +280,7 @@ function renderPatents() {
                     </div>
                 </div>
                 <div class="patent-header">
-                    <span class="patent-category-tag" style="color：${typeObj.color}; background-color：${typeObj.bg}; border: 1px solid ${typeObj.color}44;">
+                    <span class="patent-category-tag" style="color: ${typeObj.color}; background-color: ${typeObj.bg}; border: 1px solid ${typeObj.color}44;">
                         <i class="${typeObj.icon} me-1"></i>${typeObj.name}
                     </span>
                     <h3 class="patent-title">${item.title}</h3>

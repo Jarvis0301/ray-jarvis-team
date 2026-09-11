@@ -606,7 +606,7 @@ function parsePersonMasterTable(rows) {
         preferred_name: getVal(r, 3, ''),
         display_name: getVal(r, 4, ''),
         identity_type: getVal(r, 5, '潛在客戶'),
-        usage_identity: getVal(r, 6, '消費者'),
+        usage_identity: getVal(r, 6, '經營者'),
         gender: getVal(r, 7, '未填'),
         birthday: getVal(r, 8, ''),
         deceased_date: getVal(r, 9, ''),
@@ -1012,7 +1012,7 @@ function renderCardsView(list) {
                             <div class="d-flex align-items-center gap-3">
                                 <div class="partner-avatar-wrap">
                                     <img src="${avatarUrl}" class="partner-avatar" alt="${dispName}" onerror="this.src='${getDefaultAvatar(gender)}'">
-                                    <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${currentRank.badge_color_hex}; color：${currentRank.badge_color_hex};">
+                                    <span class="rank-badge-floating" style="background-color: #130e24; border: 1px solid ${currentRank.badge_color_hex}; color: ${currentRank.badge_color_hex};">
                                         <i class="${currentRank.badge_icon_class} me-1"></i>${currentRank.rank_name_zh}
                                     </span>
                                 </div>
@@ -2266,7 +2266,7 @@ window.openPartnerModalForEdit = function (partnerId) {
     $('#form-preferred-name').val(person.preferred_name || '');
     $('#form-display-name').val(person.display_name || '');
     $('#form-identity-type').val(person.identity_type || '夥伴');
-    $('#form-usage-identity').val(person.usage_identity || '消費者');
+    $('#form-usage-identity').val(person.usage_identity || '經營者');
     $('#form-gender').val(person.gender || '男');
 
     // 生日若為西元純年或一般格式皆可正常載入文字框
@@ -2673,6 +2673,57 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
 async function savePartnerRecord(e) {
     e.preventDefault();
 
+    // ========================================================================
+    // 表單必填檢核與 AppToast 提示（依頁籤順序檢核）
+    // ========================================================================
+
+    // 【分頁 1：個人主檔檢核】
+    const nameZh = getFormTrimVal('#form-name-zh');
+    const nameEn = getFormTrimVal('#form-name-en');
+    const preferredName = getFormTrimVal('#form-preferred-name');
+
+    // 1. 中文姓名 / 英文姓名 / 常用稱呼 擇一必填
+    if (!nameZh && !nameEn && !preferredName) {
+        AppToast.warning('「中文姓名」、「英文姓名」、「常用稱呼 / 暱稱」請至少填寫一項！');
+        $('#tab-btn-person').tab('show');
+        $('#form-name-zh').focus();
+        return;
+    }
+
+    // 【分頁 2：夥伴組織檢核】
+    const countryCode = getFormTrimVal('#form-country-code');
+    const activityLevel = getFormTrimVal('#form-activity-level');
+    const uplineLinkType = getFormTrimVal('#form-upline-link-type');
+    const gapCount = parseInt(getFormTrimVal('#form-gap-count', '0'), 10);
+
+    // 2. 所屬國家市場
+    if (!countryCode) {
+        AppToast.warning('請選擇「所屬國家市場」！');
+        $('#tab-btn-org').tab('show');
+        $('#form-country-code').focus();
+        return;
+    }
+
+    // 3. 團隊參與度（預設為空選項）
+    if (!activityLevel) {
+        AppToast.warning('請選擇「團隊參與度」！');
+        $('#tab-btn-org').tab('show');
+        $('#form-activity-level').focus();
+        return;
+    }
+
+    // 4. 若上線模式為「已知人數斷層」，檢核中間間隔人數
+    if (uplineLinkType === '已知人數斷層' && (!gapCount || gapCount < 1)) {
+        AppToast.warning('上線連結為「已知人數斷層」，請填寫「中間間隔人數」（至少 1 人）！');
+        $('#tab-btn-org').tab('show');
+        $('#form-gap-count').focus();
+        return;
+    }
+
+    // ========================================================================
+    // 驗證通過，繼續執行原有資料庫寫入流程
+    // ========================================================================
+
     const mode = $('#form-mode').val();
     let personId = getFormTrimVal('#form-person-id');
     let partnerId = getFormTrimVal('#form-partner-id');
@@ -2739,7 +2790,7 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-preferred-name'),
         getFormTrimVal('#form-display-name'),
         getFormTrimVal('#form-identity-type', '潛在客戶'),
-        getFormTrimVal('#form-usage-identity', '消費者'),
+        getFormTrimVal('#form-usage-identity', '經營者'),
         getFormTrimVal('#form-gender', '未填'),
         normalizeBirthdayInput(getFormTrimVal('#form-birthday')),
         getFormTrimVal('#form-deceased-date'),
@@ -2906,7 +2957,6 @@ async function savePartnerRecord(e) {
 
     const ancestorId = getFormTrimVal('#form-placement-id') || getFormTrimVal('#form-sponsor-id');
     const linkType = getFormTrimVal('#form-upline-link-type', '直屬已知');
-    const gapCount = getFormTrimVal('#form-gap-count', '0');
     const relationLine = getFormTrimVal('#form-relation-line', '安置排線');
 
     const btnSubmit = $('#form-submit-btn');
@@ -2987,8 +3037,9 @@ async function savePartnerRecord(e) {
 
         AppLoading.hide();
         bootstrap.Modal.getInstance(document.getElementById('partnerDetailModal'))?.hide();
-        AppToast.success(`成員【${getFormTrimVal('#form-name-zh')}】檔案與配偶連動狀態已成功儲存！`);
-
+        const savedDisplayName = nameZh || nameEn || preferredName || getFormTrimVal('#form-display-name') || partnerId;
+        AppToast.success(`成員【${savedDisplayName}】檔案與配偶連動狀態已成功儲存！`);
+        
         renderAllViews();
         fetchGoogleSheetsData();
 

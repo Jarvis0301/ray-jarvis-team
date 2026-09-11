@@ -453,34 +453,34 @@
                         </div>
                     </header>
                     <div class="modal-body p-3 p-md-4">
-                        <form id="formFullProduct">
+                        <form id="formFullProduct" novalidate>
                             <div class="tab-content" id="productEditTabContent">
                                 <!-- 分頁 1：產品主檔 -->
                                 <div class="tab-pane fade show active" id="tab-pane-prd-master" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label">營運地區</label>
+                                            <label class="form-label">營運地區 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="region_code" required>
                                                 <option value="TW">🇹🇼 台灣 (TW)</option>
                                                 <option value="MY">🇲🇾 馬來西亞 (MY)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label">完整產品編號</label>
+                                            <label class="form-label">完整產品編號 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="product_code" placeholder="例：TW0303001" required>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label">跨國基本編號</label>
+                                            <label class="form-label">跨國基本編號 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="base_code" placeholder="例：0303001" required>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <label class="form-label">產品型態</label>
+                                            <label class="form-label">產品型態 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="type_code" id="modalSelectType" required></select>
                                         </div>
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">官方完整品名</label>
+                                            <label class="form-label">官方完整品名 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm" name="name" placeholder="例：貝益潔護效牙膏" required>
                                         </div>
                                         <div class="col-12 col-md-6">
@@ -490,11 +490,11 @@
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">主系列歸屬</label>
+                                            <label class="form-label">主系列歸屬 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="category_code" id="modalSelectCategory" required></select>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">次系列歸屬</label>
+                                            <label class="form-label">次系列歸屬 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="subcategory_code" id="modalSelectSubcategory" required></select>
                                         </div>
                                     </div>
@@ -514,18 +514,18 @@
                                             <input type="text" class="form-control form-control-sm font-monospace" name="product_weight" placeholder="例：140g 或 0.15kg">
                                         </div>
                                         <div class="col-12 col-md-2">
-                                            <label class="form-label">售價</label>
+                                            <label class="form-label">售價 <span class="text-danger">*</span></label>
                                             <input type="number" step="0.01" class="form-control form-control-sm" name="price" required>
                                         </div>
                                         <div class="col-12 col-md-2">
-                                            <label class="form-label">幣別代碼</label>
+                                            <label class="form-label">幣別代碼 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm font-monospace" name="currency" required>
                                                 <option value="TWD">TWD (新台幣)</option>
                                                 <option value="MYR">MYR (馬幣)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-2">
-                                            <label class="form-label">全球統一 SV</label>
+                                            <label class="form-label">全球統一 SV <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm" name="sv_point" required>
                                         </div>
                                     </div>
@@ -795,11 +795,11 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
                     <div class="modal-body p-3">
-                        <form id="formTaxonomy">
+                        <form id="formTaxonomy" novalidate>
                             <input type="hidden" name="taxonomy_type" id="taxType">
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">唯一代碼</label>
+                                    <label class="form-label">唯一代碼 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm font-monospace" name="code" id="taxCode" placeholder="例：01 或 0101" required>
                                 </div>
                                 <div class="col-12 col-md-6" id="taxParentCategoryGroup" style="display: none;">
@@ -809,7 +809,7 @@
                             </div>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label">中文名稱</label>
+                                    <label class="form-label">中文名稱 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" name="name_zh" id="taxNameZh" placeholder="例：保健食品" required>
                                 </div>
                                 <div class="col-12 col-md-6">

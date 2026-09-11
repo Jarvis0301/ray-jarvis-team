@@ -881,8 +881,24 @@ function resetAuditForm() {
 
 async function commitAuditRecord() {
     const $opt = $('#auditProductSelect option:selected');
-    if (!$opt.val()) {
-        AppToast.warning("請先選擇盤點品項！");
+
+    const whId = $('#auditWarehouseSelect').val();
+    const prodId = $('#auditProductSelect').val();
+    const operatorId = $('#auditOperatorSelect').val();
+
+    if (!whId) {
+        AppToast.warning("請先選擇「盤點倉儲據點」！");
+        $('#auditWarehouseSelect').focus();
+        return;
+    }
+    if (!prodId) {
+        AppToast.warning("請先選擇「盤點品項」！");
+        $('#auditProductSelect').focus();
+        return;
+    }
+    if (!operatorId) {
+        AppToast.warning("請選擇「執行經手人」！");
+        $('#auditOperatorSelect').focus();
         return;
     }
 
@@ -982,26 +998,54 @@ async function commitAuditRecord() {
 }
 
 async function commitTransferOrder() {
+    const $opt = $('#trProductSelect option:selected');
+
     const fromWh = $('#trFromWarehouseSelect').val();
     const toWh = $('#trToWarehouseSelect').val();
+    const prodCode = $('#trProductSelect').val();
     const qty = parseInt($('#trQtyInput').val(), 10) || 0;
+    const operatorId = $('#trOperatorSelect').val();
+    const adjDate = $('#trAdjDate').val();
+    const reason = $('#trReasonInput').val().trim();
 
-    if (!fromWh || !toWh) {
-        AppToast.warning("請完整選擇調出倉儲與調入倉儲！");
+    if (!fromWh) {
+        AppToast.warning("請選擇「調出來源倉」！");
+        $('#trFromWarehouseSelect').focus();
+        return;
+    }
+    if (!toWh) {
+        AppToast.warning("請選擇「調入目的倉」！");
+        $('#trToWarehouseSelect').focus();
         return;
     }
     if (fromWh === toWh) {
-        AppToast.warning("調出倉儲與調入倉儲不能相同！");
+        AppToast.warning("調出來源倉與調入目的倉不可相同！");
+        $('#trToWarehouseSelect').focus();
+        return;
+    }
+    if (!prodCode) {
+        AppToast.warning("請選擇「調撥品項」！");
+        $('#trProductSelect').focus();
         return;
     }
     if (qty <= 0) {
         AppToast.warning("請填寫大於 0 的調撥數量！");
+        $('#trQtyInput').focus();
         return;
     }
-
-    const $opt = $('#trProductSelect option:selected');
-    if (!$opt.val()) {
-        AppToast.warning("請選擇調撥品項！");
+    if (!operatorId) {
+        AppToast.warning("請選擇「執行經手夥伴」！");
+        $('#trOperatorSelect').focus();
+        return;
+    }
+    if (!adjDate) {
+        AppToast.warning("請選擇「調撥日期」！");
+        $('#trAdjDate').focus();
+        return;
+    }
+    if (!reason) {
+        AppToast.warning("請輸入「調撥事由與物流追蹤說明」！");
+        $('#trReasonInput').focus();
         return;
     }
 
@@ -1018,7 +1062,6 @@ async function commitTransferOrder() {
 
     const currentUser = getCurrentUser();
     const nowStr = getFormattedNow();
-    const reason = $('#trReasonInput').val().trim() || '跨據點戰術調撥';
 
     // 依 25 欄位順序打包 (跨倉調撥調出為負數)
     const rowDataArray = [
@@ -1203,8 +1246,46 @@ function openEditAdjustmentModal(id) {
 async function saveAdjustmentRecord() {
     const mode = $('#formMode').val();
     const id = $('#fieldId').val().trim();
+    const adjType = $('#fieldAdjType').val();
+    const adjDate = $('#fieldAdjDate').val();
+    const operatorId = $('#fieldOperatorPartnerId').val();
+    const fromWh = $('#fieldFromWarehouseId').val();
+    const toWh = $('#fieldToWarehouseId').val();
+    const prodId = $('#fieldProductId').val();
+    const reason = $('#fieldReasonDesc').val().trim();
+
     if (!id) {
-        AppToast.warning("單號為主鍵必填項！");
+        AppToast.warning("調撥單號主鍵不可為空！");
+        return;
+    }
+    if (!adjDate) {
+        AppToast.warning("請選擇「調整發生日期」！");
+        $('#fieldAdjDate').focus();
+        return;
+    }
+    if (!operatorId) {
+        AppToast.warning("請選擇「經手夥伴」！");
+        $('#fieldOperatorPartnerId').focus();
+        return;
+    }
+    if (!fromWh) {
+        AppToast.warning("請選擇「調出/發生倉儲」！");
+        $('#fieldFromWarehouseId').focus();
+        return;
+    }
+    if (adjType === '跨倉調撥' && !toWh) {
+        AppToast.warning("跨倉調撥必須選擇「調入倉儲」！");
+        $('#fieldToWarehouseId').focus();
+        return;
+    }
+    if (!prodId) {
+        AppToast.warning("請選擇「產品品項」！");
+        $('#fieldProductId').focus();
+        return;
+    }
+    if (!reason) {
+        AppToast.warning("請輸入「詳細事由」！");
+        $('#fieldReasonDesc').focus();
         return;
     }
 

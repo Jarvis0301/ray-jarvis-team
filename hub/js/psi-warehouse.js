@@ -428,9 +428,28 @@ async function saveWarehouseItem() {
     const mode = $('#formMode').val();
     const id = $('#fieldId').val().trim();
     const name = $('#fieldName').val().trim();
+    const type = $('#fieldType').val();
+    const country = $('#fieldCountry').val();
 
-    if (!id || !name) {
-        AppToast.warning("據點代碼與據點名稱為必填欄位！");
+    // AppToast 欄位檢核與自動聚焦
+    if (!id) {
+        AppToast.warning("請輸入「據點唯一代碼」！");
+        $('#fieldId').focus();
+        return;
+    }
+    if (!name) {
+        AppToast.warning("請輸入「據點中文名稱」！");
+        $('#fieldName').focus();
+        return;
+    }
+    if (!type) {
+        AppToast.warning("請選擇「倉儲類型」！");
+        $('#fieldType').focus();
+        return;
+    }
+    if (!country) {
+        AppToast.warning("請選擇「所屬市場」！");
+        $('#fieldCountry').focus();
         return;
     }
 

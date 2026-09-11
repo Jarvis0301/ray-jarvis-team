@@ -311,7 +311,7 @@ function renderRankOrbit() {
         const isSelected = rank.rank_id === appState.selectedRankId ? 'active' : '';
         const html = `
             <div class="rank-node-btn ${isSelected}" data-rank-id="${rank.rank_id}" onclick="selectRank('${rank.rank_id}')">
-                <div class="rank-badge-icon" style="color：${rank.badge_color_hex};">
+                <div class="rank-badge-icon" style="color: ${rank.badge_color_hex};">
                     <i class="${rank.badge_icon_class}"></i>
                 </div>
                 <div class="fw-bold text-white">${rank.rank_name_zh}</div>
@@ -333,7 +333,7 @@ function selectRank(rankId) {
 
     $('#activeRankCode').text(`代碼：${rank.rank_code}`).css('color', rank.badge_color_hex);
     $('#activeRankName').html(`
-        <i class="${rank.badge_icon_class} me-2" style="color：${rank.badge_color_hex};"></i>
+        <i class="${rank.badge_icon_class} me-2" style="color: ${rank.badge_color_hex};"></i>
         <span>${rank.rank_name_zh} ${rank.rank_name_en ? '(' + rank.rank_name_en + ')' : ''}</span>
     `);
     $('#activeRebateRate').text(`${(rank.direct_rebate_rate * 100).toFixed(2)}%`);
@@ -933,9 +933,23 @@ function openEditHistoryModal(historyId) {
 async function saveRankHistoryItem() {
     const mode = $('#fieldHistoryMode').val();
     let partnerId = $('#fieldPartnerId').val().trim();
+    const newRankId = $('#fieldNewRankId').val();
+    const effectiveMonth = $('#fieldEffectiveMonth').val().trim();
 
+    // AppToast 欄位檢核與自動聚焦
     if (!partnerId) {
-        AppToast.warning("請選擇夥伴！");
+        AppToast.warning("請選擇「夥伴名稱」！");
+        $('#fieldPartnerId').select2('open');
+        return;
+    }
+    if (!newRankId) {
+        AppToast.warning("請選擇「新晉升職級」！");
+        $('#fieldNewRankId').focus();
+        return;
+    }
+    if (!effectiveMonth) {
+        AppToast.warning("請輸入「生效年月」！");
+        $('#fieldEffectiveMonth').focus();
         return;
     }
 

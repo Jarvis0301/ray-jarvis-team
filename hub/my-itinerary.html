@@ -331,7 +331,7 @@
                     </span>
                 </div>
                 <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-calendar-check text-purple" style="color: var(--core-purple-glow); me-1"></i>行程安排與跳點規劃
+                    <i class="fa-solid fa-calendar-check text-purple" style="color: var(--core-purple-glow);"></i>行程安排與跳點規劃
                 </h3>
                 <p class="text-muted small mb-0">
                     精確掌握創始人每日拜訪排程、經理對接、組織招商演練與 Grab 高效跳點路徑。
@@ -486,7 +486,7 @@
         <div class="modal-content core-modal">
             <div class="modal-header border-secondary border-opacity-25">
                 <h5 class="modal-title fw-bold">
-                    <i class="fa-solid fa-calendar-plus text-purple" style="color: var(--core-purple-glow); me-1"></i>新增 / 編輯拓荒排程
+                    <i class="fa-solid fa-calendar-plus text-purple" style="color: var(--core-purple-glow);"></i>新增 / 編輯拓荒排程
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -494,11 +494,11 @@
                 <form id="scheduleForm">
                     <div class="row g-3">
                         <div class="col-12 col-md-4">
-                            <label class="form-label text-muted small"><i class="fa-solid fa-calendar-day me-1"></i>日期</label>
+                            <label class="form-label text-muted small"><i class="fa-solid fa-calendar-day me-1"></i>日期 <span class="text-danger">*</span></label>
                             <input type="date" class="form-control form-control-sm form-control-core" id="formDate" value="2026-08-19" required>
                         </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label text-muted small"><i class="fa-solid fa-clock me-1"></i>起始時間</label>
+                            <label class="form-label text-muted small"><i class="fa-solid fa-clock me-1"></i>起始時間 <span class="text-danger">*</span></label>
                             <input type="time" class="form-control form-control-sm form-control-core" id="formStartTime" value="10:30" required>
                         </div>
                         <div class="col-12 col-md-4">
@@ -511,7 +511,7 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label text-muted small"><i class="fa-solid fa-heading me-1"></i>行程主旨 / 任務名稱</label>
+                            <label class="form-label text-muted small"><i class="fa-solid fa-heading me-1"></i>行程主旨 / 任務名稱 <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-sm form-control-core" id="formTitle" placeholder="例如：拜訪吉隆坡新體系核心夥伴" required>
                         </div>
                         <div class="col-12 col-md-6">
@@ -519,7 +519,7 @@
                             <input type="text" class="form-control form-control-sm form-control-core" id="formTarget" placeholder="姓名 / 職級 / 電話">
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label text-muted small"><i class="fa-solid fa-location-dot me-1"></i>會面地點 (Grab 導航關鍵字)</label>
+                            <label class="form-label text-muted small"><i class="fa-solid fa-location-dot me-1"></i>會面地點 (Grab 導航關鍵字) <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-sm form-control-core" id="formLocation" placeholder="完整地名或建築物名稱" required>
                         </div>
                         <div class="col-12">
@@ -747,7 +747,7 @@
 
                         <div class="row g-2 mb-3 text-muted small">
                             <div class="col-12 col-md-6">
-                                <i class="fa-solid fa-user-check text-purple" style="color: var(--core-purple-glow); me-1"></i>
+                                <i class="fa-solid fa-user-check text-purple" style="color: var(--core-purple-glow);"></i>
                                 <strong>對象：</strong>${item.target_person} <span class="badge bg-dark border border-secondary ms-1">${item.target_role}</span>
                             </div>
                             <div class="col-12 col-md-6">

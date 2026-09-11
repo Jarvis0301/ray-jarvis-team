@@ -859,7 +859,7 @@ function renderRankDataTable() {
 
         const badgeHtml = (typeof UIBadges !== 'undefined' && UIBadges.rank && UIBadges.rank.badge)
             ? UIBadges.rank.badge(r)
-            : `<span class="badge" style="background-color：${r.badge_color_hex || '#6c757d'}"><i class="${r.badge_icon_class || 'fa-solid fa-award'} me-1"></i>${r.rank_name_zh}</span>`;
+            : `<span class="badge" style="background-color: ${r.badge_color_hex || '#6c757d'}"><i class="${r.badge_icon_class || 'fa-solid fa-award'} me-1"></i>${r.rank_name_zh}</span>`;
 
         $tbody.append(`
             <tr>

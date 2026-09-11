@@ -720,12 +720,12 @@ function renderProducts() {
                         <td><span class="product-badge">${item.product_code}</span></td>
                         <td class="fw-bold text-white">${item.name}${nameTagHtml}</td>
                         <td>
-                            <span class="badge border" style="color：${subInfo.color}; border-color：${subInfo.color} !important; background-color：${subInfo.bg};">
+                            <span class="badge border" style="color: ${subInfo.color}; border-color: ${subInfo.color} !important; background-color: ${subInfo.bg};">
                                 <i class="${subInfo.icon} me-1"></i>${subInfo.name}
                             </span>
                         </td>
                         <td>
-                            <span class="badge border" style="color：${typeInfo.color}; border-color：${typeInfo.color} !important; background-color：${typeInfo.bg};">
+                            <span class="badge border" style="color: ${typeInfo.color}; border-color: ${typeInfo.color} !important; background-color: ${typeInfo.bg};">
                                 <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
                             </span>
                         </td>
@@ -1450,7 +1450,7 @@ function renderSubSeriesChartCards() {
         const html = `
             <div class="col-12 col-md-6 mb-3">
                 <div class="p-3 rounded bg-dark-subtle border border-secondary border-opacity-50 h-100">
-                    <div class="fw-bold mb-2" style="color：${cat.color};">
+                    <div class="fw-bold mb-2" style="color: ${cat.color};">
                         <i class="${cat.icon} me-1"></i>${cat.code} ${cat.name}
                     </div>
                     <div style="height: 180px; position: relative;">
