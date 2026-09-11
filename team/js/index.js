@@ -617,7 +617,7 @@ function versionSwitch() {
         matchedBtn.classList.add('active');
 
         const badgeSpan = document.createElement('span');
-        badgeSpan.className = 'badge bg-white text-dark shadow-sm ms-2';
+        badgeSpan.className = 'badge badge-white shadow-sm ms-2';
         badgeSpan.textContent = '當前';
 
         if (mainBtn) {

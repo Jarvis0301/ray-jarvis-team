@@ -18,9 +18,14 @@ let appState = {
     products: [],
     customers: [],
     stocks: [],
-    currentTacticalMode: 'AUDIT',
-    chartTransferInstance: null,
-    chartParetoInstance: null
+    chartInstances: {
+        transferFlow: null,
+        variancePareto: null,
+        whActivity: null,
+        lossTopPrd: null,
+        svDist: null,
+        transferTopPrd: null
+    }
 };
 
 let dtAdjustmentsInstance = null;
@@ -343,31 +348,33 @@ function renderMetrics() {
     let lossAmount = 0;
     let lossBoxes = 0;
     let demoQty = 0;
-    let demoSv = 0;
+    let demoCost = 0;
     let unboxingQty = 0;
 
     appState.adjustments.forEach(item => {
         const absQty = Math.abs(item.quantity);
+        const itemCost = parseFloat(item.total_cost) || 0;
+
         if (item.adj_type === '跨倉調撥') {
             transferQty += absQty;
             transferBatches++;
         } else if (item.adj_type === '盤虧' || item.adj_type === '破損過期') {
-            lossAmount += item.total_cost;
+            lossAmount += itemCost;
             lossBoxes += absQty;
         } else if (item.adj_type === '試用發放' || item.adj_type === '自用消耗') {
             demoQty += absQty;
-            demoSv += item.total_sv;
+            demoCost += itemCost;
         } else if (item.adj_type === '拆盒解封') {
             unboxingQty += absQty;
         }
     });
 
     $('#statTransferQty').text(`${transferQty.toLocaleString()} 盒`);
-    $('#statTransferBatches').text(transferBatches);
-    $('#statLossAmount').text(`$${lossAmount.toLocaleString()}`);
-    $('#statLossBoxes').text(lossBoxes);
+    $('#statTransferBatches').text(transferBatches.toLocaleString());
+    $('#statLossAmount').text(`NT$ ${lossAmount.toLocaleString()}`);
+    $('#statLossBoxes').text(lossBoxes.toLocaleString());
+    $('#statDemoCost').text(`NT$ ${demoCost.toLocaleString()}`);
     $('#statDemoQty').text(`${demoQty.toLocaleString()} 件`);
-    $('#statDemoSv').text(demoSv.toLocaleString());
     $('#statUnboxingQty').text(`${unboxingQty.toLocaleString()} 支/條`);
 }
 
@@ -467,9 +474,9 @@ function renderAdjustmentsTable() {
                 { data: 'id_and_type' },
                 { data: 'warehouses' },
                 { data: 'product_batch' },
-                { data: 'quantity_unit' },
-                { data: 'cost_breakdown' },
-                { data: 'sv_breakdown' },
+                { data: 'quantity_unit', className: 'text-end' },
+                { data: 'cost_breakdown', className: 'text-end' },
+                { data: 'sv_breakdown', className: 'text-end' },
                 { data: 'parties' },
                 { data: 'date_info' },
                 { data: 'actions', className: 'text-center', orderable: false }
@@ -537,9 +544,9 @@ function renderTransfersTable() {
                 { data: 'id_and_date' },
                 { data: 'route' },
                 { data: 'product' },
-                { data: 'quantity' },
-                { data: 'cost' },
-                { data: 'sv' },
+                { data: 'quantity', className: 'text-end' },
+                { data: 'cost', className: 'text-end' },
+                { data: 'sv', className: 'text-end' },
                 { data: 'operator' },
                 { data: 'reason' },
                 { data: 'actions', className: 'text-center', orderable: false }
@@ -549,50 +556,55 @@ function renderTransfersTable() {
 }
 
 function renderCharts() {
-    // 1. 跨倉調撥 vs 盤損報廢：雙軌重疊折線圖 (無填滿背景)
+    // 1. 銷毀既有所有圖表實例
+    Object.keys(appState.chartInstances).forEach(k => {
+        if (appState.chartInstances[k]) {
+            appState.chartInstances[k].destroy();
+            appState.chartInstances[k] = null;
+        }
+    });
+
+    const adjustments = appState.adjustments || [];
+
+    // --- 圖表 1：跨倉調撥與異動流通月度趨勢 (折線雙軸) ---
     const ctxTransfer = document.getElementById('chartTransferFlow');
     if (ctxTransfer) {
         const transferMonthMap = {};
         const lossCostMonthMap = {};
 
-        // 統計跨倉調撥流通總量 (盒數)
-        appState.adjustments.filter(a => a.adj_type === '跨倉調撥').forEach(t => {
+        adjustments.filter(a => a.adj_type === '跨倉調撥').forEach(t => {
             const m = (t.adj_date || '').slice(0, 7) || '未分類';
             transferMonthMap[m] = (transferMonthMap[m] || 0) + Math.abs(t.quantity);
         });
 
-        // 統計盤損與過期報廢成本 (TWD)
-        appState.adjustments.filter(a => a.adj_type === '盤虧' || a.adj_type === '破損過期').forEach(l => {
+        adjustments.filter(a => a.adj_type === '盤虧' || a.adj_type === '破損過期').forEach(l => {
             const m = (l.adj_date || '').slice(0, 7) || '未分類';
             lossCostMonthMap[m] = (lossCostMonthMap[m] || 0) + (parseFloat(l.total_cost) || 0);
         });
 
         const allMonths = Array.from(new Set([...Object.keys(transferMonthMap), ...Object.keys(lossCostMonthMap)])).sort();
-        const transferData = allMonths.map(m => transferMonthMap[m] || 0);
-        const lossCostData = allMonths.map(m => lossCostMonthMap[m] || 0);
 
-        if (appState.chartTransferInstance) appState.chartTransferInstance.destroy();
-        appState.chartTransferInstance = new Chart(ctxTransfer, {
+        appState.chartInstances.transferFlow = new Chart(ctxTransfer, {
             type: 'line',
             data: {
                 labels: allMonths,
                 datasets: [
                     {
                         label: '跨倉調撥流通總量 (盒)',
-                        data: transferData,
+                        data: allMonths.map(m => transferMonthMap[m] || 0),
                         borderColor: '#38bdf8',
                         backgroundColor: '#38bdf8',
-                        fill: false, // 移除填滿顏色
+                        fill: false,
                         tension: 0.35,
                         pointRadius: 4,
                         yAxisID: 'yQty'
                     },
                     {
                         label: '盤損與過期報廢成本 (NT$)',
-                        data: lossCostData,
+                        data: allMonths.map(m => lossCostMonthMap[m] || 0),
                         borderColor: '#fb7185',
                         backgroundColor: '#fb7185',
-                        fill: false, // 移除填滿顏色
+                        fill: false,
                         tension: 0.35,
                         pointRadius: 4,
                         borderDash: [5, 5],
@@ -603,49 +615,29 @@ function renderCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
+                interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: {
-                        ticks: { color: '#a78bfa' },
-                        grid: { color: 'rgba(139, 92, 246, 0.1)' }
-                    },
+                    x: { ticks: { color: '#a78bfa' }, grid: { color: 'rgba(139, 92, 246, 0.1)' } },
                     yQty: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        ticks: {
-                            color: '#38bdf8',
-                            callback: val => `${val} 盒`
-                        },
+                        type: 'linear', position: 'left',
+                        ticks: { color: '#38bdf8', callback: v => `${v.toLocaleString()} 盒` },
                         grid: { color: 'rgba(56, 189, 248, 0.15)' }
                     },
                     yCost: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        ticks: {
-                            color: '#fb7185',
-                            callback: val => `NT$ ${val.toLocaleString()}`
-                        },
+                        type: 'linear', position: 'right',
+                        ticks: { color: '#fb7185', callback: v => `NT$ ${v.toLocaleString()}` },
                         grid: { drawOnChartArea: false }
                     }
                 },
                 plugins: {
-                    legend: {
-                        labels: { color: '#f5f3ff', font: { size: 11 } }
-                    },
+                    legend: { labels: { color: '#f5f3ff', font: { size: 10 } } },
                     tooltip: {
                         callbacks: {
-                            label: function (context) {
-                                const label = context.dataset.label || '';
-                                const val = context.parsed.y || 0;
-                                if (context.dataset.yAxisID === 'yCost') {
-                                    return `${label}：NT$ ${val.toLocaleString()}`;
-                                }
-                                return `${label}：${val.toLocaleString()} 盒`;
+                            label: function (ctx) {
+                                const val = ctx.parsed.y || 0;
+                                return ctx.dataset.yAxisID === 'yCost'
+                                    ? ` ${ctx.dataset.label}：NT$ ${val.toLocaleString()}`
+                                    : ` ${ctx.dataset.label}：${val.toLocaleString()} 盒`;
                             }
                         }
                     }
@@ -654,15 +646,14 @@ function renderCharts() {
         });
     }
 
-    // 2. 異動類型佔比分佈圖：Tooltip 注入動態百分比運算
+    // --- 圖表 2：庫存異動類型佔比分佈 (甜甜圈圖) ---
     const ctxPareto = document.getElementById('chartVariancePareto');
     if (ctxPareto) {
         const types = ['跨倉調撥', '盤盈', '盤虧', '破損過期', '自用消耗', '試用發放', '拆盒解封'];
-        const counts = types.map(t => appState.adjustments.filter(a => a.adj_type === t).length);
+        const counts = types.map(t => adjustments.filter(a => a.adj_type === t).length);
         const totalCount = counts.reduce((acc, c) => acc + c, 0);
 
-        if (appState.chartParetoInstance) appState.chartParetoInstance.destroy();
-        appState.chartParetoInstance = new Chart(ctxPareto, {
+        appState.chartInstances.variancePareto = new Chart(ctxPareto, {
             type: 'doughnut',
             data: {
                 labels: types,
@@ -675,22 +666,200 @@ function renderCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '68%',
+                cutout: '65%',
                 plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: { color: '#e2d9f3', font: { size: 10 } }
-                    },
+                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
                     tooltip: {
                         callbacks: {
-                            label: function (context) {
-                                const label = context.label || '';
-                                const val = context.parsed || 0;
+                            label: function (ctx) {
+                                const val = ctx.parsed || 0;
                                 const pct = totalCount > 0 ? ((val / totalCount) * 100).toFixed(1) : '0.0';
-                                return `${label}：${val} 筆 (${pct}%)`;
+                                return ` ${ctx.label}：${val.toLocaleString()} 筆 (${pct}%)`;
                             }
                         }
                     }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 3：各據點異動熱度 (調出 / 調入雙軌水平長條圖) ---
+    const ctxWhAct = document.getElementById('chartWarehouseActivity');
+    if (ctxWhAct) {
+        const whMap = {};
+        adjustments.forEach(a => {
+            if (a.from_warehouse_id) {
+                const name = getWarehouseDisplayName(a.from_warehouse_id);
+                if (!whMap[name]) whMap[name] = { outCount: 0, inCount: 0 };
+                whMap[name].outCount++;
+            }
+            if (a.to_warehouse_id) {
+                const name = getWarehouseDisplayName(a.to_warehouse_id);
+                if (!whMap[name]) whMap[name] = { outCount: 0, inCount: 0 };
+                whMap[name].inCount++;
+            }
+        });
+
+        const whLabels = Object.keys(whMap);
+        const outData = whLabels.map(k => whMap[k].outCount);
+        const inData = whLabels.map(k => whMap[k].inCount);
+
+        appState.chartInstances.whActivity = new Chart(ctxWhAct, {
+            type: 'bar',
+            data: {
+                labels: whLabels,
+                datasets: [
+                    { label: '調出/發生次數', data: outData, backgroundColor: '#c084fc', borderRadius: 4 },
+                    { label: '調入轉移次數', data: inData, backgroundColor: '#38bdf8', borderRadius: 4 }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}：${Number(ctx.parsed.x).toLocaleString()} 次`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 4：損耗成本最高品項 Top 5 (長條圖) ---
+    const ctxLossPrd = document.getElementById('chartLossTopPrd');
+    if (ctxLossPrd) {
+        const lossPrdMap = {};
+        adjustments.filter(a => a.adj_type === '盤虧' || a.adj_type === '破損過期').forEach(a => {
+            const name = a.product_name_snaps || a.product_id || '未知品項';
+            lossPrdMap[name] = (lossPrdMap[name] || 0) + (parseFloat(a.total_cost) || 0);
+        });
+
+        const sortedLoss = Object.entries(lossPrdMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        const totalLoss = Object.values(lossPrdMap).reduce((a, b) => a + b, 0);
+
+        appState.chartInstances.lossTopPrd = new Chart(ctxLossPrd, {
+            type: 'bar',
+            data: {
+                labels: sortedLoss.map(i => i[0]),
+                datasets: [{
+                    label: '損耗金額 (NT$)',
+                    data: sortedLoss.map(i => i[1]),
+                    backgroundColor: '#fb7185',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const val = Number(ctx.parsed.x) || 0;
+                                const pct = totalLoss > 0 ? ((val / totalLoss) * 100).toFixed(1) : '0.0';
+                                return ` 累計損耗：NT$ ${val.toLocaleString()} (${pct}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => `NT$ ${v.toLocaleString()}` }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 5：試用發放 vs 自用消耗成本佔比 (甜甜圈圖) ---
+    const ctxCost = document.getElementById('chartCostDistribution');
+    if (ctxCost) {
+        let demoCost = 0;
+        let selfCost = 0;
+
+        adjustments.forEach(a => {
+            const cost = parseFloat(a.total_cost) || 0;
+            if (a.adj_type === '試用發放') demoCost += cost;
+            else if (a.adj_type === '自用消耗') selfCost += cost;
+        });
+
+        const totalPromoCost = demoCost + selfCost;
+
+        appState.chartInstances.svDist = new Chart(ctxCost, {
+            type: 'doughnut',
+            data: {
+                labels: ['試用發放 (拓展)', '自用消耗 (內部)'],
+                datasets: [{
+                    data: [demoCost, selfCost],
+                    backgroundColor: ['#fbbf24', '#c084fc'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const val = ctx.parsed || 0;
+                                const pct = totalPromoCost > 0 ? ((val / totalPromoCost) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：NT$ ${val.toLocaleString()} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 6：跨倉調撥主力品項 Top 5 (長條圖) ---
+    const ctxTransferTop = document.getElementById('chartTransferTopPrd');
+    if (ctxTransferTop) {
+        const transferPrdMap = {};
+        adjustments.filter(a => a.adj_type === '跨倉調撥').forEach(a => {
+            const name = a.product_name_snaps || a.product_id || '未知品項';
+            transferPrdMap[name] = (transferPrdMap[name] || 0) + Math.abs(a.quantity);
+        });
+
+        const sortedTransfer = Object.entries(transferPrdMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+        appState.chartInstances.transferTopPrd = new Chart(ctxTransferTop, {
+            type: 'bar',
+            data: {
+                labels: sortedTransfer.map(i => i[0]),
+                datasets: [{
+                    label: '調撥流通量 (盒)',
+                    data: sortedTransfer.map(i => i[1]),
+                    backgroundColor: '#34d399',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` 調撥總量：${Number(ctx.parsed.y).toLocaleString()} 盒`
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => `${v.toLocaleString()} 盒` }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });
@@ -701,7 +870,7 @@ function renderCharts() {
 // 6. 工作台交互運算與 C/R/U/D 實體回寫引擎
 // ==========================================================================
 function initEvents() {
-    // 現場盤點品項與倉儲變動監聽 (支援 Select2 與原生變更)
+    // 現場盤點品項與倉儲變動監聽
     $(document).on('change', '#auditProductSelect, #auditWarehouseSelect', function () {
         loadProductStockForAudit();
     });
@@ -711,9 +880,25 @@ function initEvents() {
         loadProductStockForTransfer();
     });
 
-    // 跨倉調撥數量輸入監聽 (即時重算成本與 SV)
+    // 跨倉調撥數量輸入監聽
     $(document).on('input change', '#trQtyInput', function () {
         updateTransferCostCalc();
+    });
+
+    // Tab 頁籤切換監聽 (參考 psi-stock.js 規範)
+    $('#adjustViewTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const targetId = $(e.target).attr('data-bs-target');
+        if (targetId === '#container-audit-view') {
+            if (dtAdjustmentsInstance) {
+                setTimeout(() => dtAdjustmentsInstance.columns.adjust().draw(false), 100);
+            }
+        } else if (targetId === '#container-transfer-view') {
+            if (dtTransfersInstance) {
+                setTimeout(() => dtTransfersInstance.columns.adjust().draw(false), 100);
+            }
+        } else if (targetId === '#container-charts-view') {
+            renderCharts();
+        }
     });
 }
 

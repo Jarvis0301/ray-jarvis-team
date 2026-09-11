@@ -276,7 +276,7 @@ function createEventCardHtml(item) {
 
     // 表演藝人標籤 (若無藝人資料則不渲染)
     const performerBadge = item.performer
-        ? `<span class="badge bg-accent"><i class="fa-solid fa-microphone-lines me-1"></i>藝人：${item.performer}</span>`
+        ? `<span class="badge badge-accent"><i class="fa-solid fa-microphone-lines me-1"></i>藝人：${item.performer}</span>`
         : '';
 
     // 按鈕邏輯

@@ -256,7 +256,7 @@
                     <div class="stat-radar-pill active" data-filter="ALL">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="small text-muted"><i class="fa-solid fa-list-check me-1"></i>全部待處置</span>
-                            <span class="badge bg-secondary rounded-pill hub-code" id="cntAll">0</span>
+                            <span class="badge badge-secondary rounded-pill hub-code" id="cntAll">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold text-light" id="totalActiveAlerts">0 <small class="fs-6 fw-normal text-muted">件</small></h4>
                     </div>
@@ -265,7 +265,7 @@
                     <div class="stat-radar-pill" data-filter="REORDER_7D">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="small" style="color: #fbbf24;"><i class="fa-solid fa-hourglass-half me-1"></i>7日即將耗盡</span>
-                            <span class="badge bg-warning text-dark rounded-pill hub-code" id="cnt7d">0</span>
+                            <span class="badge badge-warning rounded-pill hub-code" id="cnt7d">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold text-warning" id="totalReorder7d">0 <small class="fs-6 fw-normal text-muted">人</small></h4>
                     </div>
@@ -274,7 +274,7 @@
                     <div class="stat-radar-pill" data-filter="HEALING_CHECK">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="small" style="color: #38bdf8;"><i class="fa-solid fa-notes-medical me-1"></i>好轉反應關懷</span>
-                            <span class="badge bg-info text-dark rounded-pill hub-code" id="cntHealing">0</span>
+                            <span class="badge badge-info rounded-pill hub-code" id="cntHealing">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold text-info" id="totalHealing">0 <small class="fs-6 fw-normal text-muted">人</small></h4>
                     </div>
@@ -283,7 +283,7 @@
                     <div class="stat-radar-pill" data-filter="SCHEDULE_DISPATCH">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="small" style="color: #c084fc;"><i class="fa-solid fa-calendar-check me-1"></i>門檻調度約定</span>
-                            <span class="badge bg-purple rounded-pill hub-code" style="background: var(--uvaco-primary);" id="cntDispatch">0</span>
+                            <span class="badge badge-seconadry rounded-pill hub-code" style="background: var(--uvaco-primary);" id="cntDispatch">0</span>
                         </div>
                         <h4 class="mb-0 mt-1 fw-bold" style="color: #c084fc;" id="totalDispatch">0 <small class="fs-6 fw-normal text-muted">單</small></h4>
                     </div>
@@ -366,7 +366,7 @@
     <div class="offcanvas offcanvas-end" tabindex="-1" id="alertActionDrawer" style="width: 100%; max-width: 520px;">
         <div class="offcanvas-header border-bottom border-secondary border-opacity-25 py-3">
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-warning text-dark p-2" id="drawerAlertBadge"><i class="fa-solid fa-bell"></i></span>
+                <span class="badge badge-warning text-dark p-2" id="drawerAlertBadge"><i class="fa-solid fa-bell"></i></span>
                 <div>
                     <h5 class="offcanvas-title mb-0 fw-bold" id="drawerTitle">7 日耗盡回購提醒</h5>
                     <span class="small text-muted hub-code" id="drawerSubTitle">ALT-2026-8801 · 林雅涵</span>
@@ -378,7 +378,7 @@
             <div class="alert alert-dark border border-purple-subtle p-3 rounded-3 mb-3" style="background: rgba(139,92,246,0.1);">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <strong style="color: var(--uvaco-text-sub);"><i class="fa-solid fa-lightbulb me-1"></i>戰術行動指引</strong>
-                    <span class="badge bg-danger" id="drawerUrgency">極緊急 (剩餘 2 天)</span>
+                    <span class="badge badge-danger" id="drawerUrgency">極緊急 (剩餘 2 天)</span>
                 </div>
                 <p class="small text-light mb-0" id="drawerSuggestion">客戶食用衛傑已達 46 天，即將斷盒。建議詢問腸胃排便改善體感，並告知本週團隊有滿額贈百克斯活動，引導回購 2 盒。</p>
             </div>
@@ -645,11 +645,11 @@
 
                 let countdownHtml = '';
                 if (item.days_remaining < 0) {
-                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>逾期 ${Math.abs(item.days_remaining)} 天</span>`;
+                    countdownHtml = `<span class="badge badge-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>逾期 ${Math.abs(item.days_remaining)} 天</span>`;
                 } else if (item.days_remaining <= 3) {
-                    countdownHtml = `<span class="badge bg-danger"><i class="fa-solid fa-clock me-1"></i>倒數 ${item.days_remaining} 天</span>`;
+                    countdownHtml = `<span class="badge badge-danger"><i class="fa-solid fa-clock me-1"></i>倒數 ${item.days_remaining} 天</span>`;
                 } else {
-                    countdownHtml = `<span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-start me-1"></i>倒數 ${item.days_remaining} 天</span>`;
+                    countdownHtml = `<span class="badge badge-warning"><i class="fa-solid fa-hourglass-start me-1"></i>倒數 ${item.days_remaining} 天</span>`;
                 }
 
                 const cardHtml = `

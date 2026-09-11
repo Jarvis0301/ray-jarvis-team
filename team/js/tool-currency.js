@@ -533,7 +533,7 @@ function renderCrossBorderMatrix() {
             : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
 
         const twPrice = twProd 
-            ? `<span class="text-secondary fw-bold">NT$ ${twProd.price.toLocaleString()}</span> / <span class="text-warning fw-bold">${twProd.sv_point} SV</span>` 
+            ? `<span class="text-yellow fw-bold">NT$ ${twProd.price.toLocaleString()}</span> / <span class="text-teal fw-bold">${twProd.sv_point} SV</span>` 
             : `-`;
 
         const myInfo = myProd
@@ -541,7 +541,7 @@ function renderCrossBorderMatrix() {
             : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
 
         const myPrice = myProd 
-            ? `<span class="text-secondary fw-bold">RM ${myProd.price.toLocaleString()}</span> / <span class="text-warning fw-bold">${myProd.sv_point} SV</span>` 
+            ? `<span class="text-yellow fw-bold">RM ${myProd.price.toLocaleString()}</span> / <span class="text-teal fw-bold">${myProd.sv_point} SV</span>` 
             : `-`;
 
         const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;

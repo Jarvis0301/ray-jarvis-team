@@ -231,7 +231,7 @@ function renderDataTable(members) {
 
     members.forEach(m => {
         const tags = m.expertise.split(',').map(t => 
-            `<span class="badge bg-dark text-info border border-info me-1">${t.trim()}</span>`
+            `<span class="badge badge-info me-1">${t.trim()}</span>`
         ).join('');
 
         const rowHtml = `

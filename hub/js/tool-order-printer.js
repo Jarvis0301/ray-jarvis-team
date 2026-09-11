@@ -63,7 +63,7 @@ function printOrderReceipt(orderData) {
             <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">${item.name}</td>
             <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 13px;">${item.qty}</td>
             <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 13px; font-weight: bold;">${currencySymbol}${Math.round(item.price).toLocaleString()}</td>
-            <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 13px; color: #0284c7;">${item.sv.toLocaleString()} SV</td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 13px; color: #16a34a;">${item.sv.toLocaleString()} SV</td>
         </tr>
     `).join('');
 
@@ -101,11 +101,11 @@ function printOrderReceipt(orderData) {
                 <span>應付總金額：</span>
                 <span>${currencySymbol}${Math.round(grandTotal).toLocaleString()}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: #0284c7; font-weight: bold;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: #16a34a; font-weight: bold;">
                 <span>累積總積分：</span>
                 <span>${totalSV.toLocaleString()} SV</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #16a34a; font-weight: bold;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #0284c7; font-weight: bold;">
                 <span>預估現金回饋：</span>
                 <span>${currencySymbol}${Math.round(rebate).toLocaleString()}</span>
             </div>
@@ -179,11 +179,11 @@ function showMobileReceiptModal(orderData) {
         </div>
         <div class="mb-3">${itemsHtml}</div>
         <div class="p-3 bg-dark-subtle rounded border border-secondary border-opacity-50">
-            <div class="d-flex justify-content-between mb-1"><span>產品金額合計：</span><strong>${currencySymbol}${Math.round(subtotal).toLocaleString()}</strong></div>
-            <div class="d-flex justify-content-between mb-1"><span>物流運費：</span><strong>${shipping > 0 ? currencySymbol + Math.round(shipping).toLocaleString() : '免運費'}</strong></div>
-            <div class="d-flex justify-content-between mb-1 text-warning h6 fw-bold"><span>應付總金額：</span><span>${currencySymbol}${Math.round(grandTotal).toLocaleString()}</span></div>
-            <div class="d-flex justify-content-between mb-1 text-info"><span>累積總積分：</span><span>${totalSV.toLocaleString()} SV</span></div>
-            <div class="d-flex justify-content-between text-success"><span>預估現金回饋：</span><span>${currencySymbol}${Math.round(rebate).toLocaleString()}</span></div>
+            <div class="d-flex justify-content-between mb-1 text-warning"><span>產品金額合計：</span><strong>${currencySymbol}${Math.round(subtotal).toLocaleString()}</strong></div>
+            <div class="d-flex justify-content-between mb-1 text-secondary"><span>物流運費：</span><strong>${shipping > 0 ? currencySymbol + Math.round(shipping).toLocaleString() : '免運費'}</strong></div>
+            <div class="d-flex justify-content-between mb-1 text-orange h6 fw-bold"><span>應付總金額：</span><span>${currencySymbol}${Math.round(grandTotal).toLocaleString()}</span></div>
+            <div class="d-flex justify-content-between mb-1 text-teal"><span>累積總積分：</span><span>${totalSV.toLocaleString()} SV</span></div>
+            <div class="d-flex justify-content-between text-info"><span>預估現金回饋：</span><span>${currencySymbol}${Math.round(rebate).toLocaleString()}</span></div>
         </div>
     `;
 

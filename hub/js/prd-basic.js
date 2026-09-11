@@ -463,7 +463,6 @@ function renderMasterTable() {
 
 function formatMasterTableRow(p) {
     const star = p.is_featured ? ' <i class="fa-solid fa-star text-warning" title="明星熱銷商品"></i>' : '';
-    const badgeRegion = p.region_code === 'TW' ? 'border-primary text-secondary' : 'border-danger text-danger';
 
     let categoryCode = p.category_code;
     if (!categoryCode && p.subcategory_code) {
@@ -484,7 +483,7 @@ function formatMasterTableRow(p) {
     return {
         thumb: `<img src="${p.primary_image_url}" alt="${p.name}" class="img-thumb-preview" onerror="window.imgError(this, 'product', 42, 42)">`,
         code: `<div>
-                   <div><span class="badge bg-dark border ${badgeRegion}">${p.region_code}</span></div>
+                   <div>${UIBadges.common.country(p.region_code)}</div>
                    <div class="fw-bold font-monospace text-light mt-1">${p.product_code}</div>
                </div>`,
         name: `<div class="fw-bold text-light">${p.name}${star}</div>
@@ -492,20 +491,20 @@ function formatMasterTableRow(p) {
         category: UIBadges.product.category(getCategoryByCode(categoryCode), p.region_code),
         subcategory: UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code),
         type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
-        spec: `<span class="text-muted small font-monospace">${p.package_spec || '-'}</span>`,
-        price: `<span class="badge badge-outline-accent py-2">${formattedPrice}</span>`,
-        sv: `<span class="badge badge-outline-secondary py-2">${p.sv_point} SV</span>`,
+        spec: `<span class="text-info font-monospace">${p.package_spec || '-'}</span>`,
+        price: `<span class="text-yellow fw-bold">${formattedPrice}</span>`,
+        sv: `<span class="text-teal fw-bold">${p.sv_point} SV</span>`,
         launch_status: `<div>${launchStatus.badge}</div>`,
         stock_status: `<div>${stockBadge}</div>`,
         actions: `
-            <div class="btn-group btn-group-sm" role="group">
-                <button class="btn btn-outline-info py-1 px-2" onclick="openDetailModal('${p.product_code}')" title="查看完整產品詳情">
+            <div class="d-flex align-items-center justify-content-end gap-1">
+                <button class="btn btn-outline-info btn-sm" onclick="openDetailModal('${p.product_code}')" title="查看完整產品詳情">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
-                <button class="btn btn-outline-primary py-1 px-2" onclick="openEditModal('${p.product_code}')" title="完整維護主檔與詳細資料">
+                <button class="btn btn-outline-primary btn-sm" onclick="openEditModal('${p.product_code}')" title="完整維護主檔與詳細資料">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn btn-outline-danger py-1 px-2" onclick="deleteProductItem('${p.product_code}')" title="刪除產品">
+                <button class="btn btn-outline-danger btn-sm" onclick="deleteProductItem('${p.product_code}')" title="刪除產品">
                     <i class="fa-solid fa-trash-alt"></i>
                 </button>
             </div>
@@ -576,9 +575,9 @@ function openDetailModal(productCode) {
     $('#viewPrdSummary').text(item.short_summary || '暫無簡介');
 
     // 主系列、次系列、型態套用彩色 Badge 標籤函式
-    $('#viewPrdCategory').html(UIBadges.product.category(categoryCode, item.region_code));
-    $('#viewPrdSubcategory').html(UIBadges.product.subcategory(item.subcategory_code, item.region_code));
-    $('#viewPrdType').html(UIBadges.product.type(item.type_code, item.region_code));
+    $('#viewPrdCategory').html(UIBadges.product.category(getCategoryByCode(categoryCode), item.region_code));
+    $('#viewPrdSubcategory').html(UIBadges.product.subcategory(getSubcategoryByCode(item.subcategory_code), item.region_code));
+    $('#viewPrdType').html(UIBadges.product.type(getTypeByCode(item.type_code), item.region_code));
 
     $('#viewPrdSpec').text(item.package_spec || '-');
     $('#viewPrdWeight').text(item.product_weight || '-');
@@ -887,19 +886,19 @@ function renderCrossBorderMatrix() {
         };
 
         const twInfo = twProd
-            ? `<div class="fw-bold text-light">${twProd.name}${getStatusBadge(twProd)} <span class="text-muted small font-monospace">(${twProd.product_code})</span></div><div class="text-muted small">${twProd.package_spec || '-'}</div>`
+            ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd)} <span class="text-muted small font-monospace">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec || '-'}</div>`
             : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
 
         const twPrice = twProd
-            ? `<span class="text-light fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-warning fw-bold">${twProd.sv_point} SV</span>`
+            ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${twProd.sv_point} SV</span>`
             : `-`;
 
         const myInfo = myProd
-            ? `<div class="fw-bold text-light">${myProd.name}${getStatusBadge(myProd)} <span class="text-muted small font-monospace">(${myProd.product_code})</span></div><div class="text-muted small">${myProd.package_spec || '-'}</div>`
+            ? `<div class="fw-bold text-secondary">${myProd.name}${getStatusBadge(myProd)} <span class="text-muted small font-monospace">(${myProd.product_code})</span></div><div class="text-secondary-emphasis small">${myProd.package_spec || '-'}</div>`
             : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
 
         const myPrice = myProd
-            ? `<span class="text-light fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-warning fw-bold">${myProd.sv_point} SV</span>`
+            ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${myProd.sv_point} SV</span>`
             : `-`;
 
         const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;

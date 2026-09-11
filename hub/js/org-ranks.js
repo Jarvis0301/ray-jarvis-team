@@ -730,7 +730,7 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         let actionBtns = '';
         if (isDelegated) {
             // 共同經營者採動態同步，提示需至主要經營者處異動
-            actionBtns = `<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate me-1"></i>共同經營同步</span>`;
+            actionBtns = `<span class="badge badge-info" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate me-1"></i>共同經營同步</span>`;
         } else {
             actionBtns = `
                 <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
@@ -739,7 +739,7 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
         }
 
         const noteSyncTag = isDelegated 
-            ? `<span class="badge bg-dark text-secondary me-1"><i class="fa-solid fa-user-group me-1"></i>共同經營</span>` 
+            ? `<span class="badge badge-info me-1"><i class="fa-solid fa-user-group me-1"></i>共同經營</span>` 
             : '';
 
         return {

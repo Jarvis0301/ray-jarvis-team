@@ -656,8 +656,8 @@ function renderProducts() {
                         </div>
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-1 small">
-                                <span>售價：<span class="price-num">${currencySymbol}${price.toLocaleString()}</span></span>
-                                <span>積分：<span class="sv-num">${sv.toLocaleString()} SV</span></span>
+                                <span>售價：<span class="text-yellow fw-bold">${currencySymbol}${price.toLocaleString()}</span></span>
+                                <span>積分：<span class="text-teal fw-bold">${sv.toLocaleString()} SV</span></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <div class="qty-control">
@@ -729,8 +729,8 @@ function renderProducts() {
                                 <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
                             </span>
                         </td>
-                        <td class="text-end price-num">${currencySymbol}${price.toLocaleString()}</td>
-                        <td class="text-end sv-num">${sv.toLocaleString()} SV</td>
+                        <td class="text-end text-yellow fw-bold">${currencySymbol}${price.toLocaleString()}</td>
+                        <td class="text-end text-teal fw-bold">${sv.toLocaleString()} SV</td>
                         <td class="text-center">
                             <div class="qty-control justify-content-center">
                                 <button class="btn-qty btn-minus" data-id="${item.product_code}">
@@ -982,8 +982,8 @@ selectedKeys.forEach(code => {
                         </button>
                     </div>
                     <div class="cart-item-price-block">
-                        <div class="text-warning font-weight-bold" data-field="price">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
-                        <div class="text-info" data-field="sv" style="font-size: 0.72rem;">${itemTotalSV.toLocaleString()} SV</div>
+                        <div class="text-yellow fw-bold" data-field="price">${currSymbol}${Math.round(itemTotalPrice).toLocaleString()}</div>
+                        <div class="text-teal" data-field="sv" style="font-size: 0.72rem;">${itemTotalSV.toLocaleString()} SV</div>
                     </div>
                     <button type="button" class="btn-remove-cart-item" data-id="${product.product_code}" title="刪除品項">
                         <i class="fa-solid fa-trash-can"></i>

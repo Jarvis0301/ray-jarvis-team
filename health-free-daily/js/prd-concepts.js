@@ -262,7 +262,7 @@ function renderDataTable(data) {
         tbody.append(`
             <tr>
                 <td>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                    <span class="badge badge-success-subtle">
                         <i class="fa-solid fa-tag me-1"></i>${item.category}
                     </span>
                 </td>
@@ -329,7 +329,7 @@ function renderChart(data) {
         legendList.append(`
             <li class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center py-2">
                 <span><i class="fa-solid fa-circle me-2" style="color:${categoryChartInstance.data.datasets[0].backgroundColor[idx]};"></i>${label}</span>
-                <span class="badge bg-success rounded-pill">${count} 篇</span>
+                <span class="badge badge-success rounded-pill">${count} 篇</span>
             </li>
         `);
     });

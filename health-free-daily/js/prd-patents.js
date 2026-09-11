@@ -312,7 +312,7 @@ function renderPatents() {
                     </div>
                     <div class="modal-body p-4">
                         <img src="${item.imgUrl}" alt="${item.title}" class="modal-patent-img" onerror="this.src='https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1200&q=80'">
-                        <div class="badge bg-success mb-2"><i class="fa-solid fa-shield me-1"></i>${item.patentNo || '專利號碼與認證'}</div>
+                        <div class="badge badge-success mb-2"><i class="fa-solid fa-shield me-1"></i>${item.patentNo || '專利號碼與認證'}</div>
                         <h4 class="h5 text-white mb-3">${item.title}</h4>
                         <p class="text-main">${item.detailDesc || item.desc}</p>
                         <hr class="border-secondary">

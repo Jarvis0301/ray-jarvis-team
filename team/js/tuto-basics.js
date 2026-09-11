@@ -74,7 +74,7 @@ window.addEventListener('AppReady', function() {
 
                         materialsTable.row.add([
                             `<span class="fw-bold text-white"><i class="fa-regular fa-file text-info me-2"></i>${title}</span>`,
-                            `<span class="badge bg-primary">${category}</span>`,
+                            `<span class="badge badge-primary">${category}</span>`,
                             format,
                             stage,
                             usage,

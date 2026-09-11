@@ -278,11 +278,11 @@ function initPsiDataTable() {
                 data: 'alertType',
                 render: function (data) {
                     if (data === 'CRITICAL') {
-                        return '<span class="badge bg-danger text-white rounded-pill px-2 py-1"><i class="fa-solid fa-skull-crossbones me-1"></i>極急迫</span>';
+                        return '<span class="badge badge-danger rounded-pill px-2 py-1"><i class="fa-solid fa-skull-crossbones me-1"></i>極急迫</span>';
                     } else if (data === 'LOW_STOCK') {
-                        return '<span class="badge bg-warning text-dark rounded-pill px-2 py-1"><i class="fa-solid fa-arrow-down-short-wide me-1"></i>存量告急</span>';
+                        return '<span class="badge badge-warning rounded-pill px-2 py-1"><i class="fa-solid fa-arrow-down-short-wide me-1"></i>存量告急</span>';
                     } else {
-                        return '<span class="badge bg-purple-subtle text-secondary rounded-pill px-2 py-1"><i class="fa-solid fa-clock me-1"></i>近效期</span>';
+                        return '<span class="badge badge-secondary-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-clock me-1"></i>近效期</span>';
                     }
                 }
             },

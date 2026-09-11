@@ -293,7 +293,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
 
     if (detail.phrase_tags) {
         const tagsHtml = detail.phrase_tags.split(',').map(tag => `
-            <span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25 me-1">
+            <span class="badge badge-info me-1">
                 <i class="fa-solid fa-hashtag me-1"></i>${tag.trim()}
             </span>
         `).join('');
