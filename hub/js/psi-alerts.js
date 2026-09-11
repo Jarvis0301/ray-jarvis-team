@@ -339,7 +339,7 @@ function formatAlertRow(a) {
 
     return {
         checkbox: `<input type="checkbox" class="alert-item-check form-check-input" value="${a.id}">`,
-        id: `<span class="fw-bold text-info">${a.id}</span>`,
+        id: `<span class="fw-bold text-info-emphasis">${a.id}</span>`,
         type: typeBadge,
         warehouse: `<div><div class="text-white">${getWarehouseName(a.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${a.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(a.product_id)}</div><span class="small text-secondary">${a.product_id}</span></div>`,

@@ -463,18 +463,17 @@ function formatStockRow(s) {
     `;
 
     return {
-        id: `<span class="fw-bold text-info">${s.id}</span>`,
+        id: `<span class="fw-bold text-info-emphasis">${s.id}</span>`,
         warehouse: `<div><div class="text-white">${getWarehouseName(s.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${s.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(s.product_id)}</div><span class="small text-secondary">${s.product_id}</span></div>`,
-        batch: `<span class="batch-chip fw-bold"><i class="fa-solid fa-barcode me-1"></i>${s.batch_no || '--'}</span>`,
+        batch: `<span class="fw-bold text-primary-emphasis">${s.batch_no || '--'}</span>`,
         expiry: `
             <div style="min-width: 110px;">
-                <div class="d-flex justify-content-between small mb-1">
-                    <span class="text-light">${s.expiry_date || '--'}</span>
+                <div>
                     <span class="fw-bold ${expiryColor.split(' ')[1]}">${days.toLocaleString()} 天</span>
                 </div>
-                <div class="expiry-progress">
-                    <div class="progress-bar ${expiryColor.split(' ')[0]}" style="width: ${expiryPercent}%;"></div>
+                <div>
+                    <span class="text-light small">${s.expiry_date || '--'}</span>
                 </div>
             </div>
         `,

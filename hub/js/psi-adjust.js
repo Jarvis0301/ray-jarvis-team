@@ -366,17 +366,41 @@ function populateSelectOptions() {
     });
 
     // ==========================================
-    // 工作台與彈窗選單 (維持原樣)
+    // 工作台與彈窗選單
     // ==========================================
+    // 盤點工作台選單 (綁定 #modalAuditWorkbench)
     UISelectOptions.warehouse.populate({
         target: '#auditWarehouseSelect',
         warehouses: appState.warehouses,
         placeholder: '-- 請選擇盤點自營倉儲 --',
         displayMode: 1,
         searchable: true,
+        dropdownParent: '#modalAuditWorkbench',
         filterFn: nonOfficialWarehouseFilter
     });
 
+    UISelectOptions.product.populate({
+        target: '#auditProductSelect',
+        products: appState.products,
+        dropdownParent: '#modalAuditWorkbench'
+    });
+
+    UISelectOptions.partner.populate({
+        target: '#auditOperatorSelect',
+        partners: appState.partners,
+        persons: appState.persons,
+        dropdownParent: '#modalAuditWorkbench'
+    });
+
+    UISelectOptions.customer.populate({
+        target: '#auditProspectSelect',
+        customers: appState.customers,
+        persons: appState.persons,
+        placeholder: '-- 非試用體驗無須選擇 --',
+        dropdownParent: '#modalAuditWorkbench'
+    });
+
+    // 調撥工作台選單 (綁定 #modalTransferWorkbench)
     ['#trFromWarehouseSelect', '#trToWarehouseSelect'].forEach(target => {
         UISelectOptions.warehouse.populate({
             target,
@@ -384,47 +408,22 @@ function populateSelectOptions() {
             placeholder: target.includes('From') ? '-- 請選擇調出來源倉 --' : '-- 請選擇調入目的倉 --',
             displayMode: 1,
             searchable: true,
+            dropdownParent: '#modalTransferWorkbench',
             filterFn: nonOfficialWarehouseFilter
         });
     });
 
-    ['#fieldFromWarehouseId', '#fieldToWarehouseId'].forEach(target => {
-        UISelectOptions.warehouse.populate({
-            target,
-            warehouses: appState.warehouses,
-            placeholder: target.includes('From') ? '-- 請選擇調出倉儲 --' : '-- 請選擇調入倉儲 (單倉免填) --',
-            dropdownParent: '#adjustModal',
-            displayMode: 1,
-            searchable: true,
-            filterFn: nonOfficialWarehouseFilter
-        });
+    UISelectOptions.product.populate({
+        target: '#trProductSelect',
+        products: appState.products,
+        dropdownParent: '#modalTransferWorkbench'
     });
 
-    ['#auditProductSelect', '#trProductSelect', '#fieldProductId'].forEach(target => {
-        UISelectOptions.product.populate({
-            target,
-            products: appState.products,
-            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
-        });
-    });
-
-    ['#auditOperatorSelect', '#trOperatorSelect', '#fieldOperatorPartnerId'].forEach(target => {
-        UISelectOptions.partner.populate({
-            target,
-            partners: appState.partners,
-            persons: appState.persons,
-            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
-        });
-    });
-
-    ['#auditProspectSelect', '#fieldTargetProspectId'].forEach(target => {
-        UISelectOptions.customer.populate({
-            target,
-            customers: appState.customers,
-            persons: appState.persons,
-            placeholder: '-- 非試用體驗無須選擇 --',
-            dropdownParent: target.startsWith('#field') ? '#adjustModal' : null
-        });
+    UISelectOptions.partner.populate({
+        target: '#trOperatorSelect',
+        partners: appState.partners,
+        persons: appState.persons,
+        dropdownParent: '#modalTransferWorkbench'
     });
 }
 
@@ -461,7 +460,7 @@ function renderMetrics() {
     $('#statLossAmount').text(`NT$ ${lossAmount.toLocaleString()}`);
     $('#statLossBoxes').text(lossBoxes.toLocaleString());
     $('#statDemoCost').text(`NT$ ${demoCost.toLocaleString()}`);
-    $('#statDemoQty').text(`${demoQty.toLocaleString()} 件`);
+    $('#statDemoQty').text(`${demoQty.toLocaleString()}`);
     $('#statUnboxingQty').text(`${unboxingQty.toLocaleString()} 支/條`);
 }
 
@@ -491,56 +490,57 @@ function renderAdjustmentsTable() {
         const prospectResolved = a.target_prospect_id ? getCustomerResolvedName(a.target_prospect_id) : '';
 
         const qtyTag = a.quantity > 0 
-            ? `<span class="variance-tag variance-gain">+${a.quantity}</span>` 
-            : (a.quantity < 0 ? `<span class="variance-tag variance-loss">${a.quantity}</span>` : `<span class="variance-tag variance-balanced">0</span>`);
+            ? `<span class="fw-bold text-success mono-mun">+${a.quantity}</span>` 
+            : (a.quantity < 0 ? `<span class="fw-bold text-danger mono-mun">${a.quantity}</span>` : `<span class="fw-bold text-info">0</span>`);
 
         const actionButtons = `
-            <div class="d-flex align-items-center justify-content-end gap-1">
-                ${`
-                    <button class="btn btn-sm btn-outline-primary" title="編輯單據" onclick="openEditAdjustmentModal('${a.id}')">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteAdjustmentRecord('${a.id}')">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                `}
+            <div class="d-flex align-items-center justify-content-center gap-1">
+                <button class="btn btn-sm btn-outline-info" title="查看詳細資料" onclick="openAdjustmentDetailDrawer('${a.id}')">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" title="編輯單據" onclick="openEditAdjustmentModal('${a.id}')">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteAdjustmentRecord('${a.id}')">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
             </div>
         `;
 
         return {
             id_and_type: `
                 <div>
-                    <div class="fw-bold text-white">${a.id}</div>
+                    <div class="fw-bold text-info-emphasis">${a.id}</div>
                     ${typeBadge}
                 </div>
             `,
             warehouses: `
                 <div>
-                    <span class="badge badge-purple-subtle">${getWarehouseDisplayName(a.from_warehouse_id)}</span>
+                    <span class="text-white">${getWarehouseDisplayName(a.from_warehouse_id)}</span>
                     ${a.to_warehouse_id ? `<div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${getWarehouseDisplayName(a.to_warehouse_id)}</div>` : ''}
                 </div>
             `,
             product_batch: `
                 <div>
                     <div class="fw-bold text-white">${a.product_name_snaps || '-'}</div>
-                    <span class="batch-chip">LOT：${a.batch_no || '-'}</span>
+                    <span class="text-primary-emphasis small">批號：${a.batch_no || '-'}</span>
                 </div>
             `,
             quantity_unit: `
                 <div>
-                    ${qtyTag} <span class="badge badge-muted-subtle ms-1">${a.adj_unit}</span>
+                    ${qtyTag} <span class="text-muted-emphasis">${a.adj_unit}</span>
                 </div>
             `,
             cost_breakdown: `
                 <div>
-                    <div class="fw-bold text-white">${formatCurrency(a.total_cost, a.currency_code)}</div>
-                    <div class="text-secondary small">@ ${formatCurrency(a.unit_cost, a.currency_code)}</div>
+                    <div class="fw-bold text-warning">${formatCurrency(a.total_cost, a.currency_code)}</div>
+                    <div class="text-warning-emphasis small d-none">@ ${formatCurrency(a.unit_cost, a.currency_code)}</div>
                 </div>
             `,
-            sv_breakdown: `<span class="text-warning fw-bold">${a.total_sv.toLocaleString()} SV</span>`,
+            sv_breakdown: `<span class="text-teal fw-bold">${a.total_sv.toLocaleString()} SV</span>`,
             parties: `
                 <div>
-                    <div class="small text-white fw-bold"><i class="fa-solid fa-user-shield text-primary me-1"></i>${operatorResolved}</div>
+                    <div class="text-white fw-bold"><i class="fa-solid fa-user-shield text-primary me-1"></i>${operatorResolved}</div>
                     ${prospectResolved ? `<div class="small text-info"><i class="fa-solid fa-user text-warning me-1"></i>對象：${prospectResolved}</div>` : ''}
                 </div>
             `,
@@ -579,42 +579,42 @@ function renderTransfersTable() {
         const operatorResolved = getPartnerResolvedName(t.operator_partner_id);
 
         const actionButtons = `
-            <div class="d-flex align-items-center justify-content-end gap-1">
-                ${`
-                    <button class="btn btn-sm btn-outline-primary" title="編輯調撥單" onclick="openEditAdjustmentModal('${t.id}')">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteAdjustmentRecord('${t.id}')">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                `}
+            <div class="d-flex align-items-center justify-content-center gap-1">
+                <button class="btn btn-sm btn-outline-info" title="查看詳細資料" onclick="openAdjustmentDetailDrawer('${t.id}')">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" title="編輯調撥單" onclick="openEditAdjustmentModal('${t.id}')">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="刪除單據" onclick="deleteAdjustmentRecord('${t.id}')">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
             </div>
         `;
 
         return {
             id_and_date: `
                 <div>
-                    <div class="fw-bold text-info">${t.id}</div>
+                    <div class="fw-bold text-info-emphasis">${t.id}</div>
                     <div class="text-secondary small">${t.adj_date}</div>
                 </div>
             `,
             route: `
                 <div>
-                    <span class="badge badge-purple-subtle">${getWarehouseDisplayName(t.from_warehouse_id)}</span>
+                    <span class="text-white">${getWarehouseDisplayName(t.from_warehouse_id)}</span>
                     <div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${getWarehouseDisplayName(t.to_warehouse_id) || '未指定'}</div>
                 </div>
             `,
             product: `
                 <div>
                     <div class="fw-bold text-white">${t.product_name_snaps || '-'}</div>
-                    <span class="batch-chip">LOT：${t.batch_no || '-'}</span>
+                    <span class="text-primary-emphasis small">批號：${t.batch_no || '-'}</span>
                 </div>
             `,
-            quantity: `<span class="badge badge-info-subtle px-2 py-1">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,
-            cost: `<span class="text-white fw-bold">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
-            sv: `<span class="text-warning fw-bold">${t.total_sv.toLocaleString()} SV</span>`,
-            operator: `<span class="small text-light">${operatorResolved}</span>`,
-            reason: `<div class="small text-secondary" style="max-width: 140px;" title="${t.reason_desc}">${t.reason_desc || '-'}</div>`,
+            quantity: `<span class="text-info">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,
+            cost: `<span class="text-warning fw-bold">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
+            sv: `<span class="text-teal fw-bold">${t.total_sv.toLocaleString()} SV</span>`,
+            operator: `<span class="text-light">${operatorResolved}</span>`,
             actions: actionButtons
         };
     });
@@ -635,11 +635,138 @@ function renderTransfersTable() {
                 { data: 'cost', className: 'text-end' },
                 { data: 'sv', className: 'text-end' },
                 { data: 'operator' },
-                { data: 'reason' },
                 { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
+}
+
+/**
+ * 開啟右側抽屜查看盤點調撥單據詳細資料
+ */
+function openAdjustmentDetailDrawer(adjId) {
+    const item = appState.adjustments.find(a => a.id === adjId);
+    if (!item) {
+        AppToast.warning("找不到該筆單據資料！");
+        return;
+    }
+
+    const typeBadge = UIBadges.psi.adjustType(item.adj_type);
+    const operatorName = getPartnerResolvedName(item.operator_partner_id);
+    const prospectName = item.target_prospect_id ? getCustomerResolvedName(item.target_prospect_id) : '無';
+    const fromWh = getWarehouseDisplayName(item.from_warehouse_id);
+    const toWh = item.to_warehouse_id ? getWarehouseDisplayName(item.to_warehouse_id) : '無 (單倉異動)';
+
+    const qtyDisplay = (item.quantity > 0 ? `+${item.quantity.toLocaleString()}` : item.quantity.toLocaleString()) + ` ${item.adj_unit}`;
+    const costDisplay = formatCurrency(item.total_cost, item.currency_code);
+    const unitCostDisplay = formatCurrency(item.unit_cost, item.currency_code);
+    const svDisplay = `${(item.total_sv || 0).toLocaleString()} SV`;
+    const unitSvDisplay = `${(item.unit_sv || 0).toLocaleString()} SV`;
+
+    const html = `
+        <article class="card p-3 mb-3 border-secondary border-opacity-25" style="background: rgba(19, 10, 33, 0.4);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-secondary small">單據編號 (PK)</span>
+                <span class="text-info-emphasis fw-bold">${item.id}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-secondary small">異動類型</span>
+                <div>${typeBadge}</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-secondary small">調整發生日期</span>
+                <span class="text-light">${item.adj_date || '-'}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-secondary small">扣庫庫存編號</span>
+                <span class="text-info-emphasis fw-bold">${item.stock_id}</span>
+            </div>
+        </article>
+
+        <article class="card p-3 mb-3 border-secondary border-opacity-25">
+            <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
+                <i class="fa-solid fa-boxes-stacked text-primary"></i> 異動物資品項明細
+            </h6>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">產品名稱快照</div>
+                <div class="col-7 text-white fw-bold text-end">${item.product_name_snaps || '-'}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">官方產品編號</div>
+                <div class="col-7 text-info text-end font-monospace">${item.official_product_code || item.product_id || '-'}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">異動批號</div>
+                <div class="col-7 text-end text-primary-emphasis font-monospace">${item.batch_no || '-'}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">效期截止日</div>
+                <div class="col-7 text-light text-end">${item.expiry_date || '-'}</div>
+            </div>
+            <div class="row g-2">
+                <div class="col-5 text-secondary small">異動數量</div>
+                <div class="col-7 text-end fw-bold fs-6 ${item.quantity >= 0 ? 'text-success' : 'text-danger'}">${qtyDisplay}</div>
+            </div>
+        </article>
+
+        <article class="card p-3 mb-3 border-secondary border-opacity-25">
+            <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
+                <i class="fa-solid fa-warehouse text-info"></i> 倉儲流轉與經手資訊
+            </h6>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">調出/發生倉儲</div>
+                <div class="col-7 text-white text-end">${fromWh}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">調入目的倉儲</div>
+                <div class="col-7 text-info text-end">${toWh}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">執行經手夥伴</div>
+                <div class="col-7 text-white text-end fw-bold">${operatorName}</div>
+            </div>
+            <div class="row g-2">
+                <div class="col-5 text-secondary small">試用體驗對象</div>
+                <div class="col-7 text-warning text-end">${prospectName}</div>
+            </div>
+        </article>
+
+        <article class="card p-3 mb-3 border-secondary border-opacity-25">
+            <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
+                <i class="fa-solid fa-calculator text-warning"></i> 成本損益與 SV 結算
+            </h6>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">單件成本</div>
+                <div class="col-7 text-warning-emphasis text-end">${unitCostDisplay}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">成本總損益 / 額度</div>
+                <div class="col-7 text-warning fw-bold text-end">${costDisplay}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">單件 SV</div>
+                <div class="col-7 text-teal-emphasis text-end">${unitSvDisplay}</div>
+            </div>
+            <div class="row g-2">
+                <div class="col-5 text-secondary small">影響總 SV</div>
+                <div class="col-7 text-teal fw-bold text-end">${svDisplay}</div>
+            </div>
+        </article>
+
+        <article class="card p-3 border-secondary border-opacity-25">
+            <h6 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
+                <i class="fa-solid fa-comment-dots text-secondary"></i> 詳細事由與物流說明
+            </h6>
+            <div class="text-light small p-2 rounded" style="background: rgba(10, 5, 18, 0.4);">
+                ${item.reason_desc || '未填寫詳細說明'}
+            </div>
+        </article>
+    `;
+
+    $('#drawerAdjustDetailBody').html(html);
+    const drawerEl = document.getElementById('drawerAdjustDetail');
+    const drawerInstance = bootstrap.Offcanvas.getOrCreateInstance(drawerEl);
+    drawerInstance.show();
 }
 
 function renderCharts() {
@@ -820,48 +947,62 @@ function renderCharts() {
         });
     }
 
-    // --- 圖表 4：損耗成本最高品項 Top 5 (長條圖) ---
-    const ctxLossPrd = document.getElementById('chartLossTopPrd');
+    // --- 圖表 4：損耗成本品項分佈佔比 (甜甜圈佔比圖，不限 Top 5) ---
+    const ctxLossPrd = document.getElementById('chartLossPrd');
     if (ctxLossPrd) {
         const lossPrdMap = {};
+
+        // 彙整盤虧與破損過期單據之各品項損耗總成本 (NT$)
         adjustments.filter(a => a.adj_type === '盤虧' || a.adj_type === '破損過期').forEach(a => {
             const name = a.product_name_snaps || a.product_id || '未知品項';
-            lossPrdMap[name] = (lossPrdMap[name] || 0) + (parseFloat(a.total_cost) || 0);
+            const cost = parseFloat(a.total_cost) || 0;
+            if (cost > 0) {
+                lossPrdMap[name] = (lossPrdMap[name] || 0) + cost;
+            }
         });
 
-        const sortedLoss = Object.entries(lossPrdMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        const totalLoss = Object.values(lossPrdMap).reduce((a, b) => a + b, 0);
+        // 不設 Top 5 截斷，依損耗金額由高至低完整排序
+        const sortedLoss = Object.entries(lossPrdMap).sort((a, b) => b[1] - a[1]);
+        const labels = sortedLoss.map(i => i[0]);
+        const data = sortedLoss.map(i => i[1]);
+        const totalLossAmount = data.reduce((sum, val) => sum + val, 0);
+
+        // 警示與損耗主題高辨識循環色盤
+        const lossPalette = [
+            '#fb7185', '#f43f5e', '#e11d48', '#f97316', '#ea580c',
+            '#fbbf24', '#d97706', '#c084fc', '#a855f7', '#818cf8', '#64748b'
+        ];
+        const backgroundColors = labels.map((_, idx) => lossPalette[idx % lossPalette.length]);
 
         appState.chartInstances.lossTopPrd = new Chart(ctxLossPrd, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
-                labels: sortedLoss.map(i => i[0]),
+                labels: labels.length > 0 ? labels : ['無盤損與報廢紀錄'],
                 datasets: [{
-                    label: '損耗金額 (NT$)',
-                    data: sortedLoss.map(i => i[1]),
-                    backgroundColor: '#fb7185',
-                    borderRadius: 4
+                    data: data.length > 0 ? data : [1],
+                    backgroundColor: data.length > 0 ? backgroundColors : ['#334155'],
+                    borderWidth: 0
                 }]
             },
             options: {
-                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '65%',
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } }
+                    },
                     tooltip: {
                         callbacks: {
                             label: function (ctx) {
-                                const val = Number(ctx.parsed.x) || 0;
-                                const pct = totalLoss > 0 ? ((val / totalLoss) * 100).toFixed(1) : '0.0';
-                                return ` 累計損耗：NT$ ${val.toLocaleString()} (${pct}%)`;
+                                if (data.length === 0) return ' NT$ 0 (0.0%)';
+                                const val = ctx.parsed || 0;
+                                const pct = totalLossAmount > 0 ? ((val / totalLossAmount) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：NT$ ${val.toLocaleString()} (${pct}%)`;
                             }
                         }
                     }
-                },
-                scales: {
-                    x: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => `NT$ ${v.toLocaleString()}` }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
                 }
             }
         });
@@ -911,42 +1052,62 @@ function renderCharts() {
         });
     }
 
-    // --- 圖表 6：跨倉調撥主力品項 Top 5 (長條圖) ---
-    const ctxTransferTop = document.getElementById('chartTransferTopPrd');
+    // --- 圖表 6：跨倉調撥品項流通佔比 (甜甜圈佔比圖，不限 Top 5) ---
+    const ctxTransferTop = document.getElementById('chartTransferPrd');
     if (ctxTransferTop) {
         const transferPrdMap = {};
+
+        // 彙整所有跨倉調撥之各品項流通盒數
         adjustments.filter(a => a.adj_type === '跨倉調撥').forEach(a => {
             const name = a.product_name_snaps || a.product_id || '未知品項';
-            transferPrdMap[name] = (transferPrdMap[name] || 0) + Math.abs(a.quantity);
+            const qty = Math.abs(a.quantity);
+            if (qty > 0) {
+                transferPrdMap[name] = (transferPrdMap[name] || 0) + qty;
+            }
         });
 
-        const sortedTransfer = Object.entries(transferPrdMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        // 不限 Top 5，依調撥流通總量由高至低完整排序
+        const sortedTransfer = Object.entries(transferPrdMap).sort((a, b) => b[1] - a[1]);
+        const labels = sortedTransfer.map(i => i[0]);
+        const data = sortedTransfer.map(i => i[1]);
+        const totalTransferQty = data.reduce((sum, val) => sum + val, 0);
+
+        // 支援多品項循環高辨識戰術色盤
+        const palette = [
+            '#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185',
+            '#a855f7', '#ec4899', '#f97316', '#10b981', '#0284c7', '#818cf8', '#64748b'
+        ];
+        const backgroundColors = labels.map((_, idx) => palette[idx % palette.length]);
 
         appState.chartInstances.transferTopPrd = new Chart(ctxTransferTop, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
-                labels: sortedTransfer.map(i => i[0]),
+                labels: labels.length > 0 ? labels : ['無調撥流通紀錄'],
                 datasets: [{
-                    label: '調撥流通量 (盒)',
-                    data: sortedTransfer.map(i => i[1]),
-                    backgroundColor: '#34d399',
-                    borderRadius: 4
+                    data: data.length > 0 ? data : [1],
+                    backgroundColor: data.length > 0 ? backgroundColors : ['#334155'],
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '65%',
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } }
+                    },
                     tooltip: {
                         callbacks: {
-                            label: ctx => ` 調撥總量：${Number(ctx.parsed.y).toLocaleString()} 盒`
+                            label: function (ctx) {
+                                if (data.length === 0) return ' 0 盒 (0.0%)';
+                                const val = ctx.parsed || 0;
+                                const pct = totalTransferQty > 0 ? ((val / totalTransferQty) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：${val.toLocaleString()} 盒 (${pct}%)`;
+                            }
                         }
                     }
-                },
-                scales: {
-                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-                    y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => `${v.toLocaleString()} 盒` }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });
@@ -1032,16 +1193,16 @@ function calculateAuditVariance() {
     const $reasonBox = $('#auditReasonContainer');
 
     if (diff === 0) {
-        $tag.attr('class', 'variance-tag variance-balanced').html('<i class="fa-solid fa-check me-1"></i> 帳實相符 (0)');
+        $tag.attr('class', 'fw-bold text-info mono-mun').html('<i class="fa-solid fa-check me-1"></i> 帳實相符 (0)');
         $lblCost.text(formatCurrency(0, currency));
         $reasonBox.addClass('d-none');
     } else if (diff < 0) {
-        $tag.attr('class', 'variance-tag variance-loss').html(`<i class="fa-solid fa-triangle-exclamation me-1"></i> 盤虧短少 (${diff})`);
+        $tag.attr('class', 'fw-bold text-danger mono-mun').html(`<i class="fa-solid fa-triangle-exclamation me-1"></i> 盤虧短少 (${diff})`);
         $lblCost.text(`-${formatCurrency(totalCost, currency)}`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤虧');
     } else {
-        $tag.attr('class', 'variance-tag variance-gain').html(`<i class="fa-solid fa-plus me-1"></i> 盤盈溢出 (+${diff})`);
+        $tag.attr('class', 'fw-bold text-success mono-mun').html(`<i class="fa-solid fa-plus me-1"></i> 盤盈溢出 (+${diff})`);
         $lblCost.text(`+${formatCurrency(totalCost, currency)}`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤盈');
@@ -1057,7 +1218,7 @@ function loadProductStockForAudit() {
 
     if (!prodCode) {
         $('#auditInputProductName').val('');
-        $('#auditInputBatchNo').val('LOT: -');
+        $('#auditInputBatchNo').val('-');
         $('#auditInputCurrency').val('TWD');
         $('#auditInputUnitCost').val(formatCurrency(0, 'TWD'));
         $('#auditInputUnitSv').val('0 SV');
@@ -1109,7 +1270,7 @@ function loadProductStockForTransfer() {
 
     if (!prodCode) {
         $('#trInputProductName').val('');
-        $('#trInputBatchNo').val('LOT: -');
+        $('#trInputBatchNo').val('-');
         $('#trInputCurrency').val('TWD');
         $('#trInputUnitCost').val(formatCurrency(0, 'TWD'));
         $('#trInputUnitSv').val('0 SV');
@@ -1279,6 +1440,13 @@ async function commitAuditRecord() {
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
         await fetchAllGoogleSheetsData();
+
+        const auditModalEl = document.getElementById('modalAuditWorkbench');
+        if (auditModalEl) {
+            const auditModal = bootstrap.Modal.getInstance(auditModalEl);
+            if (auditModal) auditModal.hide();
+        }
+
         AppToast.success(`盤點單據【${adjNo}】已成功同步至 Google 試算表！`);
     } catch (err) {
         AppToast.error("寫入失敗: " + err.message);
@@ -1414,6 +1582,13 @@ async function commitTransferOrder() {
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
         await fetchAllGoogleSheetsData();
+
+        const transferModalEl = document.getElementById('modalTransferWorkbench');
+        if (transferModalEl) {
+            const transferModal = bootstrap.Modal.getInstance(transferModalEl);
+            if (transferModal) transferModal.hide();
+        }
+
         AppToast.success(`跨倉調撥單【${adjNo}】已成功建立！`);
     } catch (err) {
         AppToast.error("調撥單建立失敗: " + err.message);
