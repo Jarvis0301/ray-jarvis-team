@@ -41,6 +41,65 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 6 聯全域條件篩選列 -->
+                <div class="row align-items-end g-2 mt-2 pt-2 border-top border-purple-subtle">
+                    <!-- 1. 發生日期起 -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterStartDate">
+                            <i class="fa-regular fa-calendar text-primary me-1"></i>發生日期起
+                        </label>
+                        <input type="date" class="form-control form-control-sm text-end" id="filterStartDate">
+                    </div>
+
+                    <!-- 2. 發生日期迄 -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterEndDate">
+                            <i class="fa-regular fa-calendar-check text-primary me-1"></i>發生日期迄
+                        </label>
+                        <input type="date" class="form-control form-control-sm text-end" id="filterEndDate">
+                    </div>
+
+                    <!-- 3. 調出倉庫 (Select2) -->
+                    <div class="col-12 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterFromWarehouse">
+                            <i class="fa-solid fa-warehouse text-primary me-1"></i>調出倉庫
+                        </label>
+                        <select class="form-select form-select-sm" id="filterFromWarehouse" style="width: 100%;">
+                            <option value="ALL">全部調出倉</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. 調入倉庫 (Select2) -->
+                    <div class="col-12 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterToWarehouse">
+                            <i class="fa-solid fa-location-dot text-info me-1"></i>調入倉庫
+                        </label>
+                        <select class="form-select form-select-sm" id="filterToWarehouse" style="width: 100%;">
+                            <option value="ALL">全部調入倉</option>
+                        </select>
+                    </div>
+
+                    <!-- 5. 產品 (Select2) -->
+                    <div class="col-12 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterProduct">
+                            <i class="fa-solid fa-box text-primary me-1"></i>產品品項
+                        </label>
+                        <select class="form-select form-select-sm" id="filterProduct" style="width: 100%;">
+                            <option value="ALL">全部產品品項</option>
+                        </select>
+                    </div>
+
+                    <!-- 6. 經手夥伴 (Select2) -->
+                    <div class="col-12 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterOperator">
+                            <i class="fa-solid fa-user-shield text-warning me-1"></i>經手夥伴
+                        </label>
+                        <select class="form-select form-select-sm" id="filterOperator" style="width: 100%;">
+                            <option value="ALL">全部經手夥伴</option>
+                        </select>
+                    </div>
+                </div>
             </header>
 
             <section class="row g-3 mb-4">

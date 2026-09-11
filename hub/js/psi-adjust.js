@@ -18,6 +18,14 @@ let appState = {
     products: [],
     customers: [],
     stocks: [],
+    filters: {
+        startDate: '',
+        endDate: '',
+        fromWh: 'ALL',
+        toWh: 'ALL',
+        productId: 'ALL',
+        operatorId: 'ALL'
+    },
     chartInstances: {
         transferFlow: null,
         variancePareto: null,
@@ -67,6 +75,43 @@ function formatCurrency(amount, currencyCode = 'TWD') {
     const num = parseFloat(amount) || 0;
     const prefix = currencyCode === 'MYR' ? 'RM ' : 'NT$ ';
     return `${prefix}${num.toLocaleString()}`;
+}
+
+/**
+ * 取得符合當前 6 大全域篩選條件之單據資料集
+ */
+function getFilteredAdjustments() {
+    return appState.adjustments.filter(item => {
+        const f = appState.filters;
+
+        // 1. 發生日期起
+        if (f.startDate && item.adj_date && item.adj_date < f.startDate) {
+            return false;
+        }
+        // 2. 發生日期迄
+        if (f.endDate && item.adj_date && item.adj_date > f.endDate) {
+            return false;
+        }
+        // 3. 調出倉庫
+        if (f.fromWh && f.fromWh !== 'ALL' && item.from_warehouse_id !== f.fromWh) {
+            return false;
+        }
+        // 4. 調入倉庫
+        if (f.toWh && f.toWh !== 'ALL' && item.to_warehouse_id !== f.toWh) {
+            return false;
+        }
+        // 5. 產品品項
+        if (f.productId && f.productId !== 'ALL') {
+            const isMatch = (item.product_id === f.productId) || (item.official_product_code === f.productId);
+            if (!isMatch) return false;
+        }
+        // 6. 經手夥伴
+        if (f.operatorId && f.operatorId !== 'ALL' && item.operator_partner_id !== f.operatorId) {
+            return false;
+        }
+
+        return true;
+    });
 }
 
 // ==========================================================================
@@ -270,48 +315,91 @@ function refreshAllViews() {
 }
 
 function populateSelectOptions() {
-    // 嚴格過濾排除官方營運中心，僅保留自營私倉、海外前哨與在途倉
+    // 嚴格過濾排除官方營運中心，僅保留自營私倉與海外/在途倉
     const nonOfficialWarehouseFilter = w => {
         const type = String(w.warehouse_type || '').toUpperCase();
         return !type.includes('官方') && !type.includes('OFFICIAL') && w.id !== 'WH-TW-TP' && w.id !== 'WH-TW-KH';
     };
 
-    // 1. 現場實物盤點倉儲
+    // ==========================================
+    // 頂部 4 個全域篩選下拉選單 (共用 UISelectOptions)
+    // ==========================================
+    // 1. 調出倉庫
     UISelectOptions.warehouse.populate({
-        target: '#auditWarehouseSelect',
+        target: '#filterFromWarehouse',
         warehouses: appState.warehouses,
-        placeholder: '-- 請選擇盤點自營倉儲 --',
-        displayMode: 1, // 僅顯示名稱
+        placeholder: '全部調出倉',
+        selectedValue: appState.filters.fromWh === 'ALL' ? '' : appState.filters.fromWh,
+        displayMode: 1,
         searchable: true,
         filterFn: nonOfficialWarehouseFilter
     });
 
-    // 2. 跨倉調撥來源與目的倉
+    // 2. 調入倉庫
+    UISelectOptions.warehouse.populate({
+        target: '#filterToWarehouse',
+        warehouses: appState.warehouses,
+        placeholder: '全部調入倉',
+        selectedValue: appState.filters.toWh === 'ALL' ? '' : appState.filters.toWh,
+        displayMode: 1,
+        searchable: true,
+        filterFn: nonOfficialWarehouseFilter
+    });
+
+    // 3. 產品品項
+    UISelectOptions.product.populate({
+        target: '#filterProduct',
+        products: appState.products,
+        placeholder: '全部產品品項',
+        selectedValue: appState.filters.productId === 'ALL' ? '' : appState.filters.productId,
+        searchable: true
+    });
+
+    // 4. 經手夥伴
+    UISelectOptions.partner.populate({
+        target: '#filterOperator',
+        partners: appState.partners,
+        persons: appState.persons,
+        placeholder: '全部經手夥伴',
+        selectedValue: appState.filters.operatorId === 'ALL' ? '' : appState.filters.operatorId,
+        searchable: true
+    });
+
+    // ==========================================
+    // 工作台與彈窗選單 (維持原樣)
+    // ==========================================
+    UISelectOptions.warehouse.populate({
+        target: '#auditWarehouseSelect',
+        warehouses: appState.warehouses,
+        placeholder: '-- 請選擇盤點自營倉儲 --',
+        displayMode: 1,
+        searchable: true,
+        filterFn: nonOfficialWarehouseFilter
+    });
+
     ['#trFromWarehouseSelect', '#trToWarehouseSelect'].forEach(target => {
         UISelectOptions.warehouse.populate({
             target,
             warehouses: appState.warehouses,
             placeholder: target.includes('From') ? '-- 請選擇調出來源倉 --' : '-- 請選擇調入目的倉 --',
-            displayMode: 1, // 僅顯示名稱
+            displayMode: 1,
             searchable: true,
             filterFn: nonOfficialWarehouseFilter
         });
     });
 
-    // 3. 單據 Modal 倉儲
     ['#fieldFromWarehouseId', '#fieldToWarehouseId'].forEach(target => {
         UISelectOptions.warehouse.populate({
             target,
             warehouses: appState.warehouses,
             placeholder: target.includes('From') ? '-- 請選擇調出倉儲 --' : '-- 請選擇調入倉儲 (單倉免填) --',
             dropdownParent: '#adjustModal',
-            displayMode: 1, // 僅顯示名稱
+            displayMode: 1,
             searchable: true,
             filterFn: nonOfficialWarehouseFilter
         });
     });
 
-    // 產品選單
     ['#auditProductSelect', '#trProductSelect', '#fieldProductId'].forEach(target => {
         UISelectOptions.product.populate({
             target,
@@ -320,7 +408,6 @@ function populateSelectOptions() {
         });
     });
 
-    // 夥伴選單
     ['#auditOperatorSelect', '#trOperatorSelect', '#fieldOperatorPartnerId'].forEach(target => {
         UISelectOptions.partner.populate({
             target,
@@ -330,7 +417,6 @@ function populateSelectOptions() {
         });
     });
 
-    // 客戶選單
     ['#auditProspectSelect', '#fieldTargetProspectId'].forEach(target => {
         UISelectOptions.customer.populate({
             target,
@@ -343,6 +429,7 @@ function populateSelectOptions() {
 }
 
 function renderMetrics() {
+    const filtered = getFilteredAdjustments();
     let transferQty = 0;
     let transferBatches = 0;
     let lossAmount = 0;
@@ -351,7 +438,7 @@ function renderMetrics() {
     let demoCost = 0;
     let unboxingQty = 0;
 
-    appState.adjustments.forEach(item => {
+    filtered.forEach(item => {
         const absQty = Math.abs(item.quantity);
         const itemCost = parseFloat(item.total_cost) || 0;
 
@@ -396,8 +483,8 @@ function switchTacticalMode(mode) {
 }
 
 function renderAdjustmentsTable() {
-
-    const formatted = appState.adjustments.map(a => {
+    const filtered = getFilteredAdjustments();
+    const formatted = filtered.map(a => {
         const typeBadge = UIBadges.psi.adjustType(a.adj_type);
 
         const operatorResolved = getPartnerResolvedName(a.operator_partner_id);
@@ -486,8 +573,8 @@ function renderAdjustmentsTable() {
 }
 
 function renderTransfersTable() {
-    const transfersOnly = appState.adjustments.filter(a => a.adj_type === '跨倉調撥');
-
+    const filtered = getFilteredAdjustments();
+    const transfersOnly = filtered.filter(a => a.adj_type === '跨倉調撥');
     const formatted = transfersOnly.map(t => {
         const operatorResolved = getPartnerResolvedName(t.operator_partner_id);
 
@@ -564,7 +651,7 @@ function renderCharts() {
         }
     });
 
-    const adjustments = appState.adjustments || [];
+    const adjustments = getFilteredAdjustments();
 
     // --- 圖表 1：跨倉調撥與異動流通月度趨勢 (折線雙軸) ---
     const ctxTransfer = document.getElementById('chartTransferFlow');
@@ -897,6 +984,24 @@ function initEvents() {
                 setTimeout(() => dtTransfersInstance.columns.adjust().draw(false), 100);
             }
         } else if (targetId === '#container-charts-view') {
+            renderCharts();
+        }
+    });
+
+    // 全域 6 聯篩選條件變動監聽 (比照 psi-stock.js)
+    $('#filterStartDate, #filterEndDate, #filterFromWarehouse, #filterToWarehouse, #filterProduct, #filterOperator').on('change input', function () {
+        appState.filters.startDate = $('#filterStartDate').val() || '';
+        appState.filters.endDate = $('#filterEndDate').val() || '';
+        appState.filters.fromWh = $('#filterFromWarehouse').val() || 'ALL';
+        appState.filters.toWh = $('#filterToWarehouse').val() || 'ALL';
+        appState.filters.productId = $('#filterProduct').val() || 'ALL';
+        appState.filters.operatorId = $('#filterOperator').val() || 'ALL';
+
+        // 即時刷新指標、表格與圖表
+        renderMetrics();
+        renderAdjustmentsTable();
+        renderTransfersTable();
+        if ($('#container-charts-view').hasClass('active')) {
             renderCharts();
         }
     });
