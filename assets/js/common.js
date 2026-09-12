@@ -17,7 +17,7 @@ const APP_CONFIG = {
         FIN: "",        // 06_財務 (fin)
         SYS: "1TofIohkI-arOGmgRzm0rFm3sXBWvfYyThmm9pp1IGqw",        // 07_系統 (sys)
         MY: "",        // 08_馬來西亞 (my)
-        TOOL: ""         // 09_工具 (tool)
+        PSN: "1RB0czTwlWP1021OUVYHc__-0vtqOcE9ltSPxrY8jH_4"         // 09_人員 (psn)
     },
     // Google Apps Script 部署 ID
     GAS: {
@@ -29,7 +29,7 @@ const APP_CONFIG = {
         FIN: "",
         SYS: "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA",
         MY: "",
-        TOOL: ""
+        PSN: "AKfycbyoUx9tLPkTaUIk7KZOD7ab2aqmTPQrOTvFxLrxi4w8DNLkX_DpLginxvW-SdS99ExB4w"
     }
 };
 

@@ -4,6 +4,7 @@
 const SPREADSHEET_CONFIG = {
     sheetPsi: APP_CONFIG.SHEETS.PSI,
     sheetOrg: APP_CONFIG.SHEETS.ORG,
+    sheetPsn: APP_CONFIG.SHEETS.PSN,
     sheetPrd: APP_CONFIG.SHEETS.PRD,
     sheetCrm: APP_CONFIG.SHEETS.CRM,
     gasDeploymentId: APP_CONFIG.GAS.PSI
@@ -170,11 +171,11 @@ async function fetchAllGoogleSheetsData() {
         const [rawWarehouses, rawAdjustments, rawPersons, rawPartners, rawProducts, rawCustomers, rawStocks] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '據點倉儲').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '盤點調撥').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, '個人主檔').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, '個人主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, '夥伴主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, '產品主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, '客戶主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '庫存主檔').catch(() => []) // 🚀 表 302
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '庫存主檔').catch(() => [])
         ]);
 
         parseAllData({
@@ -186,7 +187,6 @@ async function fetchAllGoogleSheetsData() {
             rawCustomers,
             rawStocks
         });
-
         refreshAllViews();
         $('#hudSyncTime').text(getFormattedNow());
 
@@ -210,7 +210,7 @@ function parseAllData(data) {
         warehouse_type: getVal(r, 2, 'OFFICIAL_CENTER')
     })).filter(w => w.id !== '');
 
-    // 2. 解析個人主檔 (表 201: org_persons)
+    // 2. 解析個人主檔 (表 201 / psn_master)
     appState.persons = (data.rawPersons || []).map(r => ({
         person_id: getVal(r, 0),
         name_zh: getVal(r, 1),
@@ -224,7 +224,7 @@ function parseAllData(data) {
         partner_id: getVal(r, 0),
         person_id: getVal(r, 1),
         member_no: getVal(r, 2),
-        name_zh: getVal(r, 4)
+        leader_title: getVal(r, 3)
     })).filter(p => p.partner_id !== '');
 
     // 4. 解析客戶主檔 (表 401: crm_customers)

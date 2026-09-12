@@ -190,6 +190,27 @@
                             <option value="尋找副業">尋找副業</option>
                         </select>
                     </div>
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <label class="form-label">修業狀態</label>
+                        <select class="form-select form-select-sm form-filter-control" id="filter-graduation-status">
+                            <option value="">全部修業狀態</option>
+                            <option value="畢業">畢業</option>
+                            <option value="肄業">肄業</option>
+                            <option value="就學中">就學中</option>
+                            <option value="結業">結業</option>
+                            <option value="休學">休學</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <label class="form-label">營運職務狀態</label>
+                        <select class="form-select form-select-sm form-filter-control" id="filter-work-status">
+                            <option value="">全部職務狀態</option>
+                            <option value="全職">全職</option>
+                            <option value="兼職">兼職</option>
+                            <option value="專職">專職</option>
+                        </select>
+                    </div>
                 </div>
             </section>
 
@@ -524,8 +545,8 @@
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
                                     <div class="card">
-                                        <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-shield text-success me-1"></i>10. 經營身分類型</h6>
-                                        <div class="chart-card-container"><canvas id="chart-account-holder-distribution"></canvas></div>
+                                        <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-briefcase text-success me-1"></i> 10. 營運職務狀態</h6>
+                                        <div class="chart-card-container"><canvas id="chart-work-status-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
@@ -960,7 +981,7 @@
                                             <label class="form-label text-warning"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i>中間間隔人數 (人) <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm border-warning" id="form-gap-count" min="1" max="50" placeholder="例如：4（代表中間間隔 4 人）">
                                         </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
+                                        <div class="col-12 col-md-6 col-xl-2">
                                             <label class="form-label">團隊參與度 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="form-activity-level" required>
                                                 <option value="" selected>(請選擇參與度)</option>
@@ -974,7 +995,7 @@
                                                 <option value="非團隊成員">非團隊成員</option>
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-6 col-xl-3">
+                                        <div class="col-12 col-md-6 col-xl-2">
                                             <label class="form-label">營運狀態</label>
                                             <select class="form-select form-select-sm" id="form-operator-status">
                                                 <option value="" selected>(未設定)</option>
@@ -986,6 +1007,15 @@
                                                 <option value="因繼承原權停止">因繼承原權停止</option>
                                                 <option value="因結婚合併停止">因結婚合併停止</option>
                                                 <option value="因離婚協議退出">因離婚協議退出</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-xl-2">
+                                            <label class="form-label">營運職務狀態</label>
+                                            <select class="form-select form-select-sm" id="form-work-status">
+                                                <option value="" selected>(未設定)</option>
+                                                <option value="全職">全職</option>
+                                                <option value="兼職">兼職</option>
+                                                <option value="專職">專職</option>
                                             </select>
                                         </div>
                                     </div>
@@ -1149,11 +1179,26 @@
                                                 <option value="未就學">未就學</option>
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-4">
-                                            <label class="form-label">最高畢業學校</label>
+                                        <div class="col-12 col-md-9">
+                                            <label class="form-label">最高學校</label>
                                             <input type="text" class="form-control form-control-sm" id="form-graduated-school" placeholder="如：國立成功大學">
                                         </div>
-                                        <div class="col-12 col-md-5">
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">修業狀態</label>
+                                            <select class="form-select form-select-sm" id="form-graduation-status">
+                                                <option value="" selected>(未設定)</option>
+                                                <option value="畢業">畢業</option>
+                                                <option value="肄業">肄業</option>
+                                                <option value="就學中">就學中</option>
+                                                <option value="結業">結業</option>
+                                                <option value="休學">休學</option>
+                                                <option value="其他">其他</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-9">
                                             <label class="form-label">職業背景</label>
                                             <input type="text" class="form-control form-control-sm" id="form-occupation-background" placeholder="如：資深軟體工程師、護理師">
                                         </div>
@@ -1234,7 +1279,7 @@
                     </header>
 
                     <div class="modal-body p-3 p-md-4">
-                        <!-- 1. Hero 頂部名片卡 (保留不動) -->
+                        <!-- 1. Hero 頂部名片卡 -->
                         <div class="dossier-hero-card mb-3">
                             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4">
                                 <div class="partner-avatar-wrap flex-shrink-0" style="width: 80px; height: 80px;">
@@ -1357,6 +1402,10 @@
                                             <span id="view-account-op-mode">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">營運狀態 / 職務</span>
+                                            <span id="view-operator-work-status">--</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
                                             <span class="text-secondary">藍鑽星階 / 考核起始日</span>
                                             <span id="view-diamond-star-eval">--</span>
                                         </div>
@@ -1425,24 +1474,20 @@
                             <div class="dossier-card-header mb-3"><i class="fa-solid fa-graduation-cap text-warning me-1"></i>學歷背景與團隊專長</div>
                             
                             <div class="row g-3 mb-2">
-                                <div class="col-12 col-md-6 d-flex justify-content-between align-items-center">
+                                <div class="col-12 col-md-6 d-flex align-items-center">
                                     <span class="text-secondary">最高學歷：</span>
-                                    <span id="view-highest-education" class="fw-bold">--</span>
+                                    <span id="view-education">--</span>
                                 </div>
-                                <div class="col-12 col-md-6 d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary">最高畢業學校：</span>
-                                    <span id="view-graduated-school">--</span>
-                                </div>
-                            </div>
-
-                            <div class="row g-3 align-items-center">
-                                <div class="col-12 col-md-6 d-flex justify-content-between align-items-center">
+                                <div class="col-12 col-md-6 d-flex align-items-center">
                                     <span class="text-secondary">職業背景：</span>
                                     <span id="view-occupation">--</span>
                                 </div>
-                                <div class="col-12 col-md-6 d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary flex-shrink-0 me-2">專長標籤：</span>
-                                    <div id="view-skills-tags" class="d-flex flex-wrap gap-1 justify-content-end">--</div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12 d-flex align-items-center">
+                                    <span class="text-secondary flex-shrink-0">專長標籤：</span>
+                                    <span id="view-skills-tags" class="d-flex flex-wrap gap-1">--</span>
                                 </div>
                             </div>
                         </div>

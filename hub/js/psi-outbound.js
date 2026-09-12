@@ -4,6 +4,7 @@
 const SPREADSHEET_CONFIG = {
     sheetPsi: APP_CONFIG.SHEETS.PSI,
     sheetOrg: APP_CONFIG.SHEETS.ORG,
+    sheetPsn: APP_CONFIG.SHEETS.PSN,
     sheetPrd: APP_CONFIG.SHEETS.PRD,
     sheetCrm: APP_CONFIG.SHEETS.CRM,
     gasDeploymentId: APP_CONFIG.GAS.PSI
@@ -117,7 +118,7 @@ async function fetchAllGoogleSheetsData() {
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '據點倉儲').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '銷貨主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '銷貨明細').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, '個人主檔').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, '個人主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, '夥伴主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, '產品主檔').catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, '客戶主檔').catch(() => []),
