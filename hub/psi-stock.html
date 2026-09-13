@@ -362,18 +362,18 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldCostPrice">成本單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <label class="form-label" for="fieldCostPrice">成本單價 <span class="text-danger">*</span> <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
                                     <div class="input-group">
                                         <select class="form-select form-select-sm font-monospace w-25" id="fieldCurrencyCode" required>
                                             <option value="TWD">TWD</option>
                                             <option value="MYR">MYR</option>
                                         </select>
-                                        <input type="number" class="form-control form-control-sm text-end w-75" id="fieldCostPrice" value="0" min="0" step="10" required>
+                                        <input type="number" class="form-control form-control-sm text-end w-75" id="fieldCostPrice" min="0" step="10" required>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldSvPoint">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
-                                    <input type="number" class="form-control form-control-sm text-end" id="fieldSvPoint" value="0">
+                                    <label class="form-label" for="fieldSvPoint">單件 SV <span class="text-danger">*</span> <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <input type="number" class="form-control form-control-sm text-end" id="fieldSvPoint" min="0">
                                 </div>
                                 <div class="col-12 col-md-4 d-flex align-items-end gap-3 pb-1">
                                     <div class="form-check form-switch">

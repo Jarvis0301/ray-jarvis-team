@@ -428,10 +428,10 @@ function renderStockDataTable() {
                 { data: 'product' },
                 { data: 'batch' },
                 { data: 'expiry' },
-                { data: 'quantity' },
-                { data: 'reserved' },
-                { data: 'available' },
-                { data: 'cost_sv' },
+                { data: 'quantity', className: 'text-end' },
+                { data: 'reserved', className: 'text-end' },
+                { data: 'available', className: 'text-end' },
+                { data: 'cost_sv', className: 'text-end' },
                 { data: 'status', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
             ]
@@ -520,7 +520,7 @@ function formatStockRow(s) {
         `,
         reserved: `<span class="text-warning">${s.reserved_qty.toLocaleString()}</span>`,
         available: `<span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span>`,
-        cost_sv: `<div><span class="small text-light">${s.currency_code==='TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="small text-secondary">${s.sv_point.toLocaleString()} SV</div></div>`,
+        cost_sv: `<div><span class="small text-yellow">${s.currency_code==='TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="small text-teal">${s.sv_point.toLocaleString()} SV</div></div>`,
         status: statusBadge,
         actions: actionButtons
     };
@@ -842,8 +842,8 @@ function openAddStockModal() {
     $('#fieldReservedQty').val(0);
     $('#fieldAvailableQty').val(0);
     $('#fieldCurrencyCode').val('TWD');
-    $('#fieldCostPrice').val(0);
-    $('#fieldSvPoint').val(0);
+    $('#fieldCostPrice').val();
+    $('#fieldSvPoint').val();
     $('#fieldRemarks').val('');
     $('#fieldIsLocked').prop('checked', false);
     $('#fieldCreatedAt').val('');
@@ -934,6 +934,21 @@ async function saveStockItem() {
     if (reserved === '') {
         AppToast.warning("請填寫「代領預扣盒數」數量！");
         $('#fieldReservedQty').focus();
+        return;
+    }
+    if (curr === '') {
+        AppToast.warning("請填寫「幣別」！");
+        $('#fieldCurrencyCode').focus();
+        return;
+    }
+    if (cost === '') {
+        AppToast.warning("請填寫「成本單價」！");
+        $('#fieldCostPrice').focus();
+        return;
+    }
+    if (sv === '') {
+        AppToast.warning("請填寫「單件 SV」！");
+        $('#fieldSvPoint').focus();
         return;
     }
 

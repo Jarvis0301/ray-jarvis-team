@@ -1775,6 +1775,11 @@ async function saveAdjustmentRecord() {
     const fromWh = $('#fieldFromWarehouseId').val();
     const toWh = $('#fieldToWarehouseId').val();
     const prodId = $('#fieldProductId').val();
+    const adjUnit = $('#fieldAdjUnit').val();
+    const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
+    const curr = $('#fieldCurrencyCode').val();
+    const cost = parseFloat($('#fieldUnitCost').val()) || 0;
+    const sv = parseInt($('#fieldUnitSv').val(), 10) || 0;
     const reason = $('#fieldReasonDesc').val().trim();
 
     if (!id) {
@@ -1806,6 +1811,31 @@ async function saveAdjustmentRecord() {
         $('#fieldProductId').focus();
         return;
     }
+    if (adjUnit === '') {
+        AppToast.warning("請填寫「計量單位」！");
+        $('#fieldAdjUnit').focus();
+        return;
+    }
+    if (qty === '') {
+        AppToast.warning("請填寫「調整數量」！");
+        $('#fieldQuantity').focus();
+        return;
+    }
+    if (curr === '') {
+        AppToast.warning("請填寫「幣別」！");
+        $('#fieldCurrencyCode').focus();
+        return;
+    }
+    if (cost === '') {
+        AppToast.warning("請填寫「成本單價」！");
+        $('#fieldUnitCost').focus();
+        return;
+    }
+    if (sv === '') {
+        AppToast.warning("請填寫「單件 SV」！");
+        $('#fieldUnitSv').focus();
+        return;
+    }
     if (!reason) {
         AppToast.warning("請輸入「詳細事由」！");
         $('#fieldReasonDesc').focus();
@@ -1817,10 +1847,7 @@ async function saveAdjustmentRecord() {
     const existing = appState.adjustments.find(a => a.id === id);
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
-
-    const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
-    const cost = parseFloat($('#fieldUnitCost').val()) || 0;
-    const sv = parseInt($('#fieldUnitSv').val(), 10) || 0;
+    
     const totalCost = Math.abs(qty) * cost;
     const totalSv = Math.abs(qty) * sv;
 
@@ -1836,9 +1863,9 @@ async function saveAdjustmentRecord() {
         $('#fieldStockId').val().trim(),            // 7: stock_id
         $('#fieldBatchNo').val().trim(),            // 8: batch_no
         $('#fieldExpiryDate').val(),                // 9: expiry_date
-        $('#fieldAdjUnit').val(),                   // 10: adj_unit
+        adjUnit,                                    // 10: adj_unit
         qty,                                        // 11: quantity
-        $('#fieldCurrencyCode').val(),              // 12: currency_code
+        curr,                                       // 12: currency_code
         cost,                                       // 13: unit_cost
         totalCost,                                  // 14: total_cost
         sv,                                         // 15: unit_sv
