@@ -1067,8 +1067,8 @@ function renderCardsView(list) {
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent me-1"></i>身份 / 使用身份</span>
                                 <div class="d-flex align-items-center gap-1">
-                                    ${UIBadges.partner.identityType(person.identity_type)}
-                                    ${UIBadges.partner.usageIdentity(person.usage_identity)}
+                                    ${UIBadges.person.identityType(person.identity_type)}
+                                    ${UIBadges.person.usageIdentity(person.usage_identity)}
                                 </div>
                             </div>
                         </div>
@@ -1126,8 +1126,8 @@ function renderDataTableView(list) {
                 <td><span class="text-light">${person.current_residence || '-'}</span></td>
                 <td><span class="text-light">${person.highest_education || '-'}</span></td>
                 <td><span class="text-light">${person.occupation_background || '-'}</span></td>
-                <td class="text-center">${UIBadges.partner.healthStatus(person.health_status)}</td>
-                <td class="text-center">${UIBadges.partner.financialStatus(person.financial_status)}</td>
+                <td class="text-center">${UIBadges.person.healthStatus(person.health_status)}</td>
+                <td class="text-center">${UIBadges.person.financialStatus(person.financial_status)}</td>
                 <td class="text-center">${UIBadges.partner.relation(p.relation_type, p.partner_id)}</td>
                 <td class="text-center">${UIBadges.partner.activityLevel(p.activity_level)}</td>
                 <td class="text-center">${UIBadges.partner.memberStatus(p.member_status)}</td>
@@ -2454,8 +2454,8 @@ window.openPartnerModalForView = function (partnerId) {
     $('#view-contact-address').html(formatEmpty(person.contact_address, '未填寫'));
     $('#view-met-date').html(formatEmpty(person.met_date, '未記錄'));
     $('#view-met-reason').html(formatEmpty(person.met_reason, '未填寫'));
-    $('#view-health-status').html(UIBadges.partner.healthStatus(person.health_status));
-    $('#view-financial-status').html(UIBadges.partner.financialStatus(person.financial_status));
+    $('#view-health-status').html(UIBadges.person.healthStatus(person.health_status));
+    $('#view-financial-status').html(UIBadges.person.financialStatus(person.financial_status));
 
     const memberNoStr = partner.member_no ? `(${partner.member_no})` : '';
     $('#view-partner-member-no').html(`${partner.partner_id} ${memberNoStr}`);
@@ -2536,10 +2536,10 @@ window.openPartnerModalForView = function (partnerId) {
                     <div class="d-flex gap-2">
                         <strong class="text-white">${l.language_name}</strong>
                         ${l.notes ? `<span class="text-muted" style="font-size: 0.72rem;">${l.notes}</span>` : ''}
-                        <span class="text-secondary">聽：${UIBadges.partner.languageProficiency(l.listening_level)}</span>
-                        <span class="text-secondary">說：${UIBadges.partner.languageProficiency(l.speaking_level)}</span>
-                        <span class="text-secondary">讀：${UIBadges.partner.languageProficiency(l.reading_level)}</span>
-                        <span class="text-secondary">寫：${UIBadges.partner.languageProficiency(l.writing_level)}</span>
+                        <span class="text-secondary">聽：${UIBadges.person.languageProficiency(l.listening_level)}</span>
+                        <span class="text-secondary">說：${UIBadges.person.languageProficiency(l.speaking_level)}</span>
+                        <span class="text-secondary">讀：${UIBadges.person.languageProficiency(l.reading_level)}</span>
+                        <span class="text-secondary">寫：${UIBadges.person.languageProficiency(l.writing_level)}</span>
                     </div>
                 </div>
             `);
@@ -2548,7 +2548,7 @@ window.openPartnerModalForView = function (partnerId) {
         $langsWrap.append('<span class="text-muted small">無語言評級紀錄</span>');
     }
 
-    const educationHtml = `${formatEmpty(person.graduated_school, '未填寫')} ${formatEmpty(person.highest_education, '未填寫')} ${UIBadges.partner.graduationStatus(person.graduation_status)}`;
+    const educationHtml = `${formatEmpty(person.graduated_school, '未填寫')} / ${formatEmpty(person.highest_education, '未填寫')} / ${UIBadges.person.graduationStatus(person.graduation_status)}`;
     $('#view-education').html(educationHtml);
 
     $('#view-occupation').html(formatEmpty(person.occupation_background, '未填寫'));

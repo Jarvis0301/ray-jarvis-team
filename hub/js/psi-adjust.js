@@ -495,7 +495,7 @@ function renderAdjustmentsTable() {
 
         const actionButtons = `
             <div class="d-flex align-items-center justify-content-center gap-1">
-                <button class="btn btn-sm btn-outline-info" title="查看詳細資料" onclick="openAdjustmentDetailDrawer('${a.id}')">
+                <button class="btn btn-sm btn-outline-info" title="查看詳細資料" onclick="openAdjustmentDetailModal('${a.id}')">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" title="編輯單據" onclick="openEditAdjustmentModal('${a.id}')">
@@ -580,7 +580,7 @@ function renderTransfersTable() {
 
         const actionButtons = `
             <div class="d-flex align-items-center justify-content-center gap-1">
-                <button class="btn btn-sm btn-outline-info" title="查看詳細資料" onclick="openAdjustmentDetailDrawer('${t.id}')">
+                <button class="btn btn-sm btn-outline-info" title="查看詳細資料" onclick="openAdjustmentDetailModal('${t.id}')">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" title="編輯調撥單" onclick="openEditAdjustmentModal('${t.id}')">
@@ -642,9 +642,9 @@ function renderTransfersTable() {
 }
 
 /**
- * 開啟右側抽屜查看盤點調撥單據詳細資料
+ * 開啟彈出視窗查看盤點調撥單據詳細資料
  */
-function openAdjustmentDetailDrawer(adjId) {
+function openAdjustmentDetailModal(adjId) {
     const item = appState.adjustments.find(a => a.id === adjId);
     if (!item) {
         AppToast.warning("找不到該筆單據資料！");
@@ -664,7 +664,7 @@ function openAdjustmentDetailDrawer(adjId) {
     const unitSvDisplay = `${(item.unit_sv || 0).toLocaleString()} SV`;
 
     const html = `
-        <article class="card p-3 mb-3 border-secondary border-opacity-25" style="background: rgba(19, 10, 33, 0.4);">
+        <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">單據編號 (PK)</span>
                 <span class="text-info-emphasis fw-bold">${item.id}</span>
@@ -763,10 +763,21 @@ function openAdjustmentDetailDrawer(adjId) {
         </article>
     `;
 
-    $('#drawerAdjustDetailBody').html(html);
-    const drawerEl = document.getElementById('drawerAdjustDetail');
-    const drawerInstance = bootstrap.Offcanvas.getOrCreateInstance(drawerEl);
-    drawerInstance.show();
+    $('#modalAdjustDetailBody').html(html);
+
+    // 綁定右下角編輯按鈕：關閉詳細視窗後喚起編輯表單彈窗
+    $('#btnDetailEditModal').off('click').on('click', function () {
+        const detailModalEl = document.getElementById('modalAdjustDetail');
+        const detailModalInst = bootstrap.Modal.getInstance(detailModalEl);
+        if (detailModalInst) {
+            detailModalInst.hide();
+        }
+        openEditAdjustmentModal(item.id);
+    });
+
+    const modalEl = document.getElementById('modalAdjustDetail');
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalInstance.show();
 }
 
 function renderCharts() {

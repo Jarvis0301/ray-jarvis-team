@@ -354,21 +354,6 @@ const UIBadges = (function () {
             },
 
             /**
-             * 修業狀態標籤 (畢業 / 肄業 / 就學中 / 結業 / 休學 / 其他)
-             */
-            graduationStatus(status) {
-                switch (status) {
-                    case '畢業': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-graduation-cap me-1"></i>畢業</span>';
-                    case '就學中': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-book-open-reader me-1"></i>就學中</span>';
-                    case '休學': return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-pause me-1"></i>休學</span>';
-                    case '肄業': return '<span class="badge badge-orange-subtle"><i class="fa-solid fa-user-clock me-1"></i>肄業</span>';
-                    case '結業': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-award me-1"></i>結業</span>';
-                    case '其他': return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-question me-1"></i>其他</span>';
-                    default: return '<span class="badge badge-gray-subtle"><i class="fa-solid fa-question me-1"></i>未設定</span>';
-                }
-            },
-
-            /**
              * 團隊參與度 (積極參與 / 參與 / 自用消費 / 操作人頭 / 失聯 等)
              */
             activityLevel(level) {
@@ -381,74 +366,6 @@ const UIBadges = (function () {
                     case '失聯': return '<span class="badge badge-red-subtle">失聯</span>';
                     case '個資未知': return '<span class="badge badge-pink-subtle">個資未知</span>';
                     case '非團隊成員': return '<span class="badge badge-muted-subtle">非團隊成員</span>';
-                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
-                }
-            },
-
-            /**
-             * 人脈身份類型 (夥伴 / 團隊成員 / 客戶 等)
-             */
-            identityType(type) {
-                switch (type) {
-                    case '夥伴': return '<span class="badge badge-orange">夥伴</span>';
-                    case '團隊成員': return '<span class="badge badge-blue">團隊成員</span>';
-                    case '潛在團隊成員': return '<span class="badge badge-blue-subtle">潛在團隊成員</span>';
-                    case '客戶': return '<span class="badge badge-green">客戶</span>';
-                    case '潛在客戶': return '<span class="badge badge-green-subtle">潛在客戶</span>';
-                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
-                }
-            },
-
-            /**
-             * 使用身份類型 (經營者 / 消費者)
-             */
-            usageIdentity(type) {
-                switch (type) {
-                    case '經營者': return '<span class="badge badge-outline-blue">經營者</span>';
-                    case '消費者': return '<span class="badge badge-outline-green">消費者</span>';
-                    default: return '<span class="badge badge-outline-gray">未設定</span>';
-                }
-            },
-
-            /**
-             * 個人健康狀態
-             */
-            healthStatus(status) {
-                switch (status) {
-                    case '良好': return '<span class="badge badge-success-subtle">良好</span>';
-                    case '亞健康': return '<span class="badge badge-orange-subtle">亞健康</span>';
-                    case '慢性體質': return '<span class="badge badge-warning-subtle">慢性體質</span>';
-                    case '調養中': return '<span class="badge badge-info-subtle">調養中</span>';
-                    case '罹患疾病': return '<span class="badge badge-danger-subtle">罹患疾病</span>';
-                    case '待了解': return '<span class="badge badge-muted-subtle">待了解</span>';
-                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
-                }
-            },
-
-            /**
-             * 個人財務狀況
-             */
-            financialStatus(status) {
-                switch (status) {
-                    case '寬裕': return '<span class="badge badge-success-subtle">寬裕</span>';
-                    case '穩定': return '<span class="badge badge-info-subtle">穩定</span>';
-                    case '吃緊': return '<span class="badge badge-warning-subtle">吃緊</span>';
-                    case '高負債': return '<span class="badge badge-danger-subtle">高負債</span>';
-                    case '尋找副業': return '<span class="badge badge-accent-subtle">尋找副業</span>';
-                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
-                }
-            },
-
-            /**
-             * 語言精通能力
-             */
-            languageProficiency(level) {
-                switch (level) {
-                    case '精通': return '<span class="badge badge-info-subtle">精通</span>';
-                    case '流利': return '<span class="badge badge-success-subtle">流利</span>';
-                    case '普通': return '<span class="badge badge-warning-subtle">普通</span>';
-                    case '略懂': return '<span class="badge badge-orange-subtle">略懂</span>';
-                    case '不會': return '<span class="badge badge-danger-subtle">不會</span>';
                     default: return '<span class="badge badge-gray-subtle">未設定</span>';
                 }
             },
@@ -523,6 +440,94 @@ const UIBadges = (function () {
                     case '測試中': return '<span class="badge badge-warning">測試中</span>';
                     case '修復中': return '<span class="badge badge-danger1">修復中</span>';
                     default: return `<span class="badge badge-muted">${clean(status, '開發中')}</span>`;
+                }
+            }
+        },
+
+        // ====================================================================
+        // 7. 人員與個資領域 (UIBadges.person.*)
+        // ====================================================================
+        person: {
+            /**
+             * 人脈身份類型 (夥伴 / 團隊成員 / 客戶 等)
+             */
+            identityType(type) {
+                switch (type) {
+                    case '夥伴': return '<span class="badge badge-orange">夥伴</span>';
+                    case '團隊成員': return '<span class="badge badge-blue">團隊成員</span>';
+                    case '潛在團隊成員': return '<span class="badge badge-blue-subtle">潛在團隊成員</span>';
+                    case '客戶': return '<span class="badge badge-green">客戶</span>';
+                    case '潛在客戶': return '<span class="badge badge-green-subtle">潛在客戶</span>';
+                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
+                }
+            },
+
+            /**
+             * 使用身份類型 (經營者 / 消費者)
+             */
+            usageIdentity(type) {
+                switch (type) {
+                    case '經營者': return '<span class="badge badge-outline-blue">經營者</span>';
+                    case '消費者': return '<span class="badge badge-outline-green">消費者</span>';
+                    default: return '<span class="badge badge-outline-gray">未設定</span>';
+                }
+            },
+
+            /**
+             * 修業狀態標籤 (畢業 / 肄業 / 就學中 / 結業 / 休學 / 其他)
+             */
+            graduationStatus(status) {
+                switch (status) {
+                    case '畢業': return '<span class="badge badge-success-subtle"><i class="fa-solid fa-graduation-cap me-1"></i>畢業</span>';
+                    case '就學中': return '<span class="badge badge-info-subtle"><i class="fa-solid fa-book-open-reader me-1"></i>就學中</span>';
+                    case '休學': return '<span class="badge badge-warning-subtle"><i class="fa-solid fa-pause me-1"></i>休學</span>';
+                    case '肄業': return '<span class="badge badge-orange-subtle"><i class="fa-solid fa-user-clock me-1"></i>肄業</span>';
+                    case '結業': return '<span class="badge badge-purple-subtle"><i class="fa-solid fa-award me-1"></i>結業</span>';
+                    case '其他': return '<span class="badge badge-muted-subtle"><i class="fa-solid fa-question me-1"></i>其他</span>';
+                    default: return '<span class="badge badge-gray-subtle"><i class="fa-solid fa-question me-1"></i>未設定</span>';
+                }
+            },
+
+            /**
+             * 個人健康狀態
+             */
+            healthStatus(status) {
+                switch (status) {
+                    case '良好': return '<span class="badge badge-success-subtle">良好</span>';
+                    case '亞健康': return '<span class="badge badge-orange-subtle">亞健康</span>';
+                    case '慢性體質': return '<span class="badge badge-warning-subtle">慢性體質</span>';
+                    case '調養中': return '<span class="badge badge-info-subtle">調養中</span>';
+                    case '罹患疾病': return '<span class="badge badge-danger-subtle">罹患疾病</span>';
+                    case '待了解': return '<span class="badge badge-muted-subtle">待了解</span>';
+                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
+                }
+            },
+
+            /**
+             * 個人財務狀況
+             */
+            financialStatus(status) {
+                switch (status) {
+                    case '寬裕': return '<span class="badge badge-success-subtle">寬裕</span>';
+                    case '穩定': return '<span class="badge badge-info-subtle">穩定</span>';
+                    case '吃緊': return '<span class="badge badge-warning-subtle">吃緊</span>';
+                    case '高負債': return '<span class="badge badge-danger-subtle">高負債</span>';
+                    case '尋找副業': return '<span class="badge badge-accent-subtle">尋找副業</span>';
+                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
+                }
+            },
+
+            /**
+             * 語言精通能力
+             */
+            languageProficiency(level) {
+                switch (level) {
+                    case '精通': return '<span class="badge badge-info-subtle">精通</span>';
+                    case '流利': return '<span class="badge badge-success-subtle">流利</span>';
+                    case '普通': return '<span class="badge badge-warning-subtle">普通</span>';
+                    case '略懂': return '<span class="badge badge-orange-subtle">略懂</span>';
+                    case '不會': return '<span class="badge badge-danger-subtle">不會</span>';
+                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
                 }
             }
         }

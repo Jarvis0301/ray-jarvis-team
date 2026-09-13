@@ -50,7 +50,7 @@
                         <label class="form-label text-secondary small fw-bold mb-1" for="filterStartDate">
                             <i class="fa-regular fa-calendar text-primary me-1"></i>發生日期起
                         </label>
-                        <input type="date" class="form-control form-control-sm text-end" id="filterStartDate">
+                        <input type="date" class="form-control form-control-sm" id="filterStartDate">
                     </div>
 
                     <!-- 2. 發生日期迄 -->
@@ -58,7 +58,7 @@
                         <label class="form-label text-secondary small fw-bold mb-1" for="filterEndDate">
                             <i class="fa-regular fa-calendar-check text-primary me-1"></i>發生日期迄
                         </label>
-                        <input type="date" class="form-control form-control-sm text-end" id="filterEndDate">
+                        <input type="date" class="form-control form-control-sm" id="filterEndDate">
                     </div>
 
                     <!-- 3. 調出倉庫 (Select2) -->
@@ -66,7 +66,7 @@
                         <label class="form-label text-secondary small fw-bold mb-1" for="filterFromWarehouse">
                             <i class="fa-solid fa-warehouse text-primary me-1"></i>調出倉庫
                         </label>
-                        <select class="form-select form-select-sm" id="filterFromWarehouse" style="width: 100%;">
+                        <select class="form-select form-select-sm" id="filterFromWarehouse">
                             <option value="ALL">全部調出倉</option>
                         </select>
                     </div>
@@ -76,7 +76,7 @@
                         <label class="form-label text-secondary small fw-bold mb-1" for="filterToWarehouse">
                             <i class="fa-solid fa-location-dot text-info me-1"></i>調入倉庫
                         </label>
-                        <select class="form-select form-select-sm" id="filterToWarehouse" style="width: 100%;">
+                        <select class="form-select form-select-sm" id="filterToWarehouse">
                             <option value="ALL">全部調入倉</option>
                         </select>
                     </div>
@@ -86,7 +86,7 @@
                         <label class="form-label text-secondary small fw-bold mb-1" for="filterProduct">
                             <i class="fa-solid fa-box text-primary me-1"></i>產品品項
                         </label>
-                        <select class="form-select form-select-sm" id="filterProduct" style="width: 100%;">
+                        <select class="form-select form-select-sm" id="filterProduct">
                             <option value="ALL">全部產品品項</option>
                         </select>
                     </div>
@@ -96,7 +96,7 @@
                         <label class="form-label text-secondary small fw-bold mb-1" for="filterOperator">
                             <i class="fa-solid fa-user-shield text-warning me-1"></i>經手夥伴
                         </label>
-                        <select class="form-select form-select-sm" id="filterOperator" style="width: 100%;">
+                        <select class="form-select form-select-sm" id="filterOperator">
                             <option value="ALL">全部經手夥伴</option>
                         </select>
                     </div>
@@ -777,20 +777,32 @@
         </div>
 
         <!-- ==========================================================================
-            單據詳細資料右側抽屜 (Offcanvas)
+            單據詳細資料彈出視窗 (Modal)
             ========================================================================== -->
-        <aside class="offcanvas offcanvas-end text-bg-dark border-start border-secondary" tabindex="-1" id="drawerAdjustDetail" aria-labelledby="drawerAdjustDetailTitle" style="width: 520px; max-width: 92vw;">
-            <header class="offcanvas-header border-bottom border-secondary border-opacity-25 py-3 px-4">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-circle-info text-info fs-5"></i>
-                    <h5 class="offcanvas-title fw-bold text-white mb-0" id="drawerAdjustDetailTitle">單據詳細資料</h5>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </header>
-            <div class="offcanvas-body p-3 p-md-4" id="drawerAdjustDetailBody">
-                <!-- 由 JavaScript openAdjustmentDetailDrawer() 動態注入 -->
+        <div class="modal fade" id="modalAdjustDetail" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-info fs-5"></i>
+                            <h5 class="modal-title fw-bold text-white mb-0" id="modalAdjustDetailTitle">單據詳細資料</h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-3 p-md-4" id="modalAdjustDetailBody">
+                        <!-- 由 JavaScript openAdjustmentDetailModal() 動態注入 -->
+                    </div>
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark me-1"></i>關閉
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnDetailEditModal">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>編輯
+                        </button>
+                    </footer>
+                </section>
             </div>
-        </aside>
+        </div>
         
     </body>
 </html>

@@ -544,15 +544,15 @@ function formatTableRow(item) {
     return {
         order_id: `
             <div>
-                <div class="fw-bold text-white">${item.id}</div>
-                <div class="text-secondary small">官方訂單：${item.official_order_no || '-'}</div>
+                <div class="fw-bold text-info-emphasis">${item.id}</div>
+                <div class="text-primary-emphasis small">官方：${item.official_order_no || '-'}</div>
             </div>
         `,
         center_and_warehouse: `
             <div>
-                <span class="badge badge-purple-subtle">${warehouseOnlyName}</span>
-                <div class="text-secondary small mt-1">
-                    <i class="fa-solid fa-store text-primary"></i> ${centerDisplayName} / ${item.delivery_method || '-'}
+                <span class="text-white">${warehouseOnlyName}</span>
+                <div class="text-info small mt-1">
+                    <i class="fa-solid fa-arrow-down-long me-1"></i> ${centerDisplayName} / <i class="fa-solid fa-truck me-1"></i>${item.delivery_method || '-'}
                 </div>
             </div>
         `,
@@ -560,7 +560,7 @@ function formatTableRow(item) {
             <div>
                 <div class="small"><i class="fa-solid fa-credit-card text-secondary"></i> 出資：<span class="text-white fw-bold">${purchaserName}</span></div>
                 <div class="small"><i class="fa-solid fa-award text-warning"></i> 掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
-                ${isDecoupled ? '<span class="badge badge-purple-subtle mt-1">四流分離</span>' : ''}
+                ${isDecoupled ? '<span class="badge badge-danger-subtle mt-1">四流分離</span>' : ''}
             </div>
         `,
         order_dates: `
@@ -569,7 +569,7 @@ function formatTableRow(item) {
                 <div class="text-secondary small">驗收：${item.inbound_date || '未入庫'}</div>
             </div>
         `,
-        perf_month: `<span class="badge badge-purple-subtle">${item.performance_month || '-'}</span>`,
+        perf_month: `<span class="badge badge-outline-secondary">${item.performance_month || '-'}</span>`,
         total_boxes: `<span class="fw-bold text-white">${item.total_boxes}</span> 盒`,
         cost_breakdown: `
             <div>

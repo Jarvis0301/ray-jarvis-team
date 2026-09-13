@@ -700,29 +700,31 @@ function formatTableRow(item) {
     return {
         id_and_cat: `
             <div>
-                <div class="fw-bold text-white">${item.id}</div>
-                <span class="badge badge-purple-subtle">${item.order_category}</span>
+                <div class="fw-bold text-info-emphasis">${item.id}</div>
+                <span class="badge badge-outline-secondary-subtle">${item.order_category}</span>
             </div>
         `,
         center_and_warehouse: `
             <div>
-                <span class="badge badge-purple-subtle">${warehousePureName}</span>
-                <div class="text-secondary small mt-1"><i class="fa-solid fa-truck me-1"></i>${orderCenterPureName} / ${item.delivery_method}</div>
+                <span class="text-white">${warehousePureName}</span>
+                <div class="text-info small mt-1">
+                    <i class="fa-solid fa-arrow-down-long me-1"></i>${orderCenterPureName} / <i class="fa-solid fa-truck me-1"></i>${item.delivery_method}
+                </div>
             </div>
         `,
         parties: `
             <div>
-                <div class="small text-white fw-bold"><i class="fa-solid fa-user-tag text-info me-1"></i>${recipientResolved}</div>
-                <div class="small text-secondary"><i class="fa-solid fa-hand-holding-dollar text-warning me-1"></i>經手：${operatorResolved}</div>
+                <div class="small"><i class="fa-solid fa-user-tag text-secondary me-1"></i>開單：<span class="text-white fw-bold">${recipientResolved}</span></div>
+                <div class="small"><i class="fa-solid fa-hand-holding-dollar text-warning me-1"></i>經手：<span class="text-warning fw-bold">${operatorResolved}</span></div>
             </div>
         `,
         dates: `
             <div>
                 <div class="text-light">${item.order_date || '-'}</div>
-                <div class="text-secondary small">交：${item.outbound_date || '未交付'}</div>
+                <div class="text-secondary small">交付：${item.outbound_date || '未交付'}</div>
             </div>
         `,
-        perf_month: `<span class="badge badge-purple-subtle">${item.performance_month}</span>`,
+        perf_month: `<span class="badge badge-outline-secondary">${item.performance_month}</span>`,
         quantities: `
             <div>
                 <span class="fw-bold text-white">${item.total_boxes}</span> 盒

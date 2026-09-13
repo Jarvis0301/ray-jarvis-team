@@ -740,7 +740,7 @@ function openTaxonomyModal(type, code = null) {
         else item = appState.types.find(t => t.type_code === code);
 
         if (item) {
-            $('#taxCode').val(item.category_code || item.subcategory_code || item.type_code);
+            $('#taxCode').val(code);
             $('#taxNameZh').val(item.name_zh || '');
             $('#taxNameEn').val(item.name_en || '');
             $('#taxIconClass').val(item.icon_class || '');
