@@ -257,14 +257,14 @@ function initPsiDataTable() {
             { 
                 data: 'batchNumber',
                 render: function (data) {
-                    return `<span class="mono-font text-secondary">${data}</span>`;
+                    return `<span class="text-secondary">${data}</span>`;
                 }
             },
             { 
                 data: 'currentStock',
                 render: function (data, type, row) {
                     const isLow = data.includes('低於') || data.includes('見底');
-                    return `<span class="mono-font fw-bold ${isLow ? 'text-danger' : 'text-warning'}">${data}</span>`;
+                    return `<span class="fw-bold ${isLow ? 'text-danger' : 'text-warning'}">${data}</span>`;
                 }
             },
             { 

@@ -456,9 +456,9 @@
 
     /* 1. 標準後綴圖示容器 (.input-group-text) */
     .input-group-text {
-        background-color: var(--uvaco-bg-card, rgba(255, 255, 255, 0.05));
-        border: 1.5px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.3));
-        color: var(--uvaco-text-muted, #94a3b8);
+        background-color: var(--uvaco-bg-card-light, rgba(255, 255, 255, 0.05));
+        border: 1.5px solid var(--uvaco-border-highlight, rgba(255, 255, 255, 0.3));
+        color: var(--uvaco-text-secondary, #94a3b8);
         padding: 0.5rem 0.85rem;
         transition: all 0.25s ease-in-out;
 
@@ -478,12 +478,12 @@
 
     /* 2. 輸入框主體邊框與對齊 */
     .form-control {
-        border: 1.5px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.3));
-        background-color: var(--uvaco-input-bg, rgba(255, 255, 255, 0.04));
-        color: var(--uvaco-text-primary, #ecfdf5);
+        //border: 1.5px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.3));
+        //background-color: var(--uvaco-input-bg, rgba(255, 255, 255, 0.04));
+        //color: var(--uvaco-text-primary, #ecfdf5);
 
         &:focus {
-            background-color: var(--uvaco-input-bg-focus, rgba(255, 255, 255, 0.08));
+            //background-color: var(--uvaco-input-bg-focus, rgba(255, 255, 255, 0.08));
             border-color: var(--uvaco-primary, #10b981);
             box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(16, 185, 129, 0.25));
         }
@@ -493,47 +493,13 @@
     &:focus-within {
         .input-group-text {
             border-color: var(--uvaco-primary, #10b981);
-            background-color: rgba(255, 255, 255, 0.09);
+            background-color: var(--uvaco-bg-card-light-hover);
 
             i {
                 color: var(--uvaco-primary, #10b981);
                 transform: scale(1.15);
                 filter: drop-shadow(0 0 6px var(--uvaco-primary, #10b981));
             }
-        }
-    }
-
-    /* 4. 後綴互動式功能按鈕（例如：密碼明暗切換、快速清除） */
-    .btn-input-addon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--uvaco-bg-card, rgba(255, 255, 255, 0.05));
-        border: 1.5px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.3));
-        color: var(--uvaco-text-muted, #94a3b8);
-        padding: 0.5rem 0.85rem;
-        cursor: pointer;
-        z-index: 4;
-        transition: all 0.2s ease;
-
-        i {
-            font-size: 0.95rem;
-            color: var(--uvaco-text-muted, #94a3b8);
-            transition: color 0.2s ease, transform 0.2s ease;
-        }
-
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.12);
-            border-color: var(--uvaco-primary, #10b981);
-
-            i {
-                color: var(--uvaco-text-primary, #ffffff);
-                transform: scale(1.1);
-            }
-        }
-
-        &:active {
-            transform: scale(0.96);
         }
     }
 }
@@ -622,28 +588,36 @@ input[type="search"] {
         appearance: none;
         width: 1.15rem;
         height: 1.15rem;
-        opacity: 0.9 !important;
+        opacity: 0.85 !important;
         cursor: pointer;
-        margin-right: 4px;
-        background-color: var(--uvaco-secondary, #34d399) !important;
-        /* Font Awesome 官方 fa-circle-xmark 向量 Path */
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='black' d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z'/%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='black' d='M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z'/%3E%3C/svg%3E");
+        margin-right: 0.45rem;
+        
+        /* 1. 平時外觀：對齊 Select2 沉靜次要灰，取消綠光干擾 */
+        background-color: var(--uvaco-text-muted, #9ca3af) !important;
+
+        /* 2. 向量圖示：置換為 Font Awesome 官方標準俐落叉叉 (fa-xmark，淘汰圓圈圈 fa-circle-xmark) */
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='black' d='M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='black' d='M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z'/%3E%3C/svg%3E");
         -webkit-mask-repeat: no-repeat;
         mask-repeat: no-repeat;
         -webkit-mask-position: center;
         mask-position: center;
         -webkit-mask-size: contain;
         mask-size: contain;
-        filter: drop-shadow(0 0 3px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.4)));
-        transition: transform 0.2s ease, background-color 0.2s ease, filter 0.2s ease;
+        filter: none !important;
+        transition: all 0.15s ease-in-out !important;
 
+        /* 3. 懸停回饋：同步 Select2 之警告危險紅、微縮放放大與微光暈 */
         &:hover {
             opacity: 1 !important;
-            transform: scale(1.2);
-            /* 懸停清除鍵時動態轉為警告危險色 */
             background-color: var(--uvaco-danger, #ef4444) !important;
-            filter: drop-shadow(0 0 6px var(--uvaco-danger, #ef4444));
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.5)) !important;
+        }
+
+        /* 4. 點擊瞬間彈性反饋 */
+        &:active {
+            transform: scale(0.95);
         }
     }
 }
@@ -747,11 +721,32 @@ input[type="number"] {
         }
     }
 
-    /* 3. Firefox 核心相容保護 */
+    /* 3. 🌟 新增模式：無箭頭模式 (.no-spin / .form-control-no-spin / [data-no-spin]) */
+    &.no-spin,
+    &.form-control-no-spin,
+    &[data-no-spin] {
+        -moz-appearance: textfield !important;
+        appearance: textfield !important;
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            -webkit-appearance: none !important;
+            display: none !important;
+            margin: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            background-color: transparent !important;
+            -webkit-mask-image: none !important;
+            mask-image: none !important;
+            pointer-events: none !important;
+        }
+    }
+
+    /* 4. Firefox 核心相容保護 */
     -moz-appearance: textfield;
 }
 
-/* 4. 防外層重疊：修正 Bootstrap .input-group 容器中的層疊邊界 */
+/* 5. 防外層重疊：修正 Bootstrap .input-group 容器中的層疊邊界 */
 .input-group {
     input[type="number"] {
         /* 確保微調按鈕與緊鄰的後綴圖示/標籤保有清晰邊界，層級分明 */

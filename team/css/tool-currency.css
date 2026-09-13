@@ -1,36 +1,6 @@
-.tactical-glass-card {
-    background: var(--uvaco-bg-glass, rgba(12, 24, 43, 0.75));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--uvaco-border, rgba(56, 189, 248, 0.2));
-    border-radius: 18px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.tactical-glass-card:hover {
-    border-color: var(--uvaco-primary-hover, rgba(56, 189, 248, 0.5));
-    box-shadow: 0 8px 32px var(--uvaco-primary-glow, rgba(2, 132, 199, 0.15));
-}
-
-.converter-pod {
-    background: rgba(6, 13, 25, 0.6);
-    border: 1px solid rgba(56, 189, 248, 0.12);
-    border-radius: 14px;
-    padding: 1.25rem;
-    position: relative;
-}
-
-.converter-pod.active-pod {
-    border-color: var(--uvaco-secondary, #38bdf8);
-    box-shadow: inset 0 0 15px var(--uvaco-primary-glow, rgba(56, 189, 248, 0.1));
-}
-
 .huge-input {
     background: transparent !important;
     border: none !important;
-    color: #ffffff !important;
     font-size: 2rem;
     font-weight: 800;
     padding: 0;
@@ -104,14 +74,4 @@
     background-color: rgba(2, 132, 199, 0.25);
     color: var(--uvaco-secondary, #38bdf8);
     border-color: rgba(56, 189, 248, 0.4);
-}
-
-/* 移除清單數量輸入框原生箭頭微調鈕 */
-.cart-qty-input::-webkit-outer-spin-button,
-.cart-qty-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-.cart-qty-input {
-    -moz-appearance: textfield;
 }

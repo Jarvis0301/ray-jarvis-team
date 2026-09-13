@@ -344,19 +344,19 @@ function renderCart() {
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge badge-secondary-subtle small">${prod.base_code || prod.product_code}</span>
                         <span class="fw-bold text-white small">${prod.name}</span>
-                        <span class="text-light-emphasis small">(${prod.package_spec})</span>
+                        <span class="text-secondary-emphasis small">(${prod.package_spec})</span>
                     </div>
                     <div class="text-light-emphasis" style="font-size: 0.75rem;">
-                        品號：${prod.product_code} ‧ 單價：<span class="text-info">NT$ ${prod.price.toLocaleString()}</span> ‧ 單品 SV：<span class="text-warning">${prod.sv_point} SV</span>
+                        品號：${prod.product_code} ‧ 單價：<span class="text-yellow">NT$ ${prod.price.toLocaleString()}</span> ‧ 單品 SV：<span class="text-teal">${prod.sv_point} SV</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <div class="input-group input-group-sm" style="width: 100px;">
                         <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, -1)">-</button>
-                        <input type="number" min="1" class="form-control form-control-sm text-center bg-dark text-white p-0 cart-qty-input" value="${item.qty}" data-index="${index}">
+                        <input type="number" min="1" class="form-control form-control-sm no-spin text-center bg-dark text-white p-0 cart-qty-input" value="${item.qty}" data-index="${index}">
                         <button type="button" class="btn btn-outline-secondary py-0" onclick="updateCartQty(${index}, 1)">+</button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="removeCartItem(${index})" title="移除品項">
+                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="removeCartItem(${index})" title="移除品項">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
@@ -605,13 +605,12 @@ function renderRawProductTable() {
         const regionBadge = UIBadges.common.country(prod.region_code);
         const currPrefix = isTW ? 'NT$ ' : 'RM ';
         const costUnit = isTW ? 'NT$/SV' : 'RM/SV';
-        const priceClass = 'text-secondary';
         const statusBadge = (prod.status === 'COMING_SOON' || prod.status === 'DISCONTINUED')
             ? ` ${UIBadges.product.launchStatus(prod.status)}`
             : '';
         const prodInfo = `<div class="fw-bold text-secondary">${prod.name}${statusBadge}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
-        const priceDisplay = `<span class="${priceClass} fw-bold">${currPrefix}${prod.price.toLocaleString()}</span>`;
-        const svDisplay = `<span class="text-warning fw-bold">${prod.sv_point} SV</span>`;
+        const priceDisplay = `<span class="text-yellow fw-bold">${currPrefix}${prod.price.toLocaleString()}</span>`;
+        const svDisplay = `<span class="text-teal fw-bold">${prod.sv_point} SV</span>`;
         const costDisplay = `<span class="text-secondary small">${costPerSv} ${costUnit}</span>`;
 
         $tbody.append(`

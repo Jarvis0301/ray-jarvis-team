@@ -177,7 +177,7 @@ function parseItemsTable(rows) {
         subcategory_code: getVal(r, 7, ''),
         type_code: getVal(r, 8, ''),
         package_spec: getVal(r, 9, ''),
-        product_weight: getVal(r, 10, ''),
+        product_weight: parseInt(getVal(r, 10, '0'), 10) || 0,
         price: parseFloat(getVal(r, 11, '0')) || 0,
         currency: getVal(r, 12, 'TWD'),
         sv_point: parseInt(getVal(r, 13, '0'), 10) || 0,
@@ -475,8 +475,8 @@ function formatMasterTableRow(p) {
     const launchStatus = getLaunchStatus(p.launch_date, p.discontinue_date);
 
     const formattedPrice = (p.currency === 'MYR' || p.region_code === 'MY')
-        ? `RM${Number(p.price).toLocaleString()}`
-        : `NT$${Number(p.price).toLocaleString()}`;
+        ? `RM ${Number(p.price).toLocaleString()}`
+        : `NT$ ${Number(p.price).toLocaleString()}`;
 
     const subTitle = p.short_name || p.short_summary || '';
 
@@ -558,8 +558,8 @@ function openDetailModal(productCode) {
     }
 
     const priceText = (item.currency === 'MYR' || item.region_code === 'MY')
-        ? `RM${Number(item.price).toLocaleString()}`
-        : `NT$${Number(item.price).toLocaleString()}`;
+        ? `RM ${Number(item.price).toLocaleString()}`
+        : `NT$ ${Number(item.price).toLocaleString()}`;
 
     const stockBadge = UIBadges.product.stockStatus(item.stock_status);
     const launchStatus = getLaunchStatus(item.launch_date, item.discontinue_date);
@@ -580,7 +580,7 @@ function openDetailModal(productCode) {
     $('#viewPrdType').html(UIBadges.product.type(getTypeByCode(item.type_code), item.region_code));
 
     $('#viewPrdSpec').text(item.package_spec || '-');
-    $('#viewPrdWeight').text(item.product_weight || '-');
+    $('#viewPrdWeight').text(item.product_weight ? `${item.product_weight.toLocaleString()} g` : '-');
     $('#viewPrdPrice').text(priceText);
     $('#viewPrdSv').text(`${item.sv_point} SV`);
 
@@ -1001,14 +1001,14 @@ function renderAnalyticsCharts() {
     $('#statRegionBreakdown').text(`台灣：${twProducts.length} / 馬來西亞：${myProducts.length}`);
 
     if (currentAnalyticsRegion === 'MY') {
-        $('#statAvgPrice').text(`RM${myAvgPrice.toLocaleString()}`);
+        $('#statAvgPrice').text(`RM ${myAvgPrice.toLocaleString()}`);
         $('#statAvgPriceSub').text(`(僅顯示馬來西亞品項)`);
     } else if (currentAnalyticsRegion === 'TW') {
-        $('#statAvgPrice').text(`NT$${twAvgPrice.toLocaleString()}`);
+        $('#statAvgPrice').text(`NT$ ${twAvgPrice.toLocaleString()}`);
         $('#statAvgPriceSub').text(`(僅顯示台灣品項)`);
     } else {
-        $('#statAvgPrice').text(`NT$${twAvgPrice.toLocaleString()}`);
-        $('#statAvgPriceSub').text(`馬幣均價: RM${myAvgPrice.toLocaleString()}`);
+        $('#statAvgPrice').text(`NT$ ${twAvgPrice.toLocaleString()}`);
+        $('#statAvgPriceSub').text(`馬幣均價: RM ${myAvgPrice.toLocaleString()}`);
     }
 
     $('#statAvgSv').text(`${avgSv} SV`);
@@ -1183,7 +1183,7 @@ function renderAnalyticsCharts() {
                             label: (ctx) => {
                                 const item = topPriceProducts[ctx.dataIndex];
                                 const prefix = (item.currency === 'MYR' || item.region_code === 'MY') ? 'RM' : 'NT$';
-                                return ` 售價：${prefix}${Number(ctx.parsed.x).toLocaleString()}`;
+                                return ` 售價：${prefix} ${Number(ctx.parsed.x).toLocaleString()}`;
                             }
                         }
                     }
@@ -1274,16 +1274,11 @@ function renderAnalyticsCharts() {
 
     const weightList = dataset
         .map(p => {
-            const raw = (p.product_weight || '').trim().toLowerCase();
-            let weightVal = 0;
-            if (raw.includes('kg')) weightVal = parseFloat(raw) * 1000;
-            else if (raw.includes('g')) weightVal = parseFloat(raw);
-            else if (raw.includes('ml')) weightVal = parseFloat(raw);
-            else weightVal = parseFloat(raw) || 0;
+            const weightVal = parseInt(p.product_weight, 10) || 0;
             return {
                 name: p.short_name || p.name,
                 weight: weightVal,
-                rawDisplay: p.product_weight || '-'
+                rawDisplay: weightVal > 0 ? `${weightVal.toLocaleString()} g` : '-'
             };
         })
         .filter(p => p.weight > 0)
@@ -1298,7 +1293,7 @@ function renderAnalyticsCharts() {
             data: {
                 labels: weightList.map(item => item.name),
                 datasets: [{
-                    label: '產品重量 (g/ml)',
+                    label: '產品重量 (g)',
                     data: weightList.map(item => item.weight),
                     backgroundColor: '#06b6d4',
                     borderRadius: 4
@@ -1314,7 +1309,7 @@ function renderAnalyticsCharts() {
                         callbacks: {
                             label: (ctx) => {
                                 const item = weightList[ctx.dataIndex];
-                                return ` 規格重量：${item.rawDisplay} (${ctx.parsed.x} g/ml)`;
+                                return ` 產品重量：${item.rawDisplay} (${ctx.parsed.x} g)`;
                             }
                         }
                     }
@@ -1532,7 +1527,7 @@ async function saveProductItem() {
         subcategoryCode,
         typeCode,
         form.elements['package_spec'].value.trim(),
-        form.elements['product_weight'] ? form.elements['product_weight'].value.trim() : '',
+        parseInt(form.elements['product_weight'] ? form.elements['product_weight'].value : '0', 10) || '',
         parseFloat(form.elements['price'].value) || 0,
         form.elements['currency'].value.trim() || 'TWD',
         parseInt(form.elements['sv_point'].value, 10) || 0,

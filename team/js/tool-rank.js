@@ -465,7 +465,6 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
     if (progressPct > 100) progressPct = 100;
 
     $('#dispOverallProgress').text(progressPct + '%');
-    $('#dispProgressBar').css('width', progressPct + '%');
 
     const isQualified = (gapP === 0 && gapC === 0 && gapM === 0 && gapOrg === 0 && gapLines === 0 && gapPearl === 0 && gapMonths === 0);
 
@@ -596,7 +595,7 @@ function renderGateChecklist(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLine
                     <span class="small text-white">${g.name}</span>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="mono-font small text-secondary">${g.val}</span>
+                    <span class="small text-secondary">${g.val}</span>
                     <span class="badge ${badgeClass}">${iconPass} ${g.pass ? '達標' : '未過'}</span>
                 </div>
             </div>
@@ -630,7 +629,7 @@ function renderIncomeBreakdownTable(rebate, groupDiff, qualified, leadership, pe
                     <div class="fw-bold ${item.color} small">${item.label}</div>
                     <div class="text-secondary" style="font-size: 0.72rem;">${item.desc}</div>
                 </td>
-                <td class="text-end align-middle mono-font fw-bold ${item.amount > 0 ? item.color : 'text-secondary'}">
+                <td class="text-end align-middle fw-bold ${item.amount > 0 ? item.color : 'text-secondary'}">
                     ${formatLocalCurrency(item.amount)}
                 </td>
             </tr>
@@ -640,7 +639,7 @@ function renderIncomeBreakdownTable(rebate, groupDiff, qualified, leadership, pe
     $tbody.append(`
         <tr class="border-top border-secondary border-opacity-50">
             <td class="fw-bold text-warning">當月預估合計收益</td>
-            <td class="text-end align-middle mono-font fw-bold text-warning fs-6">
+            <td class="text-end align-middle fw-bold text-warning fs-6">
                 ${formatLocalCurrency(total)}
             </td>
         </tr>

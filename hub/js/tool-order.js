@@ -664,7 +664,7 @@ function renderProducts() {
                                     <button class="btn-qty btn-minus" data-id="${item.product_code}">
                                         <i class="fa-solid fa-minus"></i>
                                     </button>
-                                    <input type="number" class="qty-input" value="${qty}" min="0" data-id="${item.product_code}">
+                                    <input type="number" class="qty-input no-spin text-center" value="${qty}" min="0" data-id="${item.product_code}">
                                     <button class="btn-qty btn-plus" data-id="${item.product_code}">
                                         <i class="fa-solid fa-plus"></i>
                                     </button>
@@ -736,7 +736,7 @@ function renderProducts() {
                                 <button class="btn-qty btn-minus" data-id="${item.product_code}">
                                     <i class="fa-solid fa-minus"></i>
                                 </button>
-                                <input type="number" class="qty-input" value="${qty}" min="0" data-id="${item.product_code}">
+                                <input type="number" class="qty-input no-spin text-center" value="${qty}" min="0" data-id="${item.product_code}">
                                 <button class="btn-qty btn-plus" data-id="${item.product_code}">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -976,7 +976,7 @@ function updateCartSummary() {
                         <button type="button" class="btn-qty btn-cart-minus" data-id="${product.product_code}">
                             <i class="fa-solid fa-minus"></i>
                         </button>
-                        <input type="number" class="qty-input cart-qty-input" value="${qty}" min="0" data-id="${product.product_code}">
+                        <input type="number" class="qty-input cart-qty-input no-spin text-center" value="${qty}" min="0" data-id="${product.product_code}">
                         <button type="button" class="btn-qty btn-cart-plus" data-id="${product.product_code}">
                             <i class="fa-solid fa-plus"></i>
                         </button>
