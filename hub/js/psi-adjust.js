@@ -425,6 +425,53 @@ function populateSelectOptions() {
         persons: appState.persons,
         dropdownParent: '#modalTransferWorkbench'
     });
+
+    // 1. 經手夥伴
+    UISelectOptions.partner.populate({
+        target: '#fieldOperatorPartnerId',
+        partners: appState.partners,
+        persons: appState.persons,
+        placeholder: '-- 請選擇經手夥伴 --',
+        dropdownParent: '#adjustModal'
+    });
+
+    // 2. 調出倉儲 (自營與海外私倉)
+    UISelectOptions.warehouse.populate({
+        target: '#fieldFromWarehouseId',
+        warehouses: appState.warehouses,
+        placeholder: '-- 請選擇調出/發生倉儲 --',
+        displayMode: 1,
+        searchable: true,
+        dropdownParent: '#adjustModal',
+        filterFn: nonOfficialWarehouseFilter
+    });
+
+    // 3. 調入倉儲 (包含官方營運中心與自營倉，支援跨倉進出)
+    UISelectOptions.warehouse.populate({
+        target: '#fieldToWarehouseId',
+        warehouses: appState.warehouses,
+        placeholder: '-- 單倉異動無須填寫 --',
+        displayMode: 1,
+        searchable: true,
+        dropdownParent: '#adjustModal'
+    });
+
+    // 4. 產品品項
+    UISelectOptions.product.populate({
+        target: '#fieldProductId',
+        products: appState.products,
+        placeholder: '-- 請選擇產品品項 --',
+        dropdownParent: '#adjustModal'
+    });
+
+    // 5. 試用客戶對象
+    UISelectOptions.customer.populate({
+        target: '#fieldTargetProspectId',
+        customers: appState.customers,
+        persons: appState.persons,
+        placeholder: '-- 非試用發放無須選擇 --',
+        dropdownParent: '#adjustModal'
+    });
 }
 
 function renderMetrics() {

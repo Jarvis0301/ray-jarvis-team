@@ -309,18 +309,18 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldId">庫存唯一代碼 <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="fieldId">庫存唯一代碼 <span class="badge badge-secondary-subtle small">系統自動生成</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldId" readonly required>
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label" for="fieldWarehouseId">存放據點倉儲 <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="fieldWarehouseId" required style="width: 100%;">
+                                    <select class="form-select form-select-sm" id="fieldWarehouseId">
                                         <option value="">-- 請選擇存放據點倉儲 --</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label" for="fieldProductId">產品品項 SKU <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="fieldProductId" required style="width: 100%;">
+                                    <select class="form-select form-select-sm" id="fieldProductId" required>
                                         <option value="">-- 請選擇產品品項 --</option>
                                     </select>
                                 </div>
@@ -340,54 +340,56 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldQuantity">密封整盒現貨 <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldQuantity" min="0" value="0" required>
+                                    <input type="number" class="form-control form-control-sm text-end" id="fieldQuantity" min="0" value="0" required>
                                     <div class="form-text text-muted small">完整未拆封盒裝數</div>
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldPiecesQty">散裝剩餘支/條 <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldPiecesQty" min="0" value="0" required>
+                                    <input type="number" class="form-control form-control-sm text-end" id="fieldPiecesQty" min="0" value="0" required>
                                     <div class="form-text text-muted small">拆盒零售/體驗零散數</div>
                                 </div>
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldReservedQty">代領預扣盒數 <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldReservedQty" min="0" value="0" required>
+                                    <input type="number" class="form-control form-control-sm text-end" id="fieldReservedQty" min="0" value="0" required>
                                     <div class="form-text text-muted small">訂單已成立未提領</div>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldAvailableQty">自由可用盒數</label>
-                                    <input type="number" class="form-control form-control-sm bg-dark text-success fw-bold" id="fieldAvailableQty" readonly>
+                                    <label class="form-label" for="fieldAvailableQty">自由可用盒數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldAvailableQty" readonly>
                                     <div class="form-text text-muted small">盒裝現貨扣除預扣</div>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldCurrencyCode">幣別</label>
-                                    <select class="form-select form-select-sm" id="fieldCurrencyCode">
-                                        <option value="TWD">TWD (新台幣)</option>
-                                        <option value="MYR">MYR (馬來幣)</option>
-                                    </select>
+                                    <label class="form-label" for="fieldCostPrice">成本單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <div class="input-group">
+                                        <select class="form-select form-select-sm font-monospace w-25" id="fieldCurrencyCode" required>
+                                            <option value="TWD">TWD</option>
+                                            <option value="MYR">MYR</option>
+                                        </select>
+                                        <input type="number" class="form-control form-control-sm text-end w-75" id="fieldCostPrice" value="0" min="0" step="10" required>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldCostPrice">成本單價</label>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" id="fieldCostPrice" value="0">
+                                    <label class="form-label" for="fieldSvPoint">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <input type="number" class="form-control form-control-sm text-end" id="fieldSvPoint" value="0">
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label" for="fieldSvPoint">單盒 SV 點數</label>
-                                    <input type="number" class="form-control form-control-sm" id="fieldSvPoint" value="0">
+                                <div class="col-12 col-md-4 d-flex align-items-end gap-3 pb-1">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
+                                        <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
+                                            <i class="fa-solid fa-lock text-danger me-1"></i>品質異常/凍結出庫
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label" for="fieldRemarks">庫存備註說明</label>
-                                <input type="text" class="form-control form-control-sm" id="fieldRemarks" placeholder="如：大馬拓荒展業樣品備貨、總部大批提貨待驗收...">
-                            </div>
-
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
-                                <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
-                                    <i class="fa-solid fa-lock text-danger me-1"></i>品質異常或盤點凍結出庫標記
-                                </label>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="fieldRemarks">庫存備註說明</label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldRemarks" placeholder="如：大馬拓荒展業樣品備貨、總部大批提貨待驗收...">
+                                </div>
                             </div>
                         </form>
                     </div>

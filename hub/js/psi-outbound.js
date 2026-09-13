@@ -834,7 +834,7 @@ function openCreateOutboundModal() {
     $('#fieldDeliveryMethod').val('面交自取');
 
     // 新增單據時允許自由選取幣別
-    $('#fieldCurrencyCode').prop('disabled', false).removeClass('form-control-readonly').removeAttr('title');
+    $('#fieldCurrencyCode').prop('disabled', false).prop('readonly', false).removeAttr('title');
     $('#fieldCurrencyCode').val('TWD');
 
     // 歸零唯讀鎖定數值
@@ -888,10 +888,10 @@ function openEditOutboundModal(id) {
     const hasItems = appState.outboundItems.some(it => it.outbound_id === id);
     $('#fieldCurrencyCode').val(item.currency_code);
     if (hasItems) {
-        $('#fieldCurrencyCode').prop('disabled', true).addClass('form-control-readonly')
+        $('#fieldCurrencyCode').prop('disabled', true).prop('readonly', true)
             .attr('title', '此單據已存在明細細項，為確保會計一致性，禁止更改幣別');
     } else {
-        $('#fieldCurrencyCode').prop('disabled', false).removeClass('form-control-readonly').removeAttr('title');
+        $('#fieldCurrencyCode').prop('disabled', false).prop('readonly', false).removeAttr('title');
     }
 
     $('#fieldTotalBoxes').val(item.total_boxes);

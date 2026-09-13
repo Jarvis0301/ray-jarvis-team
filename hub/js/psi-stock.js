@@ -185,12 +185,18 @@ async function fetchGoogleSheetsData() {
             const region = getVal(r, 1, 'TW').toUpperCase();
             const name = getVal(r, 3);
             const shortName = getVal(r, 4);
+            const price = parseFloat(getVal(r, 11, '0')) || 0;
+            const currency = getVal(r, 12, region === 'MY' ? 'MYR' : 'TWD');
+            const svPoint = parseInt(getVal(r, 13, '0'), 10) || 0;
             if (code) {
                 appState.products[code] = {
                     code,
                     region,
                     name: name || code,
-                    short_name: shortName || name || code
+                    short_name: shortName || name || code,
+                    price: price,
+                    currency: currency,
+                    sv_point: svPoint
                 };
             }
         });
@@ -308,11 +314,40 @@ function getDaysToExpiry(expiryDateStr) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+/**
+ * 選擇產品品項時，自動帶出幣別、成本單價與 SV 考核點數
+ */
+function onStockProductChange(productId) {
+    if (!productId) return;
+    const prod = appState.products[productId];
+    if (!prod) return;
+
+    // 1. 帶入結算幣別 (TWD / MYR)
+    if (prod.currency) {
+        $('#fieldCurrencyCode').val(prod.currency);
+    }
+    // 2. 帶入官方經理成本單價
+    if (prod.price !== undefined) {
+        $('#fieldCostPrice').val(prod.price);
+    }
+    // 3. 帶入全球統一 SV 點數
+    if (prod.sv_point !== undefined) {
+        $('#fieldSvPoint').val(prod.sv_point);
+    }
+}
+
 function bindUIEvents() {
     $('#fieldQuantity, #fieldReservedQty').on('input', function() {
         const q = parseInt($('#fieldQuantity').val(), 10) || 0;
         const r = parseInt($('#fieldReservedQty').val(), 10) || 0;
         $('#fieldAvailableQty').val(Math.max(0, q - r));
+    });
+
+    // 監聽 Modal 產品下拉選取：主動選取時自動同步幣別、單價與 SV
+    $('#fieldProductId').off('select2:select.stockProd change.stockProd').on('select2:select.stockProd change.stockProd', function(e) {
+        if (e.originalEvent || e.type === 'select2:select') {
+            onStockProductChange($(this).val());
+        }
     });
 
     // 4 個下拉選單變更事件：同時觸發表格重繪與圖表更新

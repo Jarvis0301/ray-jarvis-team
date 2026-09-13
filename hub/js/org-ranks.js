@@ -165,9 +165,9 @@ async function fetchGoogleSheetsData() {
 
         // ★ 個人主檔轉自 PSN_SPREADSHEET_ID 讀取
         const [rankRows, historyRows, partnerRows, personRows] = await Promise.all([
-            fetchSheet('職級主檔', SPREADSHEET_ID).catch(() => []),
-            fetchSheet('職級歷程', SPREADSHEET_ID).catch(() => []),
-            fetchSheet('夥伴主檔', SPREADSHEET_ID).catch(() => []),
+            fetchSheet('職級主檔', ORG_SPREADSHEET_ID).catch(() => []),
+            fetchSheet('職級歷程', ORG_SPREADSHEET_ID).catch(() => []),
+            fetchSheet('夥伴主檔', ORG_SPREADSHEET_ID).catch(() => []),
             fetchSheet('個人主檔', PSN_SPREADSHEET_ID).catch(() => [])
         ]);
 
@@ -751,8 +751,8 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
             effective_month: `${h.effective_month}`,
             consecutive: h.consecutive_qualified_months !== null ? `${h.consecutive_qualified_months} 個月` : '-',
             cum_sv: h.cum_group_sv_snapshot !== null ? `${h.cum_group_sv_snapshot.toLocaleString()} SV` : '-',
-            manager_legs: h.active_manager_legs_count !== null ? `<span class="text-center d-block">${h.active_manager_legs_count} 條</span>` : '-',
-            pearl_legs: h.active_pearl_legs_count !== null ? `<span class="text-center d-block">${h.active_pearl_legs_count} 條</span>` : '-',
+            manager_legs: h.active_manager_legs_count !== null ? `${h.active_manager_legs_count} 條` : '-',
+            pearl_legs: h.active_pearl_legs_count !== null ? `${h.active_pearl_legs_count} 條` : '-',
             recognition: h.company_recognition_date || '-',
             notes: `${noteSyncTag}<span class="text-truncate d-inline-block" style="max-width: 140px;" title="${h.notes || ''}">${h.notes || '-'}</span>`,
             actions: actionBtns
@@ -768,10 +768,10 @@ function renderPartnerSingleTable(ptnHistory, delegation = null) {
                 { data: 'previous', className: 'text-center' },
                 { data: 'new_rank', className: 'text-center' },
                 { data: 'effective_month' },
-                { data: 'consecutive' },
-                { data: 'cum_sv' },
-                { data: 'manager_legs' },
-                { data: 'pearl_legs' },
+                { data: 'consecutive', className: 'text-end' },
+                { data: 'cum_sv', className: 'text-end' },
+                { data: 'manager_legs', className: 'text-end' },
+                { data: 'pearl_legs', className: 'text-end' },
                 { data: 'recognition' },
                 { data: 'notes' },
                 { data: 'actions', className: 'text-center', orderable: false }
@@ -804,8 +804,8 @@ function renderHistoryTable() {
             effective_month: `${h.effective_month}`,
             consecutive: h.consecutive_qualified_months !== null ? `${h.consecutive_qualified_months} 個月` : '-',
             cum_sv: h.cum_group_sv_snapshot !== null ? `${h.cum_group_sv_snapshot.toLocaleString()} SV` : '-',
-            manager_legs: h.active_manager_legs_count !== null ? `<span class="text-center d-block">${h.active_manager_legs_count} 條</span>` : '-',
-            pearl_legs: h.active_pearl_legs_count !== null ? `<span class="text-center d-block">${h.active_pearl_legs_count} 條</span>` : '-',
+            manager_legs: h.active_manager_legs_count !== null ? `${h.active_manager_legs_count} 條` : '-',
+            pearl_legs: h.active_pearl_legs_count !== null ? `${h.active_pearl_legs_count} 條` : '-',
             recognition: h.company_recognition_date || '-',
             notes: `<span class="text-truncate d-inline-block" style="max-width: 160px;" title="${h.notes || ''}">${h.notes || '-'}</span>`,
             actions: actionBtns
@@ -822,10 +822,10 @@ function renderHistoryTable() {
                 { data: 'previous', className: 'text-center' },
                 { data: 'new_rank', className: 'text-center' },
                 { data: 'effective_month' },
-                { data: 'consecutive' },
-                { data: 'cum_sv' },
-                { data: 'manager_legs' },
-                { data: 'pearl_legs' },
+                { data: 'consecutive', className: 'text-end' },
+                { data: 'cum_sv', className: 'text-end' },
+                { data: 'manager_legs', className: 'text-end' },
+                { data: 'pearl_legs', className: 'text-end' },
                 { data: 'recognition' },
                 { data: 'notes' },
                 { data: 'actions', className: 'text-center', orderable: false }

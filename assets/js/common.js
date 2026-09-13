@@ -43,7 +43,8 @@ const APP_CONFIG = {
         '../assets/js/sheet-adapter.js',
         '../assets/js/ui-badges.js',
         '../assets/js/ui-select-options.js',
-        '../assets/js/entity-resolver.js'
+        '../assets/js/entity-resolver.js',
+        '../assets/js/date.js'
     ];
 
     /**

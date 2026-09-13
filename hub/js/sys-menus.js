@@ -382,8 +382,8 @@ function renderMenuDataTable() {
 
 function formatTableRow(m) {
     const actionButtons = `
-        <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="openEditModal('${m.menu_id}')"><i class="fa-solid fa-pen"></i></button>
-        <button class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" onclick="deleteMenuItem('${m.menu_id}')"><i class="fa-solid fa-trash-alt"></i></button>
+        <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('${m.menu_id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteMenuItem('${m.menu_id}')"><i class="fa-solid fa-trash-alt"></i></button>
     `;
 
     return {

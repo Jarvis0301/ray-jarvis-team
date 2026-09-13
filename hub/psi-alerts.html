@@ -211,7 +211,7 @@
                             <input type="hidden" id="thresholdFieldCreatedBy" value="">
 
                             <div class="mb-3">
-                                <label class="form-label" for="fieldThresholdId">門檻唯一識別碼 (id) <span class="text-danger">*</span></label>
+                                <label class="form-label" for="fieldThresholdId">門檻唯一識別碼 (id) <span class="badge badge-secondary-subtle small">系統自動生成</span></label>
                                 <input type="text" class="form-control form-control-sm" id="fieldThresholdId" placeholder="由系統依據點與產品自動生成..." readonly required>
                                 <div class="form-text text-muted small">主鍵 (PK)，依「倉儲據點ID_產品SKU ID」格式自動生成（例如：WH-TW-TP_TW0101001）</div>
                             </div>
@@ -229,22 +229,27 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">安全存量門檻盒數 <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control form-control-sm" id="fieldThresholdQty" min="0" value="0" required>
-                                <div class="form-text text-muted small">當在線可用存量小於或等於此數值時觸發預警</div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">安全存量門檻盒數 <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control form-control-sm text-end" id="fieldThresholdQty" min="0" value="0" required>
+                                    <div class="form-text text-muted small">當在線可用存量小於或等於此數值時觸發預警</div>
+                                </div>
+                                <div class="col-12 col-md-6 d-flex align-items-center gap-3 pb-1">
+                                        <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="fieldThresholdIsMonitored" checked>
+                                        <label class="form-check-label" for="fieldThresholdIsMonitored">
+                                            <i class="fa-solid fa-bell text-warning me-1"></i>啟動門檻即時監控
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">備註</label>
-                                <input type="text" class="form-control form-control-sm" id="fieldThresholdRemarks" placeholder="例如：大馬招商拓荒備貨、月末衝刺緩衝...">
-                            </div>
-
-                            <div class="form-check form-switch mt-3">
-                                <input class="form-check-input" type="checkbox" role="switch" id="fieldThresholdIsMonitored" checked>
-                                <label class="form-check-label" for="fieldThresholdIsMonitored">
-                                    <i class="fa-solid fa-bell text-warning me-1"></i>啟動門檻即時監控
-                                </label>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">備註</label>
+                                    <input type="text" class="form-control form-control-sm" id="fieldThresholdRemarks" placeholder="例如：大馬招商拓荒備貨、月末衝刺緩衝...">
+                                </div>
                             </div>
                         </form>
                     </div>

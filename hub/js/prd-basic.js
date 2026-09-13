@@ -40,31 +40,41 @@ function getFormattedNow() {
 
 /**
  * 依據「上市日期」與「下市日期」計算產品上市狀態
+ * 全面整合 AppDate 多階精度時間戳轉換，支援 YYYY / YYYY-MM / YYYY-MM-DD
  */
 function getLaunchStatus(launchDateStr, discontinueDateStr) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayTs = today.getTime();
 
-    const parseDate = (val) => {
-        if (!val || (typeof val !== 'string' && typeof val !== 'number')) return null;
-        const str = String(val).trim();
-        if (!str || str === '-' || str === 'N/A' || str === '0' || str.toLowerCase() === 'null') {
-            return null;
-        }
-        const d = new Date(str.replace(/\//g, '-'));
-        return isNaN(d.getTime()) ? null : d;
+    // 透過 AppDate 取得毫秒時間戳記 (解析失敗回傳 0)
+    const lTs = AppDate.toTimestamp(launchDateStr);
+    const dTs = AppDate.toTimestamp(discontinueDateStr);
+
+    // 1. 若上市日期大於今日零時 -> 即將上市
+    if (lTs > 0 && lTs > todayTs) {
+        return { 
+            code: 'COMING_SOON', 
+            text: '即將上市', 
+            badge: UIBadges.product.launchStatus('COMING_SOON') 
+        };
+    }
+
+    // 2. 若下市日期小於等於今日零時 -> 已下市
+    if (dTs > 0 && dTs <= todayTs) {
+        return { 
+            code: 'DISCONTINUED', 
+            text: '已下市', 
+            badge: UIBadges.product.launchStatus('DISCONTINUED') 
+        };
+    }
+
+    // 3. 其餘情況皆為正常販售中
+    return { 
+        code: 'ACTIVE', 
+        text: '販售中', 
+        badge: UIBadges.product.launchStatus('ACTIVE') 
     };
-
-    const lDate = parseDate(launchDateStr);
-    const dDate = parseDate(discontinueDateStr);
-
-    if (lDate && lDate.getTime() > today.getTime()) {
-        return { code: 'COMING_SOON', text: '即將上市', badge: UIBadges.product.launchStatus('COMING_SOON') };
-    }
-    if (dDate && dDate.getTime() < today.getTime()) {
-        return { code: 'DISCONTINUED', text: '已下市', badge: UIBadges.product.launchStatus('DISCONTINUED') };
-    }
-    return { code: 'ACTIVE', text: '販售中', badge: UIBadges.product.launchStatus('ACTIVE') };
 }
 
 // ==========================================================================
@@ -451,8 +461,8 @@ function renderMasterTable() {
                 { data: 'subcategory' },
                 { data: 'type' },
                 { data: 'spec' },
-                { data: 'price', className: 'text-center' },
-                { data: 'sv', className: 'text-center' },
+                { data: 'price', className: 'text-end' },
+                { data: 'sv', className: 'text-end' },
                 { data: 'launch_status', className: 'text-center' },
                 { data: 'stock_status', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
@@ -588,9 +598,10 @@ function openDetailModal(productCode) {
     $('#viewPrdStock').html(`${stockBadge}`);
     $('#viewPrdIsValid').html(`<div>${launchStatus.badge}</div>`);
 
-    $('#viewPrdLaunchDate').text(item.launch_date || '-');
-    $('#viewPrdDiscontinueDate').text(item.discontinue_date || '-');
-    $('#viewPrdOfficialUpdateDate').text(item.official_update_date || '-');
+    // 日期欄位透過 AppDate.toDisplay 統一呈現 (YYYY/MM/DD 或 YYYY/MM)
+    $('#viewPrdLaunchDate').text(AppDate.toDisplay(item.launch_date, '-'));
+    $('#viewPrdDiscontinueDate').text(AppDate.toDisplay(item.discontinue_date, '-'));
+    $('#viewPrdOfficialUpdateDate').text(AppDate.toDisplay(item.official_update_date, '-'));
     $('#viewPrdCertifications').text(item.certifications || '無特別標註');
 
     $('#viewPrdRemarks').text(item.remarks || '-');
@@ -992,9 +1003,10 @@ function renderAnalyticsCharts() {
     const validCount = dataset.filter(p => p.is_valid === 'Y').length;
     const validRate = total > 0 ? Math.round((validCount / total) * 100) : 0;
 
+    // 1. 最新上市產品識別：利用 AppDate.toTimestamp 排序，避免原生 Date 解析字串異常
     const sortedByLaunch = [...dataset]
-        .filter(p => p.launch_date)
-        .sort((a, b) => new Date(b.launch_date) - new Date(a.launch_date));
+        .filter(p => p.launch_date && String(p.launch_date).trim() !== '')
+        .sort((a, b) => AppDate.toTimestamp(b.launch_date) - AppDate.toTimestamp(a.launch_date));
     const latestItem = sortedByLaunch[0] || null;
 
     $('#statTotalSku').text(total);
@@ -1016,7 +1028,7 @@ function renderAnalyticsCharts() {
 
     if (latestItem) {
         $('#statLatestProduct').text(latestItem.name);
-        $('#statLatestProductDate').text(`上市日期：${latestItem.launch_date}`);
+        $('#statLatestProductDate').html(`<i class="fa-solid fa-calendar-check text-success me-1"></i>上市日期：${AppDate.toDisplay(latestItem.launch_date)}`);
     } else {
         $('#statLatestProduct').text('暫無數據');
         $('#statLatestProductDate').text('-');
@@ -1322,10 +1334,11 @@ function renderAnalyticsCharts() {
         });
     }
 
+    // 2. 歷年上市趨勢圖：利用 AppDate.toYear 自適應解析年份 (支援 YYYY, YYYY-MM, YYYY/MM/DD)
     const yearCounts = {};
     dataset.forEach(p => {
-        const year = p.launch_date ? p.launch_date.slice(0, 4) : '未設定';
-        if (year !== '未設定') {
+        const year = AppDate.toYear(p.launch_date);
+        if (year) {
             yearCounts[year] = (yearCounts[year] || 0) + 1;
         }
     });
@@ -1431,9 +1444,16 @@ function openEditModal(productCode) {
     const activeCheckbox = form.elements['is_valid'] || form.elements['is_active'];
     if (activeCheckbox) activeCheckbox.checked = item.is_valid === 'Y';
 
-    if (form.elements['launch_date']) form.elements['launch_date'].value = item.launch_date || '';
-    if (form.elements['discontinue_date']) form.elements['discontinue_date'].value = item.discontinue_date || '';
-    if (form.elements['official_update_date']) form.elements['official_update_date'].value = item.official_update_date || '';
+    // 透過 AppDate.toInput 轉換為標準 ISO 格式 (YYYY-MM-DD)，消除 Silent Failure
+    if (form.elements['launch_date']) {
+        form.elements['launch_date'].value = AppDate.toInput(item.launch_date);
+    }
+    if (form.elements['discontinue_date']) {
+        form.elements['discontinue_date'].value = AppDate.toInput(item.discontinue_date);
+    }
+    if (form.elements['official_update_date']) {
+        form.elements['official_update_date'].value = AppDate.toInput(item.official_update_date);
+    }
 
     // 詳細資料
     form.elements['hd_image_url'].value = item.hd_image_url || '';
@@ -1513,7 +1533,16 @@ async function saveProductItem() {
 
     const isActive = (form.elements['is_valid'] ? form.elements['is_valid'].checked : (form.elements['is_active'] ? form.elements['is_active'].checked : true));
     const remarksVal = form.elements['remarks'] ? form.elements['remarks'].value.trim() : (existingNode && existingNode.remarks ? existingNode.remarks : '');
-    const officialUpdateDateVal = form.elements['official_update_date'] ? form.elements['official_update_date'].value : (existingNode ? existingNode.official_update_date : '');
+    
+    // 1. 日期資料消毒：統一轉換回試算表規範的 YYYY/MM/DD (若為空則傳入空字串)
+    const launchDateVal = form.elements['launch_date'] ? AppDate.toSheet(form.elements['launch_date'].value) : '';
+    const discontinueDateVal = form.elements['discontinue_date'] ? AppDate.toSheet(form.elements['discontinue_date'].value) : '';
+    
+    // 官方最新異動日：優先取表單值，若表單無輸入且為編輯模式，則保留既有紀錄
+    let officialUpdateDateVal = form.elements['official_update_date'] ? AppDate.toSheet(form.elements['official_update_date'].value) : '';
+    if (!officialUpdateDateVal && existingNode && existingNode.official_update_date) {
+        officialUpdateDateVal = AppDate.toSheet(existingNode.official_update_date);
+    }
 
     // 1. prd_items 主檔陣列 (26 欄位)
     const itemsRowArray = [
@@ -1536,9 +1565,9 @@ async function saveProductItem() {
         form.elements['stock_status'].value,
         remarksVal,
         isActive ? 'Y' : 'N',
-        form.elements['launch_date'] ? form.elements['launch_date'].value : '',
-        form.elements['discontinue_date'] ? form.elements['discontinue_date'].value : '',
-        officialUpdateDateVal,
+        launchDateVal,            // 第 19 欄：上市日期 (標準 YYYY/MM/DD)
+        discontinueDateVal,       // 第 20 欄：下市日期 (標準 YYYY/MM/DD)
+        officialUpdateDateVal,    // 第 21 欄：官方最新異動日期 (標準 YYYY/MM/DD)
         createdBy,
         createdAt,
         currentUser,
