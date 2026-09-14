@@ -42,12 +42,6 @@ function getCurrentUserEmail() {
     }
 }
 
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 /**
  * 依據 Schema 規格生成庫存主鍵 (格式: STK-YYYYMMDD-流水4碼)
  */
@@ -207,7 +201,7 @@ async function fetchGoogleSheetsData() {
 
         populateStockSelectOptions();
         refreshView();
-        $('#hudSyncTime').text(getFormattedNow());
+        $('#hudSyncTime').text(AppDate.now('full'));
 
         AppToast.success(`已自雲端同步 ${appState.stocks.length} 筆批號庫存主檔`);
     } catch (err) {
@@ -247,9 +241,9 @@ function parseStocksTable(rows) {
             is_locked: getVal(r, 12, 'N').toUpperCase(),                      // Col 12: is_locked ('Y'/'N')
             remarks: getVal(r, 13, ''),                                       // Col 13: remarks
             created_by: getVal(r, 14, 'SYSTEM'),                              // Col 14: created_by
-            created_at: getVal(r, 15, getFormattedNow()),                     // Col 15: created_at
+            created_at: getVal(r, 15, AppDate.now('full')),                     // Col 15: created_at
             modified_by: getVal(r, 16, 'SYSTEM'),                             // Col 16: modified_by
-            modified_at: getVal(r, 17, getFormattedNow())                     // Col 17: modified_at
+            modified_at: getVal(r, 17, AppDate.now('full'))                     // Col 17: modified_at
         };
     });
 }
@@ -514,8 +508,8 @@ function formatStockRow(s) {
         `,
         quantity: `
             <div>
-                <span class="fw-bold text-white">${s.quantity}</span> <span class="small text-muted">盒</span>
-                ${s.pieces_qty > 0 ? `<div class="mt-1"><span class="badge badge-secondary-subtle small">+${s.pieces_qty} 支/條</span></div>` : ''}
+                <span class="fw-bold text-white">${s.quantity}</span> 盒
+                ${s.pieces_qty > 0 ? `<div class="text-secondary small">${s.pieces_qty} 支/條</div>` : ''}
             </div>
         `,
         reserved: `<span class="text-warning">${s.reserved_qty.toLocaleString()}</span>`,
@@ -860,7 +854,7 @@ function openEditStockModal(stockId) {
     $('#formMode').val('edit');
     $('#fieldId').prop('readonly', true).val(s.id);
     $('#fieldBatchNo').val(s.batch_no);
-    $('#fieldExpiryDate').val(s.expiry_date);
+    $('#fieldExpiryDate').val(AppDate.toInput(s.expiry_date));
     $('#fieldQuantity').val(s.quantity);
     $('#fieldPiecesQty').val(s.pieces_qty || 0);
     $('#fieldReservedQty').val(s.reserved_qty);
@@ -953,10 +947,13 @@ async function saveStockItem() {
     }
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const existing = appState.stocks.find(item => item.id === id);
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
+
+    // 有效截止日期標準化為 YYYY/MM/DD
+    const expVal = AppDate.toSheet($('#fieldExpiryDate').val());
 
     // 表 302: psi_stocks 實體順序 0 ~ 17
     const rowDataArray = [
@@ -964,7 +961,7 @@ async function saveStockItem() {
         wh,                 // Col 1: warehouse_id
         prd,                // Col 2: product_id
         batch,              // Col 3: batch_no
-        exp,                // Col 4: expiry_date
+        expVal,             // Col 4: expiry_date
         qty,                // Col 5: quantity (整盒)
         pieces,             // Col 6: pieces_qty (散裝)
         reserved,           // Col 7: reserved_qty
@@ -1021,7 +1018,7 @@ async function toggleStockLock(stockId) {
 
     const newLock = s.is_locked === 'Y' ? 'N' : 'Y';
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
 
     const rowDataArray = [
         s.id, s.warehouse_id, s.product_id, s.batch_no, s.expiry_date,

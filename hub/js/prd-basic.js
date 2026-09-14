@@ -30,15 +30,6 @@ function getCurrentUser() {
 }
 
 /**
- * 取得當前格式化時間字串 (YYYY-MM-DD HH:mm:ss)
- */
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
-/**
  * 依據「上市日期」與「下市日期」計算產品上市狀態
  * 全面整合 AppDate 多階精度時間戳轉換，支援 YYYY / YYYY-MM / YYYY-MM-DD
  */
@@ -792,7 +783,7 @@ async function saveTaxonomyItem() {
     }
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const $btnSave = $('#btnSaveTaxonomy');
 
     try {
@@ -1520,7 +1511,7 @@ async function saveProductItem() {
     }
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const existingNode = appState.products.find(p => p.product_code === productCode);
 
     const createdBy = (mode === 'edit' && existingNode) ? (existingNode.created_by || currentUser) : currentUser;

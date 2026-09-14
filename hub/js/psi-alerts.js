@@ -42,12 +42,6 @@ function getCurrentUserEmail() {
     }
 }
 
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 function getWarehouseName(whId, displayMode = 1) {
     return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
@@ -171,7 +165,7 @@ async function fetchGoogleSheetsData() {
  * 依據表 308 (psi_alerts) 物理順序解析 (Index 0 ~ 18)
  */
 function parseAlertsTable(rows) {
-    const todayStr = getFormattedNow().slice(0, 10).replace(/-/g, '');
+    const todayStr = AppDate.now('full').slice(0, 10).replace(/-/g, '');
     return rows.map((r, idx) => {
         return {
             id: getVal(r, 0, `ALT-${todayStr}-${String(idx + 1).padStart(4, '0')}`), // Col 0: id (PK)
@@ -190,9 +184,9 @@ function parseAlertsTable(rows) {
             resolved_by: getVal(r, 13, ''),                               // Col 13: resolved_by
             resolved_at: getVal(r, 14, ''),                               // Col 14: resolved_at
             created_by: getVal(r, 15, 'SYSTEM'),                          // Col 15: created_by
-            created_at: getVal(r, 16, getFormattedNow()),                 // Col 16: created_at
+            created_at: getVal(r, 16, AppDate.now('full')),                 // Col 16: created_at
             modified_by: getVal(r, 17, 'SYSTEM'),                         // Col 17: modified_by
-            modified_at: getVal(r, 18, getFormattedNow())                 // Col 18: modified_at
+            modified_at: getVal(r, 18, AppDate.now('full'))                 // Col 18: modified_at
         };
     });
 }
@@ -209,9 +203,9 @@ function parseThresholdsTable(rows) {
             is_monitored: getVal(r, 4, 'Y').toUpperCase(),                 // Col 4: is_monitored
             remarks: getVal(r, 5, ''),                                    // Col 5: remarks
             created_by: getVal(r, 6, 'SYSTEM'),                           // Col 6: created_by
-            created_at: getVal(r, 7, getFormattedNow()),                  // Col 7: created_at
+            created_at: getVal(r, 7, AppDate.now('full')),                  // Col 7: created_at
             modified_by: getVal(r, 8, 'SYSTEM'),                          // Col 8: modified_by
-            modified_at: getVal(r, 9, getFormattedNow())                  // Col 9: modified_at
+            modified_at: getVal(r, 9, AppDate.now('full'))                  // Col 9: modified_at
         };
     });
 }
@@ -531,7 +525,7 @@ async function saveThresholdItem() {
     const isMonitored = $('#fieldThresholdIsMonitored').is(':checked') ? 'Y' : 'N';
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const existing = appState.thresholds.find(t => t.id === id);
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
@@ -635,7 +629,7 @@ async function saveAlertResolution() {
     const newStatus = $('#resolveStatusSelect').val();
     const userRemarks = $('#resolveRemarksInput').val().trim();
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
 
     // 更新系統建議/備註欄位 (Col 12)
     const updatedRemarks = userRemarks 
@@ -704,7 +698,7 @@ async function triggerBatchResolve() {
     AppLoading.show("批次處置中...", "正在回寫試算表");
     try {
         const currentUser = getCurrentUser();
-        const nowStr = getFormattedNow();
+        const nowStr = AppDate.now('full');
 
         for (let i = 0; i < checkedBoxes.length; i++) {
             const alertId = $(checkedBoxes[i]).val();

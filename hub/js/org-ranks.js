@@ -52,12 +52,6 @@ function getCurrentUser() {
     }
 }
 
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 function generateNextHistoryId(partnerId) {
     const targetPid = partnerId ? partnerId.trim() : 'PTN-0001';
     // 篩選該夥伴已有的晉升紀錄
@@ -115,6 +109,17 @@ function getEffectiveRankHistory(partnerId) {
     }
 
     return history.sort((a, b) => (a.effective_month > b.effective_month ? 1 : -1));
+}
+
+/**
+ * 正規化晉升正式生效年月：限定為 YYYY 或 YYYY-MM
+ */
+function normalizeEffectiveMonth(val) {
+    if (!val || val === '-' || val === '未填寫') return '';
+    const p = AppDate.parse(val);
+    if (!p) return String(val).trim();
+    // 若解析為年精度輸出 YYYY，其餘（包含月精度與日精度）皆收斂輸出 YYYY-MM
+    return p.precision === 'Y' ? p.year : `${p.year}-${p.month}`;
 }
 
 // ==========================================================================
@@ -545,13 +550,15 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
 
         const level = rank.rank_level;
         const color = rank.badge_color_hex || '#8b5cf6';
-        const timestamp = parseYmToTimestamp(h.effective_month);
+
+        // 利用 AppDate.toTimestamp 自適應解析 YYYY 或 YYYY-MM
+        const timestamp = AppDate.toTimestamp(h.effective_month);
         if (!timestamp) return;
 
         chartNodes.push({
             x: timestamp,
             y: level,
-            dateLabel: h.effective_month,
+            dateLabel: normalizeEffectiveMonth(h.effective_month),
             rankName: rank.rank_name_zh,
             color: color
         });
@@ -874,9 +881,8 @@ function openAddRankModal() {
     $('#formRankHistory')[0].reset();
     $('#fieldHistoryId').val(''); // 選擇夥伴後動態產生
 
-    const now = new Date();
-    const currentYm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
-    $('#fieldEffectiveMonth').val(currentYm);
+    // 預設為當前系統年月 (YYYY-MM，例如 2026-09)
+    $('#fieldEffectiveMonth').val(AppDate.now('month'));
     $('#fieldConsecutiveMonths').val('');
     $('#fieldCumSvSnapshot').val('');
     $('#fieldManagerLegsSnapshot').val('');
@@ -913,7 +919,7 @@ function openEditHistoryModal(historyId) {
     }
     
     $('#fieldStarRating').val(item.star_rating || 0);
-    $('#fieldEffectiveMonth').val(item.effective_month);
+    $('#fieldEffectiveMonth').val(normalizeEffectiveMonth(item.effective_month));
     $('#fieldConsecutiveMonths').val(item.consecutive_qualified_months !== null ? item.consecutive_qualified_months : '');
     
     const recDate = item.company_recognition_date ? item.company_recognition_date.replace(/\//g, '-') : '';
@@ -937,7 +943,7 @@ async function saveRankHistoryItem() {
     const mode = $('#fieldHistoryMode').val();
     let partnerId = $('#fieldPartnerId').val().trim();
     const newRankId = $('#fieldNewRankId').val();
-    const effectiveMonth = $('#fieldEffectiveMonth').val().trim();
+    const rawEffectiveMonth = $('#fieldEffectiveMonth').val().trim();
 
     // AppToast 欄位檢核與自動聚焦
     if (!partnerId) {
@@ -950,7 +956,7 @@ async function saveRankHistoryItem() {
         $('#fieldNewRankId').focus();
         return;
     }
-    if (!effectiveMonth) {
+    if (!rawEffectiveMonth) {
         AppToast.warning("請輸入「生效年月」！");
         $('#fieldEffectiveMonth').focus();
         return;
@@ -973,8 +979,17 @@ async function saveRankHistoryItem() {
         $('#fieldHistoryId').val(historyId);
     }
 
+    const effectiveMonth = normalizeEffectiveMonth(rawEffectiveMonth);
+
+    // 格式驗證防呆：必須為 4 碼純年份 (YYYY) 或標準連字號年月 (YYYY-MM)
+    if (!effectiveMonth || !/^\d{4}(-\d{2})?$/.test(effectiveMonth)) {
+        AppToast.warning("「生效年月」格式不符！請輸入 YYYY（如 2026）或 YYYY-MM（如 2026-08）");
+        $('#fieldEffectiveMonth').focus();
+        return;
+    }
+
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const existing = appState.history.find(h => h.history_id === historyId);
     const createdBy = (mode === 'edit' && existing) ? existing.created_by : currentUser;
     const createdAt = (mode === 'edit' && existing) ? existing.created_at : nowStr;
@@ -995,7 +1010,7 @@ async function saveRankHistoryItem() {
         $('#fieldPrevRankId').val(),
         $('#fieldNewRankId').val(),
         starRatingVal,
-        $('#fieldEffectiveMonth').val().trim(),
+        effectiveMonth,
         coolingStartDateVal || '',
         consecutiveVal !== null ? consecutiveVal : '',
         cumSvVal !== null ? cumSvVal : '',
@@ -1017,7 +1032,7 @@ async function saveRankHistoryItem() {
         previous_rank_id: $('#fieldPrevRankId').val(),
         new_rank_id: $('#fieldNewRankId').val(),
         star_rating: starRatingVal,
-        effective_month: $('#fieldEffectiveMonth').val().trim(),
+        effective_month: effectiveMonth,
         cooling_start_date: coolingStartDateVal || null,
         consecutive_qualified_months: consecutiveVal,
         cum_group_sv_snapshot: cumSvVal,

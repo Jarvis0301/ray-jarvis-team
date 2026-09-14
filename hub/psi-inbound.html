@@ -24,49 +24,120 @@
         <main class="container-fluid p-3 p-md-4">
             <header class="glass-panel hud-bar mb-3">
                 <div class="row align-items-center g-3">
-                    <div class="col-12 col-xl-6">
+                    <div class="col-12 col-md-8 col-xl-8">
                         <div class="fs-5 fw-bold text-white">
                             <i class="fa-solid fa-truck-ramp-box text-primary me-1"></i>進貨入庫
                         </div>
                     </div>
 
-                    <div class="col-12 col-xl-6 text-xl-end">
-                        <div class="d-flex flex-wrap gap-2 justify-content-xl-end align-items-center">
-                            <button class="btn btn-outline-success btn-sm rounded-pill" onclick="exportCsv()">
-                                <i class="fa-solid fa-file-csv me-1"></i>匯出 CSV
-                            </button>
-                            <button class="btn btn-secondary btn-sm rounded-pill" id="btnOpenAddModal" onclick="openAddModal()">
-                                <i class="fa-solid fa-plus me-1"></i>新增進貨單據
-                            </button>
-                        </div>
+                    <div class="col-12 col-md-2 col-xl-2 d-flex justify-content-md-end">
+                        <button class="btn btn-outline-success btn-sm rounded-pill w-100" onclick="exportCsv()">
+                            <i class="fa-solid fa-file-csv me-1"></i>匯出 CSV
+                        </button>
+                    </div>
+
+                    <div class="col-12 col-md-2 col-xl-2 d-flex justify-content-md-end">
+                        <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddModal()">
+                            <i class="fa-solid fa-plus me-1"></i>新增進貨單據
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row align-items-end g-2 mt-2 pt-2 border-top border-purple-subtle">
+                    <!-- 1. 訂購日期起 -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterOrderDateStart">
+                            <i class="fa-regular fa-calendar text-primary me-1"></i> 訂購日期起
+                        </label>
+                        <input type="date" class="form-control form-control-sm" id="filterOrderDateStart">
+                    </div>
+
+                    <!-- 2. 訂購日期迄 -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterOrderDateEnd">
+                            <i class="fa-regular fa-calendar-check text-primary me-1"></i> 訂購日期迄
+                        </label>
+                        <input type="date" class="form-control form-control-sm" id="filterOrderDateEnd">
+                    </div>
+
+                    <!-- 3. 業績月份 -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterPerformanceMonth">
+                            <i class="fa-solid fa-calendar-days text-primary me-1"></i> 業績月份
+                        </label>
+                        <input type="month" class="form-control form-control-sm" id="filterPerformanceMonth">
+                    </div>
+
+                    <!-- 4. 全部收貨倉庫 (Select2) -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterWarehouse">
+                            <i class="fa-solid fa-warehouse text-primary me-1"></i> 收貨倉庫
+                        </label>
+                        <select class="form-select form-select-sm" id="filterWarehouse">
+                            <option value="ALL">全部收貨倉庫</option>
+                        </select>
+                    </div>
+
+                    <!-- 5. 出資夥伴 (Select2) -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterPurchaser">
+                            <i class="fa-solid fa-credit-card text-success me-1"></i> 出資夥伴
+                        </label>
+                        <select class="form-select form-select-sm" id="filterPurchaser">
+                            <option value="ALL">全部出資夥伴</option>
+                        </select>
+                    </div>
+
+                    <!-- 6. 掛點人 (Select2) -->
+                    <div class="col-6 col-sm-4 col-xl-2">
+                        <label class="form-label text-secondary small fw-bold mb-1" for="filterSvOwner">
+                            <i class="fa-solid fa-award text-warning me-1"></i> 掛點人
+                        </label>
+                        <select class="form-select form-select-sm" id="filterSvOwner">
+                            <option value="ALL">全部掛點人</option>
+                        </select>
                     </div>
                 </div>
             </header>
 
-            <section class="glass-panel pipeline-stepper mb-4">
-                <div class="step-node active" data-status-filter="ALL" onclick="filterByPipeline('ALL', this)">
-                    <i class="fa-solid fa-list-check me-1"></i>全域進貨總覽
-                    <span class="step-count" id="countAll">0</span>
-                </div>
-                <div class="step-node" data-status-filter="草稿" onclick="filterByPipeline('草稿', this)">
-                    <i class="fa-solid fa-pen-ruler me-1"></i>草稿待出運
-                    <span class="step-count" id="countDraft">0</span>
-                </div>
-                <div class="step-node" data-status-filter="待自取" onclick="filterByPipeline('待自取', this)">
-                    <i class="fa-solid fa-store me-1"></i>營運中心待自取
-                    <span class="step-count" id="countPickup">0</span>
-                </div>
-                <div class="step-node" data-status-filter="運輸中" onclick="filterByPipeline('運輸中', this)">
-                    <i class="fa-solid fa-truck-fast me-1"></i>物流在途運送中
-                    <span class="step-count" id="countTransit">0</span>
-                </div>
-                <div class="step-node" data-status-filter="已入庫" onclick="filterByPipeline('已入庫', this)">
-                    <i class="fa-solid fa-boxes-packing me-1"></i>已驗收入庫歸戶
-                    <span class="step-count" id="countCompleted">0</span>
-                </div>
-                <div class="step-node" data-status-filter="已取消" onclick="filterByPipeline('已取消', this)">
-                    <i class="fa-solid fa-ban me-1"></i>已取消作廢
-                    <span class="step-count" id="countVoid">0</span>
+            <section class="glass-panel p-2 p-md-3 mb-4">
+                <div class="row g-2 pipeline-stepper">
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="step-node active w-100 h-100 justify-content-center text-center" data-status-filter="ALL" onclick="filterByPipeline('ALL', this)">
+                            <i class="fa-solid fa-list-check me-1"></i> 全域進貨總覽
+                            <span class="step-count" id="countAll">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="草稿" onclick="filterByPipeline('草稿', this)">
+                            <i class="fa-solid fa-pen-ruler me-1"></i> 草稿待出運
+                            <span class="step-count" id="countDraft">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="待自取" onclick="filterByPipeline('待自取', this)">
+                            <i class="fa-solid fa-store me-1"></i> 營運中心待自取
+                            <span class="step-count" id="countPickup">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="運輸中" onclick="filterByPipeline('運輸中', this)">
+                            <i class="fa-solid fa-truck-fast me-1"></i> 物流在途運送中
+                            <span class="step-count" id="countTransit">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="已入庫" onclick="filterByPipeline('已入庫', this)">
+                            <i class="fa-solid fa-boxes-packing me-1"></i> 已驗收入庫歸戶
+                            <span class="step-count" id="countCompleted">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="已取消" onclick="filterByPipeline('已取消', this)">
+                            <i class="fa-solid fa-ban me-1"></i> 已取消作廢
+                            <span class="step-count" id="countVoid">0</span>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -118,78 +189,137 @@
                 </div>
             </section>
 
-            <section class="card p-3 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#analyticsChartContainer">
-                    <div class="fw-bold text-white small">
-                        <i class="fa-solid fa-chart-line text-primary me-1"></i>月度進貨 SV 與採購支出戰術圖表
-                    </div>
-                    <div class="text-secondary small">
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                </div>
-                <div class="collapse show" id="analyticsChartContainer">
-                    <div style="height: 180px; position: relative;">
-                        <canvas id="inboundChart"></canvas>
-                    </div>
-                </div>
-            </section>
+            <section class="views-wrapper">
+                <nav aria-label="進貨入庫工作區頁籤" class="mb-3">
+                    <ul class="nav nav-tabs" id="inboundViewTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-orders" data-bs-toggle="tab" data-bs-target="#container-orders-view" type="button" role="tab" aria-controls="container-orders-view" aria-selected="true">
+                                <i class="fa-solid fa-file-invoice-dollar me-1"></i> 進貨單據
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-charts" data-bs-toggle="tab" data-bs-target="#container-charts-view" type="button" role="tab" aria-controls="container-charts-view" aria-selected="false">
+                                <i class="fa-solid fa-chart-pie me-1"></i> 統計圖表
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
 
-            <section class="glass-panel p-3 p-lg-4 mb-4">
-                <div class="row g-2 align-items-center mb-3">
-                    <div class="col-12 col-md-3">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-dark border-secondary text-secondary">
-                                <i class="fa-solid fa-calendar-days me-1"></i>訂購日期起
-                            </span>
-                            <input type="date" id="filterOrderDateStart" class="form-control form-control-sm" onchange="applyFilters()">
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-dark border-secondary text-secondary">
-                                <i class="fa-solid fa-calendar-days me-1"></i>訂購日期迄
-                            </span>
-                            <input type="date" id="filterOrderDateEnd" class="form-control form-control-sm" onchange="applyFilters()">
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-dark border-secondary text-secondary">
-                                <i class="fa-solid fa-calendar-check me-1"></i>業績月份
-                            </span>
-                            <input type="month" id="filterPerformanceMonth" class="form-control form-control-sm" onchange="applyFilters()">
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <select id="filterWarehouse" class="form-select form-select-sm" onchange="applyFilters()">
-                            <option value="">全部收貨倉庫</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-md-2">
-                        <select id="filterPurchaser" class="form-select form-select-sm" onchange="applyFilters()">
-                            <option value="">全部出資夥伴</option>
-                        </select>
-                    </div>
-                </div>
+                <!-- 2 大工作區 Tab 內容容器 -->
+                <div class="tab-content" id="inboundViewTabContent">
 
-                <div class="table-responsive">
-                    <table id="inboundDataTable" class="table table-dark-custom">
-                        <thead>
-                            <tr>
-                                <th>進貨單號 / 官方單號</th>
-                                <th>訂購中心 / 方式 / 倉庫</th>
-                                <th>出資夥伴 / 掛點人</th>
-                                <th>訂購日 / 驗收日</th>
-                                <th>業績月份</th>
-                                <th>採購盒數</th>
-                                <th>金額 (商品/運費/實付)</th>
-                                <th>考核 SV</th>
-                                <th>入庫狀態</th>
-                                <th class="text-end">戰術操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inboundTableBody"></tbody>
-                    </table>
+                    <!-- Tab 1：進貨單據 (滿版進貨單據表) -->
+                    <div class="tab-pane fade show active" id="container-orders-view" role="tabpanel" aria-labelledby="tab-orders">
+                        <section class="row g-3 mb-4">
+                            <div class="col-12">
+                                <div class="glass-panel p-3 p-lg-4 h-100">
+                                    <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom border-purple-subtle">
+                                        <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-list-check text-primary me-1"></i> 進貨單據表
+                                        </h3>
+                                        <div class="text-secondary small" id="tableSummaryInfo">
+                                            顯示 0 / 0 筆
+                                        </div>
+                                    </header>
+
+                                    <div class="table-responsive">
+                                        <table id="inboundDataTable" class="table table-dark-custom">
+                                            <thead>
+                                                <tr>
+                                                    <th>進貨單號 / 官方單號</th>
+                                                    <th>訂購中心 / 方式 / 倉庫</th>
+                                                    <th>出資夥伴 / 掛點人</th>
+                                                    <th>訂購日 / 驗收日</th>
+                                                    <th>業績月份</th>
+                                                    <th>採購盒數</th>
+                                                    <th>金額 (商品/運費/實付)</th>
+                                                    <th>考核 SV</th>
+                                                    <th>入庫狀態</th>
+                                                    <th class="text-end">操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="inboundTableBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Tab 2：統計圖表 (彙整月度雙軸趨勢 + 4 大維度戰術甜甜圈圖) -->
+                    <div class="tab-pane fade" id="container-charts-view" role="tabpanel" aria-labelledby="tab-charts">
+                        <article class="glass-panel p-3 mb-4">
+                            <!-- 圖表 1：月度進貨 SV 與採購支出戰術圖表 (折線雙軸) -->
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small text-secondary fw-bold">
+                                                <i class="fa-solid fa-chart-line text-primary me-1"></i> 月度進貨 SV 與採購支出戰術圖表
+                                            </span>
+                                            <span class="badge badge-purple-subtle">雙軸趨勢</span>
+                                        </div>
+                                        <div class="chart-card-container"><canvas id="chartInboundTrend"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 圖表 2 ~ 5：4 大維度戰術甜甜圈圖陣列 (出資、倉儲、中心、狀態) -->
+                            <div class="row g-3 mt-1">
+                                <!-- 1. 出資夥伴採購支出佔比 -->
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small text-secondary fw-bold">
+                                                <i class="fa-solid fa-credit-card text-success me-1"></i> 出資夥伴採購佔比
+                                            </span>
+                                            <span class="badge badge-success-subtle">資金流</span>
+                                        </div>
+                                        <div class="chart-card-container"><canvas id="chartPurchaserShare"></canvas></div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. 各收貨倉儲採購盒數佔比 -->
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small text-secondary fw-bold">
+                                                <i class="fa-solid fa-warehouse text-info me-1"></i> 各收貨倉儲盒數佔比
+                                            </span>
+                                            <span class="badge badge-info-subtle">物流流向</span>
+                                        </div>
+                                        <div class="chart-card-container"><canvas id="chartWarehouseShare"></canvas></div>
+                                    </div>
+                                </div>
+
+                                <!-- 3. 官方訂購中心來源佔比 -->
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small text-secondary fw-bold">
+                                                <i class="fa-solid fa-store text-warning me-1"></i> 官方訂購中心佔比
+                                            </span>
+                                            <span class="badge badge-warning-subtle">商流渠道</span>
+                                        </div>
+                                        <div class="chart-card-container"><canvas id="chartCenterShare"></canvas></div>
+                                    </div>
+                                </div>
+
+                                <!-- 4. 進貨入庫狀態佔比 -->
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small text-secondary fw-bold">
+                                                <i class="fa-solid fa-chart-pie text-primary me-1"></i> 進貨入庫狀態佔比
+                                            </span>
+                                            <span class="badge badge-purple-subtle">履約進度</span>
+                                        </div>
+                                        <div class="chart-card-container"><canvas id="chartStatusShare"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
                 </div>
             </section>
         </main>
@@ -506,6 +636,40 @@
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark me-1"></i>關閉
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-4" id="btnSaveAllInboundItems" onclick="saveAllInboundItems()">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> 儲存明細清單變更
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+            入庫單據詳細資料 Modal
+            ========================================================================== -->
+        <div class="modal fade" id="modalInboundMasterDetail" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <section class="modal-content">
+                    <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-info fs-5"></i>
+                            <h5 class="modal-title fw-bold text-white mb-0" id="inboundMasterDetailTitle">進貨入庫單據詳細資料</h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </header>
+                    <div class="modal-body p-3 p-md-4" id="inboundMasterDetailBody">
+                        <!-- 由 JavaScript openInboundMasterDetailModal() 動態注入 -->
+                    </div>
+                    <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark me-1"></i> 關閉
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-3" id="btnDetailViewItemsInbound">
+                            <i class="fa-solid fa-list-ul me-1"></i> 檢視入庫明細
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnDetailEditInbound">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> 編輯單據
                         </button>
                     </footer>
                 </section>

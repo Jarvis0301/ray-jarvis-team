@@ -29,15 +29,6 @@ function getCurrentUser() {
     }
 }
 
-/**
- * 取得當前格式化時間字串 (YYYY-MM-DD HH:mm:ss)
- */
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
@@ -483,7 +474,7 @@ async function saveMenuItem() {
     }
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
 
     const existingNode = appState.menus.find(m => m.menu_id === menuId);
     const createdBy = (mode === 'edit' && existingNode) ? (existingNode.created_by || currentUser) : currentUser;

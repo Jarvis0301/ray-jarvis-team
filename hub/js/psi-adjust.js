@@ -63,12 +63,6 @@ function getCurrentUser() {
     }
 }
 
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 /**
  * 依據幣別標準化金額格式 (支援 NT$ 與 RM)
  */
@@ -188,7 +182,7 @@ async function fetchAllGoogleSheetsData() {
             rawStocks
         });
         refreshAllViews();
-        $('#hudSyncTime').text(getFormattedNow());
+        $('#hudSyncTime').text(AppDate.now('full'));
 
         AppToast.success(`4 大試算表連動同步完成 (${appState.adjustments.length} 筆盤點調撥紀錄)`);
     } catch (err) {
@@ -1428,12 +1422,12 @@ async function commitAuditRecord() {
     const reason = diff === 0 ? '帳實相符例行備忘' : ($('#auditTxtReason').val().trim() || '現場實物盤點差異調整');
 
     const nextSeq = String(appState.adjustments.length + 1).padStart(4, '0');
-    const todayStr = new Date().toISOString().slice(0, 10);
     const dateCode = todayStr.replace(/-/g, '');
     const adjNo = `ADJ-${dateCode}-${nextSeq}`;
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full'); // 完整 time: YYYY-MM-DD HH:mm:ss
+    const todaySheetDate = AppDate.now('sheet'); // 發生日期：YYYY/MM/DD
 
     // 嚴格對齊 表 307 psi_adjustments 全 25 物理欄位順序 (Index 0 ~ 24)
     const rowDataArray = [
@@ -1446,7 +1440,7 @@ async function commitAuditRecord() {
         $opt.val(),                                 // 6: product_id
         '',                                         // 7: stock_id
         '',                                         // 8: batch_no
-        todayStr,                                   // 9: expiry_date
+        todaySheetDate,                             // 9: expiry_date
         $('#auditAdjUnit').val(),                   // 10: adj_unit
         diff,                                       // 11: quantity
         'TWD',                                      // 12: currency_code
@@ -1456,7 +1450,7 @@ async function commitAuditRecord() {
         totalSv,                                    // 16: total_sv
         $('#auditProspectSelect').val() || '',      // 17: target_prospect_id
         $('#auditOperatorSelect').val(),            // 18: operator_partner_id
-        todayStr,                                   // 19: adj_date
+        todaySheetDate,                             // 19: adj_date
         reason,                                     // 20: reason_desc
         currentUser,                                // 21: created_by
         nowStr,                                     // 22: created_at
@@ -1474,7 +1468,7 @@ async function commitAuditRecord() {
         product_id: $opt.val(),
         stock_id: '',
         batch_no: '',
-        expiry_date: todayStr,
+        expiry_date: todaySheetDate,
         adj_unit: $('#auditAdjUnit').val(),
         quantity: diff,
         currency_code: 'TWD',
@@ -1484,7 +1478,7 @@ async function commitAuditRecord() {
         total_sv: totalSv,
         target_prospect_id: $('#auditProspectSelect').val() || '',
         operator_partner_id: $('#auditOperatorSelect').val(),
-        adj_date: todayStr,
+        adj_date: todaySheetDate,
         reason_desc: reason,
         created_by: currentUser,
         created_at: nowStr,
@@ -1572,12 +1566,14 @@ async function commitTransferOrder() {
     const totalSv = qty * unitSv;
 
     const nextSeq = String(appState.adjustments.length + 1).padStart(4, '0');
-    const todayStr = $('#trAdjDate').val() || new Date().toISOString().slice(0, 10);
     const dateCode = todayStr.replace(/-/g, '');
     const adjNo = `ADJ-${dateCode}-${nextSeq}`;
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
+    const todaySheetDate = AppDate.now('sheet');
+
+    const transferDateVal = $('#trAdjDate').val() ? AppDate.toSheet($('#trAdjDate').val()) : todaySheetDate;
 
     // 依 25 欄位順序打包 (跨倉調撥調出為負數)
     const rowDataArray = [
@@ -1590,7 +1586,7 @@ async function commitTransferOrder() {
         $opt.val(),
         '',
         '',
-        todayStr,
+        todaySheetDate,
         $('#trAdjUnit').val(),
         -qty,
         currency,
@@ -1600,7 +1596,7 @@ async function commitTransferOrder() {
         totalSv,
         '',
         $('#trOperatorSelect').val(),
-        todayStr,
+        transferDateVal,
         reason,
         currentUser,
         nowStr,
@@ -1740,7 +1736,7 @@ function openEditAdjustmentModal(id) {
     $('#fieldAdjType').val(adj.adj_type);
     handleModalAdjTypeChange();
 
-    $('#fieldAdjDate').val(adj.adj_date);
+    $('#fieldAdjDate').val(AppDate.toInput(adj.adj_date)); // 調整發生日期轉回 YYYY-MM-DD
     $('#fieldOperatorPartnerId').val(adj.operator_partner_id);
     $('#fieldFromWarehouseId').val(adj.from_warehouse_id);
     $('#fieldToWarehouseId').val(adj.to_warehouse_id);
@@ -1750,7 +1746,7 @@ function openEditAdjustmentModal(id) {
     $('#fieldProductNameSnaps').val(adj.product_name_snaps);
     $('#fieldStockId').val(adj.stock_id);
     $('#fieldBatchNo').val(adj.batch_no);
-    $('#fieldExpiryDate').val(adj.expiry_date);
+    $('#fieldExpiryDate').val(adj.expiry_date ? AppDate.toInput(adj.expiry_date) : ''); // 有效日期轉回 YYYY-MM-DD
 
     $('#fieldAdjUnit').val(adj.adj_unit);
     $('#fieldQuantity').val(adj.quantity);
@@ -1843,10 +1839,14 @@ async function saveAdjustmentRecord() {
     }
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const existing = appState.adjustments.find(a => a.id === id);
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
+
+    // 日期標準化為 YYYY/MM/DD
+    const adjDateVal = AppDate.toSheet($('#fieldAdjDate').val());
+    const expiryDateVal = $('#fieldExpiryDate').val() ? AppDate.toSheet($('#fieldExpiryDate').val()) : '';
     
     const totalCost = Math.abs(qty) * cost;
     const totalSv = Math.abs(qty) * sv;
@@ -1862,7 +1862,7 @@ async function saveAdjustmentRecord() {
         $('#fieldProductId').val(),                 // 6: product_id
         $('#fieldStockId').val().trim(),            // 7: stock_id
         $('#fieldBatchNo').val().trim(),            // 8: batch_no
-        $('#fieldExpiryDate').val(),                // 9: expiry_date
+        expiryDateVal,                              // 9: expiry_date (YYYY/MM/DD)
         adjUnit,                                    // 10: adj_unit
         qty,                                        // 11: quantity
         curr,                                       // 12: currency_code
@@ -1872,12 +1872,12 @@ async function saveAdjustmentRecord() {
         totalSv,                                    // 16: total_sv
         $('#fieldTargetProspectId').val() || '',    // 17: target_prospect_id
         $('#fieldOperatorPartnerId').val(),         // 18: operator_partner_id
-        $('#fieldAdjDate').val(),                   // 19: adj_date
+        adjDateVal,                                 // 19: adj_date (YYYY/MM/DD)
         $('#fieldReasonDesc').val().trim(),         // 20: reason_desc
         createdBy,                                  // 21: created_by
         createdAt,                                  // 22: created_at
         currentUser,                                // 23: modified_by
-        nowStr                                      // 24: modified_at
+        nowStr                                      // 24: modified_at (完整 time)
     ];
 
     const updatedObj = {

@@ -183,29 +183,6 @@ function initDynamicTableDragAndDrop(tbodySelector) {
     });
 }
 
-/**
- * 將試算表多元日期格式（YYYY/M/D、YYYY/MM/DD、帶時間戳記等）轉換為 HTML5 input[type="date"] 所需之 YYYY-MM-DD
- */
-function formatDateToInput(dateStr) {
-    if (!dateStr || String(dateStr).trim() === '' || dateStr === '-' || dateStr === '未填寫') return '';
-    
-    // 截斷後續時間戳記 (例如 2026-05-20 00:00:00 -> 2026-05-20)
-    const cleanStr = String(dateStr).trim().split(' ')[0];
-    const normalized = cleanStr.replace(/\//g, '-');
-    const parts = normalized.split('-');
-
-    if (parts.length === 3) {
-        const year = parts[0].padStart(4, '0');
-        const month = parts[1].padStart(2, '0');
-        const day = parts[2].padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    } else if (/^\d{8}$/.test(cleanStr)) {
-        // 相容純 8 碼數字 (如 20260520)
-        return `${cleanStr.substring(0, 4)}-${cleanStr.substring(4, 6)}-${cleanStr.substring(6, 8)}`;
-    }
-    return normalized;
-}
-
 // ============================================================================
 // 3. 系統主鍵自動生成器 (System Auto-Generated IDs)
 // ============================================================================
@@ -782,12 +759,6 @@ function getCurrentUser() {
     }
 }
 
-function getFormattedNow() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 function getDefaultAvatar(gender = '男') {
     return DEFAULT_AVATARS[gender] || DEFAULT_AVATARS['男'];
 }
@@ -882,9 +853,9 @@ function buildPartnerRowArrayFromObject(p) {
         p.exit_date || '',
         p.avatar_url || '',
         p.created_by || 'SYSTEM',
-        p.created_at || getFormattedNow(),
+        p.created_at || AppDate.now('full'),
         p.modified_by || getCurrentUser(),
-        p.modified_at || getFormattedNow()
+        p.modified_at || AppDate.now('full')
     ];
 }
 
@@ -982,11 +953,28 @@ function renderCardsView(list) {
             : `<span class="text-muted">（無特定指派）</span>`;
 
         let ageStr = '';
-        const rawBirthday = person.birthday ? String(person.birthday).trim() : '';
-        if (rawBirthday.length >= 4) {
-            const birthYear = parseInt(rawBirthday.slice(0, 4), 10);
-            if (!isNaN(birthYear) && birthYear > 1900 && birthYear <= 2026) {
-                ageStr = `${2026 - birthYear} 歲`;
+        const bDayParts = AppDate.parse(person.birthday);
+        if (bDayParts && bDayParts.year) {
+            const birthY = parseInt(bDayParts.year, 10);
+            const now = new Date();
+            let calcAge = now.getFullYear() - birthY;
+
+            if (bDayParts.precision === 'D' && bDayParts.month && bDayParts.day) {
+                const birthM = parseInt(bDayParts.month, 10);
+                const birthD = parseInt(bDayParts.day, 10);
+                const nowM = now.getMonth() + 1;
+                const nowD = now.getDate();
+                if (nowM < birthM || (nowM === birthM && nowD < birthD)) {
+                    calcAge--;
+                }
+            } else if (bDayParts.precision === 'M' && bDayParts.month) {
+                if ((now.getMonth() + 1) < parseInt(bDayParts.month, 10)) {
+                    calcAge--;
+                }
+            }
+
+            if (calcAge >= 0) {
+                ageStr = `${calcAge} 歲`;
             }
         }
 
@@ -2294,8 +2282,8 @@ window.openPartnerModalForEdit = function (partnerId) {
     $('#form-usage-identity').val(person.usage_identity || '經營者');
     $('#form-gender').val(person.gender || '男');
 
-    // 生日若為西元純年或一般格式皆可正常載入文字框
-    $('#form-birthday').val(person.birthday || '');
+    // 日精度 YYYY/MM/DD 欄位：透過 AppDate.toInput 補零轉為 YYYY-MM-DD 塞入表單
+    $('#form-birthday').val(AppDate.toInput(person.birthday));
 
     let natVal = person.nationality || '中華民國';
     if (natVal === '台灣' || natVal === 'TW') natVal = '中華民國';
@@ -2310,15 +2298,15 @@ window.openPartnerModalForEdit = function (partnerId) {
     $('#form-marital-status').val(person.marital_status || '');
     $('#form-life-status').val(person.life_status || '存活').trigger('change');
 
-    // ★ 核心修訂 1：身故日期標準化轉為 YYYY-MM-DD
-    $('#form-deceased-date').val(formatDateToInput(person.deceased_date));
+    // 日精度 YYYY/MM/DD 欄位：透過 AppDate.toInput 補零轉為 YYYY-MM-DD 塞入表單
+    $('#form-deceased-date').val(AppDate.toInput(person.deceased_date));
 
     $('#form-health-status').val(person.health_status || '良好');
     $('#form-financial-status').val(person.financial_status || '穩定');
     $('#form-contact-address').val(person.contact_address || '');
 
-    // ★ 核心修訂 2：認識時間標準化轉為 YYYY-MM-DD
-    $('#form-met-date').val(formatDateToInput(person.met_date));
+    // 日精度 YYYY/MM/DD 欄位：透過 AppDate.toInput 補零轉為 YYYY-MM-DD 塞入表單
+    $('#form-met-date').val(AppDate.toInput(person.met_date));
     $('#form-met-reason').val(person.met_reason || '');
 
     $('#form-member-no').val(partner.member_no || '');
@@ -2345,11 +2333,13 @@ window.openPartnerModalForEdit = function (partnerId) {
     $('#form-surrendered-to-upline-id').val(partner.surrendered_to_upline_id || '').trigger('change');
     $('#form-joining-motive').val(partner.joining_motive || '');
 
-    // ★ 核心修訂 3：會籍四大關鍵週期日期標準化轉為 YYYY-MM-DD
-    $('#form-join-date').val(formatDateToInput(partner.join_date));
-    $('#form-renewal-due-date').val(formatDateToInput(partner.renewal_due_date));
-    $('#form-last-order-date').val(formatDateToInput(partner.last_order_date));
-    $('#form-exit-date').val(formatDateToInput(partner.exit_date));
+    // 日精度 YYYY/MM/DD 欄位：透過 AppDate.toInput 補零轉為 YYYY-MM-DD 塞入表單
+    $('#form-join-date').val(AppDate.toInput(partner.join_date));
+    $('#form-renewal-due-date').val(AppDate.toInput(partner.renewal_due_date));
+    $('#form-last-order-date').val(AppDate.toInput(partner.last_order_date));
+
+    // 月精度 YYYY-MM 欄位：退出/解約年月轉為 YYYY-MM (支援 input[type="month"] 或 text)
+    $('#form-exit-date').val(AppDate.toInputMonth(partner.exit_date));
 
     const gender = person.gender || '男';
     const avatar = partner.avatar_url || person.avatar_url || '';
@@ -2425,24 +2415,50 @@ window.openPartnerModalForView = function (partnerId) {
     $('#view-identity-usage').html(`${formatEmpty(person.identity_type, '夥伴')} / ${formatEmpty(person.usage_identity, '消費者')}`);
 
     let ageStr = '';
-    const rawBirthday = person.birthday ? String(person.birthday).trim() : '';
+    const birthdayDisplay = AppDate.toDisplay(person.birthday, '');
 
-    if (rawBirthday.length >= 4) {
-        const birthYear = parseInt(rawBirthday.slice(0, 4), 10);
-        if (!isNaN(birthYear) && birthYear > 1900 && birthYear <= 2026) {
-            const currentYear = 2026;
-            const calculatedAge = currentYear - birthYear;
-            ageStr = ` (${calculatedAge} 歲)`;
+    if (birthdayDisplay && birthdayDisplay !== '-') {
+        const p = AppDate.parse(person.birthday);
+        if (p && p.year) {
+            const birthYear = parseInt(p.year, 10);
+            const today = new Date();
+            const curYear = today.getFullYear();
+            const curMonth = today.getMonth() + 1;
+            const curDay = today.getDate();
+
+            // 1. 初步年份差值
+            let exactAge = curYear - birthYear;
+
+            // 2. 精度至 YYYY/MM/DD：精確比對「今年生日是否已過」
+            if (p.precision === 'D' && p.month && p.day) {
+                const birthMonth = parseInt(p.month, 10);
+                const birthDay = parseInt(p.day, 10);
+                // 若當前月份小於生日月份，或同月份但日期尚未到達，則實歲減 1
+                if (curMonth < birthMonth || (curMonth === birthMonth && curDay < birthDay)) {
+                    exactAge--;
+                }
+            } else if (p.precision === 'M' && p.month) {
+                // 若僅有年月精度 (YYYY/MM)，以月份為準
+                const birthMonth = parseInt(p.month, 10);
+                if (curMonth < birthMonth) {
+                    exactAge--;
+                }
+            }
+
+            // 排除未來出生之異常資料，合理數值才顯示年齡
+            if (exactAge >= 0) {
+                ageStr = ` (${exactAge} 歲)`;
+            }
         }
     }
 
-    const bDayText = rawBirthday ? `${rawBirthday}${ageStr}` : '未填生日';
+    const bDayText = birthdayDisplay !== '未填生日' ? `${birthdayDisplay}${ageStr}` : '未填生日';
     $('#view-gender-birthday-age').html(`${formatEmpty(gender)} ‧ ${formatEmpty(bDayText)}`);
     $('#view-nationality-ethnicity').html(`${formatEmpty(person.nationality, '中華民國')} ‧ ${formatEmpty(person.ethnicity, '華人')}`);
     $('#view-marital-status').html(formatEmpty(person.marital_status, '未填寫'));
 
     if (person.life_status === '身故') {
-        const dDate = person.deceased_date ? ` (${person.deceased_date})` : '';
+        const dDate = person.deceased_date ? ` (${AppDate.toDisplay(person.deceased_date)})` : '';
         $('#view-life-status').html(`<span class="badge badge-danger"><i class="fa-solid fa-ribbon me-1"></i>身故</span>${dDate}`);
     } else {
         $('#view-life-status').html('<span class="badge badge-success-subtle"><i class="fa-solid fa-heart me-1"></i>存活</span>');
@@ -2452,7 +2468,7 @@ window.openPartnerModalForView = function (partnerId) {
     const residenceFull = person.current_residence ? `${hometownText}${person.current_residence}` : (person.hometown || '');
     $('#view-residence').html(formatEmpty(residenceFull, '未設定'));
     $('#view-contact-address').html(formatEmpty(person.contact_address, '未填寫'));
-    $('#view-met-date').html(formatEmpty(person.met_date, '未記錄'));
+    $('#view-met-date').html(formatEmpty(AppDate.toDisplay(person.met_date, '')));
     $('#view-met-reason').html(formatEmpty(person.met_reason, '未填寫'));
     $('#view-health-status').html(UIBadges.person.healthStatus(person.health_status));
     $('#view-financial-status').html(UIBadges.person.financialStatus(person.financial_status));
@@ -2476,9 +2492,11 @@ window.openPartnerModalForView = function (partnerId) {
     const motiveText = motiveMap[partner.joining_motive] || partner.joining_motive || '';
     $('#view-joining-motive').html(motiveText ? UIBadges.common.custom({ text: motiveText, className: 'badge-info-subtle' }) : '<span class="text-muted">未填寫</span>');
 
-    $('#view-join-date').html(formatEmpty(partner.join_date));
-    $('#view-renewal-due-date').html(formatEmpty(partner.renewal_due_date));
-    $('#view-order-exit-dates').html(`${formatEmpty(partner.last_order_date)} / ${formatEmpty(partner.exit_date)}`);
+    $('#view-join-date').html(formatEmpty(AppDate.toDisplay(partner.join_date, '')));
+    $('#view-renewal-due-date').html(formatEmpty(AppDate.toDisplay(partner.renewal_due_date, '')));
+    const lastOrderDisplay = AppDate.toDisplay(partner.last_order_date, '-');
+    const exitDateDisplay = partner.exit_date ? AppDate.toYearMonth(partner.exit_date, '-', '-') : '-';
+    $('#view-order-exit-dates').html(`${lastOrderDisplay} / <span class="text-warning">${exitDateDisplay}</span>`);
 
     const starMap = ['非藍鑽', '一星藍鑽', '二星藍鑽', '三星藍鑽', '四星藍鑽', '五星藍鑽', '六星藍鑽', '耀星藍鑽'];
     const starLevelNum = parseInt(partner.diamond_star_level, 10) || 0;
@@ -2579,26 +2597,6 @@ window.openPartnerModalForView = function (partnerId) {
 function getFormTrimVal(selector, defaultVal = '') {
     const val = $(selector).val();
     return (val !== undefined && val !== null) ? String(val).trim() : defaultVal;
-}
-
-function normalizeBirthdayInput(val) {
-    if (!val || typeof val !== 'string') return '';
-    const cleaned = val.trim();
-    if (!cleaned) return '';
-
-    if (/^\d{4}$/.test(cleaned)) {
-        return cleaned;
-    }
-
-    const parts = cleaned.split(/[\/-]/);
-    if (parts.length === 3) {
-        const year = parts[0].padStart(4, '0');
-        const month = parts[1].padStart(2, '0');
-        const day = parts[2].padStart(2, '0');
-        return `${year}/${month}/${day}`;
-    }
-
-    return cleaned;
 }
 
 async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr) {
@@ -2777,9 +2775,22 @@ async function savePartnerRecord(e) {
     }
 
     const currentUser = getCurrentUser();
-    const nowStr = getFormattedNow();
+    const nowStr = AppDate.now('full');
     const existingPerson = personMasterList.find(p => p.person_id === personId);
     const existingPartner = partnersList.find(p => p.partner_id === partnerId);
+
+    // 日期資料標準化清洗
+    const birthdayVal = AppDate.toSheet(getFormTrimVal('#form-birthday'));
+    const deceasedDateVal = AppDate.toSheet(getFormTrimVal('#form-deceased-date'));
+    const metDateVal = AppDate.toSheet(getFormTrimVal('#form-met-date'));
+
+    const joinDateVal = AppDate.toSheet(getFormTrimVal('#form-join-date'));
+    const renewalDueDateVal = AppDate.toSheet(getFormTrimVal('#form-renewal-due-date'));
+    const lastOrderDateVal = AppDate.toSheet(getFormTrimVal('#form-last-order-date'));
+
+    // 退出/解約年月：強制正規化為 YYYY-MM（若為空則傳空字串）
+    const exitDateRaw = getFormTrimVal('#form-exit-date');
+    const exitDateVal = exitDateRaw ? AppDate.toYearMonth(exitDateRaw, '-', '') : '';
 
     const personCreatedBy = (mode === 'UPDATE' && existingPerson) ? existingPerson.created_by : currentUser;
     const personCreatedAt = (mode === 'UPDATE' && existingPerson) ? existingPerson.created_at : nowStr;
@@ -2821,8 +2832,8 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-identity-type', '潛在客戶'),
         getFormTrimVal('#form-usage-identity', '經營者'),
         getFormTrimVal('#form-gender', '未填'),
-        normalizeBirthdayInput(getFormTrimVal('#form-birthday')),
-        getFormTrimVal('#form-deceased-date'),
+        birthdayVal,
+        deceasedDateVal,
         getFormTrimVal('#form-life-status', '存活'),
         getFormTrimVal('#form-marital-status', ''),
         getFormTrimVal('#form-nationality', '中華民國'),
@@ -2832,7 +2843,7 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-phone'),
         getFormTrimVal('#form-email'),
         getFormTrimVal('#form-contact-address'),
-        getFormTrimVal('#form-met-date'),
+        metDateVal,
         getFormTrimVal('#form-met-reason'),
         getFormTrimVal('#form-highest-education'),
         getFormTrimVal('#form-graduated-school'), // 索引 22：最高學校
@@ -3131,7 +3142,7 @@ window.deletePartnerRecord = function (partnerId) {
                         spouse.operation_mode = '個人經營';
                         spouse.official_account_partner_id = spouse.partner_id;
                         spouse.modified_by = getCurrentUser();
-                        spouse.modified_at = getFormattedNow();
+                        spouse.modified_at = AppDate.now('full');
 
                         const rolledSpouseRow = buildPartnerRowArrayFromObject(spouse);
                         deletePromises.push(SheetAdapter.updateRow('夥伴主檔', spouse.partner_id, rolledSpouseRow, ORG_GAS_DEPLOY_ID, silentOpt));
