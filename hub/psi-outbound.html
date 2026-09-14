@@ -46,7 +46,7 @@
                 <div class="row align-items-end g-2 mt-2 pt-2 border-top border-purple-subtle">
                     <!-- 1. 訂單日期起 -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label text-secondary small fw-bold mb-1" for="filterOrderDateStart">
+                        <label class="form-label small fw-bold mb-1" for="filterOrderDateStart">
                             <i class="fa-regular fa-calendar text-primary me-1"></i> 訂單日期起
                         </label>
                         <input type="date" class="form-control form-control-sm" id="filterOrderDateStart">
@@ -54,7 +54,7 @@
 
                     <!-- 2. 訂單日期迄 -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label text-secondary small fw-bold mb-1" for="filterOrderDateEnd">
+                        <label class="form-label small fw-bold mb-1" for="filterOrderDateEnd">
                             <i class="fa-regular fa-calendar-check text-primary me-1"></i> 訂單日期迄
                         </label>
                         <input type="date" class="form-control form-control-sm" id="filterOrderDateEnd">
@@ -62,7 +62,7 @@
 
                     <!-- 3. 業績月份 -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label text-secondary small fw-bold mb-1" for="filterPerformanceMonth">
+                        <label class="form-label small fw-bold mb-1" for="filterPerformanceMonth">
                             <i class="fa-solid fa-calendar-days text-primary me-1"></i> 業績月份
                         </label>
                         <input type="month" class="form-control form-control-sm" id="filterPerformanceMonth">
@@ -70,7 +70,7 @@
 
                     <!-- 4. 出貨倉庫 (Select2) -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label text-secondary small fw-bold mb-1" for="filterWarehouse">
+                        <label class="form-label small fw-bold mb-1" for="filterWarehouse">
                             <i class="fa-solid fa-warehouse text-primary me-1"></i> 出貨倉庫
                         </label>
                         <select class="form-select form-select-sm" id="filterWarehouse">
@@ -80,7 +80,7 @@
 
                     <!-- 5. 開單夥伴 (Select2) -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label text-secondary small fw-bold mb-1" for="filterOperator">
+                        <label class="form-label small fw-bold mb-1" for="filterOperator">
                             <i class="fa-solid fa-user-shield text-warning me-1"></i> 開單夥伴
                         </label>
                         <select class="form-select form-select-sm" id="filterOperator">
@@ -90,7 +90,7 @@
 
                     <!-- 6. 收件人 (Select2，整合客戶與夥伴) -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label text-secondary small fw-bold mb-1" for="filterRecipient">
+                        <label class="form-label small fw-bold mb-1" for="filterRecipient">
                             <i class="fa-solid fa-user-tag text-info me-1"></i> 收件人
                         </label>
                         <select class="form-select form-select-sm" id="filterRecipient">
@@ -681,11 +681,11 @@
                                     <input type="hidden" id="inlineIsFeeItem" value="N">
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-4">
-                                            <label class="form-label small text-secondary mb-1" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineSalesUnit">計量單位 <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineSalesUnit" onchange="calcInlineSubtotals()">
                                                 <option value="盒">盒 (整盒)</option>
                                                 <option value="組">組 (套組)</option>
@@ -699,41 +699,41 @@
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineUnitPrice">銷售單價 <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineUnitPrice">銷售單價 <span class="text-danger">*</span></label>
                                             <input type="number" step="0.01" class="form-control form-control-sm text-success fw-bold" id="inlineUnitPrice" min="0" value="0" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineUnitCost">進貨成本單價 <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineUnitCost">進貨成本單價 <span class="text-danger">*</span></label>
                                             <input type="number" step="0.01" class="form-control form-control-sm" id="inlineUnitCost" min="0" value="0" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineUnitSv">單件 SV <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineUnitSv">單件 SV <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm text-warning" id="inlineUnitSv" min="0" value="0" required oninput="calcInlineSubtotals()">
                                         </div>
                                     </div>
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineOrderedQty">訂購數量 <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineOrderedQty">訂購數量 <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm" id="inlineOrderedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineShippedQty">實體出庫量 <span class="text-danger">*</span></label>
+                                            <label class="form-label small mb-1" for="inlineShippedQty">實體出庫量 <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm" id="inlineShippedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineBatchNo">出庫批號</label>
+                                            <label class="form-label small mb-1" for="inlineBatchNo">出庫批號</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineBatchNo" placeholder="外盒鋼印批號">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineExpiryDate">有效日期</label>
+                                            <label class="form-label small mb-1" for="inlineExpiryDate">有效日期</label>
                                             <input type="date" class="form-control form-control-sm" id="inlineExpiryDate">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1" for="inlineStockId">扣庫單號</label>
+                                            <label class="form-label small mb-1" for="inlineStockId">扣庫單號</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineStockId" placeholder="指定庫存代號">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small text-secondary mb-1">推廣標記</label>
+                                            <label class="form-label small mb-1">推廣標記</label>
                                             <div class="form-check mt-1">
                                                 <input class="form-check-input" type="checkbox" id="inlineIsSampleDemo">
                                                 <label class="form-check-label small text-secondary" for="inlineIsSampleDemo">體驗試用品</label>
@@ -742,7 +742,7 @@
                                     </div>
                                     <div class="row g-2 align-items-end">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small text-secondary mb-1" for="inlineRemarks">明細備註事項</label>
+                                            <label class="form-label small mb-1" for="inlineRemarks">明細備註事項</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineRemarks" placeholder="如「拆盒散裝出貨」、「老客戶回饋贈品」">
                                         </div>
                                         <div class="col-12 col-md-6 text-end d-flex justify-content-end gap-2">

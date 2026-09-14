@@ -116,15 +116,13 @@ function parseProductsTable(rows) {
         }
 
         let baseCode = getVal(r, 2, productCode.replace(/^(TW|MY)/, ''));
-        const priceNum = parseFloat(getVal(r, 11, '0')) || 0;
-        const svNum = parseInt(getVal(r, 13, '0'), 10) || 0;
-        const weightNum = parseFloat(getVal(r, 10, '0.5')) || 0.5;
-        const isFeatured = getVal(r, 15, 'FALSE').toUpperCase() === 'TRUE';
-        const stockStatus = getVal(r, 16);
-        const sortOrder = parseInt(getVal(r, 17, '0'), 10) || 0;
-        const isValid = getVal(r, 18, 'Y');
-        const launchDate = getVal(r, 19);
-        const discontinueDate = getVal(r, 20);
+        const priceNum = parseFloat(getVal(r, 16, '0')) || 0;
+        const svNum = parseInt(getVal(r, 18, '0'), 10) || 0;
+        const weightNum = parseFloat(getVal(r, 11, '0.5')) || 0.5;
+        const stockStatus = getVal(r, 21);
+        const isValid = getVal(r, 23, 'Y');
+        const launchDate = getVal(r, 24);
+        const discontinueDate = getVal(r, 25);
 
         return {
             product_code: productCode,
@@ -139,12 +137,11 @@ function parseProductsTable(rows) {
             package_spec: getVal(r, 9, '-'),
             weight: weightNum,
             price: priceNum,
-            currency: getVal(r, 12, regionCode === 'MY' ? 'MYR' : 'TWD'),
+            currency: getVal(r, 17, regionCode === 'MY' ? 'MYR' : 'TWD'),
             sv_point: svNum,
-            primary_image_url: getVal(r, 14),
+            primary_image_url: getVal(r, 19),
             is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 15, 'FALSE').toUpperCase()),
             stock_status: stockStatus,
-            sort_order: sortOrder,
             launch_date: launchDate,
             discontinue_date: discontinueDate,
             status: getProductStatus(launchDate, discontinueDate),

@@ -591,6 +591,151 @@ const UISelectOptions = (function () {
         }
     };
 
+    // ========================================================================
+    // 7. 計量單位領域 (UISelectOptions.unit.*)
+    // 支援動態掃描產品資料表已存在單位，並啟用 Select2 標籤動態新增功能
+    // ========================================================================
+    const unit = {
+        // 系統內建基礎建議單位庫 (涵蓋官方 8 大計量、常見規格詞與大馬跨境包裝)
+        DEFAULT_BASE_UNITS: ['盒', '組', '箱', '瓶', '袋', '條', 'bottle', 'box', 'set', 'unit'],
+        DEFAULT_SUB_UNITS: ['支', '瓶', '條', '包', '粒', '盒', '顆', 'capsule', 'sachet', 'unit'],
+
+        /**
+         * 從產品清單中動態提取所有出現過的單位 (去重且不限於 8 大單位)
+         */
+        extractExistingUnits(products = [], unitType = 'all') {
+            const unitSet = new Set();
+            const list = Array.isArray(products) ? products : Object.values(products || {});
+
+            list.forEach(p => {
+                if ((unitType === 'all' || unitType === 'base') && p.base_unit) {
+                    const bu = String(p.base_unit).trim();
+                    if (bu) unitSet.add(bu);
+                }
+                if ((unitType === 'all' || unitType === 'sub') && p.sub_unit) {
+                    const su = String(p.sub_unit).trim();
+                    if (su) unitSet.add(su);
+                }
+            });
+
+            return Array.from(unitSet);
+        },
+
+        /**
+         * 官方正裝標準計量單位 (base_unit)
+         */
+        populateBaseUnit({
+            target,
+            products = [],
+            placeholder = '-- 請選擇或輸入正裝單位 --',
+            selectedValue = '盒',
+            dropdownParent = null,
+            onChange = null
+        }) {
+            const dynamicUnits = unit.extractExistingUnits(products, 'base');
+            const mergedUnits = Array.from(new Set([...unit.DEFAULT_BASE_UNITS, ...dynamicUnits]));
+
+            core.render({
+                target,
+                data: mergedUnits.map(u => ({ id: u, text: u })),
+                valueKey: 'id',
+                textKey: 'text',
+                placeholder,
+                selectedValue: selectedValue || '盒',
+                searchable: true,
+                creatable: true, // 支援即時鍵入新增任意新單位
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        },
+
+        /**
+         * 散裝出貨最小受控單位 (sub_unit)
+         */
+        populateSubUnit({
+            target,
+            products = [],
+            placeholder = '-- 無散裝 / 不拆賣 --',
+            selectedValue = '',
+            dropdownParent = null,
+            onChange = null
+        }) {
+            const dynamicUnits = unit.extractExistingUnits(products, 'sub');
+            const mergedUnits = Array.from(new Set([...unit.DEFAULT_SUB_UNITS, ...dynamicUnits]));
+
+            core.render({
+                target,
+                data: mergedUnits.map(u => ({ id: u, text: u })),
+                valueKey: 'id',
+                textKey: 'text',
+                placeholder,
+                selectedValue: selectedValue || '',
+                searchable: true,
+                creatable: true, // 支援即時鍵入新增任意新單位
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        },
+
+        /**
+         * 提取所有已存在之單位（產品主檔 + 盤點調撥歷史單據，不限於 8 大單位）
+         */
+        extractAllUnits(products = [], adjustments = []) {
+            const unitSet = new Set([...unit.DEFAULT_BASE_UNITS, ...unit.DEFAULT_SUB_UNITS]);
+            (Array.isArray(products) ? products : []).forEach(p => {
+                if (p.base_unit) unitSet.add(String(p.base_unit).trim());
+                if (p.sub_unit) unitSet.add(String(p.sub_unit).trim());
+            });
+            (Array.isArray(adjustments) ? adjustments : []).forEach(a => {
+                if (a.adj_unit) unitSet.add(String(a.adj_unit).trim());
+            });
+            return Array.from(unitSet).filter(Boolean);
+        },
+
+        /**
+         * 動態生成可新增的單位下拉式選單 (Select2 Tagging)
+         */
+        populateDynamicUnit({
+            target,
+            products = [],
+            adjustments = [],
+            product = null,
+            packMode = 'BOX', // 'BOX' (正裝) | 'PIECE' (散裝)
+            selectedValue = '',
+            dropdownParent = null,
+            onChange = null
+        }) {
+            const allUnits = unit.extractAllUnits(products, adjustments);
+            
+            // 決定預設選取單位
+            let defaultVal = selectedValue;
+            if (!defaultVal && product) {
+                defaultVal = (packMode === 'PIECE') 
+                    ? (product.sub_unit || '支') 
+                    : (product.base_unit || '盒');
+            }
+            if (!defaultVal) {
+                defaultVal = packMode === 'PIECE' ? '支' : '盒';
+            }
+
+            core.render({
+                target,
+                data: allUnits.map(u => ({ id: u, text: u })),
+                valueKey: 'id',
+                textKey: 'text',
+                placeholder: '-- 請選擇或鍵入新單位 --',
+                selectedValue: defaultVal,
+                searchable: true,
+                creatable: true, // 支援動態輸入新增自訂單位
+                grouped: false,
+                dropdownParent,
+                onChange
+            });
+        }
+    };
+
     return {
         core,
         geo,
@@ -598,7 +743,8 @@ const UISelectOptions = (function () {
         warehouse,
         person,
         partner,
-        customer
+        customer,
+        unit
     };
 })();
 

@@ -178,22 +178,28 @@ function parseItemsTable(rows) {
         subcategory_code: getVal(r, 7, ''),
         type_code: getVal(r, 8, ''),
         package_spec: getVal(r, 9, ''),
-        product_weight: parseInt(getVal(r, 10, '0'), 10) || 0,
-        price: parseFloat(getVal(r, 11, '0')) || 0,
-        currency: getVal(r, 12, 'TWD'),
-        sv_point: parseInt(getVal(r, 13, '0'), 10) || 0,
-        primary_image_url: getVal(r, 14, 'https://via.placeholder.com/150/1a122d/c084fc?text=No+Image'),
-        is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 15, 'FALSE').toUpperCase()),
-        stock_status: getVal(r, 16),
-        remarks: getVal(r, 17, ''),
-        is_valid: getVal(r, 18, 'Y').toUpperCase() === 'Y' ? 'Y' : 'N',
-        launch_date: getVal(r, 19, ''),
-        discontinue_date: getVal(r, 20, ''),
-        official_update_date: getVal(r, 21, ''),
-        created_by: getVal(r, 22, 'SYSTEM'),
-        created_at: getVal(r, 23, '2026-01-01 00:00:00'),
-        modified_by: getVal(r, 24, 'SYSTEM'),
-        modified_at: getVal(r, 25, '2026-01-01 00:00:00')
+        piece_spec: getVal(r, 10, ''),             // Index 10: 最小受控單位規格
+        product_weight: parseInt(getVal(r, 11, '0'), 10) || 0, // Index 11: 產品重量(g)
+        base_unit: getVal(r, 12, '盒'),             // Index 12: 官方正裝標準計量單位
+        sub_unit: getVal(r, 13, ''),               // Index 13: 散裝出貨最小受控單位
+        pieces_per_box: parseInt(getVal(r, 14, '1'), 10) || 1, // Index 14: 單盒(箱)散件總量 N
+        allow_decant: getVal(r, 15, 'Y').toUpperCase() === 'N' ? 'N' : 'Y', // Index 15: 是否開放拆盒散賣
+        price: parseFloat(getVal(r, 16, '0')) || 0,
+        currency: getVal(r, 17, 'TWD'),
+        sv_point: parseInt(getVal(r, 18, '0'), 10) || 0,
+        primary_image_url: getVal(r, 19, 'https://via.placeholder.com/150/1a122d/c084fc?text=No+Image'),
+        is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 20, 'FALSE').toUpperCase()),
+        stock_status: getVal(r, 21, '現貨'),
+        remarks: getVal(r, 22, ''),
+        is_valid: getVal(r, 23, 'Y').toUpperCase() === 'Y' ? 'Y' : 'N',
+        launch_date: getVal(r, 24, ''),
+        discontinue_date: getVal(r, 25, ''),       // Index 25: 停售/下市日期 (對應 delist_date)
+        delist_date: getVal(r, 25, ''),
+        official_update_date: getVal(r, 26, ''),
+        created_by: getVal(r, 27, 'SYSTEM'),
+        created_at: getVal(r, 28, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 29, 'SYSTEM'),
+        modified_at: getVal(r, 30, '2026-01-01 00:00:00')
     })).filter(item => item.product_code && item.name !== '未命名產品');
 }
 
@@ -481,6 +487,15 @@ function formatMasterTableRow(p) {
 
     const subTitle = p.short_name || p.short_summary || '';
 
+    // 組合規格與散裝受控單位標籤
+    let specHtml = `<div class="font-monospace text-light">${p.package_spec || '-'}</div>`;
+    if (p.piece_spec) {
+        specHtml += `<div class="small text-info"><i class="fa-solid fa-cube me-1"></i>${p.piece_spec}</div>`;
+    }
+    if (p.allow_decant === 'Y' && p.sub_unit && p.pieces_per_box > 1) {
+        specHtml += `<span class="badge badge-secondary-subtle small mt-1">1${p.base_unit || '盒'} = ${p.pieces_per_box}${p.sub_unit}</span>`;
+    }
+
     return {
         thumb: `<img src="${p.primary_image_url}" alt="${p.name}" class="img-thumb-preview" onerror="window.imgError(this, 'product', 42, 42)">`,
         code: `<div>
@@ -492,7 +507,7 @@ function formatMasterTableRow(p) {
         category: UIBadges.product.category(getCategoryByCode(categoryCode), p.region_code),
         subcategory: UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code),
         type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
-        spec: `<span class="text-info font-monospace">${p.package_spec || '-'}</span>`,
+        spec: `<span class="text-info">${p.package_spec || '-'}</span>`,
         price: `<span class="text-yellow fw-bold">${formattedPrice}</span>`,
         sv: `<span class="text-teal fw-bold">${p.sv_point} SV</span>`,
         launch_status: `<div>${launchStatus.badge}</div>`,
@@ -581,7 +596,19 @@ function openDetailModal(productCode) {
     $('#viewPrdType').html(UIBadges.product.type(getTypeByCode(item.type_code), item.region_code));
 
     $('#viewPrdSpec').text(item.package_spec || '-');
+    $('#viewPrdPieceSpec').text(item.piece_spec || '未設定');
     $('#viewPrdWeight').text(item.product_weight ? `${item.product_weight.toLocaleString()} g` : '-');
+
+    // 拆盒規則徽章
+    if (item.allow_decant === 'Y') {
+        const decantText = (item.sub_unit && item.pieces_per_box > 1)
+            ? `可拆賣 (1 ${item.base_unit || '盒'} = ${item.pieces_per_box} ${item.sub_unit})`
+            : `可拆賣 (正裝單位: ${item.base_unit || '盒'})`;
+        $('#viewPrdDecantRule').html(`<span class="badge badge-success-subtle"><i class="fa-solid fa-check me-1"></i>${decantText}</span>`);
+    } else {
+        $('#viewPrdDecantRule').html(`<span class="badge badge-secondary-subtle"><i class="fa-solid fa-lock me-1"></i>僅限正裝 (${item.base_unit || '盒'})</span>`);
+    }
+
     $('#viewPrdPrice').text(priceText);
     $('#viewPrdSv').text(`${item.sv_point} SV`);
 
@@ -1386,9 +1413,26 @@ function openAddModal() {
     $('input[name="product_code"]').prop('readonly', false);
     populateModalTaxonomySelects('TW');
 
-    // 開啟時預設選取第一個分頁（產品主檔）
-    $('#productEditTabs button:first').tab('show');
+    // 預設拆盒參數
+    form.elements['pieces_per_box'].value = 1;
+    form.elements['allow_decant'].value = 'Y';
 
+    // 動態綁定特化單位 Select2 (依據現存產品資料動態提取可選單位，並允許即時新增)
+    UISelectOptions.unit.populateBaseUnit({
+        target: '#modalBaseUnit',
+        products: appState.products,
+        selectedValue: '盒',
+        dropdownParent: '#modalProductFullEdit'
+    });
+
+    UISelectOptions.unit.populateSubUnit({
+        target: '#modalSubUnit',
+        products: appState.products,
+        selectedValue: '',
+        dropdownParent: '#modalProductFullEdit'
+    });
+
+    $('#productEditTabs button:first').tab('show');
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }
 
@@ -1409,7 +1453,6 @@ function openEditModal(productCode) {
     form.elements['base_code'].value = item.base_code;
 
     if (form.elements['type_code']) form.elements['type_code'].value = item.type_code;
-
     form.elements['name'].value = item.name;
     form.elements['short_name'].value = item.short_name || '';
     if (form.elements['short_summary']) form.elements['short_summary'].value = item.short_summary || '';
@@ -1421,30 +1464,42 @@ function openEditModal(productCode) {
     if (form.elements['category_code']) form.elements['category_code'].value = catCode || '';
     if (form.elements['subcategory_code']) form.elements['subcategory_code'].value = item.subcategory_code || '';
 
+    // 【新增與擴充之規格與拆盒欄位反顯】
     form.elements['package_spec'].value = item.package_spec || '';
-    if (form.elements['product_weight']) form.elements['product_weight'].value = item.product_weight || '';
+    form.elements['piece_spec'].value = item.piece_spec || '';
+    form.elements['product_weight'].value = item.product_weight || '';
+    form.elements['pieces_per_box'].value = item.pieces_per_box || 1;
+    form.elements['allow_decant'].value = item.allow_decant || 'Y';
+
+    // 動態綁定特化單位 Select2 並帶入儲存值
+    UISelectOptions.unit.populateBaseUnit({
+        target: '#modalBaseUnit',
+        products: appState.products,
+        selectedValue: item.base_unit || '盒',
+        dropdownParent: '#modalProductFullEdit'
+    });
+
+    UISelectOptions.unit.populateSubUnit({
+        target: '#modalSubUnit',
+        products: appState.products,
+        selectedValue: item.sub_unit || '',
+        dropdownParent: '#modalProductFullEdit'
+    });
 
     form.elements['price'].value = item.price;
     form.elements['currency'].value = item.currency || 'TWD';
     form.elements['sv_point'].value = item.sv_point;
     form.elements['primary_image_url'].value = item.primary_image_url || '';
-    form.elements['stock_status'].value = item.stock_status || '未設定';
+    form.elements['stock_status'].value = item.stock_status || '現貨';
     if (form.elements['remarks']) form.elements['remarks'].value = item.remarks || '';
     form.elements['is_featured'].checked = item.is_featured;
 
     const activeCheckbox = form.elements['is_valid'] || form.elements['is_active'];
     if (activeCheckbox) activeCheckbox.checked = item.is_valid === 'Y';
 
-    // 透過 AppDate.toInput 轉換為標準 ISO 格式 (YYYY-MM-DD)，消除 Silent Failure
-    if (form.elements['launch_date']) {
-        form.elements['launch_date'].value = AppDate.toInput(item.launch_date);
-    }
-    if (form.elements['discontinue_date']) {
-        form.elements['discontinue_date'].value = AppDate.toInput(item.discontinue_date);
-    }
-    if (form.elements['official_update_date']) {
-        form.elements['official_update_date'].value = AppDate.toInput(item.official_update_date);
-    }
+    if (form.elements['launch_date']) form.elements['launch_date'].value = AppDate.toInput(item.launch_date);
+    if (form.elements['discontinue_date']) form.elements['discontinue_date'].value = AppDate.toInput(item.discontinue_date || item.delist_date);
+    if (form.elements['official_update_date']) form.elements['official_update_date'].value = AppDate.toInput(item.official_update_date);
 
     // 詳細資料
     form.elements['hd_image_url'].value = item.hd_image_url || '';
@@ -1456,12 +1511,11 @@ function openEditModal(productCode) {
     form.elements['ingredients'].value = item.ingredients || '';
     form.elements['detailed_description'].value = item.detailed_description || '';
 
-    // 開啟時預設選取第一個分頁（產品主檔）
     $('#productEditTabs button:first').tab('show');
-
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }
 
+// 【prd-basic.js - saveProductItem 驗證與 RowArray 組裝】
 async function saveProductItem() {
     const form = document.getElementById('formFullProduct');
     const mode = $(form).data('mode') || 'add';
@@ -1473,41 +1527,29 @@ async function saveProductItem() {
     const subcategoryCode = (form.elements['subcategory_code'] ? form.elements['subcategory_code'].value : '').trim();
     const price = form.elements['price'].value.trim();
     const svPoint = form.elements['sv_point'].value.trim();
+    const baseUnit = ($('#modalBaseUnit').val() || form.elements['base_unit'].value || '盒').trim();
+    const subUnit = ($('#modalSubUnit').val() || form.elements['sub_unit']?.value || '').trim();
+    const piecesPerBox = parseInt(form.elements['pieces_per_box'].value, 10) || 1;
+    const allowDecant = form.elements['allow_decant'].value || 'Y';
 
-    // 輔助函式：切回產品主檔分頁並聚焦提示
     const warnMasterField = (msg, inputElem) => {
         AppToast.warning(msg);
         $('#tab-btn-prd-master').tab('show');
         if (inputElem) inputElem.focus();
     };
 
-    if (!productCode) {
-        warnMasterField("請輸入「完整產品編號」！", form.elements['product_code']);
-        return;
-    }
-    if (!baseCode) {
-        warnMasterField("請輸入「跨國基本編號」！", form.elements['base_code']);
-        return;
-    }
-    if (!typeCode) {
-        warnMasterField("請選擇「產品型態」！", form.elements['type_code']);
-        return;
-    }
-    if (!name) {
-        warnMasterField("請輸入「官方完整品名」！", form.elements['name']);
-        return;
-    }
-    if (!subcategoryCode) {
-        warnMasterField("請選擇「次系列歸屬」！", form.elements['subcategory_code']);
-        return;
-    }
-    if (price === '') {
-        warnMasterField("請輸入「售價」！", form.elements['price']);
-        return;
-    }
-    if (svPoint === '') {
-        warnMasterField("請輸入「全球統一 SV」！", form.elements['sv_point']);
-        return;
+    if (!productCode) return warnMasterField("請輸入「完整產品編號」！", form.elements['product_code']);
+    if (!baseCode) return warnMasterField("請輸入「跨國基本編號」！", form.elements['base_code']);
+    if (!typeCode) return warnMasterField("請選擇「產品型態」！", form.elements['type_code']);
+    if (!name) return warnMasterField("請輸入「官方完整品名」！", form.elements['name']);
+    if (!subcategoryCode) return warnMasterField("請選擇「次系列歸屬」！", form.elements['subcategory_code']);
+    if (!baseUnit) return warnMasterField("請設定「官方正裝標準計量單位」！", form.elements['base_unit']);
+    if (price === '') return warnMasterField("請輸入「售價」！", form.elements['price']);
+    if (svPoint === '') return warnMasterField("請輸入「全球統一 SV」！", form.elements['sv_point']);
+
+    // 防呆：若指定散裝出貨單位且開放拆盒，散件總量必須 >= 1
+    if (subUnit && piecesPerBox < 1) {
+        return warnMasterField("設定散裝單位時，「單盒(箱)散件總量」必須大於或等於 1！", form.elements['pieces_per_box']);
     }
 
     const currentUser = getCurrentUser();
@@ -1522,50 +1564,52 @@ async function saveProductItem() {
         categoryCode = getSubcategoryByCode(subcategoryCode).category_code || '';
     }
 
-    const isActive = (form.elements['is_valid'] ? form.elements['is_valid'].checked : (form.elements['is_active'] ? form.elements['is_active'].checked : true));
-    const remarksVal = form.elements['remarks'] ? form.elements['remarks'].value.trim() : (existingNode && existingNode.remarks ? existingNode.remarks : '');
-    
-    // 1. 日期資料消毒：統一轉換回試算表規範的 YYYY/MM/DD (若為空則傳入空字串)
+    const isActive = form.elements['is_valid'] ? form.elements['is_valid'].checked : true;
+    const remarksVal = form.elements['remarks'] ? form.elements['remarks'].value.trim() : (existingNode?.remarks || '');
     const launchDateVal = form.elements['launch_date'] ? AppDate.toSheet(form.elements['launch_date'].value) : '';
     const discontinueDateVal = form.elements['discontinue_date'] ? AppDate.toSheet(form.elements['discontinue_date'].value) : '';
     
-    // 官方最新異動日：優先取表單值，若表單無輸入且為編輯模式，則保留既有紀錄
     let officialUpdateDateVal = form.elements['official_update_date'] ? AppDate.toSheet(form.elements['official_update_date'].value) : '';
-    if (!officialUpdateDateVal && existingNode && existingNode.official_update_date) {
+    if (!officialUpdateDateVal && existingNode?.official_update_date) {
         officialUpdateDateVal = AppDate.toSheet(existingNode.official_update_date);
     }
 
-    // 1. prd_items 主檔陣列 (26 欄位)
+    // 1. prd_items 主檔陣列 (精準對齊最新 31 欄 Schema)
     const itemsRowArray = [
-        productCode,
-        form.elements['region_code'].value.trim() || 'TW',
-        form.elements['base_code'].value.trim(),
-        form.elements['name'].value.trim(),
-        form.elements['short_name'].value.trim(),
-        form.elements['short_summary'] ? form.elements['short_summary'].value.trim() : '',
-        categoryCode,
-        subcategoryCode,
-        typeCode,
-        form.elements['package_spec'].value.trim(),
-        parseInt(form.elements['product_weight'] ? form.elements['product_weight'].value : '0', 10) || '',
-        parseFloat(form.elements['price'].value) || 0,
-        form.elements['currency'].value.trim() || 'TWD',
-        parseInt(form.elements['sv_point'].value, 10) || 0,
-        form.elements['primary_image_url'].value.trim(),
-        form.elements['is_featured'].checked ? 'TRUE' : 'FALSE',
-        form.elements['stock_status'].value,
-        remarksVal,
-        isActive ? 'Y' : 'N',
-        launchDateVal,            // 第 19 欄：上市日期 (標準 YYYY/MM/DD)
-        discontinueDateVal,       // 第 20 欄：下市日期 (標準 YYYY/MM/DD)
-        officialUpdateDateVal,    // 第 21 欄：官方最新異動日期 (標準 YYYY/MM/DD)
-        createdBy,
-        createdAt,
-        currentUser,
-        nowStr
+        productCode,                                                // 0: product_code
+        form.elements['region_code'].value.trim() || 'TW',          // 1: region_code
+        baseCode,                                                   // 2: base_code
+        name,                                                       // 3: name
+        form.elements['short_name'].value.trim(),                   // 4: short_name
+        form.elements['short_summary'] ? form.elements['short_summary'].value.trim() : '', // 5: short_summary
+        categoryCode,                                               // 6: category_code
+        subcategoryCode,                                            // 7: subcategory_code
+        typeCode,                                                   // 8: type_code
+        form.elements['package_spec'].value.trim(),                 // 9: package_spec
+        form.elements['piece_spec'] ? form.elements['piece_spec'].value.trim() : '', // 10: piece_spec (最小受控單位規格)
+        parseInt(form.elements['product_weight'] ? form.elements['product_weight'].value : '0', 10) || 0, // 11: product_weight (g)
+        baseUnit,                                                   // 12: base_unit (官方正裝計量單位)
+        subUnit,                                                    // 13: sub_unit (散裝出貨最小單位)
+        piecesPerBox,                                               // 14: pieces_per_box (單盒散件數 N)
+        allowDecant,                                                // 15: allow_decant (是否開放拆盒散賣 Y/N)
+        parseFloat(price) || 0,                                     // 16: price
+        form.elements['currency'].value.trim() || 'TWD',            // 17: currency
+        parseInt(svPoint, 10) || 0,                                 // 18: sv_point
+        form.elements['primary_image_url'].value.trim(),            // 19: primary_image_url
+        form.elements['is_featured'].checked ? 'TRUE' : 'FALSE',    // 20: is_featured
+        form.elements['stock_status'].value,                       // 21: stock_status
+        remarksVal,                                                 // 22: remarks
+        isActive ? 'Y' : 'N',                                       // 23: is_valid
+        launchDateVal,                                              // 24: launch_date
+        discontinueDateVal,                                         // 25: delist_date
+        officialUpdateDateVal,                                      // 26: official_update_date
+        createdBy,                                                  // 27: created_by
+        createdAt,                                                  // 28: created_at
+        currentUser,                                                // 29: modified_by
+        nowStr                                                      // 30: modified_at
     ];
 
-    // 2. prd_item_details 規格陣列 (13 欄位)
+    // 2. prd_item_details 規格陣列 (13 欄位維持原樣)
     const detailsRowArray = [
         productCode,
         form.elements['hd_image_url'].value.trim(),
@@ -1584,7 +1628,7 @@ async function saveProductItem() {
 
     const $btnSave = $('#btnSaveFullProduct');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入雲端中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入雲端中...');
 
         if (mode === 'add') {
             await Promise.all([
@@ -1602,12 +1646,12 @@ async function saveProductItem() {
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
 
-        AppToast.success(`產品【${productCode}】已成功儲存！`);
+        AppToast.success(`產品【${productCode}】規格主檔已成功更新儲存！`);
         await fetchGoogleSheetsData();
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
     }
 }
 

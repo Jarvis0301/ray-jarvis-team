@@ -509,7 +509,11 @@
                                             <label class="form-label">包裝規格</label>
                                             <input type="text" class="form-control form-control-sm" name="package_spec" placeholder="例：140g x 3 盒／組">
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-md-2">
+                                            <label class="form-label">最小受控單位規格</label>
+                                            <input type="text" class="form-control form-control-sm" name="piece_spec" placeholder="例：180ml、30g">
+                                        </div>
+                                        <div class="col-12 col-md-2">
                                             <label class="form-label">產品重量</label>
                                             <div class="input-group input-group-sm">
                                                 <input type="number" class="form-control form-control-sm text-end" name="product_weight" min="0.1">
@@ -526,9 +530,30 @@
                                                 <input type="number" class="form-control form-control-sm text-end w-75" name="price" min="0" step="10" required>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-md-2">
                                             <label class="form-label">全球 SV <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm text-end" name="sv_point" min="0" required>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-2">
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">官方正裝計量單位 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" name="base_unit" id="modalBaseUnit" required></select>
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">散裝最小受控單位</label>
+                                            <select class="form-select form-select-sm" name="sub_unit" id="modalSubUnit"></select>
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">單盒(箱)內含最小散件總量 <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control form-control-sm text-end" name="pieces_per_box" min="1" value="1" required>
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">是否開放拆盒散賣 <span class="text-danger">*</span></label>
+                                            <select class="form-select form-select-sm" name="allow_decant" required>
+                                                <option value="Y" selected>是</option>
+                                                <option value="N">否</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
@@ -671,77 +696,92 @@
                                 </h4>
                                 <p class="text-secondary mb-3" id="viewPrdSummary">-</p>
 
-                                <!-- 電腦版改為 1 行 4 欄 (col-md-3) -->
-                                <div class="row g-3 border-top border-bottom border-secondary border-opacity-25 py-3 mb-3">
+                                <!-- 電腦版改為 1 行 4 欄 -->
+                                <div class="row g-3 border-top border-secondary border-opacity-25 mb-3">
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">主系列：</strong>
+                                        <span class="text-muted d-block">主系列：</span>
                                         <span id="viewPrdCategory">-</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">次系列：</strong>
+                                        <span class="text-muted d-block">次系列：</span>
                                         <span id="viewPrdSubcategory">-</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">型態：</strong>
+                                        <span class="text-muted d-block">型態：</span>
                                         <span id="viewPrdType">-</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">規格：</strong>
+                                        <span class="text-muted d-block">重量：</span>
+                                        <span id="viewPrdWeight" class="font-monospace text-light">-</span>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6 col-md-3">
+                                        <span class="text-muted d-block">包裝規格：</span>
                                         <span id="viewPrdSpec" class="font-monospace text-light">-</span>
                                     </div>
-
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">售價：</strong>
+                                        <span class="text-muted d-block">最小受控規格：</span>
+                                        <span id="viewPrdPieceSpec" class="font-monospace text-info">-</span>
+                                    </div>
+                                    <div class="col-6 col-md-6">
+                                        <span class="text-muted d-block">拆盒散賣規則：</span>
+                                        <span id="viewPrdDecantRule">-</span>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6 col-md-3">
+                                        <span class="text-muted d-block">售價：</span>
                                         <span id="viewPrdPrice" class="text-yellow fw-bold fs-6">0</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">全球 SV：</strong>
+                                        <span class="text-muted d-block">全球 SV：</span>
                                         <span id="viewPrdSv" class="text-teal fw-bold fs-6">0 SV</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">重量：</strong>
-                                        <span id="viewPrdWeight" class="font-monospace text-light">-</span>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">庫存狀態：</strong>
+                                        <span class="text-muted d-block">庫存狀態：</span>
                                         <span id="viewPrdStock">-</span>
                                     </div>
-
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">明星商品：</strong>
+                                        <span class="text-muted d-block">明星商品：</span>
                                         <span id="viewPrdFeatured">-</span>
                                     </div>
+                                </div>
+                                <div class="row g-3 mb-3">
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">上市狀態：</strong>
+                                        <span class="text-muted d-block">上市狀態：</span>
                                         <span id="viewPrdIsValid">-</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">上市日期：</strong>
+                                        <span class="text-muted d-block">上市日期：</span>
                                         <span id="viewPrdLaunchDate" class="font-monospace text-light">-</span>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">下市日期：</strong>
+                                        <span class="text-muted d-block">下市日期：</span>
                                         <span id="viewPrdDiscontinueDate" class="font-monospace text-light">-</span>
                                     </div>
-
                                     <div class="col-6 col-md-3">
-                                        <strong class="text-muted d-block mb-1">官方最新異動：</strong>
+                                        <span class="text-muted d-block">官方最新異動：</span>
                                         <span id="viewPrdOfficialUpdateDate" class="font-monospace text-light">-</span>
                                     </div>
-                                    <div class="col-6 col-md-9">
-                                        <strong class="text-muted d-block mb-1">品質認證：</strong>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12">
+                                        <span class="text-muted d-block">品質認證：</span>
                                         <span class="badge badge-info" id="viewPrdCertifications">無</span>
                                     </div>
                                 </div>
-
-                                <div class="mb-2">
-                                    <strong class="text-muted d-block mb-1">短語標籤：</strong>
-                                    <div id="viewPrdPhraseTags"></div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12">
+                                        <span class="text-muted d-block">短語標籤：</span>
+                                        <div id="viewPrdPhraseTags"></div>
+                                    </div>
                                 </div>
-
-                                <div class="mb-2">
-                                    <strong class="text-muted d-block mb-1">備註：</strong>
-                                    <span id="viewPrdRemarks" class="text-light">-</span>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12">
+                                        <span class="text-muted d-block">備註：</span>
+                                        <span id="viewPrdRemarks" class="text-light">-</span>
+                                    </div>
                                 </div>
                             </div>
 

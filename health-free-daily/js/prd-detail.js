@@ -111,8 +111,8 @@ async function loadProductDetail(productCode, region) {
         }
 
         // 解析產品主檔物件
-        const launchDate = getVal(targetProductRow, 19);
-        const delistDate = getVal(targetProductRow, 20);
+        const launchDate = getVal(targetProductRow, 24);
+        const delistDate = getVal(targetProductRow, 25);
         const marketStatus = getMarketStatus(launchDate, delistDate);
 
         const product = {
@@ -126,12 +126,12 @@ async function loadProductDetail(productCode, region) {
             subcategory_code: getVal(targetProductRow, 7),
             type_code: getVal(targetProductRow, 8),
             package_spec: getVal(targetProductRow, 9),
-            product_weight: getVal(targetProductRow, 10),
-            price: parseFloat(getVal(targetProductRow, 11, '0')) || 0,
-            currency: getVal(targetProductRow, 12, region === 'MY' ? 'MYR' : 'TWD'),
-            sv_point: parseFloat(getVal(targetProductRow, 13, '0')) || 0,
-            primary_image_url: parseImageUrl(getVal(targetProductRow, 14)),
-            is_featured: ['TRUE', 'Y', '1'].includes(getVal(targetProductRow, 15, 'FALSE').toUpperCase()),
+            product_weight: getVal(targetProductRow, 11),
+            price: parseFloat(getVal(targetProductRow, 16, '0')) || 0,
+            currency: getVal(targetProductRow, 17, region === 'MY' ? 'MYR' : 'TWD'),
+            sv_point: parseFloat(getVal(targetProductRow, 18, '0')) || 0,
+            primary_image_url: parseImageUrl(getVal(targetProductRow, 19)),
+            is_featured: ['TRUE', 'Y', '1'].includes(getVal(targetProductRow, 20, 'FALSE').toUpperCase()),
             launch_date: launchDate,
             delist_date: delistDate,
             is_on_market: marketStatus.isOnMarket,

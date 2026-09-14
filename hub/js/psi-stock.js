@@ -179,9 +179,9 @@ async function fetchGoogleSheetsData() {
             const region = getVal(r, 1, 'TW').toUpperCase();
             const name = getVal(r, 3);
             const shortName = getVal(r, 4);
-            const price = parseFloat(getVal(r, 11, '0')) || 0;
-            const currency = getVal(r, 12, region === 'MY' ? 'MYR' : 'TWD');
-            const svPoint = parseInt(getVal(r, 13, '0'), 10) || 0;
+            const price = parseFloat(getVal(r, 16, '0')) || 0;
+            const currency = getVal(r, 17, region === 'MY' ? 'MYR' : 'TWD');
+            const svPoint = parseInt(getVal(r, 18, '0'), 10) || 0;
             if (code) {
                 appState.products[code] = {
                     code,

@@ -177,9 +177,9 @@ async function fetchGoogleSheetsData() {
         let parsedAll = [];
         (productsData || []).forEach(row => {
             const productCode = getVal(row, 0);
-            const isValid = getVal(row, 18, 'Y');
-            const launchDate = getVal(row, 19);
-            const discontinueDate = getVal(row, 20);
+            const isValid = getVal(row, 23, 'Y');
+            const launchDate = getVal(row, 24);
+            const discontinueDate = getVal(row, 25);
             const status = getProductStatus(launchDate, discontinueDate);
 
             // 僅保留「即將上市」與「販售中」，排除「已下市」與無效項目
@@ -200,22 +200,19 @@ async function fetchGoogleSheetsData() {
                     subcategory_code: getVal(row, 7),
                     type_code: getVal(row, 8),
                     package_spec: getVal(row, 9),
-                    product_weight: getVal(row, 10),
-                    price: parseFloat(getVal(row, 11, '0')) || 0,
-                    currency: getVal(row, 12, regionCode === 'MY' ? 'MYR' : 'TWD'),
-                    sv_point: parseFloat(getVal(row, 13, '0')) || 0,
-                    primary_image_url: getVal(row, 14),
-                    is_featured: ['TRUE', 'Y', '1'].includes(getVal(row, 15, 'FALSE').toUpperCase()),
-                    stock_status: getVal(row, 16),
-                    sort_order: parseInt(getVal(row, 17, '0'), 10) || 0,
+                    product_weight: getVal(row, 11),
+                    price: parseFloat(getVal(row, 16, '0')) || 0,
+                    currency: getVal(row, 17, regionCode === 'MY' ? 'MYR' : 'TWD'),
+                    sv_point: parseFloat(getVal(row, 18, '0')) || 0,
+                    primary_image_url: getVal(row, 19),
+                    is_featured: ['TRUE', 'Y', '1'].includes(getVal(row, 20, 'FALSE').toUpperCase()),
+                    stock_status: getVal(row, 21),
                     launch_date: launchDate,
                     discontinue_date: discontinueDate,
                     status: status
                 });
             }
         });
-
-        parsedAll.sort((a, b) => a.sort_order - b.sort_order);
 
         appState.products.TW = parsedAll.filter(p => p.region_code === 'TW');
         appState.products.MY = parsedAll.filter(p => p.region_code === 'MY');
