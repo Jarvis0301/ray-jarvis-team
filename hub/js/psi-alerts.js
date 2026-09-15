@@ -31,17 +31,6 @@ function getCurrentUser() {
     }
 }
 
-function getCurrentUserEmail() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'jarvis20250807@gmail.com';
-    try {
-        const session = JSON.parse(rawSession);
-        return (session.user || '').toLowerCase().trim();
-    } catch (e) {
-        return 'jarvis20250807@gmail.com';
-    }
-}
-
 function getWarehouseName(whId, displayMode = 1) {
     return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }

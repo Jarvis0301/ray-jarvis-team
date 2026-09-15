@@ -31,17 +31,6 @@ function getCurrentUser() {
     }
 }
 
-function getCurrentUserEmail() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'jarvis20250807@gmail.com';
-    try {
-        const session = JSON.parse(rawSession);
-        return (session.user || '').toLowerCase().trim();
-    } catch (e) {
-        return 'jarvis20250807@gmail.com';
-    }
-}
-
 /**
  * 依據 Schema 規格生成庫存主鍵 (格式: STK-YYYYMMDD-流水4碼)
  */
