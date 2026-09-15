@@ -778,7 +778,7 @@ function formatTableRow(item) {
         total_boxes: `<span class="fw-bold text-white">${item.total_boxes}</span> 盒`,
         cost_breakdown: `
             <div>
-                <div class="fw-bold text-yellow">${currSym}${item.total_cost_amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
+                <div class="fw-bold text-orange">${currSym}${item.total_cost_amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
                 <div class="text-secondary small">品：${currSym}${item.product_amount.toLocaleString()} | 運：${currSym}${item.shipping_fee.toLocaleString()}</div>
             </div>
         `,
@@ -1031,24 +1031,24 @@ function renderInboundItemsTableFromStaging(isLocked) {
             const delBtnDisabled = isLocked ? 'disabled' : '';
 
             const stockBadge = it.stock_id 
-                ? `<span class="badge badge-purple-subtle font-monospace"><i class="fa-solid fa-boxes-stacked text-primary"></i> ${it.stock_id}</span>`
+                ? `<span class="fw-bold text-info-emphasis">${it.stock_id}</span>`
                 : '<span class="text-secondary small">未入庫</span>';
 
             $tbody.append(`
                 <tr>
-                    <td class="text-secondary">${it.item_seq}</td>
+                    <td class="text-secondary text-center">${it.item_seq}</td>
                     <td>
                         <div class="fw-bold text-white">${it.product_name_snapshot || '-'}</div>
-                        <div class="text-secondary small font-monospace">${it.official_product_code || '-'}</div>
+                        <div class="text-secondary small">${it.official_product_code || '-'}</div>
                     </td>
                     <td>${UIBadges.psi.feeItem(it.is_fee_item)}</td>
-                    <td>${currSym}${Number(it.unit_cost || 0).toLocaleString()}</td>
-                    <td class="text-warning">${it.unit_sv || 0} SV</td>
-                    <td>${it.ordered_qty}</td>
-                    <td>${it.official_shipped_qty || 0}</td>
-                    <td class="text-success fw-bold">${it.received_qty || 0}</td>
-                    <td class="text-success">${currSym}${Number(it.subtotal_amount || 0).toLocaleString()}</td>
-                    <td class="text-warning">${Number(it.subtotal_sv || 0).toLocaleString()} SV</td>
+                    <td class="text-yellow text-end">${currSym}${Number(it.unit_cost || 0).toLocaleString()}</td>
+                    <td class="text-teal text-end">${it.unit_sv || 0} SV</td>
+                    <td class="text-end">${it.ordered_qty}</td>
+                    <td class="text-end">${it.official_shipped_qty || 0}</td>
+                    <td class="fw-bold text-info text-end">${it.received_qty || 0}</td>
+                    <td class="fw-bold text-orange text-end">${currSym}${Number(it.subtotal_amount || 0).toLocaleString()}</td>
+                    <td class="fw-bold text-teal text-end">${Number(it.subtotal_sv || 0).toLocaleString()} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
                         <div class="text-secondary small">${it.expiry_date || '-'}</div>
@@ -1078,260 +1078,6 @@ function renderInboundItemsTableFromStaging(isLocked) {
 }
 
 /**
- * 行內明細暫存儲存（僅更新前端 stagingInboundItems 陣列，不發送網路請求）
- */
-function saveInlineItem() {
-    if (!currentDetailOrderId) return;
-
-    const productCode = $('#inlineFieldProduct').val();
-    const orderedQty = parseInt($('#inlineFieldOrderedQty').val(), 10) || 0;
-
-    if (!productCode) {
-        AppToast.warning("請選擇「產品品項 / 費用項目」！");
-        $('#inlineFieldProduct').select2('open');
-        return;
-    }
-    if (orderedQty <= 0) {
-        AppToast.warning("「訂購量」必須大於 0！");
-        $('#inlineFieldOrderedQty').focus();
-        return;
-    }
-
-    const itemId = $('#inlineItemId').val().trim();
-    const isEdit = Boolean(itemId);
-
-    let productName = '';
-    if (productCode === 'FEE_A13') {
-        productName = '官方物流運費';
-    } else {
-        const prod = appState.products.find(p => p.product_code === productCode);
-        productName = prod ? prod.name : productCode;
-    }
-
-    const isFee = $('#inlineFieldIsFee').val();
-    const unitCost = parseFloat($('#inlineFieldUnitCost').val()) || 0;
-    const unitSv = parseInt($('#inlineFieldUnitSv').val(), 10) || 0;
-    const receivedQty = parseInt($('#inlineFieldReceivedQty').val(), 10) || 0;
-    const effectiveQty = receivedQty > 0 ? receivedQty : orderedQty;
-    const batchNo = $('#inlineFieldBatchNo').val().trim();
-    const expiryDate = $('#inlineFieldExpiryDate').val();
-    const remarks = $('#inlineFieldRemarks').val().trim();
-
-    // ★ 調用 AppCalc 高精度乘法
-    const subtotalAmount = AppCalc.multiply(effectiveQty, unitCost, 2);
-    const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 0); // 官方考核點數為純整數
-
-    if (!isEdit) {
-        const nextSeq = stagingInboundItems.length > 0 ? Math.max(...stagingInboundItems.map(it => it.item_seq)) + 1 : 1;
-        const newTempId = `${currentDetailOrderId}_TEMP_${Date.now()}_${nextSeq}`;
-
-        stagingInboundItems.push({
-            id: newTempId,
-            inbound_id: currentDetailOrderId,
-            item_seq: nextSeq,
-            official_product_code: productCode === 'FEE_A13' ? 'A13' : productCode,
-            product_name_snapshot: productName,
-            product_id: productCode === 'FEE_A13' ? '' : productCode,
-            is_fee_item: isFee,
-            currency_code: 'TWD',
-            unit_cost: unitCost,
-            unit_sv: unitSv,
-            ordered_qty: orderedQty,
-            official_shipped_qty: orderedQty,
-            received_qty: receivedQty,
-            subtotal_amount: subtotalAmount,
-            subtotal_sv: subtotalSv,
-            batch_no: batchNo,
-            expiry_date: expiryDate,
-            stock_id: '',
-            remarks: remarks,
-            _isNew: true
-        });
-        AppToast.info(`已暫存品項【${productName}】`);
-    } else {
-        const target = stagingInboundItems.find(it => it.id === itemId);
-        if (target) {
-            target.official_product_code = productCode === 'FEE_A13' ? 'A13' : productCode;
-            target.product_name_snapshot = productName;
-            target.product_id = productCode === 'FEE_A13' ? '' : productCode;
-            target.is_fee_item = isFee;
-            target.unit_cost = unitCost;
-            target.unit_sv = unitSv;
-            target.ordered_qty = orderedQty;
-            target.official_shipped_qty = orderedQty;
-            target.received_qty = receivedQty;
-            target.subtotal_amount = unitCost * effectiveQty;
-            target.subtotal_sv = unitSv * effectiveQty;
-            target.batch_no = batchNo;
-            target.expiry_date = expiryDate;
-            target.remarks = remarks;
-            target._isModified = true;
-            AppToast.info(`已更新暫存品項【${productName}】`);
-        }
-    }
-
-    closeInlineItemForm();
-    renderInboundItemsTableFromStaging(false);
-}
-
-/**
- * 行內明細暫存刪除（僅自前端 stagingInboundItems 剔除，不發送網路請求）
- */
-function deleteInlineItem(itemId) {
-    const idx = stagingInboundItems.findIndex(it => it.id === itemId);
-    if (idx === -1) return;
-
-    if (!itemId.includes('_TEMP_')) {
-        deletedInboundItemIds.push(itemId);
-    }
-    stagingInboundItems.splice(idx, 1);
-
-    // 重新排序流水項次
-    stagingInboundItems.forEach((it, index) => {
-        it.item_seq = index + 1;
-    });
-
-    renderInboundItemsTableFromStaging(false);
-    AppToast.info("明細已自暫存清單移除（尚未送出雲端）");
-}
-
-/**
- * 一次性批次儲存所有進貨明細並自動重算母單
- */
-async function saveAllInboundItems() {
-    if (!currentDetailOrderId) return;
-    const parentInbound = appState.inbounds.find(d => d.id === currentDetailOrderId);
-    if (!parentInbound) return;
-
-    const $btn = $('#btnSaveAllInboundItems');
-    try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 正在批次寫入雲端...');
-        const currentUser = getCurrentUser();
-        const nowStr = AppDate.now('full');
-
-        // 1. 執行刪除
-        for (const delId of deletedInboundItemIds) {
-            await SheetAdapter.sendRequest('DELETE', '進貨明細', delId, []);
-        }
-
-        // 2. 執行新增與更新
-        for (let i = 0; i < stagingInboundItems.length; i++) {
-            const it = stagingInboundItems[i];
-            const finalSeq = i + 1;
-            let finalItemId = it.id;
-
-            if (it._isNew || it.id.includes('_TEMP_')) {
-                finalItemId = `${currentDetailOrderId}_${String(finalSeq).padStart(2, '0')}`;
-            }
-
-            const expiryDateVal = it.expiry_date ? AppDate.toSheet(it.expiry_date) : ''; // 有效日期：YYYY/MM/DD
-
-            const rowDataArray = [
-                finalItemId,
-                currentDetailOrderId,
-                finalSeq,
-                it.official_product_code,
-                it.product_name_snapshot,
-                it.product_id,
-                it.is_fee_item,
-                it.currency_code || 'TWD',
-                it.unit_cost,
-                it.unit_sv,
-                it.ordered_qty,
-                it.official_shipped_qty,
-                it.received_qty,
-                it.subtotal_amount,
-                it.subtotal_sv,
-                it.batch_no,
-                expiryDateVal,
-                it.stock_id || '',
-                it.remarks || '',
-                it.created_by || currentUser,
-                it.created_at || nowStr,
-                currentUser,
-                nowStr
-            ];
-
-            if (it._isNew || it.id.includes('_TEMP_')) {
-                await SheetAdapter.sendRequest('CREATE', '進貨明細', finalItemId, rowDataArray);
-            } else if (it._isModified) {
-                await SheetAdapter.sendRequest('UPDATE', '進貨明細', finalItemId, rowDataArray);
-            }
-        }
-
-        // 3. 自動依明細重算進貨主檔數值
-        let calcProductAmount = 0;
-        let calcShippingFee = 0;
-        let calcTotalBoxes = 0;
-        let calcTotalSv = 0;
-
-        stagingInboundItems.forEach(it => {
-            const qty = parseInt(it.ordered_qty, 10) || 0;
-            const amt = parseFloat(it.subtotal_amount) || 0;
-            const sv = parseInt(it.subtotal_sv, 10) || 0;
-
-            if (it.is_fee_item === 'Y') {
-                // 非商品項目（如 A13 運費、雜費等）自動累計至運費/雜費小計
-                calcShippingFee = AppCalc.add(calcShippingFee, amt);
-            } else {
-                calcProductAmount = AppCalc.add(calcProductAmount, amt);
-                calcTotalBoxes = AppCalc.add(calcTotalBoxes, qty);
-                calcTotalSv = AppCalc.add(calcTotalSv, sv);
-            }
-        });
-
-        const shippingFee = parseFloat(parentInbound.shipping_fee) || 0;
-        const calcTotalCost = AppCalc.add(calcProductAmount, shippingFee);
-
-        parentInbound.product_amount = calcProductAmount;
-        parentInbound.shipping_fee = calcShippingFee;
-        parentInbound.total_boxes = calcTotalBoxes;
-        parentInbound.total_sv = calcTotalSv;
-        parentInbound.total_cost_amount = calcTotalCost;
-        parentInbound.modified_by = currentUser;
-        parentInbound.modified_at = nowStr;
-
-        const parentRowData = [
-            parentInbound.id,
-            parentInbound.official_order_no,
-            parentInbound.order_category,
-            parentInbound.order_center,
-            parentInbound.performance_month,
-            parentInbound.order_date,
-            parentInbound.delivery_method,
-            parentInbound.warehouse_id,
-            parentInbound.purchaser_partner_id,
-            parentInbound.sv_owner_partner_id,
-            parentInbound.inbound_date,
-            parentInbound.currency_code,
-            parentInbound.product_amount,
-            parentInbound.shipping_fee,
-            parentInbound.total_cost_amount,
-            parentInbound.total_sv,
-            parentInbound.total_boxes,
-            parentInbound.official_shipping_no,
-            parentInbound.shipping_date,
-            parentInbound.status,
-            parentInbound.remarks,
-            parentInbound.created_by,
-            parentInbound.created_at,
-            parentInbound.modified_by,
-            parentInbound.modified_at
-        ];
-
-        await SheetAdapter.sendRequest('UPDATE', '進貨主檔', parentInbound.id, parentRowData);
-
-        await fetchAllGoogleSheetsData();
-        bootstrap.Modal.getInstance(document.getElementById('inboundDetailModal')).hide();
-        AppToast.success(`進貨單【${currentDetailOrderId}】全體明細已一次性同步儲存完成！`);
-    } catch (err) {
-        AppToast.error("批次儲存明細失敗：" + err.message);
-    } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存明細清單變更');
-    }
-}
-
-/**
  * 開啟進貨入庫單據詳細資料彈窗 (比照 psi-adjust)
  */
 function openInboundMasterDetailModal(orderId) {
@@ -1352,11 +1098,11 @@ function openInboundMasterDetailModal(orderId) {
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">系統進貨單號 (PK)</span>
-                <span class="text-info-emphasis fw-bold font-monospace">${item.id}</span>
+                <span class="text-info-emphasis fw-bold">${item.id}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">葡眾官方訂購單號</span>
-                <span class="text-white font-monospace">${item.official_order_no || '無官方單號'}</span>
+                <span class="text-white">${item.official_order_no || '無官方單號'}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">入庫履約狀態</span>
@@ -1364,7 +1110,7 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <span class="text-secondary small">官方訂購類別</span>
-                <span class="badge badge-purple-subtle">${item.order_category || '本人訂購'}</span>
+                <span class="text-white">${item.order_category || '本人訂購'}</span>
             </div>
         </article>
 
@@ -1404,7 +1150,7 @@ function openInboundMasterDetailModal(orderId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">下單訂購日期</div>
-                <div class="col-7 text-light text-end font-monospace">${item.order_date || '-'}</div>
+                <div class="col-7 text-light text-end">${item.order_date || '-'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">業績計入月份</div>
@@ -1412,15 +1158,15 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方出貨單號</div>
-                <div class="col-7 text-light text-end font-monospace">${item.official_shipping_no || '尚未出貨'}</div>
+                <div class="col-7 text-light text-end">${item.official_shipping_no || '尚未出貨'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方出貨日期</div>
-                <div class="col-7 text-light text-end font-monospace">${item.shipping_date || '-'}</div>
+                <div class="col-7 text-light text-end">${item.shipping_date || '-'}</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">實體驗收入庫日</div>
-                <div class="col-7 text-success text-end fw-bold font-monospace">${item.inbound_date || '未入庫'}</div>
+                <div class="col-7 text-success text-end fw-bold">${item.inbound_date || '未入庫'}</div>
             </div>
         </article>
 
@@ -1430,7 +1176,7 @@ function openInboundMasterDetailModal(orderId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">商品金額小計</div>
-                <div class="col-7 text-white text-end">${currSym}${Number(item.product_amount || 0).toLocaleString()}</div>
+                <div class="col-7 text-yellow text-end">${currSym}${Number(item.product_amount || 0).toLocaleString()}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方物流運費</div>
@@ -1438,15 +1184,15 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實付總額 (含運)</div>
-                <div class="col-7 text-success fw-bold text-end fs-6">${currSym}${Number(item.total_cost_amount || 0).toLocaleString()}</div>
+                <div class="col-7 text-orange fw-bold text-end fs-6">${currSym}${Number(item.total_cost_amount || 0).toLocaleString()}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">採購總盒數</div>
-                <div class="col-7 text-white fw-bold text-end">${item.total_boxes || 0} 盒</div>
+                <div class="col-7 text-info fw-bold text-end">${item.total_boxes || 0} 盒</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">官方考核總 SV</div>
-                <div class="col-7 text-warning fw-bold text-end fs-6">${Number(item.total_sv || 0).toLocaleString()} SV</div>
+                <div class="col-7 text-teal fw-bold text-end fs-6">${Number(item.total_sv || 0).toLocaleString()} SV</div>
             </div>
         </article>
 
@@ -1574,24 +1320,24 @@ function renderInboundItemsTable(orderId, isLocked) {
             const delBtnDisabled = isLocked ? 'disabled' : '';
 
             const stockBadge = it.stock_id 
-                ? `<span class="badge badge-purple-subtle font-monospace"><i class="fa-solid fa-boxes-stacked text-primary"></i> ${it.stock_id}</span>`
+                ? `<span class="fw-bold text-info-emphasis">${it.stock_id}</span>`
                 : '<span class="text-secondary small">未入庫</span>';
 
             $tbody.append(`
                 <tr>
-                    <td class="text-secondary">${it.item_seq}</td>
+                    <td class="text-secondary text-center">${it.item_seq}</td>
                     <td>
                         <div class="fw-bold text-white">${it.product_name_snapshot || '-'}</div>
                         <div class="text-secondary small">${it.official_product_code || '-'}</div>
                     </td>
                     <td>${UIBadges.psi.feeItem(it.is_fee_item)}</td>
-                    <td>${currSym}${it.unit_cost.toLocaleString()}</td>
-                    <td class="text-warning">${it.unit_sv} SV</td>
-                    <td>${it.ordered_qty}</td>
-                    <td>${it.official_shipped_qty}</td>
-                    <td class="text-success fw-bold">${it.received_qty}</td>
-                    <td class="text-success">${currSym}${it.subtotal_amount.toLocaleString()}</td>
-                    <td class="text-warning">${it.subtotal_sv} SV</td>
+                    <td class="text-yellow text-end">${currSym}${it.unit_cost.toLocaleString()}</td>
+                    <td class="text-teal text-end">${it.unit_sv} SV</td>
+                    <td class="text-end">${it.ordered_qty}</td>
+                    <td class="text-end">${it.official_shipped_qty}</td>
+                    <td class="fw-bold text-info text-end">${it.received_qty}</td>
+                    <td class="fw-bold text-orange text-end">${currSym}${it.subtotal_amount.toLocaleString()}</td>
+                    <td class="fw-bold text-teal text-end">${it.subtotal_sv} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
                         <div class="text-secondary small">${it.expiry_date || '-'}</div>
@@ -1780,47 +1526,48 @@ function onInlineProductChange() {
     calcInlineSubtotal();
 }
 
-function calcInlineSubtotal() {
-    // 提供即時預覽計算 (若需要可擴展)
-}
+// ==========================================================================
+// 進貨明細暫存池 (In-Memory Staging) 核心操作模組
+// 點擊明細視窗右下角「儲存明細清單變更」前，絕不發送網路請求寫入雲端
+// ==========================================================================
 
+/**
+ * 1. 行內明細編輯：從暫存陣列 stagingInboundItems 提取資料反顯
+ */
 function editInlineItem(itemId) {
-    const item = stagingInboundItems.find(it => it.id === itemId) || appState.inboundItems.find(it => it.id === itemId);
-    if (!item) return;
+    // 優先從暫存清單查找（支援未存檔之新增/修改項再次編輯）
+    const item = stagingInboundItems.find(it => it.id === itemId);
+    if (!item) {
+        AppToast.warning("找不到該筆暫存明細資料！");
+        return;
+    }
 
-    $('#inlineFormTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細細項');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細項目');
     $('#inlineItemId').val(item.id);
 
+    // 費用項目與產品品項 Select2 反顯
     const targetCode = (item.official_product_code === 'A13' || item.is_fee_item === 'Y') 
         ? 'FEE_A13' 
         : (item.product_id || item.official_product_code);
 
     $('#inlineFieldProduct').val(targetCode).trigger('change.select2');
 
-    const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
-    const curr = (parentOrder && parentOrder.currency_code) || item.currency_code || 'TWD';
-    const unitCost = parseFloat(item.unit_cost) || 0;
-    const unitSv = parseInt(item.unit_sv, 10) || 0;
-
     $('#inlineFieldIsFee').val(item.is_fee_item);
-
-    // ★ 編輯反顯：格式化呈現單價與 SV
-    $('#inlineFieldRawUnitCost').val(unitCost);
-    $('#inlineFieldUnitCost').val(formatCurrency(unitCost, curr));
-
-    $('#inlineFieldRawUnitSv').val(unitSv);
-    $('#inlineFieldUnitSv').val(`${Number(unitSv).toLocaleString()} SV`);
-
+    $('#inlineFieldUnitCost').val(item.unit_cost);
+    $('#inlineFieldUnitSv').val(item.unit_sv);
     $('#inlineFieldOrderedQty').val(item.ordered_qty);
     $('#inlineFieldReceivedQty').val(item.received_qty);
-    $('#inlineFieldBatchNo').val(item.batch_no);
+    $('#inlineFieldBatchNo').val(item.batch_no || '');
     $('#inlineFieldExpiryDate').val(item.expiry_date ? AppDate.toInput(item.expiry_date) : '');
-    $('#inlineFieldRemarks').val(item.remarks);
+    $('#inlineFieldRemarks').val(item.remarks || '');
 
     $('#itemInlineFormCollapse').collapse('show');
 }
 
-async function saveInlineItem() {
+/**
+ * 2. 行內明細暫存儲存：純前端陣列更新，不發送網路請求
+ */
+function saveInlineItem() {
     if (!currentDetailOrderId) return;
 
     const productCode = $('#inlineFieldProduct').val();
@@ -1849,22 +1596,23 @@ async function saveInlineItem() {
     }
 
     const isFee = $('#inlineFieldIsFee').val();
-
-    // ★ 從隱藏欄位安全提煉純數值，杜絕字串解析 NaN
-    const unitCost = parseFloat($('#inlineFieldRawUnitCost').val()) || 0;
-    const unitSv = parseInt($('#inlineFieldRawUnitSv').val(), 10) || 0;
+    const unitCost = parseFloat($('#inlineFieldUnitCost').val()) || 0;
+    const unitSv = parseInt($('#inlineFieldUnitSv').val(), 10) || 0;
     const receivedQty = parseInt($('#inlineFieldReceivedQty').val(), 10) || 0;
     const batchNo = $('#inlineFieldBatchNo').val().trim();
     const expiryDate = $('#inlineFieldExpiryDate').val();
     const remarks = $('#inlineFieldRemarks').val().trim();
     const effectiveQty = receivedQty > 0 ? receivedQty : orderedQty;
 
-    // ★ 全面調用 AppCalc 進行高精度小計試算
+    // 調用 AppCalc 高精度計算，防止浮點數失真
     const subtotalAmount = AppCalc.multiply(effectiveQty, unitCost, 2);
     const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 0);
 
     if (!isEdit) {
-        const nextSeq = stagingInboundItems.length > 0 ? Math.max(...stagingInboundItems.map(it => it.item_seq)) + 1 : 1;
+        // 新增模式：產生前端暫存虛擬 ID
+        const nextSeq = stagingInboundItems.length > 0 
+            ? Math.max(...stagingInboundItems.map(it => it.item_seq)) + 1 
+            : 1;
         const newTempId = `${currentDetailOrderId}_TEMP_${Date.now()}_${nextSeq}`;
 
         stagingInboundItems.push({
@@ -1875,22 +1623,23 @@ async function saveInlineItem() {
             product_name_snapshot: productName,
             product_id: productCode === 'FEE_A13' ? '' : productCode,
             is_fee_item: isFee,
-            currency_code: $('#fieldCurrencyCode').val() || 'TWD',
+            currency_code: 'TWD',
             unit_cost: unitCost,
             unit_sv: unitSv,
             ordered_qty: orderedQty,
             official_shipped_qty: orderedQty,
             received_qty: receivedQty,
-            subtotal_sv: subtotalSv,
             subtotal_amount: subtotalAmount,
+            subtotal_sv: subtotalSv,
             batch_no: batchNo,
             expiry_date: expiryDate,
             stock_id: '',
             remarks: remarks,
             _isNew: true
         });
-        AppToast.info(`已暫存品項【${productName}】`);
+        AppToast.info(`已暫存品項【${productName}】（尚未儲存至雲端）`);
     } else {
+        // 編輯模式：更新暫存池中既有物件
         const target = stagingInboundItems.find(it => it.id === itemId);
         if (target) {
             target.official_product_code = productCode === 'FEE_A13' ? 'A13' : productCode;
@@ -1902,13 +1651,13 @@ async function saveInlineItem() {
             target.ordered_qty = orderedQty;
             target.official_shipped_qty = orderedQty;
             target.received_qty = receivedQty;
-            target.subtotal_sv = subtotalSv;
             target.subtotal_amount = subtotalAmount;
+            target.subtotal_sv = subtotalSv;
             target.batch_no = batchNo;
             target.expiry_date = expiryDate;
             target.remarks = remarks;
             target._isModified = true;
-            AppToast.info(`已更新暫存品項【${productName}】`);
+            AppToast.info(`已更新暫存品項【${productName}】（尚未儲存至雲端）`);
         }
     }
 
@@ -1916,27 +1665,167 @@ async function saveInlineItem() {
     renderInboundItemsTableFromStaging(false);
 }
 
-async function deleteInlineItem(itemId) {
+/**
+ * 3. 行內明細暫存刪除：自暫存陣列移除並記錄刪除清單，不發送網路請求
+ */
+function deleteInlineItem(itemId) {
+    const idx = stagingInboundItems.findIndex(it => it.id === itemId);
+    if (idx === -1) return;
+
+    // 若非本次新增的暫存項目，加入待刪除排隊佇列
+    if (!itemId.includes('_TEMP_')) {
+        deletedInboundItemIds.push(itemId);
+    }
+    stagingInboundItems.splice(idx, 1);
+
+    // 重新校準項次流水號
+    stagingInboundItems.forEach((it, index) => {
+        it.item_seq = index + 1;
+        it._isModified = true;
+    });
+
+    renderInboundItemsTableFromStaging(false);
+    AppToast.info("明細已自暫存清單移除（尚未儲存至雲端）");
+}
+
+/**
+ * 4. 明細視窗右下角【儲存明細清單變更】：唯一向雲端發送批次寫入之出入口
+ */
+async function saveAllInboundItems() {
+    if (!currentDetailOrderId) return;
     const parentInbound = appState.inbounds.find(d => d.id === currentDetailOrderId);
-    if (parentInbound && (parentInbound.status === '已入庫' || parentInbound.status === '已取消')) {
-        AppToast.warning("該單據已封存鎖定，禁止刪除細項！");
+    if (!parentInbound) {
+        AppToast.error("母單資料遺失，無法儲存！");
         return;
     }
 
-    const confirmed = await AppDialog.confirm(`確定要刪除此筆進貨明細嗎？此動作不可復原！`, {
-        title: '刪除明細確認',
-        confirmText: '確定刪除',
-        confirmClass: 'btn-danger'
-    });
-    if (!confirmed) return;
-
+    const $btn = $('#btnSaveAllInboundItems');
     try {
-        await SheetAdapter.sendRequest('DELETE', '進貨明細', itemId, []);
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 批次寫入雲端中...');
+        const currentUser = getCurrentUser();
+        const nowStr = AppDate.now('full');
+
+        // 第一階段：執行已標記刪除項目的雲端清除
+        for (const delId of deletedInboundItemIds) {
+            await SheetAdapter.sendRequest('DELETE', '進貨明細', delId, []);
+        }
+
+        // 第二階段：執行暫存明細之逐列新增或更新（對齊表 304 實體 23 欄）
+        for (let i = 0; i < stagingInboundItems.length; i++) {
+            const it = stagingInboundItems[i];
+            const finalSeq = i + 1;
+            let finalItemId = it.id;
+
+            // 若為臨時 ID，重新賦予正式物理主鍵格式：母單號_項次流水號
+            if (it._isNew || it.id.includes('_TEMP_')) {
+                finalItemId = `${currentDetailOrderId}_${String(finalSeq).padStart(2, '0')}`;
+            }
+
+            const expiryDateVal = it.expiry_date ? AppDate.toSheet(it.expiry_date) : '';
+
+            const rowDataArray = [
+                finalItemId,
+                currentDetailOrderId,
+                finalSeq,
+                it.official_product_code,
+                it.product_name_snapshot,
+                it.product_id,
+                it.is_fee_item,
+                it.currency_code || 'TWD',
+                it.unit_cost,
+                it.unit_sv,
+                it.ordered_qty,
+                it.official_shipped_qty,
+                it.received_qty,
+                it.subtotal_amount,
+                it.subtotal_sv,
+                it.batch_no || '',
+                expiryDateVal,
+                it.stock_id || '',
+                it.remarks || '',
+                it.created_by || currentUser,
+                it.created_at || nowStr,
+                currentUser,
+                nowStr
+            ];
+
+            if (it._isNew || it.id.includes('_TEMP_')) {
+                await SheetAdapter.sendRequest('CREATE', '進貨明細', finalItemId, rowDataArray);
+            } else if (it._isModified) {
+                await SheetAdapter.sendRequest('UPDATE', '進貨明細', finalItemId, rowDataArray);
+            }
+        }
+
+        // 第三階段：以 AppCalc 動態精算母單各項數值（排除運雜費之虛假盒數與商品小計）
+        let calcProductAmount = 0;
+        let calcShippingFee = 0;
+        let calcTotalBoxes = 0;
+        let calcTotalSv = 0;
+
+        stagingInboundItems.forEach(it => {
+            const qty = parseInt(it.ordered_qty, 10) || 0;
+            const amt = parseFloat(it.subtotal_amount) || 0;
+            const sv = parseInt(it.subtotal_sv, 10) || 0;
+
+            if (it.is_fee_item === 'Y') {
+                calcShippingFee = AppCalc.add(calcShippingFee, amt);
+            } else {
+                calcProductAmount = AppCalc.add(calcProductAmount, amt);
+                calcTotalBoxes = AppCalc.add(calcTotalBoxes, qty);
+                calcTotalSv = AppCalc.add(calcTotalSv, sv);
+            }
+        });
+
+        const calcTotalCost = AppCalc.add(calcProductAmount, calcShippingFee);
+
+        parentInbound.product_amount = calcProductAmount;
+        parentInbound.shipping_fee = calcShippingFee;
+        parentInbound.total_cost_amount = calcTotalCost;
+        parentInbound.total_boxes = calcTotalBoxes;
+        parentInbound.total_sv = calcTotalSv;
+        parentInbound.modified_by = currentUser;
+        parentInbound.modified_at = nowStr;
+
+        // 回寫表 303 進貨主檔（0~24 實體 25 欄物理順序）
+        const parentRowData = [
+            parentInbound.id,
+            parentInbound.official_order_no,
+            parentInbound.order_category,
+            parentInbound.order_center,
+            parentInbound.performance_month,
+            parentInbound.order_date,
+            parentInbound.delivery_method,
+            parentInbound.warehouse_id,
+            parentInbound.purchaser_partner_id,
+            parentInbound.sv_owner_partner_id,
+            parentInbound.inbound_date,
+            parentInbound.currency_code,
+            parentInbound.product_amount,
+            parentInbound.shipping_fee,
+            parentInbound.total_cost_amount,
+            parentInbound.total_sv,
+            parentInbound.total_boxes,
+            parentInbound.official_shipping_no,
+            parentInbound.shipping_date,
+            parentInbound.status,
+            parentInbound.remarks,
+            parentInbound.created_by,
+            parentInbound.created_at,
+            parentInbound.modified_by,
+            parentInbound.modified_at
+        ];
+
+        await SheetAdapter.sendRequest('UPDATE', '進貨主檔', parentInbound.id, parentRowData);
+
+        // 重新同步全域狀態並關閉彈窗
         await fetchAllGoogleSheetsData();
-        renderInboundItemsTable(currentDetailOrderId, false);
-        AppToast.success("明細已自雲端試算表刪除！");
+        bootstrap.Modal.getInstance(document.getElementById('inboundDetailModal')).hide();
+        AppToast.success(`進貨單【${currentDetailOrderId}】全體明細已成功批次同步至雲端！`);
     } catch (err) {
-        AppToast.error("明細刪除失敗：" + err.message);
+        console.error("明細批次儲存失敗:", err);
+        AppToast.error("批次儲存明細失敗：" + err.message);
+    } finally {
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存明細清單變更');
     }
 }
 

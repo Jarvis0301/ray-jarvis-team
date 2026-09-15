@@ -236,23 +236,19 @@ async function fetchGoogleSheetsData() {
 // 依據上市日期與下市日期判定狀態：'COMING_SOON' (即將上市)、'ACTIVE' (販售中)、'DISCONTINUED' (已下市)
 function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const launchDate = AppDate.toTimestamp(launchDateVal);
     const discontinueDate = AppDate.toTimestamp(discontinueDateVal);
 
     // 1. 若有上市日期且晚於今天 -> 即將上市
     if (launchDate) {
-        launchDate.setHours(0, 0, 0, 0);
-        if (launchDate.getTime() > today.getTime()) {
+        if (launchDate > today) {
             return 'COMING_SOON';
         }
     }
 
     // 2. 若有下市日期且早於今天 -> 已下市
     if (discontinueDate) {
-        discontinueDate.setHours(0, 0, 0, 0);
-        if (discontinueDate.getTime() < today.getTime()) {
+        if (discontinueDate < today) {
             return 'DISCONTINUED';
         }
     }

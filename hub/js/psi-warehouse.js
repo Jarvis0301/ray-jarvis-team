@@ -183,6 +183,7 @@ function renderStats(list) {
     const officialCount = list.filter(w => w.warehouse_type === '官方營運中心' || w.warehouse_type === 'OFFICIAL_CENTER').length;
     const privateCount = list.filter(w => w.warehouse_type === '自用常備倉' || w.warehouse_type === 'PRIVATE_HUB').length;
     const overseasCount = list.filter(w => w.warehouse_type === '海外商務倉' || w.warehouse_type === 'TRANSIT_OVERSEAS').length;
+    const transitCount = list.filter(w => w.warehouse_type === '物流在途倉' || w.warehouse_type === 'LOGISTICS_IN_TRANSIT').length;
     const activeCount = list.filter(w => w.is_active === 'Y').length;
     const activeRate = list.length ? Math.round((activeCount / list.length) * 100) : 0;
 
@@ -195,10 +196,10 @@ function renderStats(list) {
     $('#stat-active-rate').text(`${activeRate}%`);
 
     $('#count-all').text(list.length);
-    $('#count-official').text(list.filter(w => w.warehouse_type === '官方營運中心' || w.warehouse_type === 'OFFICIAL_CENTER').length);
-    $('#count-private').text(list.filter(w => w.warehouse_type === '自用常備倉' || w.warehouse_type === 'PRIVATE_HUB').length);
-    $('#count-overseas').text(list.filter(w => w.warehouse_type === '海外商務倉' || w.warehouse_type === 'TRANSIT_OVERSEAS').length);
-    $('#count-transit').text(list.filter(w => w.warehouse_type === '物流在途倉' || w.warehouse_type === 'LOGISTICS_IN_TRANSIT').length);
+    $('#count-official').text(officialCount);
+    $('#count-private').text(privateCount);
+    $('#count-overseas').text(overseasCount);
+    $('#count-transit').text(transitCount);
 }
 
 function renderGridCards(list) {

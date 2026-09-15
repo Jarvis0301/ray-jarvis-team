@@ -518,23 +518,6 @@ function renderMetrics() {
     $('#statUnboxingQty').text(`${unboxingQty.toLocaleString()} 支/條`);
 }
 
-function switchTacticalMode(mode) {
-    appState.currentTacticalMode = mode;
-    if (mode === 'AUDIT') {
-        $('#btnModeAudit').addClass('active');
-        $('#btnModeTransfer').removeClass('active');
-        $('#sectionAuditWorkbench').removeClass('d-none');
-        $('#sectionTransferWorkbench').addClass('d-none');
-        if (dtAdjustmentsInstance) dtAdjustmentsInstance.columns.adjust().responsive;
-    } else {
-        $('#btnModeTransfer').addClass('active');
-        $('#btnModeAudit').removeClass('active');
-        $('#sectionTransferWorkbench').removeClass('d-none');
-        $('#sectionAuditWorkbench').addClass('d-none');
-        if (dtTransfersInstance) dtTransfersInstance.columns.adjust().responsive;
-    }
-}
-
 function renderAdjustmentsTable() {
     const filtered = getFilteredAdjustments();
     const formatted = filtered.map(a => {
@@ -589,8 +572,8 @@ function renderAdjustmentsTable() {
             `,
             cost_breakdown: `
                 <div>
-                    <div class="text-warning fw-bold">${formatCurrency(a.total_cost, a.currency_code)}</div>
-                    <div class="text-warning-emphasis small d-none">@ ${formatCurrency(a.unit_cost, a.currency_code)}</div>
+                    <div class="text-orange fw-bold">${formatCurrency(a.total_cost, a.currency_code)}</div>
+                    <div class="text-yellow small d-none">@ ${formatCurrency(a.unit_cost, a.currency_code)}</div>
                 </div>
             `,
             sv_breakdown: `<span class="text-teal fw-bold">${svDisplay}</span>`,
@@ -668,8 +651,8 @@ function renderTransfersTable() {
                 </div>
             `,
             quantity: `<span class="text-info">${Math.abs(t.quantity)} ${t.adj_unit}</span>`,
-            cost: `<span class="text-warning fw-bold">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
-            sv: `<span class="text-teal fw-bold">${t.total_sv.toLocaleString()} SV</span>`,
+            cost: `<span class="text-orange fw-bold">${formatCurrency(t.total_cost, t.currency_code)}</span>`,
+            sv: `<span class="text-teal fw-bold">${AppCalc.formatSV(t.total_sv, 'INTERNAL')} SV</span>`,
             operator: `<span class="text-light">${operatorResolved}</span>`,
             actions: actionButtons
         };
@@ -793,11 +776,11 @@ function openAdjustmentDetailModal(adjId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">成本單價</div>
-                <div class="col-7 text-warning-emphasis text-end">${unitCostDisplay}</div>
+                <div class="col-7 text-yellow text-end">${unitCostDisplay}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">成本總損益 / 額度</div>
-                <div class="col-7 text-warning fw-bold text-end">${costDisplay}</div>
+                <div class="col-7 text-orange fw-bold text-end">${costDisplay}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">單件 SV</div>
@@ -815,6 +798,10 @@ function openAdjustmentDetailModal(adjId) {
             </h6>
             <div class="text-light small p-2 rounded" style="background: rgba(10, 5, 18, 0.4);">
                 ${item.reason_desc || '未填寫詳細說明'}
+            </div>
+            <div class="text-secondary small mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between">
+                <span>建立：${item.created_by || 'SYSTEM'} @ ${item.order_date || '-'}</span>
+                <span>異動：${item.modified_by || 'SYSTEM'} @ ${item.modified_at || '-'}</span>
             </div>
         </article>
     `;
@@ -1250,14 +1237,6 @@ function initEvents() {
     });
 }
 
-function adjustCountStep(delta) {
-    const input = document.getElementById('auditInputPhysicalQty');
-    let val = parseInt(input.value, 10) || 0;
-    val = Math.max(0, val + delta);
-    input.value = val;
-    calculateAuditVariance();
-}
-
 /**
  * 盤點差異計算邏輯 (金額格式化對齊 NT$ / RM)
  */
@@ -1464,6 +1443,9 @@ async function commitAuditRecord() {
     const diff = physicalQty - bookQty;
 
     const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
+    const officialCode = prod ? (prod.official_product_code || prod.product_code) : prodId;
+    const prodName = prod ? prod.name : '';
+
     const unitCost = parseFloat($('#auditInputUnitCost').val()) || 0;
     const unitSv = parseFloat($('#auditInputUnitSv').val()) || 0;
     const totalCost = AppCalc.multiply(Math.abs(diff), unitCost, 2);
@@ -1485,9 +1467,9 @@ async function commitAuditRecord() {
         adjType,                                    // 1: adj_type
         $('#auditWarehouseSelect').val(),           // 2: from_warehouse_id
         '',                                         // 3: to_warehouse_id
-        $opt.data('base') || $opt.val(),            // 4: official_product_code
-        $opt.data('name'),                          // 5: product_name_snaps
-        $opt.val(),                                 // 6: product_id
+        officialCode,                               // 4: official_product_code
+        prodName,                                   // 5: product_name_snaps
+        prodId,                                     // 6: product_id
         '',                                         // 7: stock_id
         '',                                         // 8: batch_no
         todaySheetDate,                             // 9: expiry_date
@@ -1513,9 +1495,9 @@ async function commitAuditRecord() {
         adj_type: adjType,
         from_warehouse_id: $('#auditWarehouseSelect').val(),
         to_warehouse_id: '',
-        official_product_code: $opt.data('base') || $opt.val(),
-        product_name_snaps: $opt.data('name'),
-        product_id: $opt.val(),
+        official_product_code: officialCode,
+        product_name_snaps: prodName,
+        product_id: prodId,
         stock_id: '',
         batch_no: '',
         expiry_date: todaySheetDate,
@@ -1562,7 +1544,7 @@ async function commitTransferOrder() {
 
     const fromWh = $('#trFromWarehouseSelect').val();
     const toWh = $('#trToWarehouseSelect').val();
-    const prodCode = $('#trProductSelect').val();
+    const prodId = $('#trProductSelect').val();
     const qty = parseInt($('#trQtyInput').val(), 10) || 0;
     const operatorId = $('#trOperatorSelect').val();
     const adjDate = $('#trAdjDate').val();
@@ -1583,7 +1565,7 @@ async function commitTransferOrder() {
         $('#trToWarehouseSelect').focus();
         return;
     }
-    if (!prodCode) {
+    if (!prodId) {
         AppToast.warning("請選擇「調撥品項」！");
         $('#trProductSelect').focus();
         return;
@@ -1609,8 +1591,11 @@ async function commitTransferOrder() {
         return;
     }
 
-    const unitCost = parseFloat($opt.data('price')) || 0;
-    const unitSv = parseInt($opt.data('sv'), 10) || 0;
+    const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
+    const officialCode = prod ? (prod.official_product_code || prod.product_code) : prodId;
+    const prodName = prod ? prod.name : '';
+    const unitCost = parseFloat($('#trInputUnitCost').val()) || 0;
+    const unitSv = parseFloat($('#trInputUnitSv').val()) || 0;
     const currency = $('#trCurrencySelect').val();
     const totalCost = AppCalc.multiply(qty, unitCost, 2);
     const totalSv = AppCalc.multiply(qty, unitSv, 2);
@@ -1630,9 +1615,9 @@ async function commitTransferOrder() {
         '跨倉調撥',
         fromWh,
         toWh,
-        $opt.data('base') || $opt.val(),
-        $opt.data('name'),
-        $opt.val(),
+        officialCode,
+        prodName,
+        prodId,
         '',
         '',
         todaySheetDate,
@@ -1658,12 +1643,12 @@ async function commitTransferOrder() {
         adj_type: '跨倉調撥',
         from_warehouse_id: fromWh,
         to_warehouse_id: toWh,
-        official_product_code: $opt.data('base') || $opt.val(),
-        product_name_snaps: $opt.data('name'),
-        product_id: $opt.val(),
+        official_product_code: officialCode,
+        product_name_snaps: prodName,
+        product_id: prodId,
         stock_id: '',
         batch_no: '',
-        expiry_date: todayStr,
+        expiry_date: AppDate.now('date'),
         adj_unit: $('#trAdjUnit').val(),
         quantity: -qty,
         currency_code: currency,
@@ -1673,7 +1658,7 @@ async function commitTransferOrder() {
         total_sv: totalSv,
         target_prospect_id: '',
         operator_partner_id: $('#trOperatorSelect').val(),
-        adj_date: todayStr,
+        adj_date: AppDate.now('date'),
         reason_desc: reason,
         created_by: currentUser,
         created_at: nowStr,
@@ -1773,18 +1758,16 @@ function openAddAdjustmentModal() {
     $('#adjustForm')[0].reset();
 
     const nextSeq = String(appState.adjustments.length + 1).padStart(4, '0');
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const dateCode = todayStr.replace(/-/g, '');
-    const adjNo = `ADJ-${dateCode}-${nextSeq}`;
+    const adjNo = `ADJ-${AppDate.toClean8()}-${nextSeq}`;
 
     $('#fieldId').val(adjNo);
     $('#fieldAdjType').val('自用消耗');
     handleModalAdjTypeChange();
-    $('#fieldAdjDate').val(todayStr);
+    $('#fieldAdjDate').val(AppDate.now('date'));
     $('#fieldQuantity').val(-1);
     $('#fieldFromWarehouseId').val(appState.warehouses[0] ? appState.warehouses[0].id : '');
     $('#fieldOperatorPartnerId').val(appState.partners[0] ? appState.partners[0].partner_id : '');
-    $('#fieldExpiryDate').val(todayStr);
+    $('#fieldExpiryDate').val(AppDate.now('date'));
 
     // 預設正裝
     $('#modalPackModeBox').prop('checked', true);
@@ -1883,7 +1866,7 @@ async function saveAdjustmentRecord() {
         $('#fieldAdjUnit').focus();
         return;
     }
-    if (qty === '') {
+    if ($('#fieldQuantity').val().trim() === '') {
         AppToast.warning("請填寫「調整數量」！");
         $('#fieldQuantity').focus();
         return;
@@ -1893,12 +1876,12 @@ async function saveAdjustmentRecord() {
         $('#fieldCurrencyCode').focus();
         return;
     }
-    if (cost === '') {
+    if ($('#fieldUnitCost').val().trim() === '') {
         AppToast.warning("請填寫「成本單價」！");
         $('#fieldUnitCost').focus();
         return;
     }
-    if (sv === '') {
+    if ($('#fieldUnitSv').val().trim() === '') {
         AppToast.warning("請填寫「單件 SV」！");
         $('#fieldUnitSv').focus();
         return;
@@ -1926,12 +1909,12 @@ async function saveAdjustmentRecord() {
     // 嚴格依表 307 psi_adjustments 全 25 欄位順序打包 (Index 0 ~ 24)
     const rowDataArray = [
         id,                                         // 0: id
-        $('#fieldAdjType').val(),                   // 1: adj_type
-        $('#fieldFromWarehouseId').val(),           // 2: from_warehouse_id
-        $('#fieldToWarehouseId').val() || '',       // 3: to_warehouse_id
+        adjType,                                    // 1: adj_type
+        fromWh,                                     // 2: from_warehouse_id
+        toWh || '',                                 // 3: to_warehouse_id
         $('#fieldOfficialProductCode').val().trim(),// 4: official_product_code
         $('#fieldProductNameSnaps').val().trim(),   // 5: product_name_snaps
-        $('#fieldProductId').val(),                 // 6: product_id
+        prodId,                                     // 6: product_id
         $('#fieldStockId').val().trim(),            // 7: stock_id
         $('#fieldBatchNo').val().trim(),            // 8: batch_no
         expiryDateVal,                              // 9: expiry_date (YYYY/MM/DD)
@@ -1943,9 +1926,9 @@ async function saveAdjustmentRecord() {
         sv,                                         // 15: unit_sv
         totalSv,                                    // 16: total_sv
         $('#fieldTargetProspectId').val() || '',    // 17: target_prospect_id
-        $('#fieldOperatorPartnerId').val(),         // 18: operator_partner_id
+        operatorId,                                 // 18: operator_partner_id
         adjDateVal,                                 // 19: adj_date (YYYY/MM/DD)
-        $('#fieldReasonDesc').val().trim(),         // 20: reason_desc
+        reason,                                     // 20: reason_desc
         createdBy,                                  // 21: created_by
         createdAt,                                  // 22: created_at
         currentUser,                                // 23: modified_by
@@ -1954,26 +1937,26 @@ async function saveAdjustmentRecord() {
 
     const updatedObj = {
         id: id,
-        adj_type: $('#fieldAdjType').val(),
-        from_warehouse_id: $('#fieldFromWarehouseId').val(),
-        to_warehouse_id: $('#fieldToWarehouseId').val() || '',
+        adj_type: adjType,
+        from_warehouse_id: fromWh,
+        to_warehouse_id: toWh || '',
         official_product_code: $('#fieldOfficialProductCode').val().trim(),
         product_name_snaps: $('#fieldProductNameSnaps').val().trim(),
-        product_id: $('#fieldProductId').val(),
+        product_id: prodId,
         stock_id: $('#fieldStockId').val().trim(),
         batch_no: $('#fieldBatchNo').val().trim(),
         expiry_date: $('#fieldExpiryDate').val(),
-        adj_unit: $('#fieldAdjUnit').val(),
+        adj_unit: adjUnit,
         quantity: qty,
-        currency_code: $('#fieldCurrencyCode').val(),
+        currency_code: curr,
         unit_cost: cost,
         total_cost: totalCost,
         unit_sv: sv,
         total_sv: totalSv,
         target_prospect_id: $('#fieldTargetProspectId').val() || '',
-        operator_partner_id: $('#fieldOperatorPartnerId').val(),
+        operator_partner_id: operatorId,
         adj_date: $('#fieldAdjDate').val(),
-        reason_desc: $('#fieldReasonDesc').val().trim(),
+        reason_desc: reason,
         created_by: createdBy,
         created_at: createdAt,
         modified_by: currentUser,

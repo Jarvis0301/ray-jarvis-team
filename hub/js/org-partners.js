@@ -1781,7 +1781,7 @@ function renderChartsView(filteredDataset = null) {
     const metYearCounts = {};
     dataset.forEach(p => {
         const person = getPersonMaster(p.person_id);
-        const y = (person.met_date && person.met_date.length >= 4) ? person.met_date.slice(0, 4) + '年' : '未記錄';
+        const y = (person.met_date && person.met_date.length >= 4) ? AppDate.toYear(person.met_date) + '年' : '未記錄';
         metYearCounts[y] = (metYearCounts[y] || 0) + 1;
     });
     const ctxMetYear = document.getElementById('chart-met-year-split');
@@ -2659,9 +2659,9 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         ];
 
         if (existingSelf) {
-            await SheetAdapter.updateRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
+            await SheetAdapter.updateRow('組織關係', targetId, selfRelationRow, ORG_GAS_DEPLOY_ID, silentOpt);
         } else {
-            await SheetAdapter.createRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
+            await SheetAdapter.createRow('組織關係', targetId, selfRelationRow, ORG_GAS_DEPLOY_ID, silentOpt);
         }
         return;
     }
@@ -2715,9 +2715,9 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
     ];
 
     if (existingRel) {
-        await SheetAdapter.updateRow('組織關係', targetId, relationRowArray);
+        await SheetAdapter.updateRow('組織關係', targetId, relationRowArray, ORG_GAS_DEPLOY_ID, silentOpt);
     } else {
-        await SheetAdapter.createRow('組織關係', targetId, relationRowArray);
+        await SheetAdapter.createRow('組織關係', targetId, relationRowArray, ORG_GAS_DEPLOY_ID, silentOpt);
     }
 }
 

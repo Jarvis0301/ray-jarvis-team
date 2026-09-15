@@ -158,19 +158,19 @@
                     <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small fw-bold">實付總成本 (含運費)</span>
-                            <i class="fa-solid fa-sack-dollar text-success"></i>
+                            <i class="fa-solid fa-sack-dollar text-orange"></i>
                         </div>
-                        <div class="h4 mb-0 fw-bold text-success" id="kpiTotalCost">NT$ 0</div>
+                        <div class="h4 mb-0 fw-bold text-orange" id="kpiTotalCost">NT$ 0</div>
                     </div>
                 </div>
                 <div class="col-6 col-lg-3">
                     <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary small fw-bold">官方考核總 SV</span>
-                            <i class="fa-solid fa-coins text-warning"></i>
+                            <i class="fa-solid fa-coins text-teal"></i>
                         </div>
                         <div class="d-flex align-items-baseline gap-1">
-                            <span class="h4 mb-0 fw-bold text-warning" id="kpiTotalSv">0</span>
+                            <span class="h4 mb-0 fw-bold text-teal" id="kpiTotalSv">0</span>
                             <span class="text-secondary small">SV</span>
                         </div>
                     </div>
@@ -541,7 +541,7 @@
                                     <input type="hidden" id="inlineFieldIsFee" value="N">
                                     
                                     <div class="row g-2 mb-2">
-                                        <div class="col-12 col-md-5">
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label small mb-1">產品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineFieldProduct" required></select>
                                         </div>
@@ -555,16 +555,6 @@
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineFieldUnitSv" value="0 SV" readonly>
                                             <input type="hidden" id="inlineFieldRawUnitSv" value="0">
                                         </div>
-                                        <div class="col-6 col-md-3">
-                                            <label class="form-label small mb-1">訂購量 <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control form-control-sm text-end" id="inlineFieldOrderedQty" min="1" value="1" required>
-                                        </div>
-                                    </div>
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1">實收盒數</label>
-                                            <input type="number" class="form-control form-control-sm text-end" id="inlineFieldReceivedQty" min="0" value="0">
-                                        </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1">生產批號</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineFieldBatchNo" placeholder="外盒鋼印號碼">
@@ -573,11 +563,21 @@
                                             <label class="form-label small mb-1">有效日期</label>
                                             <input type="date" class="form-control form-control-sm" id="inlineFieldExpiryDate">
                                         </div>
-                                        <div class="col-6 col-md-3">
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small mb-1">訂購量 <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineFieldOrderedQty" min="1" value="1" required>
+                                        </div>
+                                        <div class="col-6 col-md-2">
+                                            <label class="form-label small mb-1">實收盒數</label>
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineFieldReceivedQty" min="0" value="0">
+                                        </div>
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label small mb-1">備註說明</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineFieldRemarks" placeholder="規格備註、外盒狀態...">
                                         </div>
-                                        <div class="col-6 col-md-3 text-end d-flex align-items-end justify-content-end gap-2">
+                                        <div class="col-12 col-md-4 text-end d-flex align-items-end justify-content-end gap-2">
                                             <button type="button" class="btn btn-muted btn-sm rounded-pill" onclick="closeInlineItemForm()">
                                                 <i class="fa-solid fa-xmark me-1"></i>取消
                                             </button>
@@ -617,7 +617,7 @@
                         <!-- 下方即時統計資訊卡片區塊 -->
                         <footer class="card p-3 mt-3 border-secondary border-opacity-25" id="detailSummaryFooter">
                             <div class="row g-3 text-center align-items-center">
-                                <div class="col-6 col-md-2">
+                                <div class="col-12 col-md-2">
                                     <div class="text-secondary small">項目種類</div>
                                     <div class="h6 mb-0 text-white fw-bold"><span id="sumItemCount">0</span> 項</div>
                                 </div>
@@ -631,9 +631,9 @@
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <div class="text-secondary small">商品金額小計</div>
-                                    <div class="h6 mb-0 text-yellow fw-bold"><span id="sumCurrencySymbol">NT$</span> <span id="sumTotalAmount">0</span></div>
+                                    <div class="h6 mb-0 text-orange fw-bold"><span id="sumCurrencySymbol">NT$</span> <span id="sumTotalAmount">0</span></div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="text-secondary small">總計考核 SV</div>
                                     <div class="h6 mb-0 text-teal fw-bold"><span id="sumTotalSv">0</span> SV</div>
                                 </div>

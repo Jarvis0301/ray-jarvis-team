@@ -502,13 +502,13 @@ async function saveMenuItem() {
 
     const updatedNodeObj = {
         menu_id: menuId,
-        app_track: $('#fieldAppTrack').val(),
-        menu_name_zh: $('#fieldMenuNameZh').val().trim(),
+        app_track: appTrack,
+        menu_name_zh: menuNameZh,
         menu_name_en: $('#fieldMenuNameEn').val().trim(),
         menu_level: parseInt($('#fieldMenuLevel').val(), 10) || 0,
         parent_id: $('#fieldParentId').val(),
         sort_order: parseInt($('#fieldSortOrder').val(), 10) || 10,
-        route_url: $('#fieldRouteUrl').val().trim() || '#',
+        route_url: routeUrl || '#',
         fa_icon: $('#fieldFaIcon').val().trim() || 'fa-solid fa-circle',
         is_active: $('#fieldIsActive').is(':checked') ? 'Y' : 'N',
         dev_status: $('#fieldDevStatus').val(),

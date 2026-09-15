@@ -1765,11 +1765,10 @@ function openOutboundDetailModal(orderId) {
     const canDeliver = (item.fulfillment_status === '待取貨' || item.fulfillment_status === '已寄出');
 
     const html = `
-        <!-- 第一區塊：核心調度與商流所屬 -->
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">系統銷貨單號 (PK)</span>
-                <span class="text-info-emphasis fw-bold font-monospace">${item.id}</span>
+                <span class="text-info-emphasis fw-bold">${item.id}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">出庫履約狀態</span>
@@ -1785,14 +1784,13 @@ function openOutboundDetailModal(orderId) {
             </div>
         </article>
 
-        <!-- 第二區塊：商流組織與扣庫倉儲 -->
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
                 <i class="fa-solid fa-warehouse text-primary"></i> 商流歸屬與實體扣庫
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">銷貨業務類別</div>
-                <div class="col-7 text-white text-end"><span class="badge badge-purple-subtle">${item.order_category || '零售客銷售'}</span></div>
+                <div class="col-7 text-white text-end">${item.order_category || '零售客銷售'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">經手開單夥伴</div>
@@ -1812,7 +1810,6 @@ function openOutboundDetailModal(orderId) {
             </div>
         </article>
 
-        <!-- 第三區塊：收件客情與物流配送 -->
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
                 <i class="fa-solid fa-truck text-info"></i> 收件客情與實體配送
@@ -1827,7 +1824,7 @@ function openOutboundDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">收件人聯絡手機</div>
-                <div class="col-7 text-light text-end font-monospace">${item.recipient_phone || '(未填寫電話)'}</div>
+                <div class="col-7 text-light text-end">${item.recipient_phone || '(未填寫電話)'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">出貨交付方式</div>
@@ -1835,7 +1832,7 @@ function openOutboundDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">貨運託運追蹤碼</div>
-                <div class="col-7 text-info text-end font-monospace">${item.tracking_no || '(無物流單號/自取)'}</div>
+                <div class="col-7 text-info text-end">${item.tracking_no || '(無物流單號/自取)'}</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">配送實體地址/門市</div>
@@ -1843,18 +1840,21 @@ function openOutboundDetailModal(orderId) {
             </div>
         </article>
 
-        <!-- 第四區塊：財務核算與考核 SV -->
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
                 <i class="fa-solid fa-coins text-warning"></i> 財務金流與實質毛利結算
             </h6>
             <div class="row g-2 mb-2">
-                <div class="col-5 text-secondary small">商品實收 / 運費</div>
-                <div class="col-7 text-white text-end">${formatCurrency(item.product_amount, curr)} / ${formatCurrency(item.shipping_fee, curr)}</div>
+                <div class="col-5 text-secondary small">商品實收</div>
+                <div class="col-7 text-yellow text-end">${formatCurrency(item.product_amount, curr)}</div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5 text-secondary small">運費</div>
+                <div class="col-7 text-white text-end">${formatCurrency(item.shipping_fee, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">整單實收總額</div>
-                <div class="col-7 text-success fw-bold text-end fs-6">${formatCurrency(item.total_sales_amount, curr)}</div>
+                <div class="col-7 text-orange fw-bold text-end fs-6">${formatCurrency(item.total_sales_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">進貨成本總額</div>
@@ -1862,15 +1862,15 @@ function openOutboundDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實質毛利價差利潤</div>
-                <div class="col-7 text-info fw-bold text-end fs-6">${profitSign}${formatCurrency(item.total_profit_amount, curr)}</div>
+                <div class="col-7 text-accent fw-bold text-end fs-6">${profitSign}${formatCurrency(item.total_profit_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">出庫盒數 / 散支</div>
-                <div class="col-7 text-white fw-bold text-end">${item.total_boxes || 0} 盒 / ${item.total_pieces || 0} 支</div>
+                <div class="col-7 text-info fw-bold text-end">${item.total_boxes || 0} 盒 / ${item.total_pieces || 0} 支</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方考核出庫 SV</div>
-                <div class="col-7 text-warning fw-bold text-end fs-6">${Number(item.total_sv || 0).toLocaleString()} SV</div>
+                <div class="col-7 text-teal fw-bold text-end fs-6">${Number(item.total_sv || 0).toLocaleString()} SV</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">付款方式 / 平台</div>
@@ -1878,7 +1878,6 @@ function openOutboundDetailModal(orderId) {
             </div>
         </article>
 
-        <!-- 第五區塊：備註與系統稽核日誌 -->
         <article class="card p-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
                 <i class="fa-solid fa-comment-dots text-secondary"></i> 單據備註事項

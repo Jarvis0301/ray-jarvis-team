@@ -391,9 +391,9 @@ function autoCalcPrevRank(newRankId) {
     
     if (currentIndex > 0) {
         const prevRank = appState.ranks[currentIndex - 1];
-        $('#fieldPrevRankId').val(prevRank.rank_id);
+        $('#fieldPrevRankId').val(prevRank.rank_id).trigger('change');
     } else {
-        $('#fieldPrevRankId').val(appState.ranks[0].rank_id);
+        $('#fieldPrevRankId').val(appState.ranks[0].rank_id).trigger('change');
     }
 
     // 自動帶入新職級對應之藍鑽星等

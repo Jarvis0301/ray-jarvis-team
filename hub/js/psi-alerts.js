@@ -154,10 +154,9 @@ async function fetchGoogleSheetsData() {
  * 依據表 308 (psi_alerts) 物理順序解析 (Index 0 ~ 18)
  */
 function parseAlertsTable(rows) {
-    const todayStr = AppDate.now('full').slice(0, 10).replace(/-/g, '');
     return rows.map((r, idx) => {
         return {
-            id: getVal(r, 0, `ALT-${todayStr}-${String(idx + 1).padStart(4, '0')}`), // Col 0: id (PK)
+            id: getVal(r, 0, `ALT-${AppDate.toClean8()}-${String(idx + 1).padStart(4, '0')}`), // Col 0: id (PK)
             alert_type: getVal(r, 1, '低於安全水位'),                      // Col 1: alert_type
             warehouse_id: getVal(r, 2, ''),                               // Col 2: warehouse_id (FK)
             product_id: getVal(r, 3, ''),                                 // Col 3: product_id (FK)
@@ -245,15 +244,14 @@ function renderHudMetrics() {
     const monitored = appState.thresholds.filter(t => t.is_monitored === 'Y').length;
     const pending = appState.alerts.filter(a => a.status === '未處理').length;
 
-    $('#stat-stockout-count').text(stockout);
-    $('#stat-expiry90-count').text(expiring90);
-    $('#stat-expiry30-count').text(expiring30);
-    $('#stat-expired-count').text(expired);
-    $('#stat-monitored-rules').text(monitored);
-    $('#stat-pending-count').text(pending);
-
-    $('#count-alerts-total').text(appState.alerts.length);
-    $('#count-thresholds-total').text(appState.thresholds.length);
+    $('#stat-stockout-count').text(stockout.toLocaleString());
+    $('#stat-expiry90-count').text(expiring90.toLocaleString());
+    $('#stat-expiry30-count').text(expiring30.toLocaleString());
+    $('#stat-expired-count').text(expired.toLocaleString());
+    $('#stat-monitored-rules').text(monitored.toLocaleString());
+    $('#stat-pending-count').text(pending.toLocaleString());
+    $('#count-alerts-total').text(appState.alerts.length.toLocaleString());
+    $('#count-thresholds-total').text(appState.thresholds.length.toLocaleString());
 }
 
 // ==========================================================================

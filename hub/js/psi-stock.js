@@ -190,7 +190,6 @@ async function fetchGoogleSheetsData() {
 
         populateStockSelectOptions();
         refreshView();
-        $('#hudSyncTime').text(AppDate.now('full'));
 
         AppToast.success(`已自雲端同步 ${appState.stocks.length} 筆批號庫存主檔`);
     } catch (err) {
@@ -325,7 +324,7 @@ function bindUIEvents() {
     $('#fieldQuantity, #fieldReservedQty').on('input', function() {
         const q = parseInt($('#fieldQuantity').val(), 10) || 0;
         const r = parseInt($('#fieldReservedQty').val(), 10) || 0;
-        $('#fieldAvailableQty').val(Math.max(0, q - r));
+        $('#fieldAvailableQty').val(Math.max(0, AppCalc.sub(q, r)));
     });
 
     // 監聽 Modal 產品下拉選取：主動選取時自動同步幣別、單價與 SV
@@ -505,7 +504,7 @@ function formatStockRow(s) {
         `,
         reserved: `<span class="text-warning">${s.reserved_qty.toLocaleString()}</span>`,
         available: `<span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span>`,
-        cost_sv: `<div><span class="small text-yellow">${s.currency_code==='TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="small text-teal">${s.sv_point.toLocaleString()} SV</div></div>`,
+        cost_sv: `<div><span class="text-orange">${s.currency_code==='TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="text-teal">${s.sv_point.toLocaleString()} SV</div></div>`,
         status: statusBadge,
         actions: actionButtons
     };
@@ -643,7 +642,7 @@ function renderTacticalCharts() {
             const itemTotalCost = AppCalc.multiply(s.quantity, s.cost_price || 0, 2);
             whCost[name] = AppCalc.add(whCost[name] || 0, itemTotalCost);
         });
-        const totalCost = Object.values(whCost).reduce((a, b) => a + b, 0);
+        const totalCost = Object.values(whCost).reduce((a, b) => AppCalc.add(a, b), 0);
 
         chartInstances.whCost = new Chart(ctxWhCost.getContext('2d'), {
             type: 'bar',
@@ -910,17 +909,17 @@ async function saveStockItem() {
         $('#fieldExpiryDate').focus();
         return;
     }
-    if (qty === '') {
+    if ($('#fieldQuantity').val().trim() === '') {
         AppToast.warning("請填寫「密封整盒現貨」數量！");
         $('#fieldQuantity').focus();
         return;
     }
-    if (pieces === '') {
+    if ($('#fieldPiecesQty').val().trim() === '') {
         AppToast.warning("請填寫「散裝剩餘支/條」數量！");
         $('#fieldPiecesQty').focus();
         return;
     }
-    if (reserved === '') {
+    if ($('#fieldReservedQty').val().trim() === '') {
         AppToast.warning("請填寫「代領預扣盒數」數量！");
         $('#fieldReservedQty').focus();
         return;
@@ -930,12 +929,12 @@ async function saveStockItem() {
         $('#fieldCurrencyCode').focus();
         return;
     }
-    if (cost === '') {
+    if ($('#fieldCostPrice').val().trim() === '') {
         AppToast.warning("請填寫「成本單價」！");
         $('#fieldCostPrice').focus();
         return;
     }
-    if (sv === '') {
+    if ($('#fieldSvPoint').val().trim() === '') {
         AppToast.warning("請填寫「單件 SV」！");
         $('#fieldSvPoint').focus();
         return;
@@ -995,10 +994,11 @@ async function saveStockItem() {
         // 關閉 Modal 並自動向雲端試算表靜默同步最新狀態
         const modalEl = document.getElementById('stockModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) modalInstance.hide();
+        if (modalInstance) {
+            modalInstance.hide();
+        }
 
         await fetchGoogleSheetsData();
-        bootstrap.Modal.getInstance(document.getElementById('stockModal')).hide();
         AppToast.success(`庫存批號【${id}】儲存成功！`);
     } catch (err) {
         AppToast.error("庫存批號儲存失敗: " + err.message);

@@ -946,8 +946,9 @@ function renderCrossBorderMatrix() {
             ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${myProd.sv_point} SV</span>`
             : `-`;
 
-        const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;
-        const myCostPerSv = myProd && myProd.sv_point > 0 ? (myProd.price / myProd.sv_point).toFixed(2) : null;
+        const twCostPerSv = twProd && twProd.sv_point > 0 ? AppCalc.divide(twProd.price, twProd.sv_point, 2) : null;
+        const myCostPerSv = myProd && myProd.sv_point > 0 ? AppCalc.divide(myProd.price, myProd.sv_point, 2) : null;
+
         let costCompare = `-`;
         if (twCostPerSv && myCostPerSv) {
             costCompare = `<span class="text-light small">${twCostPerSv} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small">${myCostPerSv} RM/SV</span>`;
@@ -959,8 +960,8 @@ function renderCrossBorderMatrix() {
 
         let diffText = `<span class="text-muted">-</span>`;
         if (twProd && myProd) {
-            const myConvertedTwd = myProd.price * currentFxRate;
-            const diff = myConvertedTwd - twProd.price;
+            const myConvertedTwd = AppCalc.multiply(myProd.price, currentFxRate, 2);
+            const diff = AppCalc.sub(myConvertedTwd, twProd.price);
             diffText = diff >= 0
                 ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
                 : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
