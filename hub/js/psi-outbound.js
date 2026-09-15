@@ -444,13 +444,13 @@ function populateFormOptions() {
 
 function renderCounters() {
     const list = appState.outbounds;
-    $('#countAll').text(list.length);
-    $('#countDraft').text(list.filter(d => d.fulfillment_status === '草稿').length);
-    $('#countPending').text(list.filter(d => d.fulfillment_status === '待取貨').length);
-    $('#countShipped').text(list.filter(d => d.fulfillment_status === '已寄出').length);
-    $('#countHold').text(list.filter(d => d.is_pre_order_hold === 'Y').length);
-    $('#countDelivered').text(list.filter(d => d.fulfillment_status === '已交付').length);
-    $('#countCancelled').text(list.filter(d => d.fulfillment_status === '已取消').length);
+    $('#countAll').text(list.length.toLocaleString());
+    $('#countDraft').text(list.filter(d => d.fulfillment_status === '草稿').length.toLocaleString());
+    $('#countPending').text(list.filter(d => d.fulfillment_status === '待取貨').length.toLocaleString());
+    $('#countShipped').text(list.filter(d => d.fulfillment_status === '已寄出').length.toLocaleString());
+    $('#countHold').text(list.filter(d => d.is_pre_order_hold === 'Y').length.toLocaleString());
+    $('#countDelivered').text(list.filter(d => d.fulfillment_status === '已交付').length.toLocaleString());
+    $('#countCancelled').text(list.filter(d => d.fulfillment_status === '已取消').length.toLocaleString());
 }
 
 function renderKpis() {
@@ -1285,14 +1285,12 @@ function openCreateOutboundModal() {
     $('#outboundForm')[0].reset();
 
     const nextSeq = String(appState.outbounds.length + 1).padStart(4, '0');
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const dateCode = todayStr.replace(/-/g, '');
-    const newId = `OUT-${dateCode}-${nextSeq}`;
+    const newId = `OUT-${AppDate.toClean8()}-${nextSeq}`;
 
     $('#fieldId').val(newId);
     $('#fieldOrderCategory').val('零售客銷售');
-    $('#fieldPerformanceMonth').val(todayStr.slice(0, 7));
-    $('#fieldOrderDate').val(todayStr);
+    $('#fieldPerformanceMonth').val(AppDate.now('month'));
+    $('#fieldOrderDate').val(AppDate.now('input'));
     $('#fieldDeliveryMethod').val('面交自取');
 
     const defaultCurr = 'TWD';
@@ -1341,13 +1339,13 @@ function openEditOutboundModal(id) {
     $('#fieldPerformanceMonth').val(AppDate.toInputMonth(item.performance_month));
     $('#fieldOrderDate').val(AppDate.toInput(item.order_date));
     $('#fieldDeliveryMethod').val(item.delivery_method);
-    $('#fieldWarehouseId').val(item.warehouse_id);
-    $('#fieldOperatorPartnerId').val(item.operator_partner_id);
+    $('#fieldWarehouseId').val(item.warehouse_id).trigger('change');
+    $('#fieldOperatorPartnerId').val(item.operator_partner_id).trigger('change');
     $('#fieldRecipientType').val(item.recipient_type);
     toggleRecipientType();
 
-    $('#fieldRecipientCustomerId').val(item.recipient_customer_id);
-    $('#fieldRecipientPartnerId').val(item.recipient_partner_id);
+    $('#fieldRecipientCustomerId').val(item.recipient_customer_id).trigger('change');
+    $('#fieldRecipientPartnerId').val(item.recipient_partner_id).trigger('change');
     $('#fieldRecipientName').val(item.recipient_name);
     $('#fieldRecipientPhone').val(item.recipient_phone);
     $('#fieldShippingAddress').val(item.shipping_address);
@@ -1676,18 +1674,15 @@ function onInlineProductSelectChange() {
                 $('#inlineUnitCost').val(stockCost);
             }
         } else {
-            const today = new Date();
-            const y = today.getFullYear();
-            const m = String(today.getMonth() + 1).padStart(2, '0');
-            $('#inlineBatchNo').val(`LOT${y}${m}`);
+            $('#inlineBatchNo').val(`LOT${AppDate.toClean6()}`);
 
-            const exp = new Date();
-            exp.setFullYear(today.getFullYear() + 2);
-            $('#inlineExpiryDate').val(exp.toISOString().slice(0, 10));
+            const p = AppDate.parse(new Date());
+            const expYear = parseInt(p.year, 10) + 2;
+            const defaultExpiry = `${expYear}-${p.month}-${p.day}`;
+            $('#inlineExpiryDate').val(AppDate.toInput(defaultExpiry));
             $('#inlineStockId').val('');
         }
     }
-    calcInlineSubtotals();
 }
 
 function toggleInlineItemForm() {
@@ -1718,16 +1713,14 @@ function closeInlineItemForm() {
     $('#inlineProductSelect').val('').trigger('change.select2');
 }
 
-function calcInlineSubtotals() {
-    // 即時計算供使用者預覽
-}
-
 function editInlineItem(itemId) {
     const item = stagingOutboundItems.find(it => it.id === itemId);
     if (!item) {
         AppToast.warning("找不到該筆暫存明細資料！");
         return;
     }
+    const parentOrder = appState.outbounds.find(d => d.id === currentDetailOrderId);
+    const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
 
     $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細【項次 ${item.item_seq}】`);
     $('#inlineItemId').val(item.id);
@@ -2230,30 +2223,6 @@ async function quickDeliverFromDetail(orderId) {
     await quickMarkDelivered();
 }
 
-function inspectorOpenDetail() {
-    const inspectorModalEl = document.getElementById('modalInspector');
-    if (inspectorModalEl) {
-        const inst = bootstrap.Modal.getInstance(inspectorModalEl);
-        if (inst) inst.hide();
-    }
-    openDetailModalForActive();
-}
-
-function inspectorOpenEdit() {
-    const targetId = appState.selectedOutboundId;
-    if (!targetId) {
-        AppToast.warning("尚未選取出庫單據！");
-        return;
-    }
-
-    const inspectorModalEl = document.getElementById('modalInspector');
-    if (inspectorModalEl) {
-        const inst = bootstrap.Modal.getInstance(inspectorModalEl);
-        if (inst) inst.hide();
-    }
-    openEditOutboundModal(targetId);
-}
-
 async function saveOutboundOrder() {
     const mode = $('#formMode').val();
     const orderId = $('#fieldId').val().trim();
@@ -2376,7 +2345,7 @@ async function saveOutboundOrder() {
         total_sales_amount: totalSales,
         total_cost_amount: totalCost,
         total_profit_amount: totalProfit,
-        total_sv: parseFloat($('#fieldTotalSv').val()) || 0,
+        total_sv: totalSv,
         total_boxes: parseInt($('#fieldTotalBoxes').val(), 10) || 0,
         total_pieces: parseInt($('#fieldTotalPieces').val(), 10) || 0,
         tracking_no: $('#fieldTrackingNo').val().trim(),
@@ -2574,7 +2543,7 @@ function exportOutboundCSV() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `psi_outbound_orders_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `psi_outbound_orders_${AppDate.toClean8()}.csv`;
     a.click();
     AppToast.info('已成功匯出銷貨主檔 CSV 檔案');
 }

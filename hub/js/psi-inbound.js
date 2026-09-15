@@ -169,7 +169,6 @@ async function fetchAllGoogleSheetsData() {
         });
 
         refreshAllViews();
-        $('#hudSyncTime').text(AppDate.now('full'));
         AppToast.success(`已完成 3 大試算表連動同步 (${appState.inbounds.length} 筆進貨單據)`);
     } catch (err) {
         console.error("試算表同步異常:", err);
@@ -351,12 +350,12 @@ function populateFilterOptions() {
 
 function renderCounters() {
     const list = appState.inbounds;
-    $('#countAll').text(list.length);
-    $('#countDraft').text(list.filter(d => d.status === '草稿').length);
-    $('#countPickup').text(list.filter(d => d.status === '待自取').length);
-    $('#countTransit').text(list.filter(d => d.status === '運輸中').length);
-    $('#countCompleted').text(list.filter(d => d.status === '已入庫').length);
-    $('#countVoid').text(list.filter(d => d.status === '已取消').length);
+    $('#countAll').text(list.length.toLocaleString());
+    $('#countDraft').text(list.filter(d => d.status === '草稿').length.toLocaleString());
+    $('#countPickup').text(list.filter(d => d.status === '待自取').length.toLocaleString());
+    $('#countTransit').text(list.filter(d => d.status === '運輸中').length.toLocaleString());
+    $('#countCompleted').text(list.filter(d => d.status === '已入庫').length.toLocaleString());
+    $('#countVoid').text(list.filter(d => d.status === '已取消').length.toLocaleString());
 }
 
 function renderKpis() {
@@ -379,7 +378,7 @@ function renderKpis() {
     $('#kpiTotalBoxes').text(totalBoxes.toLocaleString());
     $('#kpiTotalCost').text(formatCurrency(totalCost, 'TWD'));
     $('#kpiTotalSv').text(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
-    $('#kpiDecoupledOrders').text(decoupledCount);
+    $('#kpiDecoupledOrders').text(decoupledCount.toLocaleString());
 }
 
 function renderCharts() {
@@ -822,15 +821,13 @@ function openAddModal() {
     $('#formMode').val('add');
     $('#inboundForm')[0].reset();
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const dateCode = todayStr.replace(/-/g, '');
     const nextSeq = String(appState.inbounds.length + 1).padStart(4, '0');
-    const newId = `INB-${dateCode}-${nextSeq}`;
+    const newId = `INB-${AppDate.toClean8()}-${nextSeq}`;
 
     $('#fieldId').val(newId);
     $('#fieldOrderCategory').val('本人訂購');
-    $('#fieldPerformanceMonth').val(todayStr.slice(0, 7));
-    $('#fieldOrderDate').val(todayStr);
+    $('#fieldPerformanceMonth').val(AppDate.now('month'));
+    $('#fieldOrderDate').val(AppDate.now('input'));
     $('#fieldDeliveryMethod').val('運送');
 
     const defaultCenter = '網路 (TW)';
@@ -875,11 +872,11 @@ function openEditModal(orderId) {
     $('#fieldOrderCategory').val(item.order_category);
     $('#fieldPerformanceMonth').val(AppDate.toInputMonth(item.performance_month));
     $('#fieldOrderDate').val(AppDate.toInput(item.order_date));
-    $('#fieldDeliveryMethod').val(item.delivery_method);
 
     const targetCenterId = normalizeOrderCenterId(item.order_center);
     $('#fieldOrderCenter').val(targetCenterId).trigger('change.select2');
     syncCurrencyAndDeliveryByCenter(targetCenterId);
+    $('#fieldDeliveryMethod').val(item.delivery_method);
 
     $('#fieldWarehouseId').val(item.warehouse_id).trigger('change.select2');
     $('#fieldPurchaserPartnerId').val(item.purchaser_partner_id).trigger('change.select2');
@@ -1072,10 +1069,10 @@ function openInlineAddForm() {
     $('#inlineFieldProduct').val('').trigger('change.select2');
 
     // ★ 初始化唯讀文字格式與隱藏純數值
-    $('#inlineRawFieldUnitCost').val(0);
+    $('#inlineFieldRawUnitCost').val(0);
     $('#inlineFieldUnitCost').val(formatCurrency(0, curr)).prop('readonly', true);
 
-    $('#inlineRawFieldUnitSv').val(0);
+    $('#inlineFieldRawUnitSv').val(0);
     $('#inlineFieldUnitSv').val('0 SV').prop('readonly', true);
 
     $('#inlineFieldBatchNo').val('').prop('readonly', false).attr('placeholder', '外盒鋼印批號');
@@ -1123,10 +1120,10 @@ function editInlineItem(itemId) {
     const costVal = parseFloat(item.unit_cost) || 0;
     const svVal = parseFloat(item.unit_sv) || 0;
 
-    $('#inlineRawFieldUnitCost').val(costVal);
+    $('#inlineFieldRawUnitCost').val(costVal);
     $('#inlineFieldUnitCost').val(formatCurrency(costVal, curr)).prop('readonly', true);
 
-    $('#inlineRawFieldUnitSv').val(svVal);
+    $('#inlineFieldRawUnitSv').val(svVal);
     $('#inlineFieldUnitSv').val(`${AppCalc.formatSV(svVal, 'INTERNAL')} SV`).prop('readonly', true);
 
     $('#inlineFieldOrderedQty').val(item.ordered_qty);
@@ -1183,8 +1180,8 @@ function saveInlineItem() {
     }
 
     // ★ 由隱藏欄位安全提取純數字，避免抓取貨幣符號或 "SV" 字串導致 NaN
-    const unitCost = parseFloat($('#inlineRawFieldUnitCost').val()) || 0;
-    const unitSv = parseFloat($('#inlineRawFieldUnitSv').val()) || 0;
+    const unitCost = parseFloat($('#inlineFieldRawUnitCost').val()) || 0;
+    const unitSv = parseFloat($('#inlineFieldRawUnitSv').val()) || 0;
 
     const receivedQty = parseInt($('#inlineFieldReceivedQty').val(), 10) || 0;
     const batchNo = $('#inlineFieldBatchNo').val().trim();
@@ -1470,10 +1467,7 @@ function onInlineProductSelectChange() {
     const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
     const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
 
-    const orderDateStr = (parentOrder && parentOrder.order_date) ? parentOrder.order_date : new Date().toISOString().slice(0, 10);
-    const baseDate = new Date(orderDateStr.replace(/\//g, '-'));
-    const y = baseDate.getFullYear();
-    const m = String(baseDate.getMonth() + 1).padStart(2, '0');
+    const orderDateStr = (parentOrder && parentOrder.order_date) ? parentOrder.order_date : AppDate.now('input');
 
     if (isFee) {
         // 費用項目：無批號與效期，單件 SV 固定為 0
@@ -1481,11 +1475,11 @@ function onInlineProductSelectChange() {
         const feePrice = parseFloat($opt.data('price')) || 0;
 
         // ★ 進貨單價格式化 (顯示 NT$ 150 或 RM 0)
-        $('#inlineRawFieldUnitCost').val(feePrice);
+        $('#inlineFieldRawUnitCost').val(feePrice);
         $('#inlineFieldUnitCost').val(formatCurrency(feePrice, curr)).prop('readonly', true);
 
         // ★ 單件 SV 格式化 (顯示 0 SV)
-        $('#inlineRawFieldUnitSv').val(0);
+        $('#inlineFieldRawUnitSv').val(0);
         $('#inlineFieldUnitSv').val('0 SV').prop('readonly', true);
 
         $('#inlineFieldBatchNo').val('').prop('readonly', true).attr('placeholder', '非實體商品無批號');
@@ -1498,21 +1492,22 @@ function onInlineProductSelectChange() {
         const unitSv = prod ? (parseFloat(prod.sv_point) || 0) : (parseFloat($opt.data('sv')) || 0);
 
         // ★ 1. 進貨單價：顯示 NT$ 2,100 或 RM 150 格式 (不可修改)
-        $('#inlineRawFieldUnitCost').val(unitCost);
+        $('#inlineFieldRawUnitCost').val(unitCost);
         $('#inlineFieldUnitCost').val(formatCurrency(unitCost, curr)).prop('readonly', true);
 
         // ★ 2. 單件 SV：採用 AppCalc.formatSV 精密格式化 (type="text")
-        $('#inlineRawFieldUnitSv').val(unitSv);
+        $('#inlineFieldRawUnitSv').val(unitSv);
         $('#inlineFieldUnitSv').val(`${AppCalc.formatSV(unitSv, 'INTERNAL')} SV`).prop('readonly', true);
 
         // 3. 生產批號（可修改：自動預填建議批號 LOT+年月+A）
-        const defaultBatch = `LOT${y}${m}A`;
+        const defaultBatch = `LOT${AppDate.toClean6(orderDateStr)}A`;
         $('#inlineFieldBatchNo').val(defaultBatch).prop('readonly', false).attr('placeholder', '外盒鋼印批號');
 
         // 4. 有效日期（可修改：預設自動推算 2 年效期）
-        const defaultExpiry = new Date(baseDate);
-        defaultExpiry.setFullYear(defaultExpiry.getFullYear() + 2);
-        $('#inlineFieldExpiryDate').val(defaultExpiry.toISOString().slice(0, 10)).prop('readonly', false);
+        const p = AppDate.parse(orderDateStr) || AppDate.parse(new Date());
+        const expYear = parseInt(p.year, 10) + 2;
+        const defaultExpiry = `${expYear}-${p.month || '01'}-${p.day || '01'}`;
+        $('#inlineFieldExpiryDate').val(AppDate.toInput(defaultExpiry)).prop('readonly', false);
     }
 }
 
@@ -1948,7 +1943,7 @@ function exportCsv() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `psi_inbound_orders_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `psi_inbound_orders_${AppDate.toClean8()}.csv`;
     a.click();
     AppToast.info('已匯出進貨單據 CSV 檔案');
 }
