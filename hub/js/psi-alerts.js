@@ -421,6 +421,13 @@ function populateThresholdSelectOptions() {
             if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
         }
     });
+
+    $wh.off('change.autoId').on('change.autoId', function() {
+        if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
+    });
+    $prd.off('change.autoId').on('change.autoId', function() {
+        if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
+    });
 }
 
 /**

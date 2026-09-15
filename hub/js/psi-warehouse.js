@@ -243,7 +243,7 @@ function renderGridCards(list) {
         
         const contact_phone = w.contact_phone
             ? `${w.contact_phone}`
-            : `<span class="mono-num text-muted">無</span>`;
+            : `<span class="text-muted">無</span>`;
 
         const operating_hours = w.operating_hours
             ? `${w.operating_hours}`
@@ -264,7 +264,7 @@ function renderGridCards(list) {
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="flag-icon ${flagClass}"></span>
-                                    <span class="mono-num text-info fw-bold">${w.id}</span>
+                                    <span class="text-info fw-bold">${w.id}</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-1">
                                     ${typeBadge}
@@ -281,7 +281,7 @@ function renderGridCards(list) {
                             </div>
 
                             <div class="small text-secondary mb-2">
-                                <i class="fa-solid fa-phone me-1"></i>電話：<span class="mono-num">${contact_phone}</span>
+                                <i class="fa-solid fa-phone me-1"></i>電話：${contact_phone}
                             </div>
 
                             <div class="small text-secondary mb-2">
@@ -352,8 +352,8 @@ function formatTableRow(w) {
     const activePill = UIBadges.common.boolean(w.is_active === 'Y', '營運中', '已停用');
 
     const actionButtons = `
-        <button class="btn btn-sm btn-outline-purple py-1 px-2" onclick="openEditModal('${w.id}')"><i class="fa-solid fa-pen"></i></button>
-        <button class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" onclick="deleteWarehouseItem('${w.id}')"><i class="fa-solid fa-trash-alt"></i></button>
+        <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('${w.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteWarehouseItem('${w.id}')"><i class="fa-solid fa-trash-alt"></i></button>
     `;
 
     return {
@@ -361,14 +361,14 @@ function formatTableRow(w) {
                 <div class="d-flex align-items-center gap-2">
                     <div class="overflow-hidden">
                         <div class="fw-bold text-white">${w.warehouse_name}</div>
-                        <div class="mono-num fw-bold text-info small">${w.id}</div>
+                        <div class="fw-bold text-info small">${w.id}</div>
                     </div>
                 </div>
             `,
         type: typeBadge,
         country: countryBadge,
         address: `<div class="text-secondary text-wrap" style="max-width: 250px;">${w.address || '-'}</div>`,
-        phone: `<span class="mono-num">${w.contact_phone || '-'}</span>`,
+        phone: `${w.contact_phone || '-'}`,
         hours: `<span class="text-secondary text-wrap" style="max-width: 200px;">${w.operating_hours || '-'}</span>`,
         status: activePill,
         actions: actionButtons

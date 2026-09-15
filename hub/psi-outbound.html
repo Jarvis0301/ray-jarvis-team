@@ -406,7 +406,7 @@
                         <form id="outboundForm" novalidate>
                             <input type="hidden" id="formMode" value="add">
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldId">銷貨單號主鍵 (id) <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldId" required readonly>
@@ -428,7 +428,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldOrderDate">出單建立日期 <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="fieldOrderDate" required>
@@ -489,7 +489,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldOutboundDate">實體交付出庫日</label>
                                     <input type="date" class="form-control form-control-sm" id="fieldOutboundDate">
@@ -555,7 +555,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldFulfillmentStatus">出庫狀態 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldFulfillmentStatus" required>
@@ -622,7 +622,7 @@
                             <h5 class="modal-title fw-bold text-white mb-0">
                                 <i class="fa-solid fa-list-ol text-info me-1"></i>銷貨出庫商品品項與費用明細
                             </h5>
-                            <button type="button" class="btn btn-sm btn-outline-purple rounded-pill" id="btnToggleAddOutboundItem" onclick="toggleInlineItemForm()">
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="btnToggleAddOutboundItem" onclick="toggleInlineItemForm()">
                                 <i class="fa-solid fa-plus me-1"></i>新增單筆明細
                             </button>
                         </div>
@@ -646,7 +646,7 @@
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <span class="text-secondary">業績月份：</span>
-                                    <span class="badge badge-purple-subtle" id="detailModalPerfMonth">-</span>
+                                    <span class="badge badge-outline-secondary" id="detailModalPerfMonth">-</span>
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <span class="text-secondary">收件對象：</span>
@@ -750,7 +750,7 @@
                                                 <i class="fa-solid fa-xmark me-1"></i>取消
                                             </button>
                                             <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnSaveInlineItem" onclick="saveInlineOutboundItem()">
-                                                <i class="fa-solid fa-check me-1"></i>確認儲存明細
+                                                <i class="fa-solid fa-check me-1"></i>確認明細
                                             </button>
                                         </div>
                                     </div>
@@ -817,8 +817,8 @@
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark me-1"></i>關閉
                         </button>
-                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-4" id="btnSaveAllOutboundItems" onclick="saveAllOutboundItems()">
-                            <i class="fa-solid fa-floppy-disk me-1"></i> 儲存銷貨明細變更
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" id="btnSaveAllOutboundItems" onclick="saveAllOutboundItems()">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> 儲存銷貨明細
                         </button>
                     </footer>
                 </section>
@@ -849,7 +849,7 @@
                             <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                                 <i class="fa-solid fa-xmark me-1"></i> 關閉
                             </button>
-                            <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-3" id="btnDetailViewItemsOutbound">
+                            <button type="button" class="btn btn-info btn-sm rounded-pill px-3" id="btnDetailViewItemsOutbound">
                                 <i class="fa-solid fa-list-ul me-1"></i> 查看明細
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnDetailEditOutbound">

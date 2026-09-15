@@ -317,13 +317,15 @@ function onStockProductChange(productId) {
     if (!prod) return;
 
     // 1. 帶入結算幣別 (TWD / MYR)
-    if (prod.currency) {
-        $('#fieldCurrencyCode').val(prod.currency);
-    }
+    const currency = prod.currency || ((prod.region === 'MY' || String(prod.code).startsWith('MY')) ? 'MYR' : 'TWD');
+    $('#fieldCurrencyCode').val(currency);
+    $('#fieldCurrencyCodeText').text(currency);
+
     // 2. 帶入官方經理成本單價
     if (prod.price !== undefined) {
         $('#fieldCostPrice').val(prod.price);
     }
+
     // 3. 帶入全球統一 SV 點數
     if (prod.sv_point !== undefined) {
         $('#fieldSvPoint').val(prod.sv_point);
@@ -649,7 +651,8 @@ function renderTacticalCharts() {
         const whCost = {};
         filtered.forEach(s => {
             const name = getWarehouseName(s.warehouse_id);
-            whCost[name] = (whCost[name] || 0) + (s.quantity * (s.cost_price || 0));
+            const itemTotalCost = AppCalc.multiply(s.quantity, s.cost_price || 0, 2);
+            whCost[name] = AppCalc.add(whCost[name] || 0, itemTotalCost);
         });
         const totalCost = Object.values(whCost).reduce((a, b) => a + b, 0);
 
@@ -836,8 +839,9 @@ function openAddStockModal() {
     $('#fieldReservedQty').val(0);
     $('#fieldAvailableQty').val(0);
     $('#fieldCurrencyCode').val('TWD');
-    $('#fieldCostPrice').val();
-    $('#fieldSvPoint').val();
+    $('#fieldCurrencyCodeText').text('TWD');
+    $('#fieldCostPrice').val(0);
+    $('#fieldSvPoint').val(0);
     $('#fieldRemarks').val('');
     $('#fieldIsLocked').prop('checked', false);
     $('#fieldCreatedAt').val('');
@@ -859,7 +863,9 @@ function openEditStockModal(stockId) {
     $('#fieldPiecesQty').val(s.pieces_qty || 0);
     $('#fieldReservedQty').val(s.reserved_qty);
     $('#fieldAvailableQty').val(s.available_qty);
-    $('#fieldCurrencyCode').val(s.currency_code);
+    const curr = s.currency_code || 'TWD';
+    $('#fieldCurrencyCode').val(curr);
+    $('#fieldCurrencyCodeText').text(curr);
     $('#fieldCostPrice').val(s.cost_price);
     $('#fieldSvPoint').val(s.sv_point);
     $('#fieldRemarks').val(s.remarks);
@@ -881,7 +887,7 @@ async function saveStockItem() {
     const prd = $('#fieldProductId').val();
     const batch = $('#fieldBatchNo').val().trim();
     const exp = $('#fieldExpiryDate').val();
-    const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
+    const qty = parseInt($('#fieldQuantity').val(), 10);
     const pieces = parseInt($('#fieldPiecesQty').val(), 10) || 0;
     const reserved = parseInt($('#fieldReservedQty').val(), 10) || 0;
     const avail = Math.max(0, qty - reserved);

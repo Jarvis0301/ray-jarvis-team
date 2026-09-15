@@ -47,7 +47,7 @@ function getCurrencyFactor() {
     const isMYR = (currentCurrency === 'MYR');
     return {
         symbol: isMYR ? 'RM' : 'NT$',
-        rate: isMYR ? (1 / exchangeRate) : 1,
+        rate: isMYR ? AppCalc.divide(1, exchangeRate, 6) : 1,
         pv: isMYR ? 3.5 : 25
     };
 }
@@ -65,7 +65,7 @@ function formatLocalCurrency(amount) {
  */
 function formatMoney(amountInTwd) {
     const { symbol, rate } = getCurrencyFactor();
-    const converted = Math.round(amountInTwd * rate);
+    const converted = Math.round(AppCalc.divide(amountInTwd * rate * 100, 100, 2));
     return `${symbol} ${converted.toLocaleString()}`;
 }
 
@@ -395,14 +395,19 @@ function runSimulation() {
     const leadershipBonusIncome = isMYR 
         ? (currentRank.leadership_gen_depth > 0 && currentRank.rank_level < 70 
             ? (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines) 
-            : Math.round(rawLeadership * currencyRate)) 
+            : rawLeadership) 
         : rawLeadership;
     const pearlDividendIncome = isMYR ? Math.round(rawPearlDiv * currencyRate) : rawPearlDiv;
     const excellenceIncome = isMYR ? Math.round(rawExcellence * currencyRate) : rawExcellence;
     const travelIncome = isMYR ? Math.round(rawTravel * currencyRate) : rawTravel;
     const carFundIncome = isMYR ? Math.round(rawCarFund * currencyRate) : rawCarFund;
 
-    const totalEstIncome = Math.round(rebateIncome + groupDiffIncome + qualifiedBonusIncome + leadershipBonusIncome + pearlDividendIncome + excellenceIncome + travelIncome + carFundIncome);
+    const incomes = [
+        rebateIncome, groupDiffIncome, qualifiedBonusIncome, 
+        leadershipBonusIncome, pearlDividendIncome, excellenceIncome, 
+        travelIncome, carFundIncome
+    ];
+    const totalEstIncome = Math.round(incomes.reduce((sum, item) => AppCalc.add(sum, item), 0));
 
     $('#dispTotalIncome').text(formatLocalCurrency(totalEstIncome));
     $('#dispIncomeQuickTotal').text(formatLocalCurrency(totalEstIncome));
@@ -449,7 +454,10 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
     let totalWeight = 0;
     let currentScore = 0;
 
-    totalWeight += 20; currentScore += Math.min(1, pSv / (target.month_personal_sv_req || 160)) * 20;
+    totalWeight += 20;
+    const pRatio = Math.min(1, AppCalc.divide(pSv, (target.month_personal_sv_req || 160), 4));
+    currentScore = AppCalc.add(currentScore, pRatio * 20);
+    let progressPct = Math.round(AppCalc.divide(currentScore * 100, totalWeight, 2));
     if (target.cum_group_sv_req > 0) { totalWeight += 20; currentScore += Math.min(1, cSv / target.cum_group_sv_req) * 20; }
     if (target.month_group_sv_req > 0) { totalWeight += 20; currentScore += Math.min(1, mSv / target.month_group_sv_req) * 20; }
     if (target.qualified_lines_req > 0) { totalWeight += 20; currentScore += Math.min(1, lines / target.qualified_lines_req) * 20; }

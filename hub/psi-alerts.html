@@ -38,37 +38,37 @@
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-primary me-1"></i>預警數量</span>
-                                    <span class="text-primary fs-6 fw-bold mono-num" id="count-alerts-total">0</span>
+                                    <span class="text-primary fs-6 fw-bold" id="count-alerts-total">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-bell text-info me-1"></i>待處理預警</span>
-                                    <span class="text-info fs-6 fw-bold mono-num" id="stat-pending-count">0</span>
+                                    <span class="text-info fs-6 fw-bold" id="stat-pending-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-circle-exclamation text-orange me-1"></i>低於水位</span>
-                                    <span class="text-orange fs-6 fw-bold mono-num" id="stat-stockout-count">0</span>
+                                    <span class="text-orange fs-6 fw-bold" id="stat-stockout-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-hourglass-half text-warning me-1"></i>接近有效日期</span>
-                                    <span class="text-warning fs-6 fw-bold mono-num" id="stat-expiry90-count">0</span>
+                                    <span class="text-warning fs-6 fw-bold" id="stat-expiry90-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>即將過期</span>
-                                    <span class="text-danger fs-6 fw-bold mono-num" id="stat-expiry30-count">0</span>
+                                    <span class="text-danger fs-6 fw-bold" id="stat-expiry30-count">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-skull text-accent me-1"></i>已過期</span>
-                                    <span class="text-accent fs-6 fw-bold mono-num" id="stat-expired-count">0</span>
+                                    <span class="text-accent fs-6 fw-bold" id="stat-expired-count">0</span>
                                 </div>
                             </div>
                         </div>
@@ -216,7 +216,7 @@
                                 <div class="form-text text-muted small">主鍵 (PK)，依「倉儲據點ID_產品SKU ID」格式自動生成（例如：WH-TW-TP_TW0101001）</div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">據點倉儲 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldThresholdWarehouse" required>
@@ -229,7 +229,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">安全存量門檻盒數 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="fieldThresholdQty" min="0" value="0" required>
@@ -245,7 +245,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12">
                                     <label class="form-label">備註</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldThresholdRemarks" placeholder="例如：大馬招商拓荒備貨、月末衝刺緩衝...">

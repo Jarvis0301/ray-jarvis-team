@@ -1657,21 +1657,45 @@ function renderChartsView(filteredDataset = null) {
     const ageCategories = ['17歲以下', '18-29歲', '30-39歲', '40-49歲', '50-59歲', '60-69歲', '70-79歲', '80歲以上'];
     const ageCounts = {};
     ageCategories.forEach(c => { ageCounts[c] = 0; });
+
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1;
+    const curDay = now.getDate();
+
     dataset.forEach(p => {
         const person = getPersonMaster(p.person_id);
-        const bStr = person.birthday ? String(person.birthday).trim() : '';
-        if (bStr.length >= 4) {
-            const birthYear = parseInt(bStr.slice(0, 4), 10);
-            if (!isNaN(birthYear) && birthYear > 1900 && birthYear <= 2026) {
-                const age = 2026 - birthYear;
-                if (age <= 17) ageCounts['17歲以下']++;
-                else if (age <= 29) ageCounts['18-29歲']++;
-                else if (age <= 39) ageCounts['30-39歲']++;
-                else if (age <= 49) ageCounts['40-49歲']++;
-                else if (age <= 59) ageCounts['50-59歲']++;
-                else if (age <= 69) ageCounts['60-69歲']++;
-                else if (age <= 79) ageCounts['70-79歲']++;
-                else ageCounts['80歲以上']++;
+        const bDayParts = AppDate.parse(person.birthday);
+
+        if (bDayParts && bDayParts.year) {
+            const birthY = parseInt(bDayParts.year, 10);
+            if (!isNaN(birthY) && birthY > 1900 && birthY <= curYear) {
+                let age = curYear - birthY;
+
+                // 日精度比對（YYYY/MM/DD）：精準判斷生日是否已過
+                if (bDayParts.precision === 'D' && bDayParts.month && bDayParts.day) {
+                    const birthM = parseInt(bDayParts.month, 10);
+                    const birthD = parseInt(bDayParts.day, 10);
+                    if (curMonth < birthM || (curMonth === birthM && curDay < birthD)) {
+                        age--;
+                    }
+                // 月精度比對（YYYY/MM）：以月份先後判斷
+                } else if (bDayParts.precision === 'M' && bDayParts.month) {
+                    if (curMonth < parseInt(bDayParts.month, 10)) {
+                        age--;
+                    }
+                }
+
+                if (age >= 0) {
+                    if (age <= 17) ageCounts['17歲以下']++;
+                    else if (age <= 29) ageCounts['18-29歲']++;
+                    else if (age <= 39) ageCounts['30-39歲']++;
+                    else if (age <= 49) ageCounts['40-49歲']++;
+                    else if (age <= 59) ageCounts['50-59歲']++;
+                    else if (age <= 69) ageCounts['60-69歲']++;
+                    else if (age <= 79) ageCounts['70-79歲']++;
+                    else ageCounts['80歲以上']++;
+                }
             }
         }
     });
@@ -2635,9 +2659,9 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         ];
 
         if (existingSelf) {
-            await SheetAdapter.updateRow('組織關係', targetId, selfRelationRow);
+            await SheetAdapter.updateRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
         } else {
-            await SheetAdapter.createRow('組織關係', targetId, selfRelationRow);
+            await SheetAdapter.createRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
         }
         return;
     }

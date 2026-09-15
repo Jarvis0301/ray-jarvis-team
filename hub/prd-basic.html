@@ -308,7 +308,7 @@
                         </div>
                     </section>
 
-                    <section class="row g-3 mb-3" aria-label="圖表分析網格">
+                    <section class="row g-3 mb-2" aria-label="圖表分析網格">
                         <article class="col-12 col-md-6 col-xl-4">
                             <div class="card h-100 p-3">
                                 <header class="d-flex justify-content-between align-items-center mb-2">
@@ -452,48 +452,48 @@
                             </ul>
                         </div>
                     </header>
-                    <div class="modal-body p-3 p-md-4">
+                    <div class="modal-body p-3 p-xl-4">
                         <form id="formFullProduct" novalidate>
                             <div class="tab-content" id="productEditTabContent">
                                 <!-- 分頁 1：產品主檔 -->
                                 <div class="tab-pane fade show active" id="tab-pane-prd-master" role="tabpanel">
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-xl-3">
                                             <label class="form-label">營運地區 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="region_code" required>
                                                 <option value="TW">🇹🇼 台灣 (TW)</option>
                                                 <option value="MY">🇲🇾 馬來西亞 (MY)</option>
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-xl-3">
                                             <label class="form-label">完整產品編號 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="product_code" placeholder="例：TW0303001" required>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-xl-3">
                                             <label class="form-label">跨國基本編號 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm font-monospace" name="base_code" placeholder="例：0303001" required>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-xl-3">
                                             <label class="form-label">產品型態 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="type_code" id="modalSelectType" required></select>
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">官方完整品名 <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control form-control-sm" name="name" placeholder="例：貝益潔護效牙膏" required>
                                         </div>
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">產品簡稱</label>
                                             <input type="text" class="form-control form-control-sm" name="short_name" placeholder="例：貝益潔">
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">主系列歸屬 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="category_code" id="modalSelectCategory" required></select>
                                         </div>
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">次系列歸屬 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="subcategory_code" id="modalSelectSubcategory" required></select>
                                         </div>
@@ -505,50 +505,48 @@
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-xl-3">
                                             <label class="form-label">包裝規格</label>
                                             <input type="text" class="form-control form-control-sm" name="package_spec" placeholder="例：140g x 3 盒／組">
                                         </div>
-                                        <div class="col-12 col-md-2">
+                                        <div class="col-6 col-xl-2">
                                             <label class="form-label">最小受控單位規格</label>
                                             <input type="text" class="form-control form-control-sm" name="piece_spec" placeholder="例：180ml、30g">
                                         </div>
-                                        <div class="col-12 col-md-2">
+                                        <div class="col-6 col-xl-2">
                                             <label class="form-label">產品重量</label>
                                             <div class="input-group input-group-sm">
                                                 <input type="number" class="form-control form-control-sm text-end" name="product_weight" min="0.1">
                                                 <span class="input-group-text">g</span>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">售價 <span class="text-danger">*</span></label>
-                                            <div class="input-group">
-                                                <select class="form-select form-select-sm font-monospace w-25" name="currency" required>
-                                                    <option value="TWD">TWD</option>
-                                                    <option value="MYR">MYR</option>
-                                                </select>
-                                                <input type="number" class="form-control form-control-sm text-end w-75" name="price" min="0" step="10" required>
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text" id="modalCurrencyText">TWD</span>
+                                                <input type="hidden" name="currency" id="modalCurrency" value="TWD">
+                                                <input type="number" class="form-control form-control-sm text-end" name="price" min="0" step="10" required>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-2">
+                                        <div class="col-6 col-xl-2">
                                             <label class="form-label">全球 SV <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm text-end" name="sv_point" min="0" required>
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">官方正裝計量單位 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="base_unit" id="modalBaseUnit" required></select>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">散裝最小受控單位</label>
                                             <select class="form-select form-select-sm" name="sub_unit" id="modalSubUnit"></select>
                                         </div>
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">單盒(箱)內含最小散件總量 <span class="text-danger">*</span></label>
+                                        <div class="col-6 col-xl-3">
+                                            <label class="form-label">單盒內含最小散件總量 <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm text-end" name="pieces_per_box" min="1" value="1" required>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">是否開放拆盒散賣 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" name="allow_decant" required>
                                                 <option value="Y" selected>是</option>
@@ -557,19 +555,19 @@
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">上市日期</label>
                                             <input type="date" class="form-control form-control-sm" name="launch_date">
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">下市日期</label>
                                             <input type="date" class="form-control form-control-sm" name="discontinue_date">
                                         </div>
-                                        <div class="col-12 col-md-3">
-                                            <label class="form-label">官方最新異動日期 (UVACO)</label>
+                                        <div class="col-6 col-xl-3">
+                                            <label class="form-label">官方最新異動日期</label>
                                             <input type="date" class="form-control form-control-sm" name="official_update_date">
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-6 col-xl-3">
                                             <label class="form-label">供貨狀態</label>
                                             <select class="form-select form-select-sm" name="stock_status">
                                                 <option value="現貨">現貨</option>
@@ -579,11 +577,11 @@
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-9">
+                                        <div class="col-12 col-xl-9">
                                             <label class="form-label">列表縮圖網址</label>
                                             <input type="url" class="form-control form-control-sm" name="primary_image_url" placeholder="https://...">
                                         </div>
-                                        <div class="col-12 col-md-3 d-flex align-items-end gap-3 pb-1">
+                                        <div class="col-12 col-xl-3 d-flex align-items-end gap-3 pb-1">
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" name="is_featured" id="modalIsFeatured">
                                                 <label class="form-check-label fw-bold" for="modalIsFeatured">明星商品</label>
@@ -595,7 +593,7 @@
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-12">
+                                        <div class="col-12 col-xl-12">
                                             <label class="form-label">備註</label>
                                             <input type="text" class="form-control form-control-sm" name="remarks" placeholder="例：官方批次改版或外包裝更迭備忘">
                                         </div>
@@ -605,21 +603,21 @@
                                 <!-- 分頁 2：產品詳細資料 -->
                                 <div class="tab-pane fade" id="tab-pane-prd-details" role="tabpanel">
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">高解析大圖網址</label>
                                             <input type="url" class="form-control form-control-sm" name="hd_image_url" placeholder="https://...">
                                         </div>
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">葡眾官方產品連結</label>
                                             <input type="url" class="form-control form-control-sm" name="official_site_url" placeholder="https://www.uvaco.com.tw/...">
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-2">
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">官方認證字號 / SNQ 標章</label>
                                             <input type="text" class="form-control form-control-sm" name="certifications" placeholder="例：衛部健食字第A00000號">
                                         </div>
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-xl-6">
                                             <label class="form-label">亮點短語標籤 (以半形逗號分隔)</label>
                                             <input type="text" class="form-control form-control-sm" name="phrase_tags" placeholder="例：專利菌株,調整體質,無防腐劑">
                                         </div>
@@ -698,86 +696,86 @@
 
                                 <!-- 電腦版改為 1 行 4 欄 -->
                                 <div class="row g-3 border-top border-secondary border-opacity-25 mb-3">
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">主系列：</span>
                                         <span id="viewPrdCategory">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">次系列：</span>
                                         <span id="viewPrdSubcategory">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">型態：</span>
                                         <span id="viewPrdType">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">重量：</span>
                                         <span id="viewPrdWeight" class="font-monospace text-light">-</span>
                                     </div>
                                 </div>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-6 col-md-3">
+                                <div class="row g-3 mb-2">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">包裝規格：</span>
                                         <span id="viewPrdSpec" class="font-monospace text-light">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">最小受控規格：</span>
                                         <span id="viewPrdPieceSpec" class="font-monospace text-info">-</span>
                                     </div>
-                                    <div class="col-6 col-md-6">
+                                    <div class="col-6 col-xl-6">
                                         <span class="text-muted d-block">拆盒散賣規則：</span>
                                         <span id="viewPrdDecantRule">-</span>
                                     </div>
                                 </div>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-6 col-md-3">
+                                <div class="row g-3 mb-2">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">售價：</span>
                                         <span id="viewPrdPrice" class="text-yellow fw-bold fs-6">0</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">全球 SV：</span>
                                         <span id="viewPrdSv" class="text-teal fw-bold fs-6">0 SV</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">庫存狀態：</span>
                                         <span id="viewPrdStock">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">明星商品：</span>
                                         <span id="viewPrdFeatured">-</span>
                                     </div>
                                 </div>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-6 col-md-3">
+                                <div class="row g-3 mb-2">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">上市狀態：</span>
                                         <span id="viewPrdIsValid">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">上市日期：</span>
                                         <span id="viewPrdLaunchDate" class="font-monospace text-light">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">下市日期：</span>
                                         <span id="viewPrdDiscontinueDate" class="font-monospace text-light">-</span>
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-xl-3">
                                         <span class="text-muted d-block">官方最新異動：</span>
                                         <span id="viewPrdOfficialUpdateDate" class="font-monospace text-light">-</span>
                                     </div>
                                 </div>
-                                <div class="row g-3 mb-3">
+                                <div class="row g-3 mb-2">
                                     <div class="col-12">
                                         <span class="text-muted d-block">品質認證：</span>
                                         <span class="badge badge-info" id="viewPrdCertifications">無</span>
                                     </div>
                                 </div>
-                                <div class="row g-3 mb-3">
+                                <div class="row g-3 mb-2">
                                     <div class="col-12">
                                         <span class="text-muted d-block">短語標籤：</span>
                                         <div id="viewPrdPhraseTags"></div>
                                     </div>
                                 </div>
-                                <div class="row g-3 mb-3">
+                                <div class="row g-3 mb-2">
                                     <div class="col-12">
                                         <span class="text-muted d-block">備註：</span>
                                         <span id="viewPrdRemarks" class="text-light">-</span>

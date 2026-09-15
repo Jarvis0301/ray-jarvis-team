@@ -358,10 +358,10 @@ function renderKpis() {
     let decoupledCount = 0;
 
     appState.inbounds.forEach(item => {
-        if (item.status !== '已作廢') {
-            totalBoxes += item.total_boxes;
-            totalCost += item.total_cost_amount;
-            totalSv += item.total_sv;
+        if (item.status !== '已取消') {
+            totalBoxes = AppCalc.add(totalBoxes, item.total_boxes || 0);
+            totalCost = AppCalc.add(totalCost, item.total_cost_amount || 0);
+            totalSv = AppCalc.add(totalSv, item.total_sv || 0);
             if (item.purchaser_partner_id && item.sv_owner_partner_id && item.purchaser_partner_id !== item.sv_owner_partner_id) {
                 decoupledCount++;
             }
@@ -369,7 +369,7 @@ function renderKpis() {
     });
 
     $('#kpiTotalBoxes').text(totalBoxes.toLocaleString());
-    $('#kpiTotalCost').text(`$${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`);
+    $('#kpiTotalCost').text(formatCurrency(totalCost, 'TWD'));
     $('#kpiTotalSv').text(totalSv.toLocaleString());
     $('#kpiDecoupledOrders').text(decoupledCount);
 }
@@ -833,10 +833,23 @@ function applyFilters() {
     }
 }
 
+function formatCurrency(amount, currencyCode = 'TWD') {
+    const num = parseFloat(amount) || 0;
+    const prefix = String(currencyCode).toUpperCase() === 'MYR' ? 'RM ' : 'NT$ ';
+    if (num === 0) return `${prefix}0`;
+    return `${prefix}${num.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+}
+
 function calculateTotalCost() {
-    const product = parseFloat($('#fieldProductAmount').val()) || 0;
-    const shipping = parseFloat($('#fieldShippingFee').val()) || 0;
-    $('#fieldTotalCostAmount').val((product + shipping).toFixed(2));
+    const rawProduct = parseFloat($('#fieldRawProductAmount').val()) || 0;
+    const rawShipping = parseFloat($('#fieldRawShippingFee').val()) || 0;
+    const curr = $('#fieldCurrencyCode').val() || 'TWD';
+
+    // 調用 AppCalc 安全定點加法，徹底杜絕尾差失真
+    const total = AppCalc.add(rawProduct, rawShipping);
+
+    $('#fieldRawTotalCostAmount').val(total);
+    $('#fieldTotalCostAmount').val(formatCurrency(total, curr)).data('raw-amount', total);
 }
 
 function openAddModal() {
@@ -868,9 +881,13 @@ function openAddModal() {
     $('#fieldWarehouseId').val(firstPrivateWh ? firstPrivateWh.id : '').trigger('change.select2');
 
     // 自動計算欄位重置
-    $('#fieldProductAmount').val('0.00');
-    $('#fieldShippingFee').val('0.00');
-    $('#fieldTotalCostAmount').val('0.00');
+    const defaultCurr = $('#fieldCurrencyCode').val();
+    $('#fieldRawProductAmount').val(0);
+    $('#fieldProductAmount').val(formatCurrency(0, defaultCurr)).data('raw-amount', 0);
+    $('#fieldRawShippingFee').val(0);
+    $('#fieldShippingFee').val(formatCurrency(0, defaultCurr)).data('raw-amount', 0);
+    $('#fieldRawTotalCostAmount').val(0);
+    $('#fieldTotalCostAmount').val(formatCurrency(0, defaultCurr)).data('raw-amount', 0);
     $('#fieldTotalBoxes').val('0');
     $('#fieldTotalSv').val('0');
 
@@ -880,6 +897,38 @@ function openAddModal() {
 function openEditModal(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
+
+    const curr = item.currency_code || 'TWD';
+    const matchedItems = appState.inboundItems.filter(it => it.inbound_id === orderId);
+    let prodAmt = 0;
+    let feeAmt = 0;
+    let totalBoxes = 0;
+    let totalSv = 0;
+
+    if (matchedItems.length > 0) {
+        matchedItems.forEach(it => {
+            const amt = parseFloat(it.subtotal_amount) || 0;
+            const qty = parseInt(it.ordered_qty, 10) || 0;
+            const sv = parseInt(it.subtotal_sv, 10) || 0;
+
+            if (it.is_fee_item === 'Y') {
+                // 非商品項目（如 A13 運費、手續費）自動累加至運雜費
+                feeAmt = AppCalc.add(feeAmt, amt);
+            } else {
+                prodAmt = AppCalc.add(prodAmt, amt);
+                totalBoxes = AppCalc.add(totalBoxes, qty);
+                totalSv = AppCalc.add(totalSv, sv);
+            }
+        });
+    } else {
+        // 若該單尚無細項明細，回退至母單既有紀錄
+        prodAmt = parseFloat(item.product_amount) || 0;
+        feeAmt = parseFloat(item.shipping_fee) || 0;
+        totalBoxes = item.total_boxes || 0;
+        totalSv = item.total_sv || 0;
+    }
+
+    const totalCostAmt = AppCalc.add(prodAmt, feeAmt);
 
     $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary"></i> 編輯進貨單據');
     $('#formMode').val('edit');
@@ -904,12 +953,15 @@ function openEditModal(orderId) {
     $('#fieldOfficialShippingNo').val(item.official_shipping_no);
     $('#fieldShippingDate').val(item.shipping_date ? AppDate.toInput(item.shipping_date) : '');
     $('#fieldStatus').val(item.status);
-    $('#fieldProductAmount').val(item.product_amount);
-    $('#fieldShippingFee').val(item.shipping_fee);
-    $('#fieldTotalCostAmount').val(item.total_cost_amount);
-    $('#fieldTotalBoxes').val(item.total_boxes);
-    $('#fieldTotalSv').val(item.total_sv);
-    $('#fieldRemarks').val(item.remarks);
+    $('#fieldRawProductAmount').val(prodAmt);
+    $('#fieldProductAmount').val(formatCurrency(prodAmt, curr)).data('raw-amount', prodAmt);
+    $('#fieldRawShippingFee').val(feeAmt);
+    $('#fieldShippingFee').val(formatCurrency(feeAmt, curr)).data('raw-amount', feeAmt);
+    $('#fieldRawTotalCostAmount').val(totalCostAmt);
+    $('#fieldTotalCostAmount').val(formatCurrency(totalCostAmt, curr)).data('raw-amount', totalCostAmt);
+    $('#fieldTotalBoxes').val(item.total_boxes || 0);
+    $('#fieldTotalSv').val(item.total_sv || 0);
+    $('#fieldRemarks').val(item.remarks || '');
 
     new bootstrap.Modal(document.getElementById('inboundModal')).show();
 }
@@ -920,6 +972,13 @@ function openDetailModal(orderId) {
 
     currentDetailOrderId = orderId;
     closeInlineItemForm();
+    
+    const curr = item.currency_code || 'TWD';
+
+    $('#inlineFieldRawUnitCost').val(0);
+    $('#inlineFieldUnitCost').val(formatCurrency(0, curr));
+    $('#inlineFieldRawUnitSv').val(0);
+    $('#inlineFieldUnitSv').val('0 SV');
 
     // 注入單據抬頭資訊
     $('#detailOrderNo').text(item.id);
@@ -937,7 +996,6 @@ function openDetailModal(orderId) {
 
     populateLinkedProductOptions(item.order_center);
 
-    // 深拷貝至前端暫存區（不直接操作 appState.inboundItems）
     const matchedItems = appState.inboundItems.filter(it => it.inbound_id === orderId);
     stagingInboundItems = JSON.parse(JSON.stringify(matchedItems));
     originalInboundItemIds = matchedItems.map(it => it.id);
@@ -964,10 +1022,10 @@ function renderInboundItemsTableFromStaging(isLocked) {
         $tbody.append('<tr><td colspan="13" class="text-center text-secondary py-3">本單據暫無細項明細數據（尚未儲存）</td></tr>');
     } else {
         stagingInboundItems.forEach(it => {
-            sumOrdered += (parseInt(it.ordered_qty, 10) || 0);
-            sumReceived += (parseInt(it.received_qty, 10) || 0);
-            sumAmount += (parseFloat(it.subtotal_amount) || 0);
-            sumSv += (parseInt(it.subtotal_sv, 10) || 0);
+            sumOrdered = AppCalc.add(sumOrdered, parseInt(it.ordered_qty, 10) || 0);
+            sumReceived = AppCalc.add(sumReceived, parseInt(it.received_qty, 10) || 0);
+            sumAmount = AppCalc.add(sumAmount, parseFloat(it.subtotal_amount) || 0);
+            sumSv = AppCalc.add(sumSv, parseInt(it.subtotal_sv, 10) || 0);
 
             const editBtnDisabled = isLocked ? 'disabled' : '';
             const delBtnDisabled = isLocked ? 'disabled' : '';
@@ -1054,10 +1112,14 @@ function saveInlineItem() {
     const unitCost = parseFloat($('#inlineFieldUnitCost').val()) || 0;
     const unitSv = parseInt($('#inlineFieldUnitSv').val(), 10) || 0;
     const receivedQty = parseInt($('#inlineFieldReceivedQty').val(), 10) || 0;
+    const effectiveQty = receivedQty > 0 ? receivedQty : orderedQty;
     const batchNo = $('#inlineFieldBatchNo').val().trim();
     const expiryDate = $('#inlineFieldExpiryDate').val();
     const remarks = $('#inlineFieldRemarks').val().trim();
-    const effectiveQty = receivedQty > 0 ? receivedQty : orderedQty;
+
+    // ★ 調用 AppCalc 高精度乘法
+    const subtotalAmount = AppCalc.multiply(effectiveQty, unitCost, 2);
+    const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 0); // 官方考核點數為純整數
 
     if (!isEdit) {
         const nextSeq = stagingInboundItems.length > 0 ? Math.max(...stagingInboundItems.map(it => it.item_seq)) + 1 : 1;
@@ -1077,8 +1139,8 @@ function saveInlineItem() {
             ordered_qty: orderedQty,
             official_shipped_qty: orderedQty,
             received_qty: receivedQty,
-            subtotal_sv: unitSv * effectiveQty,
-            subtotal_amount: unitCost * effectiveQty,
+            subtotal_amount: subtotalAmount,
+            subtotal_sv: subtotalSv,
             batch_no: batchNo,
             expiry_date: expiryDate,
             stock_id: '',
@@ -1098,8 +1160,8 @@ function saveInlineItem() {
             target.ordered_qty = orderedQty;
             target.official_shipped_qty = orderedQty;
             target.received_qty = receivedQty;
-            target.subtotal_sv = unitSv * effectiveQty;
             target.subtotal_amount = unitCost * effectiveQty;
+            target.subtotal_sv = unitSv * effectiveQty;
             target.batch_no = batchNo;
             target.expiry_date = expiryDate;
             target.remarks = remarks;
@@ -1199,22 +1261,30 @@ async function saveAllInboundItems() {
 
         // 3. 自動依明細重算進貨主檔數值
         let calcProductAmount = 0;
+        let calcShippingFee = 0;
         let calcTotalBoxes = 0;
         let calcTotalSv = 0;
 
         stagingInboundItems.forEach(it => {
             const qty = parseInt(it.ordered_qty, 10) || 0;
-            if (it.is_fee_item !== 'Y') {
-                calcProductAmount += (parseFloat(it.subtotal_amount) || 0);
-                calcTotalBoxes += qty;
-                calcTotalSv += (parseInt(it.subtotal_sv, 10) || 0);
+            const amt = parseFloat(it.subtotal_amount) || 0;
+            const sv = parseInt(it.subtotal_sv, 10) || 0;
+
+            if (it.is_fee_item === 'Y') {
+                // 非商品項目（如 A13 運費、雜費等）自動累計至運費/雜費小計
+                calcShippingFee = AppCalc.add(calcShippingFee, amt);
+            } else {
+                calcProductAmount = AppCalc.add(calcProductAmount, amt);
+                calcTotalBoxes = AppCalc.add(calcTotalBoxes, qty);
+                calcTotalSv = AppCalc.add(calcTotalSv, sv);
             }
         });
 
         const shippingFee = parseFloat(parentInbound.shipping_fee) || 0;
-        const calcTotalCost = calcProductAmount + shippingFee;
+        const calcTotalCost = AppCalc.add(calcProductAmount, shippingFee);
 
         parentInbound.product_amount = calcProductAmount;
+        parentInbound.shipping_fee = calcShippingFee;
         parentInbound.total_boxes = calcTotalBoxes;
         parentInbound.total_sv = calcTotalSv;
         parentInbound.total_cost_amount = calcTotalCost;
@@ -1467,10 +1537,15 @@ function populateLinkedProductOptions(orderCenter) {
         const sv = parseInt($opt.data('sv'), 10) || 0;
         const isFee = $opt.data('fee') || 'N';
 
+        const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
+        const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
+
         // 系統自動判定性質與帶入單價/點數（商品唯讀）
         $('#inlineFieldIsFee').val(isFee);
-        $('#inlineFieldUnitCost').val(price.toFixed(2));
-        $('#inlineFieldUnitSv').val(sv);
+        $('#inlineFieldRawUnitCost').val(price);
+        $('#inlineFieldUnitCost').val(formatCurrency(price, curr));
+        $('#inlineFieldRawUnitSv').val(sv);
+        $('#inlineFieldUnitSv').val(`${Number(sv).toLocaleString()} SV`);
     });
 }
 
@@ -1560,8 +1635,8 @@ function populateOrderCenterOptions(selectedValue = '網路 (TW)') {
     });
 
     const dataList = [
-        { id: '網路 (TW)', name: '🌐 網路 (TW) - 官方線上商城 / App', group: '線上電子商務' },
-        { id: '網路 (MY)', name: '🌐 網路 (MY) - 大馬線上商城 / App', group: '線上電子商務' }
+        { id: '網路 (TW)', name: '🌐 網路 (TW) - 線上 App', group: '線上電子商務' },
+        { id: '網路 (MY)', name: '🌐 網路 (MY) - 線上 App', group: '線上電子商務' }
     ];
 
     officialCenters.forEach(wh => {
@@ -1598,18 +1673,24 @@ function populateOrderCenterOptions(selectedValue = '網路 (TW)') {
 function syncCurrencyAndDeliveryByCenter(centerVal) {
     const val = String(centerVal || '');
     const isMalaysia = val.includes('(MY)') || val.includes('吉隆坡') || val.includes('大馬');
+    const curr = isMalaysia ? 'MYR' : 'TWD';
 
-    // 幣別連動不可更改
-    $('#fieldCurrencyCode').val(isMalaysia ? 'MYR' : 'TWD');
+    $('#fieldCurrencyCode').val(curr);
 
-    // 交付方式自動設定
+    // 官方交付方式連動
     if (val.startsWith('網路')) {
         $('#fieldDeliveryMethod').val('運送');
     } else {
         $('#fieldDeliveryMethod').val('自取');
-        $('#fieldShippingFee').val('0.00');
-        calculateTotalCost();
     }
+
+    // ★ 幣別切換時同步刷新文字字串 (NT$ 0 <-> RM 0)
+    const prodAmt = parseFloat($('#fieldRawProductAmount').val()) || 0;
+    const feeAmt = parseFloat($('#fieldRawShippingFee').val()) || 0;
+
+    $('#fieldProductAmount').val(formatCurrency(prodAmt, curr));
+    $('#fieldShippingFee').val(formatCurrency(feeAmt, curr));
+    calculateTotalCost();
 }
 
 /**
@@ -1663,11 +1744,19 @@ function populateInlineProductOptions() {
 }
 
 function toggleInlineItemForm() {
-    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增明細細項');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i> 新增明細細項');
     $('#inlineItemId').val('');
     $('#inlineItemForm')[0].reset();
 
-    // 清空產品 Select2 選取狀態
+    const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
+    const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
+
+    // 重設單價與 SV 格式化數值
+    $('#inlineFieldRawUnitCost').val(0);
+    $('#inlineFieldUnitCost').val(formatCurrency(0, curr));
+    $('#inlineFieldRawUnitSv').val(0);
+    $('#inlineFieldUnitSv').val('0 SV');
+
     $('#inlineFieldProduct').val('').trigger('change.select2');
     $('#itemInlineFormCollapse').collapse('toggle');
 }
@@ -1696,26 +1785,36 @@ function calcInlineSubtotal() {
 }
 
 function editInlineItem(itemId) {
-    const item = appState.inboundItems.find(it => it.id === itemId);
+    const item = stagingInboundItems.find(it => it.id === itemId) || appState.inboundItems.find(it => it.id === itemId);
     if (!item) return;
 
-    $('#inlineFormTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細細項');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細細項');
     $('#inlineItemId').val(item.id);
 
-    // 判斷是否為費用項並同步至 Select2
     const targetCode = (item.official_product_code === 'A13' || item.is_fee_item === 'Y') 
         ? 'FEE_A13' 
         : (item.product_id || item.official_product_code);
 
     $('#inlineFieldProduct').val(targetCode).trigger('change.select2');
 
+    const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
+    const curr = (parentOrder && parentOrder.currency_code) || item.currency_code || 'TWD';
+    const unitCost = parseFloat(item.unit_cost) || 0;
+    const unitSv = parseInt(item.unit_sv, 10) || 0;
+
     $('#inlineFieldIsFee').val(item.is_fee_item);
-    $('#inlineFieldUnitCost').val(item.unit_cost);
-    $('#inlineFieldUnitSv').val(item.unit_sv);
+
+    // ★ 編輯反顯：格式化呈現單價與 SV
+    $('#inlineFieldRawUnitCost').val(unitCost);
+    $('#inlineFieldUnitCost').val(formatCurrency(unitCost, curr));
+
+    $('#inlineFieldRawUnitSv').val(unitSv);
+    $('#inlineFieldUnitSv').val(`${Number(unitSv).toLocaleString()} SV`);
+
     $('#inlineFieldOrderedQty').val(item.ordered_qty);
     $('#inlineFieldReceivedQty').val(item.received_qty);
     $('#inlineFieldBatchNo').val(item.batch_no);
-    $('#inlineFieldExpiryDate').val(item.expiry_date);
+    $('#inlineFieldExpiryDate').val(item.expiry_date ? AppDate.toInput(item.expiry_date) : '');
     $('#inlineFieldRemarks').val(item.remarks);
 
     $('#itemInlineFormCollapse').collapse('show');
@@ -1723,8 +1822,6 @@ function editInlineItem(itemId) {
 
 async function saveInlineItem() {
     if (!currentDetailOrderId) return;
-    const parentInbound = appState.inbounds.find(d => d.id === currentDetailOrderId);
-    if (!parentInbound) return;
 
     const productCode = $('#inlineFieldProduct').val();
     const orderedQty = parseInt($('#inlineFieldOrderedQty').val(), 10) || 0;
@@ -1743,7 +1840,6 @@ async function saveInlineItem() {
     const itemId = $('#inlineItemId').val().trim();
     const isEdit = Boolean(itemId);
 
-    // 解析品名快照
     let productName = '';
     if (productCode === 'FEE_A13') {
         productName = '官方物流運費';
@@ -1753,76 +1849,71 @@ async function saveInlineItem() {
     }
 
     const isFee = $('#inlineFieldIsFee').val();
-    const unitCost = parseFloat($('#inlineFieldUnitCost').val()) || 0;
-    const unitSv = parseInt($('#inlineFieldUnitSv').val(), 10) || 0;
+
+    // ★ 從隱藏欄位安全提煉純數值，杜絕字串解析 NaN
+    const unitCost = parseFloat($('#inlineFieldRawUnitCost').val()) || 0;
+    const unitSv = parseInt($('#inlineFieldRawUnitSv').val(), 10) || 0;
     const receivedQty = parseInt($('#inlineFieldReceivedQty').val(), 10) || 0;
     const batchNo = $('#inlineFieldBatchNo').val().trim();
     const expiryDate = $('#inlineFieldExpiryDate').val();
     const remarks = $('#inlineFieldRemarks').val().trim();
+    const effectiveQty = receivedQty > 0 ? receivedQty : orderedQty;
 
-    const currentUser = getCurrentUser();
-    const nowStr = AppDate.now('full');
+    // ★ 全面調用 AppCalc 進行高精度小計試算
+    const subtotalAmount = AppCalc.multiply(effectiveQty, unitCost, 2);
+    const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 0);
 
-    let nextSeq = 1;
-    let finalItemId = itemId;
     if (!isEdit) {
-        const existingItems = appState.inboundItems.filter(it => it.inbound_id === currentDetailOrderId);
-        nextSeq = existingItems.length > 0 ? Math.max(...existingItems.map(it => it.item_seq)) + 1 : 1;
-        finalItemId = `${currentDetailOrderId}_${String(nextSeq).padStart(2, '0')}`;
+        const nextSeq = stagingInboundItems.length > 0 ? Math.max(...stagingInboundItems.map(it => it.item_seq)) + 1 : 1;
+        const newTempId = `${currentDetailOrderId}_TEMP_${Date.now()}_${nextSeq}`;
+
+        stagingInboundItems.push({
+            id: newTempId,
+            inbound_id: currentDetailOrderId,
+            item_seq: nextSeq,
+            official_product_code: productCode === 'FEE_A13' ? 'A13' : productCode,
+            product_name_snapshot: productName,
+            product_id: productCode === 'FEE_A13' ? '' : productCode,
+            is_fee_item: isFee,
+            currency_code: $('#fieldCurrencyCode').val() || 'TWD',
+            unit_cost: unitCost,
+            unit_sv: unitSv,
+            ordered_qty: orderedQty,
+            official_shipped_qty: orderedQty,
+            received_qty: receivedQty,
+            subtotal_sv: subtotalSv,
+            subtotal_amount: subtotalAmount,
+            batch_no: batchNo,
+            expiry_date: expiryDate,
+            stock_id: '',
+            remarks: remarks,
+            _isNew: true
+        });
+        AppToast.info(`已暫存品項【${productName}】`);
     } else {
-        const existingObj = appState.inboundItems.find(it => it.id === itemId);
-        nextSeq = existingObj ? existingObj.item_seq : 1;
-    }
-
-    const subtotalAmount = unitCost * (receivedQty > 0 ? receivedQty : orderedQty);
-    const subtotalSv = unitSv * (receivedQty > 0 ? receivedQty : orderedQty);
-
-    // 依據表 304 實體欄位順序 (0~22) 封裝寫入陣列
-    const rowDataArray = [
-        finalItemId,
-        currentDetailOrderId,
-        nextSeq,
-        productCode === 'FEE_A13' ? 'A13' : productCode,
-        productName,
-        productCode === 'FEE_A13' ? '' : productCode,
-        isFee,
-        'TWD',
-        unitCost,
-        unitSv,
-        orderedQty,
-        orderedQty,
-        receivedQty,
-        subtotalAmount,
-        subtotalSv,
-        batchNo,
-        expiryDate,
-        '', // stock_id
-        remarks,
-        currentUser,
-        nowStr,
-        currentUser,
-        nowStr
-    ];
-
-    const $btn = $('#btnSaveInlineItem');
-    try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
-
-        if (!isEdit) {
-            await SheetAdapter.sendRequest('CREATE', '進貨明細', finalItemId, rowDataArray);
-        } else {
-            await SheetAdapter.sendRequest('UPDATE', '進貨明細', finalItemId, rowDataArray);
+        const target = stagingInboundItems.find(it => it.id === itemId);
+        if (target) {
+            target.official_product_code = productCode === 'FEE_A13' ? 'A13' : productCode;
+            target.product_name_snapshot = productName;
+            target.product_id = productCode === 'FEE_A13' ? '' : productCode;
+            target.is_fee_item = isFee;
+            target.unit_cost = unitCost;
+            target.unit_sv = unitSv;
+            target.ordered_qty = orderedQty;
+            target.official_shipped_qty = orderedQty;
+            target.received_qty = receivedQty;
+            target.subtotal_sv = subtotalSv;
+            target.subtotal_amount = subtotalAmount;
+            target.batch_no = batchNo;
+            target.expiry_date = expiryDate;
+            target.remarks = remarks;
+            target._isModified = true;
+            AppToast.info(`已更新暫存品項【${productName}】`);
         }
-
-        await fetchAllGoogleSheetsData();
-        closeInlineItemForm();
-        renderInboundItemsTable(currentDetailOrderId, parentInbound.status === '已入庫' || parentInbound.status === '已取消');
-        AppToast.success(`明細項目【${productName}】已成功儲存！`);
-    } catch (err) {
-        AppToast.error("細項寫入失敗：" + err.message);
-    } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i>確認儲存細項');
     }
+
+    closeInlineItemForm();
+    renderInboundItemsTableFromStaging(false);
 }
 
 async function deleteInlineItem(itemId) {
@@ -1912,33 +2003,38 @@ async function saveInboundItem() {
     const inboundDateVal = $('#fieldInboundDate').val() ? AppDate.toSheet($('#fieldInboundDate').val()) : ''; // YYYY/MM/DD 或空
     const shippingDateVal = $('#fieldShippingDate').val() ? AppDate.toSheet($('#fieldShippingDate').val()) : ''; // YYYY/MM/DD 或空
 
+    // 提取乾淨純數值 (防呆避免抓到貨幣符號)
+    const productAmountVal = parseFloat($('#fieldRawProductAmount').val()) || parseFloat($('#fieldProductAmount').data('raw-amount')) || 0;
+    const shippingFeeVal = parseFloat($('#fieldRawShippingFee').val()) || 0;
+    const totalCostAmountVal = parseFloat($('#fieldRawTotalCostAmount').val()) || parseFloat($('#fieldTotalCostAmount').data('raw-amount')) || 0;
+
     // 依據表 303 (psi_inbounds) 物理順序組成 0 ~ 24 陣列
     const rowDataArray = [
         orderId,                                                    // 0: id
         $('#fieldOfficialOrderNo').val().trim(),                    // 1: official_order_no
         $('#fieldOrderCategory').val(),                             // 2: order_category
         $('#fieldOrderCenter').val(),                               // 3: order_center
-        perfMonthVal,                                               // 4: performance_month (YYYY-MM)
-        orderDateVal,                                               // 5: order_date (YYYY/MM/DD)
+        perfMonthVal,                                               // 4: performance_month
+        orderDateVal,                                               // 5: order_date
         $('#fieldDeliveryMethod').val(),                            // 6: delivery_method
         $('#fieldWarehouseId').val(),                               // 7: warehouse_id
         $('#fieldPurchaserPartnerId').val(),                        // 8: purchaser_partner_id
         $('#fieldSvOwnerPartnerId').val(),                          // 9: sv_owner_partner_id
-        inboundDateVal,                                             // 10: inbound_date (YYYY/MM/DD)
+        inboundDateVal,                                             // 10: inbound_date
         $('#fieldCurrencyCode').val(),                              // 11: currency_code
-        parseFloat($('#fieldProductAmount').val()) || 0,            // 12: product_amount
-        parseFloat($('#fieldShippingFee').val()) || 0,              // 13: shipping_fee
-        parseFloat($('#fieldTotalCostAmount').val()) || 0,          // 14: total_cost_amount
+        productAmountVal,                                           // 12: product_amount (純浮點數)
+        shippingFeeVal,                                             // 13: shipping_fee (純浮點數)
+        totalCostAmountVal,                                         // 14: total_cost_amount (純浮點數)
         parseInt($('#fieldTotalSv').val(), 10) || 0,                // 15: total_sv
         parseInt($('#fieldTotalBoxes').val(), 10) || 0,             // 16: total_boxes
         $('#fieldOfficialShippingNo').val().trim(),                 // 17: official_shipping_no
-        shippingDateVal,                                            // 18: shipping_date (YYYY/MM/DD)
+        shippingDateVal,                                            // 18: shipping_date
         $('#fieldStatus').val(),                                    // 19: status
         $('#fieldRemarks').val().trim(),                            // 20: remarks
         createdBy,                                                  // 21: created_by
         createdAt,                                                  // 22: created_at
         currentUser,                                                // 23: modified_by
-        nowStr                                                      // 24: modified_at (完整 time)
+        nowStr                                                      // 24: modified_at
     ];
 
     const updatedObj = {
@@ -2064,13 +2160,18 @@ async function autoRecalculateParentInbound(inboundId) {
     const matchedItems = appState.inboundItems.filter(it => it.inbound_id === inboundId);
 
     let calcProductAmount = 0;
+    let calcShippingFee = 0;
     let calcTotalBoxes = 0;
     let calcTotalSv = 0;
 
     matchedItems.forEach(it => {
         const qty = parseInt(it.ordered_qty, 10) || 0;
+        const amt = parseFloat(it.subtotal_amount) || 0;
+        const sv = parseInt(it.subtotal_sv, 10) || 0;
+
         if (it.is_fee_item === 'Y') {
             // 費用項不計入盒數與商品金額
+            calcShippingFee = AppCalc.add(calcShippingFee, amt);
         } else {
             calcProductAmount += (parseFloat(it.subtotal_amount) || 0);
             calcTotalBoxes += qty;
@@ -2083,6 +2184,7 @@ async function autoRecalculateParentInbound(inboundId) {
 
     // 更新本機資料快取
     parentInbound.product_amount = calcProductAmount;
+    parentInbound.shipping_fee = calcShippingFee;
     parentInbound.total_boxes = calcTotalBoxes;
     parentInbound.total_sv = calcTotalSv;
     parentInbound.total_cost_amount = calcTotalCost;

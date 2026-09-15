@@ -193,8 +193,7 @@ function parseItemsTable(rows) {
         remarks: getVal(r, 22, ''),
         is_valid: getVal(r, 23, 'Y').toUpperCase() === 'Y' ? 'Y' : 'N',
         launch_date: getVal(r, 24, ''),
-        discontinue_date: getVal(r, 25, ''),       // Index 25: 停售/下市日期 (對應 delist_date)
-        delist_date: getVal(r, 25, ''),
+        discontinue_date: getVal(r, 25, ''),       // Index 25: 停售/下市日期
         official_update_date: getVal(r, 26, ''),
         created_by: getVal(r, 27, 'SYSTEM'),
         created_at: getVal(r, 28, '2026-01-01 00:00:00'),
@@ -320,6 +319,7 @@ function bindUIEvents() {
     $('select[name="region_code"]').on('change', function () {
         const reg = $(this).val();
         populateModalTaxonomySelects(reg);
+        updateModalCurrency(reg);
     });
 
     // 次系列變更時自動同步主系列下拉值
@@ -386,22 +386,28 @@ function formatFilterOptionText(nameZh, nameEn) {
 }
 
 function populateSelects() {
-    const $filterCat = $('#filterMasterCategory');
-    $filterCat.find('option:not(:first)').remove();
-    appState.categories.forEach(c => {
-        $filterCat.append(`<option value="${c.category_code}">${formatFilterOptionText(c.name_zh, c.name_en)}</option>`);
+    UISelectOptions.core.render({
+        target: '#filterMasterCategory',
+        data: appState.categories,
+        valueKey: 'category_code',
+        textKey: (c) => formatFilterOptionText(c.name_zh, c.name_en),
+        placeholder: '全部主系列'
     });
 
-    const $filterSubcat = $('#filterMasterSubcategory');
-    $filterSubcat.find('option:not(:first)').remove();
-    appState.subcategories.forEach(s => {
-        $filterSubcat.append(`<option value="${s.subcategory_code}">${formatFilterOptionText(s.name_zh, s.name_en)}</option>`);
+    UISelectOptions.core.render({
+        target: '#filterMasterSubcategory',
+        data: appState.subcategories,
+        valueKey: 'subcategory_code',
+        textKey: (s) => formatFilterOptionText(s.name_zh, s.name_en),
+        placeholder: '全部次系列'
     });
 
-    const $filterType = $('#filterMasterType');
-    $filterType.find('option:not(:first)').remove();
-    appState.types.forEach(t => {
-        $filterType.append(`<option value="${t.type_code}">${formatFilterOptionText(t.name_zh, t.name_en)}</option>`);
+    UISelectOptions.core.render({
+        target: '#filterMasterType',
+        data: appState.types,
+        valueKey: 'type_code',
+        textKey: (t) => formatFilterOptionText(t.name_zh, t.name_en),
+        placeholder: '全部型態'
     });
 
     populateModalTaxonomySelects('TW');
@@ -431,6 +437,16 @@ function populateModalTaxonomySelects(regionCode = 'TW') {
         const name = getLocalizedName(t, regionCode);
         $modalType.append(`<option value="${t.type_code}">${name} (${t.type_code})</option>`);
     });
+}
+
+function getCurrencyByRegion(regionCode) {
+    return String(regionCode).toUpperCase() === 'MY' ? 'MYR' : 'TWD';
+}
+
+function updateModalCurrency(regionCode, forcedCurrency = null) {
+    const currency = forcedCurrency || getCurrencyByRegion(regionCode);
+    $('#modalCurrencyText').text(currency);
+    $('input[name="currency"]').val(currency);
 }
 
 // ==========================================================================
@@ -1432,6 +1448,12 @@ function openAddModal() {
         dropdownParent: '#modalProductFullEdit'
     });
 
+    // 預設營運地區為台灣，並同步綁定 TWD 幣別
+    form.elements['region_code'].value = 'TW';
+    updateModalCurrency('TW');
+
+    populateModalTaxonomySelects('TW');
+
     $('#productEditTabs button:first').tab('show');
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }
@@ -1451,6 +1473,9 @@ function openEditModal(productCode) {
     form.elements['product_code'].value = item.product_code;
     $('input[name="product_code"]').prop('readonly', true);
     form.elements['base_code'].value = item.base_code;
+
+    // ★ 依據產品實體營運地區與現存幣別，精準刷新不可修改之幣別徽章與隱藏欄位
+    updateModalCurrency(item.region_code, item.currency);
 
     if (form.elements['type_code']) form.elements['type_code'].value = item.type_code;
     form.elements['name'].value = item.name;
@@ -1498,7 +1523,7 @@ function openEditModal(productCode) {
     if (activeCheckbox) activeCheckbox.checked = item.is_valid === 'Y';
 
     if (form.elements['launch_date']) form.elements['launch_date'].value = AppDate.toInput(item.launch_date);
-    if (form.elements['discontinue_date']) form.elements['discontinue_date'].value = AppDate.toInput(item.discontinue_date || item.delist_date);
+    if (form.elements['discontinue_date']) form.elements['discontinue_date'].value = AppDate.toInput(item.discontinue_date);
     if (form.elements['official_update_date']) form.elements['official_update_date'].value = AppDate.toInput(item.official_update_date);
 
     // 詳細資料
@@ -1601,7 +1626,7 @@ async function saveProductItem() {
         remarksVal,                                                 // 22: remarks
         isActive ? 'Y' : 'N',                                       // 23: is_valid
         launchDateVal,                                              // 24: launch_date
-        discontinueDateVal,                                         // 25: delist_date
+        discontinueDateVal,                                         // 25: discontinue_date
         officialUpdateDateVal,                                      // 26: official_update_date
         createdBy,                                                  // 27: created_by
         createdAt,                                                  // 28: created_at

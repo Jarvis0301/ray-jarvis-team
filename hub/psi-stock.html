@@ -40,25 +40,25 @@
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-box-open text-primary me-1"></i>整盒庫存</span>
-                                    <span class="text-primary fs-6 fw-bold mono-num" id="hudTotalQty">0</span>
+                                    <span class="text-primary fs-6 fw-bold" id="hudTotalQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-circle-check text-success me-1"></i>自由可用</span>
-                                    <span class="text-success fs-6 fw-bold mono-num" id="hudAvailableQty">0</span>
+                                    <span class="text-success fs-6 fw-bold" id="hudAvailableQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-lock text-warning me-1"></i>預扣鎖定</span>
-                                    <span class="text-warning fs-6 fw-bold mono-num" id="hudReservedQty">0</span>
+                                    <span class="text-warning fs-6 fw-bold" id="hudReservedQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-shapes text-info me-1"></i>散裝庫存</span>
-                                    <span class="text-info fs-6 fw-bold mono-num" id="hudTotalPieces">0</span>
+                                    <span class="text-info fs-6 fw-bold" id="hudTotalPieces">0</span>
                                 </div>
                             </div>
                         </div>
@@ -290,7 +290,7 @@
         </main>
 
         <!-- ==========================================================================
-            4. 庫存批號維護 Modal (表 302: psi_stocks 實體 17 欄位 CRUD，下拉選單由共用模組接管)
+            4. 庫存批號維護 Modal
             ========================================================================== -->
         <div class="modal fade" id="stockModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -301,24 +301,24 @@
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
-                    <div class="modal-body p-3 p-md-4">
+                    <div class="modal-body p-3 p-xl-4">
                         <form id="stockForm" novalidate>
                             <input type="hidden" id="formMode" value="add">
                             <input type="hidden" id="fieldCreatedAt" value="">
                             <input type="hidden" id="fieldCreatedBy" value="">
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-4">
+                            <div class="row g-3 mb-2">
+                                <div class="col-12 col-xl-4">
                                     <label class="form-label" for="fieldId">庫存唯一代碼 <span class="badge badge-secondary-subtle small">系統自動生成</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldId" readonly required>
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-xl-4">
                                     <label class="form-label" for="fieldWarehouseId">存放據點倉儲 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldWarehouseId">
                                         <option value="">-- 請選擇存放據點倉儲 --</option>
                                     </select>
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-xl-4">
                                     <label class="form-label" for="fieldProductId">產品品項 SKU <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldProductId" required>
                                         <option value="">-- 請選擇產品品項 --</option>
@@ -326,56 +326,54 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-6">
+                            <div class="row g-3 mb-2">
+                                <div class="col-12 col-xl-6">
                                     <label class="form-label" for="fieldBatchNo">官方生產批號 <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldBatchNo" placeholder="如：20260315A5" required>
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-xl-6">
                                     <label class="form-label" for="fieldExpiryDate">有效截止日期 <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="fieldExpiryDate" required>
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-3">
+                            <div class="row g-3 mb-2">
+                                <div class="col-6 col-xl-3">
                                     <label class="form-label" for="fieldQuantity">密封整盒現貨 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="fieldQuantity" min="0" value="0" required>
                                     <div class="form-text text-muted small">完整未拆封盒裝數</div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-6 col-xl-3">
                                     <label class="form-label" for="fieldPiecesQty">散裝剩餘支/條 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="fieldPiecesQty" min="0" value="0" required>
                                     <div class="form-text text-muted small">拆盒零售/體驗零散數</div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-6 col-xl-3">
                                     <label class="form-label" for="fieldReservedQty">代領預扣盒數 <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="fieldReservedQty" min="0" value="0" required>
                                     <div class="form-text text-muted small">訂單已成立未提領</div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-6 col-xl-3">
                                     <label class="form-label" for="fieldAvailableQty">自由可用盒數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
                                     <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldAvailableQty" readonly>
                                     <div class="form-text text-muted small">盒裝現貨扣除預扣</div>
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-4">
+                            <div class="row g-3 mb-2">
+                                <div class="col-6 col-xl-3">
                                     <label class="form-label" for="fieldCostPrice">成本單價 <span class="text-danger">*</span> <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
-                                    <div class="input-group">
-                                        <select class="form-select form-select-sm font-monospace w-25" id="fieldCurrencyCode" required>
-                                            <option value="TWD">TWD</option>
-                                            <option value="MYR">MYR</option>
-                                        </select>
-                                        <input type="number" class="form-control form-control-sm text-end w-75" id="fieldCostPrice" min="0" step="10" required>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text font-monospace" id="fieldCurrencyCodeText">TWD</span>
+                                        <input type="hidden" id="fieldCurrencyCode" value="TWD">
+                                        <input type="number" class="form-control form-control-sm text-end" id="fieldCostPrice" min="0" step="10" required>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-6 col-xl-3">
                                     <label class="form-label" for="fieldSvPoint">單件 SV <span class="text-danger">*</span> <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="fieldSvPoint" min="0">
                                 </div>
-                                <div class="col-12 col-md-4 d-flex align-items-end gap-3 pb-1">
+                                <div class="col-12 col-xl-6 d-flex align-items-end gap-3 pb-1">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
                                         <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
@@ -385,7 +383,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3 mb-2">
                                 <div class="col-12">
                                     <label class="form-label" for="fieldRemarks">庫存備註說明</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldRemarks" placeholder="如：大馬拓荒展業樣品備貨、總部大批提貨待驗收...">

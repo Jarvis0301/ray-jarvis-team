@@ -154,7 +154,7 @@ function switchPortal(portal) {
     $(`.portal-btn[data-portal="${portal}"]`).addClass('active');
 
     $('#treePortalBadge')
-        .removeClass('badge-indigo badge-blue badge-green badge-gray')
+        .removeClass('badge-purple badge-blue badge-green badge-gray')
         .addClass(UIBadges.system.trackClass(portal))
         .text(portal);
 
@@ -234,7 +234,7 @@ function buildNodeHtml(node, levelType) {
     else if (node.dev_status === '修復中') devBadgeClass = 'badge-danger';
 
     return `
-        <div class="tree-node-item ${levelClass} ${isSelected}" onclick="selectNode('${node.menu_id}')">
+        <div class="tree-node-item ${levelClass} ${isSelected}" data-menu-id="${node.menu_id}" onclick="selectNode('${node.menu_id}')">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <span class="text-secondary me-2"><i class="${node.fa_icon || 'fa-solid fa-circle'}"></i></span>
@@ -256,7 +256,7 @@ function buildNodeHtml(node, levelType) {
 function selectNode(menuId) {
     appState.selectedMenuId = menuId;
     $('.tree-node-item').removeClass('selected');
-    $(`.tree-node-item[onclick*="${menuId}"]`).addClass('selected');
+    $(`.tree-node-item[data-menu-id="${menuId}"]`).addClass('selected');
     renderInspector();
 }
 
@@ -282,7 +282,7 @@ function renderInspector() {
     }
 
     $('#inspectMenuId')
-        .removeClass('badge-indigo badge-blue badge-green badge-gray')
+        .removeClass('badge-purple badge-blue badge-green badge-gray')
         .addClass(UIBadges.system.trackClass(node.app_track))
         .text(node.menu_id);
     
@@ -482,8 +482,8 @@ async function saveMenuItem() {
 
     const rowDataArray = [
         menuId,
-        $('#fieldAppTrack').val(),
-        $('#fieldMenuNameZh').val().trim(),
+        appTrack,
+        menuNameZh,
         $('#fieldMenuNameEn').val().trim(),
         parseInt($('#fieldMenuLevel').val(), 10) || 0,
         $('#fieldParentId').val(),
@@ -586,7 +586,7 @@ function exportJson() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState.menus, null, 4));
     const dlAnchor = document.createElement('a');
     dlAnchor.setAttribute("href", dataStr);
-    dlAnchor.setAttribute("download", `sys_menus_${appState.currentPortal}_${new Date().toISOString().slice(0, 10)}.json`);
+    dlAnchor.setAttribute("download", `sys_menus_${appState.currentPortal}_${AppDate.toClean8(new Date())}.json`);
     dlAnchor.click();
     AppToast.info('已匯出 JSON 選單檔案');
 }
@@ -597,7 +597,7 @@ function exportCsv() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `sys_menus_${appState.currentPortal}_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `sys_menus_${appState.currentPortal}_${AppDate.toClean8(new Date())}.csv`;
     a.click();
     AppToast.info('已匯出 CSV 選單主檔');
 }

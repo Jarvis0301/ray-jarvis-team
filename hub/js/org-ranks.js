@@ -876,7 +876,7 @@ function initPartnerSelect2() {
 }
 
 function openAddRankModal() {
-    $('#modalHistoryTitle').html('<i class="fa-solid fa-plus text-accent me-1"></i>登錄夥伴職級晉升');
+    $('#modalHistoryTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>登錄夥伴職級晉升');
     $('#fieldHistoryMode').val('add');
     $('#formRankHistory')[0].reset();
     $('#fieldHistoryId').val(''); // 選擇夥伴後動態產生
@@ -905,7 +905,7 @@ function openEditHistoryModal(historyId) {
     const item = appState.history.find(h => h.history_id === historyId);
     if (!item) return;
 
-    $('#modalHistoryTitle').html('<i class="fa-solid fa-pen-to-square text-accent me-1"></i>編輯晉升紀錄');
+    $('#modalHistoryTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯晉升紀錄');
     $('#fieldHistoryMode').val('edit');
     $('#fieldHistoryId').val(item.history_id);
     $('#fieldPartnerId').val(item.partner_id).trigger('change');
@@ -941,7 +941,7 @@ function openEditHistoryModal(historyId) {
 // ==========================================================================
 async function saveRankHistoryItem() {
     const mode = $('#fieldHistoryMode').val();
-    let partnerId = $('#fieldPartnerId').val().trim();
+    let partnerId = ($('#fieldPartnerId').val() || '').trim();
     const newRankId = $('#fieldNewRankId').val();
     const rawEffectiveMonth = $('#fieldEffectiveMonth').val().trim();
 

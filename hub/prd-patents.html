@@ -488,7 +488,7 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center px-2">
                         <span class="text-muted small" id="certNoDisplay">專利公號：-</span>
-                        <a href="#" id="certDownloadLink" target="_blank" class="btn btn-sm btn-outline-purple">
+                        <a href="#" id="certDownloadLink" target="_blank" class="btn btn-sm btn-outline-primary">
                             <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>開啟原圖
                         </a>
                     </div>
@@ -730,10 +730,10 @@
                         render: function(data, type, row) {
                             return `
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-outline-purple" onclick="viewCertificate('${row.certificate_url}', '${row.patent_no}', '${row.title_zh}')" title="檢驗證書">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewCertificate('${row.certificate_url}', '${row.patent_no}', '${row.title_zh}')" title="檢驗證書">
                                         <i class="fa-solid fa-certificate"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-purple" onclick="openPatentModal('edit', ${row.id})" title="編輯專利">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="openPatentModal('edit', ${row.id})" title="編輯專利">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="deletePatent(${row.id})" title="刪除">

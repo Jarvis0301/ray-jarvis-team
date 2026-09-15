@@ -238,18 +238,8 @@ function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const parseDate = (val) => {
-        if (!val || (typeof val !== 'string' && typeof val !== 'number')) return null;
-        const str = String(val).trim();
-        if (!str || str === '-' || str === 'N/A' || str === '0' || str.toLowerCase() === 'null') {
-            return null;
-        }
-        const d = new Date(str.replace(/\//g, '-'));
-        return isNaN(d.getTime()) ? null : d;
-    };
-
-    const launchDate = parseDate(launchDateVal);
-    const discontinueDate = parseDate(discontinueDateVal);
+    const launchDate = AppDate.toTimestamp(launchDateVal);
+    const discontinueDate = AppDate.toTimestamp(discontinueDateVal);
 
     // 1. 若有上市日期且晚於今天 -> 即將上市
     if (launchDate) {
@@ -469,11 +459,6 @@ function bindEvents() {
         let rate = parseFloat($(this).val());
         if (isNaN(rate) || rate <= 0) rate = 8.0;
         appState.exchangeRate = rate;
-        updateCartSummary();
-    });
-
-    $('input[name="myRegion"]').on("change", function () {
-        appState.myRegion = $(this).val();
         updateCartSummary();
     });
 
@@ -948,16 +933,15 @@ function updateCartSummary() {
 
             let itemPriceInDisplay = itemPriceOrig;
             if (itemCurr === 'TWD' && targetCurr === 'MYR') {
-                itemPriceInDisplay = itemPriceOrig / rate;
+                itemPriceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
             } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
-                itemPriceInDisplay = itemPriceOrig * rate;
+                itemPriceInDisplay = AppCalc.divide(itemPriceOrig * rate * 100, 100, 2);
             }
+            const itemTotalPrice = AppCalc.divide(itemPriceInDisplay * qty * 100, 100, 2);
+            const itemTotalSV = AppCalc.divide(sv * qty * 100, 100, 2);
 
-            const itemTotalPrice = itemPriceInDisplay * qty;
-            const itemTotalSV = sv * qty;
-
-            subtotalDisplay += itemTotalPrice;
-            totalSV += itemTotalSV;
+            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
+            totalSV = AppCalc.add(totalSV, itemTotalSV);
             totalItemsCount += qty;
 
             // 優先採用產品簡稱 short_name
@@ -1030,16 +1014,18 @@ function updateCartSummary() {
 
     $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
 
-    const grandTotal = subtotalDisplay + shippingFeeInDisplay;
+    const grandTotal = AppCalc.add(subtotalDisplay, shippingFeeInDisplay);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
 
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
     let estimatedRebateDisplay = totalSV * rankRatio * pvMultiplier;
 
     if (appState.country === 'TW' && isTargetMYR) {
-        estimatedRebateDisplay = (totalSV * rankRatio * 25) / rate;
+        const rawTwdRebate = totalSV * rankRatio * 25;
+        estimatedRebateDisplay = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        estimatedRebateDisplay = (totalSV * rankRatio * 3.5) * rate;
+        const rawMyrRebate = totalSV * rankRatio * 3.5;
+        estimatedRebateDisplay = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
     }
 
     const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
@@ -1577,9 +1563,11 @@ function exportOrderToExcel() {
     
     let rebate = totalSV * rankRatio * pvMultiplier;
     if (appState.country === 'TW' && isTargetMYR) {
-        rebate = (totalSV * rankRatio * 25) / rate;
+        const rawTwdRebate = totalSV * rankRatio * 25;
+        rebate = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        rebate = (totalSV * rankRatio * 3.5) * rate;
+        const rawMyrRebate = totalSV * rankRatio * 3.5;
+        rebate = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
     }
 
     excelData.push([]);
@@ -1592,8 +1580,7 @@ function exportOrderToExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "訂購試算明細");
 
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    XLSX.writeFile(wb, `葡眾團隊訂購試算單_${dateStr}.xlsx`);
+    XLSX.writeFile(wb, `葡眾團隊訂購試算單_${AppDate.toClean8(new Date())}.xlsx`);
     AppToast.success("訂購試算 Excel 檔案下載成功！");
 }
 
@@ -1659,11 +1646,12 @@ function exportOrderToPDF() {
 
     let rebate = totalSV * rankRatio * pvMultiplier;
     if (appState.country === 'TW' && isTargetMYR) {
-        rebate = (totalSV * rankRatio * 25) / rate;
+        const rawTwdRebate = totalSV * rankRatio * 25;
+        rebate = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        rebate = (totalSV * rankRatio * 3.5) * rate;
+        const rawMyrRebate = totalSV * rankRatio * 3.5;
+        rebate = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
     }
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
     if (typeof printOrderReceipt === 'function') {
         printOrderReceipt({
@@ -1674,7 +1662,7 @@ function exportOrderToPDF() {
             totalSV: totalSV,
             rebate: rebate,
             currencySymbol: currSymbol,
-            dateStr: dateStr
+            dateStr: AppDate.toClean8(new Date())
         });
     } else {
         AppToast.error("未找到 order-printer.js 列印模組！");
@@ -1999,16 +1987,15 @@ function updateCartSummaryTotalsOnly() {
 
             let itemPriceInDisplay = itemPriceOrig;
             if (itemCurr === 'TWD' && targetCurr === 'MYR') {
-                itemPriceInDisplay = itemPriceOrig / rate;
+                itemPriceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
             } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
-                itemPriceInDisplay = itemPriceOrig * rate;
+                itemPriceInDisplay = AppCalc.divide(itemPriceOrig * rate * 100, 100, 2);
             }
+            const itemTotalPrice = AppCalc.divide(itemPriceInDisplay * qty * 100, 100, 2);
+            const itemTotalSV = AppCalc.divide(sv * qty * 100, 100, 2);
 
-            const itemTotalPrice = itemPriceInDisplay * qty;
-            const itemTotalSV = sv * qty;
-
-            subtotalDisplay += itemTotalPrice;
-            totalSV += itemTotalSV;
+            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
+            totalSV = AppCalc.add(totalSV, itemTotalSV);
             totalItemsCount += qty;
 
             const $row = $(`.cart-item-row[data-row-id="${code}"]`);
@@ -2050,15 +2037,17 @@ function updateCartSummaryTotalsOnly() {
 
     $("#shipping-progress-bar").css("width", `${shippingPercent}%`);
 
-    const grandTotal = subtotalDisplay + shippingFeeInDisplay;
+    const grandTotal = AppCalc.add(subtotalDisplay, shippingFeeInDisplay);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
     let estimatedRebateDisplay = totalSV * rankRatio * pvMultiplier;
 
     if (appState.country === 'TW' && isTargetMYR) {
-        estimatedRebateDisplay = (totalSV * rankRatio * 25) / rate;
+        const rawTwdRebate = totalSV * rankRatio * 25;
+        estimatedRebateDisplay = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        estimatedRebateDisplay = (totalSV * rankRatio * 3.5) * rate;
+        const rawMyrRebate = totalSV * rankRatio * 3.5;
+        estimatedRebateDisplay = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
     }
 
     const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
