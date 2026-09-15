@@ -522,35 +522,41 @@
                                     </div>
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldTotalBoxes">整盒盒數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" class="form-control form-control-sm" id="fieldTotalBoxes" min="0" value="0" readonly>
+                                        <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldTotalBoxes" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldTotalPieces">散裝支數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" class="form-control form-control-sm" id="fieldTotalPieces" min="0" value="0" readonly>
+                                        <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldTotalPieces" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldTotalSv">出庫 SV <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" class="form-control form-control-sm" id="fieldTotalSv" min="0" value="0" readonly>
+                                        <input type="text" class="form-control form-control-sm text-end" id="fieldTotalSv" value="0 SV" readonly>
+                                        <input type="hidden" id="fieldRawTotalSv" value="0">
                                     </div>
                                     <div class="col-6 col-md-2">
                                         <label class="form-label" for="fieldProductAmount">商品實收小計 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldProductAmount" min="0" value="0.00" readonly>
+                                        <input type="text" class="form-control form-control-sm text-end" id="fieldProductAmount" value="NT$ 0" readonly>
+                                        <input type="hidden" id="fieldRawProductAmount" value="0">
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldShippingFee">向客收運費 <span class="text-danger">*</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldShippingFee" min="0" value="0.00" required onchange="calculateFinancials()">
+                                        <label class="form-label" for="fieldShippingFee">運費/雜費小計 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <input type="text" class="form-control form-control-sm text-end" id="fieldShippingFee" value="NT$ 0" readonly>
+                                        <input type="hidden" id="fieldRawShippingFee" value="0">
                                     </div>
                                     <div class="col-6 col-md-4">
                                         <label class="form-label" for="fieldTotalSalesAmount">整單實收總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm text-success fw-bold" id="fieldTotalSalesAmount" readonly>
+                                        <input type="text" class="form-control form-control-sm text-end" id="fieldTotalSalesAmount" value="NT$ 0" readonly>
+                                        <input type="hidden" id="fieldRawTotalSalesAmount" value="0">
                                     </div>
                                     <div class="col-6 col-md-4">
                                         <label class="form-label" for="fieldTotalCostAmount">進貨成本總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" id="fieldTotalCostAmount" min="0" value="0.00" readonly>
+                                        <input type="text" class="form-control form-control-sm text-end" id="fieldTotalCostAmount" value="NT$ 0" readonly>
+                                        <input type="hidden" id="fieldRawTotalCostAmount" value="0">
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <label class="form-label" for="fieldTotalProfitAmount">實質毛利價差 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                        <input type="number" step="0.01" class="form-control form-control-sm text-info fw-bold" id="fieldTotalProfitAmount" readonly>
+                                        <input type="text" class="form-control form-control-sm text-end" id="fieldTotalProfitAmount" value="NT$ 0" readonly>
+                                        <input type="hidden" id="fieldRawTotalProfitAmount" value="0">
                                     </div>
                                 </div>
                             </div>
@@ -670,55 +676,65 @@
                         <!-- 行內折疊式明細新增/編輯抽屜 -->
                         <div class="collapse mb-3" id="outboundItemInlineCollapse">
                             <div class="card p-3 border-purple border-opacity-50" style="background: rgba(28, 15, 48, 0.85);">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                     <span class="fw-bold text-white small" id="inlineFormTitle">
-                                        <i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯銷貨明細
+                                        <i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯銷貨明細
                                     </span>
+                                    <!-- ★ 正裝 / 散裝 切換按鈕組 -->
+                                    <div class="btn-group btn-group-sm" role="group" id="groupInlinePackMode" aria-label="包裝型態切換">
+                                        <input type="radio" class="btn-check" name="inlinePackMode" id="inlinePackModeBox" value="BOX" checked autocomplete="off">
+                                        <label class="btn btn-outline-primary" for="inlinePackModeBox">
+                                            <i class="fa-solid fa-box me-1"></i> 官方正裝
+                                        </label>
+                                        <input type="radio" class="btn-check" name="inlinePackMode" id="inlinePackModePiece" value="PIECE" autocomplete="off">
+                                        <label class="btn btn-outline-warning" for="inlinePackModePiece">
+                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝拆零
+                                        </label>
+                                    </div>
                                     <button type="button" class="btn-close btn-close-white small" onclick="closeInlineItemForm()"></button>
                                 </div>
                                 <form id="inlineItemForm" novalidate>
                                     <input type="hidden" id="inlineItemId" value="">
                                     <input type="hidden" id="inlineIsFeeItem" value="N">
+                                    <input type="hidden" id="inlinePackRatioSnapshot" value="1">
+
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-4">
                                             <label class="form-label small mb-1" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="text-danger">*</span></label>
-                                            <select class="form-select form-select-sm" id="inlineSalesUnit" onchange="calcInlineSubtotals()">
-                                                <option value="盒">盒 (整盒)</option>
-                                                <option value="組">組 (套組)</option>
-                                                <option value="箱">箱 (整箱)</option>
-                                                <option value="支">支 (散裝)</option>
-                                                <option value="條">條 (散包)</option>
-                                                <option value="瓶">瓶 (單瓶)</option>
-                                                <option value="包">包 (散包)</option>
-                                                <option value="粒">粒 (散粒)</option>
-                                                <option value="項">項 (費用)</option>
-                                            </select>
+                                            <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <input type="text" class="form-control form-control-sm fw-bold" id="inlineSalesUnitText" value="盒" readonly>
+                                            <input type="hidden" id="inlineSalesUnit" value="盒">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitPrice">銷售單價 <span class="text-danger">*</span></label>
-                                            <input type="number" step="0.01" class="form-control form-control-sm text-success fw-bold" id="inlineUnitPrice" min="0" value="0" required oninput="calcInlineSubtotals()">
+                                            <label class="form-label small mb-1" for="inlineUnitPrice">銷售單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text" id="inlineCurrencyCodeText">TWD</span>
+                                                <input type="hidden" id="inlineCurrencyCode" value="TWD">
+                                                <input type="number" class="form-control form-control-sm text-end" id="inlineUnitPrice" min="0" step="10" value="0" required oninput="calcInlineSubtotals()">
+                                            </div>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitCost">進貨成本單價 <span class="text-danger">*</span></label>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" id="inlineUnitCost" min="0" value="0" required oninput="calcInlineSubtotals()">
+                                            <label class="form-label small mb-1" for="inlineUnitCost">進貨成本單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <input type="text" class="form-control form-control-sm text-end" id="inlineUnitCost" value="NT$ 0" readonly>
+                                            <input type="hidden" id="inlineRawUnitCost" value="0">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitSv">單件 SV <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control form-control-sm text-warning" id="inlineUnitSv" min="0" value="0" required oninput="calcInlineSubtotals()">
+                                            <label class="form-label small mb-1" for="inlineUnitSv">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <input type="text" class="form-control form-control-sm text-end" id="inlineUnitSv" value="0 SV" readonly>
+                                            <input type="hidden" id="inlineRawUnitSv" value="0">
                                         </div>
                                     </div>
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineOrderedQty">訂購數量 <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control form-control-sm" id="inlineOrderedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineOrderedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineShippedQty">實體出庫量 <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control form-control-sm" id="inlineShippedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineShippedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineBatchNo">出庫批號</label>

@@ -450,7 +450,8 @@
                                 </div>
                                 <div class="col-6 col-xl-2">
                                     <label class="form-label" for="fieldTotalSv">考核總 SV <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
-                                    <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldTotalSv" min="0" value="0" readonly>
+                                    <input type="text" class="form-control form-control-sm text-end" id="fieldTotalSv" value="0 SV" readonly>
+                                    <input type="hidden" id="fieldRawTotalSv" value="0">
                                 </div>
                             </div>
 
@@ -546,7 +547,7 @@
                                             <select class="form-select form-select-sm" id="inlineFieldProduct" required></select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1">單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1">進貨單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineFieldUnitCost" value="NT$ 0" readonly>
                                             <input type="hidden" id="inlineFieldRawUnitCost" value="0">
                                         </div>
