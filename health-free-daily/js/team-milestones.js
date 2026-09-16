@@ -10,7 +10,7 @@ const historyCache = {
 
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function () {
-    Utils.equalizeWidths('#region-tabs label');
+    UI.equalizeWidths('#region-tabs label');
 
     // 頁面初始化：載入預設區域（台灣）資料
     loadRegionTimeline(currentRegion);

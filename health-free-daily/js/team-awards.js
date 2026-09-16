@@ -14,7 +14,7 @@ const awardsCache = {
 
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
-    Utils.equalizeWidths('#region-tabs label');
+    UI.equalizeWidths('#region-tabs label');
 
     // 初始化渲染子分類按鈕與數據載入
     updateSubCategoryTabs();
@@ -61,7 +61,7 @@ function updateSubCategoryTabs() {
 
     $('#sub-category-wrapper').html(html);
 
-    Utils.equalizeWidths('#sub-category-wrapper label');
+    UI.equalizeWidths('#sub-category-wrapper label');
 }
 
 // 載入區域榮譽資料 (快取優先，失敗時顯示 AppDialog 提示)

@@ -4,31 +4,6 @@
 const SPREADSHEET_ID = APP_CONFIG.SHEETS.SYS;
 const GAS_DEPLOY_ID = APP_CONFIG.GAS.SYS;
 
-/**
- * 試算表欄位索引安全取值工具函式
- */
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
-/**
- * 取得當前登入者名稱
- */
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'ADMIN';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'ADMIN';
-    } catch (e) {
-        return 'ADMIN';
-    }
-}
-
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
@@ -71,21 +46,7 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼：${res.status}`);
-            const text = await res.text();
-
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return (parsed.data || []).slice(1);
-        };
-
-        const rawRows = await fetchSheet('選單架構');
+        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID, '選單架構');
 
         if (!rawRows || rawRows.length === 0) {
             throw new Error("試算表『選單架構』工作表中未讀取到任何有效數據。");

@@ -3,22 +3,14 @@
 // 對接 SheetAdapter, UIBadges, AppDialog, AppToast, AppLoading
 // ==========================================================================
 
-const ORG_SPREADSHEET_ID = APP_CONFIG.SHEETS.ORG;
-const PSN_SPREADSHEET_ID = APP_CONFIG.SHEETS.PSN;
+const SPREADSHEET_ID_ORG = APP_CONFIG.SHEETS.ORG;
+const SPREADSHEET_ID_PSN = APP_CONFIG.SHEETS.PSN;
 
-const ORG_GAS_DEPLOY_ID = APP_CONFIG.GAS.ORG;
+const GAS_DEPLOY_ID_ORG = APP_CONFIG.GAS.ORG;
 
 // ==========================================================================
 // 工具函式與數值/日期轉換
 // ==========================================================================
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
 function parseNullableFloat(val) {
     if (val === undefined || val === null || String(val).trim() === '') return null;
     const num = parseFloat(String(val).replace(/,/g, ''));
@@ -39,17 +31,6 @@ function formatDateToSlash(dateStr) {
         return `${parts[0]}/${parts[1].padStart(2, '0')}/${parts[2].padStart(2, '0')}`;
     }
     return cleanStr;
-}
-
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'ADMIN';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'ADMIN';
-    } catch (e) {
-        return 'ADMIN';
-    }
 }
 
 function generateNextHistoryId(partnerId) {
@@ -147,7 +128,7 @@ function getPartnerDisplayName(partnerId, displayMode = 2) {
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(ORG_GAS_DEPLOY_ID);
+        SheetAdapter.init(GAS_DEPLOY_ID_ORG);
     }
     await fetchGoogleSheetsData();
 });
@@ -159,21 +140,11 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        const fetchSheet = async (sheetName, targetSpreadsheetId) => {
-            const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`通訊失敗：${res.status}`);
-            const text = await res.text();
-            const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
-            return (parsed.data || []).slice(1);
-        };
-
-        // ★ 個人主檔轉自 PSN_SPREADSHEET_ID 讀取
         const [rankRows, historyRows, partnerRows, personRows] = await Promise.all([
-            fetchSheet('職級主檔', ORG_SPREADSHEET_ID).catch(() => []),
-            fetchSheet('職級歷程', ORG_SPREADSHEET_ID).catch(() => []),
-            fetchSheet('夥伴主檔', ORG_SPREADSHEET_ID).catch(() => []),
-            fetchSheet('個人主檔', PSN_SPREADSHEET_ID).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID_ORG, '職級主檔').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_ORG, '職級歷程').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_ORG, '夥伴主檔').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PSN, '個人主檔').catch(() => [])
         ]);
 
         appState.ranks = parseRanksTable(rankRows);
@@ -1050,10 +1021,10 @@ async function saveRankHistoryItem() {
 
     try {
         if (mode === 'add') {
-            await SheetAdapter.createRow('職級歷程', historyId, rowDataArray, ORG_GAS_DEPLOY_ID);
+            await SheetAdapter.createRow('職級歷程', historyId, rowDataArray, GAS_DEPLOY_ID_ORG);
             appState.history.unshift(updatedObj);
         } else {
-            await SheetAdapter.updateRow('職級歷程', historyId, rowDataArray, ORG_GAS_DEPLOY_ID);
+            await SheetAdapter.updateRow('職級歷程', historyId, rowDataArray, GAS_DEPLOY_ID_ORG);
             const idx = appState.history.findIndex(h => h.history_id === historyId);
             if (idx !== -1) appState.history[idx] = updatedObj;
         }
@@ -1075,7 +1046,7 @@ async function deleteRankHistoryItem(historyId) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow('職級歷程', historyId, ORG_GAS_DEPLOY_ID);
+        await SheetAdapter.deleteRow('職級歷程', historyId, GAS_DEPLOY_ID_ORG);
         appState.history = appState.history.filter(h => h.history_id !== historyId);
         refreshView();
         AppToast.success(`晉升紀錄【${historyId}】已成功刪除！`);

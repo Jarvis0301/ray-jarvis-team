@@ -132,24 +132,10 @@ async function fetchGoogleSheetsData() {
     try {
         document.getElementById('syncStatus').innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>專利資料同步中...';
 
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-            const res = await fetch(url);
-            const text = await res.text();
-
-            // 使用 PapaParse 進行工業級 CSV 解析 (header: false, 不綁定欄位名稱)
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return parsed.data.slice(1); // 扣除第一列中文表頭
-        };
-
         // 並行抓取 2 個工作表：【專利類型】與【產品專利】
         const [typeData, patentsData] = await Promise.all([
-            fetchSheet('專利類型'),
-            fetchSheet('產品專利')
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '專利類型'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品專利')
         ]);
 
         if (typeData && typeData.length > 0) {
@@ -236,7 +222,7 @@ function renderTypeFilterButtons() {
 
     $('#typeFilterContainer').html(html);
 
-    Utils.equalizeWidths('#typeFilterContainer label');
+    UI.equalizeWidths('#typeFilterContainer label');
 }
 
 // 10. 動態渲染專利卡片與對應 Modal

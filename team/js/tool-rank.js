@@ -3,21 +3,6 @@
 // ==========================================================================
 const SPREADSHEET_ID = APP_CONFIG.SHEETS.ORG;
 
-/**
- * 試算表欄位索引安全取值工具函式
- * @param {Array} row 資料行陣列
- * @param {number} colIndex 欄位索引 (0-based)
- * @param {string} defaultVal 預設值
- * @returns {string} 清洗後的字串
- */
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && row[colIndex] !== '') {
-        return row[colIndex].toString().trim();
-    }
-    return defaultVal;
-}
-
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
@@ -100,21 +85,7 @@ async function fetchGoogleSheetsData() {
     }
     
     try {
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼：${res.status}`);
-            const text = await res.text();
-
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return parsed.data.slice(1);
-        };
-
-        const rawRows = await fetchSheet('職級主檔');
+        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID, '職級主檔');
 
         if (!rawRows || rawRows.length === 0) {
             throw new Error("試算表『職級主檔』工作表中未讀取到任何有效數據。");
@@ -458,6 +429,7 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
     const pRatio = Math.min(1, AppCalc.divide(pSv, (target.month_personal_sv_req || 160), 4));
     currentScore = AppCalc.add(currentScore, pRatio * 20);
     let progressPct = Math.round(AppCalc.divide(currentScore * 100, totalWeight, 2));
+    if (progressPct > 100) progressPct = 100;
     if (target.cum_group_sv_req > 0) { totalWeight += 20; currentScore += Math.min(1, cSv / target.cum_group_sv_req) * 20; }
     if (target.month_group_sv_req > 0) { totalWeight += 20; currentScore += Math.min(1, mSv / target.month_group_sv_req) * 20; }
     if (target.qualified_lines_req > 0) { totalWeight += 20; currentScore += Math.min(1, lines / target.qualified_lines_req) * 20; }
@@ -468,9 +440,6 @@ function evaluateTargetGaps(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines
         if (target.month_total_org_sv_req > 0) sub += Math.min(1, totalOrgSv / target.month_total_org_sv_req) * 10;
         currentScore += sub;
     }
-
-    let progressPct = Math.round((currentScore / totalWeight) * 100);
-    if (progressPct > 100) progressPct = 100;
 
     $('#dispOverallProgress').text(progressPct + '%');
 

@@ -1,35 +1,13 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PSI;            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
+const SPREADSHEET_ID_PSI = APP_CONFIG.SHEETS.PSI;            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
 const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;        // 獨立產品主檔試算表 (表 101 prd_items)
 const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI; // GAS 部署 ID
 const SHEET_PRODUCTS = "產品主檔";   // 表 101: prd_items
 const SHEET_WAREHOUSES = "據點倉儲"; // 表 301: psi_warehouses
 const SHEET_ALERTS = "庫存預警";     // 表 308: psi_alerts
 const SHEET_THRESHOLDS = "安全門檻"; // 表 310: psi_safety_thresholds
-
-/**
- * 試算表欄位索引安全取值工具函式 (0-Based 絕對物理順序)
- */
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'ADMIN';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'ADMIN';
-    } catch (e) {
-        return 'ADMIN';
-    }
-}
 
 function getWarehouseName(whId, displayMode = 1) {
     return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
@@ -80,27 +58,12 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        // 擴充支援傳入特定試算表 ID (預設為 SPREADSHEET_ID)
-        const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
-            const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 錯誤碼：${res.status}`);
-            const text = await res.text();
-
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return (parsed.data || []).slice(1);
-        };
-
         // 並行獲取預警表、門檻表、據點表，以及來自另一試算表的產品主檔
         const [rawAlertRows, rawThresholdRows, rawWhRows, rawPrdRows] = await Promise.all([
-            fetchSheet(SHEET_ALERTS).catch(() => []),
-            fetchSheet(SHEET_THRESHOLDS).catch(() => []),
-            fetchSheet(SHEET_WAREHOUSES).catch(() => []),
-            fetchSheet(SHEET_PRODUCTS, SPREADSHEET_ID_PRD).catch(() => []) // 指向獨立產品主檔試算表
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_ALERTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_THRESHOLDS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PRD, SHEET_PRODUCTS).catch(() => []) // 指向獨立產品主檔試算表
         ]);
 
         // 1. 解析據點主檔 (表 301)

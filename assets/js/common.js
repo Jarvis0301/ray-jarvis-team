@@ -38,7 +38,8 @@ const APP_CONFIG = {
 
     // 團隊內部寫的 JS 模組清單
     const internalModules = [
-        '../assets/js/utils.js',
+        '../assets/js/ui.js',            // 主題與 UI 控制 (原 utils.js 改名)
+        '../assets/js/utils.js',         // 全域工具函式庫 (新增)
         '../assets/js/dialog.js',
         '../assets/js/sheet-adapter.js',
         '../assets/js/ui-badges.js',
@@ -101,7 +102,7 @@ window.addEventListener('AppReady', function() {
 
 // 初始化
 function init() {
-    Utils.initTheme();
+    UI.initTheme();
 
     setDataTable();
 }

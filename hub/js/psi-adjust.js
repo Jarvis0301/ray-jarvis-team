@@ -44,34 +44,6 @@ let isInitialized = false;
 // ==========================================================================
 // 2. 欄位物理索引取值器 (0-Based 絕對物理順序)
 // ==========================================================================
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'ADMIN';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'ADMIN';
-    } catch (e) {
-        return 'ADMIN';
-    }
-}
-
-/**
- * 依據幣別標準化金額格式 (支援 NT$ 與 RM)
- */
-function formatCurrency(amount, currencyCode = 'TWD') {
-    const num = parseFloat(amount) || 0;
-    const prefix = currencyCode === 'MYR' ? 'RM ' : 'NT$ ';
-    return `${prefix}${num.toLocaleString()}`;
-}
-
 /**
  * 取得符合當前 6 大全域篩選條件之單據資料集
  */
@@ -253,15 +225,6 @@ async function initAdjustApp() {
 
     initEvents();
     await fetchAllGoogleSheetsData();
-}
-
-async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
-    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`讀取工作表 [${sheetName}] 失敗 (HTTP ${res.status})`);
-    const text = await res.text();
-    const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
-    return (parsed.data || []).slice(1);
 }
 
 /**
@@ -909,7 +872,7 @@ function openAdjustmentDetailModal(adjId) {
                 ${item.reason_desc || '未填寫詳細說明'}
             </div>
             <div class="text-secondary small mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between">
-                <span>建立：${item.created_by || 'SYSTEM'} @ ${item.order_date || '-'}</span>
+                <span>建立：${item.created_by || 'SYSTEM'} @ ${item.created_at || item.adj_date || '-'}</span>
                 <span>異動：${item.modified_by || 'SYSTEM'} @ ${item.modified_at || '-'}</span>
             </div>
         </article>
@@ -1457,8 +1420,12 @@ function loadProductStockForAudit() {
         || appState.stocks.find(s => s.product_id === prodCode && s.warehouse_id === currentWh)
         || appState.stocks.find(s => s.product_id === prodCode);
 
-    const batchNo = matchedStock ? matchedStock.batch_no : `LOT${new Date().toISOString().slice(0, 7).replace('-', '')}A`;
+    const batchNo = matchedStock ? matchedStock.batch_no : `LOT${AppDate.toClean6()}A`;
     const bookQty = matchedStock ? (packMode === 'PIECE' ? (matchedStock.pieces_qty || 0) : matchedStock.quantity) : 0;
+
+    $('#auditProductSelect')
+        .data('stock-id', matchedStock ? matchedStock.id : '')
+        .data('expiry-date', matchedStock ? matchedStock.expiry_date : '');
 
     $('#auditInputProductName').val(prodName);
     $('#auditInputBatchNo').val(batchNo);
@@ -1540,7 +1507,7 @@ function loadProductStockForTransfer() {
         || appState.stocks.find(s => s.product_id === prodCode && s.warehouse_id === fromWh)
         || appState.stocks.find(s => s.product_id === prodCode);
 
-    const batchNo = matchedStock ? matchedStock.batch_no : `LOT${new Date().toISOString().slice(0, 7).replace('-', '')}A`;
+    const batchNo = matchedStock ? matchedStock.batch_no : `LOT${AppDate.toClean6()}A`;
 
     $('#trInputProductName').val(prodName);
     $('#trInputBatchNo').val(batchNo);
@@ -1682,7 +1649,7 @@ async function commitAuditRecord() {
 
     const bookQty = parseInt($('#auditValBookQty').text(), 10) || 0;
     const physicalQty = parseInt($('#auditInputPhysicalQty').val(), 10) || 0;
-    const diff = physicalQty - bookQty;
+    const diff = AppCalc.sub(physicalQty, bookQty);
 
     const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
     const officialCode = prod ? prod.product_code : prodId;
@@ -2079,7 +2046,7 @@ function openAddAdjustmentModal() {
     $('#adjustForm')[0].reset();
 
     const nextSeq = String(appState.adjustments.length + 1).padStart(4, '0');
-    const todayIso = new Date().toISOString().slice(0, 10);
+    const todayIso = AppDate.now('input');
     const dateCode = todayIso.replace(/-/g, '');
     const adjNo = `ADJ-${dateCode}-${nextSeq}`;
 
@@ -2140,7 +2107,7 @@ function openEditAdjustmentModal(id) {
     $('#fieldCurrencyCode').val(adj.currency_code);
     $('#fieldCurrencyCodeText').text(adj.currency_code);
 
-    $('#fieldQuantity').val(adj.quantity);
+    $('#fieldQuantity').val(Math.abs(adj.quantity));
     $('#fieldUnitCost').val(adj.unit_cost);
     $('#fieldUnitSv').val(adj.unit_sv);
 
@@ -2339,16 +2306,11 @@ async function saveAdjustmentRecord() {
 }
 
 async function deleteAdjustmentRecord(id) {
-    let confirmed = false;
-    if (window.AppDialog && typeof AppDialog.confirm === 'function') {
-        confirmed = await AppDialog.confirm(`確定要自 Google 試算表中永久撤銷/刪除單據【${id}】嗎？此動作不可復原！`, {
-            title: '刪除單據確認',
-            confirmText: '確定刪除',
-            confirmClass: 'btn-danger'
-        });
-    } else {
-        confirmed = confirm(`確定要自 Google 試算表中永久撤銷/刪除單據【${id}】嗎？`);
-    }
+    const confirmed = await AppDialog.confirm(`確定要自 Google 試算表中永久撤銷/刪除單據【${id}】嗎？此動作不可復原！`, {
+        title: '刪除單據確認',
+        confirmText: '確定刪除',
+        confirmClass: 'btn-danger'
+    });
 
     if (!confirmed) return;
 

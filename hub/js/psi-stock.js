@@ -1,35 +1,13 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PSI;         // 主試算表 (庫存主檔、據點倉儲)
-const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;     // 產品主檔試算表 (prd_items)
-const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI; // GAS 部署 ID
+const SPREADSHEET_ID_PSI = APP_CONFIG.SHEETS.PSI;       // 主試算表 (庫存主檔、據點倉儲)
+const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;       // 產品主檔試算表 (prd_items)
+const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI;               // GAS 部署 ID
 
 const SHEET_STOCKS = "庫存主檔";       // 表 302: psi_stocks
 const SHEET_WAREHOUSES = "據點倉儲";   // 表 301: psi_warehouses
 const SHEET_PRODUCTS = "產品主檔";     // 表 101: prd_items
-
-/**
- * 試算表欄位索引安全取值工具函式 (0-Based 絕對物理順序)
- */
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'ADMIN';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'ADMIN';
-    } catch (e) {
-        return 'ADMIN';
-    }
-}
 
 /**
  * 依據 Schema 規格生成庫存主鍵 (格式: STK-YYYYMMDD-流水4碼)
@@ -131,24 +109,10 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
-        const fetchSheet = async (sheetName, targetSpreadsheetId = SPREADSHEET_ID) => {
-            const url = `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 錯誤碼：${res.status}`);
-            const text = await res.text();
-
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return (parsed.data || []).slice(1);
-        };
-
         const [rawStockRows, rawWhRows, rawPrdRows] = await Promise.all([
-            fetchSheet(SHEET_STOCKS).catch(() => []),
-            fetchSheet(SHEET_WAREHOUSES).catch(() => []),
-            fetchSheet(SHEET_PRODUCTS, SPREADSHEET_ID_PRD).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_STOCKS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID_PRD, SHEET_PRODUCTS).catch(() => [])
         ]);
 
         appState.warehouses = {};

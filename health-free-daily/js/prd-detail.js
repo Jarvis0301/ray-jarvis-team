@@ -3,15 +3,6 @@
 // ==========================================
 const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
 
-// 依據欄位順序索引 (Column Index) 進行安全取值
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
 // 取得 URL 查詢參數
 function getUrlParams() {
     const params = new URLSearchParams(window.location.search);
@@ -65,20 +56,6 @@ async function loadProductDetail(productCode, region) {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP 通訊錯誤狀態碼：${res.status}`);
-            const text = await res.text();
-
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return (parsed.data || []).slice(1);
-        };
-
         const targetCodeUpper = productCode.toUpperCase().trim();
         const baseCodeTarget = targetCodeUpper.replace(/^(TW|MY)/, '');
 
@@ -91,13 +68,13 @@ async function loadProductDetail(productCode, region) {
             copywritingData,
             faqData
         ] = await Promise.all([
-            fetchSheet('產品主檔'),
-            fetchSheet('產品詳細資料'),
-            fetchSheet('產品主系列'),
-            fetchSheet('產品次系列'),
-            fetchSheet('產品型態'),
-            fetchSheet('行銷文案'),
-            fetchSheet('產品問答')
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品詳細資料'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主系列'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品次系列'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品型態'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '行銷文案'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品問答')
         ]);
 
         const targetProductRow = (productsData || []).find(r => {

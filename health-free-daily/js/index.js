@@ -11,21 +11,6 @@ let menuTreeMap = new Map();
 let currentPageUrl = 'home.html';
 let isInitialized = false;
 
-/**
- * 試算表欄位索引安全取值工具函式 (0-based 解耦轉接器)
- * @param {Array} row 資料行陣列
- * @param {number} colIndex 欄位索引 (0-based)
- * @param {string} defaultVal 預設值
- * @returns {string} 清洗後的字串
- */
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && row[colIndex] !== '') {
-        return row[colIndex].toString().trim();
-    }
-    return defaultVal;
-}
-
 // ==========================================================================
 // 2. 系統生命週期與事件初始化
 // ==========================================================================

@@ -5,31 +5,6 @@ const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
 const GAS_DEPLOY_ID = APP_CONFIG.GAS.PRD;
 
 /**
- * 試算表欄位索引安全取值工具函式
- */
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && row[colIndex] !== '') {
-        return row[colIndex].toString().trim();
-    }
-    return defaultVal;
-}
-
-/**
- * 取得當前登入者名稱
- */
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'SYSTEM';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'SYSTEM';
-    } catch (e) {
-        return 'SYSTEM';
-    }
-}
-
-/**
  * 依據「上市日期」與「下市日期」計算產品上市狀態
  * 全面整合 AppDate 多階精度時間戳轉換，支援 YYYY / YYYY-MM / YYYY-MM-DD
  */
@@ -117,26 +92,12 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`工作表【${sheetName}】通訊狀態碼：${res.status}`);
-            const text = await res.text();
-
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            return parsed.data.slice(1);
-        };
-
         const [rawItems, rawDetails, rawCats, rawSubcats, rawTypes] = await Promise.all([
-            fetchSheet('產品主檔').catch(() => fetchSheet('prd_items').catch(() => [])),
-            fetchSheet('產品詳細資料').catch(() => fetchSheet('prd_item_details').catch(() => fetchSheet('prd_details').catch(() => []))),
-            fetchSheet('產品主系列').catch(() => fetchSheet('prd_categories').catch(() => [])),
-            fetchSheet('產品次系列').catch(() => fetchSheet('prd_subcategories').catch(() => [])),
-            fetchSheet('產品型態').catch(() => fetchSheet('prd_types').catch(() => []))
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品詳細資料').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主系列').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品次系列').catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品型態').catch(() => [])
         ]);
 
         appState.categories = parseCategoriesTable(rawCats);

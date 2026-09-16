@@ -3,15 +3,6 @@
 // ==========================================
 const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
 
-// 依欄位索引位置取值，避免 Google 試算表重複/空白標題造成的警告
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
 // ==========================================
 // 2. 系統狀態管理
 // ==========================================
@@ -84,26 +75,11 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        const fetchSheet = async (sheetName) => {
-            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP 錯誤狀態碼：${res.status}`);
-            const text = await res.text();
-            
-            const parsed = Papa.parse(text, {
-                header: false,
-                skipEmptyLines: true
-            });
-
-            // 跳過第一列標題行
-            return (parsed.data || []).slice(1);
-        };
-
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
-            fetchSheet('產品主檔'),
-            fetchSheet('產品主系列'),
-            fetchSheet('產品次系列'),
-            fetchSheet('產品型態')
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主系列'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品次系列'),
+            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品型態')
         ]);
 
         // 1. 解析產品主系列 (Schema: 0:category_code, 1:name_zh, 2:name_en, 3:icon_class, 4:text_color, 5:bg_color, 6:sort_order, 7:is_valid)

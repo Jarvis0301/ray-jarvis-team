@@ -167,7 +167,7 @@ function renderFilterPills(typeSet, regionSet) {
     });
     $('#type-pills').html(typeHtml);
 
-    Utils.equalizeWidths('#type-pills label');
+    UI.equalizeWidths('#type-pills label');
 
     // 2. 活動地區膠囊
     let regionHtml = `
@@ -184,7 +184,7 @@ function renderFilterPills(typeSet, regionSet) {
     });
     $('#region-pills').html(regionHtml);
 
-    Utils.equalizeWidths('#region-pills label');
+    UI.equalizeWidths('#region-pills label');
 }
 
 // 6. 事件監聽綁定

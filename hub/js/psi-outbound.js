@@ -56,38 +56,7 @@ let deletedOutboundItemIds = [];
 // ==========================================================================
 // 2. 欄位物理索引取值器與身分判定 (0-Based 絕對物理順序)
 // ==========================================================================
-function getVal(row, colIndex, defaultVal = '') {
-    if (!row || !Array.isArray(row)) return defaultVal;
-    if (row[colIndex] !== undefined && row[colIndex] !== null && String(row[colIndex]).trim() !== '') {
-        return String(row[colIndex]).trim();
-    }
-    return defaultVal;
-}
-
-function getCurrentUser() {
-    const rawSession = localStorage.getItem('ray_team_auth_session');
-    if (!rawSession) return 'ADMIN';
-    try {
-        const session = JSON.parse(rawSession);
-        return session.userName || session.user || 'ADMIN';
-    } catch (e) {
-        return 'ADMIN';
-    }
-}
-
-/**
- * 貨幣格式化工具函式 (比照系統通用規範，支援 NT$ 0 與 RM 0 呈現)
- */
-function formatCurrency(amount, currencyCode = 'TWD') {
-    const num = parseFloat(amount) || 0;
-    const prefix = String(currencyCode).toUpperCase() === 'MYR' ? 'RM ' : 'NT$ ';
-    if (num === 0) return `${prefix}0`;
-    return `${prefix}${num.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-}
-
-// ==========================================================================
-// 正裝/整件計量單位動態判定引擎 (對齊產品主檔 base_unit，解耦 '盒'/'組'/'箱' 硬編碼)
-// ==========================================================================
+// 正裝/整件計量單位動態判定引擎
 function isMasterPackUnit(salesUnit, productId, officialProductCode) {
     if (!salesUnit) return false;
     const targetCode = productId || officialProductCode;
@@ -137,15 +106,6 @@ async function initOutboundApp() {
 
     initEvents();
     await fetchAllGoogleSheetsData();
-}
-
-async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
-    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`讀取工作表 [${sheetName}] 失敗 (HTTP ${res.status})`);
-    const text = await res.text();
-    const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
-    return (parsed.data || []).slice(1);
 }
 
 /**
@@ -1396,9 +1356,9 @@ function renderOutboundItemsTableFromStaging(isLocked) {
         stagingOutboundItems.forEach(it => {
             const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
             if (isBox) {
-                sumBoxes += (parseInt(it.shipped_qty, 10) || 0);
+                sumBoxes = AppCalc.add(sumBoxes, parseInt(it.shipped_qty, 10) || 0);
             } else if (it.is_fee_item !== 'Y') {
-                sumPieces += (parseInt(it.shipped_qty, 10) || 0);
+                sumPieces = AppCalc.add(sumPieces, parseInt(it.shipped_qty, 10) || 0);
             }
 
             sumSales = AppCalc.add(sumSales, parseFloat(it.subtotal_amount) || 0);
@@ -2196,7 +2156,7 @@ function openOutboundDetailModal(orderId) {
                 ${item.remarks || '未填寫單據備註事項'}
             </div>
             <div class="text-secondary small mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between">
-                <span>建立：${item.created_by || 'SYSTEM'} @ ${item.order_date || '-'}</span>
+                <span>建立：${item.created_by || 'SYSTEM'} @ ${item.created_at || '-'}</span>
                 <span>異動：${item.modified_by || 'SYSTEM'} @ ${item.modified_at || '-'}</span>
             </div>
         </article>
@@ -2476,7 +2436,7 @@ async function quickMarkDelivered(orderId) {
     try {
         await SheetAdapter.sendRequest('UPDATE', '銷貨主檔', item.id, rowDataArray);
         await fetchAllGoogleSheetsData();
-        await autoRecalculateParentOutbound(currentDetailOrderId);
+        await autoRecalculateParentOutbound(item.id);
         AppToast.success(`銷貨單【${item.id}】已標記交付，實體庫存成功扣減！`);
     } catch (err) {
         AppToast.error("交付狀態更新失敗：" + err.message);
@@ -2498,7 +2458,7 @@ async function deleteOutboundOrder(id) {
         await SheetAdapter.sendRequest('DELETE', '銷貨主檔', id, []);
         appState.outbounds = appState.outbounds.filter(d => d.id !== id);
         await fetchAllGoogleSheetsData();
-        await autoRecalculateParentOutbound(currentDetailOrderId);
+        await autoRecalculateParentOutbound(item.id);
         AppToast.success(`銷貨單【${id}】已成功自雲端刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗：" + err.message);
