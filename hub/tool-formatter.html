@@ -41,7 +41,7 @@
             overflow-x: hidden;
         }
 
-        /* 霓光滾動條 */
+        /* 霓光捲動條 */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -177,7 +177,7 @@
             color: #ffffff;
         }
 
-        /* 符號與模板標籤晶片 */
+        /* 符號與模板標籤徽章 */
         .chip-glyph {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--uvaco-border);
@@ -413,7 +413,7 @@
                 <div class="studio-panel">
                     <div class="panel-header">
                         <h6 class="panel-title">
-                            <i class="fa-solid fa-icons me-2 me-1"></i>戰術符號與標籤晶片
+                            <i class="fa-solid fa-icons me-2 me-1"></i>戰術符號與標籤徽章
                         </h6>
                         <span class="small text-muted">點擊即插入</span>
                     </div>
@@ -727,7 +727,7 @@
                     $('#txtEditor').val(val).trigger('input');
                 });
 
-                // 點擊符號晶片直接插入
+                // 點擊符號徽章直接插入
                 $(document).on('click', '.chip-glyph', function() {
                     const insertText = $(this).data('insert');
                     self.insertAtCursor(insertText);

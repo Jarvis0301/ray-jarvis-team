@@ -1070,11 +1070,10 @@ function openInlineAddForm() {
     $('#inlineFieldProduct').val('').trigger('change.select2');
 
     // ★ 初始化唯讀文字格式與隱藏純數值
-    $('#inlineFieldRawUnitCost').val(0);
-    $('#inlineFieldUnitCost').val(formatCurrency(0, curr)).prop('readonly', true);
-
-    $('#inlineFieldRawUnitSv').val(0);
-    $('#inlineFieldUnitSv').val('0 SV').prop('readonly', true);
+    $('#inlineFieldCurrencyText').text(curr);
+    $('#inlineFieldCurrency').val(curr);
+    $('#inlineFieldUnitCost').val('0').prop('readonly', false);
+    $('#inlineFieldUnitSv').val('0').prop('readonly', false);
 
     $('#inlineFieldBatchNo').val('').prop('readonly', false).attr('placeholder', '外盒鋼印批號');
     $('#inlineFieldExpiryDate').val('').prop('readonly', false);
@@ -1117,15 +1116,14 @@ function editInlineItem(itemId) {
     $('#inlineFieldProduct').val(targetCode).trigger('change.select2');
     $('#inlineFieldIsFee').val(item.is_fee_item);
 
-    // ★ 反顯進貨單價與單件 SV (不可修改)
+    // ★ 幣別前綴與單價、SV 反顯（維持可修改狀態）
     const costVal = parseFloat(item.unit_cost) || 0;
     const svVal = parseFloat(item.unit_sv) || 0;
 
-    $('#inlineFieldRawUnitCost').val(costVal);
-    $('#inlineFieldUnitCost').val(formatCurrency(costVal, curr)).prop('readonly', true);
-
-    $('#inlineFieldRawUnitSv').val(svVal);
-    $('#inlineFieldUnitSv').val(`${AppCalc.formatSV(svVal, 'INTERNAL')} SV`).prop('readonly', true);
+    $('#inlineFieldCurrencyText').text(curr);
+    $('#inlineFieldCurrency').val(curr);
+    $('#inlineFieldUnitCost').val(costVal).prop('readonly', false);
+    $('#inlineFieldUnitSv').val(svVal).prop('readonly', false);
 
     $('#inlineFieldOrderedQty').val(item.ordered_qty);
     $('#inlineFieldReceivedQty').val(item.received_qty);
@@ -1181,9 +1179,10 @@ function saveInlineItem() {
         prdId = prod ? prod.product_code : productCode;
     }
 
-    // ★ 由隱藏欄位安全提取純數字，避免抓取貨幣符號或 "SV" 字串導致 NaN
-    const unitCost = parseFloat($('#inlineFieldRawUnitCost').val()) || 0;
-    const unitSv = parseFloat($('#inlineFieldRawUnitSv').val()) || 0;
+    // ★ 直接自數字輸入框讀取使用者可能手動修訂的數值（例如贈品輸入 0）
+    const unitCost = parseFloat($('#inlineFieldUnitCost').val()) || 0;
+    const unitSv = parseFloat($('#inlineFieldUnitSv').val()) || 0;
+    const currency = $('#inlineFieldCurrency').val() || 'TWD';
 
     const receivedQty = parseInt($('#inlineFieldReceivedQty').val(), 10) || 0;
     const batchNo = $('#inlineFieldBatchNo').val().trim();
@@ -1193,7 +1192,7 @@ function saveInlineItem() {
 
     // ★ 調用 AppCalc 高精度計算
     const subtotalAmount = AppCalc.multiply(effectiveQty, unitCost, 2);
-    const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 0);
+    const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 2);
 
     if (!isEdit) {
         const nextSeq = stagingInboundItems.length > 0 
@@ -1423,7 +1422,7 @@ function populateLinkedProductOptions(orderCenter) {
     const feeItems = [
         { code: 'FEE_A13', name: '官方物流運費 (A13)', price: 150 },
         { code: 'FEE_PKG', name: '特殊包材與保冷費', price: 50 },
-        { code: 'FEE_DLV', name: '同城 Grab 急件快遞費', price: 200 },
+        { code: 'FEE_DLV', name: '同區 Grab 急件快遞費', price: 200 },
         { code: 'FEE_OTH', name: '其他自訂勞務雜費', price: 0 }
     ];
     const $feeGroup = $('<optgroup label="🚚 官方運費與勞務雜費項目"></optgroup>');
@@ -1434,7 +1433,7 @@ function populateLinkedProductOptions(orderCenter) {
 
     // 2. 官方實體商品分組 (is_fee_item = 'N')
     const filteredProducts = appState.products.filter(p => (p.region_code || 'TW').toUpperCase() === targetRegion);
-    const groupLabel = isMalaysia ? '🇲🇾 馬來西亞市場實體產品' : '📦 台灣市場官方實體商品品項';
+    const groupLabel = isMalaysia ? '🇲🇾 馬來西亞市場' : '🇹🇼 台灣市場';
     const $prodGroup = $(`<optgroup label="${groupLabel}"></optgroup>`);
     filteredProducts.forEach(p => {
         $prodGroup.append(`<option value="${p.product_code}" data-fee="N" data-name="${p.name}" data-price="${p.price}" data-sv="${p.sv_point}">📦 ${p.name} [${p.product_code}]</option>`);
@@ -1471,41 +1470,36 @@ function onInlineProductSelectChange() {
 
     const orderDateStr = (parentOrder && parentOrder.order_date) ? parentOrder.order_date : AppDate.now('input');
 
+    // ★ 1. 幣別前綴連動
+    $('#inlineFieldCurrencyText').text(curr);
+    $('#inlineFieldCurrency').val(curr);
+
     if (isFee) {
-        // 費用項目：無批號與效期，單件 SV 固定為 0
+        // 費用項目：無批號與效期，單價帶入預設規費但允許調整，單件 SV 預設為 0
         $('#inlineFieldIsFee').val('Y');
         const feePrice = parseFloat($opt.data('price')) || 0;
 
-        // ★ 進貨單價格式化 (顯示 NT$ 150 或 RM 0)
-        $('#inlineFieldRawUnitCost').val(feePrice);
-        $('#inlineFieldUnitCost').val(formatCurrency(feePrice, curr)).prop('readonly', true);
-
-        // ★ 單件 SV 格式化 (顯示 0 SV)
-        $('#inlineFieldRawUnitSv').val(0);
-        $('#inlineFieldUnitSv').val('0 SV').prop('readonly', true);
+        $('#inlineFieldUnitCost').val(feePrice).prop('readonly', false);
+        $('#inlineFieldUnitSv').val(0).prop('readonly', false);
 
         $('#inlineFieldBatchNo').val('').prop('readonly', true).attr('placeholder', '非實體商品無批號');
         $('#inlineFieldExpiryDate').val('').prop('readonly', true);
     } else {
-        // 實體商品：自動帶出官方經理進貨成本與考核 SV (不可修改)
+        // 實體商品：自動帶出官方經理進貨成本與考核 SV，但開放手動修改（滿額贈品可直接改為 0）
         $('#inlineFieldIsFee').val('N');
         const prod = appState.products.find(p => p.product_code === productCode);
         const unitCost = prod ? (parseFloat(prod.price) || 0) : (parseFloat($opt.data('price')) || 0);
         const unitSv = prod ? (parseFloat(prod.sv_point) || 0) : (parseFloat($opt.data('sv')) || 0);
 
-        // ★ 1. 進貨單價：顯示 NT$ 2,100 或 RM 150 格式 (不可修改)
-        $('#inlineFieldRawUnitCost').val(unitCost);
-        $('#inlineFieldUnitCost').val(formatCurrency(unitCost, curr)).prop('readonly', true);
+        // ★ 自動填入但開放使用者修改
+        $('#inlineFieldUnitCost').val(unitCost).prop('readonly', false);
+        $('#inlineFieldUnitSv').val(unitSv).prop('readonly', false);
 
-        // ★ 2. 單件 SV：採用 AppCalc.formatSV 精密格式化 (type="text")
-        $('#inlineFieldRawUnitSv').val(unitSv);
-        $('#inlineFieldUnitSv').val(`${AppCalc.formatSV(unitSv, 'INTERNAL')} SV`).prop('readonly', true);
-
-        // 3. 生產批號（可修改：自動預填建議批號 LOT+年月+A）
+        // 生產批號（可修改：自動預填建議批號 LOT+年月+A）
         const defaultBatch = `LOT${AppDate.toClean6(orderDateStr)}A`;
         $('#inlineFieldBatchNo').val(defaultBatch).prop('readonly', false).attr('placeholder', '外盒鋼印批號');
 
-        // 4. 有效日期（可修改：預設自動推算 2 年效期）
+        // 有效日期（可修改：預設自動推算 2 年效期）
         const p = AppDate.parse(orderDateStr) || AppDate.parse(new Date());
         const expYear = parseInt(p.year, 10) + 2;
         const defaultExpiry = `${expYear}-${p.month || '01'}-${p.day || '01'}`;

@@ -78,7 +78,7 @@
 | `purchase_date` | DATE | Index | NO | - | 購買/交付日期 |
 | `estimated_days` | INT | - | NO | 30 | 預估可食用天數 (單盒標準天數 × `qty`) |
 | `estimated_depletion_date`| DATE | Index | NO | - | 預計用盡日期 (`purchase_date` + `estimated_days`) |
-| `recorded_by_partner_id`| VARCHAR(50) | **FK** | NO | - | 經手錄入之夥伴 ID (外鍵關聯 `partners.partner_id`) |
+| `recorded_by_partner_id`| VARCHAR(50) | **FK** | NO | - | 經手登錄之夥伴 ID (外鍵關聯 `partners.partner_id`) |
 | `created_by` | VARCHAR(100) | - | NO | 'SYSTEM' | 資料建立者 |
 | `created_at` | DATETIME | - | NO | CURRENT_TIMESTAMP | 資料建立時間 |
 | `modified_by` | VARCHAR(100) | - | NO | 'SYSTEM' | 最後異動者 |

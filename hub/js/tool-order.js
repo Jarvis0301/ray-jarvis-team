@@ -1868,7 +1868,7 @@ function exportAnalyticsReport() {
 }
 
 // ==========================================
-// 13. iframe 視窗滾動動態追蹤定位引擎
+// 13. iframe 視窗捲動動態追蹤定位引擎
 // ==========================================
 function setupIframeFloatingPositionEngine() {
     function updatePosition() {

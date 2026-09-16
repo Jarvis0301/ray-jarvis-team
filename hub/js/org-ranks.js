@@ -850,7 +850,7 @@ function initPartnerSelect2() {
         ? appState.partners 
         : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
 
-    // 透過共用模組渲染晉升登記之夥伴選單 (綁定 Modal 父層與防脫軌滾動守衛)
+    // 透過共用模組渲染晉升登記之夥伴選單 (綁定 Modal 父層與防脫軌捲動守衛)
     UISelectOptions.partner.populate({
         target: $partnerSelect,
         partners: partnerList,

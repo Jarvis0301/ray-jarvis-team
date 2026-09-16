@@ -684,7 +684,8 @@ function renderTacticalCharts() {
         const prdSv = {};
         filtered.forEach(s => {
             const name = getProductShortName(s.product_id);
-            prdSv[name] = (prdSv[name] || 0) + (s.quantity * (s.sv_point || 0));
+            const itemTotalSv = AppCalc.multiply(s.quantity, s.sv_point || 0, 0);
+            prdSv[name] = AppCalc.add(prdSv[name] || 0, itemTotalSv);
         });
         const sortedPrd = Object.entries(prdSv).sort((a, b) => b[1] - a[1]).slice(0, 5);
         const totalSv = Object.values(prdSv).reduce((a, b) => a + b, 0);

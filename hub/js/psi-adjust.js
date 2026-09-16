@@ -110,6 +110,115 @@ function getFilteredAdjustments() {
 }
 
 // ==========================================================================
+// 盤點調撥 7 大異動類型業務規則提示與在庫存量即時核算引擎
+// ==========================================================================
+function renderAdjTypeHint(type) {
+    const $container = $('#adjTypeRuleFeedback').empty();
+    
+    const ruleConfigs = {
+        '跨倉調撥': {
+            icon: 'fa-solid fa-truck-ramp-box',
+            badgeClass: 'alert-info',
+            text: `來源倉扣庫、目的倉增庫。<br>雙倉不可相同且數量不可超過庫存。`
+        },
+        '盤盈': {
+            icon: 'fa-solid fa-arrow-trend-up',
+            badgeClass: 'alert-success',
+            text: `實盤多於帳面，調增庫存現貨。<br>調整數量必須大於 0。`
+        },
+        '盤虧': {
+            icon: 'fa-solid fa-arrow-trend-down',
+            badgeClass: 'alert-danger',
+            text: `實盤短少除帳。<br>數量不可超過庫存。`
+        },
+        '破損過期': {
+            icon: 'fa-solid fa-triangle-exclamation',
+            badgeClass: 'alert-accent',
+            text: `包裝破損滲漏或過期除帳。<br>數量不可超過庫存。`
+        },
+        '自用消耗': {
+            icon: 'fa-solid fa-mug-hot',
+            badgeClass: 'alert-warning',
+            text: `雙領導核心自用免稅除帳。<br>數量不可超過庫存。`
+        },
+        '試用發放': {
+            icon: 'fa-solid fa-gift',
+            badgeClass: 'alert-primary',
+            text: `試用品體驗發放。<br>數量不可超過庫存。`
+        },
+        '拆盒解封': {
+            icon: 'fa-solid fa-boxes-packing',
+            badgeClass: 'alert-secondary',
+            text: `整盒解封為散件現貨（整盒 -1、散件 +N）<br>數量不可超過庫存。。`
+        }
+    };
+
+    const config = ruleConfigs[type] || ruleConfigs['自用消耗'];
+    $container.html(`
+        <div class="alert ${config.badgeClass} py-1 px-2 mb-0 small d-flex align-items-center gap-1">
+            <i class="${config.icon} me-1"></i>
+            <div>${config.text}</div>
+        </div>
+    `);
+}
+
+/**
+ * 調出倉在庫可用量即時動態比對反饋
+ */
+function updateAdjustStockFeedback() {
+    const prodCode = $('#fieldProductId').val();
+    const whId = $('#fieldFromWarehouseId').val();
+    const adjType = $('#fieldAdjType').val();
+    const packMode = $('input[name="modalPackMode"]:checked').val() || 'BOX';
+    const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
+    const reqQty = Math.abs(qty);
+
+    let $fb = $('#adjStockFeedback');
+    if (!$fb.length) {
+        $fb = $('<div id="adjStockFeedback" class="small mt-1"></div>');
+        $('#fieldProductId').closest('.col-12').append($fb);
+    }
+    $fb.empty();
+
+    if (!prodCode || !whId) return;
+
+    const prod = appState.products.find(p => p.product_code === prodCode || p.official_product_code === prodCode);
+    const baseUnit = prod ? (prod.base_unit || '盒') : '盒';
+    const subUnit = prod ? (prod.sub_unit || '件') : '件';
+
+    // 彙整調出倉在線庫存數
+    const matchedStocks = appState.stocks.filter(s => s.product_id === prodCode && s.warehouse_id === whId);
+    const availBoxes = matchedStocks.reduce((sum, s) => sum + (s.available_qty !== undefined ? (parseInt(s.available_qty, 10) || 0) : (parseInt(s.quantity, 10) || 0)), 0);
+    const availPieces = matchedStocks.reduce((sum, s) => sum + (parseInt(s.pieces_qty, 10) || 0), 0);
+
+    // 緩存數值供儲存前檢驗
+    $('#fieldProductId').data('avail-boxes', availBoxes).data('avail-pieces', availPieces);
+
+    if (adjType === '盤盈') {
+        $fb.html(`<span class="text-info"><i class="fa-solid fa-circle-info me-1"></i> 目前來源倉在庫：${availBoxes} ${baseUnit} / ${availPieces} ${subUnit}（盤盈將調增現貨）</span>`);
+        return;
+    }
+
+    if (packMode === 'BOX') {
+        if (availBoxes <= 0) {
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 來源倉無整${baseUnit}現貨 (可用: 0 ${baseUnit})！</span>`);
+        } else if (reqQty > availBoxes) {
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 異動量 (${reqQty} ${baseUnit}) 超出可用量 (${availBoxes} ${baseUnit})！</span>`);
+        } else {
+            $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 來源倉現貨充裕 (可用: ${availBoxes} ${baseUnit})</span>`);
+        }
+    } else {
+        if (availPieces <= 0) {
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 來源倉無散裝現貨 (可用: 0 ${subUnit})！</span>`);
+        } else if (reqQty > availPieces) {
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 散件扣減量 (${reqQty} ${subUnit}) 超出在庫散件 (${availPieces} ${subUnit})！</span>`);
+        } else {
+            $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 散裝現貨充足 (可用: ${availPieces} ${subUnit})</span>`);
+        }
+    }
+}
+
+// ==========================================================================
 // 3. 實體名稱權重解析核心 (接軌 EntityResolver)
 // ==========================================================================
 function getPersonResolvedName(personId, displayMode = 1) {
@@ -1172,9 +1281,34 @@ function renderCharts() {
 // 6. 工作台交互運算與 C/R/U/D 實體回寫引擎
 // ==========================================================================
 function initEvents() {
-    // 1. 新增/編輯視窗：正裝 / 散裝切換監聽
+    // 1. 正裝 / 散裝單選按鈕切換監聽
     $('input[name="modalPackMode"]').on('change', function () {
+        const selectedMode = $(this).val();
+        const adjType = $('#fieldAdjType').val();
+
+        // ★ 關鍵防護 2：拆盒解封狀態下強行點擊散裝時立即彈回並阻擋
+        if (adjType === '拆盒解封' && selectedMode === 'PIECE') {
+            AppToast.warning("「拆盒解封」功能必須以密封整盒為對象，不可選擇「散裝拆零」！");
+            $('#modalPackModeBox').prop('checked', true);
+            return;
+        }
+
         handleModalProductChange();
+        updateAdjustStockFeedback();
+    });
+
+    // 1. 新增/編輯視窗：更換「調出倉儲」時，即時重繪產品選單的在庫標籤
+    $('#fieldFromWarehouseId').on('change', function () {
+        const whId = $(this).val();
+        const currentProd = $('#fieldProductId').val();
+        populateAdjustProductSelectWithStock('#fieldProductId', whId, currentProd, '#adjustModal');
+        updateAdjustStockFeedback();
+    });
+
+    // 3. 異動數量輸入即時校驗
+    $('#fieldQuantity').on('input change', function () {
+        calculateModalTotals();
+        updateAdjustStockFeedback();
     });
 
     // 2. 現場盤點視窗：正裝 / 散裝切換監聽
@@ -1187,18 +1321,25 @@ function initEvents() {
         loadProductStockForTransfer();
     });
 
-    // 現場盤點品項與倉儲變動監聽
-    $(document).on('change', '#auditProductSelect, #auditWarehouseSelect', function () {
+    // 2. 現場實物盤點：更換倉儲時重繪選單
+    $('#auditWarehouseSelect').on('change', function () {
+        const whId = $(this).val();
+        populateAdjustProductSelectWithStock('#auditProductSelect', whId, '', '#modalAuditWorkbench');
         loadProductStockForAudit();
     });
 
-    // 跨倉調撥品項與來源倉變動監聽
-    $(document).on('change', '#trProductSelect, #trFromWarehouseSelect', function () {
+    // 3. 發起跨倉調撥：更換來源倉時重繪選單
+    $('#trFromWarehouseSelect').on('change', function () {
+        const whId = $(this).val();
+        populateAdjustProductSelectWithStock('#trProductSelect', whId, '', '#modalTransferWorkbench');
         loadProductStockForTransfer();
     });
 
     // 跨倉調撥數量輸入監聽
-    $(document).on('input change', '#trQtyInput', function () {
+    $('#trQtyInput').on('change', function () {
+        updateTransferCostCalc();
+    });
+    $('#trQtyInput').on('input', function () {
         updateTransferCostCalc();
     });
 
@@ -1339,6 +1480,31 @@ function loadProductStockForAudit() {
     calculateAuditVariance();
 }
 
+function updateTransferStockFeedback() {
+    const prodCode = $('#trProductSelect').val();
+    const fromWh = $('#trFromWarehouseSelect').val();
+    const $feedback = $('#trStockFeedback').empty();
+    if (!prodCode || !fromWh) return;
+
+    // ★ 自產品主檔獲取標準正裝單位
+    const prod = appState.products.find(p => p.product_code === prodCode || p.official_product_code === prodCode);
+    const baseUnit = prod ? (prod.base_unit || '盒') : '盒';
+
+    const matchedStocks = appState.stocks.filter(s => s.product_id === prodCode && s.warehouse_id === fromWh);
+    const availQty = matchedStocks.reduce((sum, s) => sum + (s.available_qty !== undefined ? s.available_qty : (s.quantity || 0)), 0);
+    const reqQty = parseInt($('#trQtyInput').val(), 10) || 0;
+
+    $('#trProductSelect').data('from-avail-qty', availQty);
+
+    if (availQty <= 0) {
+        $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 調出來源倉目前無現貨儲備 (可用: 0 ${baseUnit})，禁止調撥！</span>`);
+    } else if (reqQty > availQty) {
+        $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 調撥數量 (${reqQty} ${baseUnit}) 超出調出倉可用庫存 (${availQty} ${baseUnit})！</span>`);
+    } else {
+        $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 來源倉現貨充足 (可用庫存: ${availQty} ${baseUnit})</span>`);
+    }
+}
+
 /**
  * 跨倉調撥：品項或調出倉變動時自動帶入
  */
@@ -1389,6 +1555,7 @@ function loadProductStockForTransfer() {
     $('#trInputUnitCost').val(spec.unitPrice || spec.unitCost || (prod ? prod.price : 0));
     $('#trInputUnitSv').val(spec.unitSV || (prod ? prod.sv_point : 0));
 
+    updateTransferStockFeedback();
     updateTransferCostCalc();
 }
 
@@ -1406,6 +1573,8 @@ function updateTransferCostCalc() {
 
     $('#trInputTotalCost').val(formatCurrency(totalCost, currency));
     $('#trInputTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+
+    updateTransferStockFeedback();
 }
 
 function resetAuditForm() {
@@ -1413,6 +1582,79 @@ function resetAuditForm() {
     $('#auditTxtReason').val('');
     $('#auditProspectSelect').val('');
     calculateAuditVariance();
+}
+
+// ==========================================================================
+// 依據調出倉實體在庫量，動態生成附帶庫存狀態標籤之產品選單 (Select2)
+// ==========================================================================
+function populateAdjustProductSelectWithStock(targetSelector, warehouseId, selectedProductId = '', dropdownParent = null) {
+    const $select = $(targetSelector);
+    if (!$select.length) return;
+
+    $select.empty().append('<option value="">-- 請選擇產品品項 --</option>');
+
+    // 依據營運地區劃分台灣與大馬產品群組
+    const twProducts = appState.products.filter(p => (p.region_code || 'TW').toUpperCase() === 'TW');
+    const myProducts = appState.products.filter(p => (p.region_code || 'TW').toUpperCase() === 'MY');
+
+    const appendGroup = (groupLabel, productList) => {
+        if (!productList.length) return;
+        const $group = $(`<optgroup label="${groupLabel}"></optgroup>`);
+
+        productList.forEach(p => {
+            const prodCode = p.product_code || p.official_product_code;
+            const baseUnit = p.base_unit || '盒';
+            const subUnit = p.sub_unit || '';
+
+            // 匯總指定倉庫該品項之在庫總量 (整裝與散件)
+            const matchedStocks = appState.stocks.filter(s => s.product_id === prodCode && s.warehouse_id === warehouseId);
+            const availBoxes = matchedStocks.reduce((sum, s) => sum + (s.available_qty !== undefined ? (parseInt(s.available_qty, 10) || 0) : (parseInt(s.quantity, 10) || 0)), 0);
+            const availPieces = matchedStocks.reduce((sum, s) => sum + (parseInt(s.pieces_qty, 10) || 0), 0);
+
+            const isOutOfStock = (availBoxes <= 0 && availPieces <= 0);
+
+            // ★ 核心：動態庫存與缺貨狀態文字組合
+            let stockLabel = '';
+            if (isOutOfStock) {
+                stockLabel = subUnit ? `[缺貨: 0${baseUnit}/0${subUnit}]` : `[缺貨: 0${baseUnit}]`;
+            } else {
+                stockLabel = subUnit ? `[可用: ${availBoxes}${baseUnit} / ${availPieces}${subUnit}]` : `[可用: ${availBoxes}${baseUnit}]`;
+            }
+
+            const optionText = `📦 ${p.name} [${prodCode}] ${stockLabel}`;
+            const $opt = $('<option></option>')
+                .val(prodCode)
+                .text(optionText)
+                .attr('data-base-unit', baseUnit)
+                .attr('data-sub-unit', subUnit)
+                .attr('data-avail-boxes', availBoxes)
+                .attr('data-avail-pieces', availPieces)
+                .attr('data-out-of-stock', isOutOfStock ? 'Y' : 'N');
+
+            if (selectedProductId && selectedProductId === prodCode) {
+                $opt.prop('selected', true);
+            }
+
+            $group.append($opt);
+        });
+
+        $select.append($group);
+    };
+
+    appendGroup('🇹🇼 台灣市場實體產品', twProducts);
+    appendGroup('🇲🇾 馬來西亞市場實體產品', myProducts);
+
+    if ($.fn.select2) {
+        if ($select.hasClass('select2-hidden-accessible')) {
+            $select.select2('destroy');
+        }
+        $select.select2({
+            width: '100%',
+            dropdownParent: dropdownParent ? $(dropdownParent) : null,
+            placeholder: '-- 請選擇產品品項 --',
+            allowClear: true
+        });
+    }
 }
 
 async function commitAuditRecord() {
@@ -1461,18 +1703,24 @@ async function commitAuditRecord() {
     const nowStr = AppDate.now('full'); // 完整 time: YYYY-MM-DD HH:mm:ss
     const todaySheetDate = AppDate.now('sheet'); // 發生日期：YYYY/MM/DD
 
-    // 嚴格對齊 表 307 psi_adjustments 全 25 物理欄位順序 (Index 0 ~ 24)
+    const stockIdVal = $('#auditProductSelect option:selected').data('stock-id') || '';
+    const batchNoVal = $('#auditInputBatchNo').val().trim();
+    const expiryDateVal = $('#auditProductSelect option:selected').data('expiry-date') 
+        ? AppDate.toSheet($('#auditProductSelect option:selected').data('expiry-date')) 
+        : todaySheetDate;
+
+    // 對齊表 307 實體 25 欄位順序 (Index 0 ~ 24)
     const rowDataArray = [
         adjNo,                                      // 0: id
         adjType,                                    // 1: adj_type
-        $('#auditWarehouseSelect').val(),           // 2: from_warehouse_id
+        whId,                                       // 2: from_warehouse_id
         '',                                         // 3: to_warehouse_id
         officialCode,                               // 4: official_product_code
         prodName,                                   // 5: product_name_snaps
         prodId,                                     // 6: product_id
-        '',                                         // 7: stock_id
-        '',                                         // 8: batch_no
-        todaySheetDate,                             // 9: expiry_date
+        stockIdVal,                                 // 7: stock_id (補正：帶入實體庫存代號)
+        batchNoVal,                                 // 8: batch_no (補正：帶入在線批號)
+        expiryDateVal,                              // 9: expiry_date (補正：帶入真實效期)
         $('#auditAdjUnit').val(),                   // 10: adj_unit
         diff,                                       // 11: quantity
         'TWD',                                      // 12: currency_code
@@ -1481,7 +1729,7 @@ async function commitAuditRecord() {
         unitSv,                                     // 15: unit_sv
         totalSv,                                    // 16: total_sv
         $('#auditProspectSelect').val() || '',      // 17: target_prospect_id
-        $('#auditOperatorSelect').val(),            // 18: operator_partner_id
+        operatorId,                                 // 18: operator_partner_id
         todaySheetDate,                             // 19: adj_date
         reason,                                     // 20: reason_desc
         currentUser,                                // 21: created_by
@@ -1591,7 +1839,23 @@ async function commitTransferOrder() {
         return;
     }
 
+    const matchedStocks = appState.stocks.filter(s => s.product_id === prodId && s.warehouse_id === fromWh);
+    const availQty = matchedStocks.reduce((sum, s) => sum + (s.available_qty !== undefined ? s.available_qty : (s.quantity || 0)), 0);
     const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
+    const baseUnit = prod ? (prod.base_unit || '盒') : '盒';
+
+    if (availQty <= 0) {
+        AppToast.error(`【ERR_INSUFFICIENT_STOCK 調撥阻斷】調出來源倉目前在庫可用量為 0 ${baseUnit}，無法發起實體調撥！請先開立進貨單向官方營運中心提貨。`);
+        $('#trProductSelect').focus();
+        return;
+    }
+
+    if (qty > availQty) {
+        AppToast.error(`【ERR_INSUFFICIENT_STOCK 調撥超額阻斷】調撥數量 (${qty} ${baseUnit}) 超出來源倉可用量 (${availQty} ${baseUnit})！為維持雙倉對帳平衡，禁止負數移轉。`);
+        $('#trQtyInput').focus();
+        return;
+    }
+
     const officialCode = prod ? prod.product_code : prodId;
     const prodName = prod ? prod.name : '';
     const unitCost = parseFloat($('#trInputUnitCost').val()) || 0;
@@ -1688,11 +1952,52 @@ async function commitTransferOrder() {
 // ==========================================================================
 function handleModalAdjTypeChange() {
     const type = $('#fieldAdjType').val();
-    if (type === '跨倉調撥') {
-        $('#fieldToWarehouseId').prop('disabled', false);
+    const $toWh = $('#fieldToWarehouseId');
+    const $targetProspect = $('#fieldTargetProspectId');
+    const $packBox = $('#modalPackModeBox');
+    const $packPiece = $('#modalPackModePiece');
+    const $lblPiece = $('label[for="modalPackModePiece"]');
+
+    // ★ 關鍵防護 1：若為「拆盒解封」，絕對禁止選擇「散裝拆零」
+    if (type === '拆盒解封') {
+        if ($packPiece.is(':checked')) {
+            $packBox.prop('checked', true);
+            AppToast.info("「拆盒解封」係將密封整裝拆解為散件，已自動為您切換為「官方正裝」！");
+        }
+        $packPiece.prop('disabled', true);
+        $lblPiece.addClass('opacity-50 text-muted disabled').attr('title', '拆盒解封對象必須為密封正裝，禁止選擇散裝');
     } else {
-        $('#fieldToWarehouseId').val('').prop('disabled', true);
+        $packPiece.prop('disabled', false);
+        $lblPiece.removeClass('opacity-50 text-muted disabled').removeAttr('title');
     }
+
+    // 2. 調入目的倉連動
+    if (type === '跨倉調撥') {
+        $toWh.prop('disabled', false);
+        $('label[for="fieldToWarehouseId"]').html('調入倉儲 <span class="text-danger">*</span>');
+    } else {
+        $toWh.val('').trigger('change.select2').prop('disabled', true);
+        $('label[for="fieldToWarehouseId"]').html('調入倉儲 <span class="text-secondary small">(單倉異動無須填寫)</span>');
+    }
+
+    // 3. 試用發放對象客戶標籤提示
+    if (type === '試用發放') {
+        $targetProspect.prop('disabled', false);
+        $('label[for="fieldTargetProspectId"]').html('試用對象客戶 <span class="text-danger">* (CRM 追蹤)</span>');
+    } else {
+        $targetProspect.prop('disabled', true);
+        $('label[for="fieldTargetProspectId"]').html('試用對象客戶 <span class="text-secondary small">(非試用發放無須選擇)</span>');
+    }
+
+    // ★ 同步更新數量前綴正負號
+    updateQuantitySignUI(type);
+
+    // 4. 即時渲染類型提示橫幅
+    renderAdjTypeHint(type);
+
+    // 5. 聯動更新規格單價與庫存提示
+    handleModalProductChange();
+    updateAdjustStockFeedback();
 }
 
 /**
@@ -1740,16 +2045,32 @@ function handleModalProductChange() {
  * 新增/編輯視窗：以 AppCalc 精確運算成本總額與影響總 SV
  */
 function calculateModalTotals() {
-    const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
+    const rawInput = parseInt($('#fieldQuantity').val(), 10);
     const cost = parseFloat($('#fieldUnitCost').val()) || 0;
     const sv = parseFloat($('#fieldUnitSv').val()) || 0;
     const curr = $('#fieldCurrencyCode').val() || 'TWD';
 
-    const totalCost = AppCalc.multiply(Math.abs(qty), cost, 2);
-    const totalSv = AppCalc.multiply(Math.abs(qty), sv, 2);
+    // 取得純絕對值運算，消滅非數值
+    const reqQty = (isNaN(rawInput) || rawInput === 0) ? 0 : Math.abs(rawInput);
+
+    // 調用 AppCalc 高精度計算
+    const totalCost = AppCalc.multiply(reqQty, cost, 2);
+    const totalSv = AppCalc.multiply(reqQty, sv, 2);
 
     $('#fieldTotalCost').val(formatCurrency(totalCost, curr));
     $('#fieldTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
+}
+
+// ==========================================================================
+// 異動類型切換：動態更新前綴正負號與預設值
+// ==========================================================================
+function updateQuantitySignUI(adjType) {
+    const $prefix = $('#fieldQuantitySignPrefix');
+    if (adjType === '盤盈') {
+        $prefix.text('+').removeClass('text-danger').addClass('text-success');
+    } else {
+        $prefix.text('-').removeClass('text-success').addClass('text-danger');
+    }
 }
 
 function openAddAdjustmentModal() {
@@ -1758,21 +2079,34 @@ function openAddAdjustmentModal() {
     $('#adjustForm')[0].reset();
 
     const nextSeq = String(appState.adjustments.length + 1).padStart(4, '0');
-    const adjNo = `ADJ-${AppDate.toClean8()}-${nextSeq}`;
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const dateCode = todayIso.replace(/-/g, '');
+    const adjNo = `ADJ-${dateCode}-${nextSeq}`;
 
     $('#fieldId').val(adjNo);
-    $('#fieldAdjType').val('自用消耗');
-    handleModalAdjTypeChange();
-    $('#fieldAdjDate').val(AppDate.now('date'));
-    $('#fieldQuantity').val(-1);
-    $('#fieldFromWarehouseId').val(appState.warehouses[0] ? appState.warehouses[0].id : '');
-    $('#fieldOperatorPartnerId').val(appState.partners[0] ? appState.partners[0].partner_id : '');
-    $('#fieldExpiryDate').val(AppDate.now('date'));
+    $('#fieldAdjDate').val(todayIso);
 
-    // 預設正裝
+    // ★ 1. 數量黃金預設值：設為 1 (正整數)，避免零值阻斷
+    $('#fieldQuantity').val(1);
+
+    // ★ 2. 異動類型預設為高頻業務「自用消耗」
+    $('#fieldAdjType').val('自用消耗');
+    updateQuantitySignUI('自用消耗');
+
+    // ★ 3. 預設正裝模式
     $('#modalPackModeBox').prop('checked', true);
 
-    handleModalProductChange();
+    // ★ 4. 預設操作人為當前登入之領導人
+    const currentUserName = getCurrentUser();
+    const matchedPartner = appState.partners.find(p => {
+        const pName = getPartnerResolvedName(p.partner_id);
+        return pName.includes(currentUserName) || (currentUserName === 'RAY' && pName.includes('翁榮祥')) || (currentUserName === 'JARVIS' && pName.includes('林承志'));
+    });
+    if (matchedPartner) {
+        $('#fieldOperatorPartnerId').val(matchedPartner.partner_id).trigger('change.select2');
+    }
+
+    handleModalAdjTypeChange();
     new bootstrap.Modal(document.getElementById('adjustModal')).show();
 }
 
@@ -1789,10 +2123,11 @@ function openEditAdjustmentModal(id) {
 
     $('#fieldAdjDate').val(AppDate.toInput(adj.adj_date));
     $('#fieldOperatorPartnerId').val(adj.operator_partner_id);
-    $('#fieldFromWarehouseId').val(adj.from_warehouse_id);
+    $('#fieldFromWarehouseId').val(adj.from_warehouse_id).trigger('change.select2');
     $('#fieldToWarehouseId').val(adj.to_warehouse_id);
 
-    $('#fieldProductId').val(adj.product_id);
+    // ★ 依據該單據調出倉動態載入產品選單並反顯選取項
+    populateAdjustProductSelectWithStock('#fieldProductId', adj.from_warehouse_id, adj.product_id, '#adjustModal');
     $('#fieldOfficialProductCode').val(adj.official_product_code);
     $('#fieldProductNameSnaps').val(adj.product_name_snaps);
     $('#fieldStockId').val(adj.stock_id);
@@ -1826,71 +2161,125 @@ async function saveAdjustmentRecord() {
     const toWh = $('#fieldToWarehouseId').val();
     const prodId = $('#fieldProductId').val();
     const adjUnit = $('#fieldAdjUnit').val();
-    const qty = parseInt($('#fieldQuantity').val(), 10);
+    const rawQtyInput = parseInt($('#fieldQuantity').val(), 10);
     const curr = $('#fieldCurrencyCode').val();
     const cost = parseFloat($('#fieldUnitCost').val()) || 0;
     const sv = parseFloat($('#fieldUnitSv').val()) || 0;
     const reason = $('#fieldReasonDesc').val().trim();
+    const targetProspectId = $('#fieldTargetProspectId').val();
+    const packMode = $('input[name="modalPackMode"]:checked').val() || 'BOX';
 
-    if (!id) {
-        AppToast.warning("調撥單號主鍵不可為空！");
-        return;
-    }
-    if (!adjDate) {
-        AppToast.warning("請選擇「調整發生日期」！");
-        $('#fieldAdjDate').focus();
-        return;
-    }
-    if (!operatorId) {
-        AppToast.warning("請選擇「經手夥伴」！");
-        $('#fieldOperatorPartnerId').focus();
-        return;
-    }
-    if (!fromWh) {
-        AppToast.warning("請選擇「調出/發生倉儲」！");
-        $('#fieldFromWarehouseId').focus();
-        return;
-    }
-    if (adjType === '跨倉調撥' && !toWh) {
-        AppToast.warning("跨倉調撥必須選擇「調入倉儲」！");
-        $('#fieldToWarehouseId').focus();
-        return;
-    }
-    if (!prodId) {
-        AppToast.warning("請選擇「產品品項」！");
-        $('#fieldProductId').focus();
-        return;
-    }
-    if (adjUnit === '') {
-        AppToast.warning("請填寫「計量單位」！");
-        $('#fieldAdjUnit').focus();
-        return;
-    }
-    if ($('#fieldQuantity').val().trim() === '') {
-        AppToast.warning("請填寫「調整數量」！");
+    // 基礎非空驗證
+    if (!id) return AppToast.warning("調撥單號主鍵不可為空！");
+    if (!adjDate) return AppToast.warning("請選擇「調整發生日期」！");
+    if (!operatorId) return AppToast.warning("請選擇「經手夥伴」！");
+    if (!fromWh) return AppToast.warning("請選擇「調出/發生倉儲」！");
+    if (!prodId) return AppToast.warning("請選擇「產品品項」！");
+
+    if (isNaN(rawQtyInput) || rawQtyInput === 0) {
+        AppToast.error("【數量無效阻斷】調整數量不可為 0、負數符號單獨存在或空白！實體物資無異動請勿開立單據。");
         $('#fieldQuantity').focus();
         return;
     }
-    if (curr === '') {
-        AppToast.warning("請填寫「幣別」！");
-        $('#fieldCurrencyCode').focus();
-        return;
+
+    const reqQty = Math.abs(rawQtyInput);
+    const availBoxes = parseInt($('#fieldProductId').data('avail-boxes'), 10) || 0;
+    const availPieces = parseInt($('#fieldProductId').data('avail-pieces'), 10) || 0;
+    const currentStockAvail = (packMode === 'BOX') ? availBoxes : availPieces;
+
+    const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
+    const baseUnit = prod ? (prod.base_unit || '盒') : '盒';
+    const subUnit = prod ? (prod.sub_unit || '件') : '件';
+
+    // ======================================================================
+    // ★ 7 大異動類型專屬硬阻斷檢核矩陣 (Zero Tolerance Blocks)
+    // ======================================================================
+    if (adjType === '跨倉調撥') {
+        if (!toWh) {
+            AppToast.error("【跨倉調撥阻斷】跨倉調撥必須選擇「調入目的倉儲」！");
+            $('#fieldToWarehouseId').focus();
+            return;
+        }
+        if (fromWh === toWh) {
+            AppToast.error("【跨倉調撥阻斷】調出來源倉與調入目的倉不可相同！");
+            $('#fieldToWarehouseId').focus();
+            return;
+        }
+        if (reqQty > currentStockAvail) {
+            AppToast.error(`【跨倉調撥超額阻斷】調撥數量 (${reqQty} ${adjUnit}) 超出來源倉可用庫存 (${currentStockAvail} ${adjUnit})！禁止負數調撥。`);
+            $('#fieldQuantity').focus();
+            return;
+        }
+    } else if (adjType === '盤盈') {
+        if (rawQtyInput <= 0) {
+            AppToast.error("【盤盈阻斷】盤盈異動之調整數量必須為大於 0 的正整數！");
+            $('#fieldQuantity').focus();
+            return;
+        }
+    } else if (adjType === '盤虧') {
+        if (reqQty > currentStockAvail) {
+            AppToast.error(`【盤虧阻斷】盤虧扣減數量 (${reqQty} ${adjUnit}) 超出調出倉在線可用量 (${currentStockAvail} ${adjUnit})！禁止超額除帳造成負庫存。`);
+            $('#fieldQuantity').focus();
+            return;
+        }
+        if (!reason) {
+            AppToast.error("【盤虧阻斷】請於詳細事由填寫盤盈盤虧之實盤查核原因！");
+            $('#fieldReasonDesc').focus();
+            return;
+        }
+    } else if (adjType === '破損過期') {
+        if (reqQty > currentStockAvail) {
+            AppToast.error(`【破損報廢阻斷】報廢數量 (${reqQty} ${adjUnit}) 超出在線存量 (${currentStockAvail} ${adjUnit})！`);
+            $('#fieldQuantity').focus();
+            return;
+        }
+        if (!reason) {
+            AppToast.error("【破損報廢阻斷】請於詳細事由填寫瑕疵狀況、破損部位或逾期批號！");
+            $('#fieldReasonDesc').focus();
+            return;
+        }
+    } else if (adjType === '自用消耗') {
+        if (reqQty > currentStockAvail) {
+            AppToast.error(`【自用消耗阻斷】消耗數量 (${reqQty} ${adjUnit}) 超出在線存量 (${currentStockAvail} ${adjUnit})！`);
+            $('#fieldQuantity').focus();
+            return;
+        }
+    } else if (adjType === '試用發放') {
+        if (!targetProspectId) {
+            AppToast.error("【試用發放阻斷】試用發放必須指派「試用對象客戶」，以利後續 CRM 體驗轉化追蹤！");
+            $('#fieldTargetProspectId').focus();
+            return;
+        }
+        if (reqQty > currentStockAvail) {
+            AppToast.error(`【試用發放阻斷】發放數量 (${reqQty} ${adjUnit}) 超出在線存量 (${currentStockAvail} ${adjUnit})！`);
+            $('#fieldQuantity').focus();
+            return;
+        }
+    } else if (adjType === '拆盒解封') {
+        // ★ 關鍵防護 3：送出時嚴格阻斷「散裝拆零」
+        if (packMode === 'PIECE') {
+            AppToast.error("【拆盒解封阻斷】拆盒解封係將密封整裝解封為散件，禁止選擇「散裝拆零」！");
+            $('#modalPackModeBox').prop('checked', true);
+            handleModalProductChange();
+            return;
+        }
+        if (prod && (prod.allow_decant === 'N' || prod.pieces_per_box <= 1)) {
+            AppToast.error(`【拆盒解封阻斷】品項【${prod.name}】官方規格為不可拆售商品（散件數為 1 或未開放散賣），禁止執行拆盒解封！`);
+            return;
+        }
+        if (reqQty > availBoxes) {
+            AppToast.error(`【拆盒解封阻斷】欲拆解之整盒數量 (${reqQty} ${baseUnit}) 超出在線整盒現貨 (${availBoxes} ${baseUnit})！`);
+            $('#fieldQuantity').focus();
+            return;
+        }
     }
-    if ($('#fieldUnitCost').val().trim() === '') {
-        AppToast.warning("請填寫「成本單價」！");
-        $('#fieldUnitCost').focus();
-        return;
-    }
-    if ($('#fieldUnitSv').val().trim() === '') {
-        AppToast.warning("請填寫「單件 SV」！");
-        $('#fieldUnitSv').focus();
-        return;
-    }
-    if (!reason) {
-        AppToast.warning("請輸入「詳細事由」！");
-        $('#fieldReasonDesc').focus();
-        return;
-    }
+
+    // 規範數值正負號：盤盈為正數，其餘 6 種出庫/損耗/拆箱均為負數扣減
+    const finalQuantity = (adjType === '盤盈') ? reqQty : -reqQty;
+
+    // 計算總成本與總 SV
+    const totalCost = AppCalc.multiply(reqQty, cost, 2);
+    const totalSv = AppCalc.multiply(reqQty, sv, 2);
 
     const currentUser = getCurrentUser();
     const nowStr = AppDate.now('full');
@@ -1898,90 +2287,54 @@ async function saveAdjustmentRecord() {
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
-    // 日期標準化為 YYYY/MM/DD
     const adjDateVal = AppDate.toSheet($('#fieldAdjDate').val());
     const expiryDateVal = $('#fieldExpiryDate').val() ? AppDate.toSheet($('#fieldExpiryDate').val()) : '';
-    
-    // 調用 AppCalc 計算總額
-    const totalCost = AppCalc.multiply(Math.abs(qty), cost, 2);
-    const totalSv = AppCalc.multiply(Math.abs(qty), sv, 2);
 
-    // 嚴格依表 307 psi_adjustments 全 25 欄位順序打包 (Index 0 ~ 24)
+    // 對齊表 307 (psi_adjustments) 實體 25 欄位物理順序
     const rowDataArray = [
-        id,                                         // 0: id
-        adjType,                                    // 1: adj_type
-        fromWh,                                     // 2: from_warehouse_id
-        toWh || '',                                 // 3: to_warehouse_id
-        $('#fieldOfficialProductCode').val().trim(),// 4: official_product_code
-        $('#fieldProductNameSnaps').val().trim(),   // 5: product_name_snaps
-        prodId,                                     // 6: product_id
-        $('#fieldStockId').val().trim(),            // 7: stock_id
-        $('#fieldBatchNo').val().trim(),            // 8: batch_no
-        expiryDateVal,                              // 9: expiry_date (YYYY/MM/DD)
-        adjUnit,                                    // 10: adj_unit
-        qty,                                        // 11: quantity
-        curr,                                       // 12: currency_code
-        cost,                                       // 13: unit_cost
-        totalCost,                                  // 14: total_cost
-        sv,                                         // 15: unit_sv
-        totalSv,                                    // 16: total_sv
-        $('#fieldTargetProspectId').val() || '',    // 17: target_prospect_id
-        operatorId,                                 // 18: operator_partner_id
-        adjDateVal,                                 // 19: adj_date (YYYY/MM/DD)
-        reason,                                     // 20: reason_desc
-        createdBy,                                  // 21: created_by
-        createdAt,                                  // 22: created_at
-        currentUser,                                // 23: modified_by
-        nowStr                                      // 24: modified_at (完整 time)
+        id,
+        adjType,
+        fromWh,
+        (adjType === '跨倉調撥') ? toWh : '',
+        $('#fieldOfficialProductCode').val().trim(),
+        $('#fieldProductNameSnaps').val().trim(),
+        prodId,
+        $('#fieldStockId').val().trim(),
+        $('#fieldBatchNo').val().trim(),
+        expiryDateVal,
+        adjUnit,
+        finalQuantity, // 自動校準正負數
+        curr,
+        cost,
+        totalCost,
+        sv,
+        totalSv,
+        targetProspectId || '',
+        operatorId,
+        adjDateVal,
+        reason,
+        createdBy,
+        createdAt,
+        currentUser,
+        nowStr
     ];
-
-    const updatedObj = {
-        id: id,
-        adj_type: adjType,
-        from_warehouse_id: fromWh,
-        to_warehouse_id: toWh || '',
-        official_product_code: $('#fieldOfficialProductCode').val().trim(),
-        product_name_snaps: $('#fieldProductNameSnaps').val().trim(),
-        product_id: prodId,
-        stock_id: $('#fieldStockId').val().trim(),
-        batch_no: $('#fieldBatchNo').val().trim(),
-        expiry_date: $('#fieldExpiryDate').val(),
-        adj_unit: adjUnit,
-        quantity: qty,
-        currency_code: curr,
-        unit_cost: cost,
-        total_cost: totalCost,
-        unit_sv: sv,
-        total_sv: totalSv,
-        target_prospect_id: $('#fieldTargetProspectId').val() || '',
-        operator_partner_id: operatorId,
-        adj_date: $('#fieldAdjDate').val(),
-        reason_desc: reason,
-        created_by: createdBy,
-        created_at: createdAt,
-        modified_by: currentUser,
-        modified_at: nowStr
-    };
 
     const $btn = $('#btnSaveAdjust');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
         if (mode === 'add') {
             await SheetAdapter.sendRequest('CREATE', '盤點調撥', id, rowDataArray);
-            appState.adjustments.unshift(updatedObj);
         } else {
             await SheetAdapter.sendRequest('UPDATE', '盤點調撥', id, rowDataArray);
-            const idx = appState.adjustments.findIndex(a => a.id === id);
-            if (idx !== -1) appState.adjustments[idx] = updatedObj;
         }
 
         await fetchAllGoogleSheetsData();
         bootstrap.Modal.getInstance(document.getElementById('adjustModal')).hide();
-        AppToast.success(`單據【${id}】已成功儲存！`);
+        AppToast.success(`單據【${id}】（${adjType}）已合規寫入 Google 試算表！`);
     } catch (err) {
-        AppToast.error("寫入失敗: " + err.message);
+        AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
     }
 }
 

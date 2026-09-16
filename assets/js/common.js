@@ -1,6 +1,6 @@
 /**
  * assets/js/common.js
- * 監聽 VendorReady 事件，載入團隊內部核心 JS 模組並發射 AppReady
+ * 監聽 VendorReady 事件，載入團隊內部核心 JS 模組並發送 AppReady
  */
 
 // ==========================================================================
@@ -65,7 +65,7 @@ const APP_CONFIG = {
     }
 
     /**
-     * 啟動內部模組加載鏈
+     * 啟動內部模組載入鏈
      */
     function initInternalApp() {
 
@@ -79,7 +79,7 @@ const APP_CONFIG = {
                     });
                 }
 
-                // 發射最終全域 READY 事件
+                // 發送最終全域 READY 事件
                 window.dispatchEvent(new CustomEvent('AppReady'));
             })
             .catch(err => {
@@ -150,7 +150,7 @@ function setDataTable() {
             autoWidth: true,                // 必須開啟自動欄寬計算，DataTables 才能精確同步雙表像素寬度
             stateSave: false,               // 重新整理時是否記憶目前的頁碼/排序 (預設關閉)
             destroy: true,                  // 銷毀舊表格，重新建立
-            scrollX: true,                  // 開啟橫向滾動軸
+            scrollX: true,                  // 開啟橫向捲動軸
             scrollCollapse: true,           // 控制當表格內容很少、不足以佔滿設定的最大高度時，表格本身的高度是否要跟著縮小
             responsive: false,              // 建議關閉 responsive，避免與 scrollX 搶奪欄寬計算
 
@@ -201,9 +201,9 @@ function setDataTable() {
                     { className: "text-end", targets: [4, 5] } // 指定欄位套用 CSS class
                 ]
             
-            scrollX (true / "100%")：開啟橫向滾動軸，當表格欄位過多爆出畫面時非常有用。
+            scrollX (true / "100%")：開啟橫向捲動軸，當表格欄位過多爆出畫面時非常有用。
 
-            scrollY (字串，如 "400px")：固定表格高度並開啟縱向滾動軸。
+            scrollY (字串，如 "400px")：固定表格高度並開啟縱向捲動軸。
 
             scrollCollapse (true / false)：控制當表格內容很少、不足以佔滿設定的最大高度時，表格本身的高度是否要跟著縮小。
 

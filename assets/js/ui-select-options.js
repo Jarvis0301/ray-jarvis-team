@@ -14,7 +14,7 @@ const UISelectOptions = (function () {
     'use strict';
 
     // ========================================================================
-    // 全域滾動守衛：防脫軌漂移 (支援 iFrame parent 與 modal-body 捕獲)
+    // 全域捲動守衛：防脫軌漂移 (支援 iFrame parent 與 modal-body 捕獲)
     // ========================================================================
     let isScrollGuardInitialized = false;
 

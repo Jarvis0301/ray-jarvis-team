@@ -8,7 +8,7 @@
         <!-- 認證守衛 -->
         <script src="../assets/js/auth-guard.js"></script>
         
-        <!-- 第三方函式庫加載器 -->
+        <!-- 第三方函式庫載入器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
         <!-- 共用核心模組 -->
@@ -371,6 +371,8 @@
                                         <option value="試用發放">試用發放</option>
                                         <option value="拆盒解封">拆盒解封</option>
                                     </select>
+                                    <!-- ★ 異動類型即時規則提示橫幅 -->
+                                    <div id="adjTypeRuleFeedback" class="small mt-1"></div>
                                 </div>
                                 <div class="col-12 col-xl-3">
                                     <label class="form-label" for="fieldAdjDate">調整發生日期 <span class="text-danger">*</span></label>
@@ -403,11 +405,11 @@
                                     <div class="btn-group btn-group-sm" role="group" id="groupModalPackMode" aria-label="包裝規格型態切換">
                                         <input type="radio" class="btn-check" name="modalPackMode" id="modalPackModeBox" value="BOX" checked autocomplete="off">
                                         <label class="btn btn-outline-primary" for="modalPackModeBox">
-                                            <i class="fa-solid fa-box me-1"></i> 官方正裝
+                                            <i class="fa-solid fa-box me-1"></i> 正裝
                                         </label>
                                         <input type="radio" class="btn-check" name="modalPackMode" id="modalPackModePiece" value="PIECE" autocomplete="off">
                                         <label class="btn btn-outline-warning" for="modalPackModePiece">
-                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝拆零
+                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝
                                         </label>
                                     </div>
                                 </div>
@@ -444,7 +446,9 @@
                                 <div class="col-12 col-xl-4">
                                     <label class="form-label" for="fieldQuantity">調整數量 <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
-                                        <input type="number" class="form-control form-control-sm text-end" id="fieldQuantity" required oninput="calculateModalTotals()">
+                                        <!-- ★ 動態正負符號徽章 (隨異動類型自動切換) -->
+                                        <span class="input-group-text font-monospace fw-bold text-danger" id="fieldQuantitySignPrefix">-</span>
+                                        <input type="number" class="form-control form-control-sm text-end" id="fieldQuantity" value="1" min="1" required oninput="calculateModalTotals()">
                                         <span class="input-group-text" id="fieldAdjUnitText">盒</span>
                                         <input type="hidden" id="fieldAdjUnit" value="盒">
                                     </div>
@@ -535,11 +539,11 @@
                                 <div class="btn-group btn-group-sm" role="group" id="groupAuditPackMode">
                                     <input type="radio" class="btn-check" name="auditPackMode" id="auditPackModeBox" value="BOX" checked autocomplete="off">
                                     <label class="btn btn-outline-primary btn-sm" for="auditPackModeBox">
-                                        <i class="fa-solid fa-box me-1"></i> 正裝盤點
+                                        <i class="fa-solid fa-box me-1"></i> 正裝
                                     </label>
                                     <input type="radio" class="btn-check" name="auditPackMode" id="auditPackModePiece" value="PIECE" autocomplete="off">
                                     <label class="btn btn-outline-warning btn-sm" for="auditPackModePiece">
-                                        <i class="fa-solid fa-box-tissue me-1"></i> 散裝拆零
+                                        <i class="fa-solid fa-box-tissue me-1"></i> 散裝
                                     </label>
                                 </div>
                             </div>
@@ -704,21 +708,23 @@
                                 <div class="btn-group btn-group-sm" role="group" id="groupTrPackMode">
                                     <input type="radio" class="btn-check" name="trPackMode" id="trPackModeBox" value="BOX" checked autocomplete="off">
                                     <label class="btn btn-outline-primary btn-sm" for="trPackModeBox">
-                                        <i class="fa-solid fa-box me-1"></i> 正裝調撥
+                                        <i class="fa-solid fa-box me-1"></i> 正裝
                                     </label>
                                     <input type="radio" class="btn-check" name="trPackMode" id="trPackModePiece" value="PIECE" autocomplete="off">
                                     <label class="btn btn-outline-warning btn-sm" for="trPackModePiece">
-                                        <i class="fa-solid fa-box-tissue me-1"></i> 散裝拆零
+                                        <i class="fa-solid fa-box-tissue me-1"></i> 散裝
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="row g-2 mb-2">
-                                <div class="col-12 col-xl-7">
+                                <div class="col-12 col-xl-6">
                                     <label class="form-label small mb-1">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="text" class="form-control form-control-sm" id="trInputProductName" readonly placeholder="請先選擇調撥品項">
+                                    <!-- ★ 調出來源倉在庫狀態提示容器 -->
+                                    <div id="trStockFeedback" class="small mt-1"></div>
                                 </div>
-                                <div class="col-12 col-xl-5">
+                                <div class="col-12 col-xl-6">
                                     <label class="form-label small mb-1">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="text" class="form-control form-control-sm" id="trInputBatchNo" readonly placeholder="-">
                                 </div>

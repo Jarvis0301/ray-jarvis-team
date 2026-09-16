@@ -1,6 +1,6 @@
 // ==========================================================================
 // 榮祥團隊 全域 UI 回饋中樞模組 (dialog.js)
-// 包含：AppViewportTracker (視野精算), AppDialog (彈窗), AppToast (通知), AppLoading (加載)
+// 包含：AppViewportTracker (視野精算), AppDialog (彈窗), AppToast (通知), AppLoading (載入)
 // ==========================================================================
 
 class AppViewportTracker {
@@ -281,7 +281,7 @@ class AppToast {
             document.body.insertAdjacentHTML('beforeend', html);
             container = document.getElementById('globalToastContainer');
 
-            // 綁定父視窗滾動與 RWD 縮放事件，即時維持水平置中與可視頂部
+            // 綁定父視窗捲動與 RWD 縮放事件，即時維持水平置中與可視頂部
             const metrics = AppViewportTracker.getMetrics();
             if (metrics.parentWin) {
                 const updateToastPos = () => {

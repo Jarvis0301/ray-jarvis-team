@@ -21,7 +21,6 @@ let appState = {
     customers: [],
     stocks: [],
     activePipelineFilter: 'ALL',
-    selectedOutboundId: '',
     filters: {
         startDate: '',
         endDate: '',
@@ -84,6 +83,23 @@ function formatCurrency(amount, currencyCode = 'TWD') {
     const prefix = String(currencyCode).toUpperCase() === 'MYR' ? 'RM ' : 'NT$ ';
     if (num === 0) return `${prefix}0`;
     return `${prefix}${num.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+}
+
+// ==========================================================================
+// 正裝/整件計量單位動態判定引擎 (對齊產品主檔 base_unit，解耦 '盒'/'組'/'箱' 硬編碼)
+// ==========================================================================
+function isMasterPackUnit(salesUnit, productId, officialProductCode) {
+    if (!salesUnit) return false;
+    const targetCode = productId || officialProductCode;
+    const prod = appState.products.find(p => p.product_code === targetCode || p.official_product_code === targetCode);
+    
+    // 優先依據產品主檔定義的官方正裝標準計量單位 (base_unit) 進行精確比對
+    if (prod && prod.base_unit) {
+        return salesUnit.trim() === prod.base_unit.trim();
+    }
+    
+    // 兼容性防呆回退：若產品主檔尚未定義，依全系統常見正裝標準單位清單判定
+    return ['盒', '箱', '組', '罐', '袋', '套', '包'].includes(salesUnit.trim());
 }
 
 // ==========================================================================
@@ -339,10 +355,6 @@ function parseAllData(data) {
         cost_price: parseFloat(getVal(r, 10, '0')) || 0,
         sv_point: parseFloat(getVal(r, 11, '0')) || 0
     })).filter(s => s.id !== '');
-
-    if (appState.outbounds.length > 0 && !appState.selectedOutboundId) {
-        appState.selectedOutboundId = appState.outbounds[0].id;
-    }
 }
 
 // ==========================================================================
@@ -352,7 +364,6 @@ function refreshAllViews() {
     populateFormOptions();
     renderCounters();
     renderKpis();
-    renderInspectorStage();
     renderCharts();
     renderDataTable();
 }
@@ -474,104 +485,6 @@ function renderKpis() {
     $('#kpiTotalSales').text(formatCurrency(totalSales, 'TWD'));
     $('#kpiTotalSv').text(AppCalc.formatSV(totalSv, 'INTERNAL'));
     $('#kpiTotalProfit').text(formatCurrency(totalProfit, 'TWD'));
-}
-
-function renderInspectorStage() {
-    const item = appState.outbounds.find(d => d.id === appState.selectedOutboundId);
-    if (!item) {
-        $('#inspOutboundId').text('-');
-        $('#inspOrderCategory').text('-');
-        $('#inspPerformanceMonth').text('-');
-        $('#inspOperatorName').text('-');
-        $('#inspOrderCenter').text('-');
-        $('#inspWarehouseId').text('-');
-        $('#inspCurrencyCode').text('TWD');
-        $('#inspPreOrderHoldBadge').html('-');
-        $('#inspRecipientType').text('-');
-        $('#inspRecipientEntity').text('-');
-        $('#inspRecipientName').text('-');
-        $('#inspRecipientPhone').text('-');
-        $('#inspDeliveryMethod').text('-');
-        $('#inspTrackingNo').text('-');
-        $('#inspShippingAddress').text('-');
-        $('#inspOrderDate').text('-');
-        $('#inspShippingDate').text('-');
-        $('#inspOutboundDate').text('-');
-        $('#inspPaymentMethod').text('-');
-        $('#inspPaymentPlatform').text('-');
-        $('#inspProductAndShippingFee').text('$0 / $0');
-        $('#inspBoxesAndSv').text('0 盒 / 0 支 / 0 SV');
-        $('#inspSalesAndCost').text('$0 / $0');
-        $('#inspProfitAmount').text('+$0');
-        $('#inspRemarks').text('暫無特定備註事項。');
-        $('#inspCreatedAudit').text('-');
-        $('#inspModifiedAudit').text('-');
-        $('#inspectorFulfillBadge').text('無選取');
-        $('#inspectorPaymentBadge').text('-');
-        $('#btnMarkDelivered').prop('disabled', true);
-        return;
-    }
-
-    const curr = item.currency_code || 'TWD';
-    const recipientEntityName = (item.recipient_type === '經營者')
-        ? (getPartnerResolvedName(item.recipient_partner_id) || '未指派夥伴')
-        : (getCustomerResolvedName(item.recipient_customer_id) || '非主檔顧客');
-
-    const operatorName = getPartnerResolvedName(item.operator_partner_id);
-    const warehouseName = getWarehouseDisplayName(item.warehouse_id);
-    const centerName = getWarehouseDisplayName(item.order_center) || item.order_center || '-';
-
-    $('#inspOutboundId').text(item.id);
-    $('#inspOrderCategory').text(item.order_category || '零售客銷售');
-    $('#inspPerformanceMonth').text(item.performance_month || '-');
-    $('#inspOperatorName').text(operatorName);
-    $('#inspOrderCenter').text(centerName);
-    $('#inspWarehouseId').text(warehouseName);
-    $('#inspCurrencyCode').text(curr);
-    $('#inspPreOrderHoldBadge').html(UIBadges.psi.preOrderHold(item.is_pre_order_hold, true));
-
-    $('#inspRecipientType').text(item.recipient_type || '消費者');
-    $('#inspRecipientEntity').text(recipientEntityName);
-    $('#inspRecipientName').text(item.recipient_name || '-');
-    $('#inspRecipientPhone').text(item.recipient_phone || '(未填寫電話)');
-    $('#inspDeliveryMethod').text(item.delivery_method || '面交自取');
-    $('#inspTrackingNo').text(item.tracking_no || '(無物流單號/自取)');
-    $('#inspShippingAddress').text(item.shipping_address || '(現場自提/無實體地址)');
-
-    $('#inspOrderDate').text(item.order_date || '-');
-    $('#inspShippingDate').text(item.shipping_date || '未交寄');
-    $('#inspOutboundDate').text(item.outbound_date || '未交付出庫');
-    $('#inspPaymentMethod').text(item.payment_method || '現金');
-    $('#inspPaymentPlatform').text(item.payment_platform || '現金');
-    $('#inspProductAndShippingFee').text(`${formatCurrency(item.product_amount, curr)} / ${formatCurrency(item.shipping_fee, curr)}`);
-
-    $('#inspBoxesAndSv').text(`${item.total_boxes || 0} 盒 / ${item.total_pieces || 0} 支 / ${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV`);
-    $('#inspSalesAndCost').text(`${formatCurrency(item.total_sales_amount, curr)} / ${formatCurrency(item.total_cost_amount, curr)}`);
-
-    const profitSign = (item.total_profit_amount >= 0) ? '+' : '';
-    $('#inspProfitAmount').text(`${profitSign}${formatCurrency(item.total_profit_amount, curr)}`);
-
-    $('#inspRemarks').text(item.remarks || '暫無特定備註事項。');
-    $('#inspCreatedAudit').text(`${item.created_by || 'SYSTEM'} @ ${item.created_at || '-'}`);
-    $('#inspModifiedAudit').text(`${item.modified_by || 'SYSTEM'} @ ${item.modified_at || '-'}`);
-
-    $('#inspectorFulfillBadge').replaceWith(
-        $(UIBadges.psi.outboundStatus(item.fulfillment_status)).attr('id', 'inspectorFulfillBadge')
-    );
-    $('#inspectorPaymentBadge').text(item.payment_status || '已收訖')
-        .attr('class', `badge ${item.payment_status === '已收訖' ? 'badge-success-subtle' : 'badge-danger-subtle'}`);
-
-    const canDeliver = (item.fulfillment_status === '待取貨' || item.fulfillment_status === '已寄出');
-    if (canDeliver) {
-        $('#btnMarkDelivered').prop('disabled', false).removeClass('opacity-50')
-            .html('<i class="fa-solid fa-stamp me-1"></i> 標記為已交付（執行實體扣庫）');
-    } else if (item.fulfillment_status === '已交付') {
-        $('#btnMarkDelivered').prop('disabled', true).addClass('opacity-50')
-            .html('<i class="fa-solid fa-circle-check me-1"></i> 此單據已完成實體核銷');
-    } else {
-        $('#btnMarkDelivered').prop('disabled', true).addClass('opacity-50')
-            .html('<i class="fa-solid fa-ban me-1"></i> 此狀態不可執行扣庫');
-    }
 }
 
 function renderCharts() {
@@ -1373,7 +1286,7 @@ function openEditOutboundModal(id) {
 
     if (matchedItems.length > 0) {
         matchedItems.forEach(it => {
-            const isBox = (it.sales_unit === '盒' || it.sales_unit === '組' || it.sales_unit === '箱');
+            const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
             const qty = parseInt(it.shipped_qty, 10) || 0;
 
             if (it.is_fee_item === 'Y') {
@@ -1429,14 +1342,6 @@ function openEditOutboundModal(id) {
     new bootstrap.Modal(document.getElementById('outboundModal')).show();
 }
 
-function openDetailModalForActive() {
-    if (!appState.selectedOutboundId) {
-        AppToast.warning("請先選取一筆銷貨單據！");
-        return;
-    }
-    openDetailModal(appState.selectedOutboundId);
-}
-
 function openDetailModal(orderId) {
     const item = appState.outbounds.find(d => d.id === orderId);
     if (!item) return;
@@ -1489,11 +1394,11 @@ function renderOutboundItemsTableFromStaging(isLocked) {
         $tbody.append('<tr><td colspan="14" class="text-center text-secondary py-3">本銷貨單暫無細項明細數據（尚未儲存）</td></tr>');
     } else {
         stagingOutboundItems.forEach(it => {
-            const isBox = (it.sales_unit === '盒' || it.sales_unit === '組' || it.sales_unit === '箱');
+            const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
             if (isBox) {
-                sumBoxes = AppCalc.add(sumBoxes, parseInt(it.shipped_qty, 10) || 0);
+                sumBoxes += (parseInt(it.shipped_qty, 10) || 0);
             } else if (it.is_fee_item !== 'Y') {
-                sumPieces = AppCalc.add(sumPieces, parseInt(it.shipped_qty, 10) || 0);
+                sumPieces += (parseInt(it.shipped_qty, 10) || 0);
             }
 
             sumSales = AppCalc.add(sumSales, parseFloat(it.subtotal_amount) || 0);
@@ -1551,21 +1456,22 @@ function renderOutboundItemsTableFromStaging(isLocked) {
 }
 
 // ==========================================================================
-// 銷貨明細產品選單與自動帶出邏輯 (對齊 psi-inbound 規範)
+// 銷貨明細產品選單與自動帶出邏輯
 // ==========================================================================
 function populateInlineProductOptions() {
     const parentOrder = appState.outbounds.find(d => d.id === currentDetailOrderId);
+    const targetWh = parentOrder ? parentOrder.warehouse_id : '';
     const isMalaysia = parentOrder && parentOrder.currency_code === 'MYR';
     const targetRegion = isMalaysia ? 'MY' : 'TW';
 
     const $select = $('#inlineProductSelect').empty().append('<option value="">-- 請選擇品項或費用項 --</option>');
 
-    // 1. 獨立運費與勞務雜費項目群組 (is_fee_item = 'Y')
+    // 1. 獨立費用項目群組 (不扣庫存)
     const feeItems = [
         { code: 'FEE_A13', name: '官方運費補貼 (A13)', price: 150 },
         { code: 'FEE_PKG', name: '特殊包材與保冷費', price: 50 },
-        { code: 'FEE_DLV', name: '同城 Grab 急件快遞費', price: 200 },
-        { code: 'FEE_OTH', name: '其他自訂勞務費用', price: 0 }
+        { code: 'FEE_DLV', name: '同區 Grab 急件快遞費', price: 200 },
+        { code: 'FEE_OTH', name: '其他自訂勞務雜費', price: 0 }
     ];
     const $feeGroup = $('<optgroup label="🚚 官方運費與勞務雜費項目"></optgroup>');
     feeItems.forEach(f => {
@@ -1573,12 +1479,40 @@ function populateInlineProductOptions() {
     });
     $select.append($feeGroup);
 
-    // 2. 官方實體商品分組 (is_fee_item = 'N')
+    // 2. 實體商品分組 (動態計算出庫倉自由可用量：盒數與散件)
     const filteredProducts = appState.products.filter(p => (p.region_code || 'TW').toUpperCase() === targetRegion);
-    const prodGroupLabel = isMalaysia ? '🇲🇾 馬來西亞市場實體產品' : '📦 台灣市場官方實體商品品項';
+    const prodGroupLabel = isMalaysia ? '🇲🇾 馬來西亞市場' : '🇹🇼 台灣市場';
     const $prodGroup = $(`<optgroup label="${prodGroupLabel}"></optgroup>`);
+
     filteredProducts.forEach(p => {
-        $prodGroup.append(`<option value="${p.product_code}" data-fee="N" data-name="${p.name}">📦 ${p.name} [${p.product_code}]</option>`);
+        const matchedStocks = appState.stocks.filter(s => s.product_id === p.product_code && s.warehouse_id === targetWh);
+        const availBoxes = matchedStocks.reduce((sum, s) => sum + (s.available_qty !== undefined ? s.available_qty : (s.quantity || 0)), 0);
+        const availPieces = matchedStocks.reduce((sum, s) => sum + (s.pieces_qty || 0), 0);
+
+        // ★ 動態獲取主檔單位
+        const baseUnit = p.base_unit || '盒';
+        const subUnit = p.sub_unit || '';
+
+        const isOutOfStock = (availBoxes <= 0 && availPieces <= 0);
+        let stockLabel = '';
+        if (isOutOfStock) {
+            stockLabel = subUnit ? `[缺貨: 0${baseUnit}/0${subUnit}]` : `[缺貨: 0${baseUnit}]`;
+        } else {
+            stockLabel = subUnit ? `[可用: ${availBoxes}${baseUnit} / ${availPieces}${subUnit}]` : `[可用: ${availBoxes}${baseUnit}]`;
+        }
+
+        $prodGroup.append(`
+            <option value="${p.product_code}" 
+                    data-fee="N" 
+                    data-name="${p.name}" 
+                    data-avail-boxes="${availBoxes}" 
+                    data-avail-pieces="${availPieces}" 
+                    data-base-unit="${baseUnit}" 
+                    data-sub-unit="${subUnit}" 
+                    data-out-of-stock="${isOutOfStock ? 'Y' : 'N'}">
+                📦 ${p.name} [${p.product_code}] ${stockLabel}
+            </option>
+        `);
     });
     $select.append($prodGroup);
 
@@ -1596,6 +1530,52 @@ function populateInlineProductOptions() {
     $select.off('select2:select.itemSelect change.itemSelect').on('select2:select.itemSelect change.itemSelect', function () {
         onInlineProductSelectChange();
     });
+}
+
+function updateStockWarningFeedback() {
+    const code = $('#inlineProductSelect').val();
+    const $feedback = $('#inlineStockFeedback').empty();
+    if (!code) return;
+
+    const $opt = $('#inlineProductSelect option:selected');
+    if ($opt.data('fee') === 'Y') {
+        $feedback.html('<span class="text-secondary"><i class="fa-solid fa-info-circle me-1"></i> 虛擬費用項目，不執行實體庫存扣減</span>');
+        return;
+    }
+
+    // ★ 自產品主檔精準讀取對應的正裝與散裝單位
+    const prod = appState.products.find(p => p.product_code === code || p.official_product_code === code);
+    const baseUnit = prod ? (prod.base_unit || '盒') : ($opt.data('base-unit') || '盒');
+    const subUnit = prod ? (prod.sub_unit || '件') : ($opt.data('sub-unit') || '件');
+
+    const availBoxes = parseInt($opt.data('avail-boxes'), 10) || 0;
+    const availPieces = parseInt($opt.data('avail-pieces'), 10) || 0;
+    const packMode = $('input[name="inlinePackMode"]:checked').val() || 'BOX';
+    const shippedQty = parseInt($('#inlineShippedQty').val(), 10) || 0;
+
+    if (packMode === 'BOX') {
+        if (availBoxes <= 0) {
+            $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 此倉目前無${baseUnit}裝現貨 (可用: 0${baseUnit})！</span>`);
+        } else if (shippedQty > availBoxes) {
+            $feedback.html(`<span class="text-warning fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 出庫量 (${shippedQty}${baseUnit}) 超過在庫可用量 (${availBoxes}${baseUnit})！</span>`);
+        } else {
+            $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 在庫充裕 (自由可用現貨: ${availBoxes}${baseUnit})</span>`);
+        }
+    } else {
+        // 散裝模式：單位動態對齊 subUnit 與 baseUnit
+        if (availPieces <= 0 && availBoxes <= 0) {
+            $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 此倉無散裝${subUnit}件，亦無${baseUnit}裝可供拆封！</span>`);
+        } else if (shippedQty > availPieces) {
+            $feedback.html(`<span class="text-warning fw-bold"><i class="fa-solid fa-boxes-packing me-1"></i> 在線散裝僅剩 ${availPieces}${subUnit} (庫存另有 ${availBoxes}${baseUnit}整裝可供手動拆盒)</span>`);
+        } else {
+            $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 散裝現貨充足 (可用: ${availPieces}${subUnit})</span>`);
+        }
+    }
+}
+
+function calcInlineSubtotals() {
+    // 數量變動時即時刷新庫存警示反饋
+    updateStockWarningFeedback();
 }
 
 /**
@@ -1675,7 +1655,7 @@ function onInlineProductSelectChange() {
                 const stockCost = (packMode === 'PIECE' && spec.ratio > 1)
                     ? AppCalc.divide(matchedStock.cost_price, spec.ratio, 2)
                     : matchedStock.cost_price;
-                $('#inlineUnitCost').val(stockCost);
+                $('#inlineUnitCost').val(formatCurrency(stockCost, curr));
             }
         } else {
             $('#inlineBatchNo').val(`LOT${AppDate.toClean6()}`);
@@ -1687,6 +1667,9 @@ function onInlineProductSelectChange() {
             $('#inlineStockId').val('');
         }
     }
+
+    updateStockWarningFeedback();
+    calcInlineSubtotals();
 }
 
 function toggleInlineItemForm() {
@@ -1729,7 +1712,7 @@ function editInlineItem(itemId) {
     $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細【項次 ${item.item_seq}】`);
     $('#inlineItemId').val(item.id);
 
-    const isBox = (item.sales_unit === '盒' || item.sales_unit === '組' || item.sales_unit === '箱');
+    const isBox = isMasterPackUnit(item.sales_unit, item.product_id, item.official_product_code);
     if (isBox) {
         $('#inlinePackModeBox').prop('checked', true);
     } else {
@@ -1788,7 +1771,21 @@ function saveInlineOutboundItem() {
     const itemId = $('#inlineItemId').val().trim();
     const isEdit = Boolean(itemId);
 
+    const $opt = $('#inlineProductSelect option:selected');
     const isFee = $('#inlineIsFeeItem').val();
+    const packMode = $('input[name="inlinePackMode"]:checked').val() || 'BOX';
+
+    if (isFee !== 'Y') {
+        const availBoxes = parseInt($opt.data('avail-boxes'), 10) || 0;
+        const availPieces = parseInt($opt.data('avail-pieces'), 10) || 0;
+        const isExcess = (packMode === 'BOX' && shippedQty > availBoxes) || 
+                         (packMode === 'PIECE' && shippedQty > availPieces);
+
+        if (isExcess) {
+            AppToast.warning(`【超額預售提醒】出庫數量超出在庫現貨，已標記暫存。若非現貨交付，請將母單狀態設為「待取貨」或勾選「代領預扣鎖定 (HOLD)」。`);
+        }
+    }
+
     let productName = '';
     if (isFee === 'Y') {
         productName = $('#inlineProductSelect option:selected').text();
@@ -1907,6 +1904,23 @@ async function saveAllOutboundItems() {
     const parentOrder = appState.outbounds.find(d => d.id === currentDetailOrderId);
     if (!parentOrder) return;
 
+    // ★ 關鍵防線補強：若母單已標記為交付且未鎖定，逐項檢核暫存明細是否超出庫存
+    if (parentOrder.fulfillment_status === '已交付' && parentOrder.is_pre_order_hold !== 'Y') {
+        for (const it of stagingOutboundItems) {
+            if (it.is_fee_item === 'Y') continue;
+            const matchedStocks = appState.stocks.filter(s => s.product_id === it.product_id && s.warehouse_id === parentOrder.warehouse_id);
+            const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
+            const totalAvail = matchedStocks.reduce((sum, s) => {
+                return sum + (isBox ? (s.available_qty !== undefined ? s.available_qty : s.quantity) : (s.pieces_qty || 0));
+            }, 0);
+
+            if (it.shipped_qty > totalAvail) {
+                AppToast.error(`【ERR_INSUFFICIENT_STOCK 出庫阻斷】品項【${it.product_name_snapshot}】出庫量 (${it.shipped_qty} ${it.sales_unit}) 超過可用庫存 (${totalAvail} ${it.sales_unit})！請先將母單狀態改為「待取貨」或先完成進貨調撥。`);
+                return;
+            }
+        }
+    }
+
     const $btn = $('#btnSaveAllOutboundItems');
     try {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 正在批次寫入雲端...');
@@ -1981,14 +1995,17 @@ async function saveAllOutboundItems() {
             const amt = parseFloat(it.subtotal_amount) || 0;
             const cost = parseFloat(it.subtotal_cost) || 0;
             const sv = parseFloat(it.subtotal_sv) || 0;
-            const isBox = (it.sales_unit === '盒' || it.sales_unit === '組' || it.sales_unit === '箱');
+            const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
 
             if (it.is_fee_item === 'Y') {
                 calcShippingFee = AppCalc.add(calcShippingFee, amt);
             } else {
                 calcProductAmount = AppCalc.add(calcProductAmount, amt);
-                if (isBox) calcTotalBoxes = AppCalc.add(calcTotalBoxes, shippedQty);
-                else calcTotalPieces = AppCalc.add(calcTotalPieces, shippedQty);
+                if (isBox) {
+                    calcTotalBoxes = AppCalc.add(calcTotalBoxes, shippedQty);
+                } else {
+                    calcTotalPieces = AppCalc.add(calcTotalPieces, shippedQty);
+                }
 
                 calcTotalCost = AppCalc.add(calcTotalCost, cost);
                 calcTotalSv = AppCalc.add(calcTotalSv, sv);
@@ -2223,8 +2240,7 @@ async function quickDeliverFromDetail(orderId) {
         const inst = bootstrap.Modal.getInstance(modalEl);
         if (inst) inst.hide();
     }
-    appState.selectedOutboundId = orderId;
-    await quickMarkDelivered();
+    quickMarkDelivered(orderId);
 }
 
 async function saveOutboundOrder() {
@@ -2270,6 +2286,30 @@ async function saveOutboundOrder() {
         AppToast.warning("請填寫「收件人姓名」！");
         $('#fieldRecipientName').focus();
         return;
+    }
+
+    const fulfillmentStatus = $('#fieldFulfillmentStatus').val();
+    const isPreOrderHold = $('#fieldIsPreOrderHold').is(':checked');
+    const targetWh = $('#fieldWarehouseId').val();
+
+    // ★ 關鍵防禦：若標記為「已交付」且未鎖定為 HOLD，強制校驗該倉所有明細之在庫量
+    if (fulfillmentStatus === '已交付' && !isPreOrderHold) {
+        const orderItems = appState.outboundItems.filter(it => it.outbound_id === orderId);
+        for (const it of orderItems) {
+            if (it.is_fee_item === 'Y') continue;
+
+            const matchedStocks = appState.stocks.filter(s => s.product_id === it.product_id && s.warehouse_id === targetWh);
+            const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
+            const totalAvail = matchedStocks.reduce((sum, s) => {
+                return sum + (isBox ? (s.available_qty !== undefined ? s.available_qty : s.quantity) : (s.pieces_qty || 0));
+            }, 0);
+
+            if (it.shipped_qty > totalAvail) {
+                // ★ 提示單位直接使用明細記錄的銷售單位 it.sales_unit，完全對齊產品真實規格
+                AppToast.error(`【ERR_INSUFFICIENT_STOCK 庫存不足阻斷】品項【${it.product_name_snapshot}】出庫量 (${it.shipped_qty} ${it.sales_unit}) 大於在線可用量 (${totalAvail} ${it.sales_unit})！實體現貨不足，禁止標記為「已交付」。請先完成進貨驗收、調撥拆盒，或將狀態改為「待取貨」。`);
+                return;
+            }
+        }
     }
 
     const currentUser = getCurrentUser();
@@ -2384,8 +2424,6 @@ async function saveOutboundOrder() {
 
         await fetchAllGoogleSheetsData();
 
-        appState.selectedOutboundId = orderId;
-        renderInspectorStage();
         bootstrap.Modal.getInstance(document.getElementById('outboundModal')).hide();
         AppToast.success(`銷貨單據【${orderId}】儲存成功！`);
     } catch (err) {
@@ -2395,8 +2433,9 @@ async function saveOutboundOrder() {
     }
 }
 
-async function quickMarkDelivered() {
-    const item = appState.outbounds.find(d => d.id === appState.selectedOutboundId);
+async function quickMarkDelivered(orderId) {
+    if (!orderId) return;
+    const item = appState.outbounds.find(d => d.id === orderId);
     if (!item) return;
 
     if (item.fulfillment_status === '已交付') {
@@ -2458,9 +2497,6 @@ async function deleteOutboundOrder(id) {
     try {
         await SheetAdapter.sendRequest('DELETE', '銷貨主檔', id, []);
         appState.outbounds = appState.outbounds.filter(d => d.id !== id);
-        if (appState.selectedOutboundId === id) {
-            appState.selectedOutboundId = appState.outbounds.length > 0 ? appState.outbounds[0].id : '';
-        }
         await fetchAllGoogleSheetsData();
         await autoRecalculateParentOutbound(currentDetailOrderId);
         AppToast.success(`銷貨單【${id}】已成功自雲端刪除！`);
@@ -2487,7 +2523,7 @@ async function autoRecalculateParentOutbound(orderId) {
 
     matchedItems.forEach(it => {
         const shippedQty = parseInt(it.shipped_qty, 10) || 0;
-        const isBox = (it.sales_unit === '盒' || it.sales_unit === '組' || it.sales_unit === '箱');
+        const isBox = isMasterPackUnit(it.sales_unit, it.product_id, it.official_product_code);
 
         if (it.is_fee_item === 'Y') {
             calcShippingFee = AppCalc.add(calcShippingFee, parseFloat(it.subtotal_amount) || 0);
@@ -2535,7 +2571,6 @@ async function autoRecalculateParentOutbound(orderId) {
     renderDataTable();
     renderKpis();
     renderCharts();
-    renderInspectorStage();
 }
 
 // ==========================================================================

@@ -8,7 +8,7 @@
         <!-- 認證守衛 -->
         <script src="../assets/js/auth-guard.js"></script>
         
-        <!-- 第三方函式庫加載器 -->
+        <!-- 第三方函式庫載入器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
         <!-- 共用核心模組 -->
@@ -548,13 +548,15 @@
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1">進貨單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
-                                            <input type="text" class="form-control form-control-sm text-end" id="inlineFieldUnitCost" value="NT$ 0" readonly>
-                                            <input type="hidden" id="inlineFieldRawUnitCost" value="0">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text" id="inlineFieldCurrencyText">TWD</span>
+                                                <input type="hidden" id="inlineFieldCurrency" value="TWD">
+                                                <input type="number" class="form-control form-control-sm text-end" id="inlineFieldUnitCost" min="0" step="10" value="0" required>
+                                            </div>
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1">單件 SV <span class="badge badge-secondary-subtle small">自動帶入</span></label>
-                                            <input type="text" class="form-control form-control-sm text-end" id="inlineFieldUnitSv" value="0 SV" readonly>
-                                            <input type="hidden" id="inlineFieldRawUnitSv" value="0">
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineFieldUnitSv" min="0" value="0" required>
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1">生產批號</label>

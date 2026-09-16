@@ -541,7 +541,7 @@ function renderTargetRightsPills(target) {
 }
 
 // ==========================================================================
-// 7. 模組渲染函式 (通關檢核、收益拆解、線路拓撲)
+// 7. 模組渲染函式 (通關檢核、收益拆解、線路拓樸)
 // ==========================================================================
 function renderGateChecklist(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLines, months) {
     const $container = $('#gateChecklistContainer');
@@ -661,7 +661,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     $container.append(`
         <div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary me-1"></i>直屬合格經理線拓撲</span>
+                <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary me-1"></i>直屬合格經理線拓樸</span>
                 <span class="badge badge-secondary">${lines} 條實動線</span>
             </div>
             <div class="d-flex gap-1 flex-wrap">

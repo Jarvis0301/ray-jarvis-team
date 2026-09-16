@@ -8,7 +8,7 @@
         <!-- 認證守衛 -->
         <script src="../assets/js/auth-guard.js"></script>
         
-        <!-- 第三方函式庫加載器 -->
+        <!-- 第三方函式庫載入器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
         <!-- 共用核心模組 -->
@@ -684,11 +684,11 @@
                                     <div class="btn-group btn-group-sm" role="group" id="groupInlinePackMode" aria-label="包裝型態切換">
                                         <input type="radio" class="btn-check" name="inlinePackMode" id="inlinePackModeBox" value="BOX" checked autocomplete="off">
                                         <label class="btn btn-outline-primary" for="inlinePackModeBox">
-                                            <i class="fa-solid fa-box me-1"></i> 官方正裝
+                                            <i class="fa-solid fa-box me-1"></i> 正裝
                                         </label>
                                         <input type="radio" class="btn-check" name="inlinePackMode" id="inlinePackModePiece" value="PIECE" autocomplete="off">
                                         <label class="btn btn-outline-warning" for="inlinePackModePiece">
-                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝拆零
+                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝
                                         </label>
                                     </div>
                                     <button type="button" class="btn-close btn-close-white small" onclick="closeInlineItemForm()"></button>
@@ -702,6 +702,8 @@
                                         <div class="col-12 col-md-4">
                                             <label class="form-label small mb-1" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
+                                            <!-- ★ 即時庫存狀態徽章與超額警告容器 -->
+                                            <div id="inlineStockFeedback" class="small mt-1"></div>
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
@@ -730,11 +732,11 @@
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineOrderedQty">訂購數量 <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control form-control-sm text-end" id="inlineOrderedQty" min="1" value="1" required>
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineOrderedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineShippedQty">實體出庫量 <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control form-control-sm text-end" id="inlineShippedQty" min="1" value="1" required>
+                                            <input type="number" class="form-control form-control-sm text-end" id="inlineShippedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
                                             <label class="form-label small mb-1" for="inlineBatchNo">出庫批號</label>

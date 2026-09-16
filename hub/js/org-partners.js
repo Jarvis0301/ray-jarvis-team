@@ -3,8 +3,8 @@
  * 組織成員戰術中樞 (org-partners.js)
  * 專為「榮祥團隊（Ray's Team）」打造之數位戰術控制台
  * 涵蓋：HUD 指標、卡片/列表/樹狀/圖表四大視圖、360° 檔案、試算表 CRUD
- * 組織拓撲引擎：多樹森林、三軌線路（安置/推薦/輔導）、雙向閉包斷層偵測、全域篩選聯動
- * 核心強化：主鍵系統自動配發、夫妻共同經營雙向原子連動、拓撲穿透繼承
+ * 組織拓樸引擎：多樹森林、三軌線路（安置/推薦/輔導）、雙向閉包斷層偵測、全域篩選聯動
+ * 核心強化：主鍵系統自動配發、夫妻共同經營雙向原子連動、拓樸穿透繼承
  * ============================================================================
  */
 
@@ -317,7 +317,7 @@ function initCoOperatorFormLinkage() {
 }
 
 /**
- * 全域自動校準：確保共同經營者完全繼承主要經營者之職級、關係、直轄與排線拓撲
+ * 全域自動校準：確保共同經營者完全繼承主要經營者之職級、關係、直轄與排線拓樸
  */
 function syncCoOperatorStatusAndRelations() {
     if (!partnersList || partnersList.length === 0) return;
@@ -1144,7 +1144,7 @@ function renderDataTableView(list) {
 }
 
 // ============================================================================
-// 10. 組織拓撲結構圖重構引擎 (Tree View: 三軌/多樹森林/斷層/幾何對齊)
+// 10. 組織拓樸結構圖重構引擎 (Tree View: 三軌/多樹森林/斷層/幾何對齊)
 // ============================================================================
 function initOrgTreeControls() {
     $('input[name="treeLineMode"]').on('change', function () {
@@ -1250,10 +1250,10 @@ window.downloadOrgChartPng = async function () {
         $('.org-card-view-btn').show();
 
         const link = document.createElement('a');
-        link.download = `RayTeam_組織拓撲圖_${new Date().toISOString().slice(0, 10)}.png`;
+        link.download = `RayTeam_組織拓樸圖_${new Date().toISOString().slice(0, 10)}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
-        AppToast.success('組織拓撲圖 PNG 檔案已順利下載！');
+        AppToast.success('組織拓樸圖 PNG 檔案已順利下載！');
     } catch (err) {
         $('.org-card-view-btn').show();
         AppToast.error('匯出圖片失敗：' + err.message);
@@ -3131,9 +3131,9 @@ window.deletePartnerRecord = function (partnerId) {
     const spouseId = partner.spouse_partner_id;
 
     AppDialog.confirm(
-        `確定要自雲端試算表中移除成員【${dispName} (${partnerId})】嗎？<br><small class="text-warning">若該夥伴為共同經營者，關聯之主要經營者將自動回滾為「個人經營」狀態。</small>`,
+        `確定要自雲端試算表中移除成員【${dispName} (${partnerId})】嗎？<br><small class="text-warning">若該夥伴為共同經營者，關聯之主要經營者將自動回復為「個人經營」狀態。</small>`,
         async function () {
-            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i>正在刪除成員檔案並連動回滾配偶權益...', '雲端同步處理');
+            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i>正在刪除成員檔案並連動回復配偶權益...', '雲端同步處理');
             try {
                 const deletePromises = [];
                 const silentOpt = { silent: true };
@@ -3157,7 +3157,7 @@ window.deletePartnerRecord = function (partnerId) {
                     if (rel.id) deletePromises.push(SheetAdapter.deleteRow('組織關係', rel.id, ORG_GAS_DEPLOY_ID, silentOpt).catch(() => {}));
                 });
 
-                // 配偶回滾寫入由 ORG_GAS 執行
+                // 配偶回復寫入由 ORG_GAS 執行
                 if (spouseId) {
                     const spouse = partnersList.find(p => p.partner_id === spouseId || p.member_no === spouseId);
                     if (spouse && spouse.spouse_partner_id === partnerId) {
@@ -3175,7 +3175,7 @@ window.deletePartnerRecord = function (partnerId) {
 
                 await Promise.all(deletePromises);
 
-                AppToast.success(`成員【${dispName}】已全數移除，配偶經營權益已自動回滾完成！`);
+                AppToast.success(`成員【${dispName}】已全數移除，配偶經營權益已自動回復完成！`);
                 await fetchGoogleSheetsData();
             } catch (err) {
                 console.error('刪除成員失敗:', err);

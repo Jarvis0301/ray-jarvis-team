@@ -106,19 +106,19 @@ body {
     bottom: 0;
     left: 0;
     z-index: 1020;
-    overflow: hidden; /* 關鍵：禁止外層滾動，讓內部容器與底部獨立 */
+    overflow: hidden; /* 關鍵：禁止外層捲動，讓內部容器與底部獨立 */
     display: flex;
     flex-direction: column;
 }
 
-/* 動態選單獨立滾動區塊 */
+/* 動態選單獨立捲動區塊 */
 #dynamicMenuContainer {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden !important; /* 防護：消除側邊欄展開動畫時的水平流動 */
 }
 
-/* 獨立美化選單區域滾動條 */
+/* 獨立美化選單區域捲動條 */
 #dynamicMenuContainer::-webkit-scrollbar { width: 5px; }
 #dynamicMenuContainer::-webkit-scrollbar-thumb { background-color: rgba(56, 189, 248, 0.3); border-radius: 4px; }
 #dynamicMenuContainer::-webkit-scrollbar-track { background-color: transparent; }
@@ -138,7 +138,7 @@ body {
    4. 選單項目與子選單階層樣式 (Menu Items & Submenu)
 ================================================== */
 
-/* 防止動畫期間文字換行造成高度瞬間變高閃爍滾動條 */
+/* 防止動畫期間文字換行造成高度瞬間變高閃爍捲動條 */
 .nav-item-link,
 .menu-text,
 .sidebar-menu,
