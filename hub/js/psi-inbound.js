@@ -214,7 +214,7 @@ function parseAllData(data) {
         return {
             product_code: getVal(r, 0),
             region_code: getVal(r, 1, 'TW'),
-            official_product_code: getVal(r, 2) || getVal(r, 0),
+            official_product_code: getVal(r, 0),
             name: getVal(r, 3, '未命名產品'),
             short_name: getVal(r, 4, ''),
             base_unit: isNewSchema ? getVal(r, 12, '盒') : '盒',
@@ -748,8 +748,11 @@ function formatTableRow(item) {
         total_boxes: `<span class="fw-bold text-white">${item.total_boxes}</span> 盒`,
         cost_breakdown: `
             <div>
-                <div class="fw-bold text-yellow">${formatCurrency(item.total_cost_amount, curr)}</div>
-                <div class="text-secondary small">品：${formatCurrency(item.product_amount, curr)} | 運雜：${formatCurrency(item.shipping_fee, curr)}</div>
+                <div class="fw-bold text-orange">${formatCurrency(item.total_cost_amount, curr)}</div>
+                ${item.shipping_fee>0 ? `
+                    <div class="text-secondary small">產品：${formatCurrency(item.product_amount, curr)}</div>
+                    <div class="text-secondary small">運雜：${formatCurrency(item.shipping_fee, curr)}</div>
+                ` : ''}
             </div>
         `,
         total_sv: `<span class="text-teal fw-bold">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
@@ -999,7 +1002,7 @@ function renderInboundItemsTableFromStaging(isLocked) {
             const delBtnDisabled = isLocked ? 'disabled' : '';
 
             const stockBadge = it.stock_id 
-                ? `<span class="badge badge-purple-subtle font-monospace"><i class="fa-solid fa-boxes-stacked text-primary me-1"></i>${it.stock_id}</span>`
+                ? `<span class="text-info-emphasis">${it.stock_id}</span>`
                 : '<span class="text-secondary small">未入庫</span>';
 
             $tbody.append(`
@@ -1007,19 +1010,17 @@ function renderInboundItemsTableFromStaging(isLocked) {
                     <td class="text-secondary">${it.item_seq}</td>
                     <td>
                         <div class="fw-bold text-white">${it.product_name_snapshot || '-'}</div>
-                        <div class="text-secondary small font-monospace">${it.official_product_code || '-'}</div>
+                        <div class="text-secondary small">${it.official_product_code || '-'}</div>
                     </td>
                     <td>${UIBadges.psi.feeItem(it.is_fee_item)}</td>
-                    <td>${formatCurrency(it.unit_cost, curr)}</td>
-                    <td class="text-warning">${AppCalc.formatSV(it.unit_sv, 'INTERNAL')} SV</td>
-                    <td>${it.ordered_qty}</td>
-                    <td>${it.official_shipped_qty || 0}</td>
-                    <td class="text-success fw-bold">${it.received_qty || 0}</td>
-                    <td class="text-success">${formatCurrency(it.subtotal_amount, curr)}</td>
-                    <td class="text-warning">${AppCalc.formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
+                    <td class="text-yellow text-end">${formatCurrency(it.unit_cost, curr)}</td>
+                    <td class="text-teal text-end">${AppCalc.formatSV(it.unit_sv, 'INTERNAL')} SV</td>
+                    <td class="text-end">${it.ordered_qty} / ${it.official_shipped_qty || 0} / ${it.received_qty || 0}</td>
+                    <td class="fw-bold text-orange text-end">${formatCurrency(it.subtotal_amount, curr)}</td>
+                    <td class="fw-bold text-teal text-end">${AppCalc.formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
-                        <div class="text-secondary small">${it.expiry_date || '-'}</div>
+                        <div class="text-secondary small">${AppDate.toDisplay(it.expiry_date) || '-'}</div>
                     </td>
                     <td>${stockBadge}</td>
                     <td class="text-end">
@@ -1176,7 +1177,8 @@ function saveInlineItem() {
     } else {
         const prod = appState.products.find(p => p.product_code === productCode);
         productName = prod ? prod.name : productCode;
-        officialCode = prod ? (prod.official_product_code || prod.product_code) : productCode;
+        officialCode = prod ? prod.product_code : productCode;
+        prdId = prod ? prod.product_code : productCode;
     }
 
     // ★ 由隱藏欄位安全提取純數字，避免抓取貨幣符號或 "SV" 字串導致 NaN
@@ -1799,11 +1801,11 @@ function openInboundMasterDetailModal(orderId) {
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">系統進貨單號 (PK)</span>
-                <span class="text-info-emphasis fw-bold font-monospace">${item.id}</span>
+                <span class="text-info-emphasis fw-bold">${item.id}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">葡眾官方訂購單號</span>
-                <span class="text-white font-monospace">${item.official_order_no || '無官方單號'}</span>
+                <span class="text-white">${item.official_order_no || '無官方單號'}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">入庫履約狀態</span>
@@ -1811,7 +1813,7 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <span class="text-secondary small">官方訂購類別</span>
-                <span class="badge badge-purple-subtle">${item.order_category || '本人訂購'}</span>
+                <span class="text-white">${item.order_category || '本人訂購'}</span>
             </div>
         </article>
 
@@ -1851,7 +1853,7 @@ function openInboundMasterDetailModal(orderId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">下單訂購日期</div>
-                <div class="col-7 text-light text-end font-monospace">${item.order_date || '-'}</div>
+                <div class="col-7 text-light text-end">${item.order_date || '-'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">業績計入月份</div>
@@ -1859,15 +1861,15 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方出貨單號</div>
-                <div class="col-7 text-light text-end font-monospace">${item.official_shipping_no || '尚未出貨'}</div>
+                <div class="col-7 text-light text-end">${item.official_shipping_no || '尚未出貨'}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">官方出貨日期</div>
-                <div class="col-7 text-light text-end font-monospace">${item.shipping_date || '-'}</div>
+                <div class="col-7 text-light text-end">${item.shipping_date || '-'}</div>
             </div>
             <div class="row g-2">
                 <div class="col-5 text-secondary small">實體驗收入庫日</div>
-                <div class="col-7 text-success text-end fw-bold font-monospace">${item.inbound_date || '未入庫'}</div>
+                <div class="col-7 text-success text-end fw-bold">${item.inbound_date || '未入庫'}</div>
             </div>
         </article>
 
@@ -1877,7 +1879,7 @@ function openInboundMasterDetailModal(orderId) {
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">商品金額小計</div>
-                <div class="col-7 text-white text-end">${formatCurrency(item.product_amount, curr)}</div>
+                <div class="col-7 text-yellow text-end">${formatCurrency(item.product_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">運費/雜費小計</div>
@@ -1885,15 +1887,15 @@ function openInboundMasterDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實付總額 (含運雜)</div>
-                <div class="col-7 text-success fw-bold text-end fs-6">${formatCurrency(item.total_cost_amount, curr)}</div>
+                <div class="col-7 text-orange fw-bold text-end fs-6">${formatCurrency(item.total_cost_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">採購總盒數</div>
                 <div class="col-7 text-white fw-bold text-end">${item.total_boxes || 0} 盒</div>
             </div>
             <div class="row g-2">
-                <div class="col-5 text-secondary small">官方考核總 SV</div>
-                <div class="col-7 text-warning fw-bold text-end fs-6">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</div>
+                <div class="col-5 text-secondary small">總 SV</div>
+                <div class="col-7 text-teal fw-bold text-end fs-6">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</div>
             </div>
         </article>
 

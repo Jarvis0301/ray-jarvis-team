@@ -213,7 +213,7 @@ function parseAllData(data) {
         return {
             product_code: getVal(r, 0),
             region_code: getVal(r, 1, 'TW'),
-            official_product_code: getVal(r, 2) || getVal(r, 0),
+            official_product_code: getVal(r, 0),
             name: getVal(r, 3, '未命名產品'),
             short_name: getVal(r, 4, ''),
             package_spec: getVal(r, 9, ''),
@@ -1109,6 +1109,7 @@ function formatTableRow(item) {
     const curr = item.currency_code || 'TWD';
     const profitSign = item.total_profit_amount >= 0 ? '+' : '';
     const salesText = formatCurrency(item.total_sales_amount, curr);
+    const costText = formatCurrency(item.total_cost_amount, curr);
     const profitText = `${profitSign}${formatCurrency(item.total_profit_amount, curr)}`;
 
     const isDelivered = (item.fulfillment_status === '已交付');
@@ -1173,8 +1174,11 @@ function formatTableRow(item) {
         `,
         financials: `
             <div>
-                <div class="fw-bold text-yellow">${salesText}</div>
-                <div class="text-secondary small">毛利：${profitText}</div>
+                <div class="fw-bold text-orange">${salesText}</div>
+                ${item.total_profit_amount!=0 ? `
+                    <div class="text-secondary small">成本：${costText}</div>
+                    <div class="text-secondary small">毛利：${profitText}</div>
+                ` : ''}
             </div>
         `,
         sv: `<span class="text-teal fw-bold">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</span>`,
@@ -1504,25 +1508,24 @@ function renderOutboundItemsTableFromStaging(isLocked) {
                     <td class="text-secondary">${it.item_seq}</td>
                     <td>
                         <div class="fw-bold text-white">${it.product_name_snapshot || '-'}</div>
-                        <div class="text-secondary small font-monospace">${it.official_product_code || '-'}</div>
+                        <div class="text-secondary small">${it.official_product_code || '-'}</div>
                     </td>
                     <td>
-                        ${UIBadges.psi.feeItem(it.is_fee_item)}
-                        <span class="badge badge-purple-subtle">${it.sales_unit}</span>
+                        <span class="text-secondary">${UIBadges.psi.feeItem(it.is_fee_item)} / ${it.sales_unit}</span>
                     </td>
-                    <td>${formatCurrency(it.unit_price, curr)}</td>
-                    <td>${formatCurrency(it.unit_cost, curr)}</td>
-                    <td class="text-warning">${AppCalc.formatSV(it.unit_sv, 'INTERNAL')} SV</td>
-                    <td class="text-success fw-bold">${it.ordered_qty} / ${it.shipped_qty}</td>
-                    <td class="text-success">${formatCurrency(it.subtotal_amount, curr)}</td>
-                    <td>${formatCurrency(it.subtotal_cost, curr)}</td>
-                    <td class="text-info fw-bold">${formatCurrency(it.subtotal_profit, curr)}</td>
-                    <td class="text-warning">${AppCalc.formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
+                    <td class="text-yellow text-end">${formatCurrency(it.unit_price, curr)}</td>
+                    <td class="text-red text-end">${formatCurrency(it.unit_cost, curr)}</td>
+                    <td class="text-teal text-end">${AppCalc.formatSV(it.unit_sv, 'INTERNAL')} SV</td>
+                    <td class="text-end">${it.ordered_qty} / ${it.shipped_qty}</td>
+                    <td class="fw-bold text-orange text-end">${formatCurrency(it.subtotal_amount, curr)}</td>
+                    <td class="fw-bold text-accent text-end">${formatCurrency(it.subtotal_cost, curr)}</td>
+                    <td class="fw-bold text-info text-end">${formatCurrency(it.subtotal_profit, curr)}</td>
+                    <td class="fw-bold text-teal text-end">${AppCalc.formatSV(it.subtotal_sv, 'INTERNAL')} SV</td>
                     <td>
                         <div>${it.batch_no || '-'}</div>
-                        <div class="text-secondary small">${it.expiry_date || '-'}</div>
+                        <div class="text-secondary small">${AppDate.toDisplay(it.expiry_date) || '-'}</div>
                     </td>
-                    <td class="text-secondary font-monospace">${it.stock_id || '-'}</td>
+                    <td class="text-info-emphasis">${it.stock_id || '-'}</td>
                     <td class="text-end">
                         <div class="btn-group btn-group-sm">
                             <button class="btn btn-outline-primary" ${opBtnDisabled} title="編輯明細" onclick="editInlineItem('${it.id}')">
@@ -1650,7 +1653,8 @@ function onInlineProductSelectChange() {
         $('#inlineUnitPrice').val(spec.unitPrice);
 
         // ★ 進貨成本單價：顯示 NT$ 0 或 RM 0 格式
-        const estimatedCost = (spec.unitCost > 0) ? spec.unitCost : AppCalc.multiply(spec.unitPrice, 0.8, 2);
+        //const estimatedCost = (spec.unitCost > 0) ? spec.unitCost : AppCalc.multiply(spec.unitPrice, 0.8, 2);
+        const estimatedCost = (spec.unitCost > 0) ? spec.unitCost : spec.unitPrice;
         $('#inlineRawUnitCost').val(estimatedCost);
         $('#inlineUnitCost').val(formatCurrency(estimatedCost, curr));
 
@@ -2147,18 +2151,18 @@ function openOutboundDetailModal(orderId) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">進貨成本總額</div>
-                <div class="col-7 text-white text-end">${formatCurrency(item.total_cost_amount, curr)}</div>
+                <div class="col-7 text-accent text-end">${formatCurrency(item.total_cost_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實質毛利價差利潤</div>
-                <div class="col-7 text-accent fw-bold text-end fs-6">${profitSign}${formatCurrency(item.total_profit_amount, curr)}</div>
+                <div class="col-7 text-info fw-bold text-end fs-6">${profitSign}${formatCurrency(item.total_profit_amount, curr)}</div>
             </div>
             <div class="row g-2 mb-2">
-                <div class="col-5 text-secondary small">出庫盒數 / 散支</div>
-                <div class="col-7 text-info fw-bold text-end">${item.total_boxes || 0} 盒 / ${item.total_pieces || 0} 支</div>
+                <div class="col-5 text-secondary small">出庫整件 / 散件</div>
+                <div class="col-7 text-white fw-bold text-end">${item.total_boxes || 0} / ${item.total_pieces || 0}</div>
             </div>
             <div class="row g-2 mb-2">
-                <div class="col-5 text-secondary small">官方考核出庫 SV</div>
+                <div class="col-5 text-secondary small">出庫 SV</div>
                 <div class="col-7 text-teal fw-bold text-end fs-6">${AppCalc.formatSV(item.total_sv, 'INTERNAL')} SV</div>
             </div>
             <div class="row g-2">

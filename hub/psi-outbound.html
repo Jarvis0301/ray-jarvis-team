@@ -521,40 +521,40 @@
                                         </select>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldTotalBoxes">整盒盒數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldTotalBoxes">整盒盒數 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldTotalBoxes" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldTotalPieces">散裝支數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldTotalPieces">散裝支數 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldTotalPieces" min="0" value="0" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldTotalSv">出庫 SV <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldTotalSv">出庫 SV <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="text" class="form-control form-control-sm text-end" id="fieldTotalSv" value="0 SV" readonly>
                                         <input type="hidden" id="fieldRawTotalSv" value="0">
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldProductAmount">商品實收小計 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldProductAmount">商品實收小計 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="text" class="form-control form-control-sm text-end" id="fieldProductAmount" value="NT$ 0" readonly>
                                         <input type="hidden" id="fieldRawProductAmount" value="0">
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label class="form-label" for="fieldShippingFee">運費/雜費小計 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldShippingFee">運費/雜費小計 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="text" class="form-control form-control-sm text-end" id="fieldShippingFee" value="NT$ 0" readonly>
                                         <input type="hidden" id="fieldRawShippingFee" value="0">
                                     </div>
                                     <div class="col-6 col-md-4">
-                                        <label class="form-label" for="fieldTotalSalesAmount">整單實收總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldTotalSalesAmount">整單實收總額 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="text" class="form-control form-control-sm text-end" id="fieldTotalSalesAmount" value="NT$ 0" readonly>
                                         <input type="hidden" id="fieldRawTotalSalesAmount" value="0">
                                     </div>
                                     <div class="col-6 col-md-4">
-                                        <label class="form-label" for="fieldTotalCostAmount">進貨成本總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldTotalCostAmount">進貨成本總額 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="text" class="form-control form-control-sm text-end" id="fieldTotalCostAmount" value="NT$ 0" readonly>
                                         <input type="hidden" id="fieldRawTotalCostAmount" value="0">
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <label class="form-label" for="fieldTotalProfitAmount">實質毛利價差 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                        <label class="form-label" for="fieldTotalProfitAmount">實質毛利價差 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                         <input type="text" class="form-control form-control-sm text-end" id="fieldTotalProfitAmount" value="NT$ 0" readonly>
                                         <input type="hidden" id="fieldRawTotalProfitAmount" value="0">
                                     </div>
@@ -626,7 +626,7 @@
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <div class="d-flex align-items-center justify-content-between w-100 me-2">
                             <h5 class="modal-title fw-bold text-white mb-0">
-                                <i class="fa-solid fa-list-ol text-info me-1"></i>銷貨出庫商品品項與費用明細
+                                <i class="fa-solid fa-list-ol text-info me-1"></i>銷貨明細
                             </h5>
                             <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="btnToggleAddOutboundItem" onclick="toggleInlineItemForm()">
                                 <i class="fa-solid fa-plus me-1"></i>新增單筆明細
@@ -638,11 +638,11 @@
                         <!-- 上方狀態與核心單據資訊卡片 -->
                         <article class="card p-3 mb-3 bg-dark-subtle border-secondary border-opacity-25">
                             <div class="row g-2 small align-items-center">
-                                <div class="col-6 col-md-3">
+                                <div class="col-12 col-md-3">
                                     <span class="text-secondary">銷貨單號：</span>
                                     <span class="text-white fw-bold" id="detailModalOutboundId">-</span>
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-12 col-md-3">
                                     <span class="text-secondary">訂單日期：</span>
                                     <span class="text-white" id="detailModalOrderDate">-</span>
                                 </div>
@@ -704,12 +704,12 @@
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm fw-bold" id="inlineSalesUnitText" value="盒" readonly>
                                             <input type="hidden" id="inlineSalesUnit" value="盒">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitPrice">銷售單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1" for="inlineUnitPrice">銷售單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <div class="input-group input-group-sm">
                                                 <span class="input-group-text" id="inlineCurrencyCodeText">TWD</span>
                                                 <input type="hidden" id="inlineCurrencyCode" value="TWD">
@@ -717,12 +717,12 @@
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitCost">進貨成本單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1" for="inlineUnitCost">進貨成本單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineUnitCost" value="NT$ 0" readonly>
                                             <input type="hidden" id="inlineRawUnitCost" value="0">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitSv">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1" for="inlineUnitSv">單件 SV <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineUnitSv" value="0 SV" readonly>
                                             <input type="hidden" id="inlineRawUnitSv" value="0">
                                         </div>
@@ -802,29 +802,29 @@
                         <!-- 下方即時統計資訊卡片區塊 -->
                         <footer class="card p-3 mt-3 border-secondary border-opacity-25" id="outboundDetailSummaryCard">
                             <div class="row g-3 text-center align-items-center">
-                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                <div class="col-6 col-md-2">
                                     <div class="text-secondary small">明細品項種類</div>
                                     <div class="h6 mb-0 text-white fw-bold"><span id="sumItemCount">0</span> 項</div>
                                 </div>
-                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
-                                    <div class="text-secondary small">總出庫盒數 / 散件</div>
-                                    <div class="h6 mb-0 text-white fw-bold"><span id="sumBoxes">0</span> 盒 / <span id="sumPieces">0</span> 支</div>
+                                <div class="col-6 col-md-2">
+                                    <div class="text-secondary small">出庫整件 / 散件</div>
+                                    <div class="h6 mb-0 text-white fw-bold"><span id="sumBoxes">0</span> / <span id="sumPieces">0</span></div>
                                 </div>
-                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                <div class="col-6 col-md-2">
                                     <div class="text-secondary small">銷售實收總額</div>
-                                    <div class="h6 mb-0 text-success fw-bold">$<span id="sumSalesAmount">0</span></div>
+                                    <div class="h6 mb-0 text-yellow fw-bold"><span id="sumSalesAmount">0</span></div>
                                 </div>
-                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                <div class="col-6 col-md-2">
                                     <div class="text-secondary small">進貨成本總額</div>
-                                    <div class="h6 mb-0 text-white fw-bold">$<span id="sumCostAmount">0</span></div>
+                                    <div class="h6 mb-0 text-accent fw-bold"><span id="sumCostAmount">0</span></div>
                                 </div>
-                                <div class="col-6 col-md-2 border-end border-secondary border-opacity-25">
+                                <div class="col-6 col-md-25">
                                     <div class="text-secondary small">毛利價差總計</div>
-                                    <div class="h6 mb-0 text-info fw-bold">$<span id="sumProfitAmount">0</span></div>
+                                    <div class="h6 mb-0 text-info fw-bold"><span id="sumProfitAmount">0</span></div>
                                 </div>
-                                <div class="col-12 col-md-2">
-                                    <div class="text-secondary small">官方考核出庫總 SV</div>
-                                    <div class="h6 mb-0 text-warning fw-bold"><span id="sumTotalSv">0</span> SV</div>
+                                <div class="col-6 col-md-2">
+                                    <div class="text-secondary small">出庫總 SV</div>
+                                    <div class="h6 mb-0 text-teal fw-bold"><span id="sumTotalSv">0</span></div>
                                 </div>
                             </div>
                         </footer>

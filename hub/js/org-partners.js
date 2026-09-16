@@ -2234,7 +2234,7 @@ window.openPartnerModalForCreate = function () {
     $('#form-mode').val('CREATE');
     $('#partnerForm')[0].reset();
 
-    // 系統自動生成唯一識別碼，強制鎖定為唯讀
+    // 自動生成唯一識別碼，強制鎖定為唯讀
     const autoPersonId = generateNextPersonId();
     const autoPartnerId = generateNextPartnerId();
 

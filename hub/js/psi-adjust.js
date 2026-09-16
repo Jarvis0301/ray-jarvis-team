@@ -235,7 +235,7 @@ function parseAllData(data) {
             product_code: getVal(r, 0),
             region_code: getVal(r, 1, 'TW'),
             base_code: getVal(r, 2, ''),
-            official_product_code: getVal(r, 2) || getVal(r, 0),
+            official_product_code: getVal(r, 0),
             name: getVal(r, 3, '未命名產品'),
             short_name: getVal(r, 4, ''),
             package_spec: getVal(r, 9, ''),
@@ -1306,7 +1306,7 @@ function loadProductStockForAudit() {
 
     const spec = AppCalc.deriveLooseSpec(prod, targetUnit);
     const prodName = prod ? prod.name : '-';
-    const officialCode = prod ? (prod.official_product_code || prod.product_code) : prodCode;
+    const officialCode = prod ? prod.product_code : prodCode;
     const currency = (prod && (prod.region_code === 'MY' || String(prod.product_code).startsWith('MY'))) ? 'MYR' : 'TWD';
 
     // 匹配在線庫存（正裝取 quantity，散裝取 pieces_qty）
@@ -1443,7 +1443,7 @@ async function commitAuditRecord() {
     const diff = physicalQty - bookQty;
 
     const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
-    const officialCode = prod ? (prod.official_product_code || prod.product_code) : prodId;
+    const officialCode = prod ? prod.product_code : prodId;
     const prodName = prod ? prod.name : '';
 
     const unitCost = parseFloat($('#auditInputUnitCost').val()) || 0;
@@ -1592,7 +1592,7 @@ async function commitTransferOrder() {
     }
 
     const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
-    const officialCode = prod ? (prod.official_product_code || prod.product_code) : prodId;
+    const officialCode = prod ? prod.product_code : prodId;
     const prodName = prod ? prod.name : '';
     const unitCost = parseFloat($('#trInputUnitCost').val()) || 0;
     const unitSv = parseFloat($('#trInputUnitSv').val()) || 0;
@@ -1712,7 +1712,7 @@ function handleModalProductChange() {
     // 呼叫 AppCalc 折算單價與 SV
     const spec = AppCalc.deriveLooseSpec(prod, targetUnit);
 
-    const officialCode = prod.official_product_code || prod.product_code;
+    const officialCode = prod.product_code;
     const prodName = prod.name;
     const currency = prod.currency || ((prod.region_code === 'MY' || String(prod.product_code).startsWith('MY')) ? 'MYR' : 'TWD');
 

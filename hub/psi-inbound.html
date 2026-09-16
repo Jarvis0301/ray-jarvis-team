@@ -166,7 +166,7 @@
                 <div class="col-6 col-lg-3">
                     <div class="card h-100 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-secondary small fw-bold">官方考核總 SV</span>
+                            <span class="text-secondary small fw-bold">總 SV</span>
                             <i class="fa-solid fa-coins text-teal"></i>
                         </div>
                         <div class="d-flex align-items-baseline gap-1">
@@ -227,12 +227,12 @@
                                             <thead>
                                                 <tr>
                                                     <th>進貨單號 / 官方單號</th>
-                                                    <th>訂購中心 / 方式 / 倉庫</th>
+                                                    <th>訂購中心 / 倉庫</th>
                                                     <th>出資夥伴 / 掛點人</th>
                                                     <th>訂購日 / 驗收日</th>
                                                     <th>業績月份</th>
                                                     <th>採購盒數</th>
-                                                    <th>金額 (商品/運費/實付)</th>
+                                                    <th>金額</th>
                                                     <th>考核 SV</th>
                                                     <th>入庫狀態</th>
                                                     <th class="text-end">操作</th>
@@ -426,30 +426,30 @@
 
                             <div class="row g-3 mb-2">
                                 <div class="col-6 col-xl-2">
-                                    <label class="form-label" for="fieldCurrencyCode">交易幣別 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                    <label class="form-label" for="fieldCurrencyCode">交易幣別 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldCurrencyCode" value="TWD" readonly required>
                                 </div>
                                 <div class="col-6 col-xl-2">
-                                    <label class="form-label" for="fieldProductAmount">商品金額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <label class="form-label" for="fieldProductAmount">商品金額 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                     <input type="text" class="form-control form-control-sm text-end" id="fieldProductAmount" value="NT$ 0" readonly>
                                     <input type="hidden" id="fieldRawProductAmount" value="0">
                                 </div>
                                 <div class="col-6 col-xl-2">
-                                    <label class="form-label" for="fieldShippingFee">運費/雜費 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <label class="form-label" for="fieldShippingFee">運費/雜費 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                     <input type="text" class="form-control form-control-sm text-end" id="fieldShippingFee" value="NT$ 0" readonly>
                                     <input type="hidden" id="fieldRawShippingFee" value="0">
                                 </div>
                                 <div class="col-6 col-xl-2">
-                                    <label class="form-label" for="fieldTotalCostAmount">實付總額 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <label class="form-label" for="fieldTotalCostAmount">實付總額 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                     <input type="text" class="form-control form-control-sm text-end" id="fieldTotalCostAmount" value="NT$ 0" readonly>
                                     <input type="hidden" id="fieldRawTotalCostAmount" value="0">
                                 </div>
                                 <div class="col-6 col-xl-2">
-                                    <label class="form-label" for="fieldTotalBoxes">總盒數 <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <label class="form-label" for="fieldTotalBoxes">總盒數 <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                     <input type="number" class="form-control form-control-sm no-spin text-end" id="fieldTotalBoxes" min="0" value="0" readonly>
                                 </div>
                                 <div class="col-6 col-xl-2">
-                                    <label class="form-label" for="fieldTotalSv">考核總 SV <span class="badge badge-secondary-subtle small">系統自動計算</span></label>
+                                    <label class="form-label" for="fieldTotalSv">考核總 SV <span class="badge badge-secondary-subtle small">自動計算</span></label>
                                     <input type="text" class="form-control form-control-sm text-end" id="fieldTotalSv" value="0 SV" readonly>
                                     <input type="hidden" id="fieldRawTotalSv" value="0">
                                 </div>
@@ -481,7 +481,7 @@
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <div class="d-flex align-items-center justify-content-between w-100 me-2">
                             <h5 class="modal-title fw-bold text-white mb-0">
-                                <i class="fa-solid fa-list-ol text-info me-1"></i>進貨明細清單
+                                <i class="fa-solid fa-list-ol text-info me-1"></i>進貨明細
                             </h5>
                             <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="btnToggleAddItem" onclick="toggleInlineItemForm()">
                                 <i class="fa-solid fa-plus me-1"></i>新增單筆明細
@@ -547,12 +547,12 @@
                                             <select class="form-select form-select-sm" id="inlineFieldProduct" required></select>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1">進貨單價 <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1">進貨單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineFieldUnitCost" value="NT$ 0" readonly>
                                             <input type="hidden" id="inlineFieldRawUnitCost" value="0">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶入</span></label>
+                                            <label class="form-label small mb-1">單件 SV <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineFieldUnitSv" value="0 SV" readonly>
                                             <input type="hidden" id="inlineFieldRawUnitSv" value="0">
                                         </div>
@@ -601,9 +601,7 @@
                                         <th>性質</th>
                                         <th>單價</th>
                                         <th>單件 SV</th>
-                                        <th>訂購量</th>
-                                        <th>出貨量</th>
-                                        <th>實收盒數</th>
+                                        <th>訂購 / 出貨 / 實收</th>
                                         <th>金額小計</th>
                                         <th>SV 小計</th>
                                         <th>生產批號 / 效期</th>
