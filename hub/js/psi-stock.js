@@ -305,7 +305,7 @@ function bindUIEvents() {
         appState.currentExpiryFilter = $('#filterExpiry').val() || 'ALL';
         appState.currentStatusFilter = $('#filterStatus').val() || 'ALL';
 
-        if (stockDataTableInstance) stockDataTableInstance.draw();
+        renderStockDataTable(); // 重新依篩選結果載入資料
         if ($('#container-charts-view').hasClass('active')) {
             renderTacticalCharts();
         }
@@ -361,12 +361,12 @@ function renderHudMetrics() {
 // 7. DataTables 渲染：批號庫存表
 // ==========================================================================
 function renderStockDataTable() {
-    const formatted = appState.stocks.map(s => formatStockRow(s));
+    // 改為透過 getFilteredStocks() 篩選後直接載入物件資料
+    const filtered = getFilteredStocks();
+    const formatted = filtered.map(s => formatStockRow(s));
 
     if (stockDataTableInstance) {
-        stockDataTableInstance.clear();
-        stockDataTableInstance.rows.add(formatted);
-        stockDataTableInstance.draw();
+        stockDataTableInstance.clear().rows.add(formatted).draw();
     } else {
         stockDataTableInstance = $('#stockMasterTable').DataTable({
             data: formatted,
@@ -384,41 +384,6 @@ function renderStockDataTable() {
                 { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
-
-        // 4 維度正交聯合過濾引擎
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            const row = appState.stocks[dataIndex];
-            if (!row) return true;
-
-            // 1. 據點倉儲維度
-            if (appState.currentWhFilter && appState.currentWhFilter !== 'ALL' && row.warehouse_id !== appState.currentWhFilter) {
-                return false;
-            }
-
-            // 2. 產品品項維度
-            if (appState.currentPrdFilter && appState.currentPrdFilter !== 'ALL' && row.product_id !== appState.currentPrdFilter) {
-                return false;
-            }
-
-            // 3. 時效區間維度
-            if (appState.currentExpiryFilter && appState.currentExpiryFilter !== 'ALL') {
-                const days = getDaysToExpiry(row.expiry_date);
-                if (!row.expiry_date) return false;
-
-                if (appState.currentExpiryFilter === 'NORMAL' && days <= 90) return false;
-                if (appState.currentExpiryFilter === 'WARNING' && (days > 90 || days <= 0)) return false;
-                if (appState.currentExpiryFilter === 'DANGER' && (days > 30 || days <= 0)) return false;
-                if (appState.currentExpiryFilter === 'EXPIRED' && days > 0) return false;
-            }
-
-            // 4. 庫存狀態維度
-            if (appState.currentStatusFilter && appState.currentStatusFilter !== 'ALL') {
-                if (appState.currentStatusFilter === 'NORMAL' && row.is_locked === 'Y') return false;
-                if (appState.currentStatusFilter === 'LOCKED' && row.is_locked !== 'Y') return false;
-            }
-
-            return true;
-        });
     }
 }
 
@@ -426,7 +391,6 @@ function formatStockRow(s) {
     const days = getDaysToExpiry(s.expiry_date);
 
     let expiryColor = "bg-success text-success";
-    let expiryPercent = Math.min(100, Math.max(10, Math.round((days / 365) * 100)));
     if (days <= 30) expiryColor = "bg-danger text-danger";
     else if (days <= 90) expiryColor = "bg-warning text-warning";
 
@@ -462,13 +426,13 @@ function formatStockRow(s) {
         `,
         quantity: `
             <div>
-                <span class="fw-bold text-white">${s.quantity}</span> 盒
-                ${s.pieces_qty > 0 ? `<div class="text-secondary small">${s.pieces_qty} 支/條</div>` : ''}
+                <span class="fw-bold text-white">${s.quantity.toLocaleString()}</span> 盒
+                ${s.pieces_qty > 0 ? `<div class="text-secondary small">${s.pieces_qty.toLocaleString()} 支/條</div>` : ''}
             </div>
         `,
         reserved: `<span class="text-warning">${s.reserved_qty.toLocaleString()}</span>`,
         available: `<span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span>`,
-        cost_sv: `<div><span class="text-orange">${s.currency_code==='TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="text-teal">${s.sv_point.toLocaleString()} SV</div></div>`,
+        cost_sv: `<div><span class="text-orange">${s.currency_code === 'TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="text-teal">${s.sv_point.toLocaleString()} SV</div></div>`,
         status: statusBadge,
         actions: actionButtons
     };

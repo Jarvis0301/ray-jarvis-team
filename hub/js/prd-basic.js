@@ -414,15 +414,15 @@ function updateModalCurrency(regionCode, forcedCurrency = null) {
 // 7. Tab 1：產品主檔與詳細資料表格渲染
 // ==========================================================================
 function renderMasterTable() {
-    const formattedData = appState.products.map(p => formatMasterTableRow(p));
+    const formatted = appState.products.map(p => formatMasterTableRow(p));
 
     if (masterDataTableInstance) {
         masterDataTableInstance.clear();
-        masterDataTableInstance.rows.add(formattedData);
+        masterDataTableInstance.rows.add(formatted);
         masterDataTableInstance.draw();
     } else {
         masterDataTableInstance = $('#tableMasterProducts').DataTable({
-            data: formattedData,
+            data: formatted,
             order: [[1, 'asc']],
             drawCallback: function () {
                 $(window).trigger('resize');
@@ -531,8 +531,8 @@ function applyMasterFilters() {
         return matchReg && matchCat && matchSubcat && matchType && matchStock && matchLaunch;
     });
 
-    const formattedData = filtered.map(p => formatMasterTableRow(p));
-    masterDataTableInstance.clear().rows.add(formattedData).draw();
+    const formatted = filtered.map(p => formatMasterTableRow(p));
+    masterDataTableInstance.clear().rows.add(formatted).draw();
 }
 
 // ==========================================================================

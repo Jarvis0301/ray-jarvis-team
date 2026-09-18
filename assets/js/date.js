@@ -266,6 +266,55 @@ const AppDate = (function () {
                 return `${p.year}-${p.month}-${p.day}`;
             }
             return AppDate.toDisplay(data);
+        },
+
+        /**
+         * 精準計算實歲年齡 (支援 YYYY / YYYY-MM / YYYY-MM-DD 多階精度)
+         * @param {string|Date} val 生日字串或 Date 物件
+         * @returns {number|null} 實歲數值 (異常或未填時回傳 null)
+         */
+        calculateAge: function (val) {
+            const p = parseParts(val);
+            if (!p || !p.year) return null;
+
+            const birthYear = parseInt(p.year, 10);
+            if (isNaN(birthYear) || birthYear < 1900) return null;
+
+            const now = new Date();
+            const curYear = now.getFullYear();
+            if (birthYear > curYear) return null;
+
+            let age = curYear - birthYear;
+            const curMonth = now.getMonth() + 1;
+            const curDay = now.getDate();
+
+            // 1. 日精度 (D)：精準判斷今年生日是否已過
+            if (p.precision === 'D' && p.month && p.day) {
+                const birthMonth = parseInt(p.month, 10);
+                const birthDay = parseInt(p.day, 10);
+                if (curMonth < birthMonth || (curMonth === birthMonth && curDay < birthDay)) {
+                    age--;
+                }
+            // 2. 月精度 (M)：依月份先後判斷
+            } else if (p.precision === 'M' && p.month) {
+                const birthMonth = parseInt(p.month, 10);
+                if (curMonth < birthMonth) {
+                    age--;
+                }
+            }
+
+            return age >= 0 ? age : null;
+        },
+
+        /**
+         * 取得年齡展示文字 (如 "28 歲"，未填則回傳 fallback)
+         * @param {string|Date} val 生日字串或 Date 物件
+         * @param {string} fallback 預設替代文字 (預設為 '')
+         * @returns {string}
+         */
+        toAgeDisplay: function (val, fallback = '') {
+            const age = this.calculateAge(val);
+            return (age !== null) ? `${age} 歲` : fallback;
         }
     };
 })();

@@ -924,31 +924,7 @@ function renderCardsView(list) {
             ? `<span class="text-white">${mentorName}</span>` 
             : `<span class="text-muted">（無特定指派）</span>`;
 
-        let ageStr = '';
-        const bDayParts = AppDate.parse(person.birthday);
-        if (bDayParts && bDayParts.year) {
-            const birthY = parseInt(bDayParts.year, 10);
-            const now = new Date();
-            let calcAge = now.getFullYear() - birthY;
-
-            if (bDayParts.precision === 'D' && bDayParts.month && bDayParts.day) {
-                const birthM = parseInt(bDayParts.month, 10);
-                const birthD = parseInt(bDayParts.day, 10);
-                const nowM = now.getMonth() + 1;
-                const nowD = now.getDate();
-                if (nowM < birthM || (nowM === birthM && nowD < birthD)) {
-                    calcAge--;
-                }
-            } else if (bDayParts.precision === 'M' && bDayParts.month) {
-                if ((now.getMonth() + 1) < parseInt(bDayParts.month, 10)) {
-                    calcAge--;
-                }
-            }
-
-            if (calcAge >= 0) {
-                ageStr = `${calcAge} 歲`;
-            }
-        }
+        const ageStr = AppDate.toAgeDisplay(person.birthday, '');
 
         const genderDisplay = (person.gender && person.gender !== '未填') 
             ? person.gender 
@@ -1043,70 +1019,89 @@ function renderCardsView(list) {
     });
 }
 
-function renderDataTableView(list) {
-    if (dataTableInstance) {
-        dataTableInstance.destroy();
-        $('#partners-table-body').empty();
-    }
+/**
+ * 格式化單一夥伴資料列物件
+ */
+function formatPartnerTableRow(p) {
+    const person = getPersonMaster(p.person_id);
+    const gender = person.gender || '男';
+    const avatarUrl = p.avatar_url || person.avatar_url || getDefaultAvatar(gender);
+    const currentRank = getRankInfo(p.current_rank_id);
+    const highestRank = getRankInfo(p.highest_rank_id);
+    const mentorName = getPartnerDisplayName(p.known_mentor_id);
+    const dispName = getPartnerDisplayName(p);
+    const spouseId = p.spouse_partner_id || p.official_account_partner_id;
+    const coOpPartner = (spouseId && typeof partnersList !== 'undefined')
+        ? partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId)
+        : null;
+    const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
+    const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
+    const memberNoHtml = UIBadges.partner.memberNo(p.member_no);
 
-    list.forEach(p => {
-        const person = getPersonMaster(p.person_id);
-        const gender = person.gender || '男';
-        const avatarUrl = p.avatar_url || person.avatar_url || getDefaultAvatar(gender);
-        const currentRank = getRankInfo(p.current_rank_id);
-        const highestRank = getRankInfo(p.highest_rank_id);
-        const mentorName = getPartnerDisplayName(p.known_mentor_id);
-        const dispName = getPartnerDisplayName(p);
-        const spouseId = p.spouse_partner_id || p.official_account_partner_id;
-        const coOpPartner = (spouseId && typeof partnersList !== 'undefined')
-            ? partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId)
-            : null;
-        const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
-        const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
-        const memberNoHtml = UIBadges.partner.memberNo(p.member_no);
-
-        const rowHtml = `
-            <tr>
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <img src="${avatarUrl}" class="rounded-circle border border-primary border-opacity-50 flex-shrink-0" width="32" height="32" onerror="this.src='${getDefaultAvatar(gender)}'">
-                        <div class="overflow-hidden">
-                            <div class="fw-bold text-white text-truncate">${dispName}</div>
-                            <div class="d-flex align-items-center gap-1">
-                                ${memberNoHtml}
-                                ${opBadgeHtml}
-                            </div>
-                        </div>
+    return {
+        member: `
+            <div class="d-flex align-items-center gap-2">
+                <img src="${avatarUrl}" class="rounded-circle border border-primary border-opacity-50 flex-shrink-0" width="32" height="32" onerror="this.src='${getDefaultAvatar(gender)}'">
+                <div class="overflow-hidden">
+                    <div class="fw-bold text-white text-truncate">${dispName}</div>
+                    <div class="d-flex align-items-center gap-1">
+                        ${memberNoHtml}
+                        ${opBadgeHtml}
                     </div>
-                </td>
-                <td class="text-center">${UIBadges.common.country(p.country_code)}</td>
-                <td>${UIBadges.rank.badge(currentRank)}</td>
-                <td>${UIBadges.rank.badge(highestRank)}</td>
-                <td><span class="text-white">${mentorName || '-'}</span></td>
-                <td><span class="text-light">${person.current_residence || '-'}</span></td>
-                <td><span class="text-light">${person.highest_education || '-'}</span></td>
-                <td><span class="text-light">${person.occupation_background || '-'}</span></td>
-                <td class="text-center">${UIBadges.person.healthStatus(person.health_status)}</td>
-                <td class="text-center">${UIBadges.person.financialStatus(person.financial_status)}</td>
-                <td class="text-center">${UIBadges.partner.relation(p.relation_type, p.partner_id)}</td>
-                <td class="text-center">${UIBadges.partner.activityLevel(p.activity_level)}</td>
-                <td class="text-center">${UIBadges.partner.memberStatus(p.member_status)}</td>
-                <td class="text-end">
-                    <button class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${p.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="openPartnerModalForEdit('${p.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="deletePartnerRecord('${p.partner_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
-                </td>
-            </tr>
-        `;
-        $('#partners-table-body').append(rowHtml);
-    });
+                </div>
+            </div>
+        `,
+        country: UIBadges.common.country(p.country_code),
+        current_rank: UIBadges.rank.badge(currentRank),
+        highest_rank: UIBadges.rank.badge(highestRank),
+        mentor: `<span class="text-white">${mentorName || '-'}</span>`,
+        residence: `<span class="text-light">${person.current_residence || '-'}</span>`,
+        education: `<span class="text-light">${person.highest_education || '-'}</span>`,
+        occupation: `<span class="text-light">${person.occupation_background || '-'}</span>`,
+        health: UIBadges.person.healthStatus(person.health_status),
+        financial: UIBadges.person.financialStatus(person.financial_status),
+        relation: UIBadges.partner.relation(p.relation_type, p.partner_id),
+        activity: UIBadges.partner.activityLevel(p.activity_level),
+        member_status: UIBadges.partner.memberStatus(p.member_status),
+        actions: `
+            <div class="d-flex align-items-center justify-content-end gap-1">
+                <button class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPartnerModalForView('${p.partner_id}')" title="查看"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="openPartnerModalForEdit('${p.partner_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="deletePartnerRecord('${p.partner_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+        `
+    };
+}
 
-    dataTableInstance = $('#partners-datatable').DataTable({
-        columnDefs: [
-            { targets: [1, 2, 3, 8, 9, 10, 11, 12, 13], className: 'text-center' },
-            { targets: [13], orderable: false }
-        ]
-    });
+/**
+ * 渲染夥伴清冊 DataTable (物件模式)
+ */
+function renderDataTableView(list) {
+    const formatted = list.map(p => formatPartnerTableRow(p));
+
+    if (dataTableInstance) {
+        dataTableInstance.clear().rows.add(formatted).draw();
+    } else {
+        dataTableInstance = $('#partners-datatable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'member' },
+                { data: 'country', className: 'text-center' },
+                { data: 'current_rank', className: 'text-center' },
+                { data: 'highest_rank', className: 'text-center' },
+                { data: 'mentor' },
+                { data: 'residence' },
+                { data: 'education' },
+                { data: 'occupation' },
+                { data: 'health', className: 'text-center' },
+                { data: 'financial', className: 'text-center' },
+                { data: 'relation', className: 'text-center' },
+                { data: 'activity', className: 'text-center' },
+                { data: 'member_status', className: 'text-center' },
+                { data: 'actions', className: 'text-end', orderable: false }
+            ]
+        });
+    }
 
     setTimeout(() => {
         if (dataTableInstance) {
@@ -1175,12 +1170,12 @@ function populateTreeRootDropdown() {
     });
 }
 
-window.zoomOrgChart = function (delta) {
+function zoomOrgChart(delta) {
     orgChartZoom = Math.min(Math.max(0.4, orgChartZoom + delta), 1.8);
     applyOrgChartZoom();
 };
 
-window.resetOrgChartZoom = function () {
+function resetOrgChartZoom() {
     orgChartZoom = 1.0;
     applyOrgChartZoom();
 };
@@ -1190,7 +1185,7 @@ function applyOrgChartZoom() {
     $('#org-zoom-level-text').text(`${Math.round(orgChartZoom * 100)}%`);
 }
 
-window.downloadOrgChartPng = async function () {
+async function downloadOrgChartPng() {
     const targetEl = document.getElementById('org-chart-container');
     if (!targetEl) return;
 
@@ -1474,7 +1469,7 @@ const getPieTooltipOptions = () => ({
     }
 });
 
-window.changeLanguageAnalysis = function (selectedLang) {
+function changeLanguageAnalysis(selectedLang) {
     const dataset = getFilteredPartners();
     renderLanguageSectionCharts(selectedLang, dataset);
 };
@@ -1637,40 +1632,21 @@ function renderChartsView(filteredDataset = null) {
 
     dataset.forEach(p => {
         const person = getPersonMaster(p.person_id);
-        const bDayParts = AppDate.parse(person.birthday);
+        // 直接調用 AppDate 實歲計算
+        const age = AppDate.calculateAge(person.birthday);
 
-        if (bDayParts && bDayParts.year) {
-            const birthY = parseInt(bDayParts.year, 10);
-            if (!isNaN(birthY) && birthY > 1900 && birthY <= curYear) {
-                let age = curYear - birthY;
-
-                // 日精度比對（YYYY/MM/DD）：精準判斷生日是否已過
-                if (bDayParts.precision === 'D' && bDayParts.month && bDayParts.day) {
-                    const birthM = parseInt(bDayParts.month, 10);
-                    const birthD = parseInt(bDayParts.day, 10);
-                    if (curMonth < birthM || (curMonth === birthM && curDay < birthD)) {
-                        age--;
-                    }
-                // 月精度比對（YYYY/MM）：以月份先後判斷
-                } else if (bDayParts.precision === 'M' && bDayParts.month) {
-                    if (curMonth < parseInt(bDayParts.month, 10)) {
-                        age--;
-                    }
-                }
-
-                if (age >= 0) {
-                    if (age <= 17) ageCounts['17歲以下']++;
-                    else if (age <= 29) ageCounts['18-29歲']++;
-                    else if (age <= 39) ageCounts['30-39歲']++;
-                    else if (age <= 49) ageCounts['40-49歲']++;
-                    else if (age <= 59) ageCounts['50-59歲']++;
-                    else if (age <= 69) ageCounts['60-69歲']++;
-                    else if (age <= 79) ageCounts['70-79歲']++;
-                    else ageCounts['80歲以上']++;
-                }
-            }
+        if (age !== null) {
+            if (age <= 17) ageCounts['17歲以下']++;
+            else if (age <= 29) ageCounts['18-29歲']++;
+            else if (age <= 39) ageCounts['30-39歲']++;
+            else if (age <= 49) ageCounts['40-49歲']++;
+            else if (age <= 59) ageCounts['50-59歲']++;
+            else if (age <= 69) ageCounts['60-69歲']++;
+            else if (age <= 79) ageCounts['70-79歲']++;
+            else ageCounts['80歲以上']++;
         }
     });
+
     const ctxAge = document.getElementById('chart-age-distribution');
     if (ctxAge) {
         chartInstances.age = new Chart(ctxAge, {
@@ -2104,7 +2080,7 @@ function renderChartsView(filteredDataset = null) {
 // ============================================================================
 // 12. 彈窗與動態子表控制 (Modal Controllers)
 // ============================================================================
-window.addContactTableRow = function (contact = {}) {
+function addContactTableRow(contact = {}) {
     const $tbody = $('#form-contacts-dynamic-tbody');
     const categories = ['ID', '顯示名稱', '連結'];
     const currentPlatform = contact.platform_name || 'LINE';
@@ -2152,7 +2128,7 @@ window.addContactTableRow = function (contact = {}) {
     });
 };
 
-window.addLanguageTableRow = function (lang = {}) {
+function addLanguageTableRow(lang = {}) {
     const $tbody = $('#form-languages-dynamic-tbody');
     const currentLang = lang.language_name || '中文';
     const levels = ['精通', '流利', '普通', '略懂', '不會'];
@@ -2196,7 +2172,7 @@ window.addLanguageTableRow = function (lang = {}) {
     });
 };
 
-window.openPartnerModalForCreate = function () {
+function openPartnerModalForCreate() {
     populateSelect2Options();
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
@@ -2246,8 +2222,7 @@ window.openPartnerModalForCreate = function () {
     bootstrap.Modal.getOrCreateInstance(document.getElementById('partnerDetailModal')).show();
 };
 
-// 在 org-partners.js 的 openPartnerModalForEdit 函式中替換對應的日期賦值段落
-window.openPartnerModalForEdit = function (partnerId) {
+function openPartnerModalForEdit(partnerId) {
     const partner = partnersList.find(p => p.partner_id === partnerId);
     if (!partner) return;
     const person = getPersonMaster(partner.person_id);
@@ -2368,7 +2343,7 @@ window.openPartnerModalForEdit = function (partnerId) {
     bootstrap.Modal.getOrCreateInstance(document.getElementById('partnerDetailModal')).show();
 };
 
-window.openPartnerModalForView = function (partnerId) {
+function openPartnerModalForView(partnerId) {
     const partner = partnersList.find(p => p.partner_id === partnerId);
     if (!partner) {
         AppToast.warning(`找不到夥伴資料：${partnerId}`);
@@ -2410,45 +2385,11 @@ window.openPartnerModalForView = function (partnerId) {
     $('#view-person-id').html(formatEmpty(person.person_id));
     $('#view-identity-usage').html(`${formatEmpty(person.identity_type, '夥伴')} / ${formatEmpty(person.usage_identity, '消費者')}`);
 
-    let ageStr = '';
     const birthdayDisplay = AppDate.toDisplay(person.birthday, '');
+    const age = AppDate.calculateAge(person.birthday);
+    const ageStr = (age !== null) ? ` (${age} 歲)` : '';
 
-    if (birthdayDisplay && birthdayDisplay !== '-') {
-        const p = AppDate.parse(person.birthday);
-        if (p && p.year) {
-            const birthYear = parseInt(p.year, 10);
-            const today = new Date();
-            const curYear = today.getFullYear();
-            const curMonth = today.getMonth() + 1;
-            const curDay = today.getDate();
-
-            // 1. 初步年份差值
-            let exactAge = curYear - birthYear;
-
-            // 2. 精度至 YYYY/MM/DD：精確比對「今年生日是否已過」
-            if (p.precision === 'D' && p.month && p.day) {
-                const birthMonth = parseInt(p.month, 10);
-                const birthDay = parseInt(p.day, 10);
-                // 若當前月份小於生日月份，或同月份但日期尚未到達，則實歲減 1
-                if (curMonth < birthMonth || (curMonth === birthMonth && curDay < birthDay)) {
-                    exactAge--;
-                }
-            } else if (p.precision === 'M' && p.month) {
-                // 若僅有年月精度 (YYYY/MM)，以月份為準
-                const birthMonth = parseInt(p.month, 10);
-                if (curMonth < birthMonth) {
-                    exactAge--;
-                }
-            }
-
-            // 排除未來出生之異常資料，合理數值才顯示年齡
-            if (exactAge >= 0) {
-                ageStr = ` (${exactAge} 歲)`;
-            }
-        }
-    }
-
-    const bDayText = birthdayDisplay !== '未填生日' ? `${birthdayDisplay}${ageStr}` : '未填生日';
+    const bDayText = birthdayDisplay && birthdayDisplay !== '-' ? `${birthdayDisplay}${ageStr}` : '未填生日';
     $('#view-gender-birthday-age').html(`${formatEmpty(gender)} ‧ ${formatEmpty(bDayText)}`);
     $('#view-nationality-ethnicity').html(`${formatEmpty(person.nationality, '中華民國')} ‧ ${formatEmpty(person.ethnicity, '華人')}`);
     $('#view-marital-status').html(formatEmpty(person.marital_status, '未填寫'));

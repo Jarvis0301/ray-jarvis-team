@@ -278,15 +278,15 @@ function renderGridCards(list) {
 }
 
 function renderWarehouseDataTable(list) {
-    const formattedData = list.map(w => formatTableRow(w));
+    const formatted = list.map(w => formatTableRow(w));
 
     if (warehouseDataTableInstance) {
         warehouseDataTableInstance.clear();
-        warehouseDataTableInstance.rows.add(formattedData);
+        warehouseDataTableInstance.rows.add(formatted);
         warehouseDataTableInstance.draw();
     } else {
         warehouseDataTableInstance = $('#warehouse-datatable').DataTable({
-            data: formattedData,
+            data: formatted,
             order: [[1, "asc"]],
             pageLength: -1,
             columns: [

@@ -58,3 +58,32 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
 
     return (parsed.data || []).slice(1);
 }
+
+/**
+ * 全域手動同步雲端試算表通用觸發器（相容所有模組讀取函式與防連點保護）
+ */
+window.manualSyncSheetsData = async function (btnElement) {
+    const $btn = btnElement ? $(btnElement) : $('.btn-manual-sync');
+    const originalHtml = $btn.html();
+
+    try {
+        // 按鈕鎖定並呈現旋轉動畫
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin me-1"></i> 同步中...');
+
+        // 自動適配不同程式的讀取函式名稱
+        if (typeof fetchGoogleSheetsData === 'function') {
+            await fetchGoogleSheetsData();
+        } else if (typeof fetchAllGoogleSheetsData === 'function') {
+            await fetchAllGoogleSheetsData();
+        } else {
+            throw new Error('此頁面未定義試算表讀取函式');
+        }
+    } catch (err) {
+        console.error('手動同步失敗:', err);
+    } finally {
+        // 延遲 1 秒後解鎖按鈕，避免短時間內頻繁狂點
+        setTimeout(() => {
+            $btn.prop('disabled', false).html(originalHtml);
+        }, 1000);
+    }
+};

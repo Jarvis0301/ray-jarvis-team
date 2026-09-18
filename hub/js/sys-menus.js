@@ -306,15 +306,15 @@ function populateParentSelect() {
 
 function renderMenuDataTable() {
     const currentList = appState.menus.filter(m => m.app_track === appState.currentPortal);
-    const formattedData = currentList.map(m => formatTableRow(m));
+    const formatted = currentList.map(m => formatTableRow(m));
 
     if (menuDataTableInstance) {
         menuDataTableInstance.clear();
-        menuDataTableInstance.rows.add(formattedData);
+        menuDataTableInstance.rows.add(formatted);
         menuDataTableInstance.draw();
     } else {
         menuDataTableInstance = $('#menuDataTable').DataTable({
-            data: formattedData,
+            data: formatted,
             columns: [
                 { data: 'menu_id' },
                 { data: 'names' },
