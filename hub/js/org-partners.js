@@ -2631,9 +2631,9 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         ];
 
         if (existingSelf) {
-            await SheetAdapter.updateRow('組織關係', targetId, selfRelationRow, GAS_DEPLOY_ID_ORG, silentOpt);
+            await SheetAdapter.updateRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
         } else {
-            await SheetAdapter.createRow('組織關係', targetId, selfRelationRow, GAS_DEPLOY_ID_ORG, silentOpt);
+            await SheetAdapter.createRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
         }
         return;
     }
