@@ -1502,7 +1502,6 @@ function openEditModal(productCode) {
     new bootstrap.Modal(document.getElementById('modalProductFullEdit')).show();
 }
 
-// 【prd-basic.js - saveProductItem 驗證與 RowArray 組裝】
 async function saveProductItem() {
     const form = document.getElementById('formFullProduct');
     const mode = $(form).data('mode') || 'add';

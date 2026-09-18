@@ -1005,16 +1005,16 @@ async function deleteStockItem(stockId) {
         title: '刪除庫存批號確認',
         confirmText: '確定刪除',
         confirmClass: 'btn-danger'
-    }); //[cite: 10, 11]
+    });
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow(SHEET_STOCKS, stockId, GAS_DEPLOY_ID); //[cite: 7, 11]
+        await SheetAdapter.deleteRow(SHEET_STOCKS, stockId, GAS_DEPLOY_ID);
         appState.stocks = appState.stocks.filter(item => item.id !== stockId);
 
         await fetchGoogleSheetsData();
-        AppToast.success(`批號【${stockId}】已自雲端試算表刪除！`); //[cite: 10]
+        AppToast.success(`批號【${stockId}】已自雲端試算表刪除！`);
     } catch (err) {
-        AppToast.error("刪除失敗: " + err.message); //[cite: 10]
+        AppToast.error("刪除失敗: " + err.message);
     }
 }
