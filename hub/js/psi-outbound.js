@@ -56,18 +56,18 @@ let deletedOutboundItemIds = [];
 // ==========================================================================
 // 2. 欄位物理索引取值器與身分判定 (0-Based 絕對物理順序)
 // ==========================================================================
-// 正裝/整件計量單位動態判定引擎
+// 原裝/整件計量單位動態判定引擎
 function isMasterPackUnit(salesUnit, productId, officialProductCode) {
     if (!salesUnit) return false;
     const targetCode = productId || officialProductCode;
     const prod = appState.products.find(p => p.product_code === targetCode || p.official_product_code === targetCode);
     
-    // 優先依據產品主檔定義的官方正裝標準計量單位 (base_unit) 進行精確比對
+    // 優先依據產品主檔定義的官方原裝標準計量單位 (base_unit) 進行精確比對
     if (prod && prod.base_unit) {
         return salesUnit.trim() === prod.base_unit.trim();
     }
     
-    // 兼容性防呆回退：若產品主檔尚未定義，依全系統常見正裝標準單位清單判定
+    // 兼容性防呆回退：若產品主檔尚未定義，依全系統常見原裝標準單位清單判定
     return ['盒', '箱', '組', '罐', '袋', '套', '包'].includes(salesUnit.trim());
 }
 
@@ -1089,7 +1089,7 @@ function initEvents() {
         }
     });
 
-    // 明細抽屜：正裝 / 散裝切換監聽
+    // 明細抽屜：原裝 / 散裝切換監聽
     $('input[name="inlinePackMode"]').on('change', function () {
         onInlineProductSelectChange();
     });
@@ -1503,7 +1503,7 @@ function updateStockWarningFeedback() {
         return;
     }
 
-    // ★ 自產品主檔精準讀取對應的正裝與散裝單位
+    // ★ 自產品主檔精準讀取對應的原裝與散裝單位
     const prod = appState.products.find(p => p.product_code === code || p.official_product_code === code);
     const baseUnit = prod ? (prod.base_unit || '盒') : ($opt.data('base-unit') || '盒');
     const subUnit = prod ? (prod.sub_unit || '件') : ($opt.data('sub-unit') || '件');
@@ -1539,7 +1539,7 @@ function calcInlineSubtotals() {
 }
 
 /**
- * 品項選定或正裝/散裝切換時之資料自動帶入
+ * 品項選定或原裝/散裝切換時之資料自動帶入
  */
 function onInlineProductSelectChange() {
     const code = $('#inlineProductSelect').val();

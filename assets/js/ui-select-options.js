@@ -622,12 +622,12 @@ const UISelectOptions = (function () {
         },
 
         /**
-         * 官方正裝標準計量單位 (base_unit)
+         * 官方原裝標準計量單位 (base_unit)
          */
         populateBaseUnit({
             target,
             products = [],
-            placeholder = '-- 請選擇或輸入正裝單位 --',
+            placeholder = '-- 請選擇或輸入原裝單位 --',
             selectedValue = '盒',
             dropdownParent = null,
             onChange = null
@@ -702,7 +702,7 @@ const UISelectOptions = (function () {
             products = [],
             adjustments = [],
             product = null,
-            packMode = 'BOX', // 'BOX' (正裝) | 'PIECE' (散裝)
+            packMode = 'BOX', // 'BOX' (原裝) | 'PIECE' (散裝)
             selectedValue = '',
             dropdownParent = null,
             onChange = null

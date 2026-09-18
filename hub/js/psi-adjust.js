@@ -1244,7 +1244,7 @@ function renderCharts() {
 // 6. 工作台交互運算與 C/R/U/D 實體回寫引擎
 // ==========================================================================
 function initEvents() {
-    // 1. 正裝 / 散裝單選按鈕切換監聽
+    // 1. 原裝 / 散裝單選按鈕切換監聽
     $('input[name="modalPackMode"]').on('change', function () {
         const selectedMode = $(this).val();
         const adjType = $('#fieldAdjType').val();
@@ -1274,12 +1274,12 @@ function initEvents() {
         updateAdjustStockFeedback();
     });
 
-    // 2. 現場盤點視窗：正裝 / 散裝切換監聽
+    // 2. 現場盤點視窗：原裝 / 散裝切換監聽
     $('input[name="auditPackMode"]').on('change', function () {
         loadProductStockForAudit();
     });
 
-    // 3. 跨倉調撥視窗：正裝 / 散裝切換監聽
+    // 3. 跨倉調撥視窗：原裝 / 散裝切換監聽
     $('input[name="trPackMode"]').on('change', function () {
         loadProductStockForTransfer();
     });
@@ -1413,7 +1413,7 @@ function loadProductStockForAudit() {
     const officialCode = prod ? prod.product_code : prodCode;
     const currency = (prod && (prod.region_code === 'MY' || String(prod.product_code).startsWith('MY'))) ? 'MYR' : 'TWD';
 
-    // 匹配在線庫存（正裝取 quantity，散裝取 pieces_qty）
+    // 匹配在線庫存（原裝取 quantity，散裝取 pieces_qty）
     const matchedStock = appState.stocks
         .filter(s => s.product_id === prodCode && s.warehouse_id === currentWh && s.available_qty > 0)
         .sort((a, b) => (a.expiry_date || '9999').localeCompare(b.expiry_date || '9999'))[0]
@@ -1453,7 +1453,7 @@ function updateTransferStockFeedback() {
     const $feedback = $('#trStockFeedback').empty();
     if (!prodCode || !fromWh) return;
 
-    // ★ 自產品主檔獲取標準正裝單位
+    // ★ 自產品主檔獲取標準原裝單位
     const prod = appState.products.find(p => p.product_code === prodCode || p.official_product_code === prodCode);
     const baseUnit = prod ? (prod.base_unit || '盒') : '盒';
 
@@ -1929,10 +1929,10 @@ function handleModalAdjTypeChange() {
     if (type === '拆盒解封') {
         if ($packPiece.is(':checked')) {
             $packBox.prop('checked', true);
-            AppToast.info("「拆盒解封」係將密封整裝拆解為散件，已自動為您切換為「官方正裝」！");
+            AppToast.info("「拆盒解封」係將密封整裝拆解為散件，已自動為您切換為「官方原裝」！");
         }
         $packPiece.prop('disabled', true);
-        $lblPiece.addClass('opacity-50 text-muted disabled').attr('title', '拆盒解封對象必須為密封正裝，禁止選擇散裝');
+        $lblPiece.addClass('opacity-50 text-muted disabled').attr('title', '拆盒解封對象必須為密封原裝，禁止選擇散裝');
     } else {
         $packPiece.prop('disabled', false);
         $lblPiece.removeClass('opacity-50 text-muted disabled').removeAttr('title');
@@ -1977,7 +1977,7 @@ function handleModalProductChange() {
     const prod = appState.products.find(p => p.product_code === prodId || p.official_product_code === prodId);
     if (!prod) return;
 
-    // 依據正裝 / 散裝切換按鈕，決定受控單位
+    // 依據原裝 / 散裝切換按鈕，決定受控單位
     const packMode = $('input[name="modalPackMode"]:checked').val() || 'BOX';
     const targetUnit = (packMode === 'PIECE') ? (prod.sub_unit || '支') : (prod.base_unit || '盒');
 
@@ -2060,7 +2060,7 @@ function openAddAdjustmentModal() {
     $('#fieldAdjType').val('自用消耗');
     updateQuantitySignUI('自用消耗');
 
-    // ★ 3. 預設正裝模式
+    // ★ 3. 預設原裝模式
     $('#modalPackModeBox').prop('checked', true);
 
     // ★ 4. 預設操作人為當前登入之領導人

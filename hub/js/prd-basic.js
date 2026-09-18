@@ -141,7 +141,7 @@ function parseItemsTable(rows) {
         package_spec: getVal(r, 9, ''),
         piece_spec: getVal(r, 10, ''),             // Index 10: 最小受控單位規格
         product_weight: parseInt(getVal(r, 11, '0'), 10) || 0, // Index 11: 產品重量(g)
-        base_unit: getVal(r, 12, '盒'),             // Index 12: 官方正裝標準計量單位
+        base_unit: getVal(r, 12, '盒'),             // Index 12: 官方原裝標準計量單位
         sub_unit: getVal(r, 13, ''),               // Index 13: 散裝出貨最小受控單位
         pieces_per_box: parseInt(getVal(r, 14, '1'), 10) || 1, // Index 14: 單盒(箱)散件總量 N
         allow_decant: getVal(r, 15, 'Y').toUpperCase() === 'N' ? 'N' : 'Y', // Index 15: 是否開放拆盒散賣
@@ -580,10 +580,10 @@ function openDetailModal(productCode) {
     if (item.allow_decant === 'Y') {
         const decantText = (item.sub_unit && item.pieces_per_box > 1)
             ? `可拆賣 (1 ${item.base_unit || '盒'} = ${item.pieces_per_box} ${item.sub_unit})`
-            : `可拆賣 (正裝單位: ${item.base_unit || '盒'})`;
+            : `可拆賣 (原裝單位: ${item.base_unit || '盒'})`;
         $('#viewPrdDecantRule').html(`<span class="badge badge-success-subtle"><i class="fa-solid fa-check me-1"></i>${decantText}</span>`);
     } else {
-        $('#viewPrdDecantRule').html(`<span class="badge badge-secondary-subtle"><i class="fa-solid fa-lock me-1"></i>僅限正裝 (${item.base_unit || '盒'})</span>`);
+        $('#viewPrdDecantRule').html(`<span class="badge badge-secondary-subtle"><i class="fa-solid fa-lock me-1"></i>僅限原裝 (${item.base_unit || '盒'})</span>`);
     }
 
     $('#viewPrdPrice').text(priceText);
@@ -1530,7 +1530,7 @@ async function saveProductItem() {
     if (!typeCode) return warnMasterField("請選擇「產品型態」！", form.elements['type_code']);
     if (!name) return warnMasterField("請輸入「官方完整品名」！", form.elements['name']);
     if (!subcategoryCode) return warnMasterField("請選擇「次系列歸屬」！", form.elements['subcategory_code']);
-    if (!baseUnit) return warnMasterField("請設定「官方正裝標準計量單位」！", form.elements['base_unit']);
+    if (!baseUnit) return warnMasterField("請設定「官方原裝標準計量單位」！", form.elements['base_unit']);
     if (price === '') return warnMasterField("請輸入「售價」！", form.elements['price']);
     if (svPoint === '') return warnMasterField("請輸入「全球統一 SV」！", form.elements['sv_point']);
 
@@ -1575,7 +1575,7 @@ async function saveProductItem() {
         form.elements['package_spec'].value.trim(),                 // 9: package_spec
         form.elements['piece_spec'] ? form.elements['piece_spec'].value.trim() : '', // 10: piece_spec (最小受控單位規格)
         parseInt(form.elements['product_weight'] ? form.elements['product_weight'].value : '0', 10) || 0, // 11: product_weight (g)
-        baseUnit,                                                   // 12: base_unit (官方正裝計量單位)
+        baseUnit,                                                   // 12: base_unit (官方原裝計量單位)
         subUnit,                                                    // 13: sub_unit (散裝出貨最小單位)
         piecesPerBox,                                               // 14: pieces_per_box (單盒散件數 N)
         allowDecant,                                                // 15: allow_decant (是否開放拆盒散賣 Y/N)
