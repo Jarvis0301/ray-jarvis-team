@@ -3081,11 +3081,8 @@ async function savePartnerRecord(e) {
         AppLoading.hide();
         bootstrap.Modal.getInstance(document.getElementById('partnerDetailModal'))?.hide();
         const savedDisplayName = nameZh || nameEn || preferredName || getFormTrimVal('#form-display-name') || partnerId;
-        AppToast.success(`成員【${savedDisplayName}】檔案與配偶連動狀態已成功儲存！`);
-        
         renderAllViews();
-        fetchGoogleSheetsData();
-
+        AppToast.success(`成員【${savedDisplayName}】檔案與配偶連動狀態已成功儲存！`);
     } catch (err) {
         console.error('寫入試算表失敗:', err);
         AppLoading.hide();
@@ -3095,7 +3092,7 @@ async function savePartnerRecord(e) {
     }
 }
 
-window.deletePartnerRecord = function (partnerId) {
+async function deletePartnerRecord(partnerId) {
     const partner = partnersList.find(p => p.partner_id === partnerId);
     if (!partner) return;
     const personId = partner.person_id;
@@ -3147,8 +3144,18 @@ window.deletePartnerRecord = function (partnerId) {
 
                 await Promise.all(deletePromises);
 
+                // 本地記憶體主動清理
+                partnersList = partnersList.filter(p => p.partner_id !== partnerId);
+                if (personId) {
+                    personMasterList = personMasterList.filter(p => p.person_id !== personId);
+                    personContactsList = personContactsList.filter(c => c.person_id !== personId);
+                    personLanguagesList = personLanguagesList.filter(l => l.person_id !== personId);
+                }
+                orgRelationsList = orgRelationsList.filter(r => r.ancestor_id !== partnerId && r.descendant_id !== partnerId);
+
+                // 移除 await fetchGoogleSheetsData(); 改直接重繪
+                renderAllViews();
                 AppToast.success(`成員【${dispName}】已全數移除，配偶經營權益已自動回復完成！`);
-                await fetchGoogleSheetsData();
             } catch (err) {
                 console.error('刪除成員失敗:', err);
                 AppToast.error('刪除成員失敗: ' + err.message);

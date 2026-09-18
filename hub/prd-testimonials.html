@@ -217,7 +217,7 @@
                     <div>
                         <div class="d-flex align-items-center gap-2">
                             <h1 class="h3 fw-bold mb-0">見證管理中台</h1>
-                            <span class="badge badge-purple"><i class="fa-solid fa-shield-halved me-1"></i>100% 合規防護</span>
+                            <span class="badge badge-purple"><i class="fa-solid fa-shield-halved me-1"></i>100% 合格防護</span>
                             <span class="badge bg-dark border border-secondary text-muted">H14000</span>
                         </div>
                         <p class="text-muted small mb-0 mt-1">整合表 08（主檔）、表 09（產品關聯）與表 10（圖片），驅動社群轉發與食安法規自動避險</p>
@@ -258,7 +258,7 @@
                         <i class="fa-solid fa-circle-check text-success fs-5"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">已通過合規審核</div>
+                        <div class="text-muted small">已通過合格審核</div>
                         <div class="h4 fw-bold mb-0 text-success" id="kpi-approved-count">0</div>
                     </div>
                 </div>
@@ -311,8 +311,8 @@
                         </div>
                         <div class="col-12 col-sm-4 col-md-3">
                             <select class="form-select form-select-sm bg-dark border-secondary text-white" id="filter-compliance">
-                                <option value="">全部合規狀態</option>
-                                <option value="APPROVED">合規已核准 (Approved)</option>
+                                <option value="">全部合格狀態</option>
+                                <option value="APPROVED">合格已核准 (Approved)</option>
                                 <option value="PENDING">待審核 (Pending)</option>
                                 <option value="REJECTED">需修改/含禁忌詞</option>
                             </select>
@@ -370,7 +370,7 @@
                                     <th width="12%">改善前困擾</th>
                                     <th width="8%">食用週數</th>
                                     <th width="8%">滿意評分</th>
-                                    <th width="10%">合規狀態</th>
+                                    <th width="10%">合格狀態</th>
                                     <th width="8%">精選/公開</th>
                                     <th width="12%" class="text-end">操作</th>
                                 </tr>
@@ -390,7 +390,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content uvaco-card border-secondary">
                 <div class="modal-header border-bottom border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯見證案例與合規審核</h5>
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯見證案例與合格審核</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -507,7 +507,7 @@
         <div class="modal-dialog modal-md modal-dialog-centered">
             <div class="modal-content uvaco-card border-secondary">
                 <div class="modal-header border-bottom border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-scale-balanced text-primary me-1"></i>葡眾保健品文案合規避險詞典</h5>
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-scale-balanced text-primary me-1"></i>葡眾保健品文案合格避險詞典</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -517,7 +517,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-danger">違規禁忌詞 (嚴格禁止)</th>
-                                    <th class="text-success">推薦合規代換詞 (安全過審)</th>
+                                    <th class="text-success">推薦合格代換詞 (安全過審)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -564,7 +564,7 @@
         /**
          * ==========================================================================
          * 見證管理中台控制器 (Testimonials Workspace Controller)
-         * 100% 解耦 Google 試算表欄位名稱與食安法規合規檢查邏輯
+         * 100% 解耦 Google 試算表欄位名稱與食安法規合格檢查邏輯
          * ==========================================================================
          */
         const TestimonialApp = (function ($) {
@@ -688,10 +688,10 @@
                             : '<i class="fa-regular fa-star text-muted"></i>';
                     }
 
-                    // 合規狀態標章
+                    // 合格狀態標章
                     let complianceBadge = '';
                     if (item.compliance_status === 'APPROVED') {
-                        complianceBadge = '<span class="badge badge-verified"><i class="fa-solid fa-check me-1"></i>合規通過</span>';
+                        complianceBadge = '<span class="badge badge-verified"><i class="fa-solid fa-check me-1"></i>合格通過</span>';
                     } else if (item.compliance_status === 'REJECTED') {
                         complianceBadge = '<span class="badge badge-danger-custom"><i class="fa-solid fa-triangle-exclamation me-1"></i>含違規詞</span>';
                     } else {
@@ -803,7 +803,7 @@
                         {
                             data: 'compliance_status',
                             render: function (status) {
-                                if (status === 'APPROVED') return '<span class="badge badge-verified">合規核准</span>';
+                                if (status === 'APPROVED') return '<span class="badge badge-verified">合格核准</span>';
                                 if (status === 'REJECTED') return '<span class="badge badge-danger-custom">有違規詞</span>';
                                 return '<span class="badge badge-warning-custom">待審核</span>';
                             }
@@ -872,7 +872,7 @@
                 $('#edit-is-featured').prop('checked', item.is_featured);
                 $('#edit-is-public').prop('checked', item.is_public);
 
-                // 即時觸發合規掃描
+                // 即時觸發合格掃描
                 triggerComplianceCheck(item.content);
 
                 const modal = new bootstrap.Modal(document.getElementById('modalTestimonialEdit'));
@@ -880,7 +880,7 @@
             }
 
             /**
-             * 即時合規檢測邏輯
+             * 即時合格檢測邏輯
              */
             function triggerComplianceCheck(text) {
                 const result = scanCompliance(text);
@@ -906,7 +906,7 @@
              * 綁定事件監聽
              */
             function bindEvents() {
-                // 文字即時輸入檢測合規
+                // 文字即時輸入檢測合格
                 $('#edit-content-text').on('input', function () {
                     triggerComplianceCheck($(this).val());
                 });
@@ -940,7 +940,7 @@
                     const copyText = document.getElementById('txt-share-payload');
                     copyText.select();
                     navigator.clipboard.writeText(copyText.value);
-                    alert('已成功複製合規分享文案至剪貼簿！');
+                    alert('已成功複製合格分享文案至剪貼簿！');
                 });
 
                 // 儲存表單
@@ -948,7 +948,7 @@
                     const content = $('#edit-content-text').val();
                     const compResult = scanCompliance(content);
                     
-                    alert('已成功儲存！透過 Google Apps Script (GAS) 原子化寫入表 08、表 09 與表 10。\n合規審查狀態：' + (compResult.isCompliant ? 'APPROVED (已核准)' : 'REJECTED (需修改)'));
+                    alert('已成功儲存！透過 Google Apps Script (GAS) 原子化寫入表 08、表 09 與表 10。\n合格審查狀態：' + (compResult.isCompliant ? 'APPROVED (已核准)' : 'REJECTED (需修改)'));
                     bootstrap.Modal.getInstance(document.getElementById('modalTestimonialEdit')).hide();
                 });
 

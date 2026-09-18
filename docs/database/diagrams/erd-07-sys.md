@@ -103,7 +103,7 @@ erDiagram
     }
 
     sys_compliance_keywords {
-        string kw_id PK "合規關鍵字代碼"
+        string kw_id PK "風險關鍵字代碼"
         string keyword UK "違規高危詞彙"
         string risk_level "風險等級"
         string category_type "違規類別"
@@ -134,7 +134,7 @@ erDiagram
     %% 關聯線定義
     org_partners ||--o{ sys_permissions : "開通 Google 門禁白名單"
     org_partners ||--o{ sys_dynamic_links : "發行專屬推廣短網址"
-    org_partners ||--o{ sys_copy_audits : "提交宣傳文案合規檢測"
+    org_partners ||--o{ sys_copy_audits : "提交宣傳文案合格檢測"
 
     sys_menus ||--o{ sys_menus : "樹狀階層自關聯 (parent_node_id)"
 

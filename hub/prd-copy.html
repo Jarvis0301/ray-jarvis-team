@@ -471,7 +471,7 @@
         (function ($) {
             'use strict';
 
-            // 違規療效敏感詞字典 (直銷保健品合規守門員)
+            // 違規療效敏感詞字典 (直銷保健品合格守門員)
             const FORBIDDEN_WORDS = ['治療', '根治', '消炎', '防癌', '抗癌', '排毒', '藥效', '降三高', '預防感染', '清肺'];
 
             // 本地資料快取 (對應 表06 prd_copywritings 與 表04 prd_items)
@@ -765,7 +765,7 @@ ${parsedContent}
             }
 
             /**
-             * 8. 敏感詞合規檢查引擎
+             * 8. 敏感詞合格檢查引擎
              */
             function checkCompliance(text) {
                 let foundBadWords = [];
@@ -876,7 +876,7 @@ ${parsedContent}
                     }
                 });
 
-                // 即時合規檢測與字數計算
+                // 即時合格檢測與字數計算
                 $('#inputCopyContent').on('input', function () {
                     const text = $(this).val();
                     $('#textCharCount').text(text.length);

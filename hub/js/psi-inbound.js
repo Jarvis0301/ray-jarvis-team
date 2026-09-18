@@ -102,13 +102,13 @@ async function initInboundApp() {
     isInitialized = true;
 
     initFormEvents();
-    await fetchAllGoogleSheetsData();
+    await fetchGoogleSheetsData();
 }
 
 /**
  * 資料讀取與同步中樞
  */
-async function fetchAllGoogleSheetsData() {
+async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
@@ -1357,8 +1357,23 @@ async function saveAllInboundItems() {
 
         await SheetAdapter.sendRequest('UPDATE', '進貨主檔', parentInbound.id, parentRowData);
 
-        await fetchAllGoogleSheetsData();
+        // 同步前端明細記憶體：移除已刪除者、替換修改與新增項目
+        appState.inboundItems = appState.inboundItems.filter(it => it.inbound_id !== currentDetailOrderId);
+        stagingInboundItems.forEach((it, i) => {
+            const finalSeq = i + 1;
+            const finalItemId = `${currentDetailOrderId}_${String(finalSeq).padStart(2, '0')}`;
+            appState.inboundItems.push({
+                ...it,
+                id: finalItemId,
+                item_seq: finalSeq,
+                _isNew: false,
+                _isModified: false
+            });
+        });
+
         bootstrap.Modal.getInstance(document.getElementById('inboundDetailModal')).hide();
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`進貨單【${currentDetailOrderId}】全體明細已一次性同步儲存完成！`);
     } catch (err) {
         console.error("批次儲存明細失敗:", err);
@@ -1666,8 +1681,9 @@ async function saveInboundItem() {
             if (idx !== -1) appState.inbounds[idx] = updatedObj;
         }
 
-        await fetchAllGoogleSheetsData();
         bootstrap.Modal.getInstance(document.getElementById('inboundModal')).hide();
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`進貨單據【${orderId}】儲存成功！`);
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
@@ -1708,7 +1724,8 @@ async function quickVerifyInbound(orderId) {
 
     try {
         await SheetAdapter.sendRequest('UPDATE', '進貨主檔', item.id, rowDataArray);
-        await fetchAllGoogleSheetsData();
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`單號【${item.id}】已合格入庫，庫存現貨正式生效！`);
     } catch (err) {
         AppToast.error("入庫狀態更新失敗：" + err.message);
@@ -1729,7 +1746,11 @@ async function deleteInboundItem(orderId) {
     try {
         await SheetAdapter.sendRequest('DELETE', '進貨主檔', orderId, []);
         appState.inbounds = appState.inbounds.filter(d => d.id !== orderId);
-        await fetchAllGoogleSheetsData();
+        // 同步刪除關聯明細記憶體
+        appState.inboundItems = appState.inboundItems.filter(it => it.inbound_id !== orderId);
+
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`進貨單【${item.id}】已成功刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗：" + err.message);

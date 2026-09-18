@@ -356,7 +356,7 @@
                         <i class="fa-solid fa-code-compare me-1"></i>H960000 / tool-formatter.html
                     </span>
                     <span class="badge" style="background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">
-                        <i class="fa-solid fa-shield-halved me-1"></i>傳銷法規合規校驗生效中
+                        <i class="fa-solid fa-shield-halved me-1"></i>傳銷法規合格校驗生效中
                     </span>
                 </div>
                 <h4 class="fw-bold mb-1" style="color: #ffffff;">
@@ -465,7 +465,7 @@
                         </div>
                         <div class="template-card" data-template="product">
                             <div class="fw-bold text-white small"><i class="fa-solid fa-capsules text-success me-1"></i>產品體驗與營養科普</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">合規無宣稱療效、健康生活日常分享</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">合格無宣稱療效、健康生活日常分享</div>
                         </div>
                         <div class="template-card" data-template="reorder">
                             <div class="fw-bold text-white small"><i class="fa-solid fa-box-open text-accent me-1"></i>耗盡回購主動關懷提醒</div>
@@ -498,7 +498,7 @@
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>偵測到違規宣稱敏感詞 (衛福部稽查風險)：
                         </span>
                         <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size: 0.7rem;" id="btnAutoFixCompliance">
-                            <i class="fa-solid fa-wrench me-1"></i>一鍵合規替換
+                            <i class="fa-solid fa-wrench me-1"></i>一鍵合格替換
                         </button>
                     </div>
                     <div id="complianceBadgesContainer" class="d-flex flex-wrap"></div>
@@ -513,7 +513,7 @@
                         <i class="fa-solid fa-clock me-1"></i>預估閱讀時間：<span id="statReadTime" class="text-light">0 秒</span>
                     </div>
                     <div>
-                        <i class="fa-solid fa-shield-check text-success me-1"></i>狀態：<span id="statComplianceState" class="text-success">法規合規檢測通過</span>
+                        <i class="fa-solid fa-shield-check text-success me-1"></i>狀態：<span id="statComplianceState" class="text-success">法規合格檢測通過</span>
                     </div>
                 </div>
             </div>
@@ -595,7 +595,7 @@
     <script>
         /**
          * 榮祥團隊 文字處理工坊控制器 (TextFormatterEngine)
-         * 模組架構：解耦純函數、合規詞典過濾器、盤古中英排版、即時雙向預覽
+         * 模組架構：解耦純函數、合格詞典過濾器、盤古中英排版、即時雙向預覽
          */
         const TextFormatterEngine = {
             // 葡眾產品正名辭典
@@ -741,7 +741,7 @@
                     }
                 });
 
-                // 一鍵合規替換
+                // 一鍵合格替換
                 $('#btnAutoFixCompliance').on('click', function() {
                     let val = $('#txtEditor').val();
                     self.illegalTerms.forEach(item => {
@@ -818,7 +818,7 @@
                 } else {
                     $('#complianceWarningBox').addClass('d-none');
                     $('#complianceBadgesContainer').empty();
-                    $('#statComplianceState').removeClass('text-danger').addClass('text-success').html('<i class="fa-solid fa-shield-check me-1"></i>法規合規檢測通過');
+                    $('#statComplianceState').removeClass('text-danger').addClass('text-success').html('<i class="fa-solid fa-shield-check me-1"></i>法規合格檢測通過');
                 }
             },
 

@@ -291,7 +291,7 @@
                             </span>
                         </div>
                         <p class="text-slate-400 mb-3 text-secondary small">
-                            專為榮祥團隊（Ray's Team）量身打造之高靈敏度文案審查雷達。即時識別「醫療效能宣稱」、「誇大機能話術」與「違規躺賺承諾」，自動對接官方核准之合規滋補語彙。
+                            專為榮祥團隊（Ray's Team）量身打造之高靈敏度文案審查雷達。即時識別「醫療效能宣稱」、「誇大機能話術」與「違規躺賺承諾」，自動對接官方核准之合格滋補語彙。
                         </p>
                     </div>
 
@@ -388,7 +388,7 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top border-secondary border-opacity-25">
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-sm btn-glow-primary" id="btnAutoFixAll">
-                                <i class="fa-solid fa-wand-magic me-1"></i>一鍵合規替換
+                                <i class="fa-solid fa-wand-magic me-1"></i>一鍵合格替換
                             </button>
                             <button type="button" class="btn btn-sm btn-tactical-outline" id="btnAppendDisclaimer">
                                 <i class="fa-solid fa-file-contract me-1"></i>附加官方免責警語
@@ -466,7 +466,7 @@
                                         <i class="fa-solid fa-user-shield"></i>
                                     </div>
                                     <div>
-                                        <div class="fw-bold small text-white">榮祥團隊健康顧問 (合規認證)</div>
+                                        <div class="fw-bold small text-white">榮祥團隊健康顧問 (合格認證)</div>
                                         <div class="text-secondary" style="font-size: 11px;">剛剛 · 公開</div>
                                     </div>
                                 </div>
@@ -491,7 +491,7 @@
                                         <tr>
                                             <th>敏感字詞</th>
                                             <th>風險等級</th>
-                                            <th>推薦合規替代詞</th>
+                                            <th>推薦合格替代詞</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -760,7 +760,7 @@
                     }
                 });
 
-                // 計算合規分數 (100 為滿分)
+                // 計算合格分數 (100 為滿分)
                 let score = 100 - (critCount * 35) - (exagCount * 15) - (mlmCount * 20);
                 if (score < 0) score = 0;
 
@@ -924,7 +924,7 @@
 
                 const $btn = $(this);
                 const originalHtml = $btn.html();
-                $btn.removeClass('btn-glow-primary').addClass('btn-success').html('<i class="fa-solid fa-check me-1"></i>全數已合規修復');
+                $btn.removeClass('btn-glow-primary').addClass('btn-success').html('<i class="fa-solid fa-check me-1"></i>全數已合格修復');
                 setTimeout(() => {
                     $btn.removeClass('btn-success').addClass('btn-glow-primary').html(originalHtml);
                 }, 1800);
@@ -932,9 +932,9 @@
 
             // 9. 附加官方免責警語
             $('#btnAppendDisclaimer').on('click', function () {
-                const disclaimer = "\n\n【免責聲明與合規提醒】\n本分享內容為個人日常營養補給體驗，本產品為一般食品非藥品，無醫療效能，無法替代醫師診斷或治療。如有特殊身體狀況請諮詢專業醫療人員。";
+                const disclaimer = "\n\n【免責聲明與合格提醒】\n本分享內容為個人日常營養補給體驗，本產品為一般食品非藥品，無醫療效能，無法替代醫師診斷或治療。如有特殊身體狀況請諮詢專業醫療人員。";
                 let text = $('#copyTextInput').val();
-                if (!text.includes("免責聲明與合規提醒")) {
+                if (!text.includes("免責聲明與合格提醒")) {
                     $('#copyTextInput').val(text + disclaimer);
                     performScan();
                 }

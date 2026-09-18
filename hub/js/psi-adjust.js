@@ -224,13 +224,13 @@ async function initAdjustApp() {
     isInitialized = true;
 
     initEvents();
-    await fetchAllGoogleSheetsData();
+    await fetchGoogleSheetsData();
 }
 
 /**
  * 資料讀取引擎
  */
-async function fetchAllGoogleSheetsData() {
+async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
@@ -1738,7 +1738,6 @@ async function commitAuditRecord() {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
-        await fetchAllGoogleSheetsData();
 
         const auditModalEl = document.getElementById('modalAuditWorkbench');
         if (auditModalEl) {
@@ -1746,6 +1745,8 @@ async function commitAuditRecord() {
             if (auditModal) auditModal.hide();
         }
 
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`盤點單據【${adjNo}】已成功同步至 Google 試算表！`);
     } catch (err) {
         AppToast.error("寫入失敗: " + err.message);
@@ -1900,7 +1901,6 @@ async function commitTransferOrder() {
     try {
         await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
         appState.adjustments.unshift(newObj);
-        await fetchAllGoogleSheetsData();
 
         const transferModalEl = document.getElementById('modalTransferWorkbench');
         if (transferModalEl) {
@@ -1908,6 +1908,8 @@ async function commitTransferOrder() {
             if (transferModal) transferModal.hide();
         }
 
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`跨倉調撥單【${adjNo}】已成功建立！`);
     } catch (err) {
         AppToast.error("調撥單建立失敗: " + err.message);
@@ -2289,15 +2291,36 @@ async function saveAdjustmentRecord() {
     const $btn = $('#btnSaveAdjust');
     try {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
+        
+        // 封裝物件並維護記憶體
+        const updatedObj = {
+            id, adj_type: adjType, from_warehouse_id: fromWh,
+            to_warehouse_id: (adjType === '跨倉調撥') ? toWh : '',
+            official_product_code: $('#fieldOfficialProductCode').val().trim(),
+            product_name_snaps: $('#fieldProductNameSnaps').val().trim(),
+            product_id: prodId, stock_id: $('#fieldStockId').val().trim(),
+            batch_no: $('#fieldBatchNo').val().trim(), expiry_date: expiryDateVal,
+            adj_unit: adjUnit, quantity: finalQuantity, currency_code: curr,
+            unit_cost: cost, total_cost: totalCost, unit_sv: sv, total_sv: totalSv,
+            target_prospect_id: targetProspectId || '', operator_partner_id: operatorId,
+            adj_date: adjDateVal, reason_desc: reason,
+            created_by: createdBy, created_at: createdAt,
+            modified_by: currentUser, modified_at: nowStr
+        };
+
         if (mode === 'add') {
             await SheetAdapter.sendRequest('CREATE', '盤點調撥', id, rowDataArray);
+            appState.adjustments.unshift(updatedObj);
         } else {
             await SheetAdapter.sendRequest('UPDATE', '盤點調撥', id, rowDataArray);
+            const idx = appState.adjustments.findIndex(a => a.id === id);
+            if (idx !== -1) appState.adjustments[idx] = updatedObj;
         }
 
-        await fetchAllGoogleSheetsData();
         bootstrap.Modal.getInstance(document.getElementById('adjustModal')).hide();
-        AppToast.success(`單據【${id}】（${adjType}）已合規寫入 Google 試算表！`);
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
+        AppToast.success(`單據【${id}】（${adjType}）已寫入 Google 試算表！`);
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
@@ -2317,7 +2340,8 @@ async function deleteAdjustmentRecord(id) {
     try {
         await SheetAdapter.sendRequest('DELETE', '盤點調撥', id, []);
         appState.adjustments = appState.adjustments.filter(a => a.id !== id);
-        await fetchAllGoogleSheetsData();
+        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+        refreshAllViews();
         AppToast.success(`單據【${id}】已成功刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗: " + err.message);

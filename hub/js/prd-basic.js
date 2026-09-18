@@ -464,7 +464,7 @@ function formatMasterTableRow(p) {
 
     const subTitle = p.short_name || p.short_summary || '';
 
-    // 組合規格與散裝受控單位標籤
+    // 組合格格與散裝受控單位標籤
     let specHtml = `<div class="font-monospace text-light">${p.package_spec || '-'}</div>`;
     if (p.piece_spec) {
         specHtml += `<div class="small text-info"><i class="fa-solid fa-cube me-1"></i>${p.piece_spec}</div>`;
@@ -829,12 +829,28 @@ async function saveTaxonomyItem() {
             else await SheetAdapter.createRow(sheetName, code, rowArray);
         }
 
+        // 記憶體就地更新分類/型態陣列
+        if (type === 'category') {
+            const catObj = parseCategoriesTable([rowArray])[0];
+            const idx = appState.categories.findIndex(c => c.category_code === code);
+            if (idx !== -1) appState.categories[idx] = catObj; else appState.categories.push(catObj);
+        } else if (type === 'subcategory') {
+            const subcatObj = parseSubcategoriesTable([rowArray])[0];
+            const idx = appState.subcategories.findIndex(s => s.subcategory_code === code);
+            if (idx !== -1) appState.subcategories[idx] = subcatObj; else appState.subcategories.push(subcatObj);
+        } else if (type === 'type') {
+            const typeObj = parseTypesTable([rowArray])[0];
+            const idx = appState.types.findIndex(t => t.type_code === code);
+            if (idx !== -1) appState.types[idx] = typeObj; else appState.types.push(typeObj);
+        }
+
         const modalEl = document.getElementById('modalTaxonomyEdit');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
 
+        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+        refreshView();
         AppToast.success(`項目【${nameZh}】已成功儲存！`);
-        await fetchGoogleSheetsData();
     } catch (err) {
         AppToast.error("儲存失敗：" + err.message);
     } finally {
@@ -851,8 +867,16 @@ function deleteTaxonomyItem(type, code) {
         async function () {
             try {
                 await SheetAdapter.deleteRow(sheetName, code);
+                if (type === 'category') {
+                    appState.categories = appState.categories.filter(c => c.category_code !== code);
+                } else if (type === 'subcategory') {
+                    appState.subcategories = appState.subcategories.filter(s => s.subcategory_code !== code);
+                } else if (type === 'type') {
+                    appState.types = appState.types.filter(t => t.type_code !== code);
+                }
+                // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+                refreshView();
                 AppToast.success(`【${title}：${code}】已成功刪除！`);
-                await fetchGoogleSheetsData();
             } catch (err) {
                 AppToast.error("刪除失敗：" + err.message);
             }
@@ -1621,19 +1645,30 @@ async function saveProductItem() {
                 SheetAdapter.createRow('prd_items', productCode, itemsRowArray),
                 SheetAdapter.createRow('prd_item_details', productCode, detailsRowArray)
             ]);
+            // 組裝新物件推入本地陣列置頂
+            const newProd = parseItemsTable([itemsRowArray])[0];
+            const newDetail = parseDetailsTable([detailsRowArray])[0];
+            appState.products.unshift({ ...newProd, ...newDetail, product_code: productCode });
         } else {
             await Promise.all([
                 SheetAdapter.updateRow('prd_items', productCode, itemsRowArray),
                 SheetAdapter.updateRow('prd_item_details', productCode, detailsRowArray)
             ]);
+            const pIdx = appState.products.findIndex(p => p.product_code === productCode);
+            if (pIdx !== -1) {
+                const updatedProd = parseItemsTable([itemsRowArray])[0];
+                const updatedDetail = parseDetailsTable([detailsRowArray])[0];
+                appState.products[pIdx] = { ...updatedProd, ...updatedDetail, product_code: productCode };
+            }
         }
 
         const modalEl = document.getElementById('modalProductFullEdit');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
 
+        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+        refreshView();
         AppToast.success(`產品【${productCode}】規格主檔已成功更新儲存！`);
-        await fetchGoogleSheetsData();
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
@@ -1653,8 +1688,11 @@ function deleteProductItem(productCode) {
                     SheetAdapter.deleteRow('prd_items', item.product_code),
                     SheetAdapter.deleteRow('prd_item_details', item.product_code)
                 ]);
+                // 記憶體過濾移除該項目
+                appState.products = appState.products.filter(p => p.product_code !== item.product_code);
+                // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+                refreshView();
                 AppToast.success(`產品【${item.product_code}】已成功刪除！`);
-                await fetchGoogleSheetsData();
             } catch (err) {
                 AppToast.error("刪除失敗：" + err.message);
             }

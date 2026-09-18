@@ -949,7 +949,7 @@ async function saveStockItem() {
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_STOCKS, id, rowDataArray, GAS_DEPLOY_ID);
-            appState.stocks.push(updatedObj);
+            appState.stocks.unshift(updatedObj); // 改為 unshift 置頂顯示
         } else {
             await SheetAdapter.updateRow(SHEET_STOCKS, id, rowDataArray, GAS_DEPLOY_ID);
             const idx = appState.stocks.findIndex(item => item.id === id);
@@ -963,7 +963,8 @@ async function saveStockItem() {
             modalInstance.hide();
         }
 
-        await fetchGoogleSheetsData();
+        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+        refreshView();
         AppToast.success(`庫存批號【${id}】儲存成功！`);
     } catch (err) {
         AppToast.error("庫存批號儲存失敗: " + err.message);
@@ -993,7 +994,8 @@ async function toggleStockLock(stockId) {
         s.modified_by = currentUser;
         s.modified_at = nowStr;
 
-        await fetchGoogleSheetsData();
+        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+        refreshView();
         AppToast.success(`批號【${stockId}】已變更為【${newLock === 'Y' ? '凍結出庫' : '自由流通'}】`);
     } catch (err) {
         AppToast.error("鎖定狀態更新失敗: " + err.message);
@@ -1012,7 +1014,8 @@ async function deleteStockItem(stockId) {
         await SheetAdapter.deleteRow(SHEET_STOCKS, stockId, GAS_DEPLOY_ID);
         appState.stocks = appState.stocks.filter(item => item.id !== stockId);
 
-        await fetchGoogleSheetsData();
+        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
+        refreshView();
         AppToast.success(`批號【${stockId}】已自雲端試算表刪除！`);
     } catch (err) {
         AppToast.error("刪除失敗: " + err.message);
