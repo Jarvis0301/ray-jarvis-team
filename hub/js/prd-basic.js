@@ -888,91 +888,100 @@ function deleteTaxonomyItem(type, code) {
 // ==========================================================================
 // 10. Tab 3：葡眾全系列產品台馬對照庫渲染
 // ==========================================================================
-function renderCrossBorderMatrix() {
-    const $tbody = $('#crossBorderTableBody');
-    if (!$tbody.length) return;
+/**
+ * 格式化跨國產品對照表單列資料物件
+ */
+function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
+    const twProd = twProducts.find(p => p.base_code === code);
+    const myProd = myProducts.find(p => p.base_code === code);
 
-    if (matrixTableInstance) {
-        matrixTableInstance.destroy();
-        matrixTableInstance = null;
+    const getStatusBadge = (prod) => {
+        if (!prod) return '';
+        const st = getLaunchStatus(prod.launch_date, prod.discontinue_date);
+        return (st.code === 'COMING_SOON' || st.code === 'DISCONTINUED')
+            ? ` ${UIBadges.product.launchStatus(st.code)}`
+            : '';
+    };
+
+    const twInfo = twProd
+        ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd)} <span class="text-muted small">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec || '-'}</div>`
+        : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
+
+    const twPrice = twProd
+        ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(twProd.sv_point).toLocaleString()} SV</span>`
+        : `-`;
+
+    const myInfo = myProd
+        ? `<div class="fw-bold text-secondary">${myProd.name}${getStatusBadge(myProd)} <span class="text-muted small">(${myProd.product_code})</span></div><div class="text-secondary-emphasis small">${myProd.package_spec || '-'}</div>`
+        : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
+
+    const myPrice = myProd
+        ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(myProd.sv_point).toLocaleString()} SV</span>`
+        : `-`;
+
+    const twCostPerSv = twProd && twProd.sv_point > 0 ? AppCalc.divide(twProd.price, twProd.sv_point, 2) : null;
+    const myCostPerSv = myProd && myProd.sv_point > 0 ? AppCalc.divide(myProd.price, myProd.sv_point, 2) : null;
+
+    let costCompare = `-`;
+    if (twCostPerSv && myCostPerSv) {
+        costCompare = `<span class="text-light small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+    } else if (twCostPerSv) {
+        costCompare = `<span class="text-light small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span>`;
+    } else if (myCostPerSv) {
+        costCompare = `<span class="text-light small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
     }
-    $tbody.empty();
+
+    let diffText = `<span class="text-muted">-</span>`;
+    if (twProd && myProd) {
+        const myConvertedTwd = AppCalc.multiply(myProd.price, currentFxRate, 2);
+        const diff = AppCalc.sub(myConvertedTwd, twProd.price);
+        diffText = diff >= 0
+            ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+            : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+    }
+
+    const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
+    const actionBtn = targetCode
+        ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass me-1"></i>詳情</button>`
+        : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`;
+
+    return {
+        base_code: `<span class="badge badge-secondary-subtle">${code}</span>`,
+        tw_info: twInfo,
+        tw_price: twPrice,
+        my_info: myInfo,
+        my_price: myPrice,
+        cost_compare: costCompare,
+        diff: diffText,
+        actions: actionBtn
+    };
+}
+
+function renderCrossBorderMatrix() {
+    if (!$('#crossBorderMatrixTable').length) return;
 
     const twProducts = appState.products.filter(p => p.region_code === 'TW');
     const myProducts = appState.products.filter(p => p.region_code === 'MY');
-
     const baseCodes = Array.from(new Set(appState.products.map(p => p.base_code).filter(Boolean))).sort();
 
-    baseCodes.forEach(code => {
-        const twProd = twProducts.find(p => p.base_code === code);
-        const myProd = myProducts.find(p => p.base_code === code);
+    const formatted = baseCodes.map(code => formatCrossBorderMatrixRow(code, twProducts, myProducts));
 
-        const getStatusBadge = (prod) => {
-            if (!prod) return '';
-            const st = getLaunchStatus(prod.launch_date, prod.discontinue_date);
-            return (st.code === 'COMING_SOON' || st.code === 'DISCONTINUED')
-                ? ` ${UIBadges.product.launchStatus(st.code)}`
-                : '';
-        };
-
-        const twInfo = twProd
-            ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd)} <span class="text-muted small font-monospace">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec || '-'}</div>`
-            : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
-
-        const twPrice = twProd
-            ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${twProd.sv_point} SV</span>`
-            : `-`;
-
-        const myInfo = myProd
-            ? `<div class="fw-bold text-secondary">${myProd.name}${getStatusBadge(myProd)} <span class="text-muted small font-monospace">(${myProd.product_code})</span></div><div class="text-secondary-emphasis small">${myProd.package_spec || '-'}</div>`
-            : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
-
-        const myPrice = myProd
-            ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${myProd.sv_point} SV</span>`
-            : `-`;
-
-        const twCostPerSv = twProd && twProd.sv_point > 0 ? AppCalc.divide(twProd.price, twProd.sv_point, 2) : null;
-        const myCostPerSv = myProd && myProd.sv_point > 0 ? AppCalc.divide(myProd.price, myProd.sv_point, 2) : null;
-
-        let costCompare = `-`;
-        if (twCostPerSv && myCostPerSv) {
-            costCompare = `<span class="text-light small">${twCostPerSv} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-light small">${myCostPerSv} RM/SV</span>`;
-        } else if (twCostPerSv) {
-            costCompare = `<span class="text-light small">${twCostPerSv} NT$/SV</span>`;
-        } else if (myCostPerSv) {
-            costCompare = `<span class="text-light small">${myCostPerSv} RM/SV</span>`;
-        }
-
-        let diffText = `<span class="text-muted">-</span>`;
-        if (twProd && myProd) {
-            const myConvertedTwd = AppCalc.multiply(myProd.price, currentFxRate, 2);
-            const diff = AppCalc.sub(myConvertedTwd, twProd.price);
-            diffText = diff >= 0
-                ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
-                : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
-        }
-
-        const targetCode = twProd ? twProd.product_code : (myProd ? myProd.product_code : '');
-        const actionBtn = targetCode
-            ? `<button type="button" class="btn btn-sm btn-outline-info" onclick="openDetailModal('${targetCode}')" title="查看產品詳情"><i class="fa-solid fa-magnifying-glass me-1"></i>詳情</button>`
-            : `<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`;
-
-        $tbody.append(`
-            <tr>
-                <td class="text-center"><span class="badge badge-secondary-subtle font-monospace">${code}</span></td>
-                <td>${twInfo}</td>
-                <td>${twPrice}</td>
-                <td>${myInfo}</td>
-                <td>${myPrice}</td>
-                <td>${costCompare}</td>
-                <td>${diffText}</td>
-                <td class="text-center">${actionBtn}</td>
-            </tr>
-        `);
-    });
-
-    if ($.fn.DataTable) {
-        matrixTableInstance = $('#crossBorderMatrixTable').DataTable();
+    if (matrixTableInstance) {
+        matrixTableInstance.clear().rows.add(formatted).draw();
+    } else {
+        matrixTableInstance = $('#crossBorderMatrixTable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'base_code', className: 'text-center' },
+                { data: 'tw_info' },
+                { data: 'tw_price', className: 'text-end' },
+                { data: 'my_info' },
+                { data: 'my_price', className: 'text-end' },
+                { data: 'cost_compare', className: 'text-end' },
+                { data: 'diff', className: 'text-end' },
+                { data: 'actions', className: 'text-center', orderable: false }
+            ]
+        });
     }
 }
 

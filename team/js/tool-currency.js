@@ -131,37 +131,13 @@ function parseProductsTable(rows) {
 function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayTs = today.getTime();
 
-    const parseDate = (val) => {
-        if (!val || (typeof val !== 'string' && typeof val !== 'number')) return null;
-        const str = String(val).trim();
-        if (!str || str === '-' || str === 'N/A' || str === '0' || str.toLowerCase() === 'null') {
-            return null;
-        }
-        const d = new Date(str.replace(/\//g, '-'));
-        return isNaN(d.getTime()) ? null : d;
-    };
+    const lTs = AppDate.toTimestamp(launchDateVal);
+    const dTs = AppDate.toTimestamp(discontinueDateVal);
 
-    const launchDate = parseDate(launchDateVal);
-    const discontinueDate = parseDate(discontinueDateVal);
-
-    // 1. 若有上市日期且晚於今天 -> 即將上市
-    if (launchDate) {
-        launchDate.setHours(0, 0, 0, 0);
-        if (launchDate.getTime() > today.getTime()) {
-            return 'COMING_SOON';
-        }
-    }
-
-    // 2. 若有下市日期且早於今天 -> 已下市
-    if (discontinueDate) {
-        discontinueDate.setHours(0, 0, 0, 0);
-        if (discontinueDate.getTime() < today.getTime()) {
-            return 'DISCONTINUED';
-        }
-    }
-
-    // 3. 其餘情況 -> 販售中
+    if (lTs > 0 && lTs > todayTs) return 'COMING_SOON';
+    if (dTs > 0 && dTs <= todayTs) return 'DISCONTINUED';
     return 'ACTIVE';
 }
 
@@ -478,133 +454,148 @@ function refreshAllViews() {
     updateChartData();
 }
 
+/**
+ * 格式化跨國產品對照表單列資料物件
+ */
+function formatCrossBorderMatrixRow(code) {
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
+    const twProd = appState.products.TW.find(p => p.base_code === code);
+    const myProd = appState.products.MY.find(p => p.base_code === code);
+
+    const getStatusBadge = (status) => {
+        return (status === 'COMING_SOON' || status === 'DISCONTINUED')
+            ? ` ${UIBadges.product.launchStatus(status)}`
+            : '';
+    };
+
+    const twInfo = twProd
+        ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd.status)} <span class="text-muted small">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec}</div>`
+        : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
+
+    const twPrice = twProd 
+        ? `<span class="text-yellow fw-bold">NT$ ${Number(twProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(twProd.sv_point).toLocaleString()} SV</span>` 
+        : `-`;
+
+    const myInfo = myProd
+        ? `<div class="fw-bold text-secondary">${myProd.name}${getStatusBadge(myProd.status)} <span class="text-muted small">(${myProd.product_code})</span></div><div class="text-secondary-emphasis small">${myProd.package_spec}</div>`
+        : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
+
+    const myPrice = myProd 
+        ? `<span class="text-yellow fw-bold">RM ${Number(myProd.price).toLocaleString()}</span> / <span class="text-teal fw-bold">${Number(myProd.sv_point).toLocaleString()} SV</span>` 
+        : `-`;
+
+    const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;
+    const myCostPerSv = myProd && myProd.sv_point > 0 ? (myProd.price / myProd.sv_point).toFixed(2) : null;
+    let costCompare = `-`;
+    if (twCostPerSv && myCostPerSv) {
+        costCompare = `<span class="text-secondary small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-secondary small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+    } else if (twCostPerSv) {
+        costCompare = `<span class="text-secondary small">${Number(twCostPerSv).toLocaleString()} NT$/SV</span>`;
+    } else if (myCostPerSv) {
+        costCompare = `<span class="text-secondary small">${Number(myCostPerSv).toLocaleString()} RM/SV</span>`;
+    }
+
+    let diffText = `<span class="text-light-emphasis">-</span>`;
+    if (twProd && myProd) {
+        const myConvertedTwd = myProd.price * rate;
+        const diff = myConvertedTwd - twProd.price;
+        diffText = diff >= 0
+            ? `<span class="badge badge-success-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
+            : `<span class="badge badge-danger-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+    }
+
+    const actionBtn = twProd
+        ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
+        : (myProd
+            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${myProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
+            : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`);
+
+    return {
+        base_code: `<span class="badge badge-secondary-subtle font-monospace">${code}</span>`,
+        tw_info: twInfo,
+        tw_price: twPrice,
+        my_info: myInfo,
+        my_price: myPrice,
+        cost_compare: costCompare,
+        diff: diffText,
+        actions: actionBtn
+    };
+}
+
 function renderCrossBorderMatrix() {
-    const $tbody = $('#crossBorderTableBody');
-    if (!$tbody.length) return;
+    if (!$('#crossBorderMatrixTable').length) return;
+
+    const formatted = appState.baseCodes.map(code => formatCrossBorderMatrixRow(code));
 
     if (matrixTableInstance) {
-        matrixTableInstance.destroy();
-        matrixTableInstance = null;
-    }
-    $tbody.empty();
-
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
-
-    // 依據「跨國產品編號」(base_code) 建立兩國對比連結
-    appState.baseCodes.forEach(code => {
-        const twProd = appState.products.TW.find(p => p.base_code === code);
-        const myProd = appState.products.MY.find(p => p.base_code === code);
-
-        // 在 twInfo 與 myInfo 的品名後加入狀態標籤判定
-        const getStatusBadge = (status) => {
-            return (status === 'COMING_SOON' || status === 'DISCONTINUED')
-                ? ` ${UIBadges.product.launchStatus(status)}`
-                : '';
-        };
-
-        const twInfo = twProd
-            ? `<div class="fw-bold text-secondary">${twProd.name}${getStatusBadge(twProd.status)} <span class="text-muted small">(${twProd.product_code})</span></div><div class="text-secondary-emphasis small">${twProd.package_spec}</div>`
-            : `<span class="badge badge-danger-subtle">台灣未發行</span>`;
-
-        const twPrice = twProd 
-            ? `<span class="text-yellow fw-bold">NT$ ${twProd.price.toLocaleString()}</span> / <span class="text-teal fw-bold">${twProd.sv_point} SV</span>` 
-            : `-`;
-
-        const myInfo = myProd
-            ? `<div class="fw-bold text-secondary">${myProd.name}${getStatusBadge(myProd.status)} <span class="text-muted small">(${myProd.product_code})</span></div><div class="text-secondary-emphasis small">${myProd.package_spec}</div>`
-            : `<span class="badge badge-danger-subtle">大馬未上市</span>`;
-
-        const myPrice = myProd 
-            ? `<span class="text-yellow fw-bold">RM ${myProd.price.toLocaleString()}</span> / <span class="text-teal fw-bold">${myProd.sv_point} SV</span>` 
-            : `-`;
-
-        const twCostPerSv = twProd && twProd.sv_point > 0 ? (twProd.price / twProd.sv_point).toFixed(2) : null;
-        const myCostPerSv = myProd && myProd.sv_point > 0 ? (myProd.price / myProd.sv_point).toFixed(2) : null;
-        let costCompare = `-`;
-        if (twCostPerSv && myCostPerSv) {
-            costCompare = `<span class="text-secondary small">${twCostPerSv} NT$/SV</span> <span class="text-muted">vs</span> <span class="text-secondary small">${myCostPerSv} RM/SV</span>`;
-        } else if (twCostPerSv) {
-            costCompare = `<span class="text-secondary small">${twCostPerSv} NT$/SV</span>`;
-        } else if (myCostPerSv) {
-            costCompare = `<span class="text-secondary small">${myCostPerSv} RM/SV</span>`;
-        }
-
-        let diffText = `<span class="text-light-emphasis">-</span>`;
-        if (twProd && myProd) {
-            const myConvertedTwd = myProd.price * rate;
-            const diff = myConvertedTwd - twProd.price;
-            diffText = diff >= 0
-                ? `<span class="badge badge-success-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
-                : `<span class="badge badge-danger-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
-        }
-
-        const actionBtn = twProd
-            ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${twProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
-            : (myProd
-                ? `<button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${myProd.product_code}')" title="加入跨境對沖沙盒"><i class="fa-solid fa-plus me-1"></i>加入</button>`
-                : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`);
-
-        $tbody.append(`
-            <tr>
-                <td class="text-center"><span class="badge badge-secondary-subtle font-monospace">${code}</span></td>
-                <td>${twInfo}</td>
-                <td>${twPrice}</td>
-                <td>${myInfo}</td>
-                <td>${myPrice}</td>
-                <td>${costCompare}</td>
-                <td>${diffText}</td>
-                <td>${actionBtn}</td>
-            </tr>
-        `);
-    });
-
-    if ($.fn.DataTable) {
-        matrixTableInstance = $('#crossBorderMatrixTable').DataTable();
+        matrixTableInstance.clear().rows.add(formatted).draw();
+    } else {
+        matrixTableInstance = $('#crossBorderMatrixTable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'base_code', className: 'text-center' },
+                { data: 'tw_info' },
+                { data: 'tw_price', className: 'text-end' },
+                { data: 'my_info' },
+                { data: 'my_price', className: 'text-end' },
+                { data: 'cost_compare', className: 'text-end' },
+                { data: 'diff', className: 'text-end' },
+                { data: 'actions', className: 'text-center', orderable: false }
+            ]
+        });
     }
 }
 
+/**
+ * 格式化原始產品主檔表單列資料物件
+ */
+function formatRawProductRow(prod) {
+    const costPerSv = prod.sv_point > 0 ? (prod.price / prod.sv_point).toFixed(2) : '0.00';
+    const isTW = prod.region_code === 'TW';
+    const regionBadge = UIBadges.common.country(prod.region_code);
+    const currPrefix = isTW ? 'NT$ ' : 'RM ';
+    const costUnit = isTW ? 'NT$/SV' : 'RM/SV';
+    const statusBadge = (prod.status === 'COMING_SOON' || prod.status === 'DISCONTINUED')
+        ? ` ${UIBadges.product.launchStatus(prod.status)}`
+        : '';
+    const prodInfo = `<div class="fw-bold text-secondary">${prod.name}${statusBadge}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
+    const priceDisplay = `<span class="text-yellow fw-bold">${currPrefix}${Number(prod.price).toLocaleString()}</span>`;
+    const svDisplay = `<span class="text-teal fw-bold">${Number(prod.sv_point).toLocaleString()} SV</span>`;
+    const costDisplay = `<span class="text-secondary small">${Number(costPerSv).toLocaleString()} ${costUnit}</span>`;
+
+    return {
+        region: regionBadge,
+        product_code: `<span class="badge badge-secondary-subtle">${prod.product_code}</span>`,
+        product_info: prodInfo,
+        price_sv: `${priceDisplay} / ${svDisplay}`,
+        cost_per_sv: costDisplay,
+        actions: `
+            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="加入跨境對沖沙盒">
+                <i class="fa-solid fa-plus me-1"></i>加入
+            </button>
+        `
+    };
+}
+
 function renderRawProductTable() {
-    const $tbody = $('#rawProductTableBody');
-    if (!$tbody.length) return;
+    if (!$('#rawProductTable').length) return;
+
+    const formatted = appState.products.ALL.map(prod => formatRawProductRow(prod));
 
     if (rawTableInstance) {
-        rawTableInstance.destroy();
-        rawTableInstance = null;
-    }
-    $tbody.empty();
-
-    appState.products.ALL.forEach(prod => {
-        const costPerSv = prod.sv_point > 0 ? (prod.price / prod.sv_point).toFixed(2) : '0.00';
-        const isTW = prod.region_code === 'TW';
-        const regionBadge = UIBadges.common.country(prod.region_code);
-        const currPrefix = isTW ? 'NT$ ' : 'RM ';
-        const costUnit = isTW ? 'NT$/SV' : 'RM/SV';
-        const statusBadge = (prod.status === 'COMING_SOON' || prod.status === 'DISCONTINUED')
-            ? ` ${UIBadges.product.launchStatus(prod.status)}`
-            : '';
-        const prodInfo = `<div class="fw-bold text-secondary">${prod.name}${statusBadge}</div><div class="text-secondary-emphasis small">${prod.package_spec}</div>`;
-        const priceDisplay = `<span class="text-yellow fw-bold">${currPrefix}${prod.price.toLocaleString()}</span>`;
-        const svDisplay = `<span class="text-teal fw-bold">${prod.sv_point} SV</span>`;
-        const costDisplay = `<span class="text-secondary small">${costPerSv} ${costUnit}</span>`;
-
-        $tbody.append(`
-            <tr>
-                <td class="text-center">${regionBadge}</td>
-                <td class="text-center"><span class="badge badge-secondary-subtle">${prod.product_code}</span></td>
-                <td>${prodInfo}</td>
-                <td>${priceDisplay} / ${svDisplay}</td>
-                <td>${costDisplay}</td>
-                <td>
-                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="addSkuToCart('${prod.product_code}')" title="加入跨境對沖沙盒">
-                        <i class="fa-solid fa-plus me-1"></i>加入
-                    </button>
-                </td>
-            </tr>
-        `);
-    });
-
-    if ($.fn.DataTable) {
-        rawTableInstance = $('#rawProductTable').DataTable();
+        rawTableInstance.clear().rows.add(formatted).draw();
+    } else {
+        rawTableInstance = $('#rawProductTable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'region', className: 'text-center' },
+                { data: 'product_code', className: 'text-center' },
+                { data: 'product_info' },
+                { data: 'price_sv', className: 'text-end' },
+                { data: 'cost_per_sv', className: 'text-end' },
+                { data: 'actions', className: 'text-center', orderable: false }
+            ]
+        });
     }
 }
 

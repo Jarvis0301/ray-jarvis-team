@@ -11,10 +11,10 @@
 
 // 試算表對接設定
 const SPREADSHEET_CONFIG = {
-    SHEET_CUSTOMERS: 'crm_customers',      // 表 501: 客戶主檔
-    SHEET_CONVERSIONS: 'crm_conversions',  // 表 502: 轉化歷程
-    SHEET_PERSONS: 'psn_person_master',    // 自然人實體
-    SHEET_PARTNERS: 'org_partners'         // 團隊夥伴
+    SHEET_CUSTOMERS: '客戶主檔',      // 表 501: 客戶主檔
+    SHEET_CONVERSIONS: '轉化歷程',  // 表 502: 轉化歷程
+    SHEET_PERSONS: '個人主檔',    // 自然人實體
+    SHEET_PARTNERS: '夥伴主檔'         // 團隊夥伴
 };
 
 // 本地記憶體狀態（絕不預填假資料，初始為空陣列）

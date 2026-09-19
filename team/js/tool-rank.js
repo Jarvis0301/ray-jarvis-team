@@ -801,27 +801,18 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
 // 8. DataTable.js 渲染 (官方職級字典表)
 // ==========================================================================
 function renderRankDataTable() {
-    const $tbody = $('#tableRankDictionary tbody');
-    if (!$tbody.length) return;
+    if (!$('#tableRankDictionary').length) return;
 
-    if (rankDataTableInstance) {
-        rankDataTableInstance.destroy();
-        rankDataTableInstance = null;
-    }
-    $tbody.empty();
-
-    appState.activeRankList.forEach(r => {
+    const formatted = appState.activeRankList.map(r => {
         let conds = [];
-        if (r.month_personal_sv_req > 0) conds.push(`個人 ${r.month_personal_sv_req} SV`);
-        if (r.cum_group_sv_req > 0) conds.push(`累計 ${r.cum_group_sv_req.toLocaleString()} SV`);
-        if (r.month_group_sv_req > 0) conds.push(`小組 ${r.month_group_sv_req.toLocaleString()} SV`);
-        if (r.qualified_lines_req > 0) conds.push(`經理線 ${r.qualified_lines_req} 條<br>`);
-        if (r.pearl_lines_req > 0) conds.push(`含珍珠線 ${r.pearl_lines_req} 條`);
-        if (r.month_total_org_sv_req > 0) conds.push(`整組 ${r.month_total_org_sv_req.toLocaleString()} SV`);
+        if (r.month_personal_sv_req > 0) conds.push(`個人 ${Number(r.month_personal_sv_req).toLocaleString()} SV`);
+        if (r.cum_group_sv_req > 0) conds.push(`累計 ${Number(r.cum_group_sv_req).toLocaleString()} SV`);
+        if (r.month_group_sv_req > 0) conds.push(`小組 ${Number(r.month_group_sv_req).toLocaleString()} SV`);
+        if (r.qualified_lines_req > 0) conds.push(`經理線 ${r.qualified_lines_req} 條`);
+        if (r.pearl_lines_req > 0) conds.push(`珍珠線 ${r.pearl_lines_req} 條`);
+        if (r.month_total_org_sv_req > 0) conds.push(`整組 ${Number(r.month_total_org_sv_req).toLocaleString()} SV`);
         if (r.consecutive_months_req > 1) conds.push(`連續 ${r.consecutive_months_req} 個月`);
         if (r.cooling_period_month > 0) conds.push(`冷卻期 ${r.cooling_period_month} 個月`);
-
-        let condsHtml = conds.join(' ‧ ').replace(/<br> ‧ /g, '<br>');
 
         let rightsArr = [];
         if (r.has_group_bonus) rightsArr.push('小組10%');
@@ -829,31 +820,37 @@ function renderRankDataTable() {
         if (r.has_pearl_dividend) rightsArr.push('珍鑽分紅5%');
         if (r.has_annual_excellence) rightsArr.push('卓越5%');
         if (r.has_travel_incentive) rightsArr.push('旅遊1.5%');
-        if (r.has_car_fund) {
-            rightsArr.push(r.car_reward_type ? `贈車 (${r.car_reward_type})` : '購車基金');
-        }
+        if (r.has_car_fund) rightsArr.push(r.car_reward_type ? `贈車 (${r.car_reward_type})` : '購車基金');
 
         const badgeHtml = (typeof UIBadges !== 'undefined' && UIBadges.rank && UIBadges.rank.badge)
             ? UIBadges.rank.badge(r)
-            : `<span class="badge" style="background-color: ${r.badge_color_hex || '#6c757d'}"><i class="${r.badge_icon_class || 'fa-solid fa-award'} me-1"></i>${r.rank_name_zh}</span>`;
+            : `<span class="badge" style="background-color: ${r.badge_color_hex || '#6c757d'}">${r.rank_name_zh}</span>`;
 
-        $tbody.append(`
-            <tr>
-                <td class="text-nowrap">${badgeHtml}</td>
-                <td class="text-light small">${condsHtml || `入會資料袋 ${formatMoney(1000)}`}</td>
-                <td class="text-warning fw-bold">${Math.round(r.direct_rebate_rate * 100)}%</td>
-                <td class="text-success">${r.leadership_gen_depth > 0 ? r.leadership_gen_depth + ' 代 (6%)' : '—'}</td>
-                <td class="text-secondary small">${rightsArr.join(' ‧ ') || '個人階差回饋'}</td>
-            </tr>
-        `);
+        return {
+            rank: badgeHtml,
+            conditions: conds.join(' ‧ ') || `入會資料袋 ${formatMoney(1000)}`,
+            rebate_rate: `${Math.round(r.direct_rebate_rate * 100)}%`,
+            leadership: r.leadership_gen_depth > 0 ? `${r.leadership_gen_depth} 代 (6%)` : '—',
+            rights: rightsArr.join(' ‧ ') || '個人階差回饋'
+        };
     });
 
-    if ($.fn.DataTable) {
+    if (rankDataTableInstance) {
+        rankDataTableInstance.clear().rows.add(formatted).draw();
+    } else {
         rankDataTableInstance = $('#tableRankDictionary').DataTable({
+            data: formatted,
             searching: false,
             ordering: false,
             info: false,
-            paging: false
+            paging: false,
+            columns: [
+                { data: 'rank', className: 'text-nowrap text-center' },
+                { data: 'conditions', className: 'text-light small' },
+                { data: 'rebate_rate', className: 'text-end text-warning fw-bold' },
+                { data: 'leadership', className: 'text-end text-success' },
+                { data: 'rights', className: 'text-secondary small' }
+            ]
         });
     }
 }

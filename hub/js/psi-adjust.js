@@ -10,6 +10,19 @@ const SPREADSHEET_CONFIG = {
     gasDeploymentId: APP_CONFIG.GAS.PSI
 };
 
+const GAS_DEPLOY_ID = SPREADSHEET_CONFIG.gasDeploymentId;
+
+// 工作表名稱常數池
+const SHEET_NAMES = {
+    WAREHOUSES: '據點倉儲',
+    ADJUSTMENTS: '盤點調撥',
+    PERSONS: '個人主檔',
+    PARTNERS: '夥伴主檔',
+    PRODUCTS: '產品主檔',
+    CUSTOMERS: '客戶主檔',
+    STOCKS: '庫存主檔'
+};
+
 // 系統資料狀態庫 (全面移除預設假資料)
 let appState = {
     adjustments: [],
@@ -235,13 +248,13 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawWarehouses, rawAdjustments, rawPersons, rawPartners, rawProducts, rawCustomers, rawStocks] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '據點倉儲').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '盤點調撥').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, '個人主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, '夥伴主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, '產品主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, '客戶主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '庫存主檔').catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.ADJUSTMENTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, SHEET_NAMES.PRODUCTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, SHEET_NAMES.CUSTOMERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.STOCKS).catch(() => [])
         ]);
 
         parseAllData({
@@ -1306,7 +1319,7 @@ function initEvents() {
         updateTransferCostCalc();
     });
 
-    // Tab 頁籤切換監聽 (參考 psi-stock.js 規範)
+    // Tab 頁籤切換監聽
     $('#adjustViewTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const targetId = $(e.target).attr('data-bs-target');
         if (targetId === '#container-audit-view') {
@@ -1736,7 +1749,7 @@ async function commitAuditRecord() {
     const $btn = $('#btnSubmitAudit');
     try {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
-        await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
+        await SheetAdapter.createRow(SHEET_NAMES.ADJUSTMENTS, adjNo, rowDataArray, GAS_DEPLOY_ID);
         appState.adjustments.unshift(newObj);
 
         const auditModalEl = document.getElementById('modalAuditWorkbench');
@@ -1899,7 +1912,7 @@ async function commitTransferOrder() {
     };
 
     try {
-        await SheetAdapter.sendRequest('CREATE', '盤點調撥', adjNo, rowDataArray);
+        await SheetAdapter.createRow(SHEET_NAMES.ADJUSTMENTS, adjNo, rowDataArray, GAS_DEPLOY_ID);
         appState.adjustments.unshift(newObj);
 
         const transferModalEl = document.getElementById('modalTransferWorkbench');
@@ -1995,7 +2008,7 @@ function handleModalProductChange() {
     $('#fieldProductNameSnaps').val(prodName);
     $('#fieldStockId').val(`STK-${AppDate.toClean8()}-SYS`);
     $('#fieldBatchNo').val(`LOT${AppDate.toClean8()}`);
-    $('#fieldExpiryDate').val(AppDate.now('date'));
+    $('#fieldExpiryDate').val(AppDate.now('input'));
 
     // ★ 鎖定不可修改之「單位」與「幣別」 (同時更新 input-group-text 與 hidden input)
     $('#fieldAdjUnit').val(targetUnit);
@@ -2007,6 +2020,7 @@ function handleModalProductChange() {
     $('#fieldUnitCost').val(spec.unitPrice || spec.unitCost || prod.price);
     $('#fieldUnitSv').val(spec.unitSV || prod.sv_point);
 
+    updateAdjustStockFeedback();
     calculateModalTotals();
 }
 
@@ -2309,10 +2323,10 @@ async function saveAdjustmentRecord() {
         };
 
         if (mode === 'add') {
-            await SheetAdapter.sendRequest('CREATE', '盤點調撥', id, rowDataArray);
+            await SheetAdapter.createRow(SHEET_NAMES.ADJUSTMENTS, id, rowDataArray, GAS_DEPLOY_ID);
             appState.adjustments.unshift(updatedObj);
         } else {
-            await SheetAdapter.sendRequest('UPDATE', '盤點調撥', id, rowDataArray);
+            await SheetAdapter.updateRow(SHEET_NAMES.ADJUSTMENTS, id, rowDataArray, GAS_DEPLOY_ID);
             const idx = appState.adjustments.findIndex(a => a.id === id);
             if (idx !== -1) appState.adjustments[idx] = updatedObj;
         }
@@ -2338,7 +2352,7 @@ async function deleteAdjustmentRecord(id) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.sendRequest('DELETE', '盤點調撥', id, []);
+        await SheetAdapter.deleteRow(SHEET_NAMES.ADJUSTMENTS, id, GAS_DEPLOY_ID);
         appState.adjustments = appState.adjustments.filter(a => a.id !== id);
         // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
         refreshAllViews();

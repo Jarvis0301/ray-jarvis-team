@@ -652,56 +652,54 @@ function renderProducts() {
                 </tr>
             `);
         } else {
-            // 表格模式：產品名稱後標籤（即將上市 或 明星商品）
-            filtered.forEach(item => {
+            const formatted = filtered.map(item => {
                 const qty = cartState[item.product_code] || 0;
-                const price = item.price || 0;
-                const sv = item.sv_point || 0;
+                const price = Number(item.price) || 0;
+                const sv = Number(item.sv_point) || 0;
                 const currencySymbol = item.currency === 'MYR' ? 'RM ' : 'NT$ ';
-
                 const subInfo = getSubcategoryInfo(item.subcategory_code, item.region_code);
                 const typeInfo = getTypeInfo(item.type_code, item.region_code);
 
                 let nameTagHtml = '';
                 if (item.status === 'COMING_SOON') {
-                    nameTagHtml = ' <span class="badge badge-warning"><i class="fa-solid fa-clock me-1"></i>即將上市</span>';
+                    nameTagHtml = ' ' + UIBadges.product.launchStatus('COMING_SOON');
                 } else if (item.is_featured) {
-                    nameTagHtml = ' <span class="badge badge-danger"><i class="fa-solid fa-fire me-1"></i>明星商品</span>';
+                    nameTagHtml = ' ' + UIBadges.product.featured(true);
                 }
 
-                const rowHtml = `
-                    <tr>
-                        <td><span class="product-badge">${item.product_code}</span></td>
-                        <td class="fw-bold text-white">${item.name}${nameTagHtml}</td>
-                        <td>
-                            <span class="badge border" style="color: ${subInfo.color}; border-color: ${subInfo.color} !important; background-color: ${subInfo.bg};">
-                                <i class="${subInfo.icon} me-1"></i>${subInfo.name}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge border" style="color: ${typeInfo.color}; border-color: ${typeInfo.color} !important; background-color: ${typeInfo.bg};">
-                                <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
-                            </span>
-                        </td>
-                        <td class="text-end text-yellow fw-bold">${currencySymbol}${price.toLocaleString()}</td>
-                        <td class="text-end text-teal fw-bold">${sv.toLocaleString()} SV</td>
-                        <td class="text-center">
-                            <div class="qty-control justify-content-center">
-                                <button class="btn-qty btn-minus" data-id="${item.product_code}">
-                                    <i class="fa-solid fa-minus"></i>
-                                </button>
-                                <input type="number" class="qty-input no-spin text-center" value="${qty}" min="0" data-id="${item.product_code}">
-                                <button class="btn-qty btn-plus" data-id="${item.product_code}">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                $tbody.append(rowHtml);
+                return {
+                    code: `<span class="product-badge">${item.product_code}</span>`,
+                    name: `<span class="fw-bold text-white">${item.name}</span>${nameTagHtml}`,
+                    sub: UIBadges.product.subcategory(subInfo, item.region_code),
+                    type: UIBadges.product.type(typeInfo, item.region_code),
+                    price: `${currencySymbol}${price.toLocaleString()}`,
+                    sv: `${sv.toLocaleString()} SV`,
+                    actions: `
+                        <div class="qty-control justify-content-center">
+                            <button class="btn-qty btn-minus" data-id="${item.product_code}"><i class="fa-solid fa-minus"></i></button>
+                            <input type="number" class="qty-input no-spin text-center" value="${qty}" min="0" data-id="${item.product_code}">
+                            <button class="btn-qty btn-plus" data-id="${item.product_code}"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    `
+                };
             });
 
-            dataTableInstance = $('#productTable').DataTable();
+            if (dataTableInstance) {
+                dataTableInstance.clear().rows.add(formatted).draw();
+            } else {
+                dataTableInstance = $('#productTable').DataTable({
+                    data: formatted,
+                    columns: [
+                        { data: 'code', className: 'text-center' },
+                        { data: 'name' },
+                        { data: 'sub', className: 'text-center' },
+                        { data: 'type', className: 'text-center' },
+                        { data: 'price', className: 'text-end text-yellow fw-bold' },
+                        { data: 'sv', className: 'text-end text-teal fw-bold' },
+                        { data: 'actions', className: 'text-center', orderable: false }
+                    ]
+                });
+            }
         }
     }
 

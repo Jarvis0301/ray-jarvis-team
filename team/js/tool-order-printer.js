@@ -70,7 +70,7 @@ function printOrderReceipt(orderData) {
     printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px;">
             <h2 style="margin: 0 0 6px 0; color: #0284c7; font-size: 22px;">葡眾團隊 - 線上訂購試算單</h2>
-            <p style="margin: 0; color: #6b7280; font-size: 12px;">列印 / 匯出時間：${new Date().toLocaleString('zh-TW')}</p>
+            <p style="margin: 0; color: #6b7280; font-size: 12px;">列印 / 匯出時間：${AppDate.now('full')}</p>
         </div>
 
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -191,7 +191,7 @@ function showMobileReceiptModal(orderData) {
     bsModal.show();
 
     document.getElementById('btnDownloadReceiptHtml').onclick = function () {
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>訂購試算單_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style></head><body><h2>葡眾團隊 - 訂購試算單</h2><p>日期：${new Date().toLocaleString('zh-TW')}</p><hr><pre style="font-size:14px;background:#f4f4f4;padding:15px;border-radius:8px;">${textSummary}</pre></body></html>`;
+        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>訂購試算單_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;}</style></head><body><h2>葡眾團隊 - 訂購試算單</h2><p>日期：${AppDate.now('full')}</p><hr><pre style="font-size:14px;background:#f4f4f4;padding:15px;border-radius:8px;">${textSummary}</pre></body></html>`;
         const blob = new Blob([fullHtml], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -278,7 +278,7 @@ function printAnalyticsReport(reportData) {
     printArea.innerHTML = `
         <div style="text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 15px;">
             <h2 style="margin: 0 0 4px 0; color: #0284c7; font-size: 20px;">葡眾團隊 - 訂購戰情分析報告 (PDF)</h2>
-            <p style="margin: 0; color: #64748b; font-size: 11px;">產生時間：${new Date().toLocaleString('zh-TW')}</p>
+            <p style="margin: 0; color: #64748b; font-size: 11px;">產生時間：${AppDate.now('full')}</p>
         </div>
 
         <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #fafafa;">
@@ -406,7 +406,7 @@ function showMobileAnalyticsModal(reportData) {
     bsModal.show();
 
     document.getElementById('btnDownloadAnalyticsHtml').onclick = function () {
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>戰情報告_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;background:#ffffff;color:#0f172a;} .card{background:#f8fafc;padding:15px;margin-bottom:15px;border-radius:8px;border:1px solid #e2e8f0;} img{max-width:100%;height:auto;}</style></head><body><h2>葡眾團隊 - 訂購戰情分析報告</h2><p>產生時間：${new Date().toLocaleString('zh-TW')}</p><hr><div class="card"><h3>1. 主系列占比 (${chart1.metric})</h3><img src="${chart1.img}"></div><div class="card"><h3>2. 各系列數據分佈 (${chart2.metric})</h3><img src="${chart2.img}"></div><div class="card"><h3>3. 型態數量統計</h3><img src="${chart3.img}"></div><div class="card"><h3>4. Top 5 單品</h3><img src="${chart4.img}"></div><div class="card"><h3>5. 雷達圖 (${chart5.metric})</h3><img src="${chart5.img}"></div></body></html>`;
+        const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>戰情報告_${dateStr}</title><style>body{font-family:sans-serif;padding:20px;background:#ffffff;color:#0f172a;} .card{background:#f8fafc;padding:15px;margin-bottom:15px;border-radius:8px;border:1px solid #e2e8f0;} img{max-width:100%;height:auto;}</style></head><body><h2>葡眾團隊 - 訂購戰情分析報告</h2><p>產生時間：${AppDate.now('full')}</p><hr><div class="card"><h3>1. 主系列占比 (${chart1.metric})</h3><img src="${chart1.img}"></div><div class="card"><h3>2. 各系列數據分佈 (${chart2.metric})</h3><img src="${chart2.img}"></div><div class="card"><h3>3. 型態數量統計</h3><img src="${chart3.img}"></div><div class="card"><h3>4. Top 5 單品</h3><img src="${chart4.img}"></div><div class="card"><h3>5. 雷達圖 (${chart5.metric})</h3><img src="${chart5.img}"></div></body></html>`;
         const blob = new Blob([fullHtml], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

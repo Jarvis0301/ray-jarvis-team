@@ -193,34 +193,13 @@ async function loadProductDetail(productCode, region) {
 function getMarketStatus(launchDate, delistDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayTs = today.getTime();
 
-    const parseDate = (val) => {
-        if (!val || (typeof val !== 'string' && typeof val !== 'number')) return null;
-        const str = String(val).trim();
-        if (!str || str === '-' || str === 'N/A' || str === '0' || str.toLowerCase() === 'null') {
-            return null;
-        }
-        const d = new Date(str.replace(/\//g, '-'));
-        return isNaN(d.getTime()) ? null : d;
-    };
+    const lTs = AppDate.toTimestamp(launchDate);
+    const dTs = AppDate.toTimestamp(delistDate);
 
-    const lDate = parseDate(launchDate);
-    const dDate = parseDate(delistDate);
-
-    if (lDate) {
-        lDate.setHours(0, 0, 0, 0);
-        if (lDate.getTime() > today.getTime()) {
-            return { isOnMarket: false, code: 'COMING_SOON', label: '即將上市' };
-        }
-    }
-
-    if (dDate) {
-        dDate.setHours(0, 0, 0, 0);
-        if (dDate.getTime() <= today.getTime()) {
-            return { isOnMarket: false, code: 'DISCONTINUED', label: '已下市' };
-        }
-    }
-
+    if (lTs > 0 && lTs > todayTs) return { isOnMarket: false, code: 'COMING_SOON', label: '即將上市' };
+    if (dTs > 0 && dTs <= todayTs) return { isOnMarket: false, code: 'DISCONTINUED', label: '已下市' };
     return { isOnMarket: true, code: 'ACTIVE', label: '販售中' };
 }
 
@@ -339,7 +318,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.launch_date) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-calendar-day text-primary me-1"></i>上市日期：<span class="text-light">${product.launch_date}</span>
+                <i class="fa-solid fa-calendar-day text-primary me-1"></i>上市日期：<span class="text-light">${AppDate.toDisplay(product.launch_date)}</span>
             </p>
         `);
     }
@@ -347,7 +326,7 @@ function renderDetailPage({ product, detail, subInfo, typeInfo, relatedCopywriti
     if (product.delist_date) {
         specsHtml.push(`
             <p class="mb-2 text-muted">
-                <i class="fa-solid fa-calendar-xmark text-danger me-1"></i>下市日期：<span class="text-danger">${product.delist_date}</span>
+                <i class="fa-solid fa-calendar-xmark text-danger me-1"></i>下市日期：<span class="text-danger">${AppDate.toDisplay(product.delist_date)}</span>
             </p>
         `);
     }

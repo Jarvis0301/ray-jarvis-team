@@ -10,6 +10,20 @@ const SPREADSHEET_CONFIG = {
     gasDeploymentId: APP_CONFIG.GAS.PSI
 };
 
+const GAS_DEPLOY_ID = SPREADSHEET_CONFIG.gasDeploymentId;
+
+// 工作表名稱常數池
+const SHEET_NAMES = {
+    WAREHOUSES: '據點倉儲',
+    OUTBOUNDS: '銷貨主檔',
+    OUTBOUND_ITEMS: '銷貨明細',
+    PERSONS: '個人主檔',
+    PARTNERS: '夥伴主檔',
+    PRODUCTS: '產品主檔',
+    CUSTOMERS: '客戶主檔',
+    STOCKS: '庫存主檔'
+};
+
 // 系統資料狀態庫 (State Management)
 let appState = {
     outbounds: [],
@@ -116,14 +130,14 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawWarehouses, rawOutbounds, rawOutboundItems, rawPersons, rawPartners, rawProducts, rawCustomers, rawStocks] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '據點倉儲').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '銷貨主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '銷貨明細').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, '個人主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, '夥伴主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, '產品主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, '客戶主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, '庫存主檔').catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.OUTBOUNDS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.OUTBOUND_ITEMS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, SHEET_NAMES.PRODUCTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, SHEET_NAMES.CUSTOMERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.STOCKS).catch(() => [])
         ]);
 
         parseAllData({
@@ -1889,7 +1903,7 @@ async function saveAllOutboundItems() {
 
         // 1. 執行已標記刪除項之雲端清理
         for (const delId of deletedOutboundItemIds) {
-            await SheetAdapter.sendRequest('DELETE', '銷貨明細', delId, []);
+            await SheetAdapter.deleteRow(SHEET_NAMES.OUTBOUND_ITEMS, delId, GAS_DEPLOY_ID);
         }
 
         // 2. 執行暫存明細之新增與更新 (嚴格對應表 306 實體 28 欄順序)
@@ -1936,9 +1950,9 @@ async function saveAllOutboundItems() {
             ];
 
             if (it._isNew || it.id.includes('_TEMP_')) {
-                await SheetAdapter.sendRequest('CREATE', '銷貨明細', finalItemId, rowData);
+                await SheetAdapter.createRow(SHEET_NAMES.OUTBOUND_ITEMS, finalItemId, rowData, GAS_DEPLOY_ID);
             } else if (it._isModified) {
-                await SheetAdapter.sendRequest('UPDATE', '銷貨明細', finalItemId, rowData);
+                await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUND_ITEMS, finalItemId, rowData, GAS_DEPLOY_ID);
             }
         }
 
@@ -2000,7 +2014,7 @@ async function saveAllOutboundItems() {
             parentOrder.created_by, parentOrder.created_at, parentOrder.modified_by, parentOrder.modified_at
         ];
 
-        await SheetAdapter.sendRequest('UPDATE', '銷貨主檔', parentOrder.id, parentRowData);
+        await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, parentOrder.id, parentRowData, GAS_DEPLOY_ID);
 
         // 同步銷貨明細記憶體陣列
         appState.outboundItems = appState.outboundItems.filter(it => it.outbound_id !== currentDetailOrderId);
@@ -2389,10 +2403,10 @@ async function saveOutboundOrder() {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入雲端中...');
 
         if (mode === 'add') {
-            await SheetAdapter.sendRequest('CREATE', '銷貨主檔', orderId, rowDataArray);
+            await SheetAdapter.createRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
             appState.outbounds.unshift(updatedObj);
         } else {
-            await SheetAdapter.sendRequest('UPDATE', '銷貨主檔', orderId, rowDataArray);
+            await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
             const idx = appState.outbounds.findIndex(d => d.id === orderId);
             if (idx !== -1) appState.outbounds[idx] = updatedObj;
         }
@@ -2449,7 +2463,7 @@ async function quickMarkDelivered(orderId) {
     ];
 
     try {
-        await SheetAdapter.sendRequest('UPDATE', '銷貨主檔', item.id, rowDataArray);
+        await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, item.id, rowDataArray, GAS_DEPLOY_ID);
         // 移除 await fetchGoogleSheetsData(); 改為直接重算母單與刷新畫面
         autoRecalculateParentOutbound(item.id);
         refreshAllViews();
@@ -2471,7 +2485,7 @@ async function deleteOutboundOrder(id) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.sendRequest('DELETE', '銷貨主檔', id, []);
+        await SheetAdapter.deleteRow(SHEET_NAMES.OUTBOUNDS, id, GAS_DEPLOY_ID);
         appState.outbounds = appState.outbounds.filter(d => d.id !== id);
         appState.outboundItems = appState.outboundItems.filter(it => it.outbound_id !== id);
 
@@ -2545,7 +2559,7 @@ async function autoRecalculateParentOutbound(orderId) {
         parentOrder.created_by, parentOrder.created_at, parentOrder.modified_by, parentOrder.modified_at
     ];
 
-    await SheetAdapter.sendRequest('UPDATE', '銷貨主檔', parentOrder.id, rowDataArray);
+    await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, parentOrder.id, rowDataArray, GAS_DEPLOY_ID);
     renderDataTable();
     renderKpis();
     renderCharts();

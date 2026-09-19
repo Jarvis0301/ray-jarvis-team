@@ -187,37 +187,13 @@ async function fetchGoogleSheetsData() {
 function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayTs = today.getTime();
 
-    const parseDate = (val) => {
-        if (!val || (typeof val !== 'string' && typeof val !== 'number')) return null;
-        const str = String(val).trim();
-        if (!str || str === '-' || str === 'N/A' || str === '0' || str.toLowerCase() === 'null') {
-            return null;
-        }
-        const d = new Date(str.replace(/\//g, '-'));
-        return isNaN(d.getTime()) ? null : d;
-    };
+    const lTs = AppDate.toTimestamp(launchDateVal);
+    const dTs = AppDate.toTimestamp(discontinueDateVal);
 
-    const launchDate = parseDate(launchDateVal);
-    const discontinueDate = parseDate(discontinueDateVal);
-
-    // 1. 若有上市日期且晚於今天 -> 即將上市
-    if (launchDate) {
-        launchDate.setHours(0, 0, 0, 0);
-        if (launchDate.getTime() > today.getTime()) {
-            return 'COMING_SOON';
-        }
-    }
-
-    // 2. 若有下市日期且早於今天 -> 已下市
-    if (discontinueDate) {
-        discontinueDate.setHours(0, 0, 0, 0);
-        if (discontinueDate.getTime() < today.getTime()) {
-            return 'DISCONTINUED';
-        }
-    }
-
-    // 3. 其餘情況 -> 販售中
+    if (lTs > 0 && lTs > todayTs) return 'COMING_SOON';
+    if (dTs > 0 && dTs <= todayTs) return 'DISCONTINUED';
     return 'ACTIVE';
 }
 
@@ -502,7 +478,7 @@ function renderProducts() {
                     <p class="product-desc small text-muted mb-3 text-truncate-2">${item.short_summary || '暫無產品簡介'}</p>
                     <div class="price-sv-block mt-auto mb-3 p-2 rounded d-flex justify-content-between align-items-center bg-dark-subtle">
                         <div class="price-tag fw-bold text-warning">${formattedPrice}</div>
-                        <div class="sv-tag small text-warning"><i class="fa-solid fa-star me-1"></i>${item.sv_point} SV</div>
+                        <div class="sv-tag small text-warning"><i class="fa-solid fa-star me-1"></i>${Number(item.sv_point).toLocaleString()} SV</div>
                     </div>
                     <a href="${detailUrl}" target="_blank" class="btn btn-outline-primary w-100 text-center fw-bold">
                         <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>查看產品詳情
