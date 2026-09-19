@@ -1,7 +1,13 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與資料庫核心轉接器 (Adapter Pattern)
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.ORG;
+const SPREADSHEET_ID = {
+    ORG: APP_CONFIG.SHEETS.ORG
+};
+
+const SHEET_NAMES = {
+    RANKS: '職級主檔'
+};
 
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
@@ -85,7 +91,7 @@ async function fetchGoogleSheetsData() {
     }
     
     try {
-        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID, '職級主檔');
+        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.RANKS);
 
         if (!rawRows || rawRows.length === 0) {
             throw new Error("試算表『職級主檔』工作表中未讀取到任何有效數據。");

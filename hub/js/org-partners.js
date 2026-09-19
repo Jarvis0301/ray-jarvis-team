@@ -11,10 +11,24 @@
 // ============================================================================
 // 1. 核心常數與全域狀態 (Constants & State)
 // ============================================================================
-const SPREADSHEET_ID_ORG = APP_CONFIG.SHEETS.ORG;
-const SPREADSHEET_ID_PSN = APP_CONFIG.SHEETS.PSN;
-const GAS_DEPLOY_ID_ORG = APP_CONFIG.GAS.ORG;
-const GAS_DEPLOY_ID_PSN = APP_CONFIG.GAS.PSN;
+const SPREADSHEET_ID = {
+    ORG: APP_CONFIG.SHEETS.ORG,
+    PSN: APP_CONFIG.SHEETS.PSN
+};
+
+const GAS_DEPLOY_ID = {
+    ORG: APP_CONFIG.GAS.ORG,
+    PSN: APP_CONFIG.GAS.PSN
+};
+
+const SHEET_NAMES = {
+    PERSONS: '個人主檔',
+    PARTNERS: '夥伴主檔',
+    CONTACTS: '通訊資料',
+    LANGUAGES: '使用語言',
+    RELATIONS: '組織關係',
+    RANKS: '職級主檔'
+};
 
 const DEFAULT_AVATARS = {
     '男': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
@@ -533,12 +547,12 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [personRows, contactsRows, langRows, partnersRows, relationsRows, ranksRows] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSN, '個人主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSN, '通訊資料').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSN, '使用語言').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_ORG, '夥伴主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_ORG, '組織關係').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_ORG, '職級主檔').catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.CONTACTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.LANGUAGES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.RELATIONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.RANKS).catch(() => [])
         ]);
 
         if (ranksRows.length > 0) ranksDatabase = parseRanksTable(ranksRows);
@@ -2572,9 +2586,9 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         ];
 
         if (existingSelf) {
-            await SheetAdapter.updateRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
+            await SheetAdapter.updateRow(SHEET_NAMES.RELATIONS, targetId, selfRelationRow, GAS_DEPLOY_ID.ORG, silentOpt);
         } else {
-            await SheetAdapter.createRow('組織關係', targetId, ORG_GAS_DEPLOY_ID, selfRelationRow);
+            await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, targetId, selfRelationRow, GAS_DEPLOY_ID.ORG, silentOpt);
         }
         return;
     }
@@ -2628,9 +2642,9 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
     ];
 
     if (existingRel) {
-        await SheetAdapter.updateRow('組織關係', targetId, relationRowArray, GAS_DEPLOY_ID_ORG, silentOpt);
+        await SheetAdapter.updateRow(SHEET_NAMES.RELATIONS, targetId, relationRowArray, GAS_DEPLOY_ID.ORG, silentOpt);
     } else {
-        await SheetAdapter.createRow('組織關係', targetId, relationRowArray, GAS_DEPLOY_ID_ORG, silentOpt);
+        await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, targetId, relationRowArray, GAS_DEPLOY_ID.ORG, silentOpt);
     }
 }
 
@@ -2949,21 +2963,21 @@ async function savePartnerRecord(e) {
         // ★ 核心異動：舊資料清理（通訊與語言使用 GAS_DEPLOY_ID_PSN）
         const deletePromises = [];
         personContactsList.filter(c => c.person_id === personId).forEach(c => {
-            if (c.contact_id) deletePromises.push(SheetAdapter.deleteRow('通訊資料', c.contact_id, GAS_DEPLOY_ID_PSN, silentOpt).catch(() => {}));
+            if (c.contact_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CONTACTS, c.contact_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
         });
         personLanguagesList.filter(l => l.person_id === personId).forEach(l => {
-            if (l.lang_id) deletePromises.push(SheetAdapter.deleteRow('使用語言', l.lang_id, GAS_DEPLOY_ID_PSN, silentOpt).catch(() => {}));
+            if (l.lang_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.LANGUAGES, l.lang_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
         });
         if (deletePromises.length > 0) await Promise.all(deletePromises);
 
         // ★ 核心異動：雙向端點分流寫入
         const writePromises = [];
         if (mode === 'CREATE') {
-            writePromises.push(SheetAdapter.createRow('個人主檔', personId, personRowArray, GAS_DEPLOY_ID_PSN, silentOpt));
-            writePromises.push(SheetAdapter.createRow('夥伴主檔', partnerId, partnerRowArray, GAS_DEPLOY_ID_ORG, silentOpt));
+            writePromises.push(SheetAdapter.createRow(SHEET_NAMES.PERSONS, personId, personRowArray, GAS_DEPLOY_ID.PSN, silentOpt));
+            writePromises.push(SheetAdapter.createRow(SHEET_NAMES.PARTNERS, partnerId, partnerRowArray, GAS_DEPLOY_ID.ORG, silentOpt));
         } else {
-            writePromises.push(SheetAdapter.updateRow('個人主檔', personId, personRowArray, GAS_DEPLOY_ID_PSN, silentOpt));
-            writePromises.push(SheetAdapter.updateRow('夥伴主檔', partnerId, partnerRowArray, GAS_DEPLOY_ID_ORG, silentOpt));
+            writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PERSONS, personId, personRowArray, GAS_DEPLOY_ID.PSN, silentOpt));
+            writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, partnerId, partnerRowArray, GAS_DEPLOY_ID.ORG, silentOpt));
         }
 
         // 對偶配偶反向自動連動持久化
@@ -2992,14 +3006,14 @@ async function savePartnerRecord(e) {
                     spousePartner.modified_at = nowStr;
 
                     const spouseRowArray = buildPartnerRowArrayFromObject(spousePartner);
-                    writePromises.push(SheetAdapter.updateRow('夥伴主檔', spousePartner.partner_id, spouseRowArray, GAS_DEPLOY_ID_ORG, silentOpt));
+                    writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, spousePartner.partner_id, spouseRowArray, GAS_DEPLOY_ID.ORG, silentOpt));
                 }
             }
         }
 
         // 通訊資料與語言矩陣寫入（使用 GAS_DEPLOY_ID_PSN）
-        contactRows.forEach(nc => writePromises.push(SheetAdapter.createRow('通訊資料', nc[0], nc, GAS_DEPLOY_ID_PSN, silentOpt)));
-        languageRows.forEach(nl => writePromises.push(SheetAdapter.createRow('使用語言', nl[0], nl, GAS_DEPLOY_ID_PSN, silentOpt)));
+        contactRows.forEach(nc => writePromises.push(SheetAdapter.createRow(SHEET_NAMES.CONTACTS, nc[0], nc, GAS_DEPLOY_ID.PSN, silentOpt)));
+        languageRows.forEach(nl => writePromises.push(SheetAdapter.createRow(SHEET_NAMES.LANGUAGES, nl[0], nl, GAS_DEPLOY_ID.PSN, silentOpt)));
 
         // 組織關係閉包表寫入（使用 GAS_DEPLOY_ID_ORG）
         writePromises.push(syncOrgRelationsRecord(partnerId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr));
@@ -3049,22 +3063,22 @@ async function deletePartnerRecord(partnerId) {
                 const silentOpt = { silent: true };
 
                 // 夥伴主檔由 ORG_GAS 刪除
-                deletePromises.push(SheetAdapter.deleteRow('夥伴主檔', partnerId, GAS_DEPLOY_ID_ORG, silentOpt));
+                deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.PARTNERS, partnerId, GAS_DEPLOY_ID.ORG, silentOpt));
 
                 // 個人主檔、通訊表、語言表由 PSN_GAS 刪除
                 if (personId) {
-                    deletePromises.push(SheetAdapter.deleteRow('個人主檔', personId, GAS_DEPLOY_ID_PSN, silentOpt).catch(() => {}));
+                    deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.PERSONS, personId, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
                     personContactsList.filter(c => c.person_id === personId).forEach(rc => {
-                        if (rc.contact_id) deletePromises.push(SheetAdapter.deleteRow('通訊資料', rc.contact_id, GAS_DEPLOY_ID_PSN, silentOpt).catch(() => {}));
+                        if (rc.contact_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CONTACTS, rc.contact_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
                     });
                     personLanguagesList.filter(l => l.person_id === personId).forEach(rl => {
-                        if (rl.lang_id) deletePromises.push(SheetAdapter.deleteRow('使用語言', rl.lang_id, GAS_DEPLOY_ID_PSN, silentOpt).catch(() => {}));
+                        if (rl.lang_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.LANGUAGES, rl.lang_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
                     });
                 }
 
                 // 組織關係由 ORG_GAS 刪除
                 orgRelationsList.filter(r => r.ancestor_id === partnerId || r.descendant_id === partnerId).forEach(rel => {
-                    if (rel.id) deletePromises.push(SheetAdapter.deleteRow('組織關係', rel.id, GAS_DEPLOY_ID_ORG, silentOpt).catch(() => {}));
+                    if (rel.id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.RELATIONS, rel.id, GAS_DEPLOY_ID.ORG, silentOpt).catch(() => {}));
                 });
 
                 // 配偶回復寫入由 ORG_GAS 執行
@@ -3079,7 +3093,7 @@ async function deletePartnerRecord(partnerId) {
                         spouse.modified_at = AppDate.now('full');
 
                         const rolledSpouseRow = buildPartnerRowArrayFromObject(spouse);
-                        deletePromises.push(SheetAdapter.updateRow('夥伴主檔', spouse.partner_id, rolledSpouseRow, GAS_DEPLOY_ID_ORG, silentOpt));
+                        deletePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, spouse.partner_id, rolledSpouseRow, GAS_DEPLOY_ID.ORG, silentOpt));
                     }
                 }
 

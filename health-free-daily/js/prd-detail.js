@@ -1,7 +1,19 @@
 // ==========================================
 // 1. Google 雲端硬碟試算表設定與核心轉接器
 // ==========================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
+const SPREADSHEET_ID = {
+    PRD: APP_CONFIG.SHEETS.PRD
+};
+
+const SHEET_NAMES = {
+    PRODUCTS: '產品主檔',
+    DETAILS: '產品詳細資料',
+    CATEGORIES: '產品主系列',
+    SUBCATEGORIES: '產品次系列',
+    TYPES: '產品型態',
+    COPYWRITING: '行銷文案',
+    FAQ: '產品問答'
+};
 
 // 取得 URL 查詢參數
 function getUrlParams() {
@@ -59,22 +71,14 @@ async function loadProductDetail(productCode, region) {
         const targetCodeUpper = productCode.toUpperCase().trim();
         const baseCodeTarget = targetCodeUpper.replace(/^(TW|MY)/, '');
 
-        const [
-            productsData,
-            detailsData,
-            mainCatsData,
-            subsData,
-            typesData,
-            copywritingData,
-            faqData
-        ] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品詳細資料'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主系列'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品次系列'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品型態'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '行銷文案'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品問答')
+        const [productsData, detailsData, mainCatsData, subsData, typesData, copywritingData, faqData] = await Promise.all([
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.DETAILS),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.CATEGORIES),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.SUBCATEGORIES),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.TYPES),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.COPYWRITING),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.FAQ)
         ]);
 
         const targetProductRow = (productsData || []).find(r => {

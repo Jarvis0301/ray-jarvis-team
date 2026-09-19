@@ -1,8 +1,17 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與資料庫核心轉接器
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.SYS;
-const GAS_DEPLOY_ID = APP_CONFIG.GAS.SYS;
+const SPREADSHEET_ID = {
+    SYS: APP_CONFIG.SHEETS.SYS
+};
+
+const GAS_DEPLOY_ID = {
+    SYS: APP_CONFIG.GAS.SYS
+};
+
+const SHEET_NAMES = {
+    MENUS: '選單架構'
+};
 
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
@@ -21,7 +30,7 @@ let isInitialized = false;
 // 3. 系統生命週期與事件初始化
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
-    SheetAdapter.init(GAS_DEPLOY_ID);
+    SheetAdapter.init(GAS_DEPLOY_ID.SYS);
     await initApp();
 });
 
@@ -46,7 +55,7 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID, '選單架構');
+        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID.SYS, SHEET_NAMES.MENUS);
 
         if (!rawRows || rawRows.length === 0) {
             throw new Error("試算表『選單架構』工作表中未讀取到任何有效數據。");
@@ -486,10 +495,10 @@ async function saveMenuItem() {
         $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
-            await SheetAdapter.createRow('選單架構', menuId, rowDataArray);
+            await SheetAdapter.createRow(SHEET_NAMES.MENUS, menuId, rowDataArray, GAS_DEPLOY_ID.SYS);
             appState.menus.push(updatedNodeObj);
         } else {
-            await SheetAdapter.updateRow('選單架構', menuId, rowDataArray);
+            await SheetAdapter.updateRow(SHEET_NAMES.MENUS, menuId, rowDataArray, GAS_DEPLOY_ID.SYS);
             const index = appState.menus.findIndex(m => m.menu_id === menuId);
             if (index !== -1) {
                 appState.menus[index] = updatedNodeObj;
@@ -525,7 +534,7 @@ async function deleteMenuItem(menuId) {
     if (!confirm(`確定要自 Google 試算表中永久刪除節點【${menuId}】嗎？`)) return;
 
     try {
-        await SheetAdapter.deleteRow('選單架構', menuId);
+        await SheetAdapter.deleteRow(SHEET_NAMES.MENUS, menuId, GAS_DEPLOY_ID.SYS);
 
         appState.menus = appState.menus.filter(m => m.menu_id !== menuId);
         if (appState.selectedMenuId === menuId) {

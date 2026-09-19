@@ -1,7 +1,13 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與核心轉接器
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
+const SPREADSHEET_ID = {
+    PRD: APP_CONFIG.SHEETS.PRD
+};
+
+const SHEET_NAMES = {
+    PRODUCTS: '產品主檔'
+};
 
 // ==========================================================================
 // 2. 系統狀態管理
@@ -55,7 +61,7 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔');
+        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS);
 
         if (!rawRows || rawRows.length === 0) {
             throw new Error("試算表『產品主檔』工作表中未讀取到任何有效產品數據。");

@@ -1,18 +1,18 @@
 // ==========================================================================
 // 1. 系統組態與 4 大試算表來源定義
 // ==========================================================================
-const SPREADSHEET_CONFIG = {
-    sheetPsi: APP_CONFIG.SHEETS.PSI,
-    sheetOrg: APP_CONFIG.SHEETS.ORG,
-    sheetPsn: APP_CONFIG.SHEETS.PSN,
-    sheetPrd: APP_CONFIG.SHEETS.PRD,
-    sheetCrm: APP_CONFIG.SHEETS.CRM,
-    gasDeploymentId: APP_CONFIG.GAS.PSI
+const SPREADSHEET_ID = {
+    PSI: APP_CONFIG.SHEETS.PSI,
+    ORG: APP_CONFIG.SHEETS.ORG,
+    PSN: APP_CONFIG.SHEETS.PSN,
+    PRD: APP_CONFIG.SHEETS.PRD,
+    CRM: APP_CONFIG.SHEETS.CRM
 };
 
-const GAS_DEPLOY_ID = SPREADSHEET_CONFIG.gasDeploymentId;
+const GAS_DEPLOY_ID = {
+    PSI: APP_CONFIG.GAS.PSI
+};
 
-// 工作表名稱常數池
 const SHEET_NAMES = {
     WAREHOUSES: '據點倉儲',
     ADJUSTMENTS: '盤點調撥',
@@ -227,7 +227,7 @@ function getWarehouseDisplayName(whId, displayMode = 1) {
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
+        SheetAdapter.init(GAS_DEPLOY_ID.PSI);
     }
     await initAdjustApp();
 });
@@ -248,13 +248,13 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawWarehouses, rawAdjustments, rawPersons, rawPartners, rawProducts, rawCustomers, rawStocks] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.WAREHOUSES).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.ADJUSTMENTS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, SHEET_NAMES.PERSONS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, SHEET_NAMES.PARTNERS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, SHEET_NAMES.PRODUCTS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetCrm, SHEET_NAMES.CUSTOMERS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.STOCKS).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.ADJUSTMENTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.CRM, SHEET_NAMES.CUSTOMERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.STOCKS).catch(() => [])
         ]);
 
         parseAllData({

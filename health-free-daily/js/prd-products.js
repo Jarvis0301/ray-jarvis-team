@@ -1,7 +1,16 @@
 // ==========================================
 // 1. Google 雲端硬碟試算表設定與核心轉接器
 // ==========================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
+const SPREADSHEET_ID = {
+    PRD: APP_CONFIG.SHEETS.PRD
+};
+
+const SHEET_NAMES = {
+    PRODUCTS: '產品主檔',
+    CATEGORIES: '產品主系列',
+    SUBCATEGORIES: '產品次系列',
+    TYPES: '產品型態'
+};
 
 // ==========================================
 // 2. 系統狀態管理
@@ -51,10 +60,10 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [productsData, mainCategoriesData, subcategoriesData, productTypesData] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主系列'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品次系列'),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品型態')
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.CATEGORIES),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.SUBCATEGORIES),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.TYPES)
         ]);
 
         // 1. 解析產品主系列 (0:category_code, 1:name_zh, 2:name_en, 3:icon_class, 4:text_color, 5:bg_color, 6:sort_order, 7:is_valid)

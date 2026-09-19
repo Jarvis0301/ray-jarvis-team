@@ -1,13 +1,21 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID_PSI = APP_CONFIG.SHEETS.PSI;            // 主試算表 (表 308 預警、表 310 門檻、表 301 倉儲)
-const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;        // 獨立產品主檔試算表 (表 101 prd_items)
-const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI; // GAS 部署 ID
-const SHEET_PRODUCTS = "產品主檔";   // 表 101: prd_items
-const SHEET_WAREHOUSES = "據點倉儲"; // 表 301: psi_warehouses
-const SHEET_ALERTS = "庫存預警";     // 表 308: psi_alerts
-const SHEET_THRESHOLDS = "安全門檻"; // 表 310: psi_safety_thresholds
+const SPREADSHEET_ID = {
+    PSI: APP_CONFIG.SHEETS.PSI,
+    PRD: APP_CONFIG.SHEETS.PRD
+};
+
+const GAS_DEPLOY_ID = {
+    PSI: APP_CONFIG.GAS.PSI
+};
+
+const SHEET_NAMES = {
+    ALERTS: '庫存預警',
+    THRESHOLDS: '安全門檻',
+    WAREHOUSES: '據點倉儲',
+    PRODUCTS: '產品主檔'
+};
 
 function getWarehouseName(whId, displayMode = 1) {
     return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
@@ -38,7 +46,7 @@ let isInitialized = false;
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(GAS_DEPLOY_ID);
+        SheetAdapter.init(GAS_DEPLOY_ID.PSI);
     }
     await initAlertsApp();
 });
@@ -60,10 +68,10 @@ async function fetchGoogleSheetsData() {
     try {
         // 並行獲取預警表、門檻表、據點表，以及來自另一試算表的產品主檔
         const [rawAlertRows, rawThresholdRows, rawWhRows, rawPrdRows] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_ALERTS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_THRESHOLDS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_WAREHOUSES).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PRD, SHEET_PRODUCTS).catch(() => []) // 指向獨立產品主檔試算表
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.ALERTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.THRESHOLDS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS).catch(() => [])
         ]);
 
         // 1. 解析據點主檔 (表 301)
@@ -519,10 +527,10 @@ async function saveThresholdItem() {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
-            await SheetAdapter.createRow(SHEET_THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.createRow(SHEET_NAMES.THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
             appState.thresholds.push(updatedObj);
         } else {
-            await SheetAdapter.updateRow(SHEET_THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.updateRow(SHEET_NAMES.THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
             const index = appState.thresholds.findIndex(t => t.id === id);
             if (index !== -1) appState.thresholds[index] = updatedObj;
         }
@@ -550,7 +558,7 @@ async function deleteThresholdItem(thresholdId) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow(SHEET_THRESHOLDS, thresholdId, GAS_DEPLOY_ID);
+        await SheetAdapter.deleteRow(SHEET_NAMES.THRESHOLDS, thresholdId, GAS_DEPLOY_ID.PSI);
         appState.thresholds = appState.thresholds.filter(t => t.id !== thresholdId);
         refreshView();
         AppToast.success(`門檻規則【${thresholdId}】已成功刪除！`);
@@ -617,7 +625,7 @@ async function saveAlertResolution() {
     ];
 
     try {
-        await SheetAdapter.updateRow(SHEET_ALERTS, alertId, rowDataArray, GAS_DEPLOY_ID);
+        await SheetAdapter.updateRow(SHEET_NAMES.ALERTS, alertId, rowDataArray, GAS_DEPLOY_ID.PSI);
         
         alertItem.status = newStatus;
         alertItem.remarks = updatedRemarks;
@@ -674,7 +682,7 @@ async function triggerBatchResolve() {
                     a.resolved_by, a.resolved_at, a.created_by, a.created_at,
                     a.modified_by, a.modified_at
                 ];
-                await SheetAdapter.updateRow(SHEET_ALERTS, alertId, rowDataArray, GAS_DEPLOY_ID);
+                await SheetAdapter.updateRow(SHEET_NAMES.ALERTS, alertId, rowDataArray, GAS_DEPLOY_ID.PSI);
             }
         }
         refreshView();

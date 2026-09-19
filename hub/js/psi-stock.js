@@ -1,13 +1,20 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與常數定義
 // ==========================================================================
-const SPREADSHEET_ID_PSI = APP_CONFIG.SHEETS.PSI;       // 主試算表 (庫存主檔、據點倉儲)
-const SPREADSHEET_ID_PRD = APP_CONFIG.SHEETS.PRD;       // 產品主檔試算表 (prd_items)
-const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI;               // GAS 部署 ID
+const SPREADSHEET_ID = {
+    PSI: APP_CONFIG.SHEETS.PSI,
+    PRD: APP_CONFIG.SHEETS.PRD
+};
 
-const SHEET_STOCKS = "庫存主檔";       // 表 302: psi_stocks
-const SHEET_WAREHOUSES = "據點倉儲";   // 表 301: psi_warehouses
-const SHEET_PRODUCTS = "產品主檔";     // 表 101: prd_items
+const GAS_DEPLOY_ID = {
+    PSI: APP_CONFIG.GAS.PSI
+};
+
+const SHEET_NAMES = {
+    STOCKS: '庫存主檔',
+    WAREHOUSES: '據點倉儲',
+    PRODUCTS: '產品主檔'
+};
 
 /**
  * 依據 Schema 規格生成庫存主鍵 (格式: STK-YYYYMMDD-流水4碼)
@@ -82,11 +89,11 @@ function getFilteredStocks() {
 }
 
 // ==========================================================================
-// 3. 生命週期與權限管理 (對齊 common.js 共用規範)[cite: 5, 11]
+// 3. 生命週期與權限管理
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(GAS_DEPLOY_ID); // 初始化共用試算表配接器[cite: 7, 11]
+        SheetAdapter.init(GAS_DEPLOY_ID.PSI); // 初始化共用試算表配接器
     }
     await initStockApp();
 });
@@ -100,7 +107,7 @@ async function initStockApp() {
 }
 
 // ==========================================================================
-// 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入[cite: 11]
+// 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
 // ==========================================================================
 /**
  * 資料讀取引擎
@@ -110,9 +117,9 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawStockRows, rawWhRows, rawPrdRows] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_STOCKS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PSI, SHEET_WAREHOUSES).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID_PRD, SHEET_PRODUCTS).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.STOCKS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS).catch(() => [])
         ]);
 
         appState.warehouses = {};
@@ -165,7 +172,7 @@ async function fetchGoogleSheetsData() {
 }
 
 /**
- * 依據表 302 (psi_stocks) 物理順序解析 (Index 0 ~ 16)[cite: 11]
+ * 依據表 302 (psi_stocks) 物理順序解析 (Index 0 ~ 16)
  */
 /**
  * 依據更新後表 302 (psi_stocks) 物理順序解析 (Index 0 ~ 17)
@@ -201,7 +208,7 @@ function parseStocksTable(rows) {
 }
 
 // ==========================================================================
-// 5. 下拉選單中樞介接 (UISelectOptions.core.render)[cite: 4]
+// 5. 下拉選單中樞介接 (UISelectOptions.core.render)
 // ==========================================================================
 function getWarehouseName(whId, displayMode = 1) {
     return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
@@ -739,7 +746,7 @@ function renderTacticalCharts() {
 }
 
 // ==========================================================================
-// 9. 表單 CRUD 操作 (嚴格依據 表 302 欄位順序 0～16 封裝)[cite: 11]
+// 9. 表單 CRUD 操作 (嚴格依據 表 302 欄位順序 0～16 封裝)
 // ==========================================================================
 function openAddStockModal() {
     $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增庫存批號');
@@ -912,10 +919,10 @@ async function saveStockItem() {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
-            await SheetAdapter.createRow(SHEET_STOCKS, id, rowDataArray, GAS_DEPLOY_ID);
-            appState.stocks.unshift(updatedObj); // 改為 unshift 置頂顯示
+            await SheetAdapter.createRow(SHEET_NAMES.STOCKS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
+            appState.stocks.unshift(updatedObj);
         } else {
-            await SheetAdapter.updateRow(SHEET_STOCKS, id, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.updateRow(SHEET_NAMES.STOCKS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
             const idx = appState.stocks.findIndex(item => item.id === id);
             if (idx !== -1) appState.stocks[idx] = updatedObj;
         }
@@ -953,7 +960,7 @@ async function toggleStockLock(stockId) {
     ];
 
     try {
-        await SheetAdapter.updateRow(SHEET_STOCKS, stockId, rowDataArray, GAS_DEPLOY_ID);
+        await SheetAdapter.updateRow(SHEET_NAMES.STOCKS, stockId, rowDataArray, GAS_DEPLOY_ID.PSI);
         s.is_locked = newLock;
         s.modified_by = currentUser;
         s.modified_at = nowStr;
@@ -975,7 +982,7 @@ async function deleteStockItem(stockId) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow(SHEET_STOCKS, stockId, GAS_DEPLOY_ID);
+        await SheetAdapter.deleteRow(SHEET_NAMES.STOCKS, stockId, GAS_DEPLOY_ID.PSI);
         appState.stocks = appState.stocks.filter(item => item.id !== stockId);
 
         // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面

@@ -1,8 +1,21 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與核心常數
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PRD;
-const GAS_DEPLOY_ID = APP_CONFIG.GAS.PRD;
+const SPREADSHEET_ID = {
+    PRD: APP_CONFIG.SHEETS.PRD
+};
+
+const GAS_DEPLOY_ID = {
+    PRD: APP_CONFIG.GAS.PRD
+};
+
+const SHEET_NAMES = {
+    ITEMS: '產品主檔',
+    DETAILS: '產品詳細資料',
+    CATEGORIES: '產品主系列',
+    SUBCATEGORIES: '產品次系列',
+    TYPES: '產品型態'
+};
 
 /**
  * 依據「上市日期」與「下市日期」計算產品上市狀態
@@ -65,8 +78,8 @@ let rawTableInstance = null;
 // 3. 系統生命週期與事件初始化
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
-    if (window.SheetAdapter && typeof SheetAdapter.init === 'function') {
-        SheetAdapter.init(GAS_DEPLOY_ID);
+    if (window.SheetAdapter) {
+        SheetAdapter.init(GAS_DEPLOY_ID.PRD);
     }
     await initApp();
 });
@@ -93,11 +106,11 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawItems, rawDetails, rawCats, rawSubcats, rawTypes] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主檔').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品詳細資料').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品主系列').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品次系列').catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID, '產品型態').catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.ITEMS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.DETAILS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.CATEGORIES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.SUBCATEGORIES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.TYPES).catch(() => [])
         ]);
 
         appState.categories = parseCategoriesTable(rawCats);
@@ -477,10 +490,10 @@ function formatMasterTableRow(p) {
         thumb: `<img src="${p.primary_image_url}" alt="${p.name}" class="img-thumb-preview" onerror="window.imgError(this, 'product', 42, 42)">`,
         code: `<div>
                    <div>${UIBadges.common.country(p.region_code)}</div>
-                   <div class="fw-bold font-monospace text-light mt-1">${p.product_code}</div>
+                   <div class="fw-bold text-light mt-1">${p.product_code}</div>
                </div>`,
         name: `<div class="fw-bold text-light">${p.name}${star}</div>
-               ${subTitle ? `<div class="text-muted small">${subTitle}</div>` : ''}`,
+               ${subTitle ? `<div class="text-primary-emphasis small">${subTitle}</div>` : ''}`,
         category: UIBadges.product.category(getCategoryByCode(categoryCode), p.region_code),
         subcategory: UIBadges.product.subcategory(getSubcategoryByCode(p.subcategory_code), p.region_code),
         type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
@@ -802,8 +815,11 @@ async function saveTaxonomyItem() {
                 existing ? existing.created_at : nowStr,
                 currentUser, nowStr
             ];
-            if (existing) await SheetAdapter.updateRow(sheetName, code, rowArray);
-            else await SheetAdapter.createRow(sheetName, code, rowArray);
+            if (existing) {
+                await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+            } else {
+                await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+            }
         } else if (type === 'subcategory') {
             const sheetName = 'prd_subcategories';
             const categoryCode = $('#taxParentCategory').val() || '01';
@@ -814,8 +830,11 @@ async function saveTaxonomyItem() {
                 existing ? existing.created_at : nowStr,
                 currentUser, nowStr
             ];
-            if (existing) await SheetAdapter.updateRow(sheetName, code, rowArray);
-            else await SheetAdapter.createRow(sheetName, code, rowArray);
+            if (existing) {
+                await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+            } else {
+                await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+            }
         } else if (type === 'type') {
             const sheetName = 'prd_types';
             const existing = appState.types.find(t => t.type_code === code);
@@ -825,8 +844,11 @@ async function saveTaxonomyItem() {
                 existing ? existing.created_at : nowStr,
                 currentUser, nowStr
             ];
-            if (existing) await SheetAdapter.updateRow(sheetName, code, rowArray);
-            else await SheetAdapter.createRow(sheetName, code, rowArray);
+            if (existing) {
+                await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+            } else {
+                await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+            }
         }
 
         // 記憶體就地更新分類/型態陣列
@@ -866,7 +888,7 @@ function deleteTaxonomyItem(type, code) {
         `確定要自 Google 試算表中永久刪除【${title}：${code}】嗎？`,
         async function () {
             try {
-                await SheetAdapter.deleteRow(sheetName, code);
+                await SheetAdapter.deleteRow(sheetName, code, GAS_DEPLOY_ID.PRD);
                 if (type === 'category') {
                     appState.categories = appState.categories.filter(c => c.category_code !== code);
                 } else if (type === 'subcategory') {
@@ -1651,8 +1673,8 @@ async function saveProductItem() {
 
         if (mode === 'add') {
             await Promise.all([
-                SheetAdapter.createRow('prd_items', productCode, itemsRowArray),
-                SheetAdapter.createRow('prd_item_details', productCode, detailsRowArray)
+                SheetAdapter.createRow(SHEET_NAMES.ITEMS, productCode, itemsRowArray, GAS_DEPLOY_ID.PRD),
+                SheetAdapter.createRow(SHEET_NAMES.DETAILS, productCode, detailsRowArray, GAS_DEPLOY_ID.PRD)
             ]);
             // 組裝新物件推入本地陣列置頂
             const newProd = parseItemsTable([itemsRowArray])[0];
@@ -1660,8 +1682,8 @@ async function saveProductItem() {
             appState.products.unshift({ ...newProd, ...newDetail, product_code: productCode });
         } else {
             await Promise.all([
-                SheetAdapter.updateRow('prd_items', productCode, itemsRowArray),
-                SheetAdapter.updateRow('prd_item_details', productCode, detailsRowArray)
+                SheetAdapter.updateRow(SHEET_NAMES.ITEMS, productCode, itemsRowArray, GAS_DEPLOY_ID.PRD),
+                SheetAdapter.updateRow(SHEET_NAMES.DETAILS, productCode, detailsRowArray, GAS_DEPLOY_ID.PRD)
             ]);
             const pIdx = appState.products.findIndex(p => p.product_code === productCode);
             if (pIdx !== -1) {
@@ -1694,8 +1716,8 @@ function deleteProductItem(productCode) {
         async function () {
             try {
                 await Promise.all([
-                    SheetAdapter.deleteRow('prd_items', item.product_code),
-                    SheetAdapter.deleteRow('prd_item_details', item.product_code)
+                    SheetAdapter.deleteRow(SHEET_NAMES.ITEMS, item.product_code, GAS_DEPLOY_ID.PRD),
+                    SheetAdapter.deleteRow(SHEET_NAMES.DETAILS, item.product_code, GAS_DEPLOY_ID.PRD)
                 ]);
                 // 記憶體過濾移除該項目
                 appState.products = appState.products.filter(p => p.product_code !== item.product_code);

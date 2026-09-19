@@ -1,17 +1,17 @@
 // ==========================================================================
 // 1. 系統組態與資料庫來源定義
 // ==========================================================================
-const SPREADSHEET_CONFIG = {
-    sheetPsi: APP_CONFIG.SHEETS.PSI,
-    sheetOrg: APP_CONFIG.SHEETS.ORG,
-    sheetPsn: APP_CONFIG.SHEETS.PSN,
-    sheetPrd: APP_CONFIG.SHEETS.PRD,
-    gasDeploymentId: APP_CONFIG.GAS.PSI
+const SPREADSHEET_ID = {
+    PSI: APP_CONFIG.SHEETS.PSI,
+    ORG: APP_CONFIG.SHEETS.ORG,
+    PSN: APP_CONFIG.SHEETS.PSN,
+    PRD: APP_CONFIG.SHEETS.PRD
 };
 
-const GAS_DEPLOY_ID = SPREADSHEET_CONFIG.gasDeploymentId;
+const GAS_DEPLOY_ID = {
+    PSI: APP_CONFIG.GAS.PSI
+};
 
-// 工作表名稱常數池
 const SHEET_NAMES = {
     WAREHOUSES: '據點倉儲',
     INBOUNDS: '進貨主檔',
@@ -104,7 +104,7 @@ function getWarehouseDisplayName(whId, displayMode = 1) {
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(SPREADSHEET_CONFIG.gasDeploymentId);
+        SheetAdapter.init(GAS_DEPLOY_ID.PSI);
     }
     await initInboundApp();
 });
@@ -125,12 +125,12 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawWarehouses, rawInbounds, rawInboundItems, rawPersons, rawPartners, rawProducts] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.WAREHOUSES).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.INBOUNDS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsi, SHEET_NAMES.INBOUND_ITEMS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPsn, SHEET_NAMES.PERSONS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetOrg, SHEET_NAMES.PARTNERS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_CONFIG.sheetPrd, SHEET_NAMES.PRODUCTS).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.INBOUNDS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.INBOUND_ITEMS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS).catch(() => [])
         ]);
 
         parseAllData({

@@ -1,9 +1,17 @@
 // ==========================================================================
 // 1. Google 雲端試算表設定與核心常數
 // ==========================================================================
-const SPREADSHEET_ID = APP_CONFIG.SHEETS.PSI;
-const GAS_DEPLOY_ID = APP_CONFIG.GAS.PSI;
-const SHEET_NAME = "據點倉儲"; // 對應表 301 psi_warehouses
+const SPREADSHEET_ID = {
+    PSI: APP_CONFIG.SHEETS.PSI
+};
+
+const GAS_DEPLOY_ID = {
+    PSI: APP_CONFIG.GAS.PSI
+};
+
+const SHEET_NAMES = {
+    WAREHOUSES: '據點倉儲'
+};
 
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
@@ -22,7 +30,7 @@ let warehouseDataTableInstance = null;
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(GAS_DEPLOY_ID);
+        SheetAdapter.init(GAS_DEPLOY_ID.PSI);
     }
     
     bindUIEvents();
@@ -455,10 +463,10 @@ async function saveWarehouseItem() {
 
         if (window.SheetAdapter) {
             if (mode === 'add') {
-                await SheetAdapter.createRow(SHEET_NAME, id, rowDataArray);
+                await SheetAdapter.createRow(SHEET_NAMES.WAREHOUSES, id, rowDataArray, GAS_DEPLOY_ID.PSI);
                 appState.warehouses.push(updatedObj);
             } else {
-                await SheetAdapter.updateRow(SHEET_NAME, id, rowDataArray);
+                await SheetAdapter.updateRow(SHEET_NAMES.WAREHOUSES, id, rowDataArray, GAS_DEPLOY_ID.PSI);
                 const index = appState.warehouses.findIndex(w => w.id === id);
                 if (index !== -1) appState.warehouses[index] = updatedObj;
             }
@@ -495,7 +503,7 @@ async function deleteWarehouseItem(warehouseId) {
 
     try {
         if (window.SheetAdapter) {
-            await SheetAdapter.deleteRow(SHEET_NAME, warehouseId);
+            await SheetAdapter.deleteRow(SHEET_NAMES.WAREHOUSES, warehouseId, GAS_DEPLOY_ID.PSI);
         }
         appState.warehouses = appState.warehouses.filter(w => w.id !== warehouseId);
         refreshView();
