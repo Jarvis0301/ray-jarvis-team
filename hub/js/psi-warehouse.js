@@ -44,12 +44,12 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID, SHEET_NAME);
+        const rawRows = await fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.WAREHOUSES);
 
         if (!rawRows || rawRows.length === 0) {
             appState.warehouses = [];
             refreshView();
-            AppToast.info(`試算表『${SHEET_NAME}』目前無任何據點資料。`);
+            AppToast.info(`試算表『${SHEET_NAMES.WAREHOUSES}』目前無任何據點資料。`);
             return;
         }
 
