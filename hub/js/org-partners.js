@@ -893,10 +893,10 @@ function renderAllViews() {
     const myTeamPartners = teamPartners.filter(p => p.country_code === 'MY');
     const activeTeamPartners = teamPartners.filter(p => p.activity_level === '積極參與' || p.activity_level === '參與');
 
-    $('#hud-total-partners').text(list.length);
-    $('#hud-team-partners').text(teamPartners.length);
-    $('#hud-my-team-partners').text(myTeamPartners.length);
-    $('#hud-active-team-partners').text(activeTeamPartners.length);
+    $('#hud-total-partners').text(list.length.toLocaleString());
+    $('#hud-team-partners').text(teamPartners.length.toLocaleString());
+    $('#hud-my-team-partners').text(myTeamPartners.length.toLocaleString());
+    $('#hud-active-team-partners').text(activeTeamPartners.length.toLocaleString());
 
     renderCardsView(list);
     renderDataTableView(list);
@@ -982,7 +982,7 @@ function renderCardsView(list) {
                                     </div>
                                     <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
                                         ${p.leader_title ? `<span class="badge badge-primary">${p.leader_title}</span>` : ''}
-                                        ${memberNoHtml || '<span class="text-muted small font-monospace">（無會員編號）</span>'}
+                                        ${memberNoHtml || '<span class="text-muted small">（無會員編號）</span>'}
                                         ${opBadgeHtml}
                                     </div>
                                 </div>
@@ -1272,7 +1272,7 @@ function renderPartnerSubColumnHtml(partner, isSpouse = false) {
     const currentRank = getRankInfo(partner.current_rank_id);
     const highestRank = getRankInfo(partner.highest_rank_id);
     const dispName = getPartnerDisplayName(partner);
-    const memberNoText = partner.member_no ? `<span class="font-monospace text-secondary small ms-1">(${partner.member_no})</span>` : '';
+    const memberNoText = partner.member_no ? `<span class="text-secondary small ms-1">(${partner.member_no})</span>` : '';
 
     return `
         <div class="org-couple-col">
@@ -2454,7 +2454,7 @@ function openPartnerModalForView(partnerId) {
     const starBadge = starLevelNum > 0 
         ? `<span class="badge badge-info-subtle"><i class="fa-solid fa-gem me-1"></i>${starMap[starLevelNum] || (starLevelNum + '星')}</span>` 
         : '<span class="text-secondary small">非藍鑽</span>';
-    const evalDateText = partner.star_eval_eligible_date ? `<span class="font-monospace ms-1 small">(${partner.star_eval_eligible_date})</span>` : '';
+    const evalDateText = partner.star_eval_eligible_date ? `<span class="ms-1 small">(${partner.star_eval_eligible_date})</span>` : '';
     $('#view-diamond-star-eval').html(`${starBadge} ${evalDateText}`);
 
     $('#view-status-change-reason').html(formatEmpty(partner.status_change_reason, '無異動紀錄'));
@@ -2480,7 +2480,7 @@ function openPartnerModalForView(partnerId) {
             const isPrimaryBadge = c.is_primary === 'Y' ? '<span class="badge badge-success-subtle ms-1" style="font-size: 0.65rem;">主要</span>' : '';
             const valHtml = (c.platform_name === 'Facebook' || c.contact_value.startsWith('http'))
                 ? `<a href="${c.contact_value}" target="_blank" class="text-info text-decoration-none text-truncate" style="max-width: 140px;">${c.contact_value}</a>`
-                : `<span class="text-white font-monospace">${c.contact_value}</span>`;
+                : `<span class="text-white">${c.contact_value}</span>`;
 
             $contactsWrap.append(`
                 <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-secondary border-opacity-10">
@@ -2552,6 +2552,7 @@ function getFormTrimVal(selector, defaultVal = '') {
 
 async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr) {
     if (!descendantId) return;
+    const silentOpt = { silent: true };
 
     const getNextAutoIncrementId = () => {
         if (!orgRelationsList || orgRelationsList.length === 0) return 1;

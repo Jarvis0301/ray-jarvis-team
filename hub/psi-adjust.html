@@ -355,7 +355,7 @@
                         <form id="adjustForm" novalidate>
                             <input type="hidden" id="formMode" value="add">
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-xl-3">
                                     <label class="form-label" for="fieldId">調撥單號主鍵 (id) <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldId" required readonly>
@@ -384,7 +384,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-xl-6">
                                     <label class="form-label" for="fieldFromWarehouseId">調出/發生倉儲 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldFromWarehouseId" required></select>
@@ -443,7 +443,7 @@
                                 </div>
                             </article>
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-xl-4">
                                     <label class="form-label" for="fieldQuantity">調整數量 <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
@@ -476,7 +476,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-xl-3">
                                     <label class="form-label" for="fieldTargetProspectId">試用對象客戶</label>
                                     <select class="form-select form-select-sm" id="fieldTargetProspectId">
@@ -551,18 +551,18 @@
                             
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-xl-8">
-                                    <label class="form-label small mb-1">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="text" class="form-control form-control-sm" id="auditInputProductName" readonly placeholder="請先選擇盤點品項">
                                 </div>
                                 <div class="col-12 col-xl-4">
-                                    <label class="form-label small mb-1">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="text" class="form-control form-control-sm" id="auditInputBatchNo" readonly placeholder="-">
                                 </div>
                             </div>
 
                             <div class="row g-2 mb-2">
                                 <div class="col-6">
-                                    <label class="form-label small mb-1">成本單價 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">成本單價 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text" id="auditInputCurrencyText">TWD</span>
                                         <input type="hidden" id="auditInputCurrency" value="TWD">
@@ -570,7 +570,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label small mb-1">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="auditInputUnitSv" min="0" oninput="calculateAuditVariance()">
                                 </div>
                             </div>
@@ -720,19 +720,19 @@
                             
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-xl-6">
-                                    <label class="form-label small mb-1">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">產品名稱 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="text" class="form-control form-control-sm" id="trInputProductName" readonly placeholder="請先選擇調撥品項">
                                     <div id="trStockFeedback" class="small mt-1"></div>
                                 </div>
                                 <div class="col-12 col-xl-6">
-                                    <label class="form-label small mb-1">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">生產批號 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="text" class="form-control form-control-sm" id="trInputBatchNo" readonly placeholder="-">
                                 </div>
                             </div>
 
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <label class="form-label small mb-1">成本單價 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">成本單價 <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text" id="trInputCurrencyText">TWD</span>
                                         <input type="hidden" id="trInputCurrency" value="TWD">
@@ -740,7 +740,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label small mb-1">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
+                                    <label class="form-label">單件 SV <span class="badge badge-secondary-subtle small">系統自動帶出</span></label>
                                     <input type="number" class="form-control form-control-sm text-end" id="trInputUnitSv"min="0" oninput="updateTransferCostCalc()">
                                 </div>
                             </div>

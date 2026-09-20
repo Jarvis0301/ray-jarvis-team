@@ -5,18 +5,27 @@
  * ============================================================================
  */
 
+const SPREADSHEET_ID = {
+    PSN: APP_CONFIG.SHEETS.PSN,
+    ORG: APP_CONFIG.SHEETS.ORG
+};
+
+const GAS_DEPLOY_ID = {
+    PSN: APP_CONFIG.GAS.PSN,
+    ORG: APP_CONFIG.GAS.ORG
+};
+
+const SHEET_NAMES = {
+    PERSONS: '個人主檔',
+    CONTACTS: '通訊資料',
+    LANGUAGES: '使用語言'
+};
+
 const DEFAULT_AVATARS = {
     '男': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
     '女': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     '其他': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
     '未填': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
-};
-
-// 試算表工作表定義
-const SPREADSHEET_CONFIG = {
-    SHEET_PERSONS: '個人主檔',
-    SHEET_CONTACTS: '通訊資料',
-    SHEET_LANGUAGES: '使用語言'
 };
 
 // 全域自然人資料集（移除預設資料，以雲端同步為準）
@@ -32,6 +41,9 @@ let chartInstances = {};
 // ============================================================================
 // 監聽來自 common.js 發出的全域 AppReady 事件
 window.addEventListener('AppReady', async function () {
+    if (window.SheetAdapter) {
+        SheetAdapter.init(GAS_DEPLOY_ID.PSN);
+    }
     bindEvents();
     initDropdowns();
     await fetchGoogleSheetsData();
@@ -139,9 +151,9 @@ async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
     try {
         const [personRows, contactRows, langRows] = await Promise.all([
-            fetchGoogleSheetCsv(APP_CONFIG.SHEETS.PSN , SPREADSHEET_CONFIG.SHEET_PERSONS).catch(() => []),
-            fetchGoogleSheetCsv(APP_CONFIG.SHEETS.PSN , SPREADSHEET_CONFIG.SHEET_CONTACTS).catch(() => []),
-            fetchGoogleSheetCsv(APP_CONFIG.SHEETS.PSN , SPREADSHEET_CONFIG.SHEET_LANGUAGES).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.CONTACTS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.LANGUAGES).catch(() => [])
         ]);
 
         // 解析個人主檔 (表 901)
@@ -211,17 +223,6 @@ async function fetchGoogleSheetsData() {
     } finally {
         AppLoading.hide();
     }
-}
-
-/**
- * 手動同步試算表按鈕觸發函式
- */
-async function manualSyncSheetsData(btn) {
-    const $btn = $(btn);
-    $btn.prop('disabled', true);
-    await fetchGoogleSheetsData();
-    $btn.prop('disabled', false);
-    AppToast.success('已同步最新雲端人員資料！');
 }
 
 // ============================================================================
@@ -316,25 +317,6 @@ function renderAllViews() {
 // ============================================================================
 // 5. 視圖渲染 (Cards / DataTable / Charts)
 // ============================================================================
-function calculateAge(birthdayStr) {
-    if (!birthdayStr) return '';
-    const parts = birthdayStr.split(/[\/-]/);
-    const birthYear = parseInt(parts[0], 10);
-    if (isNaN(birthYear) || birthYear <= 1900) return '';
-    const now = new Date();
-    let age = now.getFullYear() - birthYear;
-    if (parts.length >= 3) {
-        const birthMonth = parseInt(parts[1], 10);
-        const birthDay = parseInt(parts[2], 10);
-        const curMonth = now.getMonth() + 1;
-        const curDay = now.getDate();
-        if (curMonth < birthMonth || (curMonth === birthMonth && curDay < birthDay)) {
-            age--;
-        }
-    }
-    return age >= 0 ? `${age} 歲` : '';
-}
-
 function renderCardsView(list) {
     const $grid = $('#person-cards-grid').empty();
     if (list.length === 0) {
@@ -345,8 +327,8 @@ function renderCardsView(list) {
     list.forEach(p => {
         const avatarUrl = p.avatar_url || (DEFAULT_AVATARS[p.gender] || DEFAULT_AVATARS['男']);
         const dispName = p.display_name || p.name_zh || p.name_en || p.preferred_name || p.person_id;
-        const age = calculateAge(p.birthday);
-        const bioText = [p.gender || '未填性別', age || '未填年齡', p.current_residence || '未填現居地'].join(' ‧ ');
+        const ageStr = AppDate.toAgeDisplay(p.birthday, '未填年齡');
+        const bioText = [p.gender || '未填性別', ageStr, p.current_residence || '未填現居地'].join(' ‧ ');
 
         // 通訊標籤
         const contacts = personContactsList.filter(c => c.person_id === p.person_id);
@@ -420,66 +402,73 @@ function renderCardsView(list) {
     });
 }
 
+/**
+ * 格式化單一人員資料列物件
+ */
+function formatPersonTableRow(p) {
+    const avatarUrl = p.avatar_url || (DEFAULT_AVATARS[p.gender] || DEFAULT_AVATARS['男']);
+    const dispName = p.display_name || p.name_zh || p.name_en || p.preferred_name || p.person_id;
+    const ageStr = AppDate.toAgeDisplay(p.birthday, '');
+    const genderAge = `${p.gender || '未填'} ${ageStr ? `(${ageStr})` : ''}`;
+    const eduStatus = `${p.highest_education || '-'}${p.graduation_status ? ` / ${p.graduation_status}` : ''}`;
+
+    return {
+        member: `
+            <div class="d-flex align-items-center gap-2">
+                <img src="${avatarUrl}" class="rounded-circle border border-primary border-opacity-50" width="32" height="32" alt="${dispName}">
+                <div>
+                    <div class="fw-bold text-white">${dispName}</div>
+                    <small class="text-secondary">${p.person_id}</small>
+                </div>
+            </div>
+        `,
+        nationality: `<span class="badge bg-secondary">${p.nationality || '未填'}</span>`,
+        identities: `
+            ${UIBadges.person.identityType(p.identity_type)}
+            ${UIBadges.person.usageIdentity(p.usage_identity)}
+        `,
+        gender_age: genderAge,
+        residence: p.current_residence || '-',
+        education: eduStatus,
+        occupation: p.occupation_background || '-',
+        health: UIBadges.person.healthStatus(p.health_status),
+        financial: UIBadges.person.financialStatus(p.financial_status),
+        met_info: `<small class="text-secondary">${AppDate.toDisplay(p.met_date, '-')}</small><div class="text-truncate small" style="max-width: 140px;">${p.met_reason || '-'}</div>`,
+        actions: `
+            <div class="d-flex align-items-center justify-content-end gap-1">
+                <button type="button" class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPersonModalForView('${p.person_id}')" title="檢視"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="openPersonModalForEdit('${p.person_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
+            </div>
+        `
+    };
+}
+
+/**
+ * 渲染人員清冊 DataTable (物件模式)
+ */
 function renderDataTableView(list) {
+    const formatted = list.map(p => formatPersonTableRow(p));
+
     if (dataTableInstance) {
-        dataTableInstance.destroy();
-        $('#persons-table-body').empty();
+        dataTableInstance.clear().rows.add(formatted).draw();
+    } else {
+        dataTableInstance = $('#persons-datatable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'member' },
+                { data: 'nationality', className: 'text-center' },
+                { data: 'identities' },
+                { data: 'gender_age' },
+                { data: 'residence' },
+                { data: 'education' },
+                { data: 'occupation' },
+                { data: 'health', className: 'text-center' },
+                { data: 'financial', className: 'text-center' },
+                { data: 'met_info' },
+                { data: 'actions', className: 'text-end', orderable: false }
+            ]
+        });
     }
-
-    list.forEach(p => {
-        const avatarUrl = p.avatar_url || (DEFAULT_AVATARS[p.gender] || DEFAULT_AVATARS['男']);
-        const dispName = p.display_name || p.name_zh || p.name_en || p.preferred_name || p.person_id;
-        const age = calculateAge(p.birthday);
-        const genderAge = `${p.gender || '未填'} ${age ? `(${age})` : ''}`;
-        const eduStatus = `${p.highest_education || '-'}${p.graduation_status ? ` / ${p.graduation_status}` : ''}`;
-
-        const rowHtml = `
-            <tr>
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <img src="${avatarUrl}" class="rounded-circle border border-primary border-opacity-50" width="32" height="32" alt="${dispName}">
-                        <div>
-                            <div class="fw-bold text-white">${dispName}</div>
-                            <small class="text-secondary">${p.person_id}</small>
-                        </div>
-                    </div>
-                </td>
-                <td class="text-center"><span class="badge bg-secondary">${p.nationality || '未填'}</span></td>
-                <td>
-                    ${UIBadges.person.identityType(p.identity_type)}
-                    ${UIBadges.person.usageIdentity(p.usage_identity)}
-                </td>
-                <td>${genderAge}</td>
-                <td>${p.current_residence || '-'}</td>
-                <td>${eduStatus}</td>
-                <td>${p.occupation_background || '-'}</td>
-                <td class="text-center">${UIBadges.person.healthStatus(p.health_status)}</td>
-                <td class="text-center">${UIBadges.person.financialStatus(p.financial_status)}</td>
-                <td><small class="text-secondary">${p.met_date || '-'}</small><div class="text-truncate small" style="max-width: 140px;">${p.met_reason || '-'}</div></td>
-                <td class="text-end">
-                    <button type="button" class="btn btn-sm btn-outline-info py-1 px-2" onclick="openPersonModalForView('${p.person_id}')" title="檢視"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="openPersonModalForEdit('${p.person_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
-                </td>
-            </tr>
-        `;
-        $('#persons-table-body').append(rowHtml);
-    });
-
-    dataTableInstance = $('#persons-datatable').DataTable({
-        responsive: true,
-        pageLength: 10,
-        language: {
-            search: '_INPUT_',
-            searchPlaceholder: '全域關鍵字搜尋...',
-            lengthMenu: '每頁顯示 _MENU_ 筆',
-            info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆人員',
-            paginate: { first: '首頁', last: '末頁', next: '下一頁', previous: '上一頁' }
-        },
-        columnDefs: [
-            { targets: [1, 7, 8], className: 'text-center' },
-            { targets: [10], className: 'text-end', orderable: false }
-        ]
-    });
 }
 
 // ============================================================================
@@ -605,15 +594,14 @@ function renderChartsView(filteredDataset = null) {
     const ageCounts = {};
     ageCategories.forEach(c => { ageCounts[c] = 0; });
     dataset.forEach(p => {
-        const ageStr = calculateAge(p.birthday);
-        if (ageStr) {
-            const a = parseInt(ageStr, 10);
-            if (a <= 17) ageCounts['17歲以下']++;
-            else if (a <= 29) ageCounts['18-29歲']++;
-            else if (a <= 39) ageCounts['30-39歲']++;
-            else if (a <= 49) ageCounts['40-49歲']++;
-            else if (a <= 59) ageCounts['50-59歲']++;
-            else if (a <= 69) ageCounts['60-69歲']++;
+        const age = AppDate.calculateAge(p.birthday);
+        if (age !== null) {
+            if (age <= 17) ageCounts['17歲以下']++;
+            else if (age <= 29) ageCounts['18-29歲']++;
+            else if (age <= 39) ageCounts['30-39歲']++;
+            else if (age <= 49) ageCounts['40-49歲']++;
+            else if (age <= 59) ageCounts['50-59歲']++;
+            else if (age <= 69) ageCounts['60-69歲']++;
             else ageCounts['70歲以上']++;
         }
     });
@@ -846,19 +834,19 @@ function openPersonModalForEdit(personId) {
     $('#form-identity-type').val(person.identity_type || '潛在客戶');
     $('#form-usage-identity').val(person.usage_identity || '消費者');
     $('#form-gender').val(person.gender || '男');
-    $('#form-birthday').val(person.birthday || '');
+    $('#form-birthday').val(AppDate.toInput(person.birthday));
     $('#form-nationality').val(person.nationality || '中華民國');
     $('#form-ethnicity').val(person.ethnicity || '華人');
     $('#form-marital-status').val(person.marital_status || '');
     $('#form-life-status').val(person.life_status || '存活').trigger('change');
-    $('#form-deceased-date').val(person.deceased_date || '');
+    $('#form-deceased-date').val(AppDate.toInput(person.deceased_date));
     $('#form-health-status').val(person.health_status || '良好');
     $('#form-financial-status').val(person.financial_status || '穩定');
 
     $('#form-hometown').val(person.hometown || '').trigger('change.select2');
     $('#form-current-residence').val(person.current_residence || '').trigger('change.select2');
     $('#form-contact-address').val(person.contact_address || '');
-    $('#form-met-date').val(person.met_date || '');
+    $('#form-met-date').val(AppDate.toInput(person.met_date));
     $('#form-met-reason').val(person.met_reason || '');
 
     $('#form-phone').val(person.phone || '');
@@ -915,14 +903,15 @@ function openPersonModalForView(personId) {
     $('#view-name-display').text(person.display_name || '-');
 
     $('#view-person-id').text(person.person_id);
-    const age = calculateAge(person.birthday);
-    $('#view-gender-age').text(`${person.gender || '未填'} ‧ ${person.birthday || '未填生日'} ${age ? `(${age})` : ''}`);
+    const ageStr = AppDate.toAgeDisplay(person.birthday, '');
+    const birthdayDisplay = AppDate.toDisplay(person.birthday, '未填生日');
+    $('#view-gender-age').text(`${person.gender || '未填'} ‧ ${birthdayDisplay} ${ageStr ? `(${ageStr})` : ''}`);
     $('#view-nationality-ethnicity').text(`${person.nationality || '中華民國'} ‧ ${person.ethnicity || '華人'}`);
     $('#view-marital-status').text(person.marital_status || '未填寫');
     $('#view-life-status').html(person.life_status === '身故' ? '<span class="badge bg-danger">身故</span>' : '<span class="badge bg-success">存活</span>');
     $('#view-residence').text(`${person.hometown ? `${person.hometown} → ` : ''}${person.current_residence || '未設定'}`);
 
-    $('#view-met-date').text(person.met_date || '-');
+    $('#view-met-date').text(AppDate.toDisplay(person.met_date, '-'));
     $('#view-met-reason').text(person.met_reason || '未填寫');
     $('#view-education-status').text(`${person.highest_education || '未填寫'}${person.graduation_status ? ` (${person.graduation_status})` : ''}`);
     $('#view-school').text(person.graduated_school || '未填寫');
@@ -994,7 +983,6 @@ async function savePersonRecord() {
     const nameEn = $('#form-name-en').val().trim();
     const preferredName = $('#form-preferred-name').val().trim();
 
-    // 提示未填寫改用 AppToast
     if (!nameZh && !nameEn && !preferredName) {
         AppToast.warning('「中文姓名」、「英文姓名」、「常用稱呼」請至少填寫一項！');
         $('#tab-btn-person').tab('show');
@@ -1013,7 +1001,7 @@ async function savePersonRecord() {
     updateDynamicSubTableIds();
 
     const currentUser = getCurrentUser();
-    const nowStr = (typeof AppDate !== 'undefined' && AppDate.now) ? AppDate.now() : new Date().toISOString();
+    const nowStr = AppDate.now('full');
 
     const updatedPerson = {
         person_id: personId,
@@ -1024,9 +1012,9 @@ async function savePersonRecord() {
         identity_type: $('#form-identity-type').val(),
         usage_identity: $('#form-usage-identity').val(),
         gender: $('#form-gender').val(),
-        birthday: $('#form-birthday').val().trim(),
+        birthday: AppDate.toSheet($('#form-birthday').val().trim()),
         life_status: $('#form-life-status').val(),
-        deceased_date: $('#form-deceased-date').val(),
+        deceased_date: AppDate.toSheet($('#form-deceased-date').val()),
         marital_status: $('#form-marital-status').val(),
         nationality: $('#form-nationality').val().trim(),
         ethnicity: $('#form-ethnicity').val().trim(),
@@ -1035,7 +1023,7 @@ async function savePersonRecord() {
         phone: $('#form-phone').val().trim(),
         email: $('#form-email').val().trim(),
         contact_address: $('#form-contact-address').val().trim(),
-        met_date: $('#form-met-date').val(),
+        met_date: AppDate.toSheet($('#form-met-date').val()),
         met_reason: $('#form-met-reason').val().trim(),
         highest_education: $('#form-highest-education').val(),
         graduation_status: $('#form-graduation-status').val(),
@@ -1064,13 +1052,8 @@ async function savePersonRecord() {
             const notes = $(this).find('.contact-input-notes').val().trim();
 
             newContacts.push({
-                contact_id: contactId,
-                person_id: personId,
-                platform_name: platform,
-                category: category,
-                contact_value: val,
-                is_primary: isPrimary,
-                notes: notes
+                contact_id: contactId, person_id: personId, platform_name: platform,
+                category: category, contact_value: val, is_primary: isPrimary, notes: notes
             });
 
             contactRowsForSheet.push([
@@ -1095,14 +1078,9 @@ async function savePersonRecord() {
             const notes = $(this).find('.lang-input-notes').val().trim();
 
             newLanguages.push({
-                lang_id: langId,
-                person_id: personId,
-                language_name: langName,
-                listening_level: listening,
-                speaking_level: speaking,
-                reading_level: reading,
-                writing_level: writing,
-                notes: notes
+                lang_id: langId, person_id: personId, language_name: langName,
+                listening_level: listening, speaking_level: speaking,
+                reading_level: reading, writing_level: writing, notes: notes
             });
 
             langRowsForSheet.push([
@@ -1112,31 +1090,47 @@ async function savePersonRecord() {
         }
     });
 
-    // 組裝試算表欄位陣列 (32 欄對齊表 901)
+    // 組裝試算表欄位陣列 (36 欄完整對齊 Schema)
     const personRowArray = [
         updatedPerson.person_id, updatedPerson.name_zh, updatedPerson.name_en, updatedPerson.preferred_name,
         updatedPerson.display_name, updatedPerson.identity_type, updatedPerson.usage_identity, updatedPerson.gender,
-        updatedPerson.birthday, updatedPerson.life_status, updatedPerson.deceased_date, updatedPerson.marital_status,
+        updatedPerson.birthday, updatedPerson.life_status, updatedPerson.deceased_date, updatedPerson.marital_status, // 修正：life_status 在前、deceased_date 在後
         updatedPerson.nationality, updatedPerson.ethnicity, updatedPerson.hometown, updatedPerson.current_residence,
         updatedPerson.phone, updatedPerson.email, updatedPerson.contact_address, updatedPerson.met_date,
-        updatedPerson.met_reason, updatedPerson.highest_education, updatedPerson.graduation_status, updatedPerson.graduated_school,
+        updatedPerson.met_reason, updatedPerson.highest_education, updatedPerson.graduation_status, updatedPerson.graduated_school, // 修正：graduation_status 在前、graduated_school 在後
         updatedPerson.occupation_background, updatedPerson.health_status, updatedPerson.financial_status, updatedPerson.avatar_url,
-        updatedPerson.career_education_notes, updatedPerson.health_notes, updatedPerson.financial_notes, updatedPerson.consumption_notes
+        updatedPerson.career_education_notes, updatedPerson.health_notes, updatedPerson.financial_notes, updatedPerson.consumption_notes,
+        currentUser, nowStr, currentUser, nowStr
     ];
 
     try {
         AppLoading.show('<i class="fa-solid fa-floppy-disk text-primary"></i> 正在寫入人員主檔與通訊資料...', '儲存中...');
+        const silentOpt = { silent: true };
 
-        // 寫入 Google 試算表
-        if (typeof SheetAdapter !== 'undefined') {
-            if (mode === 'CREATE') {
-                await SheetAdapter.createRow(SPREADSHEET_CONFIG.SHEET_PERSONS, personId, personRowArray);
-            } else {
-                await SheetAdapter.updateRow(SPREADSHEET_CONFIG.SHEET_PERSONS, personId, personRowArray);
-            }
+        // 1. 清理舊有通訊與語言子表
+        const deletePromises = [];
+        personContactsList.filter(c => c.person_id === personId).forEach(c => {
+            if (c.contact_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CONTACTS, c.contact_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
+        });
+        personLanguagesList.filter(l => l.person_id === personId).forEach(l => {
+            if (l.lang_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.LANGUAGES, l.lang_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
+        });
+        if (deletePromises.length > 0) await Promise.all(deletePromises);
+
+        // 2. 寫入個人主檔
+        if (mode === 'CREATE') {
+            await SheetAdapter.createRow(SHEET_NAMES.PERSONS, personId, personRowArray, GAS_DEPLOY_ID.PSN, silentOpt);
+        } else {
+            await SheetAdapter.updateRow(SHEET_NAMES.PERSONS, personId, personRowArray, GAS_DEPLOY_ID.PSN, silentOpt);
         }
 
-        // 樂觀更新前端記憶體陣列
+        // 3. 批次寫入新通訊與語言子表
+        const subTableWrites = [];
+        contactRowsForSheet.forEach(nc => subTableWrites.push(SheetAdapter.createRow(SHEET_NAMES.CONTACTS, nc[0], nc, GAS_DEPLOY_ID.PSN, silentOpt)));
+        langRowsForSheet.forEach(nl => subTableWrites.push(SheetAdapter.createRow(SHEET_NAMES.LANGUAGES, nl[0], nl, GAS_DEPLOY_ID.PSN, silentOpt)));
+        if (subTableWrites.length > 0) await Promise.all(subTableWrites);
+
+        // 4. 前端記憶體樂觀更新
         const pIdx = personMasterList.findIndex(p => p.person_id === personId);
         if (pIdx >= 0) {
             personMasterList[pIdx] = updatedPerson;
@@ -1144,7 +1138,6 @@ async function savePersonRecord() {
             personMasterList.unshift(updatedPerson);
         }
 
-        // 替換通訊與語言快取
         personContactsList = personContactsList.filter(c => c.person_id !== personId).concat(newContacts);
         personLanguagesList = personLanguagesList.filter(l => l.person_id !== personId).concat(newLanguages);
 

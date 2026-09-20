@@ -1,13 +1,20 @@
 // 頁面初始化事件監聽 (相容 AppReady 與原生 DOMContentLoaded)
 window.addEventListener('AppReady', () => {
-    // 1. 初始化 DataTable.js (10 大職級對照表)
+    // 1. 初始化 DataTable.js（宣告欄位對齊樣式）
     $('#rankAdvancementTable').DataTable({
-        info: false,                    // 顯示「顯示第 X 至 Y 筆」的統計資訊
-        paging: false
+        info: false,
+        paging: false,
+        columnDefs: [
+            { targets: [1], className: 'text-center' },
+            { targets: [2, 3, 4], className: 'text-end' }
+        ]
     });
 
-    // 2. 初始化 Chart.js (職級晉升提撥率與經理線趨勢圖)
-    const ctx = document.getElementById('rankProgressChart').getContext('2d');
+    // 2. 初始化 Chart.js
+    const canvasEl = document.getElementById('rankProgressChart');
+    if (!canvasEl) return;
+
+    const ctx = canvasEl.getContext('2d');
     const rankProgressChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -74,8 +81,8 @@ window.addEventListener('AppReady', () => {
             plugins: {
                 legend: {
                     labels: {
-                        color: '#f8fafc',
-                        font: { family: 'Noto Sans TC' }
+                        color: '#f8fafc'
+                        // 移除自訂字體 font: { family: 'Noto Sans TC' }
                     }
                 },
                 tooltip: {
@@ -83,7 +90,15 @@ window.addEventListener('AppReady', () => {
                     titleColor: '#38bdf8',
                     bodyColor: '#f8fafc',
                     borderColor: 'rgba(56, 189, 248, 0.3)',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function (ctx) {
+                            const val = Number(ctx.parsed.y) || 0;
+                            return ctx.datasetIndex === 0
+                                ? ` 提撥率：${val.toLocaleString()}%`
+                                : ` 合格經理線：${val.toLocaleString()} 條`;
+                        }
+                    }
                 }
             }
         }

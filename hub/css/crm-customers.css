@@ -3,46 +3,6 @@
    完全收斂至全域標準變數 --uvaco-*，無自訂字型 font-chakra
    ========================================================================== */
 
-/* 1. 全域背景與毛玻璃容器 */
-body {
-    background-color: var(--uvaco-bg-base, #0a0518);
-    background-image: 
-        radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 90% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 45%),
-        linear-gradient(180deg, #0a0518 0%, #0d0722 100%);
-    background-attachment: fixed;
-    color: var(--uvaco-text-main, #f3e8ff);
-    font-family: 'Noto Sans TC', sans-serif;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-}
-
-.font-serif {
-    font-family: 'Noto Serif TC', serif;
-}
-
-.glass-panel {
-    background: var(--uvaco-bg-card, rgba(22, 13, 46, 0.75));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--uvaco-border-glow, rgba(139, 92, 246, 0.25));
-    border-radius: var(--uvaco-radius-lg, 16px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    transition: all 0.25s ease;
-}
-
-/* 2. HUD 戰況指標晶片 */
-.stat-chip {
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 12px;
-    padding: 0.6rem 0.85rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
 /* 3. 客戶全息戰術卡片 */
 .customer-card {
     background: var(--uvaco-bg-card, rgba(22, 13, 46, 0.75));
@@ -91,45 +51,6 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 4. 暗黑表格自訂設定 */
-.table-custom {
-    --bs-table-bg: transparent;
-    --bs-table-color: var(--uvaco-text-main, #f3e8ff);
-    --bs-table-border-color: rgba(139, 92, 246, 0.15);
-    margin-bottom: 0;
-}
-
-.table-custom thead th {
-    background: rgba(22, 13, 46, 0.95);
-    color: var(--uvaco-text-sub, #c4b5fd);
-    font-size: 0.82rem;
-    font-weight: 600;
-    border-bottom: 2px solid rgba(139, 92, 246, 0.35);
-    padding: 10px 12px;
-}
-
-.table-custom tbody td {
-    padding: 10px 12px;
-    vertical-align: middle;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-    font-size: 0.86rem;
-}
-
-/* 5. 頁籤導航膠囊 */
-.nav-pills-tactical .nav-link {
-    color: var(--uvaco-text-muted, #9e8eb3);
-    border-radius: 50rem;
-    padding: 6px 16px;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-}
-
-.nav-pills-tactical .nav-link.active {
-    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-}
-
 /* 6. 360° 全景檔案檢視視窗卡片 */
 .dossier-sub-card {
     background: rgba(25, 18, 51, 0.65);
@@ -145,11 +66,4 @@ body {
     padding-bottom: 0.4rem;
     margin-bottom: 0.65rem;
     font-size: 0.88rem;
-}
-
-/* 7. 圖表外層高度限制器 */
-.chart-container-box {
-    position: relative;
-    height: 230px;
-    width: 100%;
 }

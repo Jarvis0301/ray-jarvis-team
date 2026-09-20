@@ -406,7 +406,7 @@
                         <form id="outboundForm" novalidate>
                             <input type="hidden" id="formMode" value="add">
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldId">銷貨單號主鍵 (id) <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="fieldId" required readonly>
@@ -428,7 +428,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldOrderDate">出單建立日期 <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="fieldOrderDate" required>
@@ -489,7 +489,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldOutboundDate">實體交付出庫日</label>
                                     <input type="date" class="form-control form-control-sm" id="fieldOutboundDate">
@@ -561,7 +561,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldFulfillmentStatus">出庫狀態 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldFulfillmentStatus" required>
@@ -700,18 +700,18 @@
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-4">
-                                            <label class="form-label small mb-1" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
+                                            <label class="form-label" for="inlineProductSelect">產品品項 / 費用項目 <span class="text-danger">*</span></label>
                                             <select class="form-select form-select-sm" id="inlineProductSelect" required></select>
                                             <!-- ★ 即時庫存狀態徽章與超額警告容器 -->
                                             <div id="inlineStockFeedback" class="small mt-1"></div>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineSalesUnit">計量單位 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
+                                            <label class="form-label" for="inlineSalesUnit">計量單位 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm fw-bold" id="inlineSalesUnitText" value="盒" readonly>
                                             <input type="hidden" id="inlineSalesUnit" value="盒">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitPrice">銷售單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
+                                            <label class="form-label" for="inlineUnitPrice">銷售單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <div class="input-group input-group-sm">
                                                 <span class="input-group-text" id="inlineCurrencyCodeText">TWD</span>
                                                 <input type="hidden" id="inlineCurrencyCode" value="TWD">
@@ -719,39 +719,39 @@
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitCost">進貨成本單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
+                                            <label class="form-label" for="inlineUnitCost">進貨成本單價 <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineUnitCost" value="NT$ 0" readonly>
                                             <input type="hidden" id="inlineRawUnitCost" value="0">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineUnitSv">單件 SV <span class="badge badge-secondary-subtle small">自動帶入</span></label>
+                                            <label class="form-label" for="inlineUnitSv">單件 SV <span class="badge badge-secondary-subtle small">自動帶入</span></label>
                                             <input type="text" class="form-control form-control-sm text-end" id="inlineUnitSv" value="0 SV" readonly>
                                             <input type="hidden" id="inlineRawUnitSv" value="0">
                                         </div>
                                     </div>
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineOrderedQty">訂購數量 <span class="text-danger">*</span></label>
+                                            <label class="form-label" for="inlineOrderedQty">訂購數量 <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm text-end" id="inlineOrderedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineShippedQty">實體出庫量 <span class="text-danger">*</span></label>
+                                            <label class="form-label" for="inlineShippedQty">實體出庫量 <span class="text-danger">*</span></label>
                                             <input type="number" class="form-control form-control-sm text-end" id="inlineShippedQty" min="1" value="1" required oninput="calcInlineSubtotals()">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineBatchNo">出庫批號</label>
+                                            <label class="form-label" for="inlineBatchNo">出庫批號</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineBatchNo" placeholder="外盒鋼印批號">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineExpiryDate">有效日期</label>
+                                            <label class="form-label" for="inlineExpiryDate">有效日期</label>
                                             <input type="date" class="form-control form-control-sm" id="inlineExpiryDate">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1" for="inlineStockId">扣庫單號</label>
+                                            <label class="form-label" for="inlineStockId">扣庫單號</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineStockId" placeholder="指定庫存代號">
                                         </div>
                                         <div class="col-6 col-md-2">
-                                            <label class="form-label small mb-1">推廣標記</label>
+                                            <label class="form-label">推廣標記</label>
                                             <div class="form-check mt-1">
                                                 <input class="form-check-input" type="checkbox" id="inlineIsSampleDemo">
                                                 <label class="form-check-label small text-secondary" for="inlineIsSampleDemo">體驗試用品</label>
@@ -760,7 +760,7 @@
                                     </div>
                                     <div class="row g-2 align-items-end">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small mb-1" for="inlineRemarks">明細備註事項</label>
+                                            <label class="form-label" for="inlineRemarks">明細備註事項</label>
                                             <input type="text" class="form-control form-control-sm" id="inlineRemarks" placeholder="如「拆盒散裝出貨」、「老客戶回饋贈品」">
                                         </div>
                                         <div class="col-12 col-md-6 text-end d-flex justify-content-end gap-2">

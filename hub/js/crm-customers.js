@@ -9,12 +9,27 @@
  * ============================================================================
  */
 
-// 試算表對接設定
-const SPREADSHEET_CONFIG = {
-    SHEET_CUSTOMERS: '客戶主檔',      // 表 501: 客戶主檔
-    SHEET_CONVERSIONS: '轉化歷程',  // 表 502: 轉化歷程
-    SHEET_PERSONS: '個人主檔',    // 自然人實體
-    SHEET_PARTNERS: '夥伴主檔'         // 團隊夥伴
+const SPREADSHEET_ID = {
+    CRM: APP_CONFIG.SHEETS.CRM,
+    PSI: APP_CONFIG.SHEETS.PSI,
+    ORG: APP_CONFIG.SHEETS.ORG,
+    PSN: APP_CONFIG.SHEETS.PSN,
+    PRD: APP_CONFIG.SHEETS.PRD
+};
+
+const GAS_DEPLOY_ID = {
+    CRM: APP_CONFIG.GAS.CRM,
+    PSI: APP_CONFIG.GAS.PSI,
+    ORG: APP_CONFIG.GAS.ORG,
+    PSN: APP_CONFIG.GAS.PSN,
+    PRD: APP_CONFIG.GAS.PRD
+};
+
+const SHEET_NAMES = {
+    CUSTOMERS: '客戶主檔',      // 表 501
+    CONVERSIONS: '轉化歷程',    // 表 502
+    PERSONS: '個人主檔',        // 表 201
+    PARTNERS: '夥伴主檔'        // 表 202
 };
 
 // 本地記憶體狀態（絕不預填假資料，初始為空陣列）
@@ -30,7 +45,9 @@ let activeViewingCustomerId = null;
 
 // 監聽全域 AppReady 事件啟動
 window.addEventListener('AppReady', async function () {
-    initDataTables();
+    if (window.SheetAdapter) {
+        SheetAdapter.init(GAS_DEPLOY_ID.CRM);
+    }
     initFilterOptions();
     bindEvents();
     await fetchGoogleSheetsData();
@@ -42,12 +59,7 @@ window.addEventListener('AppReady', async function () {
 async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
     try {
-        const sheetsId = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.SHEETS && APP_CONFIG.SHEETS.CRM)
-            ? APP_CONFIG.SHEETS.CRM
-            : ((typeof APP_CONFIG !== 'undefined' && APP_CONFIG.SHEETS && APP_CONFIG.SHEETS.PSI) ? APP_CONFIG.SHEETS.PSI : '');
-
-        if (!sheetsId) {
-            console.warn('[CRM] 未配置試算表 ID，暫以空資料載入。');
+        if (!SPREADSHEET_ID.CRM) {
             customersDatabase = [];
             conversionsDatabase = [];
             personMasterList = [];
@@ -57,21 +69,22 @@ async function fetchGoogleSheetsData() {
         }
 
         const [custRows, convRows, personRows, partnerRows] = await Promise.all([
-            fetchGoogleSheetCsv(sheetsId, SPREADSHEET_CONFIG.SHEET_CUSTOMERS).catch(() => []),
-            fetchGoogleSheetCsv(sheetsId, SPREADSHEET_CONFIG.SHEET_CONVERSIONS).catch(() => []),
-            fetchGoogleSheetCsv(sheetsId, SPREADSHEET_CONFIG.SHEET_PERSONS).catch(() => []),
-            fetchGoogleSheetCsv(sheetsId, SPREADSHEET_CONFIG.SHEET_PARTNERS).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.CRM, SHEET_NAMES.CUSTOMERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.CRM, SHEET_NAMES.CONVERSIONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.PARTNERS).catch(() => [])
         ]);
 
         // 1. 自然人解析 (依照 0-Based 順序取值)
         personMasterList = personRows.map(r => ({
             person_id: getVal(r, 0),
             name_zh: getVal(r, 1),
-            phone: getVal(r, 2),
-            email: getVal(r, 3),
-            current_residence: getVal(r, 4),
-            gender: getVal(r, 5),
-            birthday: getVal(r, 6)
+            gender: getVal(r, 7, '未填'),
+            birthday: getVal(r, 8),
+            current_residence: getVal(r, 15),
+            phone: getVal(r, 16),
+            email: getVal(r, 17),
+            contact_address: getVal(r, 18)
         })).filter(p => p.person_id);
 
         // 2. 夥伴解析
@@ -119,19 +132,6 @@ async function fetchGoogleSheetsData() {
         AppToast.error('讀取雲端資料庫失敗: ' + err.message);
     } finally {
         AppLoading.hide();
-    }
-}
-
-/**
- * 手動同步按鈕 (utils.js 規範介面)
- */
-async function manualSyncSheetsData(btnElement) {
-    const $btn = $(btnElement);
-    $btn.prop('disabled', true).addClass('loading');
-    try {
-        await fetchGoogleSheetsData();
-    } finally {
-        $btn.prop('disabled', false).removeClass('loading');
     }
 }
 
@@ -357,84 +357,102 @@ function renderCardsView(dataList) {
 }
 
 /**
- * DataTables 初始化與更新
+ * 格式化單一客戶列物件
  */
-function initDataTables() {
-    customerDataTable = $('#customer-datatable').DataTable({
-        responsive: true,
-        language: {
-            search: "_INPUT_",
-            searchPlaceholder: "搜尋名冊...",
-            lengthMenu: "顯示 _MENU_ 筆",
-            info: "第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆"
-        }
-    });
+function formatCustomerTableRow(c) {
+    const person = personMasterList.find(p => p.person_id === c.person_id) || { name_zh: '未知' };
+    const partnerName = resolvePartnerName(c.assigned_partner_id);
+    const actionBtns = `
+        <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-info py-1 px-2" onclick="openCustomerModalForView('${c.customer_id}')" title="查看檔案"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button type="button" class="btn btn-outline-secondary py-1 px-2" onclick="openCustomerModalForEdit('${c.customer_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button type="button" class="btn btn-outline-danger py-1 px-2" onclick="deleteCustomerRecord('${c.customer_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+    `;
 
-    conversionsDataTable = $('#conversions-datatable').DataTable({
-        responsive: true,
-        language: {
-            search: "_INPUT_",
-            searchPlaceholder: "搜尋轉化記錄...",
-            lengthMenu: "顯示 _MENU_ 筆",
-            info: "第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆"
-        }
-    });
+    return {
+        customer_info: `<strong class="text-white">${person.name_zh}</strong><br><span class="text-secondary small">${c.customer_id}</span>`,
+        customer_type: `<span class="badge rounded-pill ${getTypeBadgeClass(c.customer_type)}">${c.customer_type}</span>`,
+        pipeline_stage: `<span class="text-warning">${c.pipeline_stage}</span>`,
+        source_channel: `<span>${c.source_channel || '-'}</span>`,
+        referrer: `<span class="text-secondary small">${c.source_referrer_id || '-'}</span>`,
+        assigned_partner: `<span class="text-info">${partnerName}</span>`,
+        status: `<span>${c.status}</span>`,
+        first_order_date: `<span class="small">${c.first_order_date || '-'}</span>`,
+        last_contact_date: `<span class="small">${c.last_contact_date || '-'}</span>`,
+        tags: `<span class="small">${c.customer_tags || '-'}</span>`,
+        actions: actionBtns
+    };
 }
 
 function reloadCustomerDataTable(dataList) {
-    if (!customerDataTable) return;
-    customerDataTable.clear();
+    const formatted = dataList.map(c => formatCustomerTableRow(c));
 
-    dataList.forEach(c => {
-        const person = personMasterList.find(p => p.person_id === c.person_id) || { name_zh: '未知' };
-        const partnerName = resolvePartnerName(c.assigned_partner_id);
-        const actionBtns = `
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-outline-info py-1 px-2" onclick="openCustomerModalForView('${c.customer_id}')" title="查看檔案"><i class="fa-solid fa-magnifying-glass"></i></button>
-                <button type="button" class="btn btn-outline-secondary py-1 px-2" onclick="openCustomerModalForEdit('${c.customer_id}')" title="編輯"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button type="button" class="btn btn-outline-danger py-1 px-2" onclick="deleteCustomerRecord('${c.customer_id}')" title="刪除"><i class="fa-solid fa-trash-can"></i></button>
-            </div>
-        `;
+    if (customerDataTable) {
+        customerDataTable.clear().rows.add(formatted).draw();
+    } else {
+        customerDataTable = $('#customer-datatable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'customer_info' },
+                { data: 'customer_type', className: 'text-center' },
+                { data: 'pipeline_stage', className: 'text-center' },
+                { data: 'source_channel' },
+                { data: 'referrer' },
+                { data: 'assigned_partner' },
+                { data: 'status', className: 'text-center' },
+                { data: 'first_order_date', className: 'text-center' },
+                { data: 'last_contact_date', className: 'text-center' },
+                { data: 'tags' },
+                { data: 'actions', className: 'text-end', orderable: false }
+            ]
+        });
+    }
+}
 
-        customerDataTable.row.add([
-            `<strong class="text-white">${person.name_zh}</strong><br><span class="text-secondary small">${c.customer_id}</span>`,
-            `<span class="badge rounded-pill ${getTypeBadgeClass(c.customer_type)}">${c.customer_type}</span>`,
-            `<span class="text-warning">${c.pipeline_stage}</span>`,
-            `<span>${c.source_channel || '-'}</span>`,
-            `<span class="text-secondary small">${c.source_referrer_id || '-'}</span>`,
-            `<span class="text-info">${partnerName}</span>`,
-            `<span>${c.status}</span>`,
-            `<span class="small">${c.first_order_date || '-'}</span>`,
-            `<span class="small">${c.last_contact_date || '-'}</span>`,
-            `<span class="small">${c.customer_tags || '-'}</span>`,
-            actionBtns
-        ]);
-    });
-    customerDataTable.draw();
+/**
+ * 格式化單一轉化歷程列物件
+ */
+function formatConversionTableRow(cv) {
+    const spend = parseFloat(cv.historical_spend_total) || 0;
+    const sv = parseInt(cv.historical_sv_total, 10) || 0;
+
+    return {
+        conversion_id: `<span class="text-success fw-bold">${cv.conversion_id}</span>`,
+        customer_id: `<span>${cv.customer_id}</span>`,
+        partner_id: `<span class="text-info">${cv.converted_partner_id}</span>`,
+        conversion_type: `<span class="badge bg-success-subtle text-success">${cv.conversion_type}</span>`,
+        conversion_date: `<span>${cv.conversion_date}</span>`,
+        contract_no: `<span class="text-secondary">${cv.contract_no || '-'}</span>`,
+        sponsor: `<span>${resolvePartnerName(cv.sponsor_partner_id)}</span>`,
+        spend: `NT$ ${spend.toLocaleString()}`,
+        sv: `${sv.toLocaleString()} SV`,
+        notes: `<span class="small">${cv.conversion_notes || '-'}</span>`
+    };
 }
 
 function reloadConversionsDataTable(conversionsList) {
-    if (!conversionsDataTable) return;
-    conversionsDataTable.clear();
+    const formatted = conversionsList.map(cv => formatConversionTableRow(cv));
 
-    conversionsList.forEach(cv => {
-        const spend = parseFloat(cv.historical_spend_total) || 0;
-        const sv = parseInt(cv.historical_sv_total, 10) || 0;
-
-        conversionsDataTable.row.add([
-            `<span class="text-success fw-bold">${cv.conversion_id}</span>`,
-            `<span>${cv.customer_id}</span>`,
-            `<span class="text-info">${cv.converted_partner_id}</span>`,
-            `<span class="badge bg-success-subtle text-success">${cv.conversion_type}</span>`,
-            `<span>${cv.conversion_date}</span>`,
-            `<span class="text-secondary">${cv.contract_no || '-'}</span>`,
-            `<span>${resolvePartnerName(cv.sponsor_partner_id)}</span>`,
-            `<span class="text-end text-orange">NT$ ${spend.toLocaleString()}</span>`,
-            `<span class="text-end text-teal fw-bold">${sv.toLocaleString()} SV</span>`,
-            `<span class="small">${cv.conversion_notes || '-'}</span>`
-        ]);
-    });
-    conversionsDataTable.draw();
+    if (conversionsDataTable) {
+        conversionsDataTable.clear().rows.add(formatted).draw();
+    } else {
+        conversionsDataTable = $('#conversions-datatable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'conversion_id' },
+                { data: 'customer_id' },
+                { data: 'partner_id' },
+                { data: 'conversion_type', className: 'text-center' },
+                { data: 'conversion_date', className: 'text-center' },
+                { data: 'contract_no' },
+                { data: 'sponsor' },
+                { data: 'spend', className: 'text-end text-orange fw-bold' },
+                { data: 'sv', className: 'text-end text-teal fw-bold' },
+                { data: 'notes' }
+            ]
+        });
+    }
 }
 
 /**
@@ -492,6 +510,7 @@ function openCustomerModalForCreate() {
     $('#customerModalTitle').html('<i class="fa-solid fa-user-plus text-primary me-1"></i> 新增客戶建檔 (表 501)');
     $('#form-mode').val('CREATE');
     $('#customerForm')[0].reset();
+    $('#form-person-id, #form-assigned-partner-id').val('').trigger('change'); // 補齊 Select2 重置
     $('#form-customer-id').val(generateNextCustomerId());
     $('#form-status').val('活躍跟進');
     $('#form-customer-type').val('潛在對象');
@@ -514,10 +533,10 @@ function openCustomerModalForEdit(customerId) {
     $('#form-pipeline-stage').val(customer.pipeline_stage);
     $('#form-source-channel').val(customer.source_channel || '線上陌開');
     $('#form-source-referrer-id').val(customer.source_referrer_id || '');
-    $('#form-assigned-partner-id').val(customer.assigned_partner_id || '');
+    $('#form-assigned-partner-id').val(customer.assigned_partner_id || '').trigger('change'); // 補上 .trigger('change')
     $('#form-status').val(customer.status);
-    $('#form-first-order-date').val(customer.first_order_date ? customer.first_order_date.replace(/\//g, '-') : '');
-    $('#form-last-contact-date').val(customer.last_contact_date ? customer.last_contact_date.replace(/\//g, '-') : '');
+    $('#form-first-order-date').val(AppDate.toInput(customer.first_order_date));
+    $('#form-last-contact-date').val(AppDate.toInput(customer.last_contact_date));
     $('#form-customer-tags').val(customer.customer_tags || '');
     $('#form-notes').val(customer.notes || '');
 
@@ -565,8 +584,8 @@ async function submitCustomerForm() {
             source_referrer_id: $('#form-source-referrer-id').val().trim() || '',
             assigned_partner_id: $('#form-assigned-partner-id').val() || '',
             status: status,
-            first_order_date: $('#form-first-order-date').val() ? $('#form-first-order-date').val().replace(/-/g, '/') : '',
-            last_contact_date: $('#form-last-contact-date').val() ? $('#form-last-contact-date').val().replace(/-/g, '/') : '',
+            first_order_date: AppDate.toSheet($('#form-first-order-date').val()),
+            last_contact_date: AppDate.toSheet($('#form-last-contact-date').val()),
             customer_tags: $('#form-customer-tags').val().trim() || '',
             notes: $('#form-notes').val().trim() || ''
         };
@@ -579,10 +598,10 @@ async function submitCustomerForm() {
         ];
 
         if (mode === 'CREATE') {
-            await SheetAdapter.createRow(SPREADSHEET_CONFIG.SHEET_CUSTOMERS, record.customer_id, rowArray);
-            customersDatabase.unshift(record); // 樂觀更新置頂
+            await SheetAdapter.createRow(SHEET_NAMES.CUSTOMERS, record.customer_id, rowArray, GAS_DEPLOY_ID.CRM);
+            customersDatabase.unshift(record);
         } else {
-            await SheetAdapter.updateRow(SPREADSHEET_CONFIG.SHEET_CUSTOMERS, record.customer_id, rowArray);
+            await SheetAdapter.updateRow(SHEET_NAMES.CUSTOMERS, record.customer_id, rowArray, GAS_DEPLOY_ID.CRM);
             const idx = customersDatabase.findIndex(c => c.customer_id === custId);
             if (idx >= 0) customersDatabase[idx] = record;
         }
@@ -656,7 +675,7 @@ async function saveCustomerConversion() {
             customer_id: custId,
             converted_partner_id: newPartnerId,
             conversion_type: $('#convert-type').val(),
-            conversion_date: convDate.replace(/-/g, '/'),
+            conversion_date: AppDate.toSheet(convDate),
             contract_no: $('#convert-contract-no').val().trim() || '',
             sponsor_partner_id: sponsorId,
             historical_spend_total: parseFloat($('#convert-spend').val()) || 0,
@@ -673,7 +692,7 @@ async function saveCustomerConversion() {
         ];
 
         // 1. 寫入表 502 轉化紀錄
-        await SheetAdapter.createRow(SPREADSHEET_CONFIG.SHEET_CONVERSIONS, conversionRecord.conversion_id, convRowArray);
+        await SheetAdapter.createRow(SHEET_NAMES.CONVERSIONS, conversionRecord.conversion_id, convRowArray, GAS_DEPLOY_ID.CRM);
 
         // 2. 更新表 501 客戶主檔狀態為「已轉夥伴」
         const customer = customersDatabase.find(c => c.customer_id === custId);
@@ -685,7 +704,7 @@ async function saveCustomerConversion() {
                 customer.assigned_partner_id, customer.status, customer.first_order_date,
                 customer.last_contact_date, customer.customer_tags, customer.notes
             ];
-            await SheetAdapter.updateRow(SPREADSHEET_CONFIG.SHEET_CUSTOMERS, customer.customer_id, custRowArray);
+            await SheetAdapter.updateRow(SHEET_NAMES.CUSTOMERS, customer.customer_id, custRowArray, GAS_DEPLOY_ID.CRM);
         }
 
         // 3. 本地記憶體樂觀更新
@@ -711,7 +730,7 @@ async function deleteCustomerRecord(customerId) {
 
     AppLoading.show('<i class="fa-solid fa-trash-can text-danger"></i> 正在刪除檔案...', '刪除中...');
     try {
-        await SheetAdapter.deleteRow(SPREADSHEET_CONFIG.SHEET_CUSTOMERS, customerId);
+        await SheetAdapter.deleteRow(SHEET_NAMES.CUSTOMERS, customerId, GAS_DEPLOY_ID.CRM);
         customersDatabase = customersDatabase.filter(c => c.customer_id !== customerId);
         refreshView();
         AppToast.success(`客戶【${customerId}】已成功刪除！`);

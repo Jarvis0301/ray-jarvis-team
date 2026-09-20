@@ -95,37 +95,37 @@
             <section class="glass-panel p-3 mb-3">
                 <div class="row g-2 align-items-center" id="filter-controls-dock">
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label small text-secondary mb-1">客戶身分</label>
+                        <label class="form-label">客戶身分</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-customer-type">
                             <option value="">全部身分</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label small text-secondary mb-1">轉化階段</label>
+                        <label class="form-label">轉化階段</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-pipeline-stage">
                             <option value="">全部階段</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label small text-secondary mb-1">名單來源</label>
+                        <label class="form-label">名單來源</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-source-channel">
                             <option value="">全部來源</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label small text-secondary mb-1">運作狀態</label>
+                        <label class="form-label">運作狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-status">
                             <option value="">全部狀態</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label small text-secondary mb-1">維護夥伴</label>
+                        <label class="form-label">維護夥伴</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-assigned-partner">
                             <option value="">全體夥伴</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label small text-secondary mb-1">關鍵字搜尋</label>
+                        <label class="form-label">關鍵字搜尋</label>
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control" id="filter-search-text" placeholder="姓名 / 編號 / 標籤">
                             <button class="btn btn-outline-secondary" type="button" id="btn-reset-filters" title="重置條件">
@@ -139,7 +139,7 @@
             <!-- 四大視圖分頁切換列 -->
             <section class="views-wrapper">
                 <nav aria-label="客戶模組視圖頁籤" class="mb-3">
-                    <ul class="nav nav-pills nav-pills-tactical" id="viewModeTabs" role="tablist">
+                    <ul class="nav nav-tabs" id="viewModeTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="tab-cards" data-bs-toggle="tab" data-bs-target="#container-cards-view" type="button" role="tab">
                                 <i class="fa-solid fa-address-card me-1"></i> 客戶卡片
@@ -178,7 +178,7 @@
                     <div class="tab-pane fade" id="container-table-view" role="tabpanel">
                         <div class="glass-panel p-3">
                             <div class="table-responsive">
-                                <table id="customer-datatable" class="table table-custom w-100">
+                                <table id="customer-datatable" class="table table-dark-custom align-middle w-100">
                                     <thead>
                                         <tr>
                                             <th>客戶編號 / 姓名</th>
@@ -210,7 +210,7 @@
                                 </div>
                             </div>
                             <div class="table-responsive">
-                                <table id="conversions-datatable" class="table table-custom w-100">
+                                <table id="conversions-datatable" class="table table-dark-custom align-middle w-100">
                                     <thead>
                                         <tr>
                                             <th>轉化識別碼</th>
@@ -237,25 +237,19 @@
                             <div class="col-12 col-lg-4">
                                 <div class="glass-panel p-3 h-100">
                                     <h6 class="text-light fw-bold mb-3"><i class="fa-solid fa-users-viewfinder text-primary me-1"></i> 客戶身分比例分佈</h6>
-                                    <div class="chart-container-box">
-                                        <canvas id="chart-customer-type"></canvas>
-                                    </div>
+                                    <div class="chart-card-container"><canvas id="chart-customer-type"></canvas></div>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-4">
                                 <div class="glass-panel p-3 h-100">
                                     <h6 class="text-light fw-bold mb-3"><i class="fa-solid fa-filter-circle-dollar text-warning me-1"></i> 轉化漏斗階段分佈</h6>
-                                    <div class="chart-container-box">
-                                        <canvas id="chart-pipeline-stage"></canvas>
-                                    </div>
+                                    <div class="chart-card-container"><canvas id="chart-pipeline-stage"></canvas></div>
                                 </div>
                             </div>
                             <div class="col-12 col-lg-4">
                                 <div class="glass-panel p-3 h-100">
                                     <h6 class="text-light fw-bold mb-3"><i class="fa-solid fa-bullhorn text-info me-1"></i> 引流來源渠道佔比</h6>
-                                    <div class="chart-container-box">
-                                        <canvas id="chart-source-channel"></canvas>
-                                    </div>
+                                    <div class="chart-card-container"><canvas id="chart-source-channel"></canvas></div>
                                 </div>
                             </div>
                         </div>
@@ -280,11 +274,11 @@
                             
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">客戶商業識別碼 (customer_id)</label>
+                                    <label class="form-label">客戶商業識別碼 (customer_id)</label>
                                     <input type="text" class="form-control form-control-sm" id="form-customer-id" readonly placeholder="自動配發唯讀">
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">關聯自然人主檔 (person_id) <span class="text-danger">*</span></label>
+                                    <label class="form-label">關聯自然人主檔 (person_id) <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="form-person-id" required>
                                         <option value="">(請選擇對接之自然人實體)</option>
                                     </select>
@@ -293,7 +287,7 @@
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">客戶分類 (customer_type) <span class="text-danger">*</span></label>
+                                    <label class="form-label">客戶分類 (customer_type) <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="form-customer-type" required>
                                         <option value="潛在對象">潛在對象</option>
                                         <option value="一般零售">一般零售</option>
@@ -303,7 +297,7 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">轉化階段 (pipeline_stage) <span class="text-danger">*</span></label>
+                                    <label class="form-label">轉化階段 (pipeline_stage) <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="form-pipeline-stage" required>
                                         <option value="新線索">新線索</option>
                                         <option value="需求確認">需求確認</option>
@@ -317,7 +311,7 @@
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">名單來源渠道 (source_channel)</label>
+                                    <label class="form-label">名單來源渠道 (source_channel)</label>
                                     <select class="form-select form-select-sm" id="form-source-channel">
                                         <option value="線上陌開">線上陌開</option>
                                         <option value="線下陌開">線下陌開</option>
@@ -330,11 +324,11 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">轉介人代碼 (source_referrer_id)</label>
+                                    <label class="form-label">轉介人代碼 (source_referrer_id)</label>
                                     <input type="text" class="form-control form-control-sm" id="form-source-referrer-id" placeholder="如：CST-000001">
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">負責夥伴 (assigned_partner_id)</label>
+                                    <label class="form-label">負責夥伴 (assigned_partner_id)</label>
                                     <select class="form-select form-select-sm" id="form-assigned-partner-id">
                                         <option value="">(無特定負責人)</option>
                                     </select>
@@ -343,7 +337,7 @@
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">運作狀態 (status) <span class="text-danger">*</span></label>
+                                    <label class="form-label">運作狀態 (status) <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="form-status" required>
                                         <option value="活躍跟進">活躍跟進</option>
                                         <option value="沉睡列管">沉睡列管</option>
@@ -352,31 +346,31 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">首單出貨日 (first_order_date)</label>
+                                    <label class="form-label">首單出貨日 (first_order_date)</label>
                                     <input type="date" class="form-control form-control-sm" id="form-first-order-date">
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">最近關懷日 (last_contact_date)</label>
+                                    <label class="form-label">最近關懷日 (last_contact_date)</label>
                                     <input type="date" class="form-control form-control-sm" id="form-last-contact-date">
                                 </div>
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label small text-secondary mb-1">多維客群標籤 (customer_tags，逗號分隔)</label>
+                                <label class="form-label">多維客群標籤 (customer_tags，逗號分隔)</label>
                                 <input type="text" class="form-control form-control-sm" id="form-customer-tags" placeholder="如：高預算, 腸胃敏弱, 媽媽族群">
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label small text-secondary mb-1">綜合溝通筆記與偏好備忘 (notes)</label>
+                                <label class="form-label">綜合溝通筆記與偏好備忘 (notes)</label>
                                 <textarea class="form-control form-control-sm" id="form-notes" rows="3" placeholder="記錄人際脈絡、飲食習慣、產品體驗回饋..."></textarea>
                             </div>
                         </form>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark me-1"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="form-submit-btn" onclick="submitCustomerForm()">
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="form-submit-btn" onclick="submitCustomerForm()">
                             <i class="fa-solid fa-floppy-disk me-1"></i> 儲存
                         </button>
                     </footer>
@@ -455,8 +449,10 @@
                             </button>
                         </div>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">關閉</button>
-                            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="btn-view-to-edit">
+                            <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                                <i class="fa-solid fa-xmark me-1"></i> 關閉
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btn-view-to-edit">
                                 <i class="fa-solid fa-pen-to-square me-1"></i> 編輯
                             </button>
                         </div>
@@ -484,22 +480,22 @@
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">轉化歷程識別碼 (conversion_id)</label>
+                                    <label class="form-label">轉化歷程識別碼 (conversion_id)</label>
                                     <input type="text" class="form-control form-control-sm" id="convert-id" readonly>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">原客戶主檔代號 (customer_id)</label>
+                                    <label class="form-label">原客戶主檔代號 (customer_id)</label>
                                     <input type="text" class="form-control form-control-sm" id="convert-customer-id" readonly>
                                 </div>
                             </div>
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">轉化生成夥伴代碼 (converted_partner_id) <span class="text-danger">*</span></label>
+                                    <label class="form-label">轉化生成夥伴代碼 (converted_partner_id) <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="convert-partner-id" required placeholder="如：PTN-0038">
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">轉化型態 (conversion_type) <span class="text-danger">*</span></label>
+                                    <label class="form-label">轉化型態 (conversion_type) <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="convert-type" required>
                                         <option value="零售客轉經銷">零售客轉經銷</option>
                                         <option value="陌生直接入會">陌生直接入會</option>
@@ -510,44 +506,44 @@
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">正式簽約/入會日 <span class="text-danger">*</span></label>
+                                    <label class="form-label">正式簽約/入會日 <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control form-control-sm" id="convert-date" required>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">申請書編號/合約序號 (contract_no)</label>
+                                    <label class="form-label">申請書編號/合約序號 (contract_no)</label>
                                     <input type="text" class="form-control form-control-sm" id="convert-contract-no" placeholder="如：PZ-2026-9901">
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <label class="form-label small text-secondary mb-1">引薦推薦人 (sponsor_partner_id) <span class="text-danger">*</span></label>
+                                    <label class="form-label">引薦推薦人 (sponsor_partner_id) <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="convert-sponsor-id" required></select>
                                 </div>
                             </div>
 
                             <div class="row g-2 mb-2">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">累計消費總金額 (結轉資產)</label>
+                                    <label class="form-label">累計消費總金額 (結轉資產)</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text">NT$</span>
-                                        <input type="number" class="form-control text-end text-orange" id="convert-spend" value="0" step="1">
+                                        <input type="number" class="form-control form-control-sm text-end text-orange" id="convert-spend" value="0" step="1">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label small text-secondary mb-1">累計貢獻 SV 考核點數</label>
+                                    <label class="form-label">累計貢獻 SV 考核點數</label>
                                     <input type="number" class="form-control form-control-sm text-end text-teal" id="convert-sv" value="0" step="1">
                                 </div>
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label small text-secondary mb-1">轉化動機分析、事業痛點與輔導備忘</label>
+                                <label class="form-label">轉化動機分析、事業痛點與輔導備忘</label>
                                 <textarea class="form-control form-control-sm" id="convert-notes" rows="3" placeholder="記錄事業目標與輔導排線重點..."></textarea>
                             </div>
                         </form>
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
                             <i class="fa-solid fa-xmark me-1"></i> 取消
                         </button>
-                        <button type="button" class="btn btn-success btn-sm rounded-pill px-3" id="btn-submit-convert" onclick="saveCustomerConversion()">
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btn-submit-convert" onclick="saveCustomerConversion()">
                             <i class="fa-solid fa-check me-1"></i> 完成簽約結轉
                         </button>
                     </footer>
