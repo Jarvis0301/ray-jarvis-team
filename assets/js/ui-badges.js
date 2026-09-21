@@ -530,6 +530,53 @@ const UIBadges = (function () {
                     default: return '<span class="badge badge-gray-subtle">未設定</span>';
                 }
             }
+        },
+
+        // ====================================================================
+        // 8. 客戶與名單領域 (UIBadges.customer.*)
+        // ====================================================================
+        customer: {
+            /**
+             * 客戶分類標籤 (customer_type)
+             */
+            type(type) {
+                switch (clean(type)) {
+                    case 'VIP顧客': return '<span class="badge badge-warning-subtle">VIP顧客</span>';
+                    case '事業種子': return '<span class="badge badge-danger-subtle">事業種子</span>';
+                    case '已轉夥伴': return '<span class="badge badge-success-subtle">已轉夥伴</span>';
+                    case '一般零售': return '<span class="badge badge-info-subtle">一般零售</span>';
+                    case '潛在對象': return '<span class="badge badge-secondary-subtle">潛在對象</span>';
+                    default: return '<span class="badge badge-gray-subtle">未設定</span>';
+                }
+            },
+
+            /**
+             * 轉化階段標籤 (pipeline_stage)
+             */
+            pipelineStage(stage) {
+                switch (clean(stage)) {
+                    case '新線索': return '<span class="badge badge-outline-primary">新線索</span>';
+                    case '需求確認': return '<span class="badge badge-outline-secondary">需求確認</span>';
+                    case '試用體驗': return '<span class="badge badge-outline-info">試用體驗</span>';
+                    case '異議排除': return '<span class="badge badge-outline-warning">異議排除</span>';
+                    case '規律自用': return '<span class="badge badge-outline-success">規律自用</span>';
+                    case '培育暫緩': return '<span class="badge badge-outline-muted">培育暫緩</span>';
+                    default: return `<span class="badge badge-outline-gray text-secondary">${clean(stage, '未設定')}</span>`;
+                }
+            },
+
+            /**
+             * 運作狀態標籤 (status)
+             */
+            status(status) {
+                switch (clean(status)) {
+                    case '活躍跟進': return '<span class="badge badge-outline-success-subtle">活躍跟進</span>';
+                    case '沉睡列管': return '<span class="badge badge-outline-warning-subtle">沉睡列管</span>';
+                    case '爭議凍結': return '<span class="badge badge-outline-danger-subtle">爭議凍結</span>';
+                    case '封存歸檔': return '<span class="badge badge-outline-muted-subtle">封存歸檔</span>';
+                    default: return `<span class="badge badge-outline-gray-subtle">${clean(status, '未設定')}</span>`;
+                }
+            }
         }
     };
 })();

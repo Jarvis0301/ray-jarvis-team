@@ -199,7 +199,7 @@
                                                     <th>影響 SV</th>
                                                     <th>經手夥伴 / 關聯對象</th>
                                                     <th>發生日期</th>
-                                                    <th class="text-center">操作</th>
+                                                    <th>操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tbodyAdjustments"></tbody>
@@ -239,7 +239,7 @@
                                                     <th>總金額</th>
                                                     <th>影響 SV</th>
                                                     <th>經手夥伴</th>
-                                                    <th class="text-center">操作</th>
+                                                    <th>操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tbodyTransfers"></tbody>
@@ -400,16 +400,16 @@
                             <article class="card p-3 mb-3 mt-3">
                                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                     <span class="text-secondary fw-bold">
-                                        <i class="fa-solid fa-box-open text-primary me-1"></i> 調撥物資規格設定
+                                        <i class="fa-solid fa-box-open text-primary me-1"></i>調撥物資規格設定
                                     </span>
                                     <div class="btn-group btn-group-sm" role="group" id="groupModalPackMode" aria-label="包裝規格型態切換">
                                         <input type="radio" class="btn-check" name="modalPackMode" id="modalPackModeBox" value="BOX" checked autocomplete="off">
                                         <label class="btn btn-outline-primary" for="modalPackModeBox">
-                                            <i class="fa-solid fa-box me-1"></i> 原裝
+                                            <i class="fa-solid fa-box me-1"></i>原裝
                                         </label>
                                         <input type="radio" class="btn-check" name="modalPackMode" id="modalPackModePiece" value="PIECE" autocomplete="off">
                                         <label class="btn btn-outline-warning" for="modalPackModePiece">
-                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝
+                                            <i class="fa-solid fa-box-tissue me-1"></i>散裝
                                         </label>
                                     </div>
                                 </div>
@@ -540,11 +540,11 @@
                                 <div class="btn-group btn-group-sm" role="group" id="groupAuditPackMode">
                                     <input type="radio" class="btn-check" name="auditPackMode" id="auditPackModeBox" value="BOX" checked autocomplete="off">
                                     <label class="btn btn-outline-primary btn-sm" for="auditPackModeBox">
-                                        <i class="fa-solid fa-box me-1"></i> 原裝
+                                        <i class="fa-solid fa-box me-1"></i>原裝
                                     </label>
                                     <input type="radio" class="btn-check" name="auditPackMode" id="auditPackModePiece" value="PIECE" autocomplete="off">
                                     <label class="btn btn-outline-warning btn-sm" for="auditPackModePiece">
-                                        <i class="fa-solid fa-box-tissue me-1"></i> 散裝
+                                        <i class="fa-solid fa-box-tissue me-1"></i>散裝
                                     </label>
                                 </div>
                             </div>
@@ -586,7 +586,7 @@
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label small fw-bold text-info mb-1" for="auditInputPhysicalQty">
-                                        <i class="fa-solid fa-calculator me-1"></i> 現場實盤數量
+                                        <i class="fa-solid fa-calculator me-1"></i>現場實盤數量
                                     </label>
                                     <div class="input-group input-group-sm">
                                         <input type="number" class="form-control form-control-sm text-end" id="auditInputPhysicalQty" value="0" min="0" oninput="calculateAuditVariance()">
@@ -601,7 +601,7 @@
                                 <div class="row" id="auditVarianceBadgeContainer">
                                     <div class="col-12 col-xl-5">
                                         <span class="fw-bold text-info" id="auditTagVarianceStatus">
-                                            <i class="fa-solid fa-check me-1"></i> 帳實相符 (0)
+                                            <i class="fa-solid fa-check me-1"></i>帳實相符 (0)
                                         </span>
                                     </div>
                                     <div class="col-6 col-xl-4 text-xl-end">
@@ -615,7 +615,7 @@
 
                             <div class="mb-2 d-none" id="auditReasonContainer">
                                 <label class="form-label small text-warning fw-bold">
-                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> 異動類型判定與說明事由 <span class="text-danger">*</span>
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>異動類型判定與說明事由 <span class="text-danger">*</span>
                                 </label>
                                 <div class="row g-2">
                                     <div class="col-12 col-xl-5">
@@ -704,16 +704,16 @@
                         <article class="card p-3 mb-3 mt-3">
                             <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
                                 <span class="text-secondary fw-bold">
-                                    <i class="fa-solid fa-layer-group text-info me-1"></i> 調撥規格型態
+                                    <i class="fa-solid fa-layer-group text-info me-1"></i>調撥規格型態
                                 </span>
                                 <div class="btn-group btn-group-sm" role="group" id="groupTrPackMode">
                                     <input type="radio" class="btn-check" name="trPackMode" id="trPackModeBox" value="BOX" checked autocomplete="off">
                                     <label class="btn btn-outline-primary btn-sm" for="trPackModeBox">
-                                        <i class="fa-solid fa-box me-1"></i> 原裝
+                                        <i class="fa-solid fa-box me-1"></i>原裝
                                     </label>
                                     <input type="radio" class="btn-check" name="trPackMode" id="trPackModePiece" value="PIECE" autocomplete="off">
                                     <label class="btn btn-outline-warning btn-sm" for="trPackModePiece">
-                                        <i class="fa-solid fa-box-tissue me-1"></i> 散裝
+                                        <i class="fa-solid fa-box-tissue me-1"></i>散裝
                                     </label>
                                 </div>
                             </div>

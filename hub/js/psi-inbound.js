@@ -121,7 +121,7 @@ async function initInboundApp() {
  * 資料讀取與同步中樞
  */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawInbounds, rawInboundItems, rawPersons, rawPartners, rawProducts] = await Promise.all([
@@ -701,14 +701,14 @@ function formatTableRow(item) {
             <div>
                 <span class="text-white">${warehouseOnlyName}</span>
                 <div class="text-info small mt-1">
-                    <i class="fa-solid fa-arrow-down-long me-1"></i> ${centerDisplayName} / <i class="fa-solid fa-truck me-1"></i>${item.delivery_method || '-'}
+                    <i class="fa-solid fa-arrow-down-long me-1"></i>${centerDisplayName} / <i class="fa-solid fa-truck me-1"></i>${item.delivery_method || '-'}
                 </div>
             </div>
         `,
         four_flow: `
             <div>
-                <div class="small"><i class="fa-solid fa-credit-card text-secondary me-1"></i> 出資：<span class="text-white fw-bold">${purchaserName}</span></div>
-                <div class="small"><i class="fa-solid fa-award text-warning me-1"></i> 掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
+                <div class="small"><i class="fa-solid fa-credit-card text-secondary me-1"></i>出資：<span class="text-white fw-bold">${purchaserName}</span></div>
+                <div class="small"><i class="fa-solid fa-award text-warning me-1"></i>掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
                 ${isDecoupled ? '<span class="badge badge-danger-subtle mt-1">四流分離</span>' : ''}
             </div>
         `,
@@ -794,7 +794,7 @@ function calculateTotalCost() {
 }
 
 function openAddModal() {
-    $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i> 新增進貨入庫單據');
+    $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增進貨入庫單據');
     $('#formMode').val('add');
     $('#inboundForm')[0].reset();
 
@@ -841,7 +841,7 @@ function openEditModal(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
 
-    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯進貨單據');
+    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯進貨單據');
     $('#formMode').val('edit');
 
     $('#fieldId').val(item.id);
@@ -1034,7 +1034,7 @@ function toggleInlineItemForm() {
 }
 
 function openInlineAddForm() {
-    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i> 新增明細項目');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增明細項目');
     $('#inlineItemId').val('');
     $('#inlineItemForm')[0].reset();
 
@@ -1073,7 +1073,7 @@ function editInlineItem(itemId) {
     const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
     const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
 
-    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細項目【項次 ${item.item_seq}】`);
+    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細項目【項次 ${item.item_seq}】`);
     $('#inlineItemId').val(item.id);
 
     const isFee = item.is_fee_item === 'Y';
@@ -1254,7 +1254,7 @@ async function saveAllInboundItems() {
 
     const $btn = $('#btnSaveAllInboundItems');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 正在批次寫入雲端...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>正在批次寫入雲端...');
         const currentUser = getCurrentUser();
         const nowStr = AppDate.now('full');
 
@@ -1391,7 +1391,7 @@ async function saveAllInboundItems() {
         console.error("批次儲存明細失敗:", err);
         AppToast.error("批次儲存明細失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存明細清單變更');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存明細清單變更');
     }
 }
 
@@ -1682,7 +1682,7 @@ async function saveInboundItem() {
 
     const $btnSave = $('#btnSaveInbound');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_NAMES.INBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
@@ -1700,7 +1700,7 @@ async function saveInboundItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 
@@ -1808,7 +1808,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-arrows-split-up-and-left text-primary me-1"></i> 四流分離與據點調度
+                <i class="fa-solid fa-arrows-split-up-and-left text-primary me-1"></i>四流分離與據點調度
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實際出資夥伴</div>
@@ -1838,7 +1838,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-calendar-days text-info me-1"></i> 時間期程與物流單號
+                <i class="fa-solid fa-calendar-days text-info me-1"></i>時間期程與物流單號
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">下單訂購日期</div>
@@ -1864,7 +1864,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-coins text-warning me-1"></i> 採購財務與考核點數核算
+                <i class="fa-solid fa-coins text-warning me-1"></i>採購財務與考核點數核算
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">商品金額小計</div>
@@ -1890,7 +1890,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
-                <i class="fa-solid fa-comment-dots text-secondary me-1"></i> 單據備註事項
+                <i class="fa-solid fa-comment-dots text-secondary me-1"></i>單據備註事項
             </h6>
             <div class="text-light small p-2 rounded" style="background: rgba(10, 5, 18, 0.4);">
                 ${item.remarks || '未填寫單據備註事項'}

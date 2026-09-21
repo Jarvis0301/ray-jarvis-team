@@ -1395,6 +1395,10 @@ function renderAnalyticsCharts() {
     });
 
     const sortedYears = Object.keys(yearCounts).sort();
+    const launchCounts = Object.values(yearCounts);
+    const maxLaunchCount = launchCounts.length > 0 ? Math.max(...launchCounts) : 0;
+    const yMaxLaunch = maxLaunchCount > 0 ? Math.ceil(maxLaunchCount / 5) * 5 : 5;
+
     if (chartInstances.launchTrend) chartInstances.launchTrend.destroy();
     const ctxLaunch = document.getElementById('chartLaunchTrend')?.getContext('2d');
     if (ctxLaunch) {
@@ -1406,13 +1410,13 @@ function renderAnalyticsCharts() {
                     label: '上市品項數',
                     data: sortedYears.length > 0 ? sortedYears.map(y => yearCounts[y]) : [0],
                     borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    borderWidth: 3,
+                    backgroundColor: '#10b981',
+                    borderWidth: 2,
                     pointBackgroundColor: '#10b981',
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    fill: true,
-                    tension: 0.35
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: false,        // ★ 線條下方不填色
+                    tension: 0          // ★ 線條不要有曲率
                 }]
             },
             options: {
@@ -1428,7 +1432,16 @@ function renderAnalyticsCharts() {
                 },
                 scales: {
                     x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.05)' } },
-                    y: { ticks: { color: '#c084fc', stepSize: 1 }, grid: { color: 'rgba(192, 132, 252, 0.1)' } }
+                    y: { 
+                        min: 0,
+                        max: yMaxLaunch,
+                        ticks: { 
+                            color: '#c084fc', 
+                            stepSize: 1, 
+                            precision: 0 
+                        }, 
+                        grid: { color: 'rgba(192, 132, 252, 0.1)' } 
+                    }
                 }
             }
         });
@@ -1669,7 +1682,7 @@ async function saveProductItem() {
 
     const $btnSave = $('#btnSaveFullProduct');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入雲端中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入雲端中...');
 
         if (mode === 'add') {
             await Promise.all([
@@ -1703,7 +1716,7 @@ async function saveProductItem() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

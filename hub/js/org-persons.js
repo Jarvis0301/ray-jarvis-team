@@ -335,10 +335,10 @@ function renderCardsView(list) {
         let contactsHtml = '';
         if (contacts.length > 0) {
             contacts.forEach(c => {
-                contactsHtml += `<span class="badge badge-dark me-1 mb-1"><i class="fa-solid fa-comment-dots text-info me-1"></i> ${c.platform_name}：${c.contact_value}</span>`;
+                contactsHtml += `<span class="badge badge-dark me-1 mb-1"><i class="fa-solid fa-comment-dots text-info me-1"></i>${c.platform_name}：${c.contact_value}</span>`;
             });
         } else if (p.phone) {
-            contactsHtml = `<span class="badge badge-dark"><i class="fa-solid fa-phone text-warning me-1"></i> ${p.phone}</span>`;
+            contactsHtml = `<span class="badge badge-dark"><i class="fa-solid fa-phone text-warning me-1"></i>${p.phone}</span>`;
         } else {
             contactsHtml = '<span class="text-secondary small">無其他通訊管道</span>';
         }
@@ -371,15 +371,15 @@ function renderCardsView(list) {
 
                     <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3 small">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i> 人本概況</span>
+                            <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i>人本概況</span>
                             <span class="text-light">${bioText}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-secondary"><i class="fa-solid fa-graduation-cap text-warning me-1"></i> 學歷職業</span>
+                            <span class="text-secondary"><i class="fa-solid fa-graduation-cap text-warning me-1"></i>學歷職業</span>
                             <span class="text-light">${p.highest_education || '-'}${p.graduation_status ? ` (${p.graduation_status})` : ''} ‧ ${p.occupation_background || '-'}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-secondary"><i class="fa-solid fa-heart-pulse text-danger me-1"></i> 健康 / 財務</span>
+                            <span class="text-secondary"><i class="fa-solid fa-heart-pulse text-danger me-1"></i>健康 / 財務</span>
                             <span>
                                 ${UIBadges.person.healthStatus(p.health_status)}
                                 ${UIBadges.person.financialStatus(p.financial_status)}
@@ -392,7 +392,7 @@ function renderCardsView(list) {
                     </div>
 
                     <div class="mt-auto pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center text-secondary small">
-                        <span><i class="fa-solid fa-handshake me-1"></i> 認識：${p.met_date || '未記錄'}</span>
+                        <span><i class="fa-solid fa-handshake me-1"></i>認識：${p.met_date || '未記錄'}</span>
                         <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 py-0" onclick="openPersonModalForView('${p.person_id}')">調閱</button>
                     </div>
                 </div>
@@ -798,7 +798,7 @@ function addLanguageTableRow(lang = {}) {
 // 8. 彈窗控制器 (View / Edit / Create)
 // ============================================================================
 function openPersonModalForCreate() {
-    $('#personModalTitle').html('<i class="fa-solid fa-user-plus text-primary me-1"></i> 新增人員主檔');
+    $('#personModalTitle').html('<i class="fa-solid fa-user-plus text-primary me-1"></i>新增人員主檔');
     $('#form-mode').val('CREATE');
     $('#personForm')[0].reset();
 
@@ -823,7 +823,7 @@ function openPersonModalForEdit(personId) {
         return;
     }
 
-    $('#personModalTitle').html(`<i class="fa-solid fa-user-gear text-primary me-1"></i> 編輯檔案 - ${person.name_zh || person.preferred_name || person.person_id}`);
+    $('#personModalTitle').html(`<i class="fa-solid fa-user-gear text-primary me-1"></i>編輯檔案 - ${person.name_zh || person.preferred_name || person.person_id}`);
     $('#form-mode').val('UPDATE');
 
     $('#form-person-id').val(person.person_id);
@@ -929,7 +929,7 @@ function openPersonModalForView(personId) {
             const isPrim = c.is_primary === 'Y' ? '<span class="badge bg-success ms-1" style="font-size:0.65rem;">主要</span>' : '';
             $cWrap.append(`
                 <div class="d-flex justify-content-between py-1 border-bottom border-secondary border-opacity-10">
-                    <span class="text-secondary"><i class="fa-solid fa-comment-dots text-primary me-1"></i> ${c.platform_name}${isPrim}</span>
+                    <span class="text-secondary"><i class="fa-solid fa-comment-dots text-primary me-1"></i>${c.platform_name}${isPrim}</span>
                     <span class="text-white">${c.contact_value}</span>
                 </div>
             `);

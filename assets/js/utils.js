@@ -63,12 +63,12 @@ async function fetchGoogleSheetCsv(spreadsheetId, sheetName) {
  * 全域手動同步雲端試算表通用觸發器（相容所有模組讀取函式與防連點保護）
  */
 window.manualSyncSheetsData = async function (btnElement) {
-    const $btn = btnElement ? $(btnElement) : $('.btn-manual-sync');
+    const $btn = btnElement ? $(btnElement) : $('#btn-manual-sync');
     const originalHtml = $btn.html();
 
     try {
         // 按鈕鎖定並呈現旋轉動畫
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin me-1"></i> 同步中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin me-1"></i>同步中...');
 
         // 自動適配不同程式的讀取函式名稱
         if (typeof fetchGoogleSheetsData === 'function') {

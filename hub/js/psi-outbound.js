@@ -126,7 +126,7 @@ async function initOutboundApp() {
  * 資料拉取與多表解析引擎
  */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawOutbounds, rawOutboundItems, rawPersons, rawPartners, rawProducts, rawCustomers, rawStocks] = await Promise.all([
@@ -1171,7 +1171,7 @@ function calculateFinancials() {
 }
 
 function openCreateOutboundModal() {
-    $('#outboundModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i> 開立銷貨出庫單據');
+    $('#outboundModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>開立銷貨出庫單據');
     $('#formMode').val('add');
     $('#outboundForm')[0].reset();
 
@@ -1221,7 +1221,7 @@ function openEditOutboundModal(id) {
     const item = appState.outbounds.find(d => d.id === id);
     if (!item) return;
 
-    $('#outboundModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯銷貨出庫單');
+    $('#outboundModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯銷貨出庫單');
     $('#formMode').val('edit');
 
     $('#fieldId').val(item.id);
@@ -1513,7 +1513,7 @@ function updateStockWarningFeedback() {
 
     const $opt = $('#inlineProductSelect option:selected');
     if ($opt.data('fee') === 'Y') {
-        $feedback.html('<span class="text-secondary"><i class="fa-solid fa-info-circle me-1"></i> 虛擬費用項目，不執行實體庫存扣減</span>');
+        $feedback.html('<span class="text-secondary"><i class="fa-solid fa-info-circle me-1"></i>虛擬費用項目，不執行實體庫存扣減</span>');
         return;
     }
 
@@ -1529,20 +1529,20 @@ function updateStockWarningFeedback() {
 
     if (packMode === 'BOX') {
         if (availBoxes <= 0) {
-            $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 此倉目前無${baseUnit}裝現貨 (可用: 0${baseUnit})！</span>`);
+            $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>此倉目前無${baseUnit}裝現貨 (可用: 0${baseUnit})！</span>`);
         } else if (shippedQty > availBoxes) {
-            $feedback.html(`<span class="text-warning fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 出庫量 (${shippedQty}${baseUnit}) 超過在庫可用量 (${availBoxes}${baseUnit})！</span>`);
+            $feedback.html(`<span class="text-warning fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>出庫量 (${shippedQty}${baseUnit}) 超過在庫可用量 (${availBoxes}${baseUnit})！</span>`);
         } else {
-            $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 在庫充裕 (自由可用現貨: ${availBoxes}${baseUnit})</span>`);
+            $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>在庫充裕 (自由可用現貨: ${availBoxes}${baseUnit})</span>`);
         }
     } else {
         // 散裝模式：單位動態對齊 subUnit 與 baseUnit
         if (availPieces <= 0 && availBoxes <= 0) {
-            $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 此倉無散裝${subUnit}件，亦無${baseUnit}裝可供拆封！</span>`);
+            $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>此倉無散裝${subUnit}件，亦無${baseUnit}裝可供拆封！</span>`);
         } else if (shippedQty > availPieces) {
-            $feedback.html(`<span class="text-warning fw-bold"><i class="fa-solid fa-boxes-packing me-1"></i> 在線散裝僅剩 ${availPieces}${subUnit} (庫存另有 ${availBoxes}${baseUnit}整裝可供手動拆盒)</span>`);
+            $feedback.html(`<span class="text-warning fw-bold"><i class="fa-solid fa-boxes-packing me-1"></i>在線散裝僅剩 ${availPieces}${subUnit} (庫存另有 ${availBoxes}${baseUnit}整裝可供手動拆盒)</span>`);
         } else {
-            $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 散裝現貨充足 (可用: ${availPieces}${subUnit})</span>`);
+            $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>散裝現貨充足 (可用: ${availPieces}${subUnit})</span>`);
         }
     }
 }
@@ -1656,7 +1656,7 @@ function toggleInlineItemForm() {
 }
 
 function openInlineAddForm() {
-    $('#inlineFormTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i> 新增單筆明細');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增單筆明細');
     $('#inlineItemId').val('');
     $('#inlineItemForm')[0].reset();
 
@@ -1683,7 +1683,7 @@ function editInlineItem(itemId) {
     const parentOrder = appState.outbounds.find(d => d.id === currentDetailOrderId);
     const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
 
-    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細【項次 ${item.item_seq}】`);
+    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細【項次 ${item.item_seq}】`);
     $('#inlineItemId').val(item.id);
 
     const isBox = isMasterPackUnit(item.sales_unit, item.product_id, item.official_product_code);
@@ -1897,7 +1897,7 @@ async function saveAllOutboundItems() {
 
     const $btn = $('#btnSaveAllOutboundItems');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 正在批次寫入雲端...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>正在批次寫入雲端...');
         const currentUser = getCurrentUser();
         const nowStr = AppDate.now('full');
 
@@ -2037,7 +2037,7 @@ async function saveAllOutboundItems() {
     } catch (err) {
         AppToast.error("批次儲存銷貨明細失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存銷貨明細變更');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存銷貨明細變更');
     }
 }
 
@@ -2197,7 +2197,7 @@ function openOutboundDetailModal(orderId) {
     if (canDeliver) {
         $leftAction.append(`
             <button type="button" class="btn btn-purple btn-sm rounded-pill px-3" onclick="quickDeliverFromDetail('${item.id}')">
-                <i class="fa-solid fa-stamp me-1"></i> 標記為已交付（執行扣庫）
+                <i class="fa-solid fa-stamp me-1"></i>標記為已交付（執行扣庫）
             </button>
         `);
     }
@@ -2400,7 +2400,7 @@ async function saveOutboundOrder() {
 
     const $btn = $('#btnSaveOutbound');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入雲端中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入雲端中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
@@ -2418,7 +2418,7 @@ async function saveOutboundOrder() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

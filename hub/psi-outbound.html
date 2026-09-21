@@ -47,7 +47,7 @@
                     <!-- 1. 訂單日期起 -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterOrderDateStart">
-                            <i class="fa-regular fa-calendar text-primary me-1"></i> 訂單日期起
+                            <i class="fa-regular fa-calendar text-primary me-1"></i>訂單日期起
                         </label>
                         <input type="date" class="form-control form-control-sm" id="filterOrderDateStart">
                     </div>
@@ -55,7 +55,7 @@
                     <!-- 2. 訂單日期迄 -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterOrderDateEnd">
-                            <i class="fa-regular fa-calendar-check text-primary me-1"></i> 訂單日期迄
+                            <i class="fa-regular fa-calendar-check text-primary me-1"></i>訂單日期迄
                         </label>
                         <input type="date" class="form-control form-control-sm" id="filterOrderDateEnd">
                     </div>
@@ -63,7 +63,7 @@
                     <!-- 3. 業績月份 -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterPerformanceMonth">
-                            <i class="fa-solid fa-calendar-days text-primary me-1"></i> 業績月份
+                            <i class="fa-solid fa-calendar-days text-primary me-1"></i>業績月份
                         </label>
                         <input type="month" class="form-control form-control-sm" id="filterPerformanceMonth">
                     </div>
@@ -71,7 +71,7 @@
                     <!-- 4. 出貨倉庫 (Select2) -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterWarehouse">
-                            <i class="fa-solid fa-warehouse text-primary me-1"></i> 出貨倉庫
+                            <i class="fa-solid fa-warehouse text-primary me-1"></i>出貨倉庫
                         </label>
                         <select class="form-select form-select-sm" id="filterWarehouse">
                             <option value="ALL">全部出貨倉庫</option>
@@ -81,7 +81,7 @@
                     <!-- 5. 開單夥伴 (Select2) -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterOperator">
-                            <i class="fa-solid fa-user-shield text-warning me-1"></i> 開單夥伴
+                            <i class="fa-solid fa-user-shield text-warning me-1"></i>開單夥伴
                         </label>
                         <select class="form-select form-select-sm" id="filterOperator">
                             <option value="ALL">全部開單夥伴</option>
@@ -91,7 +91,7 @@
                     <!-- 6. 收件人 (Select2，整合客戶與夥伴) -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterRecipient">
-                            <i class="fa-solid fa-user-tag text-info me-1"></i> 收件人
+                            <i class="fa-solid fa-user-tag text-info me-1"></i>收件人
                         </label>
                         <select class="form-select form-select-sm" id="filterRecipient">
                             <option value="ALL">全部收件對象</option>
@@ -104,43 +104,43 @@
                 <div class="row g-2 pipeline-stepper">
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node active w-100 h-100 justify-content-center text-center" data-status-filter="ALL" onclick="filterByPipeline('ALL', this)">
-                            <i class="fa-solid fa-list-check me-1"></i> 全域出庫總覽
+                            <i class="fa-solid fa-list-check me-1"></i>全域出庫總覽
                             <span class="step-count" id="countAll">0</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="草稿" onclick="filterByPipeline('草稿', this)">
-                            <i class="fa-solid fa-file-pen me-1"></i> 草稿待排單
+                            <i class="fa-solid fa-file-pen me-1"></i>草稿待排單
                             <span class="step-count" id="countDraft">0</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="待取貨" onclick="filterByPipeline('待取貨', this)">
-                            <i class="fa-solid fa-clock me-1"></i> 待取貨/備貨
+                            <i class="fa-solid fa-clock me-1"></i>待取貨/備貨
                             <span class="step-count" id="countPending">0</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="已寄出" onclick="filterByPipeline('已寄出', this)">
-                            <i class="fa-solid fa-truck-fast me-1"></i> 物流在途中
+                            <i class="fa-solid fa-truck-fast me-1"></i>物流在途中
                             <span class="step-count" id="countShipped">0</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="HOLD" onclick="filterByPipeline('HOLD', this)">
-                            <i class="fa-solid fa-handshake-angle me-1"></i> 代領預扣鎖定
+                            <i class="fa-solid fa-handshake-angle me-1"></i>代領預扣鎖定
                             <span class="step-count" id="countHold">0</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="已交付" onclick="filterByPipeline('已交付', this)">
-                            <i class="fa-solid fa-boxes-packing me-1"></i> 已核銷交付
+                            <i class="fa-solid fa-boxes-packing me-1"></i>已核銷交付
                             <span class="step-count" id="countDelivered">0</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-xl">
                         <div class="step-node w-100 h-100 justify-content-center text-center" data-status-filter="已取消" onclick="filterByPipeline('已取消', this)">
-                            <i class="fa-solid fa-ban me-1"></i> 已作廢取消
+                            <i class="fa-solid fa-ban me-1"></i>已作廢取消
                             <span class="step-count" id="countCancelled">0</span>
                         </div>
                     </div>
@@ -195,12 +195,12 @@
                     <ul class="nav nav-tabs" id="outboundViewTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="tab-orders" data-bs-toggle="tab" data-bs-target="#container-orders-view" type="button" role="tab" aria-controls="container-orders-view" aria-selected="true">
-                                <i class="fa-solid fa-file-invoice-dollar me-1"></i> 出貨單據
+                                <i class="fa-solid fa-file-invoice-dollar me-1"></i>出貨單據
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="tab-charts" data-bs-toggle="tab" data-bs-target="#container-charts-view" type="button" role="tab" aria-controls="container-charts-view" aria-selected="false">
-                                <i class="fa-solid fa-chart-pie me-1"></i> 統計圖表
+                                <i class="fa-solid fa-chart-pie me-1"></i>統計圖表
                             </button>
                         </li>
                     </ul>
@@ -216,7 +216,7 @@
                                 <div class="glass-panel p-3 p-lg-4 h-100">
                                     <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom border-purple-subtle">
                                         <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-list-check text-primary me-1"></i> 出貨單據表
+                                            <i class="fa-solid fa-list-check text-primary me-1"></i>出貨單據表
                                         </h3>
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="text-secondary small" id="tableSummaryInfo">顯示 0 / 0 筆</span>
@@ -237,7 +237,7 @@
                                                     <th>出庫 SV</th>
                                                     <th>預扣狀態</th>
                                                     <th>出庫狀態</th>
-                                                    <th class="text-end">操作</th>
+                                                    <th>操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="outboundTableBody"></tbody>
@@ -257,7 +257,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-scale-balanced text-primary me-1"></i> 銷貨規模與考核走勢
+                                                <i class="fa-solid fa-scale-balanced text-primary me-1"></i>銷貨規模與考核走勢
                                             </span>
                                             <span class="badge badge-purple-subtle">雙軸走勢</span>
                                         </div>
@@ -269,7 +269,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-hand-holding-dollar text-info me-1"></i> 實質毛利價差趨勢
+                                                <i class="fa-solid fa-hand-holding-dollar text-info me-1"></i>實質毛利價差趨勢
                                             </span>
                                             <span class="badge badge-info-subtle">獲利追蹤</span>
                                         </div>
@@ -285,7 +285,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-user-shield text-success me-1"></i> 出資夥伴資金佔比
+                                                <i class="fa-solid fa-user-shield text-success me-1"></i>出資夥伴資金佔比
                                             </span>
                                             <span class="badge badge-success-subtle">出資結構</span>
                                         </div>
@@ -298,7 +298,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-tags text-primary me-1"></i> 銷貨業務類別佔比
+                                                <i class="fa-solid fa-tags text-primary me-1"></i>銷貨業務類別佔比
                                             </span>
                                             <span class="badge badge-purple-subtle">商流屬性</span>
                                         </div>
@@ -311,7 +311,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-receipt text-danger me-1"></i> 收款狀態佔比
+                                                <i class="fa-solid fa-receipt text-danger me-1"></i>收款狀態佔比
                                             </span>
                                             <span class="badge badge-danger-subtle">核銷進度</span>
                                         </div>
@@ -324,7 +324,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-money-check-dollar text-info me-1"></i> 付款金流管道佔比
+                                                <i class="fa-solid fa-money-check-dollar text-info me-1"></i>付款金流管道佔比
                                             </span>
                                             <span class="badge badge-info-subtle">金流工具</span>
                                         </div>
@@ -340,7 +340,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-warehouse text-info me-1"></i> 出貨倉庫盒數佔比
+                                                <i class="fa-solid fa-warehouse text-info me-1"></i>出貨倉庫盒數佔比
                                             </span>
                                             <span class="badge badge-info-subtle">倉庫流向</span>
                                         </div>
@@ -353,7 +353,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-truck-ramp-box text-warning me-1"></i> 交付管道結構佔比
+                                                <i class="fa-solid fa-truck-ramp-box text-warning me-1"></i>交付管道結構佔比
                                             </span>
                                             <span class="badge badge-warning-subtle">物流通路</span>
                                         </div>
@@ -366,7 +366,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-boxes-packing text-primary me-1"></i> 出庫狀態佔比
+                                                <i class="fa-solid fa-boxes-packing text-primary me-1"></i>出庫狀態佔比
                                             </span>
                                             <span class="badge badge-purple-subtle">履約管線</span>
                                         </div>
@@ -379,7 +379,7 @@
                                     <div class="card">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
-                                                <i class="fa-solid fa-handshake-angle text-warning me-1"></i> 預扣狀態佔比
+                                                <i class="fa-solid fa-handshake-angle text-warning me-1"></i>預扣狀態佔比
                                             </span>
                                             <span class="badge badge-warning-subtle">鎖定風控</span>
                                         </div>
@@ -678,17 +678,17 @@
                             <div class="card p-3 border-purple border-opacity-50" style="background: rgba(28, 15, 48, 0.85);">
                                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                     <span class="fw-bold text-white small" id="inlineFormTitle">
-                                        <i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯銷貨明細
+                                        <i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯銷貨明細
                                     </span>
                                     <!-- ★ 原裝 / 散裝 切換按鈕組 -->
                                     <div class="btn-group btn-group-sm" role="group" id="groupInlinePackMode" aria-label="包裝型態切換">
                                         <input type="radio" class="btn-check" name="inlinePackMode" id="inlinePackModeBox" value="BOX" checked autocomplete="off">
                                         <label class="btn btn-outline-primary" for="inlinePackModeBox">
-                                            <i class="fa-solid fa-box me-1"></i> 原裝
+                                            <i class="fa-solid fa-box me-1"></i>原裝
                                         </label>
                                         <input type="radio" class="btn-check" name="inlinePackMode" id="inlinePackModePiece" value="PIECE" autocomplete="off">
                                         <label class="btn btn-outline-warning" for="inlinePackModePiece">
-                                            <i class="fa-solid fa-box-tissue me-1"></i> 散裝
+                                            <i class="fa-solid fa-box-tissue me-1"></i>散裝
                                         </label>
                                     </div>
                                     <button type="button" class="btn-close btn-close-white small" onclick="closeInlineItemForm()"></button>
@@ -836,7 +836,7 @@
                             <i class="fa-solid fa-xmark me-1"></i>關閉
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" id="btnSaveAllOutboundItems" onclick="saveAllOutboundItems()">
-                            <i class="fa-solid fa-floppy-disk me-1"></i> 儲存銷貨明細
+                            <i class="fa-solid fa-floppy-disk me-1"></i>儲存銷貨明細
                         </button>
                     </footer>
                 </section>
@@ -865,13 +865,13 @@
                         </div>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                                <i class="fa-solid fa-xmark me-1"></i> 關閉
+                                <i class="fa-solid fa-xmark me-1"></i>關閉
                             </button>
                             <button type="button" class="btn btn-info btn-sm rounded-pill px-3" id="btnDetailViewItemsOutbound">
-                                <i class="fa-solid fa-list-ul me-1"></i> 查看明細
+                                <i class="fa-solid fa-list-ul me-1"></i>查看明細
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" id="btnDetailEditOutbound">
-                                <i class="fa-solid fa-pen-to-square me-1"></i> 編輯單據
+                                <i class="fa-solid fa-pen-to-square me-1"></i>編輯單據
                             </button>
                         </div>
                     </footer>

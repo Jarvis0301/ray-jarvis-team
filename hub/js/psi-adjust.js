@@ -180,25 +180,25 @@ function updateAdjustStockFeedback() {
     $('#fieldProductId').data('avail-boxes', availBoxes).data('avail-pieces', availPieces);
 
     if (adjType === '盤盈') {
-        $fb.html(`<span class="text-info"><i class="fa-solid fa-circle-info me-1"></i> 目前來源倉在庫：${availBoxes} ${baseUnit} / ${availPieces} ${subUnit}（盤盈將調增現貨）</span>`);
+        $fb.html(`<span class="text-info"><i class="fa-solid fa-circle-info me-1"></i>目前來源倉在庫：${availBoxes} ${baseUnit} / ${availPieces} ${subUnit}（盤盈將調增現貨）</span>`);
         return;
     }
 
     if (packMode === 'BOX') {
         if (availBoxes <= 0) {
-            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 來源倉無整${baseUnit}現貨 (可用: 0 ${baseUnit})！</span>`);
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>來源倉無整${baseUnit}現貨 (可用: 0 ${baseUnit})！</span>`);
         } else if (reqQty > availBoxes) {
-            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 異動量 (${reqQty} ${baseUnit}) 超出可用量 (${availBoxes} ${baseUnit})！</span>`);
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>異動量 (${reqQty} ${baseUnit}) 超出可用量 (${availBoxes} ${baseUnit})！</span>`);
         } else {
-            $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 來源倉現貨充裕 (可用: ${availBoxes} ${baseUnit})</span>`);
+            $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>來源倉現貨充裕 (可用: ${availBoxes} ${baseUnit})</span>`);
         }
     } else {
         if (availPieces <= 0) {
-            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 來源倉無散裝現貨 (可用: 0 ${subUnit})！</span>`);
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>來源倉無散裝現貨 (可用: 0 ${subUnit})！</span>`);
         } else if (reqQty > availPieces) {
-            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 散件扣減量 (${reqQty} ${subUnit}) 超出在庫散件 (${availPieces} ${subUnit})！</span>`);
+            $fb.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>散件扣減量 (${reqQty} ${subUnit}) 超出在庫散件 (${availPieces} ${subUnit})！</span>`);
         } else {
-            $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 散裝現貨充足 (可用: ${availPieces} ${subUnit})</span>`);
+            $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>散裝現貨充足 (可用: ${availPieces} ${subUnit})</span>`);
         }
     }
 }
@@ -244,7 +244,7 @@ async function initAdjustApp() {
  * 資料讀取引擎
  */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
 
     try {
         const [rawWarehouses, rawAdjustments, rawPersons, rawPartners, rawProducts, rawCustomers, rawStocks] = await Promise.all([
@@ -1375,18 +1375,18 @@ function calculateAuditVariance() {
     const $reasonBox = $('#auditReasonContainer');
 
     if (diff === 0) {
-        $tag.attr('class', 'fw-bold text-info').html('<i class="fa-solid fa-check me-1"></i> 帳實相符 (0)');
+        $tag.attr('class', 'fw-bold text-info').html('<i class="fa-solid fa-check me-1"></i>帳實相符 (0)');
         $lblCost.text(formatCurrency(0, currency));
         $lblSv.text('0 SV');
         $reasonBox.addClass('d-none');
     } else if (diff < 0) {
-        $tag.attr('class', 'fw-bold text-danger').html(`<i class="fa-solid fa-triangle-exclamation me-1"></i> 盤虧短少 (${diff})`);
+        $tag.attr('class', 'fw-bold text-danger').html(`<i class="fa-solid fa-triangle-exclamation me-1"></i>盤虧短少 (${diff})`);
         $lblCost.text(`-${formatCurrency(totalCost, currency)}`);
         $lblSv.text(`-${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
         $reasonBox.removeClass('d-none');
         $('#auditSelAdjType').val('盤虧');
     } else {
-        $tag.attr('class', 'fw-bold text-success').html(`<i class="fa-solid fa-plus me-1"></i> 盤盈溢出 (+${diff})`);
+        $tag.attr('class', 'fw-bold text-success').html(`<i class="fa-solid fa-plus me-1"></i>盤盈溢出 (+${diff})`);
         $lblCost.text(`+${formatCurrency(totalCost, currency)}`);
         $lblSv.text(`+${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
         $reasonBox.removeClass('d-none');
@@ -1477,11 +1477,11 @@ function updateTransferStockFeedback() {
     $('#trProductSelect').data('from-avail-qty', availQty);
 
     if (availQty <= 0) {
-        $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> 調出來源倉目前無現貨儲備 (可用: 0 ${baseUnit})，禁止調撥！</span>`);
+        $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>調出來源倉目前無現貨儲備 (可用: 0 ${baseUnit})，禁止調撥！</span>`);
     } else if (reqQty > availQty) {
-        $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> 調撥數量 (${reqQty} ${baseUnit}) 超出調出倉可用庫存 (${availQty} ${baseUnit})！</span>`);
+        $feedback.html(`<span class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>調撥數量 (${reqQty} ${baseUnit}) 超出調出倉可用庫存 (${availQty} ${baseUnit})！</span>`);
     } else {
-        $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i> 來源倉現貨充足 (可用庫存: ${availQty} ${baseUnit})</span>`);
+        $feedback.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>來源倉現貨充足 (可用庫存: ${availQty} ${baseUnit})</span>`);
     }
 }
 
@@ -2057,7 +2057,7 @@ function updateQuantitySignUI(adjType) {
 }
 
 function openAddAdjustmentModal() {
-    $('#adjustModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i> 發起盤點調撥單據');
+    $('#adjustModalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>發起盤點調撥單據');
     $('#formMode').val('add');
     $('#adjustForm')[0].reset();
 
@@ -2097,7 +2097,7 @@ function openEditAdjustmentModal(id) {
     const adj = appState.adjustments.find(a => a.id === id);
     if (!adj) return;
 
-    $('#adjustModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯盤點調撥單據');
+    $('#adjustModalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯盤點調撥單據');
     $('#formMode').val('edit');
 
     $('#fieldId').val(adj.id);
@@ -2304,7 +2304,7 @@ async function saveAdjustmentRecord() {
 
     const $btn = $('#btnSaveAdjust');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
         
         // 封裝物件並維護記憶體
         const updatedObj = {
@@ -2338,7 +2338,7 @@ async function saveAdjustmentRecord() {
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

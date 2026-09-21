@@ -1011,7 +1011,7 @@ function renderCardsView(list) {
                                 ${mentorHtml}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i>性別/年齡/現居地</span>
+                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i>性別 / 年齡 / 現居地</span>
                                 <div class="text-end text-light small">${genderAgeResidenceHtml}</div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
@@ -1985,7 +1985,11 @@ function renderChartsView(filteredDataset = null) {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
+                    },
                     x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
                 }
             }
@@ -2011,7 +2015,11 @@ function renderChartsView(filteredDataset = null) {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
+                    },
                     x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
                 }
             }
@@ -2027,12 +2035,45 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const joinYears = Object.keys(joinYearCounts).sort();
+
+    // 計算 Y 軸上限：向上取整至 5 的倍數
+    const joinCounts = Object.values(joinYearCounts);
+    const maxJoinCount = joinCounts.length > 0 ? Math.max(...joinCounts) : 0;
+    const yMaxJoin = maxJoinCount > 0 ? Math.ceil(maxJoinCount / 5) * 5 : 5;
+
     const ctxJoinYear = document.getElementById('chart-join-year-line');
     if (ctxJoinYear) {
         chartInstances.joinYear = new Chart(ctxJoinYear, {
             type: 'line',
-            data: { labels: joinYears, datasets: [{ data: joinYears.map(k => joinYearCounts[k]), borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.2)', fill: true, tension: 0.3 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            data: { 
+                labels: joinYears, 
+                datasets: [{ 
+                    label: '簽約加入人數',
+                    data: joinYears.map(k => joinYearCounts[k]), 
+                    borderColor: '#38bdf8', 
+                    backgroundColor: '#38bdf8',
+                    fill: false,        // ★ 線條下方不填色
+                    tension: 0          // ★ 線條不要有曲率
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        min: 0,         // ★ 從 0 開始
+                        max: yMaxJoin,  // ★ 最大值為 5 的倍數
+                        ticks: {
+                            stepSize: 1, // ★ 間隔最小單位為整數
+                            precision: 0,
+                            color: '#94a3b8'
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                }
+            }
         });
     }
 
@@ -2045,12 +2086,45 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const exitYears = Object.keys(exitYearCounts).length ? Object.keys(exitYearCounts).sort() : ['2024', '2025', '2026'];
+
+    // 計算 Y 軸上限：向上取整至 5 的倍數
+    const exitCounts = Object.values(exitYearCounts);
+    const maxExitCount = exitCounts.length > 0 ? Math.max(...exitCounts) : 0;
+    const yMaxExit = maxExitCount > 0 ? Math.ceil(maxExitCount / 5) * 5 : 5;
+
     const ctxExitYear = document.getElementById('chart-exit-year-line');
     if (ctxExitYear) {
         chartInstances.exitYear = new Chart(ctxExitYear, {
             type: 'line',
-            data: { labels: exitYears, datasets: [{ data: exitYears.map(k => exitYearCounts[k] || 0), borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.2)', fill: true, tension: 0.3 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            data: { 
+                labels: exitYears, 
+                datasets: [{ 
+                    label: '解約人數',
+                    data: exitYears.map(k => exitYearCounts[k] || 0), 
+                    borderColor: '#f43f5e', 
+                    backgroundColor: '#f43f5e',
+                    fill: false,        // ★ 線條下方不填色
+                    tension: 0          // ★ 線條不要有曲率
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: yMaxExit,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0,
+                            color: '#94a3b8'
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                }
+            }
         });
     }
 
@@ -2068,7 +2142,19 @@ function renderChartsView(filteredDataset = null) {
         chartInstances.dueMonth = new Chart(ctxDueMonth, {
             type: 'bar',
             data: { labels: Object.keys(dueMonthCounts), datasets: [{ data: Object.values(dueMonthCounts), backgroundColor: '#fbbf24', borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 補齊整數規範
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
+                    },
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                }
+            }
         });
     }
 
@@ -2086,7 +2172,19 @@ function renderChartsView(filteredDataset = null) {
         chartInstances.renewalMonth = new Chart(ctxRenewalMonth, {
             type: 'bar',
             data: { labels: Object.keys(renewalMonthCounts), datasets: [{ data: Object.values(renewalMonthCounts), backgroundColor: '#34d399', borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 補齊整數規範
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
+                    },
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                }
+            }
         });
     }
 }
