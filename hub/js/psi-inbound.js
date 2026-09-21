@@ -54,7 +54,6 @@ let currentDetailOrderId = null; // 當前開啟的進貨單號
 
 // 進貨明細前端暫存資料結構（一次性存檔專用）
 let stagingInboundItems = [];
-let originalInboundItemIds = [];
 let deletedInboundItemIds = [];
 
 // ==========================================================================
@@ -86,17 +85,6 @@ function normalizeOrderCenterId(centerVal) {
     if (matchByName) return matchByName.id;
 
     return centerVal;
-}
-
-// ==========================================================================
-// 3. 實體名稱解析核心 (接軌 EntityResolver)
-// ==========================================================================
-function getPartnerResolvedName(partnerId, displayMode = 1) {
-    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
-}
-
-function getWarehouseDisplayName(whId, displayMode = 1) {
-    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
 // ==========================================================================
@@ -392,7 +380,8 @@ function renderCharts() {
                         backgroundColor: 'rgba(139, 92, 246, 0.15)',
                         pointBackgroundColor: '#8b5cf6',
                         borderWidth: 2.5,
-                        tension: 0.35,
+                        fill: false,      // 線條下方不填色
+                        tension: 0,       // 線條不要有曲率
                         yAxisID: 'y'
                     },
                     {
@@ -402,7 +391,8 @@ function renderCharts() {
                         backgroundColor: 'rgba(52, 211, 153, 0.12)',
                         pointBackgroundColor: '#34d399',
                         borderWidth: 2.5,
-                        tension: 0.35,
+                        fill: false,      // 線條下方不填色
+                        tension: 0,       // 線條不要有曲率
                         yAxisID: 'y1'
                     }
                 ]
@@ -438,7 +428,7 @@ function renderCharts() {
     if (ctxPurchaser) {
         const purchaserMap = {};
         currentList.forEach(d => {
-            const name = getPartnerResolvedName(d.purchaser_partner_id);
+            const name = EntityResolver.partner(d.purchaser_partner_id, appState.partners, appState.persons, 1);
             const cost = parseFloat(d.total_cost_amount) || 0;
             purchaserMap[name] = AppCalc.add(purchaserMap[name] || 0, cost);
         });
@@ -656,8 +646,8 @@ function getFilteredData() {
 
 function formatTableRow(item) {
     const statusBadge = UIBadges.psi.inboundStatus(item.status);
-    const purchaserName = getPartnerResolvedName(item.purchaser_partner_id);
-    const svOwnerName = getPartnerResolvedName(item.sv_owner_partner_id);
+    const purchaserName = EntityResolver.partner(item.purchaser_partner_id, appState.partners, appState.persons, 1);
+    const svOwnerName = EntityResolver.partner(item.sv_owner_partner_id, appState.partners, appState.persons, 1);
     const isDecoupled = item.purchaser_partner_id && item.sv_owner_partner_id && (item.purchaser_partner_id !== item.sv_owner_partner_id);
 
     const isCompleted = item.status === '已入庫';
@@ -949,8 +939,8 @@ function openDetailModal(orderId) {
     $('#detailOfficialNo').text(item.official_order_no || '無');
     $('#detailOrderDate').text(item.order_date || '-');
     $('#detailPerfMonth').text(item.performance_month || '-');
-    $('#detailPurchaser').text(getPartnerResolvedName(item.purchaser_partner_id));
-    $('#detailSvOwner').text(getPartnerResolvedName(item.sv_owner_partner_id));
+    $('#detailPurchaser').text(EntityResolver.partner(item.purchaser_partner_id, appState.partners, appState.persons, 1));
+    $('#detailSvOwner').text(EntityResolver.partner(item.sv_owner_partner_id, appState.partners, appState.persons, 1));
     $('#detailWarehouse').text(EntityResolver.warehouse(item.warehouse_id, appState.warehouses, 1));
     $('#detailStatusBadge').html(UIBadges.psi.inboundStatus(item.status));
 
@@ -963,7 +953,6 @@ function openDetailModal(orderId) {
     // 深拷貝至前端暫存區
     const matchedItems = appState.inboundItems.filter(it => it.inbound_id === orderId);
     stagingInboundItems = JSON.parse(JSON.stringify(matchedItems));
-    originalInboundItemIds = matchedItems.map(it => it.id);
     deletedInboundItemIds = [];
 
     renderInboundItemsTableFromStaging(isLocked);
@@ -1033,9 +1022,9 @@ function renderInboundItemsTableFromStaging(isLocked) {
         });
     }
 
-    $('#sumItemCount').text(stagingInboundItems.length);
-    $('#sumOrderedQty').text(sumOrdered);
-    $('#sumReceivedQty').text(sumReceived);
+    $('#sumItemCount').text(stagingInboundItems.length.toLocaleString());
+    $('#sumOrderedQty').text(sumOrdered.toLocaleString());
+    $('#sumReceivedQty').text(sumReceived.toLocaleString());
     $('#sumCurrencySymbol').text(currSym.trim());
     $('#sumTotalAmount').text(sumAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
     $('#sumTotalSv').text(AppCalc.formatSV(sumSv, 'INTERNAL'));
@@ -1281,7 +1270,7 @@ async function saveAllInboundItems() {
 
         // 1. 執行刪除
         for (const delId of deletedInboundItemIds) {
-            await SheetAdapter.deleteRow(SHEET_NAMES.INBOUND_ITEMS, delId, GAS_DEPLOY_ID);
+            await SheetAdapter.deleteRow(SHEET_NAMES.INBOUND_ITEMS, delId, GAS_DEPLOY_ID.PSI);
         }
 
         // 2. 執行新增與更新 (表 304 實體 23 欄)
@@ -1323,9 +1312,9 @@ async function saveAllInboundItems() {
             ];
 
             if (it._isNew || it.id.includes('_TEMP_')) {
-                await SheetAdapter.createRow(SHEET_NAMES.INBOUND_ITEMS, finalItemId, rowDataArray, GAS_DEPLOY_ID);
+                await SheetAdapter.createRow(SHEET_NAMES.INBOUND_ITEMS, finalItemId, rowDataArray, GAS_DEPLOY_ID.PSI);
             } else if (it._isModified) {
-                await SheetAdapter.updateRow(SHEET_NAMES.INBOUND_ITEMS, finalItemId, rowDataArray, GAS_DEPLOY_ID);
+                await SheetAdapter.updateRow(SHEET_NAMES.INBOUND_ITEMS, finalItemId, rowDataArray, GAS_DEPLOY_ID.PSI);
             }
         }
 
@@ -1388,7 +1377,7 @@ async function saveAllInboundItems() {
             parentInbound.modified_at
         ];
 
-        await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, parentInbound.id, parentRowData, GAS_DEPLOY_ID);
+        await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, parentInbound.id, parentRowData, GAS_DEPLOY_ID.PSI);
 
         // 同步前端明細記憶體：移除已刪除者、替換修改與新增項目
         appState.inboundItems = appState.inboundItems.filter(it => it.inbound_id !== currentDetailOrderId);
@@ -1706,10 +1695,10 @@ async function saveInboundItem() {
         $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
-            await SheetAdapter.createRow(SHEET_NAMES.INBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.createRow(SHEET_NAMES.INBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID.PSI);
             appState.inbounds.unshift(updatedObj);
         } else {
-            await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID.PSI);
             const idx = appState.inbounds.findIndex(d => d.id === orderId);
             if (idx !== -1) appState.inbounds[idx] = updatedObj;
         }
@@ -1756,7 +1745,7 @@ async function quickVerifyInbound(orderId) {
     ];
 
     try {
-        await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, item.id, rowDataArray, GAS_DEPLOY_ID);
+        await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, item.id, rowDataArray, GAS_DEPLOY_ID.PSI);
         // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
         refreshAllViews();
         AppToast.success(`單號【${item.id}】已合格入庫，庫存現貨正式生效！`);
@@ -1777,7 +1766,7 @@ async function deleteInboundItem(orderId) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow(SHEET_NAMES.INBOUNDS, orderId, GAS_DEPLOY_ID);
+        await SheetAdapter.deleteRow(SHEET_NAMES.INBOUNDS, orderId, GAS_DEPLOY_ID.PSI);
         appState.inbounds = appState.inbounds.filter(d => d.id !== orderId);
         // 同步刪除關聯明細記憶體
         appState.inboundItems = appState.inboundItems.filter(it => it.inbound_id !== orderId);
@@ -1800,8 +1789,8 @@ function openInboundMasterDetailModal(orderId) {
         return;
     }
 
-    const purchaserName = getPartnerResolvedName(item.purchaser_partner_id);
-    const svOwnerName = getPartnerResolvedName(item.sv_owner_partner_id);
+    const purchaserName = EntityResolver.partner(item.purchaser_partner_id, appState.partners, appState.persons, 1);
+    const svOwnerName = EntityResolver.partner(item.sv_owner_partner_id, appState.partners, appState.persons, 1);
     const warehouseName = EntityResolver.warehouse(item.warehouse_id, appState.warehouses, 1);
     const centerDisplayName = getOrderCenterDisplayName(item.order_center);
     const curr = item.currency_code || 'TWD';

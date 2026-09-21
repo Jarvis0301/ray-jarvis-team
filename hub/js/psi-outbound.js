@@ -64,7 +64,6 @@ let currentDetailOrderId = null; // 當前正在檢視/編輯明細的銷貨單�
 
 // 銷貨明細前端暫存資料結構（兩階段提交專用，未按儲存前絕不向雲端發送請求）
 let stagingOutboundItems = [];
-let originalOutboundItemIds = [];
 let deletedOutboundItemIds = [];
 
 // ==========================================================================
@@ -83,25 +82,6 @@ function isMasterPackUnit(salesUnit, productId, officialProductCode) {
     
     // 兼容性防呆回退：若產品主檔尚未定義，依全系統常見原裝標準單位清單判定
     return ['盒', '箱', '組', '罐', '袋', '套', '包'].includes(salesUnit.trim());
-}
-
-// ==========================================================================
-// 3. 實體名稱權重解析核心 (接軌 EntityResolver)
-// ==========================================================================
-function getPersonResolvedName(personId, displayMode = 1) {
-    return EntityResolver.person(personId, appState.persons, displayMode);
-}
-
-function getPartnerResolvedName(partnerId, displayMode = 1) {
-    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
-}
-
-function getCustomerResolvedName(customerId, displayMode = 1) {
-    return EntityResolver.customer(customerId, appState.customers, appState.persons, displayMode);
-}
-
-function getWarehouseDisplayName(whId, displayMode = 1) {
-    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
 // ==========================================================================
@@ -367,14 +347,14 @@ function populateFormOptions() {
     appState.customers.forEach(c => {
         recipientOptions.push({
             id: `CUST_${c.customer_id}`,
-            name: `👤 客戶：${getCustomerResolvedName(c.customer_id)}`,
+            name: `👤 客戶：${EntityResolver.customer(c.customer_id, appState.customers, appState.persons, 1)}`,
             group: '顧客 (消費者)'
         });
     });
     appState.partners.forEach(p => {
         recipientOptions.push({
             id: `PTN_${p.partner_id}`,
-            name: `🤝 夥伴：${getPartnerResolvedName(p.partner_id)}`,
+            name: `🤝 夥伴：${EntityResolver.partner(p.partner_id, appState.partners, appState.persons, 1)}`,
             group: '團隊 (經營者)'
         });
     });
@@ -495,7 +475,7 @@ function renderCharts() {
                         borderColor: '#8b5cf6',
                         backgroundColor: 'rgba(139, 92, 246, 0.15)',
                         borderWidth: 2.5,
-                        tension: 0.35,
+                        tension: 0,
                         fill: false,
                         yAxisID: 'y'
                     },
@@ -505,7 +485,7 @@ function renderCharts() {
                         borderColor: '#f59e0b',
                         backgroundColor: 'rgba(245, 158, 11, 0.15)',
                         borderWidth: 2.5,
-                        tension: 0.35,
+                        tension: 0,
                         fill: false,
                         yAxisID: 'y1'
                     }
@@ -556,7 +536,7 @@ function renderCharts() {
                     borderColor: '#34d399',
                     backgroundColor: 'rgba(52, 211, 153, 0.12)',
                     borderWidth: 2.5,
-                    tension: 0.35,
+                    tension: 0,
                     fill: false,
                     yAxisID: 'y'
                 }]
@@ -582,7 +562,7 @@ function renderCharts() {
     if (ctxFund) {
         const fundMap = {};
         activeOrders.forEach(d => {
-            const partnerName = getPartnerResolvedName(d.operator_partner_id);
+            const partnerName = EntityResolver.partner(d.operator_partner_id, appState.partners, appState.persons, 1);
             fundMap[partnerName] = AppCalc.add(fundMap[partnerName] || 0, parseFloat(d.total_sales_amount) || 0);
         });
 
@@ -756,7 +736,7 @@ function renderCharts() {
     if (ctxWh) {
         const whMap = {};
         activeOrders.forEach(d => {
-            const name = getWarehouseDisplayName(d.warehouse_id);
+            const name = EntityResolver.warehouse(d.warehouse_id, appState.warehouses, 1);
             whMap[name] = AppCalc.add(whMap[name] || 0, parseInt(d.total_boxes, 10) || 0);
         });
 
@@ -993,10 +973,10 @@ function formatTableRow(item) {
     const holdBadge = UIBadges.psi.preOrderHold(item.is_pre_order_hold, false);
 
     const recipientResolved = (item.recipient_type === '經營者')
-        ? getPartnerResolvedName(item.recipient_partner_id) || item.recipient_name
-        : getCustomerResolvedName(item.recipient_customer_id) || item.recipient_name;
+        ? EntityResolver.partner(item.recipient_partner_id, appState.partners, appState.persons, 1) || item.recipient_name
+        : EntityResolver.customer(item.recipient_customer_id, appState.customers, appState.persons, 1) || item.recipient_name;
 
-    const operatorResolved = getPartnerResolvedName(item.operator_partner_id);
+    const operatorResolved = EntityResolver.partner(item.operator_partner_id, appState.partners, appState.persons, 1);
 
     const curr = item.currency_code || 'TWD';
     const profitSign = item.total_profit_amount >= 0 ? '+' : '';
@@ -1144,14 +1124,14 @@ function toggleRecipientType() {
 function autoFillCustomerInfo() {
     const custId = $('#fieldRecipientCustomerId').val();
     if (!custId) return;
-    const name = getCustomerResolvedName(custId);
+    const name = EntityResolver.customer(custId, appState.customers, appState.persons, 1);
     $('#fieldRecipientName').val(name);
 }
 
 function autoFillPartnerInfo() {
     const pId = $('#fieldRecipientPartnerId').val();
     if (!pId) return;
-    const name = getPartnerResolvedName(pId);
+    const name = EntityResolver.partner(pId, appState.partners, appState.persons, 1);
     $('#fieldRecipientName').val(name);
 }
 
@@ -1327,16 +1307,16 @@ function openDetailModal(orderId) {
     closeInlineItemForm();
 
     const recipientResolved = (item.recipient_type === '經營者')
-        ? getPartnerResolvedName(item.recipient_partner_id) || item.recipient_name
-        : getCustomerResolvedName(item.recipient_customer_id) || item.recipient_name;
+        ? EntityResolver.partner(item.recipient_partner_id, appState.partners, appState.persons, 1) || item.recipient_name
+        : EntityResolver.customer(item.recipient_customer_id, appState.customers, appState.persons, 1) || item.recipient_name;
 
     $('#detailModalOutboundId').text(item.id);
     $('#detailModalOrderDate').text(item.order_date || '-');
     $('#detailModalOutboundDate').text(item.outbound_date || '未交付');
     $('#detailModalPaymentBadge').html(UIBadges.psi.outboundPaymentStatus(item.payment_status));
     $('#detailModalRecipient').text(recipientResolved);
-    $('#detailModalOperator').text(getPartnerResolvedName(item.operator_partner_id));
-    $('#detailModalWarehouse').text(getWarehouseDisplayName(item.warehouse_id));
+    $('#detailModalOperator').text(EntityResolver.partner(item.operator_partner_id, appState.partners, appState.persons, 1));
+    $('#detailModalWarehouse').text(EntityResolver.warehouse(item.warehouse_id, appState.warehouses, 1));
     $('#detailModalStatusBadge').html(UIBadges.psi.outboundStatus(item.fulfillment_status));
 
     const isLocked = (item.fulfillment_status === '已交付' || item.fulfillment_status === '已取消');
@@ -1348,7 +1328,6 @@ function openDetailModal(orderId) {
     // 複製明細至前端暫存區
     const matchedItems = appState.outboundItems.filter(it => it.outbound_id === orderId);
     stagingOutboundItems = JSON.parse(JSON.stringify(matchedItems));
-    originalOutboundItemIds = matchedItems.map(it => it.id);
     deletedOutboundItemIds = [];
 
     renderOutboundItemsTableFromStaging(isLocked);
@@ -1423,9 +1402,9 @@ function renderOutboundItemsTableFromStaging(isLocked) {
         });
     }
 
-    $('#sumItemCount').text(stagingOutboundItems.length);
-    $('#sumBoxes').text(sumBoxes);
-    $('#sumPieces').text(sumPieces);
+    $('#sumItemCount').text(stagingOutboundItems.length.toLocaleString());
+    $('#sumBoxes').text(sumBoxes.toLocaleString());
+    $('#sumPieces').text(sumPieces.toLocaleString());
     $('#sumSalesAmount').text(formatCurrency(sumSales, curr));
     $('#sumCostAmount').text(formatCurrency(sumCost, curr));
     $('#sumProfitAmount').text(formatCurrency(sumProfit, curr));
@@ -1906,7 +1885,7 @@ async function saveAllOutboundItems() {
 
         // 1. 執行已標記刪除項之雲端清理
         for (const delId of deletedOutboundItemIds) {
-            await SheetAdapter.deleteRow(SHEET_NAMES.OUTBOUND_ITEMS, delId, GAS_DEPLOY_ID);
+            await SheetAdapter.deleteRow(SHEET_NAMES.OUTBOUND_ITEMS, delId, GAS_DEPLOY_ID.PSI);
         }
 
         // 2. 執行暫存明細之新增與更新 (嚴格對應表 306 實體 28 欄順序)
@@ -1953,9 +1932,9 @@ async function saveAllOutboundItems() {
             ];
 
             if (it._isNew || it.id.includes('_TEMP_')) {
-                await SheetAdapter.createRow(SHEET_NAMES.OUTBOUND_ITEMS, finalItemId, rowData, GAS_DEPLOY_ID);
+                await SheetAdapter.createRow(SHEET_NAMES.OUTBOUND_ITEMS, finalItemId, rowData, GAS_DEPLOY_ID.PSI);
             } else if (it._isModified) {
-                await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUND_ITEMS, finalItemId, rowData, GAS_DEPLOY_ID);
+                await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUND_ITEMS, finalItemId, rowData, GAS_DEPLOY_ID.PSI);
             }
         }
 
@@ -2017,7 +1996,7 @@ async function saveAllOutboundItems() {
             parentOrder.created_by, parentOrder.created_at, parentOrder.modified_by, parentOrder.modified_at
         ];
 
-        await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, parentOrder.id, parentRowData, GAS_DEPLOY_ID);
+        await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, parentOrder.id, parentRowData, GAS_DEPLOY_ID.PSI);
 
         // 同步銷貨明細記憶體陣列
         appState.outboundItems = appState.outboundItems.filter(it => it.outbound_id !== currentDetailOrderId);
@@ -2056,12 +2035,12 @@ function openOutboundDetailModal(orderId) {
 
     const curr = item.currency_code || 'TWD';
     const recipientEntityName = (item.recipient_type === '經營者')
-        ? (getPartnerResolvedName(item.recipient_partner_id) || '未指派夥伴')
-        : (getCustomerResolvedName(item.recipient_customer_id) || '非主檔顧客');
+        ? (EntityResolver.partner(item.recipient_partner_id, appState.partners, appState.persons, 1) || '未指派夥伴')
+        : (EntityResolver.customer(item.recipient_customer_id, appState.customers, appState.persons, 1) || '非主檔顧客');
 
-    const operatorName = getPartnerResolvedName(item.operator_partner_id);
-    const warehouseName = getWarehouseDisplayName(item.warehouse_id);
-    const centerName = getWarehouseDisplayName(item.order_center) || item.order_center || '-';
+    const operatorName = EntityResolver.partner(item.operator_partner_id, appState.partners, appState.persons, 1);
+    const warehouseName = EntityResolver.warehouse(item.warehouse_id, appState.warehouses, 1);
+    const centerName = EntityResolver.warehouse(item.order_center, appState.warehouses, 1) || item.order_center || '-';
 
     const profitSign = (item.total_profit_amount >= 0) ? '+' : '';
     const canDeliver = (item.fulfillment_status === '待取貨' || item.fulfillment_status === '已寄出');
@@ -2393,10 +2372,10 @@ async function saveOutboundOrder() {
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入雲端中...');
 
         if (mode === 'add') {
-            await SheetAdapter.createRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.createRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID.PSI);
             appState.outbounds.unshift(updatedObj);
         } else {
-            await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID);
+            await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID.PSI);
             const idx = appState.outbounds.findIndex(d => d.id === orderId);
             if (idx !== -1) appState.outbounds[idx] = updatedObj;
         }
@@ -2453,9 +2432,8 @@ async function quickMarkDelivered(orderId) {
     ];
 
     try {
-        await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, item.id, rowDataArray, GAS_DEPLOY_ID);
-        // 移除 await fetchGoogleSheetsData(); 改為直接重算母單與刷新畫面
-        autoRecalculateParentOutbound(item.id);
+        // 直接呼叫母單重算並寫入雲端，避免短時間重複發送兩次 SheetAdapter.updateRow
+        await autoRecalculateParentOutbound(item.id);
         refreshAllViews();
         AppToast.success(`銷貨單【${item.id}】已標記交付，實體庫存成功扣減！`);
     } catch (err) {
@@ -2475,7 +2453,7 @@ async function deleteOutboundOrder(id) {
     if (!confirmed) return;
 
     try {
-        await SheetAdapter.deleteRow(SHEET_NAMES.OUTBOUNDS, id, GAS_DEPLOY_ID);
+        await SheetAdapter.deleteRow(SHEET_NAMES.OUTBOUNDS, id, GAS_DEPLOY_ID.PSI);
         appState.outbounds = appState.outbounds.filter(d => d.id !== id);
         appState.outboundItems = appState.outboundItems.filter(it => it.outbound_id !== id);
 
@@ -2549,7 +2527,7 @@ async function autoRecalculateParentOutbound(orderId) {
         parentOrder.created_by, parentOrder.created_at, parentOrder.modified_by, parentOrder.modified_at
     ];
 
-    await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, parentOrder.id, rowDataArray, GAS_DEPLOY_ID);
+    await SheetAdapter.updateRow(SHEET_NAMES.OUTBOUNDS, parentOrder.id, rowDataArray, GAS_DEPLOY_ID.PSI);
     renderDataTable();
     renderKpis();
     renderCharts();

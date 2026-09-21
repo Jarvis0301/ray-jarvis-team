@@ -1722,6 +1722,11 @@ async function saveCustomerConversion() {
             nowStr
         ];
 
+        const plcId = $('#convert-placement-id').val();
+        const spsId = sponsorId;
+        const nodeNat = $('#convert-node-nature').val();
+        const calcRel = calculateRelationAndTeamStatus(newPartnerId, plcId, spsId, nodeNat);
+
         // 4. 封裝表 202「夥伴主檔」新增資料列 (39 欄位，含團隊備註，職級鎖定會員)
         const partnerRowArray = [
             newPartnerId,
@@ -1742,8 +1747,8 @@ async function saveCustomerConversion() {
             0,      // diamond_star_level
             '',     // star_eval_eligible_date
             countryCode,
-            $('#convert-is-our-team').val(),
-            $('#convert-relation-type').val(),
+            calcRel.isOurTeam,      // 改為使用即時計算值
+            calcRel.relationType,   // 改為使用即時計算值
             activityLevel,
             $('#convert-member-status').val(),
             $('#convert-operator-status').val(),
