@@ -5,6 +5,9 @@
 const AppDate = (function () {
     'use strict';
 
+    // 業績日曆記憶體快取陣列
+    let _perfCalendars = [];
+
     /**
      * 動態精度解析器：自適應解析純年 (YYYY)、年月 (YYYY-MM, YYYY/MM, YYYYMM) 與年月日
      * @returns {Object|null} { year, month, day, precision: 'Y'|'M'|'D' }
@@ -266,6 +269,78 @@ const AppDate = (function () {
                 return `${p.year}-${p.month}-${p.day}`;
             }
             return AppDate.toDisplay(data);
+        },
+
+        /**
+         * 注入並快取業績日曆資料（由資料抓取腳本於 App 啟動時呼叫一次）
+         * @param {Array<Object>} calendarList 表 709 之日曆列物件陣列
+         */
+        initPerfCalendars: function (calendarList) {
+            _perfCalendars = Array.isArray(calendarList) ? calendarList : [];
+        },
+
+        /**
+         * 推導單據實質業績月份 (YYYY-MM)
+         * @param {string|Date} dateVal 下單日期
+         * @param {string} [timeVal] 下單時間 (HH:mm:ss)
+         * @param {boolean} [isSupplementAllowed=false] 是否具備補業績核准資格 (珍珠級以上且已填報備表)
+         * @returns {string} 實質業績月份 (YYYY-MM)
+         */
+        resolvePerfMonth: function (dateVal, timeVal, isSupplementAllowed = false) {
+            const inputDate = this.toInput(dateVal);
+            if (!inputDate) return this.toYearMonth(dateVal, '-');
+            if (!_perfCalendars || _perfCalendars.length === 0) {
+                return this.toYearMonth(inputDate, '-');
+            }
+
+            const timeStr = (timeVal && /^\d{2}:\d{2}/.test(timeVal.trim())) ? timeVal.trim() : '12:00:00';
+            const targetTs = new Date(`${inputDate}T${timeStr}`).getTime();
+
+            for (let i = 0; i < _perfCalendars.length; i++) {
+                const row = _perfCalendars[i];
+                if (!row.period_start_at || !row.closing_cutoff_at || !row.supp_cutoff_at) continue;
+
+                const startTs = new Date(row.period_start_at.replace(/\//g, '-').replace(' ', 'T')).getTime();
+                const closeTs = new Date(row.closing_cutoff_at.replace(/\//g, '-').replace(' ', 'T')).getTime();
+                const suppTs  = new Date(row.supp_cutoff_at.replace(/\//g, '-').replace(' ', 'T')).getTime();
+
+                // 1. 常態收單期間內：一律計入當月
+                if (targetTs >= startTs && targetTs <= closeTs) {
+                    return row.calc_month;
+                }
+
+                // 2. 落在補業績窗口內 (結業績日 20:00:01 ~ 補業績日 20:00:00)
+                if (targetTs > closeTs && targetTs <= suppTs) {
+                    // 僅有資格符合者能算當月，其餘一律推入次月
+                    return isSupplementAllowed ? row.calc_month : this._getNextMonth(row.calc_month);
+                }
+            }
+
+            return this.toYearMonth(inputDate, '-');
+        },
+
+        /**
+         * 取得指定月份（或當前營運中月份）的日曆排程明細
+         * @param {string} [calcMonth] 指定月份 (如 '2026-09')，未傳則自動推導今日
+         */
+        getPerfCalendar: function (calcMonth) {
+            const targetMonth = calcMonth || this.resolvePerfMonth(this.now('input'));
+            return _perfCalendars.find(row => row.calc_month === targetMonth) || null;
+        },
+
+        /**
+         * 取得次月 YYYY-MM
+         */
+        _getNextMonth: function(ymStr) {
+            const parts = ymStr.split('-');
+            let y = parseInt(parts[0], 10);
+            let m = parseInt(parts[1], 10);
+            m++;
+            if (m > 12) {
+                y++;
+                m = 1;
+            }
+            return `${y}-${String(m).padStart(2, '0')}`;
         },
 
         /**

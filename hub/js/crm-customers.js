@@ -1181,7 +1181,7 @@ function openCustomerModalForView(customerId) {
     // 客群標籤 (替換專長標籤)
     const $tags = $('#view-tags-container').empty();
     if (customer.customer_tags && customer.customer_tags.trim()) {
-        customer.customer_tags.split(',').forEach(t => $tags.append(`<span class="badge badge-purple-subtle mx-1">${t.trim()}</span>`));
+        customer.customer_tags.split(',').forEach(t => $tags.append(`<span class="badge badge-primary-subtle mx-1">${t.trim()}</span>`));
     } else {
         $tags.html('<span class="text-muted small">未設定客群標籤</span>');
     }

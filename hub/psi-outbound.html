@@ -60,15 +60,20 @@
                         <input type="date" class="form-control form-control-sm" id="filterOrderDateEnd">
                     </div>
 
-                    <!-- 3. 業績月份 -->
+                    <!-- 3. 收款狀態 -->
                     <div class="col-6 col-sm-4 col-xl-2">
-                        <label class="form-label small fw-bold mb-1" for="filterPerformanceMonth">
-                            <i class="fa-solid fa-calendar-days text-primary me-1"></i>業績月份
+                        <label class="form-label small fw-bold mb-1" for="filterPaymentStatus">
+                            <i class="fa-solid fa-receipt text-primary me-1"></i> 收款狀態
                         </label>
-                        <input type="month" class="form-control form-control-sm" id="filterPerformanceMonth">
+                        <select class="form-select form-select-sm" id="filterPaymentStatus">
+                            <option value="ALL">全部收款狀態</option>
+                            <option value="已收訖">已收訖</option>
+                            <option value="未付款">未付款</option>
+                            <option value="部分訂金">部分訂金</option>
+                        </select>
                     </div>
 
-                    <!-- 4. 出貨倉庫 (Select2) -->
+                    <!-- 4. 出貨倉庫 -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterWarehouse">
                             <i class="fa-solid fa-warehouse text-primary me-1"></i>出貨倉庫
@@ -78,7 +83,7 @@
                         </select>
                     </div>
 
-                    <!-- 5. 開單夥伴 (Select2) -->
+                    <!-- 5. 開單夥伴 -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterOperator">
                             <i class="fa-solid fa-user-shield text-warning me-1"></i>開單夥伴
@@ -88,7 +93,7 @@
                         </select>
                     </div>
 
-                    <!-- 6. 收件人 (Select2，整合客戶與夥伴) -->
+                    <!-- 6. 收件人 (整合客戶與夥伴) -->
                     <div class="col-6 col-sm-4 col-xl-2">
                         <label class="form-label small fw-bold mb-1" for="filterRecipient">
                             <i class="fa-solid fa-user-tag text-info me-1"></i>收件人
@@ -231,7 +236,7 @@
                                                     <th>調度中心 / 出庫倉庫</th>
                                                     <th>開單夥伴 / 收件人</th>
                                                     <th>訂單日 / 交付日</th>
-                                                    <th>業績月份</th>
+                                                    <th>收款狀態</th>
                                                     <th>盒數 / 散支</th>
                                                     <th>銷售實收 / 成本 / 毛利</th>
                                                     <th>出庫 SV</th>
@@ -259,7 +264,7 @@
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-scale-balanced text-primary me-1"></i>銷貨規模與考核走勢
                                             </span>
-                                            <span class="badge badge-purple-subtle">雙軸走勢</span>
+                                            <span class="badge badge-primary-subtle">雙軸走勢</span>
                                         </div>
                                         <div class="chart-card-container"><canvas id="outboundScaleChart"></canvas></div>
                                     </div>
@@ -300,7 +305,7 @@
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-tags text-primary me-1"></i>銷貨業務類別佔比
                                             </span>
-                                            <span class="badge badge-purple-subtle">商流屬性</span>
+                                            <span class="badge badge-primary-subtle">商流屬性</span>
                                         </div>
                                         <div class="chart-card-container"><canvas id="chartCategoryShare"></canvas></div>
                                     </div>
@@ -368,7 +373,7 @@
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-boxes-packing text-primary me-1"></i>出庫狀態佔比
                                             </span>
-                                            <span class="badge badge-purple-subtle">履約管線</span>
+                                            <span class="badge badge-primary-subtle">履約管線</span>
                                         </div>
                                         <div class="chart-card-container"><canvas id="chartFulfillmentStatusShare"></canvas></div>
                                     </div>
@@ -422,9 +427,12 @@
                                     <label class="form-label" for="fieldOrderCenter">出貨調度中心 <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" id="fieldOrderCenter" required></select>
                                 </div>
-                                <div class="col-12 col-md-3">
-                                    <label class="form-label" for="fieldPerformanceMonth">業績計入月份 <span class="text-danger">*</span></label>
-                                    <input type="month" class="form-control form-control-sm" id="fieldPerformanceMonth" required>
+                                <div class="col-12 col-md-3 d-flex flex-column justify-content-center">
+                                    <label class="form-label" for="fieldIsPreOrderHold">代領預扣鎖定</label>
+                                    <div class="form-check form-switch mt-1">
+                                        <input class="form-check-input" type="checkbox" id="fieldIsPreOrderHold">
+                                        <label class="form-check-label text-warning small" for="fieldIsPreOrderHold">鎖定暫存</label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -454,7 +462,7 @@
 
                             <div class="card p-3 mb-3">
                                 <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
-                                    <span class="badge badge-purple-subtle">
+                                    <span class="badge badge-primary-subtle">
                                         <i class="fa-solid fa-users me-1"></i>收件人身分客情關聯
                                     </span>
                                 </div>
@@ -501,13 +509,6 @@
                                 <div class="col-12 col-md-3">
                                     <label class="form-label" for="fieldTrackingNo">託運單號/配送碼</label>
                                     <input type="text" class="form-control form-control-sm" id="fieldTrackingNo" placeholder="如黑貓或超商寄件碼">
-                                </div>
-                                <div class="col-12 col-md-3 d-flex flex-column justify-content-center">
-                                    <label class="form-label" for="fieldIsPreOrderHold">代領預扣鎖定</label>
-                                    <div class="form-check form-switch mt-1">
-                                        <input class="form-check-input" type="checkbox" id="fieldIsPreOrderHold">
-                                        <label class="form-check-label text-warning small" for="fieldIsPreOrderHold">鎖定暫存</label>
-                                    </div>
                                 </div>
                             </div>
 
@@ -651,8 +652,8 @@
                                     <span class="text-white" id="detailModalOutboundDate">-</span>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <span class="text-secondary">業績月份：</span>
-                                    <span class="badge badge-outline-secondary" id="detailModalPerfMonth">-</span>
+                                    <span class="text-secondary">收款狀態：</span>
+                                    <span id="detailModalPaymentBadge">-</span>
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <span class="text-secondary">收件對象：</span>

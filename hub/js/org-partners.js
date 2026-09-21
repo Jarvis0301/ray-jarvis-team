@@ -2621,7 +2621,7 @@ function openPartnerModalForView(partnerId) {
     $('#view-occupation').html(formatEmpty(person.occupation_background, '未填寫'));
 
     if (partner.team_skills && partner.team_skills.trim() !== '') {
-        $('#view-skills-tags').html(partner.team_skills.split(',').map(s => `<span class="badge badge-purple-subtle mx-2">${s.trim()}</span>`).join(' '));
+        $('#view-skills-tags').html(partner.team_skills.split(',').map(s => `<span class="badge badge-primary-subtle mx-2">${s.trim()}</span>`).join(' '));
     } else {
         $('#view-skills-tags').html('<span class="text-muted small">無專長標籤</span>');
     }

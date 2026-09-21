@@ -241,6 +241,19 @@ const UIBadges = (function () {
             },
 
             /**
+             * 銷貨履行狀態標籤
+             */
+            outboundPaymentStatus(status) {
+                const s = clean(status);
+                switch (s) {
+                    case '未付款': return '<span class="badge badge-danger-subtle">未付款</span>';
+                    case '部分訂金': return '<span class="badge badge-warning-subtle">部分訂金</span>';
+                    case '已收訖': return '<span class="badge badge-success-subtle">已收訖</span>';
+                    default: return `<span class="badge badge-gray-subtle">未設定</span>`;
+                }
+            },
+
+            /**
              * 庫存批號出庫管制狀態 (自由流通 / 凍結禁出)
              */
             stockLock(isLocked) {

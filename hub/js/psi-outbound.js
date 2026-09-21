@@ -38,7 +38,7 @@ let appState = {
     filters: {
         startDate: '',
         endDate: '',
-        performanceMonth: '',
+        paymentStatus: 'ALL',
         warehouseId: 'ALL',
         operatorId: 'ALL',
         recipientId: 'ALL'
@@ -271,48 +271,47 @@ function parseAllData(data) {
 
     // 7. 解析銷貨主檔 (表 305: psi_outbound_orders，全 36 欄位)
     appState.outbounds = (data.rawOutbounds || []).map(r => {
-        const salesAmt = parseFloat(getVal(r, 15, '0')) || 0;
-        const costAmt = parseFloat(getVal(r, 16, '0')) || 0;
-        const rawProfit = getVal(r, 17);
+        const salesAmt = parseFloat(getVal(r, 14, '0')) || 0;
+        const costAmt = parseFloat(getVal(r, 15, '0')) || 0;
+        const rawProfit = getVal(r, 16);
         const profitAmt = (rawProfit !== '') ? (parseFloat(rawProfit) || 0) : AppCalc.sub(salesAmt, costAmt);
 
         return {
             id: getVal(r, 0),
             order_category: getVal(r, 1, '零售客銷售'),
             order_center: getVal(r, 2, ''),
-            performance_month: getVal(r, 3, ''),
-            order_date: getVal(r, 4, ''),
-            delivery_method: getVal(r, 5, '面交自取'),
-            warehouse_id: getVal(r, 6, ''),
-            operator_partner_id: getVal(r, 7, ''),
-            recipient_type: getVal(r, 8, '消費者'),
-            recipient_customer_id: getVal(r, 9, ''),
-            recipient_partner_id: getVal(r, 10, ''),
-            outbound_date: getVal(r, 11, ''),
-            currency_code: getVal(r, 12, 'TWD'),
-            product_amount: parseFloat(getVal(r, 13, '0')) || 0,
-            shipping_fee: parseFloat(getVal(r, 14, '0')) || 0,
+            order_date: getVal(r, 3, ''),
+            delivery_method: getVal(r, 4, '面交自取'),
+            warehouse_id: getVal(r, 5, ''),
+            operator_partner_id: getVal(r, 6, ''),
+            recipient_type: getVal(r, 7, '消費者'),
+            recipient_customer_id: getVal(r, 8, ''),
+            recipient_partner_id: getVal(r, 9, ''),
+            outbound_date: getVal(r, 10, ''),
+            currency_code: getVal(r, 11, 'TWD'),
+            product_amount: parseFloat(getVal(r, 12, '0')) || 0,
+            shipping_fee: parseFloat(getVal(r, 13, '0')) || 0,
             total_sales_amount: salesAmt,
             total_cost_amount: costAmt,
             total_profit_amount: profitAmt,
-            total_sv: parseFloat(getVal(r, 18, '0')) || 0,
-            total_boxes: parseInt(getVal(r, 19, '0'), 10) || 0,
-            total_pieces: parseInt(getVal(r, 20, '0'), 10) || 0,
-            tracking_no: getVal(r, 21, ''),
-            shipping_date: getVal(r, 22, ''),
-            recipient_name: getVal(r, 23, '-'),
-            recipient_phone: getVal(r, 24, ''),
-            shipping_address: getVal(r, 25, ''),
-            is_pre_order_hold: getVal(r, 26, 'N').toUpperCase(),
-            fulfillment_status: getVal(r, 27, '已交付'),
-            payment_status: getVal(r, 28, '已收訖'),
-            payment_method: getVal(r, 29, '現金'),
-            payment_platform: getVal(r, 30, '現金'),
-            remarks: getVal(r, 31, ''),
-            created_by: getVal(r, 32, 'SYSTEM'),
-            created_at: getVal(r, 33, ''),
-            modified_by: getVal(r, 34, 'SYSTEM'),
-            modified_at: getVal(r, 35, '')
+            total_sv: parseFloat(getVal(r, 17, '0')) || 0,
+            total_boxes: parseInt(getVal(r, 18, '0'), 10) || 0,
+            total_pieces: parseInt(getVal(r, 19, '0'), 10) || 0,
+            tracking_no: getVal(r, 20, ''),
+            shipping_date: getVal(r, 21, ''),
+            recipient_name: getVal(r, 22, '-'),
+            recipient_phone: getVal(r, 23, ''),
+            shipping_address: getVal(r, 24, ''),
+            is_pre_order_hold: getVal(r, 25, 'N').toUpperCase(),
+            fulfillment_status: getVal(r, 26, '已交付'),
+            payment_status: getVal(r, 27, '已收訖'),
+            payment_method: getVal(r, 28, '現金'),
+            payment_platform: getVal(r, 29, '現金'),
+            remarks: getVal(r, 30, ''),
+            created_by: getVal(r, 31, 'SYSTEM'),
+            created_at: getVal(r, 32, ''),
+            modified_by: getVal(r, 33, 'SYSTEM'),
+            modified_at: getVal(r, 34, '')
         };
     }).filter(d => d.id !== '');
 
@@ -477,7 +476,8 @@ function renderCharts() {
     if (ctxScale) {
         const monthMap = {};
         activeOrders.forEach(d => {
-            const m = d.performance_month || (d.order_date ? d.order_date.slice(0, 7) : '未分類');
+            // ★ 依訂購日期自然月份分組
+            const m = d.order_date ? d.order_date.slice(0, 7) : '未分類';
             if (!monthMap[m]) monthMap[m] = { sales: 0, sv: 0 };
             monthMap[m].sales = AppCalc.add(monthMap[m].sales, parseFloat(d.total_sales_amount) || 0);
             monthMap[m].sv = AppCalc.add(monthMap[m].sv, parseFloat(d.total_sv) || 0);
@@ -540,7 +540,8 @@ function renderCharts() {
     if (ctxProfit) {
         const profitMap = {};
         activeOrders.forEach(d => {
-            const m = d.performance_month || (d.order_date ? d.order_date.slice(0, 7) : '未分類');
+            // ★ 依訂購日期自然月份分組
+            const m = d.order_date ? d.order_date.slice(0, 7) : '未分類';
             profitMap[m] = AppCalc.add(profitMap[m] || 0, parseFloat(d.total_profit_amount) || 0);
         });
 
@@ -937,7 +938,7 @@ function renderDataTable() {
                 { data: 'center_and_warehouse' },
                 { data: 'parties' },
                 { data: 'dates' },
-                { data: 'perf_month', className: 'text-center' },
+                { data: 'payment_status', className: 'text-center' },
                 { data: 'quantities', className: 'text-end' },
                 { data: 'financials', className: 'text-end' },
                 { data: 'sv', className: 'text-end' },
@@ -965,7 +966,10 @@ function getFilteredData() {
 
         if (f.startDate && item.order_date && item.order_date < f.startDate) return false;
         if (f.endDate && item.order_date && item.order_date > f.endDate) return false;
-        if (f.performanceMonth && item.performance_month !== f.performanceMonth) return false;
+
+        // ★ 依收款狀態進行過濾 (替換原先 performanceMonth 判斷)
+        if (f.paymentStatus && f.paymentStatus !== 'ALL' && item.payment_status !== f.paymentStatus) return false;
+
         if (f.warehouseId && f.warehouseId !== 'ALL' && item.warehouse_id !== f.warehouseId) return false;
         if (f.operatorId && f.operatorId !== 'ALL' && item.operator_partner_id !== f.operatorId) return false;
 
@@ -985,6 +989,7 @@ function getFilteredData() {
 
 function formatTableRow(item) {
     const statusBadge = UIBadges.psi.outboundStatus(item.fulfillment_status);
+    const paymentBadge = UIBadges.psi.outboundPaymentStatus(item.payment_status);
     const holdBadge = UIBadges.psi.preOrderHold(item.is_pre_order_hold, false);
 
     const recipientResolved = (item.recipient_type === '經營者')
@@ -1052,7 +1057,7 @@ function formatTableRow(item) {
                 <div class="text-secondary small">交付：${item.outbound_date || '未交付'}</div>
             </div>
         `,
-        perf_month: `<span class="badge badge-outline-secondary">${item.performance_month}</span>`,
+        payment_status: paymentBadge,
         quantities: `
             <div>
                 <span class="fw-bold text-white">${item.total_boxes}</span> 盒
@@ -1080,10 +1085,10 @@ function formatTableRow(item) {
 // ==========================================================================
 function initEvents() {
     // 頂部 6 聯篩選條件變動監聽
-    $('#filterOrderDateStart, #filterOrderDateEnd, #filterPerformanceMonth, #filterWarehouse, #filterOperator, #filterRecipient').on('change input', function () {
+    $('#filterOrderDateStart, #filterOrderDateEnd, #filterPaymentStatus, #filterWarehouse, #filterOperator, #filterRecipient').on('change input', function () {
         appState.filters.startDate = $('#filterOrderDateStart').val() || '';
         appState.filters.endDate = $('#filterOrderDateEnd').val() || '';
-        appState.filters.performanceMonth = $('#filterPerformanceMonth').val() || '';
+        appState.filters.paymentStatus = $('#filterPaymentStatus').val() || 'ALL'; // ★ 讀取收款狀態
         appState.filters.warehouseId = $('#filterWarehouse').val() || 'ALL';
         appState.filters.operatorId = $('#filterOperator').val() || 'ALL';
         appState.filters.recipientId = $('#filterRecipient').val() || 'ALL';
@@ -1180,7 +1185,6 @@ function openCreateOutboundModal() {
 
     $('#fieldId').val(newId);
     $('#fieldOrderCategory').val('零售客銷售');
-    $('#fieldPerformanceMonth').val(AppDate.now('month'));
     $('#fieldOrderDate').val(AppDate.now('input'));
     $('#fieldDeliveryMethod').val('面交自取');
 
@@ -1227,7 +1231,6 @@ function openEditOutboundModal(id) {
     $('#fieldId').val(item.id);
     $('#fieldOrderCategory').val(item.order_category);
     $('#fieldOrderCenter').val(item.order_center);
-    $('#fieldPerformanceMonth').val(AppDate.toInputMonth(item.performance_month));
     $('#fieldOrderDate').val(AppDate.toInput(item.order_date));
     $('#fieldDeliveryMethod').val(item.delivery_method);
     $('#fieldWarehouseId').val(item.warehouse_id).trigger('change');
@@ -1330,7 +1333,7 @@ function openDetailModal(orderId) {
     $('#detailModalOutboundId').text(item.id);
     $('#detailModalOrderDate').text(item.order_date || '-');
     $('#detailModalOutboundDate').text(item.outbound_date || '未交付');
-    $('#detailModalPerfMonth').text(item.performance_month || '-');
+    $('#detailModalPaymentBadge').html(UIBadges.psi.outboundPaymentStatus(item.payment_status));
     $('#detailModalRecipient').text(recipientResolved);
     $('#detailModalOperator').text(getPartnerResolvedName(item.operator_partner_id));
     $('#detailModalWarehouse').text(getWarehouseDisplayName(item.warehouse_id));
@@ -2075,7 +2078,7 @@ function openOutboundDetailModal(orderId) {
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">收款核銷狀態</span>
-                <span class="badge ${item.payment_status === '已收訖' ? 'badge-success-subtle' : 'badge-danger-subtle'}">${item.payment_status || '未付款'}</span>
+                <div>${UIBadges.psi.outboundPaymentStatus(item.payment_status)}</div>
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <span class="text-secondary small">代領預扣鎖定</span>
@@ -2102,10 +2105,6 @@ function openOutboundDetailModal(orderId) {
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">出貨調度中心</div>
                 <div class="col-7 text-light text-end">${centerName}</div>
-            </div>
-            <div class="row g-2">
-                <div class="col-5 text-secondary small">業績計入月份</div>
-                <div class="col-7 text-end"><span class="badge badge-outline-secondary">${item.performance_month || '-'}</span></div>
             </div>
         </article>
 
@@ -2236,7 +2235,6 @@ async function saveOutboundOrder() {
     const mode = $('#formMode').val();
     const orderId = $('#fieldId').val().trim();
     const orderCenter = $('#fieldOrderCenter').val();
-    const perfMonth = $('#fieldPerformanceMonth').val();
     const orderDate = $('#fieldOrderDate').val();
     const whId = $('#fieldWarehouseId').val();
     const operatorId = $('#fieldOperatorPartnerId').val();
@@ -2249,11 +2247,6 @@ async function saveOutboundOrder() {
     if (!orderCenter) {
         AppToast.warning("請選擇「出貨調度中心」！");
         $('#fieldOrderCenter').focus();
-        return;
-    }
-    if (!perfMonth) {
-        AppToast.warning("請選擇「業績計入月份」！");
-        $('#fieldPerformanceMonth').focus();
         return;
     }
     if (!orderDate) {
@@ -2308,7 +2301,6 @@ async function saveOutboundOrder() {
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
     const orderDateVal = AppDate.toSheet($('#fieldOrderDate').val());
-    const perfMonthVal = AppDate.toYearMonth($('#fieldPerformanceMonth').val(), '-', '');
     const outboundDateVal = $('#fieldOutboundDate').val() ? AppDate.toSheet($('#fieldOutboundDate').val()) : '';
     const shippingDateVal = $('#fieldShippingDate').val() ? AppDate.toSheet($('#fieldShippingDate').val()) : '';
 
@@ -2324,7 +2316,6 @@ async function saveOutboundOrder() {
         orderId,                                                    // 0: id
         $('#fieldOrderCategory').val(),                             // 1: order_category
         $('#fieldOrderCenter').val(),                               // 2: order_center
-        perfMonthVal,                                               // 3: performance_month (YYYY-MM)
         orderDateVal,                                               // 4: order_date (YYYY/MM/DD)
         $('#fieldDeliveryMethod').val(),                            // 5: delivery_method
         $('#fieldWarehouseId').val(),                               // 6: warehouse_id
@@ -2363,7 +2354,6 @@ async function saveOutboundOrder() {
         id: orderId,
         order_category: $('#fieldOrderCategory').val(),
         order_center: $('#fieldOrderCenter').val(),
-        performance_month: $('#fieldPerformanceMonth').val(),
         order_date: $('#fieldOrderDate').val(),
         delivery_method: $('#fieldDeliveryMethod').val(),
         warehouse_id: $('#fieldWarehouseId').val(),

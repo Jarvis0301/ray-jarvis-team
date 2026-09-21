@@ -105,6 +105,8 @@ function init() {
     UI.initTheme();
 
     setDataTable();
+
+    loadPerformanceCalendar();
 }
 
 // setDataTable
@@ -213,5 +215,51 @@ function setDataTable() {
             serverSide (true / false)：當資料庫有幾萬筆資料時，開啟由後端 API 處理分頁、搜尋與排序。
             */
         });
+    }
+}
+
+/**
+ * 抓取表 709 業績日曆主檔（最簡 GViz 方案）
+ * 放置於 common.js 或業務初始化進入點
+ */
+async function loadPerformanceCalendar() {
+    // 1. 設定試算表 ID 與工作表分頁名稱（支援中文表名或英文 table 名）
+    const SPREADSHEET_ID = APP_CONFIG.SHEETS.SYS; 
+    const SHEET_NAME = '業績日曆'; // 或 '業績日曆'
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+    try {
+        const response = await fetch(gvizUrl);
+        const text = await response.text();
+
+        // 擷取有效 JSON 物件
+        const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+        const rows = JSON.parse(jsonStr).table.rows || [];
+
+        // 單格安全取值輔助（純順序索引）
+        const getCellVal = (row, idx) => {
+            if (!row || !row.c || !row.c[idx]) return '';
+            return String(row.c[idx].f || row.c[idx].v || '').trim();
+        };
+
+        // 依欄位 0-Based 順序組裝資料物件
+        const calendarList = rows.map(row => ({
+            calendar_id:       getCellVal(row, 0),
+            calc_month:        getCellVal(row, 1),
+            period_start_at:   getCellVal(row, 2),
+            closing_date:      getCellVal(row, 3),
+            closing_cutoff_at: getCellVal(row, 4),
+            supp_date:         getCellVal(row, 5),
+            supp_cutoff_at:    getCellVal(row, 6),
+            holiday_notes:     getCellVal(row, 7),
+            is_sealed:         getCellVal(row, 8) || 'N'
+        })).filter(item => /^\d{4}-\d{2}$/.test(item.calc_month)); // 嚴格保留合規年月，自動略過表頭與空白列
+
+        // 注入全域 AppDate 記憶體快取
+        AppDate.initPerfCalendars(calendarList);
+        console.log(`<i class="fa-solid fa-calendar-check"></i> 業績日曆載入成功（共 ${calendarList.length} 個月）`);
+
+    } catch (err) {
+        console.warn('業績日曆載入失敗，已切換至自然月份運作：', err);
     }
 }

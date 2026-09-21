@@ -750,6 +750,19 @@ function initFormEvents() {
         applyFilters();
     });
 
+    // ★ 新增：開單表單「訂購日期」變動時，即時推導並鎖定業績月份
+    $('#fieldOrderDate').on('change input', function () {
+        const orderDate = $(this).val();
+        if (!orderDate) return;
+
+        // 若 AppDate 已載入日曆則調用解析器，否則降級取日期前 7 碼
+        const targetMonth = (window.AppDate && typeof AppDate.resolvePerfMonth === 'function')
+            ? AppDate.resolvePerfMonth(orderDate)
+            : orderDate.substring(0, 7);
+
+        $('#fieldPerformanceMonth').val(targetMonth);
+    });
+
     $('#inboundViewTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const targetId = $(e.target).attr('data-bs-target');
         if (targetId === '#container-orders-view') {
@@ -803,8 +816,16 @@ function openAddModal() {
 
     $('#fieldId').val(newId);
     $('#fieldOrderCategory').val('本人訂購');
-    $('#fieldPerformanceMonth').val(AppDate.now('month'));
-    $('#fieldOrderDate').val(AppDate.now('input'));
+    
+    const todayInput = AppDate.now('input');
+    $('#fieldOrderDate').val(todayInput);
+
+    // ★ 依初始訂購日期動態推導業績月份
+    const initPerfMonth = (window.AppDate && typeof AppDate.resolvePerfMonth === 'function')
+        ? AppDate.resolvePerfMonth(todayInput)
+        : AppDate.now('month');
+    $('#fieldPerformanceMonth').val(initPerfMonth);
+
     $('#fieldDeliveryMethod').val('運送');
 
     const defaultCenter = '網路 (TW)';
