@@ -17,13 +17,11 @@ const SHEET_NAMES = {
 };
 
 /**
- * 依據 Schema 規格生成庫存主鍵 (格式: STK-YYYYMMDD-流水4碼)
+ * 依據 Schema 規格生成自然單號庫存主鍵 (格式: STK-YYYYMMDD-流水4碼)
  */
 function generateStockId() {
-    const today = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const ymd = `${today.getFullYear()}${pad(today.getMonth() + 1)}${pad(today.getDate())}`;
-    const prefix = `STK-${ymd}-`;
+    const todayStr = AppDate.toClean8();
+    const prefix = `STK-${todayStr}-`;
 
     const todayCount = appState.stocks.filter(s => s.id && s.id.startsWith(prefix)).length;
     const seq = String(todayCount + 1).padStart(4, '0');
@@ -34,9 +32,9 @@ function generateStockId() {
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
 let appState = {
-    stocks: [],            // 表 302: psi_stocks
-    warehouses: {},        // 表 301: psi_warehouses 映射
-    products: {},          // 表 101: prd_items 映射
+    stocks: [],            // 表 302: psi_stocks (20 欄雙軌庫存主檔)
+    warehouses: {},        // 表 301: psi_warehouses 映射字典
+    products: {},          // 表 101: prd_items 映射字典
     currentWhFilter: 'ALL',
     currentPrdFilter: 'ALL',
     currentExpiryFilter: 'ALL',
@@ -79,7 +77,7 @@ function getFilteredStocks() {
             if (appState.currentExpiryFilter === 'DANGER' && (days > 30 || days <= 0)) return false;
             if (appState.currentExpiryFilter === 'EXPIRED' && days > 0) return false;
         }
-        // 4. 庫存狀態
+        // 4. 庫存管制狀態
         if (appState.currentStatusFilter && appState.currentStatusFilter !== 'ALL') {
             if (appState.currentStatusFilter === 'NORMAL' && row.is_locked === 'Y') return false;
             if (appState.currentStatusFilter === 'LOCKED' && row.is_locked !== 'Y') return false;
@@ -89,11 +87,11 @@ function getFilteredStocks() {
 }
 
 // ==========================================================================
-// 3. 生命週期與權限管理
+// 3. 生命週期與初始化中樞
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
-        SheetAdapter.init(GAS_DEPLOY_ID.PSI); // 初始化共用試算表配接器
+        SheetAdapter.init(GAS_DEPLOY_ID.PSI);
     }
     await initStockApp();
 });
@@ -109,11 +107,8 @@ async function initStockApp() {
 // ==========================================================================
 // 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
 // ==========================================================================
-/**
- * 資料讀取引擎
- */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端庫存資料庫...', '載入中...');
 
     try {
         const [rawStockRows, rawWhRows, rawPrdRows] = await Promise.all([
@@ -122,6 +117,7 @@ async function fetchGoogleSheetsData() {
             fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS).catch(() => [])
         ]);
 
+        // 1. 解析據點倉儲主檔 (表 301)
         appState.warehouses = {};
         (rawWhRows || []).forEach(r => {
             const id = getVal(r, 0);
@@ -133,6 +129,7 @@ async function fetchGoogleSheetsData() {
             }
         });
 
+        // 2. 解析產品主檔 (表 101)
         appState.products = {};
         (rawPrdRows || []).forEach(r => {
             const code = getVal(r, 0);
@@ -141,7 +138,7 @@ async function fetchGoogleSheetsData() {
             const shortName = getVal(r, 4);
             const price = parseFloat(getVal(r, 16, '0')) || 0;
             const currency = getVal(r, 17, region === 'MY' ? 'MYR' : 'TWD');
-            const svPoint = parseInt(getVal(r, 18, '0'), 10) || 0;
+            const svPoint = parseFloat(getVal(r, 18, '0')) || 0;
             if (code) {
                 appState.products[code] = {
                     code,
@@ -155,8 +152,9 @@ async function fetchGoogleSheetsData() {
             }
         });
 
-        appState.stocks = (rawStockRows && rawStockRows.length > 0) 
-            ? parseStocksTable(rawStockRows) 
+        // 3. 解析庫存主檔 (表 302，嚴格對齊 20 欄實體物理順序)
+        appState.stocks = (rawStockRows && rawStockRows.length > 0)
+            ? parseStocksTable(rawStockRows)
             : [];
 
         populateStockSelectOptions();
@@ -172,17 +170,16 @@ async function fetchGoogleSheetsData() {
 }
 
 /**
- * 依據表 302 (psi_stocks) 物理順序解析 (Index 0 ~ 16)
- */
-/**
- * 依據更新後表 302 (psi_stocks) 物理順序解析 (Index 0 ~ 17)
+ * 依據表 302 (psi_stocks) 全 20 欄實體物理順序解析 (Index 0 ~ 19)
  */
 function parseStocksTable(rows) {
     return rows.map((r, idx) => {
         const qty = parseInt(getVal(r, 5, '0'), 10) || 0;
         const pieces = parseInt(getVal(r, 6, '0'), 10) || 0;
         const reserved = parseInt(getVal(r, 7, '0'), 10) || 0;
-        const calcAvail = parseInt(getVal(r, 8, String(Math.max(0, qty - reserved))), 10) || Math.max(0, qty - reserved);
+        const reservedPieces = parseInt(getVal(r, 8, '0'), 10) || 0; // Col 8: reserved_pieces_qty
+        const calcAvail = parseInt(getVal(r, 9, String(Math.max(0, qty - reserved))), 10) || Math.max(0, qty - reserved); // Col 9: available_qty
+        const calcAvailPieces = parseInt(getVal(r, 10, String(Math.max(0, pieces - reservedPieces))), 10) || Math.max(0, pieces - reservedPieces); // Col 10: available_pieces_qty
 
         return {
             id: getVal(r, 0, `STK-${String(idx + 1).padStart(4, '0')}`),      // Col 0: id (PK)
@@ -190,25 +187,27 @@ function parseStocksTable(rows) {
             product_id: getVal(r, 2, 'PRD-0101-01'),                          // Col 2: product_id
             batch_no: getVal(r, 3, ''),                                       // Col 3: batch_no
             expiry_date: getVal(r, 4, ''),                                    // Col 4: expiry_date
-            quantity: qty,                                                    // Col 5: quantity (整盒)
-            pieces_qty: pieces,                                               // Col 6: pieces_qty (散裝支/條)
-            reserved_qty: reserved,                                           // Col 7: reserved_qty (預扣盒數)
-            available_qty: calcAvail,                                         // Col 8: available_qty (可用盒數)
-            currency_code: getVal(r, 9, 'TWD'),                               // Col 9: currency_code
-            cost_price: parseFloat(getVal(r, 10, '0')) || 0,                 // Col 10: cost_price
-            sv_point: parseInt(getVal(r, 11, '0'), 10) || 0,                 // Col 11: sv_point
-            is_locked: getVal(r, 12, 'N').toUpperCase(),                      // Col 12: is_locked ('Y'/'N')
-            remarks: getVal(r, 13, ''),                                       // Col 13: remarks
-            created_by: getVal(r, 14, 'SYSTEM'),                              // Col 14: created_by
-            created_at: getVal(r, 15, AppDate.now('full')),                     // Col 15: created_at
-            modified_by: getVal(r, 16, 'SYSTEM'),                             // Col 16: modified_by
-            modified_at: getVal(r, 17, AppDate.now('full'))                     // Col 17: modified_at
+            quantity: qty,                                                    // Col 5: quantity (在線整盒)
+            pieces_qty: pieces,                                               // Col 6: pieces_qty (在線散裝)
+            reserved_qty: reserved,                                           // Col 7: reserved_qty (整盒預扣)
+            reserved_pieces_qty: reservedPieces,                               // Col 8: reserved_pieces_qty (散裝預扣)
+            available_qty: calcAvail,                                         // Col 9: available_qty (可用整盒)
+            available_pieces_qty: calcAvailPieces,                             // Col 10: available_pieces_qty (可用散件)
+            currency_code: getVal(r, 11, 'TWD'),                              // Col 11: currency_code
+            cost_price: parseFloat(getVal(r, 12, '0')) || 0,                 // Col 12: cost_price
+            sv_point: parseFloat(getVal(r, 13, '0')) || 0,                   // Col 13: sv_point
+            is_locked: getVal(r, 14, 'N').toUpperCase(),                      // Col 14: is_locked ('Y'/'N')
+            remarks: getVal(r, 15, ''),                                       // Col 15: remarks
+            created_by: getVal(r, 16, 'SYSTEM'),                              // Col 16: created_by
+            created_at: getVal(r, 17, AppDate.now('full')),                     // Col 17: created_at
+            modified_by: getVal(r, 18, 'SYSTEM'),                             // Col 18: modified_by
+            modified_at: getVal(r, 19, AppDate.now('full'))                     // Col 19: modified_at
         };
     });
 }
 
 // ==========================================================================
-// 5. 下拉選單中樞介接 (UISelectOptions.core.render)
+// 5. 下拉選單中樞介接 (UISelectOptions)
 // ==========================================================================
 function getWarehouseName(whId, displayMode = 1) {
     return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
@@ -275,50 +274,54 @@ function onStockProductChange(productId) {
     const prod = appState.products[productId];
     if (!prod) return;
 
-    // 1. 帶入結算幣別 (TWD / MYR)
     const currency = prod.currency || ((prod.region === 'MY' || String(prod.code).startsWith('MY')) ? 'MYR' : 'TWD');
     $('#fieldCurrencyCode').val(currency);
     $('#fieldCurrencyCodeText').text(currency);
 
-    // 2. 帶入官方經理成本單價
     if (prod.price !== undefined) {
         $('#fieldCostPrice').val(prod.price);
     }
-
-    // 3. 帶入全球統一 SV 點數
     if (prod.sv_point !== undefined) {
         $('#fieldSvPoint').val(prod.sv_point);
     }
 }
 
 function bindUIEvents() {
-    $('#fieldQuantity, #fieldReservedQty').on('input', function() {
+    // 整盒可用量動態計算
+    $('#fieldQuantity, #fieldReservedQty').on('input', function () {
         const q = parseInt($('#fieldQuantity').val(), 10) || 0;
         const r = parseInt($('#fieldReservedQty').val(), 10) || 0;
         $('#fieldAvailableQty').val(Math.max(0, AppCalc.sub(q, r)));
     });
 
+    // 散裝可用量動態計算
+    $('#fieldPiecesQty, #fieldReservedPiecesQty').on('input', function () {
+        const p = parseInt($('#fieldPiecesQty').val(), 10) || 0;
+        const rp = parseInt($('#fieldReservedPiecesQty').val(), 10) || 0;
+        $('#fieldAvailablePiecesQty').val(Math.max(0, AppCalc.sub(p, rp)));
+    });
+
     // 監聽 Modal 產品下拉選取：主動選取時自動同步幣別、單價與 SV
-    $('#fieldProductId').off('select2:select.stockProd change.stockProd').on('select2:select.stockProd change.stockProd', function(e) {
+    $('#fieldProductId').off('select2:select.stockProd change.stockProd').on('select2:select.stockProd change.stockProd', function (e) {
         if (e.originalEvent || e.type === 'select2:select') {
             onStockProductChange($(this).val());
         }
     });
 
-    // 4 個下拉選單變更事件：同時觸發表格重繪與圖表更新
-    $('#filterWarehouse, #filterProduct, #filterExpiry, #filterStatus').on('change', function() {
+    // 4 個篩選選單變更事件：同時觸發表格重繪與圖表更新
+    $('#filterWarehouse, #filterProduct, #filterExpiry, #filterStatus').on('change', function () {
         appState.currentWhFilter = $('#filterWarehouse').val() || 'ALL';
         appState.currentPrdFilter = $('#filterProduct').val() || 'ALL';
         appState.currentExpiryFilter = $('#filterExpiry').val() || 'ALL';
         appState.currentStatusFilter = $('#filterStatus').val() || 'ALL';
 
-        renderStockDataTable(); // 重新依篩選結果載入資料
+        renderStockDataTable();
         if ($('#container-charts-view').hasClass('active')) {
             renderTacticalCharts();
         }
     });
 
-    // 頁籤切換監聽 (參考 org-partners.js 規範)
+    // 頁籤切換監聽
     $('#stockViewTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const targetId = $(e.target).attr('data-bs-target');
         if (targetId === '#container-table-view') {
@@ -343,32 +346,31 @@ function renderHudMetrics() {
     let totalQty = 0;
     let totalPieces = 0;
     let totalAvailable = 0;
+    let totalAvailablePieces = 0;
     let totalReserved = 0;
-    let expiringBatches = 0;
+    let totalReservedPieces = 0;
 
     appState.stocks.forEach(s => {
-        totalQty += s.quantity;
-        totalPieces += (s.pieces_qty || 0);
-        totalAvailable += s.available_qty;
-        totalReserved += s.reserved_qty;
-        if (s.expiry_date) {
-            const days = getDaysToExpiry(s.expiry_date);
-            if (days <= 90) expiringBatches++;
-        }
+        totalQty = AppCalc.add(totalQty, s.quantity || 0);
+        totalPieces = AppCalc.add(totalPieces, s.pieces_qty || 0);
+        totalAvailable = AppCalc.add(totalAvailable, s.available_qty || 0);
+        totalAvailablePieces = AppCalc.add(totalAvailablePieces, s.available_pieces_qty || 0);
+        totalReserved = AppCalc.add(totalReserved, s.reserved_qty || 0);
+        totalReservedPieces = AppCalc.add(totalReservedPieces, s.reserved_pieces_qty || 0);
     });
 
-    $('#hudTotalQty').html(totalQty.toLocaleString());
+    $('#hudTotalQty').text(totalQty.toLocaleString());
     $('#hudAvailableQty').text(totalAvailable.toLocaleString());
     $('#hudReservedQty').text(totalReserved.toLocaleString());
-    $('#hudTotalPieces').html(totalPieces.toLocaleString());
-    $('#hudExpiringBatches').text(expiringBatches);
+    $('#hudTotalPieces').text(totalPieces.toLocaleString());
+    $('#hudAvailablePieces').text(totalAvailablePieces.toLocaleString());
+    $('#hudReservedPieces').text(totalReservedPieces.toLocaleString());
 }
 
 // ==========================================================================
 // 7. DataTables 渲染：批號庫存表
 // ==========================================================================
 function renderStockDataTable() {
-    // 改為透過 getFilteredStocks() 篩選後直接載入物件資料
     const filtered = getFilteredStocks();
     const formatted = filtered.map(s => formatStockRow(s));
 
@@ -403,6 +405,7 @@ function formatStockRow(s) {
 
     const isLocked = s.is_locked === 'Y';
     const statusBadge = UIBadges.psi.stockLock(s.is_locked);
+    const currSym = (s.currency_code === 'MYR') ? 'RM ' : 'NT$ ';
 
     const actionButtons = `
         <button class="btn btn-sm btn-outline-primary" onclick="openEditStockModal('${s.id}')" title="編輯批號">
@@ -437,9 +440,24 @@ function formatStockRow(s) {
                 ${s.pieces_qty > 0 ? `<div class="text-secondary small">${s.pieces_qty.toLocaleString()} 支/條</div>` : ''}
             </div>
         `,
-        reserved: `<span class="text-warning">${s.reserved_qty.toLocaleString()}</span>`,
-        available: `<span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span>`,
-        cost_sv: `<div><span class="text-orange">${s.currency_code === 'TWD' ? 'NT$' : 'RM'} ${s.cost_price.toLocaleString()}</span><div class="text-teal">${s.sv_point.toLocaleString()} SV</div></div>`,
+        reserved: `
+            <div>
+                <span class="text-warning fw-bold">${s.reserved_qty.toLocaleString()}</span> 盒
+                ${s.reserved_pieces_qty > 0 ? `<div class="text-orange small">${s.reserved_pieces_qty.toLocaleString()} 支/條</div>` : ''}
+            </div>
+        `,
+        available: `
+            <div>
+                <span class="fw-bold text-success">${s.available_qty.toLocaleString()}</span> 盒
+                ${s.available_pieces_qty > 0 ? `<div class="text-teal small">${s.available_pieces_qty.toLocaleString()} 支/條</div>` : ''}
+            </div>
+        `,
+        cost_sv: `
+            <div>
+                <div class="text-orange">${currSym}${s.cost_price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
+                <div class="text-teal">${AppCalc.formatSV(s.sv_point, 'INTERNAL')} SV</div>
+            </div>
+        `,
         status: statusBadge,
         actions: actionButtons
     };
@@ -449,7 +467,6 @@ function formatStockRow(s) {
 // 8. 視覺化圖表渲染 (8 張戰術圖表，懸浮皆顯示精準數據與百分比)
 // ==========================================================================
 function renderTacticalCharts() {
-    // 1. 銷毀舊有 8 個圖表實例
     Object.keys(chartInstances).forEach(k => {
         if (chartInstances[k]) {
             chartInstances[k].destroy();
@@ -457,10 +474,8 @@ function renderTacticalCharts() {
         }
     });
 
-    // 2. 取得符合 4 個下拉式選單過濾條件的資料集
     const filtered = getFilteredStocks();
 
-    // 甜甜圈通用設定產生器 (懸浮顯示盒數與百分比)
     const getDoughnutConfig = (labels, data, colors) => {
         const total = data.reduce((acc, cur) => acc + Number(cur), 0);
         const isEmpty = total === 0 || labels.length === 0;
@@ -487,7 +502,7 @@ function renderTacticalCharts() {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 if (isEmpty) return ' 0 盒 (0.0%)';
                                 const label = context.label || '';
                                 const val = Number(context.parsed) || 0;
@@ -507,7 +522,7 @@ function renderTacticalCharts() {
         const whTotals = {};
         filtered.forEach(s => {
             const name = getWarehouseName(s.warehouse_id);
-            whTotals[name] = (whTotals[name] || 0) + s.quantity;
+            whTotals[name] = AppCalc.add(whTotals[name] || 0, s.quantity);
         });
         chartInstances.warehouse = new Chart(ctxWh.getContext('2d'), getDoughnutConfig(
             Object.keys(whTotals), Object.values(whTotals),
@@ -521,7 +536,7 @@ function renderTacticalCharts() {
         const prdTotals = {};
         filtered.forEach(s => {
             const name = getProductShortName(s.product_id);
-            prdTotals[name] = (prdTotals[name] || 0) + s.quantity;
+            prdTotals[name] = AppCalc.add(prdTotals[name] || 0, s.quantity);
         });
         chartInstances.product = new Chart(ctxPrd.getContext('2d'), getDoughnutConfig(
             Object.keys(prdTotals), Object.values(prdTotals),
@@ -536,10 +551,10 @@ function renderTacticalCharts() {
         filtered.forEach(s => {
             if (!s.expiry_date) return;
             const days = getDaysToExpiry(s.expiry_date);
-            if (days <= 0) expTotals['已逾期 (≤0天)'] += s.quantity;
-            else if (days <= 30) expTotals['極限警示 (1-30天)'] += s.quantity;
-            else if (days <= 90) expTotals['近效期 (31-90天)'] += s.quantity;
-            else expTotals['效期充裕 (>90天)'] += s.quantity;
+            if (days <= 0) expTotals['已逾期 (≤0天)'] = AppCalc.add(expTotals['已逾期 (≤0天)'], s.quantity);
+            else if (days <= 30) expTotals['極限警示 (1-30天)'] = AppCalc.add(expTotals['極限警示 (1-30天)'], s.quantity);
+            else if (days <= 90) expTotals['近效期 (31-90天)'] = AppCalc.add(expTotals['近效期 (31-90天)'], s.quantity);
+            else expTotals['效期充裕 (>90天)'] = AppCalc.add(expTotals['效期充裕 (>90天)'], s.quantity);
         });
         const activeKeys = Object.keys(expTotals).filter(k => expTotals[k] > 0);
         const expColorMap = {
@@ -560,8 +575,8 @@ function renderTacticalCharts() {
     if (ctxStatus) {
         let normalQty = 0, lockedQty = 0;
         filtered.forEach(s => {
-            if (s.is_locked === 'Y') lockedQty += s.quantity;
-            else normalQty += s.quantity;
+            if (s.is_locked === 'Y') lockedQty = AppCalc.add(lockedQty, s.quantity);
+            else normalQty = AppCalc.add(normalQty, s.quantity);
         });
         chartInstances.status = new Chart(ctxStatus.getContext('2d'), getDoughnutConfig(
             ['自由流通', '凍結禁出'], [normalQty, lockedQty], ['#10b981', '#ef4444']
@@ -597,7 +612,7 @@ function renderTacticalCharts() {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(ctx) {
+                            label: function (ctx) {
                                 const val = Number(ctx.parsed.y) || 0;
                                 const pct = totalCost > 0 ? ((val / totalCost) * 100).toFixed(1) : '0.0';
                                 return ` 成本總額：$${val.toLocaleString()} (${pct}%)`;
@@ -623,7 +638,7 @@ function renderTacticalCharts() {
             prdSv[name] = AppCalc.add(prdSv[name] || 0, itemTotalSv);
         });
         const sortedPrd = Object.entries(prdSv).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        const totalSv = Object.values(prdSv).reduce((a, b) => a + b, 0);
+        const totalSv = Object.values(prdSv).reduce((a, b) => AppCalc.add(a, b), 0);
 
         chartInstances.prdSv = new Chart(ctxPrdSv.getContext('2d'), {
             type: 'bar',
@@ -644,7 +659,7 @@ function renderTacticalCharts() {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(ctx) {
+                            label: function (ctx) {
                                 const val = Number(ctx.parsed.x) || 0;
                                 const pct = totalSv > 0 ? ((val / totalSv) * 100).toFixed(1) : '0.0';
                                 return ` 總 SV：${val.toLocaleString()} SV (${pct}%)`;
@@ -664,8 +679,8 @@ function renderTacticalCharts() {
     const ctxLiquidity = document.getElementById('chartLiquidityStack');
     if (ctxLiquidity) {
         const whLabels = [...new Set(filtered.map(s => getWarehouseName(s.warehouse_id)))];
-        const availData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => sum + s.available_qty, 0));
-        const reservedData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => sum + s.reserved_qty, 0));
+        const availData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => AppCalc.add(sum, s.available_qty), 0));
+        const reservedData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => AppCalc.add(sum, s.reserved_qty), 0));
 
         chartInstances.liquidity = new Chart(ctxLiquidity.getContext('2d'), {
             type: 'bar',
@@ -687,7 +702,7 @@ function renderTacticalCharts() {
                     legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 8, font: { size: 9 } } },
                     tooltip: {
                         callbacks: {
-                            label: function(ctx) {
+                            label: function (ctx) {
                                 const val = Number(ctx.parsed.y) || 0;
                                 return ` ${ctx.dataset.label}：${val.toLocaleString()} 盒`;
                             }
@@ -704,11 +719,11 @@ function renderTacticalCharts() {
         const monthTotals = {};
         filtered.forEach(s => {
             if (!s.expiry_date) return;
-            const ym = s.expiry_date.substring(0, 7); // YYYY-MM
-            monthTotals[ym] = (monthTotals[ym] || 0) + s.quantity;
+            const ym = s.expiry_date.substring(0, 7);
+            monthTotals[ym] = AppCalc.add(monthTotals[ym] || 0, s.quantity);
         });
         const sortedMonths = Object.keys(monthTotals).sort().slice(0, 6);
-        const totalExp = sortedMonths.reduce((sum, m) => sum + monthTotals[m], 0);
+        const totalExp = sortedMonths.reduce((sum, m) => AppCalc.add(sum, monthTotals[m]), 0);
 
         chartInstances.monthlyExpiry = new Chart(ctxMonth.getContext('2d'), {
             type: 'bar',
@@ -728,7 +743,7 @@ function renderTacticalCharts() {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(ctx) {
+                            label: function (ctx) {
                                 const val = Number(ctx.parsed.y) || 0;
                                 const pct = totalExp > 0 ? ((val / totalExp) * 100).toFixed(1) : '0.0';
                                 return ` 到期：${val.toLocaleString()} 盒 (${pct}%)`;
@@ -746,10 +761,10 @@ function renderTacticalCharts() {
 }
 
 // ==========================================================================
-// 9. 表單 CRUD 操作 (嚴格依據 表 302 欄位順序 0～16 封裝)
+// 9. 表單 CRUD 操作 (嚴格依據表 302 欄位順序 0～19 封裝)
 // ==========================================================================
 function openAddStockModal() {
-    $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增庫存批號');
+    $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i> 新增庫存批號');
     $('#formMode').val('add');
     $('#stockForm')[0].reset();
 
@@ -761,7 +776,9 @@ function openAddStockModal() {
     $('#fieldQuantity').val(0);
     $('#fieldPiecesQty').val(0);
     $('#fieldReservedQty').val(0);
+    $('#fieldReservedPiecesQty').val(0);
     $('#fieldAvailableQty').val(0);
+    $('#fieldAvailablePiecesQty').val(0);
     $('#fieldCurrencyCode').val('TWD');
     $('#fieldCurrencyCodeText').text('TWD');
     $('#fieldCostPrice').val(0);
@@ -778,7 +795,7 @@ function openEditStockModal(stockId) {
     const s = appState.stocks.find(item => item.id === stockId);
     if (!s) return;
 
-    $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯庫存批號');
+    $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯庫存批號');
     $('#formMode').val('edit');
     $('#fieldId').prop('readonly', true).val(s.id);
     $('#fieldBatchNo').val(s.batch_no);
@@ -786,7 +803,10 @@ function openEditStockModal(stockId) {
     $('#fieldQuantity').val(s.quantity);
     $('#fieldPiecesQty').val(s.pieces_qty || 0);
     $('#fieldReservedQty').val(s.reserved_qty);
+    $('#fieldReservedPiecesQty').val(s.reserved_pieces_qty || 0);
     $('#fieldAvailableQty').val(s.available_qty);
+    $('#fieldAvailablePiecesQty').val(s.available_pieces_qty || 0);
+
     const curr = s.currency_code || 'TWD';
     $('#fieldCurrencyCode').val(curr);
     $('#fieldCurrencyCodeText').text(curr);
@@ -811,20 +831,19 @@ async function saveStockItem() {
     const prd = $('#fieldProductId').val();
     const batch = $('#fieldBatchNo').val().trim();
     const exp = $('#fieldExpiryDate').val();
-    const qty = parseInt($('#fieldQuantity').val(), 10);
+    const qty = parseInt($('#fieldQuantity').val(), 10) || 0;
     const pieces = parseInt($('#fieldPiecesQty').val(), 10) || 0;
     const reserved = parseInt($('#fieldReservedQty').val(), 10) || 0;
+    const reservedPieces = parseInt($('#fieldReservedPiecesQty').val(), 10) || 0;
     const avail = Math.max(0, qty - reserved);
-    const curr = $('#fieldCurrencyCode').val();
+    const availPieces = Math.max(0, pieces - reservedPieces);
+    const curr = $('#fieldCurrencyCode').val() || 'TWD';
     const cost = parseFloat($('#fieldCostPrice').val()) || 0;
-    const sv = parseInt($('#fieldSvPoint').val(), 10) || 0;
+    const sv = parseFloat($('#fieldSvPoint').val()) || 0;
     const isLocked = $('#fieldIsLocked').is(':checked') ? 'Y' : 'N';
     const remarks = $('#fieldRemarks').val().trim();
 
-    if (!id) {
-        AppToast.warning("庫存唯一代碼不可為空！");
-        return;
-    }
+    if (!id) return AppToast.warning("庫存唯一代碼不可為空！");
     if (!wh) {
         AppToast.warning("請選擇「存放據點倉儲」！");
         $('#fieldWarehouseId').select2('open');
@@ -845,78 +864,49 @@ async function saveStockItem() {
         $('#fieldExpiryDate').focus();
         return;
     }
-    if ($('#fieldQuantity').val().trim() === '') {
-        AppToast.warning("請填寫「密封整盒現貨」數量！");
-        $('#fieldQuantity').focus();
-        return;
-    }
-    if ($('#fieldPiecesQty').val().trim() === '') {
-        AppToast.warning("請填寫「散裝剩餘支/條」數量！");
-        $('#fieldPiecesQty').focus();
-        return;
-    }
-    if ($('#fieldReservedQty').val().trim() === '') {
-        AppToast.warning("請填寫「代領預扣盒數」數量！");
-        $('#fieldReservedQty').focus();
-        return;
-    }
-    if (curr === '') {
-        AppToast.warning("請填寫「幣別」！");
-        $('#fieldCurrencyCode').focus();
-        return;
-    }
-    if ($('#fieldCostPrice').val().trim() === '') {
-        AppToast.warning("請填寫「成本單價」！");
-        $('#fieldCostPrice').focus();
-        return;
-    }
-    if ($('#fieldSvPoint').val().trim() === '') {
-        AppToast.warning("請填寫「單件 SV」！");
-        $('#fieldSvPoint').focus();
-        return;
-    }
 
     const currentUser = getCurrentUser();
     const nowStr = AppDate.now('full');
     const existing = appState.stocks.find(item => item.id === id);
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
-
-    // 有效截止日期標準化為 YYYY/MM/DD
     const expVal = AppDate.toSheet($('#fieldExpiryDate').val());
 
-    // 表 302: psi_stocks 實體順序 0 ~ 17
+    // 表 302: psi_stocks 嚴格 20 欄實體物理順序 (Index 0 ~ 19)
     const rowDataArray = [
-        id,                 // Col 0: id
-        wh,                 // Col 1: warehouse_id
-        prd,                // Col 2: product_id
-        batch,              // Col 3: batch_no
-        expVal,             // Col 4: expiry_date
-        qty,                // Col 5: quantity (整盒)
-        pieces,             // Col 6: pieces_qty (散裝)
-        reserved,           // Col 7: reserved_qty
-        avail,              // Col 8: available_qty
-        curr,               // Col 9: currency_code
-        cost,               // Col 10: cost_price
-        sv,                 // Col 11: sv_point
-        isLocked,           // Col 12: is_locked
-        remarks,            // Col 13: remarks
-        createdBy,          // Col 14: created_by
-        createdAt,          // Col 15: created_at
-        currentUser,        // Col 16: modified_by
-        nowStr              // Col 17: modified_at
+        id,                  // Col 0: id
+        wh,                  // Col 1: warehouse_id
+        prd,                 // Col 2: product_id
+        batch,               // Col 3: batch_no
+        expVal,              // Col 4: expiry_date
+        qty,                 // Col 5: quantity
+        pieces,              // Col 6: pieces_qty
+        reserved,            // Col 7: reserved_qty
+        reservedPieces,      // Col 8: reserved_pieces_qty
+        avail,               // Col 9: available_qty
+        availPieces,         // Col 10: available_pieces_qty
+        curr,                // Col 11: currency_code
+        cost,                // Col 12: cost_price
+        sv,                  // Col 13: sv_point
+        isLocked,            // Col 14: is_locked
+        remarks,             // Col 15: remarks
+        createdBy,           // Col 16: created_by
+        createdAt,           // Col 17: created_at
+        currentUser,         // Col 18: modified_by
+        nowStr               // Col 19: modified_at
     ];
 
     const updatedObj = {
-        id, warehouse_id: wh, product_id: prd, batch_no: batch, expiry_date: exp,
-        quantity: qty, pieces_qty: pieces, reserved_qty: reserved, available_qty: avail,
-        currency_code: curr, cost_price: cost, sv_point: sv, is_locked: isLocked,
-        remarks, created_by: createdBy, created_at: createdAt, modified_by: currentUser, modified_at: nowStr
+        id, warehouse_id: wh, product_id: prd, batch_no: batch, expiry_date: expVal,
+        quantity: qty, pieces_qty: pieces, reserved_qty: reserved, reserved_pieces_qty: reservedPieces,
+        available_qty: avail, available_pieces_qty: availPieces, currency_code: curr,
+        cost_price: cost, sv_point: sv, is_locked: isLocked, remarks,
+        created_by: createdBy, created_at: createdAt, modified_by: currentUser, modified_at: nowStr
     };
 
-    const $btn = $('button[onclick="saveStockItem()"]');
+    const $btn =$('button[onclick="saveStockItem()"]');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_NAMES.STOCKS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
@@ -927,20 +917,16 @@ async function saveStockItem() {
             if (idx !== -1) appState.stocks[idx] = updatedObj;
         }
 
-        // 關閉 Modal 並自動向雲端試算表靜默同步最新狀態
         const modalEl = document.getElementById('stockModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) {
-            modalInstance.hide();
-        }
+        if (modalInstance) modalInstance.hide();
 
-        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
         refreshView();
-        AppToast.success(`庫存批號【${id}】儲存成功！`);
+        AppToast.success(`庫存批號【${id}】雙軌數據儲存成功！`);
     } catch (err) {
         AppToast.error("庫存批號儲存失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
     }
 }
 
@@ -954,8 +940,9 @@ async function toggleStockLock(stockId) {
 
     const rowDataArray = [
         s.id, s.warehouse_id, s.product_id, s.batch_no, s.expiry_date,
-        s.quantity, s.pieces_qty || 0, s.reserved_qty, s.available_qty,
-        s.currency_code, s.cost_price, s.sv_point, newLock, s.remarks,
+        s.quantity, s.pieces_qty || 0, s.reserved_qty || 0, s.reserved_pieces_qty || 0,
+        s.available_qty || 0, s.available_pieces_qty || 0, s.currency_code || 'TWD',
+        s.cost_price || 0, s.sv_point || 0, newLock, s.remarks || '',
         s.created_by, s.created_at, currentUser, nowStr
     ];
 
@@ -965,7 +952,6 @@ async function toggleStockLock(stockId) {
         s.modified_by = currentUser;
         s.modified_at = nowStr;
 
-        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
         refreshView();
         AppToast.success(`批號【${stockId}】已變更為【${newLock === 'Y' ? '凍結出庫' : '自由流通'}】`);
     } catch (err) {
@@ -985,7 +971,6 @@ async function deleteStockItem(stockId) {
         await SheetAdapter.deleteRow(SHEET_NAMES.STOCKS, stockId, GAS_DEPLOY_ID.PSI);
         appState.stocks = appState.stocks.filter(item => item.id !== stockId);
 
-        // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
         refreshView();
         AppToast.success(`批號【${stockId}】已自雲端試算表刪除！`);
     } catch (err) {

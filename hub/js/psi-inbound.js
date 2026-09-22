@@ -1,5 +1,5 @@
 // ==========================================================================
-// 1. 系統組態與資料庫來源定義
+// 1. 系統組態與資料庫來源定義 (支援表 302 庫存主檔 20 欄雙軌架構)
 // ==========================================================================
 const SPREADSHEET_ID = {
     PSI: APP_CONFIG.SHEETS.PSI,
@@ -22,7 +22,7 @@ const SHEET_NAMES = {
     PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS
 };
 
-// 系統資料狀態庫
+// 系統資料狀態庫 (State Management)
 let appState = {
     inbounds: [],
     inboundItems: [],
@@ -54,7 +54,7 @@ let isInitialized = false;
 
 let currentDetailOrderId = null; // 當前開啟的進貨單號
 
-// 進貨明細前端暫存資料結構（一次性存檔專用）
+// 進貨明細前端暫存資料結構（兩階段提交專用，按儲存前不向雲端發送請求）
 let stagingInboundItems = [];
 let deletedInboundItemIds = [];
 
@@ -157,27 +157,38 @@ function parseAllData(data) {
         is_active: getVal(r, 9, 'Y')
     })).filter(w => w.id !== '' && (w.is_active === 'Y' || w.is_active === 'TRUE' || w.is_active === true));
 
-    // 2. 庫存主檔 (表 302: psi_stocks，0~17 實體物理欄位)
-    appState.stocks = (data.rawStocks || []).map(r => ({
-        id: getVal(r, 0),
-        warehouse_id: getVal(r, 1),
-        product_id: getVal(r, 2),
-        batch_no: getVal(r, 3),
-        expiry_date: getVal(r, 4),
-        quantity: parseInt(getVal(r, 5, '0'), 10) || 0,
-        pieces_qty: parseInt(getVal(r, 6, '0'), 10) || 0,
-        reserved_qty: parseInt(getVal(r, 7, '0'), 10) || 0,
-        available_qty: parseInt(getVal(r, 8, '0'), 10) || 0,
-        currency_code: getVal(r, 9, 'TWD'),
-        cost_price: parseFloat(getVal(r, 10, '0')) || 0,
-        sv_point: parseFloat(getVal(r, 11, '0')) || 0,
-        is_locked: getVal(r, 12, 'N'),
-        remarks: getVal(r, 13, ''),
-        created_by: getVal(r, 14, 'SYSTEM'),
-        created_at: getVal(r, 15, ''),
-        modified_by: getVal(r, 16, 'SYSTEM'),
-        modified_at: getVal(r, 17, '')
-    })).filter(s => s.id !== '');
+    // 2. 庫存主檔 (表 302: psi_stocks，支援全新 20 欄雙軌包裝架構)
+    appState.stocks = (data.rawStocks || []).map(r => {
+        const qty = parseInt(getVal(r, 5, '0'), 10) || 0;
+        const pieces = parseInt(getVal(r, 6, '0'), 10) || 0;
+        const reservedBox = parseInt(getVal(r, 7, '0'), 10) || 0;
+        const reservedPieces = parseInt(getVal(r, 8, '0'), 10) || 0;
+        const availBox = parseInt(getVal(r, 9, String(Math.max(0, qty - reservedBox))), 10) || Math.max(0, qty - reservedBox);
+        const availPieces = parseInt(getVal(r, 10, String(Math.max(0, pieces - reservedPieces))), 10) || Math.max(0, pieces - reservedPieces);
+
+        return {
+            id: getVal(r, 0),
+            warehouse_id: getVal(r, 1),
+            product_id: getVal(r, 2),
+            batch_no: getVal(r, 3),
+            expiry_date: getVal(r, 4),
+            quantity: qty,
+            pieces_qty: pieces,
+            reserved_qty: reservedBox,
+            reserved_pieces_qty: reservedPieces,
+            available_qty: availBox,
+            available_pieces_qty: availPieces,
+            currency_code: getVal(r, 11, 'TWD'),
+            cost_price: parseFloat(getVal(r, 12, '0')) || 0,
+            sv_point: parseFloat(getVal(r, 13, '0')) || 0,
+            is_locked: getVal(r, 14, 'N'),
+            remarks: getVal(r, 15, ''),
+            created_by: getVal(r, 16, 'SYSTEM'),
+            created_at: getVal(r, 17, ''),
+            modified_by: getVal(r, 18, 'SYSTEM'),
+            modified_at: getVal(r, 19, '')
+        };
+    }).filter(s => s.id !== '');
 
     // 3. 個人主檔 (表 201)
     appState.persons = (data.rawPersons || []).map(r => ({
@@ -676,7 +687,7 @@ function formatTableRow(item) {
 
     const isCompleted = item.status === '已入庫';
     const canQuickVerify = item.status === '待自取' || item.status === '運輸中';
-    const deleteBtnDisabled = isCompleted ? 'disabled title="已入庫單據不可刪除"' : 'title="刪除單據"';
+    const deleteBtnDisabled = isCompleted ? 'disabled title="已入庫單據庫存已歸戶，不可刪除"' : 'title="刪除單據"';
 
     const warehouseOnlyName = EntityResolver.warehouse(item.warehouse_id, appState.warehouses, 1);
     const centerDisplayName = getOrderCenterDisplayName(item.order_center);
@@ -844,6 +855,8 @@ function openAddModal() {
         return !type.includes('官方') && !type.includes('OFFICIAL') && w.id !== 'WH-TW-TP' && w.id !== 'WH-TW-KH';
     });
     $('#fieldWarehouseId').val(firstPrivateWh ? firstPrivateWh.id : '').trigger('change.select2');
+
+    $('#fieldStatus').val('草稿').prop('disabled', true); // ★ 新增單據時強制為草稿，待建立明細後才能驗收
 
     const defaultCurr = 'TWD';
     $('#fieldRawProductAmount').val(0);
@@ -1550,7 +1563,7 @@ function syncCurrencyAndDeliveryByCenter(centerVal) {
 }
 
 // ==========================================================================
-// 9. 庫存主檔 (psi_stocks) 連動寫入中樞 (進貨驗收自動歸戶)
+// 9. 庫存主檔 (psi_stocks) 連動寫入中樞 (進貨驗收自動歸戶，支援 20 欄架構)
 // ==========================================================================
 /**
  * 自動生成定長 17 碼標準庫存主鍵 (STK-YYYYMMDD-XXXX)
@@ -1577,13 +1590,13 @@ function generateNextStockId(targetDateStr) {
 
 /**
  * 執行進貨單驗收入庫管線：
- * 走訪明細 -> 過濾費用項目 -> 表 302 庫存 Upsert -> 表 304 回填 stock_id
+ * 走訪明細 -> 過濾費用項目 -> 表 302 庫存 Upsert (20 欄) -> 表 304 回填 stock_id
  */
 async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDateSheet) {
     const parentInbound = appState.inbounds.find(d => d.id === orderId);
     if (!parentInbound) throw new Error(`找不到進貨單據【${orderId}】`);
 
-    // ★ 防禦 1：四流分離直寄判定（若直送客戶/下線家中，不入自營實體倉）
+    // ★ 防禦 1：四流分離直寄判定（若直送客戶/下線家中，不入自營實體私倉）
     if (parentInbound.delivery_method === '運送' && parentInbound.warehouse_id === 'WH-TW-TRN-DIRECT') {
         AppToast.info(`單據【${orderId}】為總公司宅配直送單，直接完成點數歸戶，不計入自營倉現貨。`);
         return 0;
@@ -1593,13 +1606,13 @@ async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDat
     let updatedStockCount = 0;
 
     for (let it of items) {
-        // 費用項目不入庫
+        // 費用項目（運費、雜費）不入實體庫存
         if (it.is_fee_item === 'Y') continue;
 
-        // ★ 防禦 2：實收數量防呆（嚴禁將 0 盒自動補成訂購量）
+        // ★ 防禦 2：實收數量防呆（嚴禁將 0 盒或負數自動補成訂購量）
         const receivedQty = parseInt(it.received_qty, 10);
         if (isNaN(receivedQty) || receivedQty <= 0) {
-            // 實收為 0 代表該批貨未到或欠貨，嚴禁生成幽靈庫存
+            // 實收為 0 代表該批貨未到或官方暫缺，嚴禁生成幽靈現貨
             continue;
         }
 
@@ -1623,11 +1636,13 @@ async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDat
         let targetStockId = '';
 
         if (existingStock) {
+            // === 分流 A：同倉同批號已存在 -> 累加整盒數，重算自由可用量 ===
             targetStockId = existingStock.id;
             existingStock.quantity = AppCalc.add(existingStock.quantity, receivedQty);
-            existingStock.available_qty = existingStock.quantity - (existingStock.reserved_qty || 0);
+            existingStock.available_qty = Math.max(0, existingStock.quantity - (existingStock.reserved_qty || 0));
+            existingStock.available_pieces_qty = Math.max(0, (existingStock.pieces_qty || 0) - (existingStock.reserved_pieces_qty || 0));
 
-            // ★ 防禦 4：贈品 0 元成本保護（若進貨單價為 0，不覆寫原本的有效進貨成本）
+            // ★ 防禦 4：贈品 0 元成本保護（若進貨單價為 0，不覆寫原本既有的有效經理成本價）
             if (parseFloat(it.unit_cost) > 0) {
                 existingStock.cost_price = it.unit_cost;
             }
@@ -1638,17 +1653,32 @@ async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDat
             existingStock.modified_by = currentUser;
             existingStock.modified_at = nowStr;
 
+            // 依據表 302 全新 20 欄實體物理欄位封裝
             const stockRowData = [
-                existingStock.id, existingStock.warehouse_id, existingStock.product_id,
-                existingStock.batch_no, existingStock.expiry_date, existingStock.quantity,
-                existingStock.pieces_qty || 0, existingStock.reserved_qty || 0, existingStock.available_qty,
-                existingStock.currency_code || 'TWD', existingStock.cost_price, existingStock.sv_point,
-                existingStock.is_locked || 'N', existingStock.remarks || '',
-                existingStock.created_by, existingStock.created_at, currentUser, nowStr
+                existingStock.id,                                           // 0: id
+                existingStock.warehouse_id,                                  // 1: warehouse_id
+                existingStock.product_id,                                    // 2: product_id
+                existingStock.batch_no,                                      // 3: batch_no
+                existingStock.expiry_date,                                   // 4: expiry_date
+                existingStock.quantity,                                      // 5: quantity (整盒)
+                existingStock.pieces_qty || 0,                               // 6: pieces_qty (散件)
+                existingStock.reserved_qty || 0,                             // 7: reserved_qty (預扣盒數)
+                existingStock.reserved_pieces_qty || 0,                      // 8: reserved_pieces_qty (預扣散件)
+                existingStock.available_qty,                                 // 9: available_qty (可用盒數)
+                existingStock.available_pieces_qty,                          // 10: available_pieces_qty (可用散件)
+                existingStock.currency_code || 'TWD',                        // 11: currency_code
+                existingStock.cost_price,                                    // 12: cost_price
+                existingStock.sv_point,                                      // 13: sv_point
+                existingStock.is_locked || 'N',                              // 14: is_locked
+                existingStock.remarks || '',                                 // 15: remarks
+                existingStock.created_by,                                    // 16: created_by
+                existingStock.created_at,                                    // 17: created_at
+                currentUser,                                                 // 18: modified_by
+                nowStr                                                       // 19: modified_at
             ];
             await SheetAdapter.updateRow(SHEET_NAMES.STOCKS, existingStock.id, stockRowData, GAS_DEPLOY_ID.PSI);
         } else {
-            // 新增全新批號
+            // === 分流 B：全新批號 -> 產生 STK- 自然單號，寫入表 302 全新 20 欄 ===
             targetStockId = generateNextStockId(inboundDateSheet);
             const newStockObj = {
                 id: targetStockId,
@@ -1659,7 +1689,9 @@ async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDat
                 quantity: receivedQty,
                 pieces_qty: 0,
                 reserved_qty: 0,
+                reserved_pieces_qty: 0,
                 available_qty: receivedQty,
+                available_pieces_qty: 0,
                 currency_code: parentInbound.currency_code || 'TWD',
                 cost_price: it.unit_cost,
                 sv_point: it.unit_sv,
@@ -1672,29 +1704,61 @@ async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDat
             };
 
             const newStockRowData = [
-                newStockObj.id, newStockObj.warehouse_id, newStockObj.product_id,
-                newStockObj.batch_no, newStockObj.expiry_date, newStockObj.quantity,
-                newStockObj.pieces_qty, newStockObj.reserved_qty, newStockObj.available_qty,
-                newStockObj.currency_code, newStockObj.cost_price, newStockObj.sv_point,
-                newStockObj.is_locked, newStockObj.remarks, currentUser, nowStr, currentUser, nowStr
+                newStockObj.id,
+                newStockObj.warehouse_id,
+                newStockObj.product_id,
+                newStockObj.batch_no,
+                newStockObj.expiry_date,
+                newStockObj.quantity,
+                newStockObj.pieces_qty,
+                newStockObj.reserved_qty,
+                newStockObj.reserved_pieces_qty,
+                newStockObj.available_qty,
+                newStockObj.available_pieces_qty,
+                newStockObj.currency_code,
+                newStockObj.cost_price,
+                newStockObj.sv_point,
+                newStockObj.is_locked,
+                newStockObj.remarks,
+                currentUser,
+                nowStr,
+                currentUser,
+                nowStr
             ];
             await SheetAdapter.createRow(SHEET_NAMES.STOCKS, targetStockId, newStockRowData, GAS_DEPLOY_ID.PSI);
             appState.stocks.unshift(newStockObj);
         }
 
-        // 回填明細關聯
+        // 回填進貨明細關聯 (表 304)
         it.received_qty = receivedQty;
         it.stock_id = targetStockId;
         it.modified_by = currentUser;
         it.modified_at = nowStr;
 
         const itemRowData = [
-            it.id, it.inbound_id, it.item_seq, it.official_product_code,
-            it.product_name_snapshot, it.product_id, it.is_fee_item,
-            it.currency_code || 'TWD', it.unit_cost, it.unit_sv, it.ordered_qty,
-            it.official_shipped_qty || it.ordered_qty, it.received_qty,
-            it.subtotal_amount, it.subtotal_sv, it.batch_no, it.expiry_date,
-            it.stock_id, it.remarks || '', it.created_by, it.created_at, currentUser, nowStr
+            it.id,
+            it.inbound_id,
+            it.item_seq,
+            it.official_product_code,
+            it.product_name_snapshot,
+            it.product_id,
+            it.is_fee_item,
+            it.currency_code || 'TWD',
+            it.unit_cost,
+            it.unit_sv,
+            it.ordered_qty,
+            it.official_shipped_qty || it.ordered_qty,
+            it.received_qty,
+            it.subtotal_amount,
+            it.subtotal_sv,
+            it.batch_no,
+            it.expiry_date,
+            it.stock_id,
+            it.remarks || '',
+            it.created_by,
+            it.created_at,
+            currentUser,
+            nowStr
         ];
         await SheetAdapter.updateRow(SHEET_NAMES.INBOUND_ITEMS, it.id, itemRowData, GAS_DEPLOY_ID.PSI);
         updatedStockCount++;
@@ -1707,6 +1771,8 @@ async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDat
 // 10. 進貨主檔 C/R/U/D 與覆核操作
 // ==========================================================================
 async function saveInboundItem() {
+    $('#fieldStatus').prop('disabled', false);
+    
     const mode = $('#formMode').val();
     const orderId = $('#fieldId').val().trim();
     const orderCenter = $('#fieldOrderCenter').val();
@@ -1751,9 +1817,18 @@ async function saveInboundItem() {
         return;
     }
 
+    const existing = appState.inbounds.find(d => d.id === orderId);
+    const newStatus = $('#fieldStatus').val();
+
+    // ★ 防禦：已入庫之單據現貨已正式歸戶，嚴禁於編輯視窗手動逆轉為其他狀態
+    if (existing && existing.status === '已入庫' && newStatus !== '已入庫') {
+        AppToast.warning("「已入庫」之單據庫存現貨已正式生效歸戶，嚴禁手動切換為其他狀態！若需退單請開立調撥或退貨單。");
+        $('#fieldStatus').val('已入庫');
+        return;
+    }
+
     const currentUser = getCurrentUser();
     const nowStr = AppDate.now('full');
-    const existing = appState.inbounds.find(d => d.id === orderId);
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
@@ -1766,8 +1841,6 @@ async function saveInboundItem() {
     const shippingFeeVal = parseFloat($('#fieldRawShippingFee').val()) || 0;
     const totalCostAmountVal = parseFloat($('#fieldRawTotalCostAmount').val()) || 0;
     const totalSvVal = parseFloat($('#fieldRawTotalSv').val()) || 0;
-
-    const newStatus = $('#fieldStatus').val();
 
     const rowDataArray = [
         orderId,
@@ -1910,7 +1983,7 @@ async function deleteInboundItem(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
 
-    // ★ 防禦 5：已入庫單據嚴禁直接從前端刪除，避免留下無主庫存
+    // ★ 防禦 5：已入庫單據嚴禁直接從前端刪除，避免留下無主孤兒庫存
     if (item.status === '已入庫') {
         AppToast.warning("「已入庫」之單據庫存已正式歸戶，嚴禁直接刪除！若需退單請開立「退貨/調撥單」沖銷。");
         return;
