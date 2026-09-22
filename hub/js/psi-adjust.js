@@ -14,13 +14,13 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    WAREHOUSES: '據點倉儲',
-    ADJUSTMENTS: '盤點調撥',
-    PERSONS: '個人主檔',
-    PARTNERS: '夥伴主檔',
-    PRODUCTS: '產品主檔',
-    CUSTOMERS: '客戶主檔',
-    STOCKS: '庫存主檔'
+    WAREHOUSES: APP_CONFIG.SHEET_NAMES.PSI.WAREHOUSES,
+    ADJUSTMENTS: APP_CONFIG.SHEET_NAMES.PSI.ADJUSTMENTS,
+    PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON,
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,
+    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS,
+    CUSTOMERS: APP_CONFIG.SHEET_NAMES.CRM.CUSTOMERS,
+    STOCKS: APP_CONFIG.SHEET_NAMES.PSI.STOCKS
 };
 
 // 系統資料狀態庫 (全面移除預設假資料)
@@ -201,25 +201,6 @@ function updateAdjustStockFeedback() {
             $fb.html(`<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>散裝現貨充足 (可用: ${availPieces} ${subUnit})</span>`);
         }
     }
-}
-
-// ==========================================================================
-// 3. 實體名稱權重解析核心 (接軌 EntityResolver)
-// ==========================================================================
-function getPersonResolvedName(personId, displayMode = 1) {
-    return EntityResolver.person(personId, appState.persons, displayMode);
-}
-
-function getPartnerResolvedName(partnerId, displayMode = 1) {
-    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
-}
-
-function getCustomerResolvedName(customerId, displayMode = 1) {
-    return EntityResolver.customer(customerId, appState.customers, appState.persons, displayMode);
-}
-
-function getWarehouseDisplayName(whId, displayMode = 1) {
-    return EntityResolver.warehouse(whId, appState.warehouses, displayMode);
 }
 
 // ==========================================================================
@@ -608,8 +589,8 @@ function renderAdjustmentsTable() {
     const formatted = filtered.map(a => {
         const typeBadge = UIBadges.psi.adjustType(a.adj_type);
 
-        const operatorResolved = getPartnerResolvedName(a.operator_partner_id);
-        const prospectResolved = a.target_prospect_id ? getCustomerResolvedName(a.target_prospect_id) : '';
+        const operatorResolved = EntityResolver.partner(a.operator_partner_id, appState.partners, appState.persons, 1);
+        const prospectResolved = a.target_prospect_id ? EntityResolver.customer(a.target_prospect_id, appState.customers, appState.persons, 1) : '';
 
         const svDisplay = `${AppCalc.formatSV(a.total_sv, 'INTERNAL')} SV`;
 
@@ -640,8 +621,8 @@ function renderAdjustmentsTable() {
             `,
             warehouses: `
                 <div>
-                    <span class="text-white">${getWarehouseDisplayName(a.from_warehouse_id)}</span>
-                    ${a.to_warehouse_id ? `<div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${getWarehouseDisplayName(a.to_warehouse_id)}</div>` : ''}
+                    <span class="text-white">${EntityResolver.warehouse(a.from_warehouse_id, appState.warehouses, 1)}</span>
+                    ${a.to_warehouse_id ? `<div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${EntityResolver.warehouse(a.to_warehouse_id, appState.warehouses, 1)}</div>` : ''}
                 </div>
             `,
             product_batch: `
@@ -700,7 +681,7 @@ function renderTransfersTable() {
     const filtered = getFilteredAdjustments();
     const transfersOnly = filtered.filter(a => a.adj_type === '跨倉調撥');
     const formatted = transfersOnly.map(t => {
-        const operatorResolved = getPartnerResolvedName(t.operator_partner_id);
+        const operatorResolved = EntityResolver.partner(t.operator_partner_id, appState.partners, appState.persons, 1);
 
         const actionButtons = `
             <div class="d-flex align-items-center justify-content-center gap-1">
@@ -725,8 +706,8 @@ function renderTransfersTable() {
             `,
             route: `
                 <div>
-                    <span class="text-white">${getWarehouseDisplayName(t.from_warehouse_id)}</span>
-                    <div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${getWarehouseDisplayName(t.to_warehouse_id) || '未指定'}</div>
+                    <span class="text-white">${EntityResolver.warehouse(t.from_warehouse_id, appState.warehouses, 1)}</span>
+                    <div class="text-info small mt-1"><i class="fa-solid fa-arrow-down-long me-1"></i>${EntityResolver.warehouse(t.to_warehouse_id, appState.warehouses, 1) || '未指定'}</div>
                 </div>
             `,
             product: `
@@ -776,10 +757,10 @@ function openAdjustmentDetailModal(adjId) {
     }
 
     const typeBadge = UIBadges.psi.adjustType(item.adj_type);
-    const operatorName = getPartnerResolvedName(item.operator_partner_id);
-    const prospectName = item.target_prospect_id ? getCustomerResolvedName(item.target_prospect_id) : '無';
-    const fromWh = getWarehouseDisplayName(item.from_warehouse_id);
-    const toWh = item.to_warehouse_id ? getWarehouseDisplayName(item.to_warehouse_id) : '無 (單倉異動)';
+    const operatorName = EntityResolver.partner(item.operator_partner_id, appState.partners, appState.persons, 1);
+    const prospectName = item.target_prospect_id ? EntityResolver.customer(item.target_prospect_id, appState.customers, appState.persons, 1) : '無';
+    const fromWh = EntityResolver.warehouse(item.from_warehouse_id, appState.warehouses, 1);
+    const toWh = item.to_warehouse_id ? EntityResolver.warehouse(item.to_warehouse_id, appState.warehouses, 1) : '無 (單倉異動)';
 
     const qtyDisplay = (item.quantity > 0 ? `+${item.quantity.toLocaleString()}` : item.quantity.toLocaleString()) + ` ${item.adj_unit}`;
     const costDisplay = formatCurrency(item.total_cost, item.currency_code);
@@ -1042,12 +1023,12 @@ function renderCharts() {
         const whMap = {};
         adjustments.forEach(a => {
             if (a.from_warehouse_id) {
-                const name = getWarehouseDisplayName(a.from_warehouse_id);
+                const name = EntityResolver.warehouse(a.from_warehouse_id, appState.warehouses, 1);
                 if (!whMap[name]) whMap[name] = { outCount: 0, inCount: 0 };
                 whMap[name].outCount++;
             }
             if (a.to_warehouse_id) {
-                const name = getWarehouseDisplayName(a.to_warehouse_id);
+                const name = EntityResolver.warehouse(a.to_warehouse_id, appState.warehouses, 1);
                 if (!whMap[name]) whMap[name] = { outCount: 0, inCount: 0 };
                 whMap[name].inCount++;
             }
@@ -2082,7 +2063,7 @@ function openAddAdjustmentModal() {
     // ★ 4. 預設操作人為當前登入之領導人
     const currentUserName = getCurrentUser();
     const matchedPartner = appState.partners.find(p => {
-        const pName = getPartnerResolvedName(p.partner_id);
+        const pName = EntityResolver.partner(p.partner_id, appState.partners, appState.persons, 1);
         return pName.includes(currentUserName) || (currentUserName === 'RAY' && pName.includes('翁榮祥')) || (currentUserName === 'JARVIS' && pName.includes('林承志'));
     });
     if (matchedPartner) {

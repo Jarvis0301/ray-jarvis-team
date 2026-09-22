@@ -719,10 +719,10 @@
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-6 col-xl-3">
                                             <label class="form-label" for="form-birthday">生日</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-birthday" placeholder="如：1988 或 1988/06/15" pattern="^\d{4}([\/-]\d{1,2}[\/-]\d{1,2})?$" title="請輸入西元出生年份（如：1988）或完整年月日（如：1988/06/15）">
+                                            <input type="text" class="form-control form-control-sm" id="form-birthday" placeholder="如：1988 或 1988/06/15" pattern="^\d{4}(\/\d{1,2}\/\d{1,2})?$" title="請輸入西元出生年份（如：1988）或年月日（如：1988/06/15）">
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-nationality"><i class="fa-solid fa-flag me-1"></i>國籍</label>
+                                            <label class="form-label" for="form-nationality">國籍</label>
                                             <select class="form-select form-control-sm" id="form-nationality">
                                                 <option value="">請選擇或輸入國籍...</option>
                                                 <option value="中華民國" selected>中華民國</option>
@@ -738,7 +738,7 @@
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-ethnicity"><i class="fa-solid fa-people-group me-1"></i>種族</label>
+                                            <label class="form-label" for="form-ethnicity">種族</label>
                                             <select class="form-select form-control-sm" id="form-ethnicity">
                                                 <option value="">請選擇或輸入種族...</option>
                                                 <option value="華人" selected>華人</option>
@@ -749,7 +749,7 @@
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-marital-status"><i class="fa-solid fa-ring me-1"></i>婚姻狀態</label>
+                                            <label class="form-label" for="form-marital-status">婚姻狀態</label>
                                             <select class="form-select form-select-sm" id="form-marital-status">
                                                 <option value="" selected>(未填寫)</option>
                                                 <option value="未婚">未婚</option>
@@ -783,27 +783,27 @@
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-life-status"><i class="fa-solid fa-heart-pulse me-1"></i>存歿狀態</label>
+                                            <label class="form-label" for="form-life-status">存歿狀態</label>
                                             <select class="form-select form-select-sm" id="form-life-status">
                                                 <option value="存活" selected>存活</option>
                                                 <option value="身故">身故</option>
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3" id="deceased-date-container" style="display: none;">
-                                            <label class="form-label text-warning" for="form-deceased-date"><i class="fa-solid fa-calendar-xmark me-1"></i>身故日期</label>
-                                            <input type="date" class="form-control form-control-sm border-warning" id="form-deceased-date">
+                                            <label class="form-label text-warning" for="form-deceased-date">身故日期</label>
+                                            <input type="text" class="form-control form-control-sm border-warning" id="form-deceased-date" placeholder="如：2020 或 2020/05/20" pattern="^\d{4}(\/\d{1,2}\/\d{1,2})?$" title="請輸入西元年份（如：2020）或年月日（如：2020/05/20）">
                                         </div>
                                     </div>
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-hometown"><i class="fa-solid fa-house-user me-1"></i>家鄉城市</label>
+                                            <label class="form-label" for="form-hometown">家鄉城市</label>
                                             <select class="form-select form-select-sm" id="form-hometown">
                                                 <option value="">請選擇或輸入家鄉...</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label" for="form-current-residence"><i class="fa-solid fa-map-location-dot me-1"></i>現居地 / 行政區</label>
+                                            <label class="form-label" for="form-current-residence">現居地 / 行政區</label>
                                             <select class="form-select form-select-sm" id="form-current-residence">
                                                 <option value="">請選擇或輸入居住地...</option>
                                             </select>
@@ -860,19 +860,13 @@
                                     <!-- 區塊 2：職級位階與團隊內部角色 -->
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label d-flex justify-content-between align-items-center">
-                                                <span>當前結算職級</span>
-                                                <span class="badge badge-secondary-subtle small" id="badge-rank-lock-cur" style="display: none;">唯讀鎖定</span>
-                                            </label>
+                                            <label class="form-label">當前結算職級 <span class="badge badge-secondary-subtle small" id="badge-rank-lock-cur" style="display: none;">唯讀鎖定</span></label>
                                             <select class="form-select form-select-sm" id="form-current-rank-id">
                                                 <option value="" selected>(未設定 / 未知)</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label d-flex justify-content-between align-items-center">
-                                                <span>官方最高職級</span>
-                                                <span class="badge badge-secondary-subtle small" id="badge-rank-lock-high" style="display: none;">唯讀鎖定</span>
-                                            </label>
+                                            <label class="form-label">官方最高職級 <span class="badge badge-secondary-subtle small" id="badge-rank-lock-cur" style="display: none;">唯讀鎖定</span></label>
                                             <select class="form-select form-select-sm" id="form-highest-rank-id">
                                                 <option value="" selected>(未設定 / 未知)</option>
                                             </select>
@@ -1217,6 +1211,13 @@
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-12">
+                                            <label class="form-label">備註 (個人通用備註)</label>
+                                            <textarea class="form-control form-control-sm" id="form-notes" rows="2" placeholder="記錄個人通用備註事項..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12">
                                             <label class="form-label">團隊備註 (排線調度、領導特質、戰術配合注意事項)</label>
                                             <textarea class="form-control form-control-sm" id="form-team-notes" rows="2" placeholder="記錄排線調度特別註記與戰術配合要點..."></textarea>
                                         </div>
@@ -1319,7 +1320,7 @@
                                             <span id="view-marital-status">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">存歿狀態 / 身故日期</span>
+                                            <span class="text-secondary">存歿狀態</span>
                                             <span id="view-life-status">--</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
@@ -1502,6 +1503,11 @@
                                     <div class="dossier-text-block" id="view-consumption-notes">--</div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="dossier-sub-card p-3 mb-2">
+                            <div class="dossier-card-header mb-1 text-light"><i class="fa-solid fa-comment-dots text-primary me-1"></i>個人備註</div>
+                            <div class="dossier-text-block" id="view-notes">--</div>
                         </div>
 
                         <div class="dossier-sub-card p-3 border-warning border-opacity-25">

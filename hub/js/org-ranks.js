@@ -13,10 +13,10 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    RANKS: '職級主檔',
-    HISTORY: '職級歷程',
-    PARTNERS: '夥伴主檔',
-    PERSONS: '個人主檔'
+    RANKS: APP_CONFIG.SHEET_NAMES.ORG.RANKS,
+    HISTORY: APP_CONFIG.SHEET_NAMES.ORG.RANK_HISTORY,
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,
+    PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON
 };
 
 // ==========================================================================

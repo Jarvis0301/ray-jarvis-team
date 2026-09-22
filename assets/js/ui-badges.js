@@ -467,10 +467,10 @@ const UIBadges = (function () {
             identityType(type) {
                 switch (type) {
                     case '夥伴': return '<span class="badge badge-orange">夥伴</span>';
-                    case '團隊成員': return '<span class="badge badge-blue">團隊成員</span>';
-                    case '潛在團隊成員': return '<span class="badge badge-blue-subtle">潛在團隊成員</span>';
-                    case '客戶': return '<span class="badge badge-green">客戶</span>';
-                    case '潛在客戶': return '<span class="badge badge-green-subtle">潛在客戶</span>';
+                    case '團隊成員': return '<span class="badge badge-cyan">團隊成員</span>';
+                    case '潛在團隊成員': return '<span class="badge badge-cyan-subtle">潛在團隊成員</span>';
+                    case '客戶': return '<span class="badge badge-teal">客戶</span>';
+                    case '潛在客戶': return '<span class="badge badge-teal-subtle">潛在客戶</span>';
                     default: return '<span class="badge badge-gray-subtle">未設定</span>';
                 }
             },
@@ -480,8 +480,8 @@ const UIBadges = (function () {
              */
             usageIdentity(type) {
                 switch (type) {
-                    case '經營者': return '<span class="badge badge-outline-blue">經營者</span>';
-                    case '消費者': return '<span class="badge badge-outline-green">消費者</span>';
+                    case '經營者': return '<span class="badge badge-outline-cyan">經營者</span>';
+                    case '消費者': return '<span class="badge badge-outline-teal">消費者</span>';
                     default: return '<span class="badge badge-outline-gray">未設定</span>';
                 }
             },

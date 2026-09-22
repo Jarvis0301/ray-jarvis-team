@@ -23,29 +23,27 @@
     <body>
         <!-- 主內容容器 -->
         <main class="container-fluid p-3 p-md-4">
-            <header class="row align-items-center mb-3">
-                <div class="col-12 col-md-6">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge badge-primary-subtle fs-7">H41000 自然人主檔</span>
-                        <span class="text-secondary small">Ray's Team 戰術控台</span>
-                    </div>
-                    <h4 class="fw-bold mb-0 text-light mt-1">
+            <header class="row align-items-center mb-3 g-3">
+                <div class="col-12 col-md-8 col-lg-10">
+                    <h4 class="fw-bold mb-0 text-light">
                         <i class="fa-solid fa-address-book text-primary me-1"></i>人員管理
                     </h4>
                 </div>
-                <div class="col-12 col-md-6 text-md-end mt-2 mt-md-0">
-                    <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-3" onclick="manualSyncSheetsData(this)">
+                <div class="col-12 col-md-2 col-lg-1">
+                    <button type="button" class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
                         <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
                     </button>
-                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="btn-open-create-modal" onclick="openPersonModalForCreate()">
+                </div>
+                <div class="col-12 col-md-2 col-lg-1">
+                    <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" id="btn-open-create-modal" onclick="openPersonModalForCreate()">
                         <i class="fa-solid fa-user-plus me-1"></i>新增人員
                     </button>
                 </div>
             </header>
 
-            <!-- 1. HUD 數據戰況指標列 -->
+            <!-- 1. HUD 數據戰況指標列 (補齊 6 個) -->
             <section class="glass-panel hud-bar mb-3">
-                <div class="row row-cols-2 row-cols-md-4 g-2">
+                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
                     <div class="col">
                         <div class="stat-chip">
                             <span class="text-secondary"><i class="fa-solid fa-users text-primary me-1"></i>人員總數</span>
@@ -54,8 +52,20 @@
                     </div>
                     <div class="col">
                         <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-briefcase text-warning me-1"></i>經營意向</span>
+                            <span class="text-secondary"><i class="fa-solid fa-briefcase text-warning me-1"></i>經營對象</span>
                             <span class="fw-bold text-warning fs-5 text-end" id="hud-operator-persons">0</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="stat-chip">
+                            <span class="text-secondary"><i class="fa-solid fa-cart-shopping text-success me-1"></i>消費客戶</span>
+                            <span class="fw-bold text-success fs-5 text-end" id="hud-consumer-persons">0</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="stat-chip">
+                            <span class="text-secondary"><i class="fa-solid fa-handshake text-yellow me-1"></i>團隊夥伴</span>
+                            <span class="fw-bold text-yellow fs-5 text-end" id="hud-partner-persons">0</span>
                         </div>
                     </div>
                     <div class="col">
@@ -66,18 +76,18 @@
                     </div>
                     <div class="col">
                         <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-user-clock text-success me-1"></i>潛在新線索</span>
-                            <span class="fw-bold text-success fs-5 text-end" id="hud-prospect-persons">0</span>
+                            <span class="text-secondary"><i class="fa-solid fa-user-clock text-accent me-1"></i>潛在對象</span>
+                            <span class="fw-bold text-accent fs-5 text-end" id="hud-prospect-persons">0</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. 多維度篩選導航塢 -->
+            <!-- 2. 多維度篩選導航塢 (移除 label icon、移除重設按鈕、新增年齡選單) -->
             <section class="glass-panel mb-3">
                 <div class="row g-2 filter-dock-grid" id="filter-controls-dock">
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-id-badge me-1"></i>身份類型</label>
+                        <label class="form-label">身份類型</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-identity-type">
                             <option value="">全部身份</option>
                             <option value="夥伴">夥伴</option>
@@ -89,7 +99,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-user-gear me-1"></i>使用身份</label>
+                        <label class="form-label">使用身份</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-usage-identity">
                             <option value="">全部使用身份</option>
                             <option value="經營者">經營者</option>
@@ -97,7 +107,20 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-flag me-1"></i>國籍市場</label>
+                        <label class="form-label">年齡</label>
+                        <select class="form-select form-select-sm form-filter-control" id="filter-age-group">
+                            <option value="">全部年齡</option>
+                            <option value="17歲以下">17歲以下</option>
+                            <option value="18-29歲">18-29歲</option>
+                            <option value="30-39歲">30-39歲</option>
+                            <option value="40-49歲">40-49歲</option>
+                            <option value="50-59歲">50-59歲</option>
+                            <option value="60-69歲">60-69歲</option>
+                            <option value="70歲以上">70歲以上</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <label class="form-label">國籍市場</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-nationality">
                             <option value="">全部國籍</option>
                             <option value="中華民國">🇹🇼 中華民國 (TW)</option>
@@ -107,11 +130,11 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-map-location-dot me-1"></i>現居城市</label>
+                        <label class="form-label">現居城市</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-current-residence"></select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-venus-mars me-1"></i>生理性別</label>
+                        <label class="form-label">生理性別</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-gender">
                             <option value="">全部性別</option>
                             <option value="男">男</option>
@@ -121,7 +144,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-ring me-1"></i>婚姻狀態</label>
+                        <label class="form-label">婚姻狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-marital-status">
                             <option value="">全部婚姻</option>
                             <option value="未婚">未婚</option>
@@ -131,7 +154,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-graduation-cap me-1"></i>最高學歷</label>
+                        <label class="form-label">最高學歷</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-highest-education">
                             <option value="">全部學歷</option>
                             <option value="博士">博士</option>
@@ -145,7 +168,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-user-graduate me-1"></i>修業狀態</label>
+                        <label class="form-label">修業狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-graduation-status">
                             <option value="">全部修業</option>
                             <option value="畢業">畢業</option>
@@ -157,7 +180,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-heart-pulse me-1"></i>健康狀況</label>
+                        <label class="form-label">健康狀況</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-health-status">
                             <option value="">全部狀況</option>
                             <option value="良好">良好</option>
@@ -169,7 +192,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-wallet me-1"></i>財務狀況</label>
+                        <label class="form-label">財務狀況</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-financial-status">
                             <option value="">全部狀況</option>
                             <option value="寬裕">寬裕</option>
@@ -180,17 +203,12 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label"><i class="fa-solid fa-shield-heart me-1"></i>存歿狀態</label>
+                        <label class="form-label">存歿狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-life-status">
                             <option value="">全部</option>
                             <option value="存活">存活</option>
                             <option value="身故">身故</option>
                         </select>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-3 col-xl-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 rounded-pill" id="btn-reset-filters">
-                            <i class="fa-solid fa-rotate-left me-1"></i>重設條件
-                        </button>
                     </div>
                 </div>
             </section>
@@ -206,12 +224,12 @@
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="tab-table" data-bs-toggle="tab" data-bs-target="#container-table-view" type="button" role="tab">
-                                <i class="fa-solid fa-list-check me-1"></i>人員清冊
+                                <i class="fa-solid fa-list-check me-1"></i>人員列表
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="tab-charts" data-bs-toggle="tab" data-bs-target="#container-charts-view" type="button" role="tab">
-                                <i class="fa-solid fa-chart-pie me-1"></i>畫像指標
+                                <i class="fa-solid fa-chart-pie me-1"></i>統計圖表
                             </button>
                         </li>
                     </ul>
@@ -233,11 +251,10 @@
                                     <thead>
                                         <tr>
                                             <th>個人識別 / 姓名</th>
-                                            <th>國籍</th>
                                             <th>身份 / 使用身份</th>
                                             <th>性別 / 年齡</th>
-                                            <th>現居城市</th>
-                                            <th>最高學歷 / 修業</th>
+                                            <th>國籍 / 現居地</th>
+                                            <th>學歷</th>
                                             <th>職業背景</th>
                                             <th>健康狀況</th>
                                             <th>財務狀況</th>
@@ -303,8 +320,8 @@
                         <!-- 區塊 B：自然人人本畫像指標 -->
                         <article class="glass-panel p-3 border-primary border-opacity-25">
                             <header class="mb-3 pb-2 border-bottom border-secondary border-opacity-25">
-                                <span class="fw-bold text-white fs-6"><i class="fa-solid fa-user-astronaut text-primary me-1"></i>自然人人本畫像指標</span>
-                                <span class="text-secondary small ms-2 d-none d-md-inline-block">彙整身份標籤、年齡層級、國籍族裔、學歷與健康等 12 項自然人人本維度</span>
+                                <span class="fw-bold text-white fs-6"><i class="fa-solid fa-user-astronaut text-primary me-1"></i>自然人主檔畫像指標</span>
+                                <span class="text-secondary small ms-2 d-none d-md-inline-block">彙整身份標籤、年齡層級、國籍族裔、學歷與健康等 12 項自然人主檔維度</span>
                             </header>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6 col-xl-3">
@@ -386,7 +403,7 @@
             </section>
         </main>
 
-        <!-- 4. 自然人編輯器 Modal -->
+        <!-- 4. 自然人編輯器 Modal (排版與命名全面對齊 org-partners，新增備註) -->
         <div class="modal fade" id="personEditModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <section class="modal-content">
@@ -401,12 +418,12 @@
                             <ul class="nav nav-pills nav-fill form-tabs-mobile-nav" id="personEditTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="tab-btn-person" data-bs-toggle="tab" data-bs-target="#pane-edit-person" type="button" role="tab">
-                                        <i class="fa-solid fa-user me-1"></i>1. 人本主檔
+                                        <i class="fa-solid fa-user me-1"></i>1. 個人主檔
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="tab-btn-contacts" data-bs-toggle="tab" data-bs-target="#pane-edit-contacts" type="button" role="tab">
-                                        <i class="fa-solid fa-address-book me-1"></i>2. 通訊管道
+                                        <i class="fa-solid fa-address-book me-1"></i>2. 通訊資料
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
@@ -416,7 +433,7 @@
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="tab-btn-notes" data-bs-toggle="tab" data-bs-target="#pane-edit-notes" type="button" role="tab">
-                                        <i class="fa-solid fa-clipboard-list me-1"></i>4. 履歷與備忘
+                                        <i class="fa-solid fa-clipboard-list me-1"></i>4. 願景備忘
                                     </button>
                                 </li>
                             </ul>
@@ -427,7 +444,7 @@
                         <form id="personForm" novalidate>
                             <input type="hidden" id="form-mode" value="CREATE">
                             <div class="tab-content" id="personEditTabContent">
-                                <!-- 分頁 1：人本基本主檔 -->
+                                <!-- 分頁 1：個人主檔 -->
                                 <div class="tab-pane fade show active" id="pane-edit-person" role="tabpanel">
                                     <div class="d-flex align-items-center gap-3 mb-2 p-3 bg-black bg-opacity-30 rounded-3 border border-secondary border-opacity-25">
                                         <img src="" id="form-preview-avatar" class="rounded-circle border border-primary" width="60" height="60" alt="頭像">
@@ -439,19 +456,19 @@
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">個人識別碼 (person_id) <span class="badge badge-secondary-subtle">系統鎖定</span></label>
+                                            <label class="form-label">個人識別碼 (person_id) <span class="badge badge-secondary-subtle small">自動生成</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-person-id" readonly placeholder="自動配發">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">中文真實姓名 <span class="badge badge-warning">擇一必填</span></label>
+                                            <label class="form-label">中文真實姓名 <span class="badge badge-warning small">擇一必填</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-name-zh" placeholder="如：翁榮祥、林承志">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">英文姓名 <span class="badge badge-warning">擇一必填</span></label>
+                                            <label class="form-label">英文姓名 <span class="badge badge-warning small">擇一必填</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-name-en" placeholder="如：Ray Weng, Jarvis Lin">
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label">常用稱呼 / 暱稱 <span class="badge badge-warning">擇一必填</span></label>
+                                            <label class="form-label">常用稱呼 / 暱稱 <span class="badge badge-warning small">擇一必填</span></label>
                                             <input type="text" class="form-control form-control-sm" id="form-preferred-name" placeholder="如：Ray、Jarvis">
                                         </div>
                                     </div>
@@ -492,19 +509,19 @@
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label">生日 (西元)</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-birthday" placeholder="如：1988 或 1988/06/15">
+                                            <label class="form-label">生日</label>
+                                            <input type="text" class="form-control form-control-sm" id="form-birthday" placeholder="如：1988 或 1988/06/15" pattern="^\d{4}(\/\d{1,2}\/\d{1,2})?$" title="請輸入西元出生年份（如：1988）或年月日（如：1988/06/15）">
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label"><i class="fa-solid fa-flag me-1"></i>國籍</label>
+                                            <label class="form-label">國籍</label>
                                             <input type="text" class="form-control form-control-sm" id="form-nationality" value="中華民國">
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label"><i class="fa-solid fa-people-group me-1"></i>種族族裔</label>
+                                            <label class="form-label">種族</label>
                                             <input type="text" class="form-control form-control-sm" id="form-ethnicity" value="華人">
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label"><i class="fa-solid fa-ring me-1"></i>婚姻狀態</label>
+                                            <label class="form-label">婚姻狀態</label>
                                             <select class="form-select form-select-sm" id="form-marital-status">
                                                 <option value="" selected>(未填寫)</option>
                                                 <option value="未婚">未婚</option>
@@ -538,25 +555,25 @@
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3">
-                                            <label class="form-label"><i class="fa-solid fa-heart-pulse me-1"></i>存歿狀態</label>
+                                            <label class="form-label">存歿狀態</label>
                                             <select class="form-select form-select-sm" id="form-life-status">
                                                 <option value="存活" selected>存活</option>
                                                 <option value="身故">身故</option>
                                             </select>
                                         </div>
                                         <div class="col-6 col-md-6 col-xl-3" id="deceased-date-container" style="display: none;">
-                                            <label class="form-label small text-warning mb-1"><i class="fa-solid fa-calendar-xmark me-1"></i>身故日期</label>
-                                            <input type="date" class="form-control form-control-sm border-warning" id="form-deceased-date">
+                                            <label class="form-label text-warning">身故日期</label>
+                                            <input type="text" class="form-control form-control-sm border-warning" id="form-deceased-date" placeholder="如：2020 或 2020/05/20" pattern="^\d{4}(\/\d{1,2}\/\d{1,2})?$" title="請輸入西元年份（如：2020）或年月日（如：2020/05/20）">
                                         </div>
                                     </div>
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label"><i class="fa-solid fa-house-user me-1"></i>家鄉城市</label>
+                                            <label class="form-label">家鄉城市</label>
                                             <select class="form-select form-select-sm" id="form-hometown"></select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-3">
-                                            <label class="form-label"><i class="fa-solid fa-map-location-dot me-1"></i>現居地 / 行政區</label>
+                                            <label class="form-label">現居地 / 行政區</label>
                                             <select class="form-select form-select-sm" id="form-current-residence"></select>
                                         </div>
                                         <div class="col-12 col-md-6 col-xl-6">
@@ -577,7 +594,7 @@
                                     </div>
                                 </div>
 
-                                <!-- 分頁 2：多管道通訊 -->
+                                <!-- 分頁 2：通訊資料 -->
                                 <div class="tab-pane fade" id="pane-edit-contacts" role="tabpanel">
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6">
@@ -615,7 +632,7 @@
                                     </div>
                                 </div>
 
-                                <!-- 分頁 3：跨國語言矩陣 -->
+                                <!-- 分頁 3：語言矩陣 -->
                                 <div class="tab-pane fade" id="pane-edit-languages" role="tabpanel">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="fw-bold text-light small"><i class="fa-solid fa-language text-info me-1"></i>使用語言與聽說讀寫程度</span>
@@ -643,10 +660,10 @@
                                     </div>
                                 </div>
 
-                                <!-- 分頁 4：經歷與四重專用備忘 -->
+                                <!-- 分頁 4：願景備忘 (學歷職業對齊 org-partners，財務/消費備註下方新增「備註」) -->
                                 <div class="tab-pane fade" id="pane-edit-notes" role="tabpanel">
                                     <div class="row g-2 mb-2">
-                                        <div class="col-12 col-md-4">
+                                        <div class="col-12 col-md-3">
                                             <label class="form-label">最高學歷</label>
                                             <select class="form-select form-select-sm" id="form-highest-education">
                                                 <option value="" selected>(未填寫)</option>
@@ -660,7 +677,14 @@
                                                 <option value="未就學">未就學</option>
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-4">
+                                        <div class="col-12 col-md-9">
+                                            <label class="form-label">最高學校</label>
+                                            <input type="text" class="form-control form-control-sm" id="form-graduated-school" placeholder="如：國立成功大學">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12 col-md-3">
                                             <label class="form-label">修業狀態</label>
                                             <select class="form-select form-select-sm" id="form-graduation-status">
                                                 <option value="" selected>(未設定)</option>
@@ -672,37 +696,36 @@
                                                 <option value="其他">其他</option>
                                             </select>
                                         </div>
-                                        <div class="col-12 col-md-4">
-                                            <label class="form-label">最高就讀學校</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-graduated-school" placeholder="如：國立成功大學">
-                                        </div>
-                                    </div>
-
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-12">
-                                            <label class="form-label">職業背景 / 現任行業</label>
-                                            <input type="text" class="form-control form-control-sm" id="form-occupation-background" placeholder="如：軟體工程師、通訊行負責人、全職媽媽">
+                                        <div class="col-12 col-md-9">
+                                            <label class="form-label">職業背景</label>
+                                            <input type="text" class="form-control form-control-sm" id="form-occupation-background" placeholder="如：資深軟體工程師、護理師">
                                         </div>
                                     </div>
 
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small text-primary mb-1"><i class="fa-solid fa-user-graduate me-1"></i>學經歷備註</label>
+                                            <label class="form-label">學經歷備註</label>
                                             <textarea class="form-control form-control-sm" id="form-career-education-notes" rows="2" placeholder="記錄過往專業專長、行業人脈與跨界歷練..."></textarea>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small text-danger mb-1"><i class="fa-solid fa-heart-pulse me-1"></i>健康備註</label>
+                                            <label class="form-label">健康備註</label>
                                             <textarea class="form-control form-control-sm" id="form-health-notes" rows="2" placeholder="記錄健康調理訴求、過敏成份禁忌..."></textarea>
                                         </div>
                                     </div>
                                     <div class="row g-2 mb-2">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small text-warning mb-1"><i class="fa-solid fa-wallet me-1"></i>財務備註</label>
+                                            <label class="form-label">財務備註</label>
                                             <textarea class="form-control form-control-sm" id="form-financial-notes" rows="2" placeholder="記錄財務現況、增收意願與創業企圖心..."></textarea>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small text-info mb-1"><i class="fa-solid fa-cart-shopping me-1"></i>消費備註</label>
+                                            <label class="form-label">消費備註</label>
                                             <textarea class="form-control form-control-sm" id="form-consumption-notes" rows="2" placeholder="記錄自用偏好、常態回購產品系列與使用週期..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12">
+                                            <label class="form-label">備註</label>
+                                            <textarea class="form-control form-control-sm" id="form-notes" rows="2" placeholder="記錄個人通用備註..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -722,14 +745,14 @@
             </div>
         </div>
 
-        <!-- 5. 自然人全景檔案檢視視窗 Modal -->
+        <!-- 5. 自然人全景檔案檢視視窗 Modal (對齊 org-partners，個人主檔全幅 col-12，新增備註) -->
         <div class="modal fade" id="personViewModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <div class="d-flex align-items-center justify-content-between w-100">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge badge-primary-subtle"><i class="fa-solid fa-id-card-clip me-1"></i>自然人檔案</span>
+                                <span class="badge badge-outline-info-subtle"><i class="fa-solid fa-id-card-clip me-1"></i>自然人檔案</span>
                                 <span class="text-secondary" id="view-header-id">--</span>
                             </div>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="關閉"></button>
@@ -750,7 +773,7 @@
                                         <span id="view-identity-badge"></span>
                                         <span id="view-usage-badge"></span>
                                     </div>
-                                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 mb-2 text-secondary small">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 mb-2 text-secondary">
                                         <div><span>中文姓名：</span><strong class="text-white" id="view-name-zh">--</strong></div>
                                         <div><span>英文姓名：</span><strong class="text-white" id="view-name-en">--</strong></div>
                                         <div><span>常用稱呼：</span><strong class="text-white" id="view-name-pref">--</strong></div>
@@ -760,62 +783,70 @@
                             </div>
                         </div>
 
-                        <!-- 雙欄屬性卡片 -->
-                        <div class="row g-2 mb-2">
-                            <div class="col-12 col-md-6">
-                                <div class="dossier-sub-card h-100">
-                                    <div class="dossier-card-header"><i class="fa-solid fa-user-astronaut text-primary me-1"></i>生理與背景特質</div>
-                                    <div class="d-flex flex-column gap-2 small">
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">個人識別碼 (person_id)</span><span id="view-person-id">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">性別 / 生日 / 實歲</span><span id="view-gender-age">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">國籍 / 種族族裔</span><span id="view-nationality-ethnicity">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">婚姻狀態</span><span id="view-marital-status">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">存歿狀態</span><span id="view-life-status">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">家鄉 / 現居城市</span><span id="view-residence" class="fw-bold">--</span></div>
-                                    </div>
+                        <!-- 1. 個人主檔 -->
+                        <div class="dossier-sub-card p-3 mb-3">
+                            <div class="dossier-card-header mb-3"><i class="fa-solid fa-user-tag text-primary me-1"></i>個人主檔</div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">個人代碼 (person_id)</span><span id="view-person-id">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">身份類型 / 使用身份</span><span id="view-identity-usage">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">生理性別 / 生日 / 年齡</span><span id="view-gender-birthday-age">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">婚姻狀態</span><span id="view-marital-status">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">存歿狀態</span><span id="view-life-status">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">國籍 / 種族</span><span id="view-nationality-ethnicity">--</span></div>
                                 </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <div class="dossier-sub-card h-100">
-                                    <div class="dossier-card-header"><i class="fa-solid fa-handshake text-warning me-1"></i>關係機緣與學歷狀態</div>
-                                    <div class="d-flex flex-column gap-2 small">
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">認識日期</span><span id="view-met-date">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">認識原因</span><span id="view-met-reason" class="text-end" style="max-width: 65%;">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">最高學歷 / 修業狀態</span><span id="view-education-status">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">最高就讀學校</span><span id="view-school">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">職業背景</span><span id="view-occupation">--</span></div>
-                                        <div class="d-flex justify-content-between"><span class="text-secondary">主要地址</span><span id="view-address" class="text-end" style="max-width: 65%;">--</span></div>
-                                    </div>
+                                <div class="col-12 col-md-6 d-flex flex-column gap-2">
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">家鄉 / 現居住地</span><span id="view-residence" class="fw-bold">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">主要通訊地址</span><span id="view-contact-address" class="text-end" style="max-width: 60%;">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">認識時間</span><span id="view-met-date">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">認識原因</span><span id="view-met-reason" class="text-end" style="max-width: 60%;">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">健康狀況</span><span id="view-health-status">--</span></div>
+                                    <div class="d-flex justify-content-between"><span class="text-secondary">財務狀況</span><span id="view-financial-status">--</span></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 通訊與語言雙欄 -->
-                        <div class="row g-2 mb-2">
+                        <!-- 2. 通訊資料與語言矩陣 (雙欄結構) -->
+                        <div class="row g-2 mb-3">
                             <div class="col-12 col-md-6">
                                 <div class="dossier-sub-card h-100">
-                                    <div class="dossier-card-header"><i class="fa-solid fa-share-nodes text-info me-1"></i>通訊與社交渠道</div>
-                                    <div class="d-flex flex-column gap-2 small">
+                                    <div class="dossier-card-header"><i class="fa-solid fa-address-book text-info me-1"></i>通訊與社群管道</div>
+                                    <div class="d-flex flex-column gap-2">
                                         <div class="d-flex justify-content-between py-1 border-bottom border-secondary border-opacity-10"><span class="text-secondary">主要電話</span><span id="view-phone" class="fw-bold">--</span></div>
                                         <div class="d-flex justify-content-between py-1 border-bottom border-secondary border-opacity-10"><span class="text-secondary">主要信箱</span><span id="view-email">--</span></div>
-                                        <div id="view-contacts-wrap" class="d-flex flex-column gap-1 pt-1"></div>
+                                        <div id="view-contacts-list-wrap" class="d-flex flex-column gap-1 pt-1"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="dossier-sub-card h-100">
-                                    <div class="dossier-card-header"><i class="fa-solid fa-language text-purple me-1"></i>跨國語言矩陣</div>
-                                    <div id="view-languages-wrap" class="d-flex flex-column gap-2 small"></div>
+                                    <div class="dossier-card-header"><i class="fa-solid fa-language text-purple me-1"></i>語言溝通列表</div>
+                                    <div id="view-languages-list-wrap" class="d-flex flex-column gap-2"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 四重專用備忘 -->
-                        <div class="row g-2">
+                        <!-- 3. 學經歷背景 (與 org-partners 完全對齊) -->
+                        <div class="dossier-sub-card p-3 mb-3">
+                            <div class="dossier-card-header mb-3"><i class="fa-solid fa-graduation-cap text-success me-1"></i>學經歷背景</div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-12 col-md-6 d-flex align-items-center">
+                                    <span class="text-secondary">最高學歷：</span>
+                                    <span id="view-education">--</span>
+                                </div>
+                                <div class="col-12 col-md-6 d-flex align-items-center">
+                                    <span class="text-secondary">職業背景：</span>
+                                    <span id="view-occupation">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. 四大備忘註記 -->
+                        <div class="row g-2 mb-2">
                             <div class="col-12 col-md-6">
                                 <div class="dossier-sub-card p-3 h-100">
-                                    <div class="dossier-card-header mb-1 text-primary"><i class="fa-solid fa-user-graduate me-1"></i>學經歷備註</div>
-                                    <div class="dossier-text-block" id="view-career-notes">--</div>
+                                    <div class="dossier-card-header mb-1 text-success"><i class="fa-solid fa-user-graduate me-1"></i>學經歷備註</div>
+                                    <div class="dossier-text-block" id="view-career-education-notes">--</div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
@@ -826,7 +857,7 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="dossier-sub-card p-3 h-100">
-                                    <div class="dossier-card-header mb-1 text-warning"><i class="fa-solid fa-wallet me-1"></i>財務備註</div>
+                                    <div class="dossier-card-header mb-1 text-accent"><i class="fa-solid fa-wallet me-1"></i>財務備註</div>
                                     <div class="dossier-text-block" id="view-financial-notes">--</div>
                                 </div>
                             </div>
@@ -836,6 +867,12 @@
                                     <div class="dossier-text-block" id="view-consumption-notes">--</div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- 5. 個人通用備註 (全幅 col-12) -->
+                        <div class="dossier-sub-card p-3">
+                            <div class="dossier-card-header mb-1 text-light"><i class="fa-solid fa-comment-dots text-primary me-1"></i>個人備註</div>
+                            <div class="dossier-text-block" id="view-notes">--</div>
                         </div>
                     </div>
 
@@ -850,6 +887,5 @@
                 </section>
             </div>
         </div>
-        
     </body>
 </html>

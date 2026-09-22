@@ -6,7 +6,7 @@ const SPREADSHEET_ID = {
 };
 
 const SHEET_NAMES = {
-    RANKS: '職級主檔'
+    RANKS: APP_CONFIG.SHEET_NAMES.ORG.RANKS
 };
 
 // ==========================================================================

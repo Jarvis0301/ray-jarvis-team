@@ -10,11 +10,11 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    ITEMS: '產品主檔',
-    DETAILS: '產品詳細資料',
-    CATEGORIES: '產品主系列',
-    SUBCATEGORIES: '產品次系列',
-    TYPES: '產品型態'
+    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS,
+    DETAILS: APP_CONFIG.SHEET_NAMES.PRD.DETAILS,
+    CATEGORIES: APP_CONFIG.SHEET_NAMES.PRD.CATEGORIES,
+    SUBCATEGORIES: APP_CONFIG.SHEET_NAMES.PRD.SUBCATEGORIES,
+    TYPES: APP_CONFIG.SHEET_NAMES.PRD.TYPES
 };
 
 /**
@@ -106,7 +106,7 @@ async function fetchGoogleSheetsData() {
 
     try {
         const [rawItems, rawDetails, rawCats, rawSubcats, rawTypes] = await Promise.all([
-            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.ITEMS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.PRODUCTS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.DETAILS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.CATEGORIES).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PRD, SHEET_NAMES.SUBCATEGORIES).catch(() => []),
@@ -1686,7 +1686,7 @@ async function saveProductItem() {
 
         if (mode === 'add') {
             await Promise.all([
-                SheetAdapter.createRow(SHEET_NAMES.ITEMS, productCode, itemsRowArray, GAS_DEPLOY_ID.PRD),
+                SheetAdapter.createRow(SHEET_NAMES.PRODUCTS, productCode, itemsRowArray, GAS_DEPLOY_ID.PRD),
                 SheetAdapter.createRow(SHEET_NAMES.DETAILS, productCode, detailsRowArray, GAS_DEPLOY_ID.PRD)
             ]);
             // 組裝新物件推入本地陣列置頂
@@ -1695,7 +1695,7 @@ async function saveProductItem() {
             appState.products.unshift({ ...newProd, ...newDetail, product_code: productCode });
         } else {
             await Promise.all([
-                SheetAdapter.updateRow(SHEET_NAMES.ITEMS, productCode, itemsRowArray, GAS_DEPLOY_ID.PRD),
+                SheetAdapter.updateRow(SHEET_NAMES.PRODUCTS, productCode, itemsRowArray, GAS_DEPLOY_ID.PRD),
                 SheetAdapter.updateRow(SHEET_NAMES.DETAILS, productCode, detailsRowArray, GAS_DEPLOY_ID.PRD)
             ]);
             const pIdx = appState.products.findIndex(p => p.product_code === productCode);
@@ -1729,7 +1729,7 @@ function deleteProductItem(productCode) {
         async function () {
             try {
                 await Promise.all([
-                    SheetAdapter.deleteRow(SHEET_NAMES.ITEMS, item.product_code, GAS_DEPLOY_ID.PRD),
+                    SheetAdapter.deleteRow(SHEET_NAMES.PRODUCTS, item.product_code, GAS_DEPLOY_ID.PRD),
                     SheetAdapter.deleteRow(SHEET_NAMES.DETAILS, item.product_code, GAS_DEPLOY_ID.PRD)
                 ]);
                 // 記憶體過濾移除該項目

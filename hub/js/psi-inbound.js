@@ -13,18 +13,20 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    WAREHOUSES: '據點倉儲',
-    INBOUNDS: '進貨主檔',
-    INBOUND_ITEMS: '進貨明細',
-    PERSONS: '個人主檔',
-    PARTNERS: '夥伴主檔',
-    PRODUCTS: '產品主檔'
+    WAREHOUSES: APP_CONFIG.SHEET_NAMES.PSI.WAREHOUSES,
+    STOCKS: APP_CONFIG.SHEET_NAMES.PSI.STOCKS,
+    INBOUNDS: APP_CONFIG.SHEET_NAMES.PSI.INBOUND_ORDERS,
+    INBOUND_ITEMS: APP_CONFIG.SHEET_NAMES.PSI.INBOUND_ITEMS,
+    PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON,
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,
+    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS
 };
 
 // 系統資料狀態庫
 let appState = {
     inbounds: [],
     inboundItems: [],
+    stocks: [],
     warehouses: [],
     persons: [],
     partners: [],
@@ -57,7 +59,7 @@ let stagingInboundItems = [];
 let deletedInboundItemIds = [];
 
 // ==========================================================================
-// 2. 欄位物理索引取值器 (0-Based 絕對物理順序)
+// 2. 輔助與欄位取值器
 // ==========================================================================
 /**
  * 解析訂購中心顯示名稱
@@ -88,7 +90,7 @@ function normalizeOrderCenterId(centerVal) {
 }
 
 // ==========================================================================
-// 4. 生命週期與資料載入引擎 (跨試算表物理順序讀取)
+// 3. 生命週期與資料載入引擎 (跨試算表物理順序讀取)
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
@@ -106,14 +108,15 @@ async function initInboundApp() {
 }
 
 /**
- * 資料讀取與同步中樞
+ * 資料讀取與同步中樞 (並行讀取 7 大核心工作表)
  */
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
 
     try {
-        const [rawWarehouses, rawInbounds, rawInboundItems, rawPersons, rawPartners, rawProducts] = await Promise.all([
+        const [rawWarehouses, rawStocks, rawInbounds, rawInboundItems, rawPersons, rawPartners, rawProducts] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.WAREHOUSES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.STOCKS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.INBOUNDS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.INBOUND_ITEMS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
@@ -123,6 +126,7 @@ async function fetchGoogleSheetsData() {
 
         parseAllData({
             rawWarehouses,
+            rawStocks,
             rawInbounds,
             rawInboundItems,
             rawPersons,
@@ -131,7 +135,7 @@ async function fetchGoogleSheetsData() {
         });
 
         refreshAllViews();
-        AppToast.success(`已完成 3 大試算表連動同步 (${appState.inbounds.length} 筆進貨單據)`);
+        AppToast.success(`已完成 4 大試算表連動同步 (${appState.inbounds.length} 筆進貨單據，${appState.stocks.length} 筆在庫批號)`);
     } catch (err) {
         console.error("試算表同步異常:", err);
         AppToast.error("部分試算表連線失敗，請檢查試算表 ID 與共用權限");
@@ -153,7 +157,29 @@ function parseAllData(data) {
         is_active: getVal(r, 9, 'Y')
     })).filter(w => w.id !== '' && (w.is_active === 'Y' || w.is_active === 'TRUE' || w.is_active === true));
 
-    // 2. 個人主檔 (表 201)
+    // 2. 庫存主檔 (表 302: psi_stocks，0~17 實體物理欄位)
+    appState.stocks = (data.rawStocks || []).map(r => ({
+        id: getVal(r, 0),
+        warehouse_id: getVal(r, 1),
+        product_id: getVal(r, 2),
+        batch_no: getVal(r, 3),
+        expiry_date: getVal(r, 4),
+        quantity: parseInt(getVal(r, 5, '0'), 10) || 0,
+        pieces_qty: parseInt(getVal(r, 6, '0'), 10) || 0,
+        reserved_qty: parseInt(getVal(r, 7, '0'), 10) || 0,
+        available_qty: parseInt(getVal(r, 8, '0'), 10) || 0,
+        currency_code: getVal(r, 9, 'TWD'),
+        cost_price: parseFloat(getVal(r, 10, '0')) || 0,
+        sv_point: parseFloat(getVal(r, 11, '0')) || 0,
+        is_locked: getVal(r, 12, 'N'),
+        remarks: getVal(r, 13, ''),
+        created_by: getVal(r, 14, 'SYSTEM'),
+        created_at: getVal(r, 15, ''),
+        modified_by: getVal(r, 16, 'SYSTEM'),
+        modified_at: getVal(r, 17, '')
+    })).filter(s => s.id !== '');
+
+    // 3. 個人主檔 (表 201)
     appState.persons = (data.rawPersons || []).map(r => ({
         person_id: getVal(r, 0),
         name_zh: getVal(r, 1),
@@ -162,7 +188,7 @@ function parseAllData(data) {
         display_name: getVal(r, 4)
     })).filter(p => p.person_id !== '');
 
-    // 3. 夥伴主檔 (表 202)
+    // 4. 夥伴主檔 (表 202)
     appState.partners = (data.rawPartners || []).map(r => ({
         partner_id: getVal(r, 0),
         person_id: getVal(r, 1),
@@ -170,7 +196,7 @@ function parseAllData(data) {
         name_zh: getVal(r, 4)
     })).filter(p => p.partner_id !== '');
 
-    // 4. 產品主檔 (表 101，對齊雙軌包裝 Schema)
+    // 5. 產品主檔 (表 101，對齊雙軌包裝 Schema)
     appState.products = (data.rawProducts || []).map(r => {
         const isNewSchema = r.length >= 19;
         return {
@@ -189,7 +215,7 @@ function parseAllData(data) {
         };
     }).filter(p => p.product_code !== '');
 
-    // 5. 進貨明細 (表 304: psi_inbound_items，0~22 欄位順序)
+    // 6. 進貨明細 (表 304: psi_inbound_items，0~22 欄位順序)
     appState.inboundItems = (data.rawInboundItems || []).map(r => ({
         id: getVal(r, 0),
         inbound_id: getVal(r, 1),
@@ -216,7 +242,7 @@ function parseAllData(data) {
         modified_at: getVal(r, 22)
     })).filter(item => item.id !== '');
 
-    // 6. 進貨主檔 (表 303: psi_inbounds，0~24 欄位順序)
+    // 7. 進貨主檔 (表 303: psi_inbounds，0~24 欄位順序)
     appState.inbounds = (data.rawInbounds || []).map(r => ({
         id: getVal(r, 0),
         official_order_no: getVal(r, 1),
@@ -247,7 +273,7 @@ function parseAllData(data) {
 }
 
 // ==========================================================================
-// 5. 畫面渲染與圖表更新
+// 4. 畫面渲染與圖表更新
 // ==========================================================================
 function refreshAllViews() {
     populateFilterOptions();
@@ -258,7 +284,6 @@ function refreshAllViews() {
 }
 
 function populateFilterOptions() {
-    // 頂部全域篩選下拉
     UISelectOptions.warehouse.populate({
         target: '#filterWarehouse',
         warehouses: appState.warehouses,
@@ -283,7 +308,6 @@ function populateFilterOptions() {
         searchable: true
     });
 
-    // Modal 選單
     UISelectOptions.warehouse.populate({
         target: '#fieldWarehouseId',
         warehouses: appState.warehouses,
@@ -380,8 +404,8 @@ function renderCharts() {
                         backgroundColor: 'rgba(139, 92, 246, 0.15)',
                         pointBackgroundColor: '#8b5cf6',
                         borderWidth: 2.5,
-                        fill: false,      // 線條下方不填色
-                        tension: 0,       // 線條不要有曲率
+                        fill: false,
+                        tension: 0,
                         yAxisID: 'y'
                     },
                     {
@@ -391,8 +415,8 @@ function renderCharts() {
                         backgroundColor: 'rgba(52, 211, 153, 0.12)',
                         pointBackgroundColor: '#34d399',
                         borderWidth: 2.5,
-                        fill: false,      // 線條下方不填色
-                        tension: 0,       // 線條不要有曲率
+                        fill: false,
+                        tension: 0,
                         yAxisID: 'y1'
                     }
                 ]
@@ -691,14 +715,14 @@ function formatTableRow(item) {
             <div>
                 <span class="text-white">${warehouseOnlyName}</span>
                 <div class="text-info small mt-1">
-                    <i class="fa-solid fa-arrow-down-long me-1"></i>${centerDisplayName} / <i class="fa-solid fa-truck me-1"></i>${item.delivery_method || '-'}
+                    <i class="fa-solid fa-arrow-down-long me-1"></i> ${centerDisplayName} / <i class="fa-solid fa-truck me-1"></i> ${item.delivery_method || '-'}
                 </div>
             </div>
         `,
         four_flow: `
             <div>
-                <div class="small"><i class="fa-solid fa-credit-card text-secondary me-1"></i>出資：<span class="text-white fw-bold">${purchaserName}</span></div>
-                <div class="small"><i class="fa-solid fa-award text-warning me-1"></i>掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
+                <div class="small"><i class="fa-solid fa-credit-card text-secondary me-1"></i> 出資：<span class="text-white fw-bold">${purchaserName}</span></div>
+                <div class="small"><i class="fa-solid fa-award text-warning me-1"></i> 掛點：<span class="text-warning fw-bold">${svOwnerName}</span></div>
                 ${isDecoupled ? '<span class="badge badge-danger-subtle mt-1">四流分離</span>' : ''}
             </div>
         `,
@@ -713,7 +737,7 @@ function formatTableRow(item) {
         cost_breakdown: `
             <div>
                 <div class="fw-bold text-orange">${formatCurrency(item.total_cost_amount, curr)}</div>
-                ${item.shipping_fee>0 ? `
+                ${item.shipping_fee > 0 ? `
                     <div class="text-secondary small">產品：${formatCurrency(item.product_amount, curr)}</div>
                     <div class="text-secondary small">運雜：${formatCurrency(item.shipping_fee, curr)}</div>
                 ` : ''}
@@ -726,7 +750,7 @@ function formatTableRow(item) {
 }
 
 // ==========================================================================
-// 6. 互動與表單事件管理
+// 5. 互動與表單事件管理
 // ==========================================================================
 function initFormEvents() {
     $('#filterOrderDateStart, #filterOrderDateEnd, #filterPerformanceMonth, #filterWarehouse, #filterPurchaser, #filterSvOwner').on('change input', function () {
@@ -740,12 +764,10 @@ function initFormEvents() {
         applyFilters();
     });
 
-    // ★ 新增：開單表單「訂購日期」變動時，即時推導並鎖定業績月份
     $('#fieldOrderDate').on('change input', function () {
         const orderDate = $(this).val();
         if (!orderDate) return;
 
-        // 若 AppDate 已載入日曆則調用解析器，否則降級取日期前 7 碼
         const targetMonth = (window.AppDate && typeof AppDate.resolvePerfMonth === 'function')
             ? AppDate.resolvePerfMonth(orderDate)
             : orderDate.substring(0, 7);
@@ -781,15 +803,11 @@ function applyFilters() {
     }
 }
 
-/**
- * 母單實付總額試算 (商品金額 + 運費/雜費)
- */
 function calculateTotalCost() {
     const rawProduct = parseFloat($('#fieldRawProductAmount').val()) || 0;
     const rawShipping = parseFloat($('#fieldRawShippingFee').val()) || 0;
     const curr = $('#fieldCurrencyCode').val() || 'TWD';
 
-    // 調用 AppCalc 安全加法，消除尾差
     const total = AppCalc.add(rawProduct, rawShipping);
 
     $('#fieldRawTotalCostAmount').val(total);
@@ -797,7 +815,7 @@ function calculateTotalCost() {
 }
 
 function openAddModal() {
-    $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增進貨入庫單據');
+    $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i> 新增進貨入庫單據');
     $('#formMode').val('add');
     $('#inboundForm')[0].reset();
 
@@ -810,7 +828,6 @@ function openAddModal() {
     const todayInput = AppDate.now('input');
     $('#fieldOrderDate').val(todayInput);
 
-    // ★ 依初始訂購日期動態推導業績月份
     const initPerfMonth = (window.AppDate && typeof AppDate.resolvePerfMonth === 'function')
         ? AppDate.resolvePerfMonth(todayInput)
         : AppDate.now('month');
@@ -828,7 +845,6 @@ function openAddModal() {
     });
     $('#fieldWarehouseId').val(firstPrivateWh ? firstPrivateWh.id : '').trigger('change.select2');
 
-    // 格式化唯讀財務欄位重置
     const defaultCurr = 'TWD';
     $('#fieldRawProductAmount').val(0);
     $('#fieldProductAmount').val(formatCurrency(0, defaultCurr)).data('raw-amount', 0);
@@ -840,8 +856,6 @@ function openAddModal() {
     $('#fieldTotalCostAmount').val(formatCurrency(0, defaultCurr)).data('raw-amount', 0);
 
     $('#fieldTotalBoxes').val('0');
-
-    // 考核總 SV 採用精密計算格式
     $('#fieldRawTotalSv').val(0);
     $('#fieldTotalSv').val('0 SV');
 
@@ -852,7 +866,7 @@ function openEditModal(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
 
-    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯進貨單據');
+    $('#modalTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯進貨單據');
     $('#formMode').val('edit');
 
     $('#fieldId').val(item.id);
@@ -877,7 +891,6 @@ function openEditModal(orderId) {
 
     const curr = item.currency_code || 'TWD';
 
-    // 依明細即時重核算商品小計與非商品運雜費
     const matchedItems = appState.inboundItems.filter(it => it.inbound_id === orderId);
     let prodAmt = 0;
     let feeAmt = 0;
@@ -907,7 +920,6 @@ function openEditModal(orderId) {
 
     const totalCostAmt = AppCalc.add(prodAmt, feeAmt);
 
-    // 格式化反顯純商品金額、運雜費與實付總額
     $('#fieldRawProductAmount').val(prodAmt);
     $('#fieldProductAmount').val(formatCurrency(prodAmt, curr)).data('raw-amount', prodAmt);
 
@@ -918,8 +930,6 @@ function openEditModal(orderId) {
     $('#fieldTotalCostAmount').val(formatCurrency(totalCostAmt, curr)).data('raw-amount', totalCostAmt);
 
     $('#fieldTotalBoxes').val(totalBoxes);
-
-    // 考核總 SV 採用精密計算格式化反顯
     $('#fieldRawTotalSv').val(totalSv);
     $('#fieldTotalSv').val(`${AppCalc.formatSV(totalSv, 'INTERNAL')} SV`);
 
@@ -950,7 +960,6 @@ function openDetailModal(orderId) {
 
     populateLinkedProductOptions(item.order_center);
 
-    // 深拷貝至前端暫存區
     const matchedItems = appState.inboundItems.filter(it => it.inbound_id === orderId);
     stagingInboundItems = JSON.parse(JSON.stringify(matchedItems));
     deletedInboundItemIds = [];
@@ -959,9 +968,6 @@ function openDetailModal(orderId) {
     new bootstrap.Modal(document.getElementById('inboundDetailModal')).show();
 }
 
-/**
- * 依據暫存陣列渲染明細列表與核算統計數值
- */
 function renderInboundItemsTableFromStaging(isLocked) {
     const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
     const curr = (parentOrder && parentOrder.currency_code === 'MYR') ? 'MYR' : 'TWD';
@@ -974,7 +980,7 @@ function renderInboundItemsTableFromStaging(isLocked) {
     let sumSv = 0;
 
     if (stagingInboundItems.length === 0) {
-        $tbody.append('<tr><td colspan="13" class="text-center text-secondary py-3">本單據暫無細項明細數據（尚未儲存）</td></tr>');
+        $tbody.append('<tr><td colspan="11" class="text-center text-secondary py-3">本單據暫無細項明細數據（尚未儲存）</td></tr>');
     } else {
         stagingInboundItems.forEach(it => {
             sumOrdered = AppCalc.add(sumOrdered, parseInt(it.ordered_qty, 10) || 0);
@@ -986,7 +992,7 @@ function renderInboundItemsTableFromStaging(isLocked) {
             const delBtnDisabled = isLocked ? 'disabled' : '';
 
             const stockBadge = it.stock_id 
-                ? `<span class="text-info-emphasis">${it.stock_id}</span>`
+                ? `<span class="badge badge-primary-subtle font-monospace">${it.stock_id}</span>`
                 : '<span class="text-secondary small">未入庫</span>';
 
             $tbody.append(`
@@ -1031,9 +1037,8 @@ function renderInboundItemsTableFromStaging(isLocked) {
 }
 
 // ==========================================================================
-// 7. 明細暫存池 (In-Memory Staging) 操作模組 (保證不即時發送網路請求)
+// 6. 明細暫存池 (In-Memory Staging) 操作模組
 // ==========================================================================
-
 function toggleInlineItemForm() {
     const $collapse = $('#itemInlineFormCollapse');
     if ($collapse.hasClass('show')) {
@@ -1044,7 +1049,7 @@ function toggleInlineItemForm() {
 }
 
 function openInlineAddForm() {
-    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增明細項目');
+    $('#inlineFormTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i> 新增明細項目');
     $('#inlineItemId').val('');
     $('#inlineItemForm')[0].reset();
 
@@ -1053,7 +1058,6 @@ function openInlineAddForm() {
 
     $('#inlineFieldProduct').val('').trigger('change.select2');
 
-    // ★ 初始化唯讀文字格式與隱藏純數值
     $('#inlineFieldCurrencyText').text(curr);
     $('#inlineFieldCurrency').val(curr);
     $('#inlineFieldUnitCost').val('0').prop('readonly', false);
@@ -1083,7 +1087,7 @@ function editInlineItem(itemId) {
     const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
     const curr = parentOrder ? (parentOrder.currency_code || 'TWD') : 'TWD';
 
-    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯明細項目【項次 ${item.item_seq}】`);
+    $('#inlineFormTitle').html(`<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯明細項目【項次 ${item.item_seq}】`);
     $('#inlineItemId').val(item.id);
 
     const isFee = item.is_fee_item === 'Y';
@@ -1100,7 +1104,6 @@ function editInlineItem(itemId) {
     $('#inlineFieldProduct').val(targetCode).trigger('change.select2');
     $('#inlineFieldIsFee').val(item.is_fee_item);
 
-    // ★ 幣別前綴與單價、SV 反顯（維持可修改狀態）
     const costVal = parseFloat(item.unit_cost) || 0;
     const svVal = parseFloat(item.unit_sv) || 0;
 
@@ -1124,9 +1127,6 @@ function editInlineItem(itemId) {
     $('#itemInlineFormCollapse').collapse('show');
 }
 
-/**
- * 行內明細暫存儲存 (純前端陣列更新，不發送網路請求)
- */
 function saveInlineItem() {
     if (!currentDetailOrderId) return;
 
@@ -1163,7 +1163,6 @@ function saveInlineItem() {
         prdId = prod ? prod.product_code : productCode;
     }
 
-    // ★ 直接自數字輸入框讀取使用者可能手動修訂的數值（例如贈品輸入 0）
     const unitCost = parseFloat($('#inlineFieldUnitCost').val()) || 0;
     const unitSv = parseFloat($('#inlineFieldUnitSv').val()) || 0;
     const currency = $('#inlineFieldCurrency').val() || 'TWD';
@@ -1174,7 +1173,6 @@ function saveInlineItem() {
     const remarks = $('#inlineFieldRemarks').val().trim();
     const effectiveQty = receivedQty > 0 ? receivedQty : orderedQty;
 
-    // ★ 調用 AppCalc 高精度計算
     const subtotalAmount = AppCalc.multiply(effectiveQty, unitCost, 2);
     const subtotalSv = AppCalc.multiply(effectiveQty, unitSv, 2);
 
@@ -1193,8 +1191,8 @@ function saveInlineItem() {
             product_id: prdId,
             is_fee_item: isFee,
             currency_code: currency,
-            unit_cost: unitCost,     // 純浮點數
-            unit_sv: unitSv,         // 純數值
+            unit_cost: unitCost,
+            unit_sv: unitSv,
             ordered_qty: orderedQty,
             official_shipped_qty: orderedQty,
             received_qty: receivedQty,
@@ -1233,9 +1231,6 @@ function saveInlineItem() {
     renderInboundItemsTableFromStaging(false);
 }
 
-/**
- * 行內明細暫存刪除 (不發送網路請求)
- */
 function deleteInlineItem(itemId) {
     const idx = stagingInboundItems.findIndex(it => it.id === itemId);
     if (idx === -1) return;
@@ -1254,9 +1249,6 @@ function deleteInlineItem(itemId) {
     AppToast.info("明細已自暫存清單移除（尚未儲存至雲端）");
 }
 
-/**
- * 右下角【儲存明細清單變更】：唯一向雲端批次寫入之出入口
- */
 async function saveAllInboundItems() {
     if (!currentDetailOrderId) return;
     const parentInbound = appState.inbounds.find(d => d.id === currentDetailOrderId);
@@ -1264,7 +1256,7 @@ async function saveAllInboundItems() {
 
     const $btn = $('#btnSaveAllInboundItems');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>正在批次寫入雲端...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 正在批次寫入雲端...');
         const currentUser = getCurrentUser();
         const nowStr = AppDate.now('full');
 
@@ -1318,7 +1310,7 @@ async function saveAllInboundItems() {
             }
         }
 
-        // 3. 自動依明細透過 AppCalc 重算母單數值
+        // 3. 自動依明細重算母單財務數值
         let calcProductAmount = 0;
         let calcShippingFee = 0;
         let calcTotalBoxes = 0;
@@ -1379,7 +1371,7 @@ async function saveAllInboundItems() {
 
         await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, parentInbound.id, parentRowData, GAS_DEPLOY_ID.PSI);
 
-        // 同步前端明細記憶體：移除已刪除者、替換修改與新增項目
+        // 同步前端明細記憶體
         appState.inboundItems = appState.inboundItems.filter(it => it.inbound_id !== currentDetailOrderId);
         stagingInboundItems.forEach((it, i) => {
             const finalSeq = i + 1;
@@ -1394,21 +1386,19 @@ async function saveAllInboundItems() {
         });
 
         bootstrap.Modal.getInstance(document.getElementById('inboundDetailModal')).hide();
-        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
         refreshAllViews();
         AppToast.success(`進貨單【${currentDetailOrderId}】全體明細已一次性同步儲存完成！`);
     } catch (err) {
         console.error("批次儲存明細失敗:", err);
         AppToast.error("批次儲存明細失敗：" + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存明細清單變更');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存明細清單變更');
     }
 }
 
 // ==========================================================================
-// 8. 產品與費用選單關聯 (對齊 psi-outbound 規範)
+// 7. 產品與費用選單關聯
 // ==========================================================================
-
 function populateLinkedProductOptions(orderCenter) {
     const parentOrder = appState.inbounds.find(d => d.id === currentDetailOrderId);
     const isMalaysia = String(orderCenter || (parentOrder ? parentOrder.currency_code : '')).includes('(MY)') || 
@@ -1455,9 +1445,6 @@ function populateLinkedProductOptions(orderCenter) {
     });
 }
 
-/**
- * 品項選定連動：鎖定進貨單價與 SV，推算並開放編輯批號與效期
- */
 function onInlineProductSelectChange() {
     const productCode = $('#inlineFieldProduct').val();
     if (!productCode) return;
@@ -1469,12 +1456,10 @@ function onInlineProductSelectChange() {
 
     const orderDateStr = (parentOrder && parentOrder.order_date) ? parentOrder.order_date : AppDate.now('input');
 
-    // ★ 1. 幣別前綴連動
     $('#inlineFieldCurrencyText').text(curr);
     $('#inlineFieldCurrency').val(curr);
 
     if (isFee) {
-        // 費用項目：無批號與效期，單價帶入預設規費但允許調整，單件 SV 預設為 0
         $('#inlineFieldIsFee').val('Y');
         const feePrice = parseFloat($opt.data('price')) || 0;
 
@@ -1484,21 +1469,17 @@ function onInlineProductSelectChange() {
         $('#inlineFieldBatchNo').val('').prop('readonly', true).attr('placeholder', '非實體商品無批號');
         $('#inlineFieldExpiryDate').val('').prop('readonly', true);
     } else {
-        // 實體商品：自動帶出官方經理進貨成本與考核 SV，但開放手動修改（滿額贈品可直接改為 0）
         $('#inlineFieldIsFee').val('N');
         const prod = appState.products.find(p => p.product_code === productCode);
         const unitCost = prod ? (parseFloat(prod.price) || 0) : (parseFloat($opt.data('price')) || 0);
         const unitSv = prod ? (parseFloat(prod.sv_point) || 0) : (parseFloat($opt.data('sv')) || 0);
 
-        // ★ 自動填入但開放使用者修改
         $('#inlineFieldUnitCost').val(unitCost).prop('readonly', false);
         $('#inlineFieldUnitSv').val(unitSv).prop('readonly', false);
 
-        // 生產批號（可修改：自動預填建議批號 LOT+年月+A）
         const defaultBatch = `LOT${AppDate.toClean6(orderDateStr)}A`;
         $('#inlineFieldBatchNo').val(defaultBatch).prop('readonly', false).attr('placeholder', '外盒鋼印批號');
 
-        // 有效日期（可修改：預設自動推算 2 年效期）
         const p = AppDate.parse(orderDateStr) || AppDate.parse(new Date());
         const expYear = parseInt(p.year, 10) + 2;
         const defaultExpiry = `${expYear}-${p.month || '01'}-${p.day || '01'}`;
@@ -1507,9 +1488,8 @@ function onInlineProductSelectChange() {
 }
 
 // ==========================================================================
-// 9. 訂購中心選單與連動
+// 8. 訂購中心選單與連動
 // ==========================================================================
-
 function populateOrderCenterOptions(selectedValue = '網路 (TW)') {
     const officialCenters = appState.warehouses.filter(wh => {
         const type = String(wh.warehouse_type || '').toUpperCase();
@@ -1570,9 +1550,162 @@ function syncCurrencyAndDeliveryByCenter(centerVal) {
 }
 
 // ==========================================================================
+// 9. 庫存主檔 (psi_stocks) 連動寫入中樞 (進貨驗收自動歸戶)
+// ==========================================================================
+/**
+ * 自動生成定長 17 碼標準庫存主鍵 (STK-YYYYMMDD-XXXX)
+ */
+function generateNextStockId(targetDateStr) {
+    const cleanDate = targetDateStr ? AppDate.toClean8(targetDateStr) : AppDate.toClean8();
+    const prefix = `STK-${cleanDate}-`;
+    const todayMatches = appState.stocks.filter(s => s.id && s.id.startsWith(prefix));
+    
+    let maxSeq = 0;
+    todayMatches.forEach(s => {
+        const parts = s.id.split('-');
+        if (parts.length === 3) {
+            const seq = parseInt(parts[2], 10);
+            if (!isNaN(seq) && seq > maxSeq) {
+                maxSeq = seq;
+            }
+        }
+    });
+
+    const nextSeq = String(maxSeq + 1).padStart(4, '0');
+    return `${prefix}${nextSeq}`;
+}
+
+/**
+ * 執行進貨單驗收入庫管線：
+ * 走訪明細 -> 過濾費用項目 -> 表 302 庫存 Upsert -> 表 304 回填 stock_id
+ */
+async function syncInboundOrderToStocks(orderId, currentUser, nowStr, inboundDateSheet) {
+    const parentInbound = appState.inbounds.find(d => d.id === orderId);
+    if (!parentInbound) throw new Error(`找不到進貨單據【${orderId}】`);
+
+    // ★ 防禦 1：四流分離直寄判定（若直送客戶/下線家中，不入自營實體倉）
+    if (parentInbound.delivery_method === '運送' && parentInbound.warehouse_id === 'WH-TW-TRN-DIRECT') {
+        AppToast.info(`單據【${orderId}】為總公司宅配直送單，直接完成點數歸戶，不計入自營倉現貨。`);
+        return 0;
+    }
+
+    const items = appState.inboundItems.filter(it => it.inbound_id === orderId);
+    let updatedStockCount = 0;
+
+    for (let it of items) {
+        // 費用項目不入庫
+        if (it.is_fee_item === 'Y') continue;
+
+        // ★ 防禦 2：實收數量防呆（嚴禁將 0 盒自動補成訂購量）
+        const receivedQty = parseInt(it.received_qty, 10);
+        if (isNaN(receivedQty) || receivedQty <= 0) {
+            // 實收為 0 代表該批貨未到或欠貨，嚴禁生成幽靈庫存
+            continue;
+        }
+
+        // ★ 防禦 3：冪等性檢查（若本列明細已經配賦過 stock_id，禁止重複執行累加）
+        if (it.stock_id && it.stock_id.trim() !== '') {
+            console.warn(`明細【${it.id}】已存在庫存關聯【${it.stock_id}】，略過防範庫存重複暴增。`);
+            continue;
+        }
+
+        const batchNo = (it.batch_no && it.batch_no.trim()) 
+            ? it.batch_no.trim() 
+            : `LOT${AppDate.toClean6(parentInbound.order_date || inboundDateSheet)}A`;
+        const expiryDateVal = it.expiry_date ? AppDate.toSheet(it.expiry_date) : AppDate.toSheet(AppDate.addYears(new Date(), 2));
+
+        let existingStock = appState.stocks.find(s => 
+            s.warehouse_id === parentInbound.warehouse_id && 
+            s.product_id === it.product_id && 
+            s.batch_no === batchNo
+        );
+
+        let targetStockId = '';
+
+        if (existingStock) {
+            targetStockId = existingStock.id;
+            existingStock.quantity = AppCalc.add(existingStock.quantity, receivedQty);
+            existingStock.available_qty = existingStock.quantity - (existingStock.reserved_qty || 0);
+
+            // ★ 防禦 4：贈品 0 元成本保護（若進貨單價為 0，不覆寫原本的有效進貨成本）
+            if (parseFloat(it.unit_cost) > 0) {
+                existingStock.cost_price = it.unit_cost;
+            }
+            if (parseFloat(it.unit_sv) > 0) {
+                existingStock.sv_point = it.unit_sv;
+            }
+
+            existingStock.modified_by = currentUser;
+            existingStock.modified_at = nowStr;
+
+            const stockRowData = [
+                existingStock.id, existingStock.warehouse_id, existingStock.product_id,
+                existingStock.batch_no, existingStock.expiry_date, existingStock.quantity,
+                existingStock.pieces_qty || 0, existingStock.reserved_qty || 0, existingStock.available_qty,
+                existingStock.currency_code || 'TWD', existingStock.cost_price, existingStock.sv_point,
+                existingStock.is_locked || 'N', existingStock.remarks || '',
+                existingStock.created_by, existingStock.created_at, currentUser, nowStr
+            ];
+            await SheetAdapter.updateRow(SHEET_NAMES.STOCKS, existingStock.id, stockRowData, GAS_DEPLOY_ID.PSI);
+        } else {
+            // 新增全新批號
+            targetStockId = generateNextStockId(inboundDateSheet);
+            const newStockObj = {
+                id: targetStockId,
+                warehouse_id: parentInbound.warehouse_id,
+                product_id: it.product_id,
+                batch_no: batchNo,
+                expiry_date: expiryDateVal,
+                quantity: receivedQty,
+                pieces_qty: 0,
+                reserved_qty: 0,
+                available_qty: receivedQty,
+                currency_code: parentInbound.currency_code || 'TWD',
+                cost_price: it.unit_cost,
+                sv_point: it.unit_sv,
+                is_locked: 'N',
+                remarks: `源自進貨單【${orderId}】項次 ${it.item_seq}`,
+                created_by: currentUser,
+                created_at: nowStr,
+                modified_by: currentUser,
+                modified_at: nowStr
+            };
+
+            const newStockRowData = [
+                newStockObj.id, newStockObj.warehouse_id, newStockObj.product_id,
+                newStockObj.batch_no, newStockObj.expiry_date, newStockObj.quantity,
+                newStockObj.pieces_qty, newStockObj.reserved_qty, newStockObj.available_qty,
+                newStockObj.currency_code, newStockObj.cost_price, newStockObj.sv_point,
+                newStockObj.is_locked, newStockObj.remarks, currentUser, nowStr, currentUser, nowStr
+            ];
+            await SheetAdapter.createRow(SHEET_NAMES.STOCKS, targetStockId, newStockRowData, GAS_DEPLOY_ID.PSI);
+            appState.stocks.unshift(newStockObj);
+        }
+
+        // 回填明細關聯
+        it.received_qty = receivedQty;
+        it.stock_id = targetStockId;
+        it.modified_by = currentUser;
+        it.modified_at = nowStr;
+
+        const itemRowData = [
+            it.id, it.inbound_id, it.item_seq, it.official_product_code,
+            it.product_name_snapshot, it.product_id, it.is_fee_item,
+            it.currency_code || 'TWD', it.unit_cost, it.unit_sv, it.ordered_qty,
+            it.official_shipped_qty || it.ordered_qty, it.received_qty,
+            it.subtotal_amount, it.subtotal_sv, it.batch_no, it.expiry_date,
+            it.stock_id, it.remarks || '', it.created_by, it.created_at, currentUser, nowStr
+        ];
+        await SheetAdapter.updateRow(SHEET_NAMES.INBOUND_ITEMS, it.id, itemRowData, GAS_DEPLOY_ID.PSI);
+        updatedStockCount++;
+    }
+
+    return updatedStockCount;
+}
+
+// ==========================================================================
 // 10. 進貨主檔 C/R/U/D 與覆核操作
 // ==========================================================================
-
 async function saveInboundItem() {
     const mode = $('#formMode').val();
     const orderId = $('#fieldId').val().trim();
@@ -1634,6 +1767,8 @@ async function saveInboundItem() {
     const totalCostAmountVal = parseFloat($('#fieldRawTotalCostAmount').val()) || 0;
     const totalSvVal = parseFloat($('#fieldRawTotalSv').val()) || 0;
 
+    const newStatus = $('#fieldStatus').val();
+
     const rowDataArray = [
         orderId,
         $('#fieldOfficialOrderNo').val().trim(),
@@ -1654,7 +1789,7 @@ async function saveInboundItem() {
         parseInt($('#fieldTotalBoxes').val(), 10) || 0,
         $('#fieldOfficialShippingNo').val().trim(),
         shippingDateVal,
-        $('#fieldStatus').val(),
+        newStatus,
         $('#fieldRemarks').val().trim(),
         createdBy,
         createdAt,
@@ -1682,7 +1817,7 @@ async function saveInboundItem() {
         total_boxes: parseInt($('#fieldTotalBoxes').val(), 10) || 0,
         official_shipping_no: $('#fieldOfficialShippingNo').val().trim(),
         shipping_date: $('#fieldShippingDate').val(),
-        status: $('#fieldStatus').val(),
+        status: newStatus,
         remarks: $('#fieldRemarks').val().trim(),
         created_by: createdBy,
         created_at: createdAt,
@@ -1690,9 +1825,9 @@ async function saveInboundItem() {
         modified_at: nowStr
     };
 
-    const $btnSave = $('#btnSaveInbound');
+    const $btnSave =$('#btnSaveInbound');
     try {
-        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
+        $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_NAMES.INBOUNDS, orderId, rowDataArray, GAS_DEPLOY_ID.PSI);
@@ -1703,60 +1838,83 @@ async function saveInboundItem() {
             if (idx !== -1) appState.inbounds[idx] = updatedObj;
         }
 
+        // 若直接在表單中手動改為「已入庫」，自動觸發庫存主檔歸戶管線
+        if (newStatus === '已入庫' && (!existing || existing.status !== '已入庫')) {
+            const finalInboundDate = updatedObj.inbound_date || AppDate.now('sheet');
+            await syncInboundOrderToStocks(orderId, currentUser, nowStr, finalInboundDate);
+        }
+
         bootstrap.Modal.getInstance(document.getElementById('inboundModal')).hide();
-        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
         refreshAllViews();
         AppToast.success(`進貨單據【${orderId}】儲存成功！`);
     } catch (err) {
         AppToast.error("寫入失敗：" + err.message);
     } finally {
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
     }
 }
 
+/**
+ * 快速驗收合格歸戶入庫 (完整觸發庫存 Upsert 與血統回填)
+ */
 async function quickVerifyInbound(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
 
-    const confirmed = await AppDialog.confirm(`確定要將進貨單據【${item.id}】標記為「已入庫」並完成歸戶嗎？`, {
-        title: '入庫驗收確認',
-        confirmText: '確定入庫',
+    const confirmed = await AppDialog.confirm(`確定要將進貨單據【${item.id}】標記為「已入庫」，並向庫存主檔 (psi_stocks) 正式建立批號現貨嗎？`, {
+        title: '入庫驗收與現貨歸戶確認',
+        confirmText: '確定驗收入庫',
         confirmClass: 'btn-purple'
     });
     if (!confirmed) return;
 
-    const currentUser = getCurrentUser();
-    const nowStr = AppDate.now('full');
-    const todaySheetDate = AppDate.now('sheet');
-
-    item.status = '已入庫';
-    item.inbound_date = todaySheetDate;
-    item.modified_by = currentUser;
-    item.modified_at = nowStr;
-
-    const rowDataArray = [
-        item.id, item.official_order_no, item.order_category, item.order_center,
-        item.performance_month, item.order_date, item.delivery_method,
-        item.warehouse_id, item.purchaser_partner_id, item.sv_owner_partner_id,
-        item.inbound_date, item.currency_code, item.product_amount,
-        item.shipping_fee, item.total_cost_amount, item.total_sv, item.total_boxes,
-        item.official_shipping_no, item.shipping_date, item.status,
-        item.remarks, item.created_by, item.created_at, item.modified_by, item.modified_at
-    ];
+    AppLoading.show('<i class="fa-solid fa-boxes-stacked fa-spin me-1"></i> 正在驗收並建立庫存批號現貨...', '庫存寫入中...');
 
     try {
+        const currentUser = getCurrentUser();
+        const nowStr = AppDate.now('full');
+        const todaySheetDate = AppDate.now('sheet');
+
+        // 1. 執行庫存主檔 Upsert 與進貨明細 stock_id 回填
+        const affectedCount = await syncInboundOrderToStocks(orderId, currentUser, nowStr, todaySheetDate);
+
+        // 2. 更新進貨單母單狀態為「已入庫」
+        item.status = '已入庫';
+        item.inbound_date = todaySheetDate;
+        item.modified_by = currentUser;
+        item.modified_at = nowStr;
+
+        const rowDataArray = [
+            item.id, item.official_order_no, item.order_category, item.order_center,
+            item.performance_month, item.order_date, item.delivery_method,
+            item.warehouse_id, item.purchaser_partner_id, item.sv_owner_partner_id,
+            item.inbound_date, item.currency_code, item.product_amount,
+            item.shipping_fee, item.total_cost_amount, item.total_sv, item.total_boxes,
+            item.official_shipping_no, item.shipping_date, item.status,
+            item.remarks, item.created_by, item.created_at, item.modified_by, item.modified_at
+        ];
+
         await SheetAdapter.updateRow(SHEET_NAMES.INBOUNDS, item.id, rowDataArray, GAS_DEPLOY_ID.PSI);
-        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
+
         refreshAllViews();
-        AppToast.success(`單號【${item.id}】已合格入庫，庫存現貨正式生效！`);
+        AppToast.success(`進貨單【${item.id}】已驗收合格，共更新/建立了 ${affectedCount} 筆批號現貨 (可於 H32000 庫存管理檢視)！`);
     } catch (err) {
+        console.error("驗收入庫失敗:", err);
         AppToast.error("入庫狀態更新失敗：" + err.message);
+    } finally {
+        AppLoading.hide();
     }
 }
 
 async function deleteInboundItem(orderId) {
     const item = appState.inbounds.find(d => d.id === orderId);
     if (!item) return;
+
+    // ★ 防禦 5：已入庫單據嚴禁直接從前端刪除，避免留下無主庫存
+    if (item.status === '已入庫') {
+        AppToast.warning("「已入庫」之單據庫存已正式歸戶，嚴禁直接刪除！若需退單請開立「退貨/調撥單」沖銷。");
+        return;
+    }
 
     const confirmed = await AppDialog.confirm(`確定要自雲端試算表中永久刪除進貨單【${item.id}】嗎？此動作不可復原！`, {
         title: '刪除單據確認',
@@ -1768,10 +1926,8 @@ async function deleteInboundItem(orderId) {
     try {
         await SheetAdapter.deleteRow(SHEET_NAMES.INBOUNDS, orderId, GAS_DEPLOY_ID.PSI);
         appState.inbounds = appState.inbounds.filter(d => d.id !== orderId);
-        // 同步刪除關聯明細記憶體
         appState.inboundItems = appState.inboundItems.filter(it => it.inbound_id !== orderId);
 
-        // 移除 await fetchGoogleSheetsData(); 改為直接刷新畫面
         refreshAllViews();
         AppToast.success(`進貨單【${item.id}】已成功刪除！`);
     } catch (err) {
@@ -1818,7 +1974,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-arrows-split-up-and-left text-primary me-1"></i>四流分離與據點調度
+                <i class="fa-solid fa-arrows-split-up-and-left text-primary me-1"></i> 四流分離與據點調度
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">實際出資夥伴</div>
@@ -1848,7 +2004,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-calendar-days text-info me-1"></i>時間期程與物流單號
+                <i class="fa-solid fa-calendar-days text-info me-1"></i> 時間期程與物流單號
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">下單訂購日期</div>
@@ -1874,7 +2030,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 mb-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-3 d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2">
-                <i class="fa-solid fa-coins text-warning me-1"></i>採購財務與考核點數核算
+                <i class="fa-solid fa-coins text-warning me-1"></i> 採購財務與考核點數核算
             </h6>
             <div class="row g-2 mb-2">
                 <div class="col-5 text-secondary small">商品金額小計</div>
@@ -1900,7 +2056,7 @@ function openInboundMasterDetailModal(orderId) {
 
         <article class="card p-3 border-secondary border-opacity-25">
             <h6 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
-                <i class="fa-solid fa-comment-dots text-secondary me-1"></i>單據備註事項
+                <i class="fa-solid fa-comment-dots text-secondary me-1"></i> 單據備註事項
             </h6>
             <div class="text-light small p-2 rounded" style="background: rgba(10, 5, 18, 0.4);">
                 ${item.remarks || '未填寫單據備註事項'}

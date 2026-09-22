@@ -6,7 +6,7 @@ const SPREADSHEET_ID = {
 };
 
 const SHEET_NAMES = {
-    PRODUCTS: '產品主檔'
+    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS
 };
 
 // ==========================================================================

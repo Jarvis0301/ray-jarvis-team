@@ -26,13 +26,13 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    CUSTOMERS: '客戶主檔',      // 表 501
-    CONVERSIONS: '轉化歷程',    // 表 502
-    PERSONS: '個人主檔',        // 表 201
-    CONTACTS: '通訊資料',       // 人員通訊
-    LANGUAGES: '使用語言',      // 人員語言
-    PARTNERS: '夥伴主檔',       // 表 202
-    RELATIONS: '組織關係'       // 組織血緣閉包表
+    CUSTOMERS: APP_CONFIG.SHEET_NAMES.CRM.CUSTOMERS,      // 表 501
+    CONVERSIONS: APP_CONFIG.SHEET_NAMES.CRM.CONVERSIONS,    // 表 502
+    PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON,        // 表 201
+    CONTACTS: APP_CONFIG.SHEET_NAMES.PSN.PERSON_CONTACTS,       // 人員通訊
+    LANGUAGES: APP_CONFIG.SHEET_NAMES.PSN.PERSON_LANGUAGES,      // 人員語言
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,       // 表 202
+    RELATIONS: APP_CONFIG.SHEET_NAMES.ORG.RELATIONS       // 組織血緣閉包表
 };
 
 const DEFAULT_AVATARS = {
@@ -64,6 +64,7 @@ window.addEventListener('AppReady', async function () {
         SheetAdapter.init(GAS_DEPLOY_ID.CRM);
     }
     populateRegionDropdowns();
+    populateNationalityFilter();
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
     initFilterOptions();
@@ -322,8 +323,32 @@ function setSelect2TagVal(selector, val, defaultVal = '') {
     }
 }
 
+/**
+ * 填充頂部快篩的國籍選單 (含預設國籍與現有名單自訂國籍)
+ */
+function populateNationalityFilter() {
+    const defaultNationalities = ['中華民國', '馬來西亞', '中國', '新加坡', '日本', '其他'];
+    const natSet = new Set(defaultNationalities);
+    
+    personMasterList.forEach(p => {
+        let n = (p.nationality || '').trim();
+        if (n === '台灣' || n === 'TW') n = '中華民國';
+        if (n) natSet.add(n);
+    });
+
+    UISelectOptions.core.render({
+        target: '#filter-nationality',
+        data: Array.from(natSet),
+        placeholder: '全部國籍',
+        selectedValue: $('#filter-nationality').val() || '',
+        searchable: false,
+        creatable: false,
+        grouped: false
+    });
+}
+
 function populateDynamicSelects() {
-    // 維護夥伴快篩
+    // 負責夥伴快篩
     UISelectOptions.partner.populate({
         target: '#filter-assigned-partner',
         partners: partnerMasterList,
@@ -333,7 +358,7 @@ function populateDynamicSelects() {
         searchable: true
     });
 
-    // 表單維護夥伴
+    // 表單負責夥伴
     UISelectOptions.partner.populate({
         target: '#form-assigned-partner-id',
         partners: partnerMasterList,
@@ -399,7 +424,7 @@ function initDynamicTableDragAndDrop(tbodySelector) {
 // 5. 雲端資料庫讀取與解析引擎 (Data Fetch & Parse)
 // ============================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     try {
         const [custRows, convRows, personRows, partnerRows, contactsRows, langRows, relationsRows] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_ID.CRM, SHEET_NAMES.CUSTOMERS).catch(() => []),
@@ -420,6 +445,7 @@ async function fetchGoogleSheetsData() {
         if (relationsRows.length > 0) orgRelationsList = parseOrgRelationsTable(relationsRows);
 
         populateRegionDropdowns();
+        populateNationalityFilter();
         populateDynamicSelects();
         refreshView();
         AppToast.success(`成功同步 ${customersList.length} 筆客戶資料！`);
@@ -465,10 +491,11 @@ function parsePersonMasterTable(rows) {
         health_notes: getVal(r, 29, ''),
         financial_notes: getVal(r, 30, ''),
         consumption_notes: getVal(r, 31, ''),
-        created_by: getVal(r, 32, 'SYSTEM'),
-        created_at: getVal(r, 33, '2026-01-01 00:00:00'),
-        modified_by: getVal(r, 34, 'SYSTEM'),
-        modified_at: getVal(r, 35, '2026-01-01 00:00:00')
+        notes: getVal(r, 32, ''), // ★ 索引 32：個人通用備註
+        created_by: getVal(r, 33, 'SYSTEM'),
+        created_at: getVal(r, 34, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 35, 'SYSTEM'),
+        modified_at: getVal(r, 36, '2026-01-01 00:00:00')
     })).filter(p => p.person_id && String(p.person_id).trim() !== '');
 }
 
@@ -588,6 +615,8 @@ function getFilteredCustomers() {
     const fChannel = $('#filter-source-channel').val();
     const fStatus = $('#filter-status').val();
     const fPartner = $('#filter-assigned-partner').val();
+    const fGender = $('#filter-gender').val();
+    const fNationality = $('#filter-nationality').val();
 
     return customersList.filter(c => {
         const person = getPersonMaster(c.person_id);
@@ -602,6 +631,13 @@ function getFilteredCustomers() {
         if (fChannel && c.source_channel !== fChannel) return false;
         if (fStatus && c.status !== fStatus) return false;
         if (fPartner && c.assigned_partner_id !== fPartner) return false;
+        if (fGender && person.gender !== fGender) return false;
+        
+        if (fNationality) {
+            let pNat = (person.nationality || '').trim();
+            if (pNat === '台灣' || pNat === 'TW') pNat = '中華民國';
+            if (pNat !== fNationality) return false;
+        }
 
         return true;
     });
@@ -622,12 +658,14 @@ function refreshView() {
 
 function updateHudCounters() {
     const total = customersList.length;
+    const potential = customersList.filter(c => c.customer_type === '潛在對象').length; // ★ 新增
     const retail = customersList.filter(c => c.customer_type === '一般零售').length;
     const vip = customersList.filter(c => c.customer_type === 'VIP顧客').length;
     const seed = customersList.filter(c => c.customer_type === '事業種子').length;
     const converted = customersList.filter(c => c.customer_type === '已轉夥伴').length;
 
     $('#hud-total-customers').text(total.toLocaleString());
+    $('#hud-potential-customers').text(potential.toLocaleString()); // ★ 新增
     $('#hud-retail-customers').text(retail.toLocaleString());
     $('#hud-vip-customers').text(vip.toLocaleString());
     $('#hud-seed-customers').text(seed.toLocaleString());
@@ -649,8 +687,10 @@ function renderCardsView(dataList) {
         const borderClass = c.customer_type === '事業種子' ? 'is-seed' : (c.customer_type === 'VIP顧客' ? 'is-vip' : (c.customer_type === '已轉夥伴' ? 'is-converted' : ''));
         const tagsHtml = (c.customer_tags || '').split(',').filter(Boolean).map(t => `<span class="badge-tag">${t.trim()}</span>`).join(' ');
 
-        // 性別 / 年齡 / 現居地 字串
-        const ageStr = AppDate.toAgeDisplay(person.birthday, '');
+        const nationalityDisplay = (person.nationality && person.nationality.trim()) ? person.nationality.trim() : '中華民國';
+        const ethnicityDisplay = (person.ethnicity && person.ethnicity.trim()) ? person.ethnicity.trim() : '華人';
+        const nationalityEthnicityHtml = `${nationalityDisplay} ‧ ${ethnicityDisplay}`;
+        const ageStr = AppDate.toAgeDisplay(person.birthday, person.deceased_date, '');
         const genderDisplay = (person.gender && person.gender !== '未填') ? person.gender : '<span class="text-muted">未填性別</span>';
         const ageDisplay = ageStr ? ageStr : '<span class="text-muted">未填年齡</span>';
         const residenceDisplay = (person.current_residence && person.current_residence.trim()) ? person.current_residence.trim() : '<span class="text-muted">未填現居地</span>';
@@ -681,22 +721,26 @@ function renderCardsView(dataList) {
 
                         <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-filter me-1"></i> 轉化階段 / 運作狀態</span>
+                                <span class="text-secondary"><i class="fa-solid fa-filter text-warning me-1"></i>轉化階段 / 運作狀態</span>
                                 <div class="d-flex align-items-center gap-1">
                                     ${UIBadges.customer.pipelineStage(c.pipeline_stage)}
                                     ${UIBadges.customer.status(c.status)}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-user-tie me-1"></i> 維護夥伴</span>
-                                <span class="text-info">${partnerNameOnly}</span>
+                                <span class="text-secondary"><i class="fa-solid fa-user-tie text-info me-1"></i>負責夥伴</span>
+                                ${partnerNameOnly}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i> 性別 / 年齡 / 現居地</span>
+                                <span class="text-secondary"><i class="fa-solid fa-flag text-success me-1"></i>國籍 / 種族</span>
+                                <div class="text-end text-light">${nationalityEthnicityHtml}</div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i>性別 / 年齡 / 現居地</span>
                                 <div class="text-end text-light">${genderAgeResidenceHtml}</div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent me-1"></i> 身份 / 使用身份</span>
+                                <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent me-1"></i>身份 / 使用身份</span>
                                 <div class="d-flex align-items-center gap-1">
                                     ${UIBadges.person.identityType(person.identity_type)}
                                     ${UIBadges.person.usageIdentity(person.usage_identity)}
@@ -714,7 +758,7 @@ function renderCardsView(dataList) {
                     </div>
 
                     <div class="pt-2 mt-2 border-top border-secondary border-opacity-15 d-flex justify-content-between align-items-center">
-                        <span class="text-muted small"><i class="fa-solid fa-clock me-1"></i> 最近關懷：${AppDate.toDisplay(c.last_contact_date, '無')}</span>
+                        <span class="text-muted small"><i class="fa-solid fa-clock me-1"></i>最近關懷：${AppDate.toDisplay(c.last_contact_date, '無')}</span>
                     </div>
                 </div>
             </div>
@@ -743,11 +787,11 @@ function formatCustomerTableRow(c) {
         pipeline_stage: UIBadges.customer.pipelineStage(c.pipeline_stage),
         source_channel: `<span>${c.source_channel || '-'}</span>`,
         referrer: `<span>${referrerDisplay}</span>`,
-        assigned_partner: `<span class="text-info">${partnerName}</span>`,
-        residence: `<span class="text-light">${person.current_residence || '-'}</span>`,
+        assigned_partner: `<span class="text-info fw-bold">${partnerName}</span>`,
+        residence: `${person.current_residence || '-'}`,
         status: UIBadges.customer.status(c.status),
-        first_order_date: `<span class="small">${AppDate.toDisplay(c.first_order_date, '-')}</span>`,
-        last_contact_date: `<span class="small">${AppDate.toDisplay(c.last_contact_date, '-')}</span>`,
+        first_order_date: `${AppDate.toDisplay(c.first_order_date, '-')}`,
+        last_contact_date: `${AppDate.toDisplay(c.last_contact_date, '-')}`,
         tags: `<span class="small">${c.customer_tags || '-'}</span>`,
         actions: `
             <div class="d-flex align-items-center justify-content-end gap-1">
@@ -795,12 +839,12 @@ function formatConversionTableRow(cv) {
 
     return {
         customer_name: `<strong class="text-white">${customerName}</strong>`,
-        customer_id: `<span class="text-info">${cv.customer_id}</span>`,
-        partner_id: `<span class="text-info fw-bold">${cv.converted_partner_id}</span>`,
+        customer_id: `<span class="text-info-emphasis">${cv.customer_id}</span>`,
+        partner_id: `<span class="text-info-emphasis fw-bold">${cv.converted_partner_id}</span>`,
         conversion_type: `<span>${cv.conversion_type}</span>`,
         conversion_date: `<span>${AppDate.toDisplay(cv.conversion_date, '-')}</span>`,
-        contract_no: `<span class="text-secondary">${cv.contract_no || '-'}</span>`,
-        sponsor: `<span>${sponsorNameOnly}</span>`,
+        contract_no: `<span class="text-primary-emphasis">${cv.contract_no || '-'}</span>`,
+        sponsor: `<span class="text-info fw-bold">${sponsorNameOnly}</span>`,
         spend: `NT$ ${spend.toLocaleString()}`,
         sv: `${sv.toLocaleString()} SV`,
         notes: `<span class="small">${cv.conversion_notes || '-'}</span>`
@@ -934,7 +978,7 @@ function openCustomerModalForCreate() {
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
 
-    $('#customerModalTitle').html('<i class="fa-solid fa-user-plus text-primary me-1"></i> 新增客戶');
+    $('#customerModalTitle').html('<i class="fa-solid fa-user-plus text-primary me-1"></i>新增客戶');
     $('#form-submit-btn').show();
     $('#form-mode').val('CREATE');
     $('#customerForm')[0].reset();
@@ -967,6 +1011,10 @@ function openCustomerModalForCreate() {
     $('#form-status').val('活躍跟進');
     $('#form-assigned-partner-id').val('').trigger('change');
 
+    $('#form-customer-tags').val('');
+    $('#form-notes').val('');
+    $('#form-customer-notes').val('');
+
     $('#form-contacts-dynamic-tbody').empty();
     $('#form-languages-dynamic-tbody').empty();
 
@@ -983,7 +1031,7 @@ function openCustomerModalForEdit(customerId) {
     const person = getPersonMaster(customer.person_id);
     populateDynamicSelects();
 
-    $('#customerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary me-1"></i> 編輯客戶 - ${person.name_zh || customer.customer_id}`);
+    $('#customerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary me-1"></i>編輯客戶 - ${person.name_zh || customer.customer_id}`);
     $('#form-submit-btn').show();
     $('#form-mode').val('UPDATE');
 
@@ -999,7 +1047,7 @@ function openCustomerModalForEdit(customerId) {
     $('#form-usage-identity').val(person.usage_identity || '消費者');
     $('#form-gender').val(person.gender || '男');
 
-    $('#form-birthday').val(AppDate.toInput(person.birthday));
+    $('#form-birthday').val(AppDate.toDisplay(person.birthday, ''));
 
     let natVal = person.nationality || '中華民國';
     if (natVal === '台灣' || natVal === 'TW') natVal = '中華民國';
@@ -1013,7 +1061,7 @@ function openCustomerModalForEdit(customerId) {
 
     $('#form-marital-status').val(person.marital_status || '');
     $('#form-life-status').val(person.life_status || '存活').trigger('change');
-    $('#form-deceased-date').val(AppDate.toInput(person.deceased_date));
+    $('#form-deceased-date').val(AppDate.toDisplay(person.deceased_date, ''));
 
     $('#form-health-status').val(person.health_status || '良好');
     $('#form-financial-status').val(person.financial_status || '穩定');
@@ -1026,7 +1074,7 @@ function openCustomerModalForEdit(customerId) {
     $('#form-avatar-url').val(avatar);
     $('#form-preview-avatar').attr('src', avatar || getDefaultAvatar(gender));
 
-    // 客戶商業主檔
+    // 客戶主檔
     $('#form-customer-type').val(customer.customer_type || '潛在對象');
     $('#form-pipeline-stage').val(customer.pipeline_stage || '新線索');
     $('#form-source-channel').val(customer.source_channel || '線上陌開');
@@ -1036,7 +1084,7 @@ function openCustomerModalForEdit(customerId) {
     $('#form-first-order-date').val(AppDate.toInput(customer.first_order_date));
     $('#form-last-contact-date').val(AppDate.toInput(customer.last_contact_date));
     $('#form-customer-tags').val(customer.customer_tags || '');
-    $('#form-notes').val(customer.notes || '');
+    $('#form-customer-notes').val(customer.notes || '');
 
     // 通訊表
     $('#form-phone').val(person.phone || '');
@@ -1059,6 +1107,7 @@ function openCustomerModalForEdit(customerId) {
     $('#form-health-notes').val(person.health_notes || '');
     $('#form-financial-notes').val(person.financial_notes || '');
     $('#form-consumption-notes').val(person.consumption_notes || '');
+    $('#form-notes').val(person.notes || '');
 
     $('#customerEditTabs button:first').tab('show');
     bootstrap.Modal.getOrCreateInstance(document.getElementById('customerDetailModal')).show();
@@ -1091,7 +1140,7 @@ function openCustomerModalForView(customerId) {
     $('#view-identity-usage').html(`${formatEmpty(person.identity_type, '客戶')} / ${formatEmpty(person.usage_identity, '消費者')}`);
     
     const birthdayDisplay = AppDate.toDisplay(person.birthday, '');
-    const age = AppDate.calculateAge(person.birthday);
+    const age = AppDate.calculateAge(person.birthday, person.deceased_date);
     const ageStr = (age !== null) ? ` (${age} 歲)` : '';
     const bDayText = birthdayDisplay ? `${birthdayDisplay}${ageStr}` : '未填生日';
     $('#view-gender-birthday-age').html(`${formatEmpty(gender)} ‧ ${formatEmpty(bDayText)}`);
@@ -1157,7 +1206,7 @@ function openCustomerModalForView(customerId) {
     if (langs.length > 0) {
         langs.forEach(l => {
             $langsWrap.append(`
-                <div class="p-2 bg-black bg-opacity-30 rounded border border-secondary border-opacity-10 small">
+                <div class="p-2 bg-black bg-opacity-30 rounded border border-secondary border-opacity-10">
                     <div class="d-flex gap-2">
                         <strong class="text-white">${l.language_name}</strong>
                         ${l.notes ? `<span class="text-muted" style="font-size: 0.72rem;">${l.notes}</span>` : ''}
@@ -1191,12 +1240,13 @@ function openCustomerModalForView(customerId) {
     $('#view-health-notes').html(formatEmpty(person.health_notes, '暫無健康備註。'));
     $('#view-financial-notes').html(formatEmpty(person.financial_notes, '暫無財務備註。'));
     $('#view-consumption-notes').html(formatEmpty(person.consumption_notes, '暫無消費備註。'));
-    $('#view-notes').html(formatEmpty(customer.notes, '暫無客戶備註。'));
+    $('#view-notes').html(formatEmpty(person.notes, '暫無個人備註。'));
+    $('#view-customer-notes').html(formatEmpty(customer.notes, '暫無客戶備註。'));
 
     if (customer.customer_type === '已轉夥伴') {
-        $('#btn-trigger-convert').prop('disabled', true).html('<i class="fa-solid fa-check me-1"></i> 此客戶已轉化為直銷夥伴');
+        $('#btn-trigger-convert').prop('disabled', true).html('<i class="fa-solid fa-check me-1"></i>此客戶已轉化為直銷夥伴');
     } else {
-        $('#btn-trigger-convert').prop('disabled', false).html('<i class="fa-solid fa-handshake me-1"></i> 簽約轉為夥伴');
+        $('#btn-trigger-convert').prop('disabled', false).html('<i class="fa-solid fa-handshake me-1"></i>簽約轉為夥伴');
     }
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('customerViewModal')).show();
@@ -1225,7 +1275,7 @@ async function submitCustomerForm(e) {
         return;
     }
 
-    // 2. 檢核客戶商業主檔
+    // 2. 檢核客戶主檔
     const custType = getFormTrimVal('#form-customer-type');
     const stage = getFormTrimVal('#form-pipeline-stage');
     const status = getFormTrimVal('#form-status');
@@ -1243,6 +1293,22 @@ async function submitCustomerForm(e) {
     if (!status) {
         AppToast.warning('請選擇「運作狀態」！');
         $('#tab-btn-crm').tab('show');
+        return;
+    }
+
+    const birthdayRaw = getFormTrimVal('#form-birthday');
+    if (birthdayRaw && !/^\d{4}(\/\d{1,2}\/\d{1,2})?$/.test(birthdayRaw)) {
+        AppToast.warning('「生日」格式需為西元年 (如 1988) 或年月日 (如 1988/06/15)！');
+        $('#tab-btn-person').tab('show');
+        $('#form-birthday').focus();
+        return;
+    }
+
+    const deceasedDateRaw = getFormTrimVal('#form-deceased-date');
+    if (getFormTrimVal('#form-life-status') === '身故' && deceasedDateRaw && !/^\d{4}(\/\d{1,2}\/\d{1,2})?$/.test(deceasedDateRaw)) {
+        AppToast.warning('「身故日期」格式需為西元年 (如 2020) 或年月日 (如 2020/05/20)！');
+        $('#tab-btn-person').tab('show');
+        $('#form-deceased-date').focus();
         return;
     }
 
@@ -1305,6 +1371,7 @@ async function submitCustomerForm(e) {
         getFormTrimVal('#form-health-notes'),
         getFormTrimVal('#form-financial-notes'),
         getFormTrimVal('#form-consumption-notes'),
+        getFormTrimVal('#form-notes'),
         personCreatedBy,
         personCreatedAt,
         currentUser,
@@ -1324,7 +1391,7 @@ async function submitCustomerForm(e) {
         AppDate.toSheet(getFormTrimVal('#form-first-order-date')),
         AppDate.toSheet(getFormTrimVal('#form-last-contact-date')),
         getFormTrimVal('#form-customer-tags'),
-        getFormTrimVal('#form-notes'),
+        getFormTrimVal('#form-customer-notes'),
         customerCreatedBy,
         customerCreatedAt,
         currentUser,
@@ -1383,7 +1450,7 @@ async function submitCustomerForm(e) {
 
     const $btn =$('#form-submit-btn').prop('disabled', true);
     const silentOpt = { silent: true };
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> 正在同步自然人主檔與客戶資料庫...', '資料寫入中');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i>正在同步自然人主檔與客戶資料庫...', '資料寫入中');
 
     try {
         const deletePromises = [];
@@ -1442,34 +1509,17 @@ async function deleteCustomerRecord(customerId) {
     const dispName = person.name_zh || customer.customer_id;
 
     AppDialog.confirm(
-        `確定要自雲端試算表中移除客戶【${dispName} (${customerId})】嗎？<br><small class="text-warning">若該自然人無關聯夥伴主檔，將同步清理其名下之通訊與語言設定。</small>`,
+        `確定要自雲端試算表中移除客戶【${dispName} (${customerId})】嗎？`,
         async function () {
-            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i> 正在刪除客戶檔案與自然人連結...', '資料庫同步中');
+            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i>正在刪除客戶檔案...', '資料庫同步中');
             try {
-                const deletePromises = [];
                 const silentOpt = { silent: true };
 
-                deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CUSTOMERS, customerId, GAS_DEPLOY_ID.CRM, silentOpt));
+                // ★ 僅刪除表 501「客戶主檔」，人員模組不刪除
+                await SheetAdapter.deleteRow(SHEET_NAMES.CUSTOMERS, customerId, GAS_DEPLOY_ID.CRM, silentOpt);
 
-                const isAlsoPartner = partnerMasterList.some(pt => pt.person_id === customer.person_id);
-                if (!isAlsoPartner && customer.person_id) {
-                    deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.PERSONS, customer.person_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
-                    personContactsList.filter(c => c.person_id === customer.person_id).forEach(rc => {
-                        if (rc.contact_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CONTACTS, rc.contact_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
-                    });
-                    personLanguagesList.filter(l => l.person_id === customer.person_id).forEach(rl => {
-                        if (rl.lang_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.LANGUAGES, rl.lang_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
-                    });
-                }
-
-                await Promise.all(deletePromises);
-
+                // 前端記憶體樂觀更新
                 customersList = customersList.filter(c => c.customer_id !== customerId);
-                if (!isAlsoPartner && customer.person_id) {
-                    personMasterList = personMasterList.filter(p => p.person_id !== customer.person_id);
-                    personContactsList = personContactsList.filter(c => c.person_id !== customer.person_id);
-                    personLanguagesList = personLanguagesList.filter(l => l.person_id !== customer.person_id);
-                }
 
                 populateDynamicSelects();
                 refreshView();
@@ -1545,7 +1595,7 @@ function openConvertModalFromView() {
         });
     });
 
-    // 預設引薦人帶入客戶原本的維護夥伴
+    // 預設引薦人帶入客戶原本的負責夥伴
     if (customer.assigned_partner_id) {
         $('#convert-sponsor-id').val(customer.assigned_partner_id).trigger('change');
         $('#convert-known-mentor-id').val(customer.assigned_partner_id).trigger('change');
@@ -1631,7 +1681,7 @@ async function saveCustomerConversion() {
     const person = getPersonMaster(customer.person_id);
 
     const $btn =$('#btn-submit-convert').prop('disabled', true);
-    AppLoading.show('<i class="fa-solid fa-award text-success me-1"></i> 正在平行同步寫入轉化歷程、夥伴主檔與組織關係...', '結轉中...');
+    AppLoading.show('<i class="fa-solid fa-award text-success me-1"></i>正在平行同步寫入轉化歷程、夥伴主檔與組織關係...', '結轉中...');
 
     try {
         const currentUser = getCurrentUser();
@@ -1689,7 +1739,7 @@ async function saveCustomerConversion() {
             person.name_en || '',
             person.preferred_name || '',
             person.display_name || '',
-            '團隊成員', // 身份類型更新為「團隊成員」
+            '團隊成員',
             person.usage_identity || '經營者',
             person.gender || '未填',
             AppDate.toSheet(person.birthday),
@@ -1716,6 +1766,7 @@ async function saveCustomerConversion() {
             person.health_notes || '',
             person.financial_notes || '',
             person.consumption_notes || '',
+            person.notes || '',
             person.created_by || currentUser,
             person.created_at || nowStr,
             currentUser,
@@ -1811,7 +1862,7 @@ async function saveCustomerConversion() {
 }
 
 // ============================================================================
-// 12. 戰情統計與分析圖表 (語言能力 + 個人畫像 12 圖 + 客戶商業戰術 14 圖)
+// 12. 戰情統計與分析圖表 (語言能力 + 個人畫像 12 圖 + 客戶戰術 14 圖)
 // ============================================================================
 const getPieTooltipOptions = () => ({
     plugins: {
@@ -2004,7 +2055,7 @@ function renderChartsView(filteredDataset = null) {
     ageCategories.forEach(c => { ageCounts[c] = 0; });
     dataset.forEach(c => {
         const person = getPersonMaster(c.person_id);
-        const age = AppDate.calculateAge(person.birthday);
+        const age = AppDate.calculateAge(person.birthday, person.deceased_date);
         if (age !== null) {
             if (age <= 17) ageCounts['17歲以下']++;
             else if (age <= 29) ageCounts['18-29歲']++;
@@ -2136,7 +2187,7 @@ function renderChartsView(filteredDataset = null) {
     }
 
     // ========================================================================
-    // 區塊 C：客戶商業營運與轉化指標 (14 張圖表)
+    // 區塊 C：客戶營運與轉化指標 (14 張圖表)
     // ========================================================================
     // 1. 客戶身分
     const typeCounts = createCountMap('customer_type', ['潛在對象', '一般零售', 'VIP顧客', '事業種子', '已轉夥伴']);

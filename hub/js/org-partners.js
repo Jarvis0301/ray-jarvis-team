@@ -22,12 +22,12 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    PERSONS: '個人主檔',
-    PARTNERS: '夥伴主檔',
-    CONTACTS: '通訊資料',
-    LANGUAGES: '使用語言',
-    RELATIONS: '組織關係',
-    RANKS: '職級主檔'
+    PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON,
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,
+    CONTACTS: APP_CONFIG.SHEET_NAMES.PSN.PERSON_CONTACTS,
+    LANGUAGES: APP_CONFIG.SHEET_NAMES.PSN.PERSON_LANGUAGES,
+    RELATIONS: APP_CONFIG.SHEET_NAMES.ORG.RELATIONS,
+    RANKS: APP_CONFIG.SHEET_NAMES.ORG.RANKS
 };
 
 const DEFAULT_AVATARS = {
@@ -322,8 +322,8 @@ function initCoOperatorFormLinkage() {
                 $('#form-placement-id').val(primary.placement_id || '').trigger('change');
                 $('#form-known-mentor-id').val(primary.known_mentor_id || '').trigger('change');
                 $('#form-upline-link-type').val(primary.upline_link_type || '直屬已知').trigger('change');
-                $('#form-current-rank-id').val(primary.current_rank_id || '');
-                $('#form-highest-rank-id').val(primary.highest_rank_id || '');
+                $('#form-current-rank-id').val(primary.current_rank_id || '').trigger('change');
+                $('#form-highest-rank-id').val(primary.highest_rank_id || '').trigger('change');
             }
         }
         updateFormAutoCalculatedFields();
@@ -606,8 +606,8 @@ function parsePersonMasterTable(rows) {
         met_date: getVal(r, 19, ''),
         met_reason: getVal(r, 20, ''),
         highest_education: getVal(r, 21, ''),
-        graduated_school: getVal(r, 22, ''), // 最高學校
-        graduation_status: getVal(r, 23, ''), // ★ 核心新增：修業狀態
+        graduated_school: getVal(r, 22, ''),
+        graduation_status: getVal(r, 23, ''),
         occupation_background: getVal(r, 24, ''),
         health_status: getVal(r, 25, '待了解'),
         financial_status: getVal(r, 26, '穩定'),
@@ -616,10 +616,11 @@ function parsePersonMasterTable(rows) {
         health_notes: getVal(r, 29, ''),
         financial_notes: getVal(r, 30, ''),
         consumption_notes: getVal(r, 31, ''),
-        created_by: getVal(r, 32, 'SYSTEM'),
-        created_at: getVal(r, 33, '2026-01-01 00:00:00'),
-        modified_by: getVal(r, 34, 'SYSTEM'),
-        modified_at: getVal(r, 35, '2026-01-01 00:00:00')
+        notes: getVal(r, 32, ''),
+        created_by: getVal(r, 33, 'SYSTEM'),
+        created_at: getVal(r, 34, '2026-01-01 00:00:00'),
+        modified_by: getVal(r, 35, 'SYSTEM'),
+        modified_at: getVal(r, 36, '2026-01-01 00:00:00')
     })).filter(p => p.person_id && String(p.person_id).trim() !== '');
 }
 
@@ -938,7 +939,7 @@ function renderCardsView(list) {
             ? `<span class="text-white">${mentorName}</span>` 
             : `<span class="text-muted">（無特定指派）</span>`;
 
-        const ageStr = AppDate.toAgeDisplay(person.birthday, '');
+        const ageStr = AppDate.toAgeDisplay(person.birthday, person.deceased_date, '');
 
         const genderDisplay = (person.gender && person.gender !== '未填') 
             ? person.gender 
@@ -1000,10 +1001,11 @@ function renderCardsView(list) {
                                 ${UIBadges.rank.badge(highestRank)}
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary"><i class="fa-solid fa-people-arrows me-1"></i>關係屬性 / 營運</span>
+                                <span class="text-secondary"><i class="fa-solid fa-people-arrows text-success me-1"></i>關係屬性 / 營運 / 職務狀態</span>
                                 <div>
                                     ${UIBadges.partner.relation(p.relation_type, p.partner_id)}
                                     ${UIBadges.partner.operatorStatus(p.operator_status)}
+                                    ${UIBadges.partner.workStatus(p.work_status)}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -1012,7 +1014,7 @@ function renderCardsView(list) {
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-id-card-clip text-primary me-1"></i>性別 / 年齡 / 現居地</span>
-                                <div class="text-end text-light small">${genderAgeResidenceHtml}</div>
+                                <div class="text-end text-light">${genderAgeResidenceHtml}</div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-secondary"><i class="fa-solid fa-user-tag text-accent me-1"></i>身份 / 使用身份</span>
@@ -1647,7 +1649,7 @@ function renderChartsView(filteredDataset = null) {
     dataset.forEach(p => {
         const person = getPersonMaster(p.person_id);
         // 直接調用 AppDate 實歲計算
-        const age = AppDate.calculateAge(person.birthday);
+        const age = AppDate.calculateAge(person.birthday, person.deceased_date);
 
         if (age !== null) {
             if (age <= 17) ageCounts['17歲以下']++;
@@ -2306,7 +2308,10 @@ function openPartnerModalForCreate() {
     $('#form-avatar-url').val('');
     $('#form-preview-avatar').attr('src', getDefaultAvatar('男'));
 
-    $('#form-current-rank-id, #form-highest-rank-id').prop('disabled', false).removeClass('badge-secondary');
+    $('#form-current-rank-id, #form-highest-rank-id')
+        .prop('disabled', false)
+        .val('')
+        .trigger('change');
     $('#badge-rank-lock-cur, #badge-rank-lock-high').hide();
 
     setSelect2TagVal('#form-nationality', '中華民國');
@@ -2325,6 +2330,8 @@ function openPartnerModalForCreate() {
     $('#form-graduated-school').val('');
     $('#form-graduation-status').val('');
     $('#form-work-status').val('');
+
+    $('#form-notes').val('');
 
     $('#form-contacts-dynamic-tbody').empty();
     $('#form-languages-dynamic-tbody').empty();
@@ -2353,8 +2360,7 @@ function openPartnerModalForEdit(partnerId) {
         .prop('readonly', true);
 
     $('#form-current-rank-id, #form-highest-rank-id')
-        .prop('disabled', true)
-        .addClass('bg-black bg-opacity-40 text-muted border-secondary');
+        .prop('disabled', true);
     $('#badge-rank-lock-cur, #badge-rank-lock-high').show();
 
     $('#form-name-zh').val(person.name_zh || '');
@@ -2365,8 +2371,7 @@ function openPartnerModalForEdit(partnerId) {
     $('#form-usage-identity').val(person.usage_identity || '經營者');
     $('#form-gender').val(person.gender || '男');
 
-    // 日精度 YYYY/MM/DD 欄位：透過 AppDate.toInput 補零轉為 YYYY-MM-DD 塞入表單
-    $('#form-birthday').val(AppDate.toInput(person.birthday));
+    $('#form-birthday').val(AppDate.toDisplay(person.birthday, ''));
 
     let natVal = person.nationality || '中華民國';
     if (natVal === '台灣' || natVal === 'TW') natVal = '中華民國';
@@ -2380,9 +2385,7 @@ function openPartnerModalForEdit(partnerId) {
 
     $('#form-marital-status').val(person.marital_status || '');
     $('#form-life-status').val(person.life_status || '存活').trigger('change');
-
-    // 日精度 YYYY/MM/DD 欄位：透過 AppDate.toInput 補零轉為 YYYY-MM-DD 塞入表單
-    $('#form-deceased-date').val(AppDate.toInput(person.deceased_date));
+    $('#form-deceased-date').val(AppDate.toDisplay(person.deceased_date, ''));
 
     $('#form-health-status').val(person.health_status || '良好');
     $('#form-financial-status').val(person.financial_status || '穩定');
@@ -2401,8 +2404,8 @@ function openPartnerModalForEdit(partnerId) {
     $('#form-operation-mode').val(partner.operation_mode || '個人經營');
     $('#form-upline-link-type').val(partner.upline_link_type || '直屬已知');
     $('#form-node-nature').val(partner.node_nature || '常態夥伴');
-    $('#form-current-rank-id').val(partner.current_rank_id || '');
-    $('#form-highest-rank-id').val(partner.highest_rank_id || '');
+    $('#form-current-rank-id').val(partner.current_rank_id || '').trigger('change');
+    $('#form-highest-rank-id').val(partner.highest_rank_id || '').trigger('change');
     $('#form-sponsor-id').val(partner.sponsor_id || '').trigger('change');
     $('#form-placement-id').val(partner.placement_id || '').trigger('change');
     $('#form-known-mentor-id').val(partner.known_mentor_id || '').trigger('change');
@@ -2450,6 +2453,7 @@ function openPartnerModalForEdit(partnerId) {
     $('#form-financial-notes').val(person.financial_notes || '');
     $('#form-consumption-notes').val(person.consumption_notes || '');
     $('#form-team-notes').val(partner.team_notes || '');
+    $('#form-notes').val(person.notes || '');
 
     $('#partnerEditTabs button:first').tab('show');
     bootstrap.Modal.getOrCreateInstance(document.getElementById('partnerDetailModal')).show();
@@ -2498,7 +2502,7 @@ function openPartnerModalForView(partnerId) {
     $('#view-identity-usage').html(`${formatEmpty(person.identity_type, '夥伴')} / ${formatEmpty(person.usage_identity, '消費者')}`);
 
     const birthdayDisplay = AppDate.toDisplay(person.birthday, '');
-    const age = AppDate.calculateAge(person.birthday);
+    const age = AppDate.calculateAge(person.birthday, person.deceased_date);
     const ageStr = (age !== null) ? ` (${age} 歲)` : '';
 
     const bDayText = birthdayDisplay && birthdayDisplay !== '-' ? `${birthdayDisplay}${ageStr}` : '未填生日';
@@ -2630,6 +2634,7 @@ function openPartnerModalForView(partnerId) {
     $('#view-health-notes').html(formatEmpty(person.health_notes, '暫無健康備註。'));
     $('#view-financial-notes').html(formatEmpty(person.financial_notes, '暫無財務備註。'));
     $('#view-consumption-notes').html(formatEmpty(person.consumption_notes, '暫無消費備註。'));
+    $('#view-notes').html(formatEmpty(person.notes, '暫無個人備註。'));
     $('#view-team-notes').html(formatEmpty(partner.team_notes, '暫無團隊備註。'));
 
     $('#btn-view-to-edit').off('click').on('click', function () {
@@ -2797,6 +2802,22 @@ async function savePartnerRecord(e) {
         return;
     }
 
+    const birthdayRaw = getFormTrimVal('#form-birthday');
+    if (birthdayRaw && !/^\d{4}(\/\d{1,2}\/\d{1,2})?$/.test(birthdayRaw)) {
+        AppToast.warning('「生日」格式需為西元年 (如 1988) 或年月日 (如 1988/06/15)！');
+        $('#tab-btn-person').tab('show');
+        $('#form-birthday').focus();
+        return;
+    }
+
+    const deceasedDateRaw = getFormTrimVal('#form-deceased-date');
+    if (getFormTrimVal('#form-life-status') === '身故' && deceasedDateRaw && !/^\d{4}(\/\d{1,2}\/\d{1,2})?$/.test(deceasedDateRaw)) {
+        AppToast.warning('「身故日期」格式需為西元年 (如 2020) 或年月日 (如 2020/05/20)！');
+        $('#tab-btn-person').tab('show');
+        $('#form-deceased-date').focus();
+        return;
+    }
+
     // ========================================================================
     // 驗證通過，繼續執行原有資料庫寫入流程
     // ========================================================================
@@ -2896,8 +2917,8 @@ async function savePartnerRecord(e) {
         metDateVal,
         getFormTrimVal('#form-met-reason'),
         getFormTrimVal('#form-highest-education'),
-        getFormTrimVal('#form-graduated-school'), // 索引 22：最高學校
-        getFormTrimVal('#form-graduation-status'), // 索引 23：修業狀態（預設 NULL/空）
+        getFormTrimVal('#form-graduated-school'),
+        getFormTrimVal('#form-graduation-status'),
         getFormTrimVal('#form-occupation-background'),
         getFormTrimVal('#form-health-status', '待了解'),
         getFormTrimVal('#form-financial-status', '穩定'),
@@ -2906,6 +2927,7 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-health-notes'),
         getFormTrimVal('#form-financial-notes'),
         getFormTrimVal('#form-consumption-notes'),
+        getFormTrimVal('#form-notes'),
         personCreatedBy,
         personCreatedAt,
         currentUser,
@@ -3154,33 +3176,22 @@ async function deletePartnerRecord(partnerId) {
     const spouseId = partner.spouse_partner_id;
 
     AppDialog.confirm(
-        `確定要自雲端試算表中移除成員【${dispName} (${partnerId})】嗎？<br><small class="text-warning">若該夥伴為共同經營者，關聯之主要經營者將自動回復為「個人經營」狀態。</small>`,
+        `確定要自雲端試算表中移除成員【${dispName} (${partnerId})】嗎？<br><small class="text-warning">此操作僅移除夥伴主檔與組織排線，個人主檔將予以保留。若該夥伴為共同經營者，關聯配偶將自動回復為「個人經營」狀態。</small>`,
         async function () {
-            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i>正在刪除成員檔案並連動回復配偶權益...', '雲端同步處理');
+            AppLoading.show('<i class="fa-solid fa-spinner fa-spin text-danger me-1"></i>正在刪除夥伴主檔並連動回復配偶權益...', '雲端同步處理');
             try {
                 const deletePromises = [];
                 const silentOpt = { silent: true };
 
-                // 夥伴主檔由 ORG_GAS 刪除
+                // 1. 僅刪除「夥伴主檔」（由 ORG_GAS 執行）
                 deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.PARTNERS, partnerId, GAS_DEPLOY_ID.ORG, silentOpt));
 
-                // 個人主檔、通訊表、語言表由 PSN_GAS 刪除
-                if (personId) {
-                    deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.PERSONS, personId, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
-                    personContactsList.filter(c => c.person_id === personId).forEach(rc => {
-                        if (rc.contact_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CONTACTS, rc.contact_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
-                    });
-                    personLanguagesList.filter(l => l.person_id === personId).forEach(rl => {
-                        if (rl.lang_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.LANGUAGES, rl.lang_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
-                    });
-                }
-
-                // 組織關係由 ORG_GAS 刪除
+                // 2. 刪除組織關係閉包表（由 ORG_GAS 執行）
                 orgRelationsList.filter(r => r.ancestor_id === partnerId || r.descendant_id === partnerId).forEach(rel => {
                     if (rel.id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.RELATIONS, rel.id, GAS_DEPLOY_ID.ORG, silentOpt).catch(() => {}));
                 });
 
-                // 配偶回復寫入由 ORG_GAS 執行
+                // 3. 配偶回復寫入（由 ORG_GAS 執行）
                 if (spouseId) {
                     const spouse = partnersList.find(p => p.partner_id === spouseId || p.member_no === spouseId);
                     if (spouse && spouse.spouse_partner_id === partnerId) {
@@ -3198,27 +3209,21 @@ async function deletePartnerRecord(partnerId) {
 
                 await Promise.all(deletePromises);
 
-                // 本地記憶體主動清理
+                // 4. 本地記憶體清理：僅移除夥伴與排線，不清理個人主檔 (personMasterList / 通訊 / 語言)
                 partnersList = partnersList.filter(p => p.partner_id !== partnerId);
-                if (personId) {
-                    personMasterList = personMasterList.filter(p => p.person_id !== personId);
-                    personContactsList = personContactsList.filter(c => c.person_id !== personId);
-                    personLanguagesList = personLanguagesList.filter(l => l.person_id !== personId);
-                }
                 orgRelationsList = orgRelationsList.filter(r => r.ancestor_id !== partnerId && r.descendant_id !== partnerId);
 
-                // 移除 await fetchGoogleSheetsData(); 改直接重繪
                 renderAllViews();
-                AppToast.success(`成員【${dispName}】已全數移除，配偶經營權益已自動回復完成！`);
+                AppToast.success(`成員【${dispName}】夥伴資格已移除，個人主檔已妥善保留！`);
             } catch (err) {
-                console.error('刪除成員失敗:', err);
-                AppToast.error('刪除成員失敗: ' + err.message);
+                console.error('刪除夥伴失敗:', err);
+                AppToast.error('刪除夥伴失敗: ' + err.message);
             } finally {
                 AppLoading.hide();
             }
         },
         {
-            title: '確認移除成員檔案',
+            title: '確認移除夥伴資格',
             confirmText: '確認移除',
             confirmClass: 'btn-danger'
         }

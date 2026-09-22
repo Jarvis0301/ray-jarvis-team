@@ -7,7 +7,7 @@
 // 系統全域環境設定 (直接掛載於全域 window)
 // ==========================================================================
 const APP_CONFIG = {
-    // 試算表 ID (Spreadsheets)
+    // Google 試算表 ID (Spreadsheets)
     SHEETS: {
         PRD: "18KTIC_dG1KIGdwmaUqzuJzeYnpGyTxCJqbF9DJuCQ3I",        // 01_產品 (prd)
         TRN: "",        // 02_培訓 (trn)
@@ -21,17 +21,142 @@ const APP_CONFIG = {
     },
     // Google Apps Script 部署 ID
     GAS: {
-        PRD: "AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H",
-        TRN: "",
-        PSI: "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt",
-        ORG: "AKfycbwCHIswVrVHuvEusFZrg2KjTCCwYhlf-3h-QbWhro8YVekUt1wNa4oDxxBxzPc_z6cd",
-        CRM: "AKfycbw_7r40UQSTCBCGqZC5IbmPMgSmpVOWKUOjSLyQAsX62Z1p5D-2sR45Jvy2Nc-jz5zYXw",
-        FIN: "",
-        SYS: "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA",
-        MY: "",
-        PSN: "AKfycbyoUx9tLPkTaUIk7KZOD7ab2aqmTPQrOTvFxLrxi4w8DNLkX_DpLginxvW-SdS99ExB4w"
+        PRD: "AKfycbwWirZHIj1JrwJqipOsfNXpPo-GWVi9ia6faEhLNH5ewPdy-xepBZmHnqTmF5dBLY3H",        // 01_產品 (prd)
+        TRN: "",        // 02_培訓 (trn)
+        PSI: "AKfycbx3vDysJBLkmscZG8Jonv6EMyHLzmb-AjxfDqzjOSiGD-8oInz8UowbLLJRKVbbxPVt",        // 03_進銷存 (psi)
+        ORG: "AKfycbwCHIswVrVHuvEusFZrg2KjTCCwYhlf-3h-QbWhro8YVekUt1wNa4oDxxBxzPc_z6cd",        // 04_組織 (org)
+        CRM: "AKfycbw_7r40UQSTCBCGqZC5IbmPMgSmpVOWKUOjSLyQAsX62Z1p5D-2sR45Jvy2Nc-jz5zYXw",      // 05_客戶 (crm)
+        FIN: "",        // 06_財務 (fin)
+        SYS: "AKfycbyJ5FLoBXSHQsKRLF6UovYqulT7uBDPwmybRZ1Up2VN12nT4KnvkUELLC3N8pZK73A7cA",      // 07_系統 (sys)
+        MY: "",        // 08_馬來西亞 (my)
+        PSN: "AKfycbyoUx9tLPkTaUIk7KZOD7ab2aqmTPQrOTvFxLrxi4w8DNLkX_DpLginxvW-SdS99ExB4w"       // 09_人員 (psn)
+    },
+    // Google 試算表 工作表名稱
+    SHEET_NAMES: {
+        PRD: {
+            PRODUCTS: "產品主檔",
+            DETAILS: "產品詳細資料",
+            CATEGORIES: "產品主系列",
+            SUBCATEGORIES: "產品次系列",
+            TYPES: "產品型態",
+            COPYWRITINGS: "行銷文案",
+            FAQS: "產品問答",
+            TESTIMONIALS: "見證主檔",
+            TESTIMONIAL_RELS: "見證關聯",
+            TESTIMONIAL_IMAGES: "見證圖片",
+            PATENTS: "專利主檔",
+            PATENT_RELS: "專利關聯",
+            BUNDLES: "產品組合",
+            BUNDLE_ITEMS: "產品組合明細"
+        },
+        TRN: {
+            ANNOUNCEMENTS: "公告主檔",
+            GENERAL_FAQS: "通用問答",
+            POLICY_DOCS: "營運守則",
+            COMPLIANCE_REPORTS: "法規報備",
+            MILESTONES: "公司大事記",
+            AWARDS: "榮譽獎項",
+            EVENTS: "活動講座",
+            RESOURCES: "雲端資源"
+        },
+        PSI: {
+            WAREHOUSES: "據點倉儲",
+            STOCKS: "庫存主檔",
+            INBOUND_ORDERS: "進貨主檔",
+            INBOUND_ITEMS: "進貨明細",
+            OUTBOUND_ORDERS: "銷貨主檔",
+            OUTBOUND_ITEMS: "銷貨明細",
+            ADJUSTMENTS: "盤點調撥",
+            ALERTS: "庫存預警",
+            SAFETY_THRESHOLDS: "安全門檻"
+        },
+        ORG: {
+            PARTNERS: "夥伴主檔",
+            RELATIONS: "組織關係",
+            RANKS: "職級主檔",
+            RANK_HISTORY: "職級歷程",
+            MONTHLY_PERFS: "月度業績",
+            MANAGER_MONITORS: "門檻調度",
+            SV_LOANS: "積分借貸",
+            SV_ALLOCATIONS: "積分落點",
+            QUALIFICATION_ALERTS: "資格預警",
+            DORMANT_PARTNERS: "沉睡夥伴",
+            COMPRESSION_LOGS: "緊縮日誌",
+            MEETINGS: "會議紀錄"
+        },
+        CRM: {
+            CUSTOMERS: "客戶主檔",
+            CONVERSIONS: "轉化歷程",
+            INTERACTIONS: "關懷紀錄",
+            CONSUMPTION_ESTIMATES: "耗盡推算",
+            SCHEDULES: "採購協調",
+            REORDER_ALERTS: "復購預警",
+            DORMANT_CUSTOMERS: "沉睡客戶",
+            HEALTH_ASSESSMENTS: "健康問卷",
+            ASSESSMENT_RULES: "問卷規則"
+        },
+        FIN: {
+            RECONCILIATIONS: "對帳主檔",
+            TRANSACTIONS: "財務收支",
+            OPERATING_FUNDS: "公款主檔",
+            BONUS_PAYOUTS: "實收獎金",
+            TAX_CONFIGS: "稅務健保",
+            CROSS_BORDER_SWAPS: "跨境對沖",
+            SV_ASSISTANCES: "湊單借點"
+        },
+        SYS: {
+            PERMISSIONS: "權限主檔",
+            ACCESS_LOGS: "存取日誌",
+            MENUS: "選單架構",
+            DYNAMIC_LINKS: "連結主檔",
+            API_CONFIGS: "轉接字典",
+            DAILY_STATS: "流量統計",
+            COMPLIANCE_KEYWORDS: "合規詞庫",
+            COPY_AUDITS: "文案審查",
+            PERFORMANCE_CALENDARS: "業績日曆"
+        },
+        MY: {
+            TRIPS: "出差任務",
+            FLIGHTS: "航班機票",
+            ACCOMMODATIONS: "旅店住宿",
+            ITINERARIES: "行程排程",
+            EXPENSES: "差旅費用",
+            SUPPLIES_CHECKLIST: "試用備品",
+            FIELD_NOTES: "考察筆記",
+            TRANSITS: "交通路線"
+        },
+        PSN: {
+            PERSON: "個人主檔",
+            PERSON_CONTACTS: "通訊資料",
+            PERSON_LANGUAGES: "使用語言",
+            FAMILY_RELATIONS: "家庭關係"
+        }
+    },
+    // 倉儲
+    PSI: {
+        EXPIRY_RADAR_DAYS: {        // 效期警戒
+            WARNING: 90,            // 效期警戒第一道防線（預設 90 天，觸發近效期調撥或促銷告警）
+            CRITICAL: 30            // 效期警戒極危防線（預設 30 天，觸發極危銷毀或試飲消耗處置）
+        }
+    },
+    // 財務
+    FIN: {
+        DEFAULT_CURRENCY: "TWD",      // 預設幣別
+        EXCHANGE_RATE: {            // 匯率
+            MYR_TWD: 8.00           // 馬幣換算新台幣（ 1 MYR = ? NTD）
+        }
     }
 };
+
+// 進行全域深層凍結，防止執行階段被惡意或意外竄改
+(function deepFreeze(obj) {
+    Object.keys(obj).forEach(prop => {
+        if (typeof obj[prop] === 'object' && obj[prop] !== null && !Object.isFrozen(obj[prop])) {
+            deepFreeze(obj[prop]);
+        }
+    });
+    Object.freeze(obj);
+})(APP_CONFIG);
 
 (function() {
     'use strict';

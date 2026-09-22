@@ -344,36 +344,50 @@ const AppDate = (function () {
         },
 
         /**
-         * 精準計算實歲年齡 (支援 YYYY / YYYY-MM / YYYY-MM-DD 多階精度)
+         * 精準計算實歲年齡 (支援身故日期凍結與 YYYY / YYYY-MM / YYYY-MM-DD 多階精度)
          * @param {string|Date} val 生日字串或 Date 物件
+         * @param {string|Date} [deceasedVal=null] 身故日期字串或 Date 物件 (若有填則以身故日為終點結算享年)
          * @returns {number|null} 實歲數值 (異常或未填時回傳 null)
          */
-        calculateAge: function (val) {
+        calculateAge: function (val, deceasedVal = null) {
             const p = parseParts(val);
             if (!p || !p.year) return null;
 
             const birthYear = parseInt(p.year, 10);
             if (isNaN(birthYear) || birthYear < 1900) return null;
 
-            const now = new Date();
-            const curYear = now.getFullYear();
-            if (birthYear > curYear) return null;
+            // 1. 決定基準終點：若有身故日期則以身故日為準，否則以當前時間為準
+            const pEnd = deceasedVal ? parseParts(deceasedVal) : null;
+            let endYear, endMonth, endDay, endPrecision;
 
-            let age = curYear - birthYear;
-            const curMonth = now.getMonth() + 1;
-            const curDay = now.getDate();
+            if (pEnd && pEnd.year) {
+                endYear = parseInt(pEnd.year, 10);
+                endMonth = pEnd.month ? parseInt(pEnd.month, 10) : null;
+                endDay = pEnd.day ? parseInt(pEnd.day, 10) : null;
+                endPrecision = pEnd.precision;
+            } else {
+                const now = new Date();
+                endYear = now.getFullYear();
+                endMonth = now.getMonth() + 1;
+                endDay = now.getDate();
+                endPrecision = 'D';
+            }
 
-            // 1. 日精度 (D)：精準判斷今年生日是否已過
-            if (p.precision === 'D' && p.month && p.day) {
+            if (isNaN(endYear) || birthYear > endYear) return null;
+
+            let age = endYear - birthYear;
+
+            // 2. 雙方皆具備日精度 (D)：精準判定該年身故日/當前日是否已過生日
+            if (p.precision === 'D' && p.month && p.day && endPrecision === 'D' && endMonth && endDay) {
                 const birthMonth = parseInt(p.month, 10);
                 const birthDay = parseInt(p.day, 10);
-                if (curMonth < birthMonth || (curMonth === birthMonth && curDay < birthDay)) {
+                if (endMonth < birthMonth || (endMonth === birthMonth && endDay < birthDay)) {
                     age--;
                 }
-            // 2. 月精度 (M)：依月份先後判斷
-            } else if (p.precision === 'M' && p.month) {
+            // 3. 雙方至少具備月精度 (M)：依月份先後判定
+            } else if (p.month && endMonth) {
                 const birthMonth = parseInt(p.month, 10);
-                if (curMonth < birthMonth) {
+                if (endMonth < birthMonth) {
                     age--;
                 }
             }
@@ -382,14 +396,16 @@ const AppDate = (function () {
         },
 
         /**
-         * 取得年齡展示文字 (如 "28 歲"，未填則回傳 fallback)
-         * @param {string|Date} val 生日字串或 Date 物件
-         * @param {string} fallback 預設替代文字 (預設為 '')
+         * 取得年齡展示文字 (身故者自動標示為「享年 X 歲」)
+         * @param {string|Date} val 生日字串
+         * @param {string|Date} [deceasedVal=null] 身故日期字串
+         * @param {string} [fallback=''] 預設替代文字
          * @returns {string}
          */
-        toAgeDisplay: function (val, fallback = '') {
-            const age = this.calculateAge(val);
-            return (age !== null) ? `${age} 歲` : fallback;
+        toAgeDisplay: function (val, deceasedVal = null, fallback = '') {
+            const age = this.calculateAge(val, deceasedVal);
+            if (age === null) return fallback;
+            return deceasedVal ? `享年 ${age} 歲` : `${age} 歲`;
         }
     };
 })();

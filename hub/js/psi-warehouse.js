@@ -10,7 +10,7 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    WAREHOUSES: '據點倉儲'
+    WAREHOUSES: APP_CONFIG.SHEET_NAMES.PSI.WAREHOUSES
 };
 
 // ==========================================================================

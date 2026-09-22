@@ -10,7 +10,7 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    MENUS: '選單架構'
+    MENUS: APP_CONFIG.SHEET_NAMES.SYS.MENUS
 };
 
 // ==========================================================================
