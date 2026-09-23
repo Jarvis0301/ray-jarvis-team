@@ -641,11 +641,11 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: { ticks: { color: '#a78bfa' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
                     y: {
                         type: 'linear', position: 'left',
                         title: { display: true, text: '金額 (NT$)', color: '#8b5cf6' },
-                        ticks: { color: '#c084fc' },
+                        ticks: { color: '#f5f3ff' },
                         grid: { color: 'rgba(139, 92, 246, 0.12)' }
                     },
                     y1: {
@@ -655,7 +655,7 @@ function renderCharts() {
                         grid: { drawOnChartArea: false }
                     }
                 },
-                plugins: { legend: { labels: { color: '#f5f3ff', font: { size: 10 } } } }
+                plugins: { legend: { labels: { color: '#f5f3ff', font: { size: 12 } } } }
             }
         });
     }
@@ -689,14 +689,14 @@ function renderCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { ticks: { color: '#a78bfa' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
                     y: {
                         ticks: { color: '#34d399' },
                         grid: { color: 'rgba(52, 211, 153, 0.12)' },
                         title: { display: true, text: '毛利 (NT$)', color: '#34d399' }
                     }
                 },
-                plugins: { legend: { labels: { color: '#f5f3ff', font: { size: 10 } } } }
+                plugins: { legend: { labels: { color: '#f5f3ff', font: { size: 12 } } } }
             }
         });
     }
@@ -730,7 +730,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -773,7 +773,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -816,7 +816,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -831,7 +831,51 @@ function renderCharts() {
         });
     }
 
-    // 6. 出貨倉庫盒數佔比
+    // 6. 付款金流管道佔比
+    const ctxPayment = document.getElementById('chartPaymentShare');
+    if (ctxPayment) {
+        const payMap = {};
+        activeOrders.forEach(d => {
+            const platform = d.payment_platform || d.payment_method || '現金';
+            payMap[platform] = (payMap[platform] || 0) + 1;
+        });
+
+        const labels = Object.keys(payMap);
+        const data = Object.values(payMap);
+        const totalPayCount = data.reduce((a, b) => a + b, 0);
+        const colors = ['#38bdf8', '#818cf8', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#fb7185'];
+
+        appState.chartInstances.payment = new Chart(ctxPayment, {
+            type: 'doughnut',
+            data: {
+                labels: labels.length ? labels : ['無數據'],
+                datasets: [{
+                    data: totalPayCount > 0 ? data : [1],
+                    backgroundColor: totalPayCount > 0 ? colors.slice(0, labels.length) : ['#334155'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed || 0;
+                                const pct = totalPayCount > 0 ? ((val / totalPayCount) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 7. 出貨倉庫盒數佔比
     const ctxWh = document.getElementById('chartWarehouseShare');
     if (ctxWh) {
         const whMap = {};
@@ -860,7 +904,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -875,7 +919,51 @@ function renderCharts() {
         });
     }
 
-    // 7. 出庫履約狀態佔比
+    // 8. 交付管道結構佔比
+    const ctxDelivery = document.getElementById('chartDeliveryShare');
+    if (ctxDelivery) {
+        const dlvMap = {};
+        activeOrders.forEach(d => {
+            const method = d.delivery_method || '面交自取';
+            dlvMap[method] = (dlvMap[method] || 0) + 1;
+        });
+
+        const labels = Object.keys(dlvMap);
+        const data = Object.values(dlvMap);
+        const totalDlvCount = data.reduce((a, b) => a + b, 0);
+        const colors = ['#fbbf24', '#38bdf8', '#34d399', '#c084fc', '#fb7185', '#a855f7'];
+
+        appState.chartInstances.delivery = new Chart(ctxDelivery, {
+            type: 'doughnut',
+            data: {
+                labels: labels.length ? labels : ['無數據'],
+                datasets: [{
+                    data: totalDlvCount > 0 ? data : [1],
+                    backgroundColor: totalDlvCount > 0 ? colors.slice(0, labels.length) : ['#334155'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed || 0;
+                                const pct = totalDlvCount > 0 ? ((val / totalDlvCount) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 9. 出庫履約狀態佔比
     const ctxFulfill = document.getElementById('chartFulfillmentStatusShare');
     if (ctxFulfill) {
         const statusTypes = ['草稿', '待取貨', '已寄出', '已交付', '已取消'];
@@ -898,7 +986,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -913,7 +1001,7 @@ function renderCharts() {
         });
     }
 
-    // 8. 預扣狀態佔比
+    // 10. 預扣狀態佔比
     const ctxHold = document.getElementById('chartHoldStatusShare');
     if (ctxHold) {
         let holdCount = 0;
@@ -941,7 +1029,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {

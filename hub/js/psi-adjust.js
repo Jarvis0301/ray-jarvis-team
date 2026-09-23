@@ -1156,7 +1156,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: { ticks: { color: '#a78bfa' }, grid: { color: 'rgba(139, 92, 246, 0.1)' } },
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.1)' } },
                     yQty: {
                         type: 'linear', position: 'left',
                         ticks: { color: '#38bdf8', callback: v => `${v.toLocaleString()} 盒` },
@@ -1169,13 +1169,91 @@ function renderCharts() {
                     }
                 },
                 plugins: {
-                    legend: { labels: { color: '#f5f3ff', font: { size: 10 } } }
+                    legend: { labels: { color: '#f5f3ff', font: { size: 12 } } }
                 }
             }
         });
     }
 
-    // 2. 異動類型佔比分佈 (甜甜圈)
+    // 2. 各據點異動熱度 (調出 / 調入)
+    const ctxWh = document.getElementById('chartWarehouseActivity');
+    if (ctxWh) {
+        const whOutMap = {};
+        const whInMap = {};
+
+        adjustments.forEach(a => {
+            const qty = Math.abs(a.quantity);
+            if (a.from_warehouse_id) {
+                const fromName = EntityResolver.warehouse(a.from_warehouse_id, appState.warehouses, 1) || a.from_warehouse_id;
+                whOutMap[fromName] = AppCalc.add(whOutMap[fromName] || 0, qty);
+            }
+            if (a.to_warehouse_id) {
+                const toName = EntityResolver.warehouse(a.to_warehouse_id, appState.warehouses, 1) || a.to_warehouse_id;
+                whInMap[toName] = AppCalc.add(whInMap[toName] || 0, qty);
+            }
+        });
+
+        const allWhNames = Array.from(new Set([...Object.keys(whOutMap), ...Object.keys(whInMap)]));
+        const labels = allWhNames.length ? allWhNames : ['無據點數據'];
+
+        appState.chartInstances.whActivity = new Chart(ctxWh, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '調出 / 損耗扣減 (盒)',
+                        data: allWhNames.length ? allWhNames.map(name => whOutMap[name] || 0) : [0],
+                        backgroundColor: 'rgba(251, 113, 133, 0.85)',
+                        borderColor: '#fb7185',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: '調入 / 增補庫存 (盒)',
+                        data: allWhNames.length ? allWhNames.map(name => whInMap[name] || 0) : [0],
+                        backgroundColor: 'rgba(56, 189, 248, 0.85)',
+                        borderColor: '#38bdf8',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: {
+                        ticks: { color: '#f5f3ff' },
+                        grid: { color: 'rgba(139, 92, 246, 0.08)' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#f5f3ff',
+                            precision: 0,
+                            callback: v => `${v.toLocaleString()} 盒`
+                        },
+                        grid: { color: 'rgba(139, 92, 246, 0.12)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#f5f3ff', font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}：${Number(ctx.parsed.y || 0).toLocaleString()} 盒`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. 異動類型佔比分佈 (甜甜圈)
     const ctxPareto = document.getElementById('chartVariancePareto');
     if (ctxPareto) {
         const types = ['跨倉調撥', '盤盈', '盤虧', '破損過期', '自用消耗', '試用發放', '拆盒解封'];
@@ -1197,7 +1275,157 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } }
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    // 4. 損耗成本品項分佈佔比
+    const ctxLossPrd = document.getElementById('chartLossPrd');
+    if (ctxLossPrd) {
+        const lossMap = {};
+        adjustments
+            .filter(a => a.adj_type === '盤虧' || a.adj_type === '破損過期')
+            .forEach(a => {
+                const name = a.product_name_snaps || a.official_product_code || a.product_id || '未命名品項';
+                lossMap[name] = AppCalc.add(lossMap[name] || 0, parseFloat(a.total_cost) || 0);
+            });
+
+        const labels = Object.keys(lossMap);
+        const data = labels.map(k => lossMap[k]);
+        const totalLoss = data.reduce((sum, v) => AppCalc.add(sum, v), 0);
+        const colors = ['#fb7185', '#f43f5e', '#e11d48', '#be123c', '#fda4af', '#fecdd3'];
+
+        appState.chartInstances.lossTopPrd = new Chart(ctxLossPrd, {
+            type: 'doughnut',
+            data: {
+                labels: labels.length ? labels : ['無損耗數據'],
+                datasets: [{
+                    data: totalLoss > 0 ? data : [1],
+                    backgroundColor: totalLoss > 0 ? colors.slice(0, labels.length) : ['#334155'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed || 0;
+                                const pct = totalLoss > 0 ? ((val / totalLoss) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：NT$ ${Number(val).toLocaleString()} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 5. 試用發放 vs 自用消耗成本
+    const ctxCostDist = document.getElementById('chartCostDistribution');
+    if (ctxCostDist) {
+        let demoCost = 0;
+        let personalCost = 0;
+
+        adjustments.forEach(a => {
+            const cost = parseFloat(a.total_cost) || 0;
+            if (a.adj_type === '試用發放') {
+                demoCost = AppCalc.add(demoCost, cost);
+            } else if (a.adj_type === '自用消耗') {
+                personalCost = AppCalc.add(personalCost, cost);
+            }
+        });
+
+        const totalCost = AppCalc.add(demoCost, personalCost);
+        const labels = ['試用發放 (推廣轉化)', '自用消耗 (團隊免稅)'];
+        const data = [demoCost, personalCost];
+
+        appState.chartInstances.svDist = new Chart(ctxCostDist, {
+            type: 'doughnut',
+            data: {
+                labels: totalCost > 0 ? labels : ['無發放/消耗數據'],
+                datasets: [{
+                    data: totalCost > 0 ? data : [1],
+                    backgroundColor: totalCost > 0 ? ['#fbbf24', '#c084fc'] : ['#334155'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed || 0;
+                                const pct = totalCost > 0 ? ((val / totalCost) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：NT$ ${Number(val).toLocaleString()} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 6. 跨倉調撥品項流通佔比
+    const ctxTransferPrd = document.getElementById('chartTransferPrd');
+    if (ctxTransferPrd) {
+        const transferMap = {};
+        adjustments
+            .filter(a => a.adj_type === '跨倉調撥')
+            .forEach(a => {
+                const name = a.product_name_snaps || a.official_product_code || a.product_id || '未命名品項';
+                transferMap[name] = AppCalc.add(transferMap[name] || 0, Math.abs(a.quantity));
+            });
+
+        const labels = Object.keys(transferMap);
+        const data = labels.map(k => transferMap[k]);
+        const totalTransfer = data.reduce((sum, v) => AppCalc.add(sum, v), 0);
+        const colors = ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#a78bfa', '#2dd4bf'];
+
+        appState.chartInstances.transferTopPrd = new Chart(ctxTransferPrd, {
+            type: 'doughnut',
+            data: {
+                labels: labels.length ? labels : ['無調撥數據'],
+                datasets: [{
+                    data: totalTransfer > 0 ? data : [1],
+                    backgroundColor: totalTransfer > 0 ? colors.slice(0, labels.length) : ['#334155'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed || 0;
+                                const pct = totalTransfer > 0 ? ((val / totalTransfer) * 100).toFixed(1) : '0.0';
+                                return ` ${ctx.label}：${Number(val).toLocaleString()} 盒 (${pct}%)`;
+                            }
+                        }
+                    }
                 }
             }
         });

@@ -658,7 +658,7 @@ function initChart() {
             scales: {
                 x: {
                     ticks: {
-                        color: '#94a3b8',
+                        color: '#f5f3ff',
                         font: { size: 9 },
                         callback: val => `${val} 元`
                     },

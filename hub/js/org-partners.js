@@ -337,33 +337,38 @@ function syncCoOperatorStatusAndRelations() {
     if (!partnersList || partnersList.length === 0) return;
 
     partnersList.forEach(partner => {
-        const isCoOp = (partner.account_holder_type === '共同經營者' || partner.operation_mode === '共同經營');
+        // ★ 核心修復：僅針對實質「共同經營者」進行動態投影，不可單憑 operation_mode 判定
+        if (partner.account_holder_type !== '共同經營者') return;
+
         const primaryId = partner.official_account_partner_id || partner.spouse_partner_id;
+        if (!primaryId || primaryId === partner.partner_id) return;
 
-        if (isCoOp && primaryId && primaryId !== partner.partner_id) {
-            const primary = partnersList.find(p => p.partner_id === primaryId || p.member_no === primaryId);
-            if (primary) {
-                partner.current_rank_id = primary.current_rank_id;
-                partner.highest_rank_id = primary.highest_rank_id;
-                partner.diamond_star_level = primary.diamond_star_level;
-                partner.star_eval_eligible_date = primary.star_eval_eligible_date;
+        const primary = partnersList.find(p => (p.partner_id === primaryId || p.member_no === primaryId) && p.partner_id !== partner.partner_id);
+        if (primary && primary.account_holder_type !== '共同經營者') {
+            // 1. 強同步職級與藍鑽星階
+            partner.current_rank_id = primary.current_rank_id;
+            partner.highest_rank_id = primary.highest_rank_id;
+            partner.diamond_star_level = primary.diamond_star_level;
+            partner.star_eval_eligible_date = primary.star_eval_eligible_date;
 
-                partner.relation_type = primary.relation_type;
-                partner.is_our_team = primary.is_our_team;
-                partner.country_code = primary.country_code;
+            // 2. 強同步組織關係與直轄標記
+            partner.relation_type = primary.relation_type;
+            partner.is_our_team = primary.is_our_team;
+            partner.country_code = primary.country_code;
 
-                partner.placement_id = primary.placement_id;
-                partner.sponsor_id = primary.sponsor_id;
-                partner.known_mentor_id = primary.known_mentor_id;
-                partner.upline_link_type = primary.upline_link_type;
+            // 3. 強同步排線上線與輔導路徑
+            partner.placement_id = primary.placement_id;
+            partner.sponsor_id = primary.sponsor_id;
+            partner.known_mentor_id = primary.known_mentor_id;
+            partner.upline_link_type = primary.upline_link_type;
 
-                if (!primary.spouse_partner_id) {
-                    primary.spouse_partner_id = partner.partner_id;
-                }
-                if (primary.account_holder_type !== '主要經營者') {
-                    primary.account_holder_type = '主要經營者';
-                    primary.operation_mode = '共同經營';
-                }
+            // 4. 校準主要經營者之雙向互連狀態
+            if (!primary.spouse_partner_id) {
+                primary.spouse_partner_id = partner.partner_id;
+            }
+            if (primary.account_holder_type !== '主要經營者') {
+                primary.account_holder_type = '主要經營者';
+                primary.operation_mode = '共同經營';
             }
         }
     });
@@ -754,11 +759,6 @@ function getPersonMaster(personId) {
     return personMasterList.find(p => p.person_id === personId) || {};
 }
 
-function getPartnerDisplayName(target, displayMode = 1) {
-    if (!target || target === 'ROOT' || target === 'SYSTEM_ROOT' || target === '未知' || target === '(未知)') return '';
-    return EntityResolver.partner(target, partnersList, personMasterList, displayMode) || '（未知姓名）';
-}
-
 function getRankInfo(rankId) {
     if (rankId && ranksMap[rankId]) return ranksMap[rankId];
     return {
@@ -925,13 +925,13 @@ function renderCardsView(list) {
         const currentRank = getRankInfo(p.current_rank_id);
         const highestRank = getRankInfo(p.highest_rank_id);
         const cardBorderClass = (p.relation_type === '核心成員') ? 'is-core' : (p.relation_type === '旁線' ? 'is-cross' : '');
-        const mentorName = getPartnerDisplayName(p.known_mentor_id);
-        const dispName = getPartnerDisplayName(p);
+        const mentorName = EntityResolver.partner(p.known_mentor_id, partnersList, personMasterList, 1);
+        const dispName = EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1);
         const spouseId = p.spouse_partner_id || p.official_account_partner_id;
         const coOpPartner = (spouseId && typeof partnersList !== 'undefined')
             ? partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId)
             : null;
-        const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
+        const coOpName = coOpPartner ? EntityResolver.partner(coOpPartner, partnersList, personMasterList, 1) : (spouseId || '');
         const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
         const memberNoHtml = UIBadges.partner.memberNo(p.member_no);
 
@@ -995,7 +995,7 @@ function renderCardsView(list) {
                             </div>
                         </div>
 
-                        <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
+                        <div class="card-incard p-2 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-award text-warning me-1"></i>葡眾官方最高職級</span>
                                 ${UIBadges.rank.badge(highestRank)}
@@ -1044,13 +1044,13 @@ function formatPartnerTableRow(p) {
     const avatarUrl = p.avatar_url || person.avatar_url || getDefaultAvatar(gender);
     const currentRank = getRankInfo(p.current_rank_id);
     const highestRank = getRankInfo(p.highest_rank_id);
-    const mentorName = getPartnerDisplayName(p.known_mentor_id);
-    const dispName = getPartnerDisplayName(p);
+    const mentorName = EntityResolver.partner(p.known_mentor_id, partnersList, personMasterList, 1);
+    const dispName = EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1);
     const spouseId = p.spouse_partner_id || p.official_account_partner_id;
     const coOpPartner = (spouseId && typeof partnersList !== 'undefined')
         ? partnersList.find(x => x.partner_id === spouseId || x.member_no === spouseId)
         : null;
-    const coOpName = coOpPartner ? getPartnerDisplayName(coOpPartner) : (spouseId || '');
+    const coOpName = coOpPartner ? EntityResolver.partner(coOpPartner, partnersList, personMasterList, 1) : (spouseId || '');
     const opBadgeHtml = UIBadges.partner.operationMode(p, coOpName);
     const memberNoHtml = UIBadges.partner.memberNo(p.member_no);
 
@@ -1148,23 +1148,23 @@ function populateTreeRootDropdown() {
         { id: 'TEAM_MEMBERS', text: '團隊成員 ⭐️' }
     ];
 
-    const ray = partnersList.find(p => p.person_id === 'PSN-TW-001' || getPartnerDisplayName(p).includes('翁榮祥'));
-    const jarvis = partnersList.find(p => p.person_id === 'PSN-TW-002' || getPartnerDisplayName(p).includes('林承志'));
-    const weimin = partnersList.find(p => getPartnerDisplayName(p).includes('陳偉民'));
+    const ray = partnersList.find(p => p.person_id === 'PSN-TW-001' || EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1).includes('翁榮祥'));
+    const jarvis = partnersList.find(p => p.person_id === 'PSN-TW-002' || EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1).includes('林承志'));
+    const weimin = partnersList.find(p => EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1).includes('陳偉民'));
 
-    if (ray) pinnedOptions.push({ id: ray.partner_id, text: `${getPartnerDisplayName(ray)} [${getRankInfo(ray.highest_rank_id).rank_name_zh}] ⭐️` });
-    if (jarvis) pinnedOptions.push({ id: jarvis.partner_id, text: `${getPartnerDisplayName(jarvis)} [${getRankInfo(jarvis.highest_rank_id).rank_name_zh}] ⭐️` });
-    if (weimin) pinnedOptions.push({ id: weimin.partner_id, text: `${getPartnerDisplayName(weimin)} [${getRankInfo(weimin.highest_rank_id).rank_name_zh}]` });
+    if (ray) pinnedOptions.push({ id: ray.partner_id, text: `${EntityResolver.partner(ray, partnersList, personMasterList, 1)} [${getRankInfo(ray.highest_rank_id).rank_name_zh}] ⭐️` });
+    if (jarvis) pinnedOptions.push({ id: jarvis.partner_id, text: `${EntityResolver.partner(jarvis, partnersList, personMasterList, 1)} [${getRankInfo(jarvis.highest_rank_id).rank_name_zh}] ⭐️` });
+    if (weimin) pinnedOptions.push({ id: weimin.partner_id, text: `${EntityResolver.partner(weimin, partnersList, personMasterList, 1)} [${getRankInfo(weimin.highest_rank_id).rank_name_zh}]` });
 
     const pinnedIds = new Set(pinnedOptions.map(o => o.id));
     const others = partnersList.filter(p => !pinnedIds.has(p.partner_id) && p.account_holder_type !== '共同經營者');
 
     others.sort((a, b) => {
-        return getPartnerDisplayName(a).localeCompare(getPartnerDisplayName(b), 'zh-TW');
+        return EntityResolver.partner(a, partnersList, personMasterList, 1).localeCompare(EntityResolver.partner(b, partnersList, personMasterList, 1), 'zh-TW');
     });
 
     const otherOptions = others.map(p => {
-        const dispName = getPartnerDisplayName(p);
+        const dispName = EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1);
         const rank = getRankInfo(p.highest_rank_id);
         const isCoreSuffix = (p.is_our_team === 'Y') ? ' ⭐️' : '';
         return {
@@ -1273,7 +1273,7 @@ function renderPartnerSubColumnHtml(partner, isSpouse = false) {
     const avatarUrl = partner.avatar_url || person.avatar_url || getDefaultAvatar(gender);
     const currentRank = getRankInfo(partner.current_rank_id);
     const highestRank = getRankInfo(partner.highest_rank_id);
-    const dispName = getPartnerDisplayName(partner);
+    const dispName = EntityResolver.partner(partner.partner_id, partnersList, personMasterList, 1);
     const memberNoText = partner.member_no ? `<span class="text-secondary small ms-1">(${partner.member_no})</span>` : '';
 
     return `
@@ -1430,7 +1430,7 @@ function renderTreeView() {
     let targetRootPartners = [];
 
     if (selectedTreeRootId === 'TEAM_MEMBERS') {
-        const rayNode = partnersList.find(p => p.person_id === 'PSN-TW-001' || getPartnerDisplayName(p).includes('翁榮祥'));
+        const rayNode = partnersList.find(p => p.person_id === 'PSN-TW-001' || EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1).includes('翁榮祥'));
         if (rayNode) targetRootPartners = [rayNode];
     } else if (selectedTreeRootId && selectedTreeRootId !== 'ALL') {
         const customRoot = partnersList.find(p => p.partner_id === selectedTreeRootId);
@@ -1469,7 +1469,7 @@ function renderTreeView() {
 // ============================================================================
 const getPieTooltipOptions = () => ({
     plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } },
+        legend: { position: 'bottom', labels: { color: '#f5f3ff', font: { size: 12 } } },
         tooltip: {
             callbacks: {
                 label: function (context) {
@@ -1550,13 +1550,22 @@ function renderLanguageSectionCharts(targetLang, dataset) {
 function calculatePartnerGenDepth(partnerId, allList, visited = new Set()) {
     if (!partnerId || visited.has(partnerId)) return 0;
     visited.add(partnerId);
+
+    // 取得推薦線直屬下線
     const children = allList.filter(p => p.sponsor_id === partnerId && p.partner_id !== partnerId);
     if (children.length === 0) return 0;
-    let maxChildDepth = 0;
+
+    let maxBranchDepth = 0;
     for (const child of children) {
-        maxChildDepth = Math.max(maxChildDepth, calculatePartnerGenDepth(child.partner_id, allList, new Set(visited)));
+        const rankInfo = getRankInfo(child.current_rank_id);
+        // 經理級 (Rank Level >= 40) 起算 1 代；經理以下則緊縮並向下穿透尋找
+        const isQualifiedManager = (rankInfo && rankInfo.rank_level >= 40);
+        const childGenGain = isQualifiedManager ? 1 : 0;
+
+        const subDepth = calculatePartnerGenDepth(child.partner_id, allList, new Set(visited));
+        maxBranchDepth = Math.max(maxBranchDepth, childGenGain + subDepth);
     }
-    return 1 + maxChildDepth;
+    return maxBranchDepth;
 }
 
 function createExactCountMap(dataset, fieldExtractor) {
@@ -1974,7 +1983,7 @@ function renderChartsView(filteredDataset = null) {
     const depthData = [];
     dataset.forEach(p => {
         const depth = calculatePartnerGenDepth(p.partner_id, partnersList);
-        if (depth > 0) depthData.push({ name: getPartnerDisplayName(p) || p.partner_id, depth });
+        if (depth > 0) depthData.push({ name: EntityResolver.partner(p.partner_id, partnersList, personMasterList, 1) || p.partner_id, depth });
     });
     const sortedDepth = depthData.sort((a, b) => b.depth - a.depth).slice(0, 10);
     const ctxDepth = document.getElementById('chart-gen-depth-top10');
@@ -1989,10 +1998,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -2002,7 +2011,7 @@ function renderChartsView(filteredDataset = null) {
     const mentorCounts = {};
     dataset.forEach(p => {
         if (p.known_mentor_id && p.known_mentor_id !== 'ROOT' && p.known_mentor_id !== 'SYSTEM_ROOT') {
-            const mName = getPartnerDisplayName(p.known_mentor_id) || p.known_mentor_id;
+            const mName = EntityResolver.partner(p.known_mentor_id, partnersList, personMasterList, 1);
             mentorCounts[mName] = (mentorCounts[mName] || 0) + 1;
         }
     });
@@ -2019,10 +2028,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -2069,11 +2078,11 @@ function renderChartsView(filteredDataset = null) {
                         ticks: {
                             stepSize: 1, // ★ 間隔最小單位為整數
                             precision: 0,
-                            color: '#94a3b8'
+                            color: '#f5f3ff'
                         },
                         grid: { color: 'rgba(255, 255, 255, 0.05)' }
                     },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
                 }
             }
         });
@@ -2120,11 +2129,11 @@ function renderChartsView(filteredDataset = null) {
                         ticks: {
                             stepSize: 1,
                             precision: 0,
-                            color: '#94a3b8'
+                            color: '#f5f3ff'
                         },
                         grid: { color: 'rgba(255, 255, 255, 0.05)' }
                     },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
                 }
             }
         });
@@ -2151,10 +2160,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 補齊整數規範
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 補齊整數規範
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
                 }
             }
         });
@@ -2181,10 +2190,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 補齊整數規範
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 補齊整數規範
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
                 }
             }
         });
@@ -2347,7 +2356,7 @@ function openPartnerModalForEdit(partnerId) {
     const person = getPersonMaster(partner.person_id);
     populateSelect2Options();
 
-    $('#partnerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary me-1"></i>編輯檔案 - ${getPartnerDisplayName(partner)}`);
+    $('#partnerModalTitle').html(`<i class="fa-solid fa-id-card-clip text-primary me-1"></i>編輯檔案 - ${EntityResolver.partner(partner.partner_id, partnersList, personMasterList, 1)}`);
     $('#form-submit-btn').show();
     $('#form-mode').val('UPDATE');
 
@@ -2470,7 +2479,7 @@ function openPartnerModalForView(partnerId) {
     const avatarUrl = partner.avatar_url || person.avatar_url || getDefaultAvatar(gender);
     const currentRank = getRankInfo(partner.current_rank_id);
     const highestRank = getRankInfo(partner.highest_rank_id);
-    const dispName = getPartnerDisplayName(partner);
+    const dispName = EntityResolver.partner(partner.partner_id, partnersList, personMasterList, 1);
 
     $('#view-header-id').text(`[${partner.partner_id} / ${person.person_id || '無個人ID'}]`);
     $('#view-avatar').attr('src', avatarUrl);
@@ -2529,9 +2538,9 @@ function openPartnerModalForView(partnerId) {
     const memberNoStr = partner.member_no ? `(${partner.member_no})` : '';
     $('#view-partner-member-no').html(`${partner.partner_id} ${memberNoStr}`);
     $('#view-market-team').html(`${UIBadges.common.country(partner.country_code)} ${partner.is_our_team === 'Y' ? '<span class="text-success ms-1">⭐️ 直轄</span>' : '<span class="text-secondary ms-1">🌐 旁線</span>'}`);
-    $('#view-sponsor').html(partner.sponsor_id ? `${getPartnerDisplayName(partner.sponsor_id)} (${partner.sponsor_id})` : '<span class="text-muted">無 (頂層節點)</span>');
-    $('#view-placement').html(partner.placement_id ? `${getPartnerDisplayName(partner.placement_id)} (${partner.placement_id})` : '<span class="text-muted">無</span>');
-    $('#view-mentor').html(partner.known_mentor_id ? `${getPartnerDisplayName(partner.known_mentor_id)} (${partner.known_mentor_id})` : '<span class="text-muted">無特定指派</span>');
+    $('#view-sponsor').html(partner.sponsor_id ? `${EntityResolver.partner(partner.sponsor_id, partnersList, personMasterList, 1)} (${partner.sponsor_id})` : '<span class="text-muted">無 (頂層節點)</span>');
+    $('#view-placement').html(partner.placement_id ? `${EntityResolver.partner(partner.placement_id, partnersList, personMasterList, 1)} (${partner.placement_id})` : '<span class="text-muted">無</span>');
+    $('#view-mentor').html(partner.known_mentor_id ? `${EntityResolver.partner(partner.known_mentor_id, partnersList, personMasterList, 1)} (${partner.known_mentor_id})` : '<span class="text-muted">無特定指派</span>');
     $('#view-account-op-mode').html(`${formatEmpty(partner.account_holder_type, '個人經營者')} / ${formatEmpty(partner.operation_mode, '個人經營')}`);
     $('#view-operator-work-status').html(`${UIBadges.partner.operatorStatus(partner.operator_status)} ${UIBadges.partner.workStatus(partner.work_status)}`);
     $('#view-link-node-nature').html(`${formatEmpty(partner.upline_link_type, '直屬已知')} / ${formatEmpty(partner.node_nature, '常態夥伴')}`);
@@ -2561,8 +2570,8 @@ function openPartnerModalForView(partnerId) {
 
     $('#view-status-change-reason').html(formatEmpty(partner.status_change_reason, '無異動紀錄'));
 
-    const successorName = partner.successor_partner_id ? getPartnerDisplayName(partner.successor_partner_id) : '';
-    const surrenderedName = partner.surrendered_to_upline_id ? getPartnerDisplayName(partner.surrendered_to_upline_id) : '';
+    const successorName = EntityResolver.partner(partner.successor_partner_id, partnersList, personMasterList, 1);
+    const surrenderedName = EntityResolver.partner(partner.surrendered_to_upline_id, partnersList, personMasterList, 1);
 
     if (!successorName && !surrenderedName) {
         $('#view-successor-surrendered').html('<span class="text-muted">無</span>');
@@ -2656,6 +2665,7 @@ function getFormTrimVal(selector, defaultVal = '') {
 async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr) {
     if (!descendantId) return;
     const silentOpt = { silent: true };
+    const targetLine = relationLine || '安置排線';
 
     const getNextAutoIncrementId = () => {
         if (!orgRelationsList || orgRelationsList.length === 0) return 1;
@@ -2665,90 +2675,88 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         return validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
     };
 
-    if (!ancestorId || ancestorId === 'ROOT' || ancestorId === 'SYSTEM_ROOT' || linkType === '體系頂層') {
-        const existingSelf = orgRelationsList.find(r => 
-            r.ancestor_id === descendantId && r.descendant_id === descendantId
-        );
-
-        const targetId = existingSelf ? existingSelf.id : String(getNextAutoIncrementId());
-        const createdBy = existingSelf ? existingSelf.created_by : currentUser;
-        const createdAt = existingSelf ? existingSelf.created_at : nowStr;
-
-        const selfRelationRow = [
-            targetId,
-            descendantId,
-            descendantId,
-            0,
-            'Y',
-            '精確血緣',
-            relationLine || '安置排線',
-            descendantId,
-            createdBy,
-            createdAt,
-            currentUser,
-            nowStr
+    // 1. 確保「自體參照」存在 (descendant -> descendant, depth = 0)
+    let selfRel = orgRelationsList.find(r => 
+        r.ancestor_id === descendantId && 
+        r.descendant_id === descendantId &&
+        r.relation_line === targetLine
+    );
+    if (!selfRel) {
+        const selfId = String(getNextAutoIncrementId());
+        const selfRow = [
+            selfId, descendantId, descendantId, 0, 'Y', '精確血緣',
+            targetLine, descendantId, currentUser, nowStr, currentUser, nowStr
         ];
+        await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, selfId, selfRow, GAS_DEPLOY_ID.ORG, silentOpt);
+        orgRelationsList.push({
+            id: selfId, ancestor_id: descendantId, descendant_id: descendantId,
+            depth: 0, is_depth_exact: 'Y', link_nature: '精確血緣',
+            relation_line: targetLine, path_trace: descendantId
+        });
+    }
 
-        if (existingSelf) {
-            await SheetAdapter.updateRow(SHEET_NAMES.RELATIONS, targetId, selfRelationRow, GAS_DEPLOY_ID.ORG, silentOpt);
-        } else {
-            await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, targetId, selfRelationRow, GAS_DEPLOY_ID.ORG, silentOpt);
+    // 2. 若無上線（頂層節點），清理過往祖先鏈後結束
+    if (!ancestorId || ancestorId === 'ROOT' || ancestorId === 'SYSTEM_ROOT' || linkType === '體系頂層') {
+        const oldAncestors = orgRelationsList.filter(r => 
+            r.descendant_id === descendantId && 
+            r.ancestor_id !== descendantId &&
+            r.relation_line === targetLine
+        );
+        for (const old of oldAncestors) {
+            await SheetAdapter.deleteRow(SHEET_NAMES.RELATIONS, old.id, GAS_DEPLOY_ID.ORG, silentOpt).catch(() => {});
         }
+        orgRelationsList = orgRelationsList.filter(r => !(r.descendant_id === descendantId && r.ancestor_id !== descendantId && r.relation_line === targetLine));
         return;
     }
 
-    let depth = 1;
-    let isDepthExact = 'Y';
-    let linkNature = '精確血緣';
-    let pathTrace = `${ancestorId}/${descendantId}`;
-
+    // 3. 計算直屬上線與本人的間隔代數
     const numGaps = parseInt(gapCount, 10) || 0;
-
+    let directDepth = 1;
+    let isDirectExact = 'Y';
+    let directLinkNature = '精確血緣';
     if (linkType === '已知人數斷層' && numGaps > 0) {
-        depth = numGaps + 1;
-        isDepthExact = 'Y';
-        linkNature = '已知人數斷層';
-        pathTrace = `${ancestorId}/GAP_${numGaps}/${descendantId}`;
+        directDepth = numGaps + 1;
+        directLinkNature = '已知人數斷層';
     } else if (linkType === '中間未知' || linkType === '未知斷層直連') {
-        depth = 1;
-        isDepthExact = 'N';
-        linkNature = '未知斷層直連';
-        pathTrace = `${ancestorId}/UNKNOWN_GAP/${descendantId}`;
-    } else {
-        depth = 1;
-        isDepthExact = 'Y';
-        linkNature = '精確血緣';
-        pathTrace = `${ancestorId}/${descendantId}`;
+        directDepth = 1;
+        isDirectExact = 'N';
+        directLinkNature = '未知斷層直連';
     }
 
-    const existingRel = orgRelationsList.find(r => 
+    // 4. 清理本人在該線路下既有的非自體祖先關係
+    const oldRels = orgRelationsList.filter(r => 
         r.descendant_id === descendantId && 
-        (r.relation_line === relationLine || !r.relation_line || r.relation_line === '安置排線')
+        r.ancestor_id !== descendantId &&
+        r.relation_line === targetLine
+    );
+    for (const old of oldRels) {
+        await SheetAdapter.deleteRow(SHEET_NAMES.RELATIONS, old.id, GAS_DEPLOY_ID.ORG, silentOpt).catch(() => {});
+    }
+    orgRelationsList = orgRelationsList.filter(r => !(r.descendant_id === descendantId && r.ancestor_id !== descendantId && r.relation_line === targetLine));
+
+    // 5. 檢索上線的所有祖先（包含上線自體 depth=0），批次建立「祖先 -> 本人」完整閉包鏈
+    const ancestorRows = orgRelationsList.filter(r => 
+        r.descendant_id === ancestorId && 
+        r.relation_line === targetLine
     );
 
-    const targetId = existingRel ? existingRel.id : String(getNextAutoIncrementId());
-    const createdBy = existingRel ? existingRel.created_by : currentUser;
-    const createdAt = existingRel ? existingRel.created_at : nowStr;
+    for (const aRow of ancestorRows) {
+        const targetId = String(getNextAutoIncrementId());
+        const totalDepth = aRow.depth + directDepth;
+        const totalExact = (aRow.is_depth_exact === 'Y' && isDirectExact === 'Y') ? 'Y' : 'N';
+        const totalNature = (aRow.ancestor_id === ancestorId) ? directLinkNature : aRow.link_nature;
+        const trace = `${aRow.path_trace}/${descendantId}`;
 
-    const relationRowArray = [
-        targetId,
-        ancestorId,
-        descendantId,
-        depth,
-        isDepthExact,
-        linkNature,
-        relationLine || '安置排線',
-        pathTrace,
-        createdBy,
-        createdAt,
-        currentUser,
-        nowStr
-    ];
-
-    if (existingRel) {
-        await SheetAdapter.updateRow(SHEET_NAMES.RELATIONS, targetId, relationRowArray, GAS_DEPLOY_ID.ORG, silentOpt);
-    } else {
-        await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, targetId, relationRowArray, GAS_DEPLOY_ID.ORG, silentOpt);
+        const newRow = [
+            targetId, aRow.ancestor_id, descendantId, totalDepth, totalExact,
+            totalNature, targetLine, trace, currentUser, nowStr, currentUser, nowStr
+        ];
+        await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, targetId, newRow, GAS_DEPLOY_ID.ORG, silentOpt);
+        orgRelationsList.push({
+            id: targetId, ancestor_id: aRow.ancestor_id, descendant_id: descendantId,
+            depth: totalDepth, is_depth_exact: totalExact, link_nature: totalNature,
+            relation_line: targetLine, path_trace: trace
+        });
     }
 }
 
@@ -2756,7 +2764,7 @@ async function savePartnerRecord(e) {
     e.preventDefault();
 
     // ========================================================================
-    // 表單必填檢核與 AppToast 提示（依頁籤順序檢核）
+    // 1. 表單必填檢核與 AppToast 提示（依頁籤順序檢核）
     // ========================================================================
 
     // 【分頁 1：個人主檔檢核】
@@ -2764,7 +2772,7 @@ async function savePartnerRecord(e) {
     const nameEn = getFormTrimVal('#form-name-en');
     const preferredName = getFormTrimVal('#form-preferred-name');
 
-    // 1. 中文姓名 / 英文姓名 / 常用稱呼 擇一必填
+    // 中文姓名 / 英文姓名 / 常用稱呼 擇一必填
     if (!nameZh && !nameEn && !preferredName) {
         AppToast.warning('「中文姓名」、「英文姓名」、「常用稱呼 / 暱稱」請至少填寫一項！');
         $('#tab-btn-person').tab('show');
@@ -2778,7 +2786,6 @@ async function savePartnerRecord(e) {
     const uplineLinkType = getFormTrimVal('#form-upline-link-type');
     const gapCount = parseInt(getFormTrimVal('#form-gap-count', '0'), 10);
 
-    // 2. 所屬國家市場
     if (!countryCode) {
         AppToast.warning('請選擇「所屬國家市場」！');
         $('#tab-btn-org').tab('show');
@@ -2786,7 +2793,6 @@ async function savePartnerRecord(e) {
         return;
     }
 
-    // 3. 團隊參與度（預設為空選項）
     if (!activityLevel) {
         AppToast.warning('請選擇「團隊參與度」！');
         $('#tab-btn-org').tab('show');
@@ -2794,7 +2800,6 @@ async function savePartnerRecord(e) {
         return;
     }
 
-    // 4. 若上線模式為「已知人數斷層」，檢核中間間隔人數
     if (uplineLinkType === '已知人數斷層' && (!gapCount || gapCount < 1)) {
         AppToast.warning('上線連結為「已知人數斷層」，請填寫「中間間隔人數」（至少 1 人）！');
         $('#tab-btn-org').tab('show');
@@ -2819,14 +2824,12 @@ async function savePartnerRecord(e) {
     }
 
     // ========================================================================
-    // 驗證通過，繼續執行原有資料庫寫入流程
+    // 2. 主鍵檢核與審計欄位保護
     // ========================================================================
-
     const mode = $('#form-mode').val();
     let personId = getFormTrimVal('#form-person-id');
     let partnerId = getFormTrimVal('#form-partner-id');
 
-    // 系統級主鍵防禦驗證
     if (mode === 'CREATE') {
         if (!personId || personMasterList.some(p => p.person_id === personId)) {
             personId = generateNextPersonId();
@@ -2839,7 +2842,7 @@ async function savePartnerRecord(e) {
     } else {
         const existingPartner = partnersList.find(p => p.partner_id === partnerId);
         if (!existingPartner) {
-            AppToast.error("無法識別的成員主鍵，禁止變更！");
+            AppToast.error('無法識別的成員主鍵，禁止變更！');
             return;
         }
         personId = existingPartner.person_id;
@@ -2850,7 +2853,13 @@ async function savePartnerRecord(e) {
     const existingPerson = personMasterList.find(p => p.person_id === personId);
     const existingPartner = partnersList.find(p => p.partner_id === partnerId);
 
-    // 日期資料標準化清洗
+    // ★ 修復 Bug 13：更新時保留原有建立者與建立時間，避免審計日誌遭操作者覆蓋
+    const personCreatedBy = (mode === 'UPDATE' && existingPerson) ? (existingPerson.created_by || currentUser) : currentUser;
+    const personCreatedAt = (mode === 'UPDATE' && existingPerson) ? (existingPerson.created_at || nowStr) : nowStr;
+    const partnerCreatedBy = (mode === 'UPDATE' && existingPartner) ? (existingPartner.created_by || currentUser) : currentUser;
+    const partnerCreatedAt = (mode === 'UPDATE' && existingPartner) ? (existingPartner.created_at || nowStr) : nowStr;
+
+    // ★ 修復 Bug 12：日期全量標準化清洗（避免直接讀取表單原生連字號字串存入資料庫）
     const birthdayVal = AppDate.toSheet(getFormTrimVal('#form-birthday'));
     const deceasedDateVal = AppDate.toSheet(getFormTrimVal('#form-deceased-date'));
     const metDateVal = AppDate.toSheet(getFormTrimVal('#form-met-date'));
@@ -2859,15 +2868,12 @@ async function savePartnerRecord(e) {
     const renewalDueDateVal = AppDate.toSheet(getFormTrimVal('#form-renewal-due-date'));
     const lastOrderDateVal = AppDate.toSheet(getFormTrimVal('#form-last-order-date'));
 
-    // 退出/解約年月：強制正規化為 YYYY-MM（若為空則傳空字串）
     const exitDateRaw = getFormTrimVal('#form-exit-date');
     const exitDateVal = exitDateRaw ? AppDate.toYearMonth(exitDateRaw, '-', '') : '';
 
-    const personCreatedBy = (mode === 'UPDATE' && existingPerson) ? existingPerson.created_by : currentUser;
-    const personCreatedAt = (mode === 'UPDATE' && existingPerson) ? existingPerson.created_at : nowStr;
-    const partnerCreatedBy = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_by : currentUser;
-    const partnerCreatedAt = (mode === 'UPDATE' && existingPartner) ? existingPartner.created_at : nowStr;
-
+    // ========================================================================
+    // 3. 經營權狀態與對偶參數提取（修復 Bug 1 雙向主副對齊）
+    // ========================================================================
     const accountHolderType = getFormTrimVal('#form-account-holder-type', '個人經營者');
     const spousePartnerId = getFormTrimVal('#form-spouse-partner-id');
     let operationMode = getFormTrimVal('#form-operation-mode', '個人經營');
@@ -2893,12 +2899,14 @@ async function savePartnerRecord(e) {
         officialAccountPartnerId = partnerId;
     }
 
-    // 1. 封裝「個人主檔」資料列 (36 欄位)
+    // ========================================================================
+    // 4. 封裝「個人主檔」資料列 (37 欄位，寫入 PSN)
+    // ========================================================================
     const personRowArray = [
         personId,
-        getFormTrimVal('#form-name-zh'),
-        getFormTrimVal('#form-name-en'),
-        getFormTrimVal('#form-preferred-name'),
+        nameZh,
+        nameEn,
+        preferredName,
         getFormTrimVal('#form-display-name'),
         getFormTrimVal('#form-identity-type', '潛在客戶'),
         getFormTrimVal('#form-usage-identity', '經營者'),
@@ -2934,7 +2942,9 @@ async function savePartnerRecord(e) {
         nowStr
     ];
 
-    // 2. 封裝「夥伴主檔」資料列 (39 欄位)
+    // ========================================================================
+    // 5. 封裝「夥伴主檔」資料列 (39 欄位，寫入 ORG)
+    // ========================================================================
     const diamondStarLevel = (mode === 'UPDATE' && existingPartner) ? (existingPartner.diamond_star_level || 0) : 0;
     const starEvalEligibleDate = (mode === 'UPDATE' && existingPartner) ? (existingPartner.star_eval_eligible_date || '') : '';
 
@@ -2961,18 +2971,18 @@ async function savePartnerRecord(e) {
         getFormTrimVal('#form-relation-type', '下線'),
         getFormTrimVal('#form-activity-level'),
         getFormTrimVal('#form-member-status'),
-        getFormTrimVal('#form-operator-status', '活躍'), // 索引 22：營運狀態
-        getFormTrimVal('#form-work-status'), // 索引 23：營運職務狀態（預設 NULL/空）
+        getFormTrimVal('#form-operator-status', '活躍'),
+        getFormTrimVal('#form-work-status'),
         getFormTrimVal('#form-status-change-reason'),
         getFormTrimVal('#form-successor-partner-id'),
         getFormTrimVal('#form-surrendered-to-upline-id'),
         getFormTrimVal('#form-joining-motive'),
         getFormTrimVal('#form-team-skills'),
         getFormTrimVal('#form-team-notes'),
-        getFormTrimVal('#form-join-date'),
-        getFormTrimVal('#form-renewal-due-date'),
-        getFormTrimVal('#form-last-order-date'),
-        getFormTrimVal('#form-exit-date'),
+        joinDateVal,          // ★ 修復 Bug 12: 嚴格填入標準化清洗值
+        renewalDueDateVal,    // ★ 修復 Bug 12: 嚴格填入標準化清洗值
+        lastOrderDateVal,     // ★ 修復 Bug 12: 嚴格填入標準化清洗值
+        exitDateVal,          // ★ 修復 Bug 12: 嚴格填入標準化清洗值
         getFormTrimVal('#form-avatar-url'),
         partnerCreatedBy,
         partnerCreatedAt,
@@ -2980,7 +2990,9 @@ async function savePartnerRecord(e) {
         nowStr
     ];
 
-    // 3. 收集動態通訊資料列
+    // ========================================================================
+    // 6. 收集動態通訊資料列與語言矩陣
+    // ========================================================================
     const contactRows = [];
     const newContactsObjects = [];
     $('#form-contacts-dynamic-tbody tr.dynamic-contact-row').each(function (idx) {
@@ -3023,7 +3035,6 @@ async function savePartnerRecord(e) {
         }
     });
 
-    // 4. 收集動態語言資料列
     const languageRows = [];
     const newLanguagesObjects = [];
     $('#form-languages-dynamic-tbody tr.dynamic-lang-row').each(function (idx) {
@@ -3076,12 +3087,12 @@ async function savePartnerRecord(e) {
     const btnSubmit = $('#form-submit-btn');
     const silentOpt = { silent: true };
 
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i>正在平行同步全域組織與檔案...', '資料庫寫入中');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> 正在平行同步全域組織與檔案...', '資料庫寫入中');
 
     try {
-        btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存寫入中...');
+        btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 儲存寫入中...');
 
-        // ★ 核心異動：舊資料清理（通訊與語言使用 GAS_DEPLOY_ID_PSN）
+        // 1. 清理舊子表記錄 (通訊與語言使用 GAS_DEPLOY_ID.PSN)
         const deletePromises = [];
         personContactsList.filter(c => c.person_id === personId).forEach(c => {
             if (c.contact_id) deletePromises.push(SheetAdapter.deleteRow(SHEET_NAMES.CONTACTS, c.contact_id, GAS_DEPLOY_ID.PSN, silentOpt).catch(() => {}));
@@ -3091,7 +3102,7 @@ async function savePartnerRecord(e) {
         });
         if (deletePromises.length > 0) await Promise.all(deletePromises);
 
-        // ★ 核心異動：雙向端點分流寫入
+        // 2. 雙向端點分流寫入主檔 (個人寫入 PSN，夥伴寫入 ORG)
         const writePromises = [];
         if (mode === 'CREATE') {
             writePromises.push(SheetAdapter.createRow(SHEET_NAMES.PERSONS, personId, personRowArray, GAS_DEPLOY_ID.PSN, silentOpt));
@@ -3101,20 +3112,12 @@ async function savePartnerRecord(e) {
             writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, partnerId, partnerRowArray, GAS_DEPLOY_ID.ORG, silentOpt));
         }
 
-        // 對偶配偶反向自動連動持久化
-        if (spousePartnerId) {
+        // 3. ★ 修復 Bug 9：對偶配偶反向連動與解綁回滾防護
+        if (spousePartnerId && accountHolderType !== '個人經營者') {
             const spousePartner = partnersList.find(p => p.partner_id === spousePartnerId || p.member_no === spousePartnerId);
             if (spousePartner) {
-                let targetSpouseHolderType = spousePartner.account_holder_type;
-                let targetSpouseMode = spousePartner.operation_mode;
-
-                if (accountHolderType === '共同經營者') {
-                    targetSpouseHolderType = '主要經營者';
-                    targetSpouseMode = '共同經營';
-                } else if (accountHolderType === '主要經營者') {
-                    targetSpouseHolderType = '共同經營者';
-                    targetSpouseMode = '共同經營';
-                }
+                let targetSpouseHolderType = (accountHolderType === '共同經營者') ? '主要經營者' : '共同經營者';
+                let targetSpouseMode = '共同經營';
 
                 if (spousePartner.spouse_partner_id !== partnerId || 
                     spousePartner.account_holder_type !== targetSpouseHolderType || 
@@ -3130,17 +3133,32 @@ async function savePartnerRecord(e) {
                     writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, spousePartner.partner_id, spouseRowArray, GAS_DEPLOY_ID.ORG, silentOpt));
                 }
             }
+        } else if (existingPartner && existingPartner.spouse_partner_id && (!spousePartnerId || accountHolderType === '個人經營者')) {
+            // 原共同經營解綁或改回個人經營者，清除前配偶單向綁定
+            const formerSpouse = partnersList.find(p => p.partner_id === existingPartner.spouse_partner_id);
+            if (formerSpouse && formerSpouse.spouse_partner_id === partnerId) {
+                formerSpouse.spouse_partner_id = '';
+                formerSpouse.account_holder_type = '個人經營者';
+                formerSpouse.operation_mode = '個人經營';
+                formerSpouse.official_account_partner_id = formerSpouse.partner_id;
+                formerSpouse.modified_by = currentUser;
+                formerSpouse.modified_at = nowStr;
+
+                const rolledSpouseRow = buildPartnerRowArrayFromObject(formerSpouse);
+                writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, formerSpouse.partner_id, rolledSpouseRow, GAS_DEPLOY_ID.ORG, silentOpt));
+            }
         }
 
-        // 通訊資料與語言矩陣寫入（使用 GAS_DEPLOY_ID_PSN）
+        // 4. 動態子表寫入 (PSN 端點)
         contactRows.forEach(nc => writePromises.push(SheetAdapter.createRow(SHEET_NAMES.CONTACTS, nc[0], nc, GAS_DEPLOY_ID.PSN, silentOpt)));
         languageRows.forEach(nl => writePromises.push(SheetAdapter.createRow(SHEET_NAMES.LANGUAGES, nl[0], nl, GAS_DEPLOY_ID.PSN, silentOpt)));
 
-        // 組織關係閉包表寫入（使用 GAS_DEPLOY_ID_ORG）
+        // 5. 組織關係閉包表寫入 (★ 修復 Bug 2：全世代展開與自體參照深度更新)
         writePromises.push(syncOrgRelationsRecord(partnerId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr));
 
         await Promise.all(writePromises);
 
+        // 6. 前端記憶體快取就地更新
         const patchedPerson = parsePersonMasterTable([personRowArray])[0];
         const pIdx = personMasterList.findIndex(p => p.person_id === personId);
         if (pIdx >= 0) personMasterList[pIdx] = patchedPerson; else personMasterList.push(patchedPerson);
@@ -3152,6 +3170,7 @@ async function savePartnerRecord(e) {
         personContactsList = personContactsList.filter(c => c.person_id !== personId).concat(newContactsObjects);
         personLanguagesList = personLanguagesList.filter(l => l.person_id !== personId).concat(newLanguagesObjects);
 
+        // 7. 全域校準夫妻共同經營雙向屬性 (★ 修復 Bug 1)
         syncCoOperatorStatusAndRelations();
 
         AppLoading.hide();
@@ -3164,7 +3183,7 @@ async function savePartnerRecord(e) {
         AppLoading.hide();
         AppToast.error('寫入試算表失敗: ' + err.message);
     } finally {
-        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
+        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
     }
 }
 
@@ -3172,7 +3191,7 @@ async function deletePartnerRecord(partnerId) {
     const partner = partnersList.find(p => p.partner_id === partnerId);
     if (!partner) return;
     const personId = partner.person_id;
-    const dispName = getPartnerDisplayName(partner);
+    const dispName = EntityResolver.partner(partner.partner_id, partnersList, personMasterList, 1);
     const spouseId = partner.spouse_partner_id;
 
     AppDialog.confirm(

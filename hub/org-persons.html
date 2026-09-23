@@ -238,16 +238,19 @@
                 <div class="tab-content" id="viewModeTabContent">
                     <!-- 視圖 1：人員卡片 -->
                     <div class="tab-pane fade show active" id="container-cards-view" role="tabpanel">
-                        <article class="glass-panel p-3">
-                            <div class="row g-3" id="person-cards-grid"></div>
-                        </article>
+                        <div class="row g-3" id="person-cards-grid">
+                            <div class="col-12 text-center text-muted py-5">
+                                <i class="fa-solid fa-spinner fa-spin fa-2x mb-2"></i>
+                                <div>資料載入中...</div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 視圖 2：人員清冊 DataTable -->
                     <div class="tab-pane fade" id="container-table-view" role="tabpanel">
                         <article class="glass-panel p-3">
                             <div class="table-responsive w-100">
-                                <table id="persons-datatable" class="table table-dark-custom align-middle w-100">
+                                <table id="persons-datatable" class="table table-dark-custom">
                                     <thead>
                                         <tr>
                                             <th>個人識別 / 姓名</th>
@@ -271,7 +274,7 @@
                     <!-- 視圖 3：人本畫像統計圖表 -->
                     <div class="tab-pane fade" id="container-charts-view" role="tabpanel">
                         <!-- 區塊 A：跨國語言溝通矩陣 -->
-                        <article class="glass-panel p-3 mb-4 border-primary border-opacity-25">
+                        <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                 <div>
                                     <span class="fw-bold text-white fs-6"><i class="fa-solid fa-language text-primary me-1"></i>跨國語言溝通矩陣</span>
@@ -290,28 +293,28 @@
                                 </div>
                             </header>
                             <div class="row g-3">
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-ear-listen text-info me-1"></i>聽力掌握度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-listening"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-listening"></canvas></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-comments text-success me-1"></i>口說流暢度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-speaking"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-speaking"></canvas></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-book-open-reader text-warning me-1"></i>閱讀理解度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-reading"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-reading"></canvas></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-pen-nib text-danger me-1"></i>書寫表達度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-writing"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-writing"></canvas></div>
                                     </div>
                                 </div>
                             </div>
@@ -325,75 +328,75 @@
                             </header>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-id-badge text-primary me-1"></i>1. 人脈身份類型</h6>
-                                        <div class="chart-card-container"><canvas id="chart-identity-type"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-identity-type"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-tag text-info me-1"></i>2. 使用身份類型</h6>
-                                        <div class="chart-card-container"><canvas id="chart-usage-identity"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-usage-identity"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-cake-candles text-warning me-1"></i>3. 年齡層級分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-age-distribution"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-age-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-venus-mars text-danger me-1"></i>4. 生理性別比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-gender-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-gender-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-flag text-success me-1"></i>5. 國籍市場比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-nationality-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-nationality-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-people-group text-purple me-1"></i>6. 種族族裔比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-ethnicity-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-ethnicity-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-house-user text-primary me-1"></i>7. 家鄉城市分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-hometown-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-hometown-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-map-location-dot text-info me-1"></i>8. 現居城市分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-residence-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-residence-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-handshake text-success me-1"></i>9. 認識年份趨勢</h6>
-                                        <div class="chart-card-container"><canvas id="chart-met-year-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-met-year-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-graduation-cap text-warning me-1"></i>10. 最高學歷層級</h6>
-                                        <div class="chart-card-container"><canvas id="chart-education-distribution"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-education-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-heart-pulse text-danger me-1"></i>11. 健康狀況比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-health-status-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-health-status-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-wallet text-purple me-1"></i>12. 財務狀況比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-financial-status-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-financial-status-split"></canvas></div>
                                     </div>
                                 </div>
                             </div>

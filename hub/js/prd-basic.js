@@ -256,9 +256,9 @@ function getCategoryByCode(code) {
 }
 
 function getSubcategoryByCode(code) {
-    if (!code) return { subcategory_code: '', category_code: '', name_zh: '未分類次系列', name_en: 'General Subcategory', icon_class: 'fa-solid fa-tag', text_color: '#c084fc', bg_color: '#1a122d' };
+    if (!code) return { subcategory_code: '', category_code: '', name_zh: '未分類次系列', name_en: 'General Subcategory', icon_class: 'fa-solid fa-tag', text_color: '#f5f3ff', bg_color: '#1a122d' };
     const found = appState.subcategories.find(s => String(s.subcategory_code).trim() === String(code).trim());
-    return found || { subcategory_code: code, category_code: '', name_zh: '未分類次系列', name_en: 'General Subcategory', icon_class: 'fa-solid fa-tag', text_color: '#c084fc', bg_color: '#1a122d' };
+    return found || { subcategory_code: code, category_code: '', name_zh: '未分類次系列', name_en: 'General Subcategory', icon_class: 'fa-solid fa-tag', text_color: '#f5f3ff', bg_color: '#1a122d' };
 }
 
 function getTypeByCode(code) {
@@ -1029,7 +1029,7 @@ function getDoughnutTooltipOptions() {
             },
             legend: {
                 position: 'bottom',
-                labels: { color: '#c084fc', boxWidth: 10, font: { size: 10 } }
+                labels: { color: '#f5f3ff', boxWidth: 10, font: { size: 12 } }
             }
         }
     };
@@ -1252,8 +1252,8 @@ function renderAnalyticsCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#c084fc', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -1280,8 +1280,8 @@ function renderAnalyticsCharts() {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#c084fc', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -1328,8 +1328,8 @@ function renderAnalyticsCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#c084fc', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -1378,8 +1378,8 @@ function renderAnalyticsCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#c084fc', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -1431,12 +1431,12 @@ function renderAnalyticsCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(192, 132, 252, 0.05)' } },
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.05)' } },
                     y: { 
                         min: 0,
                         max: yMaxLaunch,
                         ticks: { 
-                            color: '#c084fc', 
+                            color: '#f5f3ff', 
                             stepSize: 1, 
                             precision: 0 
                         }, 

@@ -37,7 +37,7 @@ window.addEventListener('AppReady', function() {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        color: '#94a3b8',
+                        color: '#f5f3ff',
                         font: {
                             family: 'Noto Sans TC',
                             size: 12

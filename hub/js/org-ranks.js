@@ -129,11 +129,6 @@ let historyDataTable = null;
 let singlePartnerDataTable = null;
 let partnerRankChartInstance = null;
 
-function getPartnerDisplayName(partnerId, displayMode = 2) {
-    if (!partnerId) return '-';
-    return EntityResolver.partner(partnerId, appState.partners, appState.persons, displayMode);
-}
-
 // ==========================================================================
 // 系統生命週期
 // ==========================================================================
@@ -263,11 +258,37 @@ function parsePartnersTable(rows) {
         official_account_partner_id: getVal(r, 5, ''),
         operation_mode: getVal(r, 6, '個人經營'),
         spouse_partner_id: getVal(r, 7, ''),
+        node_nature: getVal(r, 8, '常態夥伴'),
+        sponsor_id: getVal(r, 9, ''),
+        placement_id: getVal(r, 10, ''),
+        known_mentor_id: getVal(r, 11, ''),
+        upline_link_type: getVal(r, 12, '直屬已知'),
         current_rank_id: getVal(r, 13, ''),
         highest_rank_id: getVal(r, 14, ''),
         diamond_star_level: parseInt(getVal(r, 15, '0'), 10) || 0,
         star_eval_eligible_date: getVal(r, 16, ''),
-        join_date: formatDateToSlash(getVal(r, 30, ''))
+        country_code: getVal(r, 17, 'TW'),
+        is_our_team: getVal(r, 18, 'Y').toUpperCase(),
+        relation_type: getVal(r, 19, '下線'),
+        activity_level: getVal(r, 20, ''),
+        member_status: getVal(r, 21, ''),
+        operator_status: getVal(r, 22, '活躍'),
+        work_status: getVal(r, 23, ''),
+        status_change_reason: getVal(r, 24, ''),
+        successor_partner_id: getVal(r, 25, ''),
+        surrendered_to_upline_id: getVal(r, 26, ''),
+        joining_motive: getVal(r, 27, ''),
+        team_skills: getVal(r, 28, ''),
+        team_notes: getVal(r, 29, ''),
+        join_date: formatDateToSlash(getVal(r, 30, '')),
+        renewal_due_date: formatDateToSlash(getVal(r, 31, '')),
+        last_order_date: formatDateToSlash(getVal(r, 32, '')),
+        exit_date: getVal(r, 33, ''),
+        avatar_url: getVal(r, 34, ''),
+        created_by: getVal(r, 35, 'SYSTEM'),
+        created_at: getVal(r, 36, ''),
+        modified_by: getVal(r, 37, 'SYSTEM'),
+        modified_at: getVal(r, 38, '')
     })).filter(p => p.partner_id !== '');
 }
 
@@ -370,7 +391,8 @@ function selectRank(rankId) {
 function autoCalcPrevRank(newRankId) {
     if (!newRankId || !appState.ranks.length) return;
     const currentIndex = appState.ranks.findIndex(r => r.rank_id === newRankId || r.rank_code === newRankId);
-    
+    const newRank = appState.ranks[currentIndex];
+
     if (currentIndex > 0) {
         const prevRank = appState.ranks[currentIndex - 1];
         $('#fieldPrevRankId').val(prevRank.rank_id).trigger('change');
@@ -378,10 +400,15 @@ function autoCalcPrevRank(newRankId) {
         $('#fieldPrevRankId').val(appState.ranks[0].rank_id).trigger('change');
     }
 
-    // 自動帶入新職級對應之藍鑽星等
-    const newRank = appState.ranks.find(r => r.rank_id === newRankId);
     if (newRank) {
         $('#fieldStarRating').val(newRank.star_rating || 0);
+
+        // ★ 核心修訂：新晉升職級在經理以下 (rank_level <= 40)，解除原職級鎖定
+        if (newRank.rank_level <= 40) {
+            $('#fieldPrevRankId').prop('disabled', false).css({ 'pointer-events': 'auto', 'opacity': '1' });
+        } else {
+            $('#fieldPrevRankId').prop('disabled', true).css({ 'pointer-events': 'none', 'opacity': '0.75' });
+        }
     }
 }
 
@@ -651,7 +678,7 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                     offset: true,
                     ticks: {
                         stepSize: 10,
-                        color: '#c084fc',
+                        color: '#f5f3ff',
                         font: { weight: '600' },
                         callback: val => {
                             const r = appState.ranks.find(x => x.rank_level === val);
@@ -673,7 +700,7 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                         axis.ticks = evenMonthTicks.map(v => ({ value: v }));
                     },
                     ticks: {
-                        color: '#c084fc',
+                        color: '#f5f3ff',
                         font: { weight: '500' },
                         autoSkip: false,
                         maxRotation: 45,
@@ -713,7 +740,7 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
 // 在 org-ranks.js 中替換原 renderPartnerSingleTable 內部迴圈與標頭提示
 function renderPartnerSingleTable(ptnHistory, delegation = null) {
     const isDelegated = delegation && delegation.isDelegated;
-    const primaryDisplayName = isDelegated ? getPartnerDisplayName(delegation.targetPartnerId) : '';
+    const primaryDisplayName = isDelegated ? EntityResolver.partner(delegation.targetPartnerId, appState.partners, appState.persons, 2) : '';
 
     const formatted = ptnHistory.map(h => {
         const prevRank = appState.ranks.find(r => r.rank_id === h.previous_rank_id);
@@ -787,7 +814,7 @@ function renderHistoryTable() {
         `;
 
         return {
-            partner_name: `<strong class="text-white">${getPartnerDisplayName(h.partner_id)}</strong>`,
+            partner_name: `<strong class="text-white">${EntityResolver.partner(h.partner_id, appState.partners, appState.persons, 2)}</strong>`,
             previous: prevRank ? UIBadges.rank.badge(prevRank) : `<span class="badge badge-gray">${h.previous_rank_id || '-'}</span>`,
             new_rank: newRank ? UIBadges.rank.badge(newRank) : `<span class="badge badge-purple">${h.new_rank_id || '-'}</span>`,
             effective_month: `${h.effective_month}`,
@@ -855,6 +882,21 @@ function initPartnerSelect2() {
             }
         }
     });
+
+    $partnerSelect.off('change.historyPartner').on('change.historyPartner', function () {
+        const selectedPid = $(this).val();
+        if ($('#fieldHistoryMode').val() === 'add') {
+            if (selectedPid) {
+                $('#fieldHistoryId').val(generateNextHistoryId(selectedPid));
+                const ptn = appState.partners.find(p => p.partner_id === selectedPid);
+                if (ptn && ptn.current_rank_id) {
+                    $('#fieldPrevRankId').val(ptn.current_rank_id).trigger('change');
+                }
+            } else {
+                $('#fieldHistoryId').val('');
+            }
+        }
+    });
 }
 
 function openAddRankModal() {
@@ -899,6 +941,13 @@ function openEditHistoryModal(historyId) {
     } else {
         autoCalcPrevRank(item.new_rank_id);
     }
+
+    const newRankObj = appState.ranks.find(r => r.rank_id === item.new_rank_id);
+    if (newRankObj && newRankObj.rank_level <= 40) {
+        $('#fieldPrevRankId').prop('disabled', false).css({ 'pointer-events': 'auto', 'opacity': '1' });
+    } else {
+        $('#fieldPrevRankId').prop('disabled', true).css({ 'pointer-events': 'none', 'opacity': '0.75' });
+    }
     
     $('#fieldStarRating').val(item.star_rating || 0);
     $('#fieldEffectiveMonth').val(normalizeEffectiveMonth(item.effective_month));
@@ -921,30 +970,39 @@ function openEditHistoryModal(historyId) {
 // ==========================================================================
 // 試算表 C/U/D 寫入操作
 // ==========================================================================
+/**
+ * 儲存或更新夥伴職級晉升歷程 (saveRankHistoryItem)
+ * 核心業務邏輯：
+ * 1. 貫徹 SSOT 原則：若選取共同經營者，自動重導向至主要經營者實體存檔
+ * 2. 嚴格驗證年月格式 (YYYY 或 YYYY-MM) 與必填欄位
+ * 3. 雙向同步回寫：自動更新夥伴主檔 (org_partners) 之當前職級、最高職級與藍鑽星階
+ * 4. 夫妻動態鏡像：同步更新關聯之共同經營配偶主檔職級
+ */
 async function saveRankHistoryItem() {
     const mode = $('#fieldHistoryMode').val();
     let partnerId = ($('#fieldPartnerId').val() || '').trim();
     const newRankId = $('#fieldNewRankId').val();
     const rawEffectiveMonth = $('#fieldEffectiveMonth').val().trim();
+    const $btnSave =$('#btnSaveHistory');
 
-    // AppToast 欄位檢核與自動聚焦
+    // 1. 欄位基礎檢核
     if (!partnerId) {
-        AppToast.warning("請選擇「夥伴名稱」！");
+        AppToast.warning('請選擇「夥伴名稱」！');
         $('#fieldPartnerId').select2('open');
         return;
     }
     if (!newRankId) {
-        AppToast.warning("請選擇「新晉升職級」！");
+        AppToast.warning('請選擇「新晉升職級」！');
         $('#fieldNewRankId').focus();
         return;
     }
     if (!rawEffectiveMonth) {
-        AppToast.warning("請輸入「生效年月」！");
+        AppToast.warning('請輸入「生效年月」！');
         $('#fieldEffectiveMonth').focus();
         return;
     }
 
-    // 防呆：若選取共同經營者，自動將歷程目標導回其主要經營者
+    // 2. SSOT 防呆：若選取共同經營者，自動將歷程目標導回其主要經營者
     const targetPtn = appState.partners.find(p => p.partner_id === partnerId);
     if (targetPtn && (targetPtn.account_holder_type === '共同經營者' || targetPtn.operation_mode === '共同經營')) {
         const primaryId = targetPtn.official_account_partner_id || targetPtn.spouse_partner_id;
@@ -954,18 +1012,17 @@ async function saveRankHistoryItem() {
         }
     }
 
-    // 若為新增且 ID 為空，強制使用實質 partnerId 呼叫生成器
+    // 3. 流水號主鍵驗證與生成
     let historyId = $('#fieldHistoryId').val().trim();
     if (mode === 'add' && (!historyId || !historyId.includes(partnerId))) {
         historyId = generateNextHistoryId(partnerId);
         $('#fieldHistoryId').val(historyId);
     }
 
+    // 4. 生效年月正規化與格式校驗 (YYYY 或 YYYY-MM)
     const effectiveMonth = normalizeEffectiveMonth(rawEffectiveMonth);
-
-    // 格式驗證防呆：必須為 4 碼純年份 (YYYY) 或標準連字號年月 (YYYY-MM)
     if (!effectiveMonth || !/^\d{4}(-\d{2})?$/.test(effectiveMonth)) {
-        AppToast.warning("「生效年月」格式不符！請輸入 YYYY（如 2026）或 YYYY-MM（如 2026-08）");
+        AppToast.warning('「生效年月」格式不符！請輸入 YYYY（如 2026）或 YYYY-MM（如 2026-08）');
         $('#fieldEffectiveMonth').focus();
         return;
     }
@@ -985,12 +1042,12 @@ async function saveRankHistoryItem() {
     const recognitionDateVal = formatDateToSlash($('#fieldRecognitionDate').val());
     const notesVal = $('#fieldNotes').val().trim() || '';
 
-    // 封裝 19 欄位 TSV 資料列
+    // 5. 封裝 19 欄位職級歷程 (org_rank_history) 資料列
     const rowDataArray = [
         historyId,
         partnerId,
         $('#fieldPrevRankId').val(),
-        $('#fieldNewRankId').val(),
+        newRankId,
         starRatingVal,
         effectiveMonth,
         coolingStartDateVal || '',
@@ -1008,11 +1065,11 @@ async function saveRankHistoryItem() {
         nowStr
     ];
 
-    const updatedObj = {
+    const updatedHistoryObj = {
         history_id: historyId,
         partner_id: partnerId,
         previous_rank_id: $('#fieldPrevRankId').val(),
-        new_rank_id: $('#fieldNewRankId').val(),
+        new_rank_id: newRankId,
         star_rating: starRatingVal,
         effective_month: effectiveMonth,
         cooling_start_date: coolingStartDateVal || null,
@@ -1030,21 +1087,126 @@ async function saveRankHistoryItem() {
         modified_at: nowStr
     };
 
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> 正在儲存晉升紀錄並同步夥伴主檔...', '資料寫入中');
+    $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 儲存寫入中...');
+
     try {
+        const silentOpt = { silent: true };
+        const writePromises = [];
+
+        // 6. 寫入 / 更新職級歷程檔 (表 404/405)
         if (mode === 'add') {
-            await SheetAdapter.createRow(SHEET_NAMES.HISTORY, historyId, rowDataArray, GAS_DEPLOY_ID.ORG);
-            appState.history.unshift(updatedObj);
+            writePromises.push(SheetAdapter.createRow(SHEET_NAMES.HISTORY, historyId, rowDataArray, GAS_DEPLOY_ID.ORG, silentOpt));
         } else {
-            await SheetAdapter.updateRow(SHEET_NAMES.HISTORY, historyId, rowDataArray, GAS_DEPLOY_ID.ORG);
-            const idx = appState.history.findIndex(h => h.history_id === historyId);
-            if (idx !== -1) appState.history[idx] = updatedObj;
+            writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.HISTORY, historyId, rowDataArray, GAS_DEPLOY_ID.ORG, silentOpt));
         }
 
+        // 7. ★ 修復 Bug 3：即時同步更新夥伴主檔 (org_partners) 職級狀態
+        const primaryPartner = appState.partners.find(p => p.partner_id === partnerId);
+        if (primaryPartner) {
+            const newRankObj = appState.ranks.find(r => r.rank_id === newRankId || r.rank_code === newRankId);
+            const highestRankObj = appState.ranks.find(r => r.rank_id === primaryPartner.highest_rank_id || r.rank_code === primaryPartner.highest_rank_id);
+
+            // 更新當前結算職級
+            primaryPartner.current_rank_id = newRankId;
+
+            // 位階權重比較：若新職級高於歷史最高職級，更新最高職級
+            if (!highestRankObj || (newRankObj && newRankObj.rank_level > highestRankObj.rank_level)) {
+                primaryPartner.highest_rank_id = newRankId;
+            }
+
+            // 更新藍鑽星階
+            if (starRatingVal > 0 || (newRankObj && newRankObj.star_rating > 0)) {
+                primaryPartner.diamond_star_level = starRatingVal || newRankObj.star_rating;
+            }
+
+            primaryPartner.modified_by = currentUser;
+            primaryPartner.modified_at = nowStr;
+
+            // 輔助函式：組裝標準 39 欄位夥伴主檔陣列
+            const buildPartnerRow = (p) => [
+                p.partner_id || '',
+                p.person_id || '',
+                p.member_no || '',
+                p.leader_title || '',
+                p.account_holder_type || '個人經營者',
+                p.official_account_partner_id || p.partner_id,
+                p.operation_mode || '個人經營',
+                p.spouse_partner_id || '',
+                p.node_nature || '常態夥伴',
+                p.sponsor_id || '',
+                p.placement_id || '',
+                p.known_mentor_id || '',
+                p.upline_link_type || '直屬已知',
+                p.current_rank_id || '',
+                p.highest_rank_id || '',
+                p.diamond_star_level || 0,
+                p.star_eval_eligible_date || '',
+                p.country_code || 'TW',
+                p.is_our_team || 'Y',
+                p.relation_type || '下線',
+                p.activity_level || '',
+                p.member_status || '',
+                p.operator_status || '活躍',
+                p.work_status || '',
+                p.status_change_reason || '',
+                p.successor_partner_id || '',
+                p.surrendered_to_upline_id || '',
+                p.joining_motive || '',
+                p.team_skills || '',
+                p.team_notes || '',
+                p.join_date || '',
+                p.renewal_due_date || '',
+                p.last_order_date || '',
+                p.exit_date || '',
+                p.avatar_url || '',
+                p.created_by || 'SYSTEM',
+                p.created_at || nowStr,
+                currentUser,
+                nowStr
+            ];
+
+            writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, primaryPartner.partner_id, buildPartnerRow(primaryPartner), GAS_DEPLOY_ID.ORG, silentOpt));
+
+            // 8. 夫妻共同經營鏡像投影同步：若有副權配偶，連動更新配偶主檔職級
+            const spouseId = primaryPartner.spouse_partner_id;
+            if (spouseId) {
+                const spousePartner = appState.partners.find(p => p.partner_id === spouseId && p.account_holder_type === '共同經營者');
+                if (spousePartner) {
+                    spousePartner.current_rank_id = primaryPartner.current_rank_id;
+                    spousePartner.highest_rank_id = primaryPartner.highest_rank_id;
+                    spousePartner.diamond_star_level = primaryPartner.diamond_star_level;
+                    spousePartner.modified_by = currentUser;
+                    spousePartner.modified_at = nowStr;
+
+                    writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, spousePartner.partner_id, buildPartnerRow(spousePartner), GAS_DEPLOY_ID.ORG, silentOpt));
+                }
+            }
+        }
+
+        // 9. 平行執行所有遠端寫入
+        await Promise.all(writePromises);
+
+        // 10. 本地記憶體狀態樂觀更新
+        if (mode === 'add') {
+            appState.history.unshift(updatedHistoryObj);
+        } else {
+            const idx = appState.history.findIndex(h => h.history_id === historyId);
+            if (idx !== -1) {
+                appState.history[idx] = updatedHistoryObj;
+            }
+        }
+
+        // 11. 重繪視圖與關閉彈窗
         refreshView();
-        bootstrap.Modal.getInstance(document.getElementById('rankHistoryModal')).hide();
-        AppToast.success(`晉升紀錄【${historyId}】已成功儲存！`);
+        bootstrap.Modal.getInstance(document.getElementById('rankHistoryModal'))?.hide();
+        AppToast.success(`晉升紀錄【${historyId}】已成功儲存，夥伴職級與配偶狀態已同步更新！`);
     } catch (err) {
-        AppToast.error("寫入失敗：" + err.message);
+        console.error('[org-ranks] 儲存晉升紀錄失敗:', err);
+        AppToast.error('寫入試算表失敗：' + err.message);
+    } finally {
+        AppLoading.hide();
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
     }
 }
 

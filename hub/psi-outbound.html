@@ -259,26 +259,26 @@
                             <!-- 第一層：銷貨規模 vs 毛利走勢雙軌分析 (折線圖) -->
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-scale-balanced text-primary me-1"></i>銷貨規模與考核走勢
                                             </span>
                                             <span class="badge badge-primary-subtle">雙軸走勢</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="outboundScaleChart"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="outboundScaleChart"></canvas></div>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-hand-holding-dollar text-info me-1"></i>實質毛利價差趨勢
                                             </span>
                                             <span class="badge badge-info-subtle">獲利追蹤</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="outboundProfitChart"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="outboundProfitChart"></canvas></div>
                                     </div>
                                 </div>
                             </div>
@@ -287,53 +287,53 @@
                             <div class="row g-3 mt-1">
                                 <!-- 1. 出資夥伴資金佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-user-shield text-success me-1"></i>出資夥伴資金佔比
                                             </span>
                                             <span class="badge badge-success-subtle">出資結構</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartPurchaserFundShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartPurchaserFundShare"></canvas></div>
                                     </div>
                                 </div>
 
                                 <!-- 2. 銷貨業務類別佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-tags text-primary me-1"></i>銷貨業務類別佔比
                                             </span>
                                             <span class="badge badge-primary-subtle">商流屬性</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartCategoryShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartCategoryShare"></canvas></div>
                                     </div>
                                 </div>
 
                                 <!-- 3. 收款狀態佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-receipt text-danger me-1"></i>收款狀態佔比
                                             </span>
                                             <span class="badge badge-danger-subtle">核銷進度</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartPaymentStatusShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartPaymentStatusShare"></canvas></div>
                                     </div>
                                 </div>
 
                                 <!-- 4. 付款金流管道佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-money-check-dollar text-info me-1"></i>付款金流管道佔比
                                             </span>
                                             <span class="badge badge-info-subtle">金流工具</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartPaymentShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartPaymentShare"></canvas></div>
                                     </div>
                                 </div>
                             </div>
@@ -342,53 +342,53 @@
                             <div class="row g-3 mt-1">
                                 <!-- 5. 出貨倉庫盒數佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-warehouse text-info me-1"></i>出貨倉庫盒數佔比
                                             </span>
                                             <span class="badge badge-info-subtle">倉庫流向</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartWarehouseShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartWarehouseShare"></canvas></div>
                                     </div>
                                 </div>
 
                                 <!-- 6. 交付管道結構佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-truck-ramp-box text-warning me-1"></i>交付管道結構佔比
                                             </span>
                                             <span class="badge badge-warning-subtle">物流通路</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartDeliveryShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartDeliveryShare"></canvas></div>
                                     </div>
                                 </div>
 
                                 <!-- 7. 出庫狀態佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-boxes-packing text-primary me-1"></i>出庫狀態佔比
                                             </span>
                                             <span class="badge badge-primary-subtle">履約管線</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartFulfillmentStatusShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartFulfillmentStatusShare"></canvas></div>
                                     </div>
                                 </div>
 
                                 <!-- 8. 預扣狀態佔比 -->
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="small text-secondary fw-bold">
                                                 <i class="fa-solid fa-handshake-angle text-warning me-1"></i>預扣狀態佔比
                                             </span>
                                             <span class="badge badge-warning-subtle">鎖定風控</span>
                                         </div>
-                                        <div class="chart-card-container"><canvas id="chartHoldStatusShare"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chartHoldStatusShare"></canvas></div>
                                     </div>
                                 </div>
                             </div>

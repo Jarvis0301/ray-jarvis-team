@@ -746,10 +746,10 @@
   --uvaco-bg-danger: rgba(244, 63, 94, 0.15);
   --uvaco-bg-light: rgba(250, 245, 255, 0.08);
   --uvaco-bg-dark: #1e0f37;
-  --uvaco-bg-card: #150a2a;
-  --uvaco-bg-card-hover: #1e0f3d;
-  --uvaco-bg-card-primary: #150a2a;
-  --uvaco-bg-card-primary-hover: #1e0f3d;
+  --uvaco-bg-card: #201042;
+  --uvaco-bg-card-hover: #2d165c;
+  --uvaco-bg-card-primary: #201042;
+  --uvaco-bg-card-primary-hover: #2d165c;
   --uvaco-bg-card-secondary: #120824;
   --uvaco-bg-card-secondary-hover: #1b0c36;
   --uvaco-bg-card-accent: #2b1022;
@@ -769,7 +769,7 @@
   --uvaco-bg-card-dark: #080313;
   --uvaco-bg-card-dark-hover: #110622;
   --uvaco-bg-card-inner: #0d061f;
-  --uvaco-bg-input: #170b2e;
+  --uvaco-bg-input: #201042;
   --uvaco-text-primary: #faf5ff;
   --uvaco-text-secondary: #c084fc;
   --uvaco-text-accent: #f472b6;
@@ -799,8 +799,8 @@
   --bs-gray-dark: #18181b;
   --bs-gray-100: #0a0518;
   --bs-gray-200: #120824;
-  --bs-gray-300: #150a2a;
-  --bs-gray-400: #28134a;
+  --bs-gray-300: #201042;
+  --bs-gray-400: #321866;
   --bs-gray-500: #9e8eb3;
   --bs-gray-600: #b3a3c8;
   --bs-gray-700: #d1c4e9;
@@ -877,8 +877,8 @@
   --bs-secondary-bg-rgb: 18, 8, 36;
   --bs-tertiary-color: #9e8eb3;
   --bs-tertiary-color-rgb: 158, 142, 179;
-  --bs-tertiary-bg: #150a2a;
-  --bs-tertiary-bg-rgb: 21, 10, 42;
+  --bs-tertiary-bg: #201042;
+  --bs-tertiary-bg-rgb: 32, 16, 66;
   --bs-heading-color: #faf5ff;
   --bs-link-color: #c084fc;
   --bs-link-color-rgb: 192, 132, 252;
@@ -2507,7 +2507,7 @@ body {
 .card {
   background-color: var(--uvaco-bg-card);
   border: 1px solid var(--uvaco-border-color);
-  border-radius: var(--uvaco-border-radius-lg, 20px);
+  border-radius: var(--uvaco-border-radius-lg, 0.5rem);
   padding: 1rem;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -2527,7 +2527,38 @@ body {
   box-shadow: 0 0 2rem var(--uvaco-border-glow);
 }
 
-.chart-card-container {
+.card-incard {
+  background-color: var(--uvaco-bg-card-dark);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: var(--uvaco-border-radius-lg, 0.5rem);
+  padding: 1rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card-incard .card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--uvaco-border-color);
+  color: var(--uvaco-primary);
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+}
+.card-incard .card-body {
+  padding: 1.25rem;
+  color: var(--uvaco-text-primary);
+}
+
+.card-chart {
+  background-color: transparent;
+  border: transparent;
+  border-radius: var(--uvaco-border-radius-lg, 0.5rem);
+  padding: 0.5rem;
+  height: 100%;
+}
+
+.card-chart-container {
+  background-color: var(--uvaco-bg-card-hover);
+  border: 1px solid var(--uvaco-border-highlight);
+  border-radius: var(--uvaco-border-radius-xl, 1rem);
+  padding: 1rem;
   position: relative;
   height: 300px;
   width: 100%;

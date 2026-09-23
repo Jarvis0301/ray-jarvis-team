@@ -228,7 +228,7 @@ function renderGridCards(list) {
         const cardHtml = `
             <div class="col-12 col-md-6 col-xl-4">
                 <div class="card h-100">
-                    <div class="card-body d-flex flex-column justify-content-between p-3">
+                    <div class="card-body d-flex flex-column justify-content-between">
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center gap-2">

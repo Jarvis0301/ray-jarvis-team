@@ -437,11 +437,11 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: { ticks: { color: '#a78bfa' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
+                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
                     y: {
                         type: 'linear', position: 'left',
                         title: { display: true, text: '考核 SV', color: '#8b5cf6' },
-                        ticks: { color: '#c084fc' },
+                        ticks: { color: '#f5f3ff' },
                         grid: { color: 'rgba(139, 92, 246, 0.12)' }
                     },
                     y1: {
@@ -452,7 +452,7 @@ function renderCharts() {
                     }
                 },
                 plugins: {
-                    legend: { labels: { color: '#f5f3ff', font: { size: 11 } } }
+                    legend: { labels: { color: '#f5f3ff', font: { size: 12 } } }
                 }
             }
         });
@@ -488,7 +488,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -533,7 +533,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -577,7 +577,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {
@@ -615,7 +615,7 @@ function renderCharts() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#e2d9f3', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: ctx => {

@@ -498,7 +498,7 @@ function renderTacticalCharts() {
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { color: '#94a3b8', boxWidth: 8, padding: 6, font: { size: 10 } }
+                        labels: { color: '#f5f3ff', boxWidth: 8, padding: 6, font: { size: 12 } }
                     },
                     tooltip: {
                         callbacks: {
@@ -621,8 +621,8 @@ function renderTacticalCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-                    y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => `$${v.toLocaleString()}` }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 9 }, callback: v => `$${v.toLocaleString()}` }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });
@@ -668,8 +668,8 @@ function renderTacticalCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -695,11 +695,11 @@ function renderTacticalCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-                    y: { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    x: { stacked: true, ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
+                    y: { stacked: true, ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 },
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 8, font: { size: 9 } } },
+                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: function (ctx) {
@@ -752,8 +752,8 @@ function renderTacticalCharts() {
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-                    y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
+                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });

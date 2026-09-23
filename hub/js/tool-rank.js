@@ -712,7 +712,7 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
                 plugins: {
                     legend: {
                         position: 'right',
-                        labels: { color: textColor, boxWidth: 12, font: { size: 11 } }
+                        labels: { color: textColor, boxWidth: 12, font: { size: 12 } }
                     },
                     tooltip: {
                         callbacks: {
@@ -755,7 +755,7 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
                         ticks: { display: false, stepSize: 25 },
                         angleLines: { color: gridColor },
                         grid: { color: gridColor },
-                        pointLabels: { color: textColor, font: { size: 10 } }
+                        pointLabels: { color: textColor, font: { size: 12 } }
                     }
                 },
                 plugins: {
@@ -785,8 +785,8 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false } },
-                    y: { ticks: { color: textColor, font: { size: 9 } }, grid: { color: gridColor } }
+                    x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false } },
+                    y: { ticks: { color: textColor, font: { size: 12 } }, grid: { color: gridColor } }
                 },
                 plugins: {
                     legend: { display: false },

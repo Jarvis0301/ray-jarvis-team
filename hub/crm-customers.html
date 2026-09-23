@@ -234,7 +234,7 @@
                     <div class="tab-pane fade" id="container-table-view" role="tabpanel">
                         <div class="glass-panel p-3">
                             <div class="table-responsive">
-                                <table id="customer-datatable" class="table table-dark-custom align-middle w-100">
+                                <table id="customer-datatable" class="table table-dark-custom">
                                     <thead>
                                         <tr>
                                             <th>姓名</th>
@@ -267,7 +267,7 @@
                                 </div>
                             </div>
                             <div class="table-responsive">
-                                <table id="conversions-datatable" class="table table-dark-custom align-middle w-100">
+                                <table id="conversions-datatable" class="table table-dark-custom">
                                     <thead>
                                         <tr>
                                             <th>姓名</th>
@@ -291,7 +291,7 @@
                     <!-- 4. 統計分析圖表視圖 -->
                     <div class="tab-pane fade" id="container-charts-view" role="tabpanel" aria-labelledby="tab-charts">
                         <!-- 區塊 A：跨國語言溝通能力矩陣 -->
-                        <article class="glass-panel p-3 mb-4 border-primary border-opacity-25">
+                        <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                 <div>
                                     <span class="fw-bold text-white fs-6"><i class="fa-solid fa-language text-primary me-1"></i>跨國語言溝通能力</span>
@@ -318,35 +318,35 @@
                             </header>
 
                             <div class="row g-3">
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-ear-listen text-info me-1"></i>聽力掌握度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-listening"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-listening"></canvas></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-comments text-success me-1"></i>口說流暢度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-speaking"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-speaking"></canvas></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-book-open-reader text-warning me-1"></i>閱讀理解度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-reading"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-reading"></canvas></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="card">
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-light mb-2 small"><i class="fa-solid fa-pen-nib text-danger me-1"></i>書寫表達度</h6>
-                                        <div class="chart-card-container"><canvas id="chart-lang-writing"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-lang-writing"></canvas></div>
                                     </div>
                                 </div>
                             </div>
                         </article>
 
                         <!-- 區塊 B：個人主檔畫像指標 (12 張圓餅圖) -->
-                        <article class="glass-panel p-3 mb-4 border-primary border-opacity-25">
+                        <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                 <div>
                                     <span class="fw-bold text-white fs-6"><i class="fa-solid fa-user-gear text-primary me-1"></i>個人主檔畫像指標</span>
@@ -355,82 +355,82 @@
                             </header>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-id-badge text-primary me-1"></i>1. 人脈身分類型</h6>
-                                        <div class="chart-card-container"><canvas id="chart-identity-type-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-identity-type-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-tag text-info me-1"></i>2. 使用身分類型</h6>
-                                        <div class="chart-card-container"><canvas id="chart-usage-identity-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-usage-identity-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-cake-candles text-warning me-1"></i>3. 年齡層級分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-age-distribution"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-age-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-venus-mars text-danger me-1"></i>4. 生理性別比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-gender-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-gender-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-flag text-success me-1"></i>5. 國籍分佈比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-nationality-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-nationality-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-people-group text-accent me-1"></i>6. 種族族裔比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-ethnicity-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-ethnicity-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-house-user text-primary me-1"></i>7. 家鄉城市分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-hometown-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-hometown-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-map-location-dot text-info me-1"></i>8. 現居地 / 行政區</h6>
-                                        <div class="chart-card-container"><canvas id="chart-residence-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-residence-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-handshake text-success me-1"></i>9. 認識年份分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-met-year-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-met-year-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-graduation-cap text-warning me-1"></i>10. 最高學歷分佈</h6>
-                                        <div class="chart-card-container"><canvas id="chart-education-distribution"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-education-distribution"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-heart-pulse text-danger me-1"></i>11. 健康狀況比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-health-status-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-health-status-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-wallet text-accent me-1"></i>12. 財務狀況比例</h6>
-                                        <div class="chart-card-container"><canvas id="chart-financial-status-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-financial-status-split"></canvas></div>
                                     </div>
                                 </div>
                             </div>
                         </article>
 
                         <!-- 區塊 C：客戶營運與轉化指標 (14 張戰術指標圖表) -->
-                        <article class="glass-panel p-3 mb-4 border-primary border-opacity-25">
+                        <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
                                 <div>
                                     <span class="fw-bold text-white fs-6"><i class="fa-solid fa-briefcase text-primary me-1"></i>客戶營運與轉化指標</span>
@@ -439,87 +439,87 @@
                             </header>
                             <div class="row g-3">
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-users-viewfinder text-primary me-1"></i>1. 客戶身分類型</h6>
-                                        <div class="chart-card-container"><canvas id="chart-customer-type-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-customer-type-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-filter-circle-dollar text-warning me-1"></i>2. 轉化漏斗階段</h6>
-                                        <div class="chart-card-container"><canvas id="chart-pipeline-stage-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-pipeline-stage-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-signal text-info me-1"></i>3. 名單運作狀態</h6>
-                                        <div class="chart-card-container"><canvas id="chart-customer-status-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-customer-status-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-bullhorn text-success me-1"></i>4. 引流來源渠道</h6>
-                                        <div class="chart-card-container"><canvas id="chart-source-channel-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-source-channel-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-arrows-split-up-and-left text-accent me-1"></i>5. 轉化簽約型態佔比</h6>
-                                        <div class="chart-card-container"><canvas id="chart-conversion-type-split"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-conversion-type-split"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-coins text-warning me-1"></i>6. 轉化累計消費金額級距</h6>
-                                        <div class="chart-card-container"><canvas id="chart-conversion-spend-tier"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-conversion-spend-tier"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-award text-info me-1"></i>7. 轉化貢獻 SV 點數級距</h6>
-                                        <div class="chart-card-container"><canvas id="chart-conversion-sv-tier"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-conversion-sv-tier"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-3">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-user-tie text-primary me-1"></i>8. 維護負責夥伴名單數 Top 10</h6>
-                                        <div class="chart-card-container"><canvas id="chart-assigned-partner-top10"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-assigned-partner-top10"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-people-arrows text-success me-1"></i>9. 轉介推薦人名單數 Top 10</h6>
-                                        <div class="chart-card-container"><canvas id="chart-referrer-top10"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-referrer-top10"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-handshake text-accent me-1"></i>10. 轉化引薦人 Top 10</h6>
-                                        <div class="chart-card-container"><canvas id="chart-conversion-sponsor-top10"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-conversion-sponsor-top10"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-chart-line text-success me-1"></i>11. 轉化簽約年份趨勢</h6>
-                                        <div class="chart-card-container"><canvas id="chart-conversion-year-line"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-conversion-year-line"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-arrow-trend-up text-info me-1"></i>12. 首單成交年份趨勢歷程</h6>
-                                        <div class="chart-card-container"><canvas id="chart-first-order-year-line"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-first-order-year-line"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-calendar-check text-info me-1"></i>13. 首單成交月份分佈 (1~12月)</h6>
-                                        <div class="chart-card-container"><canvas id="chart-first-order-month-bar"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-first-order-month-bar"></canvas></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="card">
+                                    <div class="card-chart">
                                         <h6 class="fw-bold text-white mb-2 small"><i class="fa-solid fa-clock-rotate-left text-warning me-1"></i>14. 最近關懷月份分佈 (1~12月)</h6>
-                                        <div class="chart-card-container"><canvas id="chart-last-contact-month-bar"></canvas></div>
+                                        <div class="card-chart-container"><canvas id="chart-last-contact-month-bar"></canvas></div>
                                     </div>
                                 </div>
                             </div>
@@ -1244,12 +1244,12 @@
                                         <label class="form-label">累計消費總金額 (結轉資產)</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text">NT$</span>
-                                            <input type="number" class="form-control form-control-sm text-end" id="convert-spend" value="0" step="10">
+                                            <input type="number" class="form-control form-control-sm text-end" id="convert-spend" value="0" min="0" step="10">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6 col-xl-3">
                                         <label class="form-label">累計貢獻 SV 考核點數</label>
-                                        <input type="number" class="form-control form-control-sm text-end" id="convert-sv" value="0" step="1">
+                                        <input type="number" class="form-control form-control-sm text-end" id="convert-sv" value="0" min="0" step="1">
                                     </div>
                                 </div>
 

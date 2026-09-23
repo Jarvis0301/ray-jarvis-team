@@ -308,116 +308,121 @@
                         </div>
                     </section>
 
-                    <section class="row g-2 mb-2" aria-label="圖表分析網格">
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-primary me-1"></i>主系列分布</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartCategoryDist"></canvas>
+                    <section class="glass-panel p-3 mb-4" aria-label="圖表分析網格">
+                        <div class="row g-2 mb-2">
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-primary me-1"></i>主系列分布</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartCategoryDist"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
 
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-success me-1"></i>次系列分布</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartSubcategoryDist"></canvas>
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-success me-1"></i>次系列分布</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartSubcategoryDist"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
 
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-info me-1"></i>產品型態分布</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartTypeDist"></canvas>
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-info me-1"></i>產品型態分布</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartTypeDist"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-accent me-1"></i>上市狀態占比</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartLaunchStatusDist"></canvas>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-pie text-accent me-1"></i>上市狀態占比</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartLaunchStatusDist"></canvas>
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-cubes-stacked text-secondary me-1"></i>產品供應狀態統計</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartStatusDist"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
 
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-cubes-stacked text-secondary me-1"></i>產品供應狀態統計</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartStatusDist"></canvas>
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-arrow-down-wide-short text-danger me-1"></i>產品售價排行 (Top 5)</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartPriceRank"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-star text-warning me-1"></i>全球 SV 點數排行 (Top 5)</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartTopSvRank"></canvas>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-arrow-down-wide-short text-danger me-1"></i>產品售價排行 (Top 5)</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartPriceRank"></canvas>
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light" id="titleSvEfficiencyRank"><i class="fa-solid fa-bolt text-warning me-1"></i>SV 貢獻率排行 (Top 5)</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartSvEfficiencyRank"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
 
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-star text-warning me-1"></i>全球 SV 點數排行 (Top 5)</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartTopSvRank"></canvas>
+                            <div class="col-12 col-md-6 col-xl-4">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-weight-scale text-primary me-1"></i>產品重量規格排行 (Top 5)</span>
+                                    </header>
+                                    <div class="card-chart-container">
+                                        <canvas id="chartWeightRank"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
-
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light" id="titleSvEfficiencyRank"><i class="fa-solid fa-bolt text-warning me-1"></i>SV 貢獻率排行 (Top 5)</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartSvEfficiencyRank"></canvas>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-12">
+                                <div class="card-chart">
+                                    <header class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-light"><i class="fa-solid fa-chart-line text-success me-1"></i>各年度上市品項趨勢</span>
+                                    </header>
+                                    <div class="card-chart-container" style="height: 300px;">
+                                        <canvas id="chartLaunchTrend"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
-
-                        <article class="col-12 col-md-6 col-xl-4">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-weight-scale text-primary me-1"></i>產品重量規格排行 (Top 5)</span>
-                                </header>
-                                <div class="chart-card-container">
-                                    <canvas id="chartWeightRank"></canvas>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article class="col-12">
-                            <div class="card h-100 p-3">
-                                <header class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-light"><i class="fa-solid fa-chart-line text-success me-1"></i>各年度上市品項趨勢</span>
-                                </header>
-                                <div class="chart-card-container" style="height: 300px;">
-                                    <canvas id="chartLaunchTrend"></canvas>
-                                </div>
-                            </div>
-                        </article>
+                        </div>
                     </section>
                 </section>
 
@@ -864,7 +869,7 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">顯示排序權重</label>
-                                    <input type="number" class="form-control form-control-sm text-end" name="sort_order" id="taxSortOrder" value="0">
+                                    <input type="number" class="form-control form-control-sm text-end" name="sort_order" id="taxSortOrder" min="0" value="0">
                                 </div>
                             </div>
                             <div class="row g-2 mb-2">

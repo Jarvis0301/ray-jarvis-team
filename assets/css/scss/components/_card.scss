@@ -4,7 +4,7 @@
 .card {
     background-color: var(--uvaco-bg-card);
     border: 1px solid var(--uvaco-border-color);
-    border-radius: var(--uvaco-border-radius-lg, 20px);
+    border-radius: var(--uvaco-border-radius-lg, 0.5rem);
     padding: 1rem;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
@@ -27,7 +27,40 @@
     }
 }
 
-.chart-card-container {
+.card-incard {
+    background-color: var(--uvaco-bg-card-dark);
+    border: 1px solid var(--uvaco-border-highlight);
+    border-radius: var(--uvaco-border-radius-lg, 0.5rem);
+    padding: 1rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid var(--uvaco-border-color);
+        color: var(--uvaco-primary);
+        font-weight: 600;
+        padding: 1rem 1.25rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+        color: var(--uvaco-text-primary);
+    }
+}
+
+.card-chart {
+    background-color: transparent;
+    border: transparent;
+    border-radius: var(--uvaco-border-radius-lg, 0.5rem);
+    padding: 0.5rem;
+    height: 100%;
+}
+
+.card-chart-container {
+    background-color: var(--uvaco-bg-card-hover);
+    border: 1px solid var(--uvaco-border-highlight);
+    border-radius: var(--uvaco-border-radius-xl, 1rem);
+    padding: 1rem;
     position: relative;
     height: 300px;
     width: 100%;

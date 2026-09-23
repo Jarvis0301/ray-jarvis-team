@@ -47,7 +47,7 @@ window.addEventListener('AppReady', function() {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: '#94a3b8', font: { size: 11 } }
+                    labels: { color: '#f5f3ff', font: { size: 12 } }
                 }
             }
         }
@@ -71,17 +71,17 @@ window.addEventListener('AppReady', function() {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    ticks: { color: '#94a3b8' },
+                    ticks: { color: '#f5f3ff' },
                     grid: { color: '#334155' }
                 },
                 y: {
-                    ticks: { color: '#94a3b8' },
+                    ticks: { color: '#f5f3ff' },
                     grid: { color: '#334155' }
                 }
             },
             plugins: {
                 legend: {
-                    labels: { color: '#94a3b8' }
+                    labels: { color: '#f5f3ff' }
                 }
             }
         }

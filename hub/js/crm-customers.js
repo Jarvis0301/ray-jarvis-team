@@ -211,6 +211,7 @@ function calculateRelationAndTeamStatus(partnerId, placementId, sponsorId, nodeN
 async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCount, relationLine, currentUser, nowStr) {
     if (!descendantId) return;
     const silentOpt = { silent: true };
+    const targetLine = relationLine || '安置排線';
 
     const getNextAutoIncrementId = () => {
         if (!orgRelationsList || orgRelationsList.length === 0) return 1;
@@ -218,35 +219,44 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
         return validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
     };
 
-    if (!ancestorId || ancestorId === 'ROOT' || ancestorId === 'SYSTEM_ROOT' || linkType === '體系頂層') {
+    // 1. 寫入自體參照 (depth = 0)
+    let selfRel = orgRelationsList.find(r => r.ancestor_id === descendantId && r.descendant_id === descendantId && r.relation_line === targetLine);
+    if (!selfRel) {
         const selfId = String(getNextAutoIncrementId());
-        const selfRow = [selfId, descendantId, descendantId, 0, 'Y', '精確血緣', relationLine || '安置排線', descendantId, currentUser, nowStr, currentUser, nowStr];
+        const selfRow = [selfId, descendantId, descendantId, 0, 'Y', '精確血緣', targetLine, descendantId, currentUser, nowStr, currentUser, nowStr];
         await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, selfId, selfRow, GAS_DEPLOY_ID.ORG, silentOpt);
-        orgRelationsList.push({ id: selfId, ancestor_id: descendantId, descendant_id: descendantId, depth: 0, is_depth_exact: 'Y', link_nature: '精確血緣', relation_line: relationLine || '安置排線', path_trace: descendantId });
-        return;
+        orgRelationsList.push({ id: selfId, ancestor_id: descendantId, descendant_id: descendantId, depth: 0, is_depth_exact: 'Y', link_nature: '精確血緣', relation_line: targetLine, path_trace: descendantId });
     }
 
-    let depth = 1;
-    let isDepthExact = 'Y';
-    let linkNature = '精確血緣';
+    if (!ancestorId || ancestorId === 'ROOT' || ancestorId === 'SYSTEM_ROOT' || linkType === '體系頂層') return;
+
+    // 2. 計算直屬間隔
     const numGaps = parseInt(gapCount, 10) || 0;
-    let pathTrace = `${ancestorId}/${descendantId}`;
-
+    let directDepth = 1;
+    let isDirectExact = 'Y';
+    let directLinkNature = '精確血緣';
     if (linkType === '已知人數斷層' && numGaps > 0) {
-        depth = numGaps + 1;
-        linkNature = '已知人數斷層';
-        pathTrace = `${ancestorId}/GAP_${numGaps}/${descendantId}`;
+        directDepth = numGaps + 1;
+        directLinkNature = '已知人數斷層';
     } else if (linkType === '中間未知' || linkType === '未知斷層直連') {
-        depth = 1;
-        isDepthExact = 'N';
-        linkNature = '未知斷層直連';
-        pathTrace = `${ancestorId}/UNKNOWN_GAP/${descendantId}`;
+        directDepth = 1;
+        isDirectExact = 'N';
+        directLinkNature = '未知斷層直連';
     }
 
-    const relId = String(getNextAutoIncrementId());
-    const relationRow = [relId, ancestorId, descendantId, depth, isDepthExact, linkNature, relationLine || '安置排線', pathTrace, currentUser, nowStr, currentUser, nowStr];
-    await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, relId, relationRow, GAS_DEPLOY_ID.ORG, silentOpt);
-    orgRelationsList.push({ id: relId, ancestor_id: ancestorId, descendant_id: descendantId, depth, is_depth_exact: isDepthExact, link_nature: linkNature, relation_line: relationLine || '安置排線', path_trace: pathTrace });
+    // 3. 繼承安置上線的所有祖先路徑鏈
+    const ancestorRows = orgRelationsList.filter(r => r.descendant_id === ancestorId && r.relation_line === targetLine);
+    for (const aRow of ancestorRows) {
+        const targetId = String(getNextAutoIncrementId());
+        const totalDepth = aRow.depth + directDepth;
+        const totalExact = (aRow.is_depth_exact === 'Y' && isDirectExact === 'Y') ? 'Y' : 'N';
+        const totalNature = (aRow.ancestor_id === ancestorId) ? directLinkNature : aRow.link_nature;
+        const trace = `${aRow.path_trace}/${descendantId}`;
+
+        const newRow = [targetId, aRow.ancestor_id, descendantId, totalDepth, totalExact, totalNature, targetLine, trace, currentUser, nowStr, currentUser, nowStr];
+        await SheetAdapter.createRow(SHEET_NAMES.RELATIONS, targetId, newRow, GAS_DEPLOY_ID.ORG, silentOpt);
+        orgRelationsList.push({ id: targetId, ancestor_id: aRow.ancestor_id, descendant_id: descendantId, depth: totalDepth, is_depth_exact: totalExact, link_nature: totalNature, relation_line: targetLine, path_trace: trace });
+    }
 }
 
 // ============================================================================
@@ -541,7 +551,10 @@ function parsePartnerMasterTable(rows) {
         person_id: getVal(r, 1),
         member_no: getVal(r, 2, ''),
         leader_title: getVal(r, 3, ''),
-        display_name: getVal(r, 4, '')
+        account_holder_type: getVal(r, 4, '個人經營者'),
+        official_account_partner_id: getVal(r, 5, ''),
+        operation_mode: getVal(r, 6, '個人經營'),
+        spouse_partner_id: getVal(r, 7, '')
     })).filter(pt => pt.partner_id);
 }
 
@@ -719,7 +732,7 @@ function renderCardsView(dataList) {
                             </div>
                         </div>
 
-                        <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-3">
+                        <div class="card-incard p-2 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary"><i class="fa-solid fa-filter text-warning me-1"></i>轉化階段 / 運作狀態</span>
                                 <div class="d-flex align-items-center gap-1">
@@ -1793,8 +1806,8 @@ async function saveCustomerConversion() {
             $('#convert-placement-id').val(),
             $('#convert-known-mentor-id').val(),
             uplineLinkType,
-            '會員', // current_rank_id 鎖定會員
-            '會員', // highest_rank_id 鎖定會員
+            'RANK_01', // current_rank_id 鎖定會員
+            'RANK_01', // highest_rank_id 鎖定會員
             0,      // diamond_star_level
             '',     // star_eval_eligible_date
             countryCode,
@@ -1812,7 +1825,7 @@ async function saveCustomerConversion() {
             $('#convert-team-notes').val().trim(), // 夥伴主檔：團隊備註 (索引 29)
             AppDate.toSheet(convDate),
             AppDate.toSheet($('#convert-renewal-due-date').val()),
-            AppDate.toSheet(customer.first_order_date),
+            '',
             '',     // exit_date
             person.avatar_url || '',
             currentUser,
@@ -1866,7 +1879,7 @@ async function saveCustomerConversion() {
 // ============================================================================
 const getPieTooltipOptions = () => ({
     plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } },
+        legend: { position: 'bottom', labels: { color: '#f5f3ff', font: { size: 12 } } },
         tooltip: {
             callbacks: {
                 label: function (context) {
@@ -2308,10 +2321,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -2338,10 +2351,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -2368,10 +2381,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -2418,11 +2431,11 @@ function renderChartsView(filteredDataset = null) {
                         ticks: {
                             stepSize: 1,
                             precision: 0,
-                            color: '#94a3b8'
+                            color: '#f5f3ff'
                         },
                         grid: { color: 'rgba(255, 255, 255, 0.05)' }
                     },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
                 }
             }
         });
@@ -2469,11 +2482,11 @@ function renderChartsView(filteredDataset = null) {
                         ticks: { 
                             stepSize: 1, 
                             precision: 0,
-                            color: '#94a3b8' 
+                            color: '#f5f3ff' 
                         }, 
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
                 }
             }
         });
@@ -2500,10 +2513,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });
@@ -2530,10 +2543,10 @@ function renderChartsView(filteredDataset = null) {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#94a3b8' }, // ★ 鎖定整數
+                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
                         grid: { color: 'rgba(255, 255, 255, 0.05)' } 
                     },
-                    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 }
             }
         });

@@ -143,7 +143,7 @@ function initSvChart() {
                         color: 'rgba(139, 92, 246, 0.1)'
                     },
                     ticks: {
-                        color: '#a1a1aa'
+                        color: '#f5f3ff'
                     }
                 },
                 y: {
@@ -151,7 +151,7 @@ function initSvChart() {
                         color: 'rgba(139, 92, 246, 0.1)'
                     },
                     ticks: {
-                        color: '#a1a1aa',
+                        color: '#f5f3ff',
                         callback: function (value) {
                             return (value / 1000) + 'k SV';
                         }

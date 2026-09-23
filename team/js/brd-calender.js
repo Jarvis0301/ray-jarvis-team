@@ -61,7 +61,7 @@ function initEventDistributionChart() {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        color: '#94a3b8',
+                        color: '#f5f3ff',
                         padding: 15,
                         font: {
                             size: 11

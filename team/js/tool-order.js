@@ -1049,7 +1049,7 @@ function initAllCharts() {
                 maintainAspectRatio: false,
                 animation: false,
                 plugins: {
-                    legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } },
+                    legend: { position: 'right', labels: { color: '#f5f3ff', font: { size: 12 } } },
                     tooltip: {
                         callbacks: {
                             label: function (context) {
@@ -1086,8 +1086,8 @@ function initAllCharts() {
                 maintainAspectRatio: false,
                 animation: false,
                 scales: {
-                    y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { ticks: { color: '#f8fafc', font: { size: 11 } }, grid: { display: false } }
+                    y: { beginAtZero: true, ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: '#f8fafc', font: { size: 12 } }, grid: { display: false } }
                 },
                 plugins: { legend: { display: false } }
             }
@@ -1114,8 +1114,8 @@ function initAllCharts() {
                 maintainAspectRatio: false,
                 animation: false,
                 scales: {
-                    y: { beginAtZero: true, ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
+                    y: { beginAtZero: true, ticks: { color: '#f5f3ff', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
                 },
                 plugins: { legend: { display: false } }
             }
@@ -1143,8 +1143,8 @@ function initAllCharts() {
                 maintainAspectRatio: false,
                 animation: false,
                 scales: {
-                    x: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#f8fafc', font: { size: 10 } }, grid: { display: false } }
+                    x: { beginAtZero: true, ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#f8fafc', font: { size: 12 } }, grid: { display: false } }
                 },
                 plugins: { legend: { display: false } }
             }
@@ -1174,7 +1174,7 @@ function initAllCharts() {
                     r: {
                         angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                         grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: { color: '#94a3b8', font: { size: 9 } },
+                        pointLabels: { color: '#f5f3ff', font: { size: 12 } },
                         ticks: { display: false, beginAtZero: true }
                     }
                 },
@@ -1442,7 +1442,7 @@ function renderSubSeriesChartCards() {
                     plugins: {
                         legend: {
                             position: 'right',
-                            labels: { color: '#94a3b8', font: { size: 10 } }
+                            labels: { color: '#f5f3ff', font: { size: 12 } }
                         },
                         tooltip: {
                             callbacks: {

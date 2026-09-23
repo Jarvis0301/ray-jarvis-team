@@ -333,8 +333,8 @@ function renderCharts(members) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
-                y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+                x: { ticks: { color: '#f5f3ff' }, grid: { display: false } },
+                y: { ticks: { color: '#f5f3ff' }, grid: { color: '#1e293b' } }
             },
             plugins: {
                 legend: { display: false }

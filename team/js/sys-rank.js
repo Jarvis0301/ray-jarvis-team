@@ -4,6 +4,7 @@ window.addEventListener('AppReady', () => {
     $('#rankAdvancementTable').DataTable({
         info: false,
         paging: false,
+        ordering: false,
         columnDefs: [
             { targets: [1], className: 'text-center' },
             { targets: [2, 3, 4], className: 'text-end' }
@@ -18,11 +19,13 @@ window.addEventListener('AppReady', () => {
     const rankProgressChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['會員', '主任', '副理', '經理', '珍珠', '翡翠', '藍鑽', '雙藍鑽', '皇冠', '雙皇冠'],
+            // 1. 替換為官方 11 級職級體系
+            labels: ['會員', '主任', '副理', '經理', '松柏', '長青', '珍珠', '翡翠', '藍鑽', '星級藍鑽', '耀星藍鑽'],
             datasets: [
                 {
                     label: '提撥率 (%)',
-                    data: [5, 10, 15, 20, 20, 20, 20, 20, 20, 20],
+                    // 會員 5%、主任 10%、副理 15%、經理以上 20%
+                    data: [5, 10, 15, 20, 20, 20, 20, 20, 20, 20, 20],
                     backgroundColor: 'rgba(56, 189, 248, 0.6)',
                     borderColor: '#38bdf8',
                     borderWidth: 2,
@@ -30,12 +33,15 @@ window.addEventListener('AppReady', () => {
                 },
                 {
                     label: '培育合格經理線 (條)',
-                    data: [0, 0, 0, 0, 2, 4, 6, 8, 10, 12],
+                    // 松柏 1 線、長青 2 線、珍珠 4 線、翡翠 6 線、藍鑽以上 10 線
+                    data: [0, 0, 0, 0, 1, 2, 4, 6, 10, 10, 10],
                     type: 'line',
                     borderColor: '#facc15',
                     backgroundColor: '#facc15',
                     borderWidth: 3,
-                    pointRadius: 5,
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 3,
                     pointHoverRadius: 7,
                     yAxisID: 'y1'
                 }
@@ -46,7 +52,7 @@ window.addEventListener('AppReady', () => {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    ticks: { color: '#94a3b8' },
+                    ticks: { color: '#f5f3ff' },
                     grid: { color: 'rgba(255, 255, 255, 0.05)' }
                 },
                 y: {
@@ -75,14 +81,13 @@ window.addEventListener('AppReady', () => {
                     ticks: { color: '#facc15', stepSize: 2 },
                     grid: { drawOnChartArea: false },
                     min: 0,
-                    max: 14
+                    max: 12
                 }
             },
             plugins: {
                 legend: {
                     labels: {
                         color: '#f8fafc'
-                        // 移除自訂字體 font: { family: 'Noto Sans TC' }
                     }
                 },
                 tooltip: {

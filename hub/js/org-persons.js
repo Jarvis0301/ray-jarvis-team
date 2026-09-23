@@ -9,7 +9,9 @@
 // 1. 核心常數與資料庫設定宣告
 // ============================================================================
 const SPREADSHEET_ID = {
-    PSN: APP_CONFIG.SHEETS.PSN
+    PSN: APP_CONFIG.SHEETS.PSN,
+    ORG: APP_CONFIG.SHEETS.ORG,
+    CRM: APP_CONFIG.SHEETS.CRM
 };
 
 const GAS_DEPLOY_ID = {
@@ -19,7 +21,9 @@ const GAS_DEPLOY_ID = {
 const SHEET_NAMES = {
     PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON,
     CONTACTS: APP_CONFIG.SHEET_NAMES.PSN.PERSON_CONTACTS,
-    LANGUAGES: APP_CONFIG.SHEET_NAMES.PSN.PERSON_LANGUAGES
+    LANGUAGES: APP_CONFIG.SHEET_NAMES.PSN.PERSON_LANGUAGES,
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,
+    CUSTOMERS: APP_CONFIG.SHEET_NAMES.CRM.CUSTOMERS
 };
 
 const DEFAULT_AVATARS = {
@@ -33,6 +37,8 @@ const DEFAULT_AVATARS = {
 let personMasterList = [];
 let personContactsList = [];
 let personLanguagesList = [];
+let partnersList = [];
+let customersList = [];
 
 let dataTableInstance = null;
 let chartInstances = {};
@@ -49,12 +55,10 @@ window.addEventListener('AppReady', async function () {
 });
 
 /**
- * 初始化下拉選單元件 (接軌 UISelectOptions.geo)
+ * 初始化頂部篩選下拉選單 (僅在資料載入後執行一次)
  */
-function initDropdowns() {
+function initFilterDropdowns() {
     const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
-
-    // 頂部篩選：現居城市
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#filter-current-residence',
         placeholder: '全部地區',
@@ -62,22 +66,27 @@ function initDropdowns() {
         creatable: false,
         searchable: true
     });
+}
 
-    // 表單：現居地
+/**
+ * 初始化/刷新 Modal 表單內的現居地與家鄉選單
+ */
+function populateModalRegionDropdowns(selectedResidence = '', selectedHometown = '') {
+    const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-current-residence',
         placeholder: '請選擇或輸入現居城市...',
         customRegions: customRegions,
+        selectedValue: selectedResidence,
         creatable: true,
         searchable: true,
         dropdownParent: '#personEditModal'
     });
-
-    // 表單：家鄉
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-hometown',
         placeholder: '請選擇或輸入家鄉城市...',
         customRegions: customRegions,
+        selectedValue: selectedHometown,
         creatable: true,
         searchable: true,
         dropdownParent: '#personEditModal'
@@ -144,10 +153,12 @@ function bindEvents() {
 async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary"></i> 正在讀取雲端資料庫...', '載入中...');
     try {
-        const [personRows, contactRows, langRows] = await Promise.all([
+        const [personRows, contactRows, langRows, partnerRows, custRows] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.CONTACTS).catch(() => []),
-            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.LANGUAGES).catch(() => [])
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.LANGUAGES).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.CRM, SHEET_NAMES.CUSTOMERS).catch(() => [])
         ]);
 
         // 解析個人主檔 (表 901，包含索引 32 的通用備註欄位)
@@ -210,7 +221,10 @@ async function fetchGoogleSheetsData() {
             notes: getVal(r, 7)
         })).filter(l => l.lang_id);
 
-        initDropdowns();
+        partnersList = partnerRows.map(r => ({ partner_id: getVal(r, 0), person_id: getVal(r, 1) })).filter(p => p.person_id);
+        customersList = custRows.map(r => ({ customer_id: getVal(r, 0), person_id: getVal(r, 1) })).filter(c => c.person_id);
+
+        initFilterDropdowns();
         renderAllViews();
     } catch (err) {
         console.error('[org-persons] 讀取雲端試算表失敗:', err);
@@ -342,7 +356,7 @@ function renderCardsView(list) {
 
     list.forEach(p => {
         const avatarUrl = p.avatar_url || (DEFAULT_AVATARS[p.gender] || DEFAULT_AVATARS['男']);
-        const dispName = p.display_name || p.name_zh || p.name_en || p.preferred_name || p.person_id;
+        const dispName = EntityResolver.person(p.person_id, personMasterList, 1);
         const ageStr = AppDate.toAgeDisplay(p.birthday, p.deceased_date, '未填年齡');
 
         // 5 項標準展示字串
@@ -384,7 +398,7 @@ function renderCardsView(list) {
                         </div>
                     </div>
 
-                    <div class="p-2 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-10 mb-0">
+                    <div class="card-incard p-2 mb-0">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary"><i class="fa-solid fa-venus-mars text-primary me-1"></i>性別 / 年齡</span>
                             <span class="text-light">${genderAgeText}</span>
@@ -423,7 +437,7 @@ function renderCardsView(list) {
  */
 function formatPersonTableRow(p) {
     const avatarUrl = p.avatar_url || (DEFAULT_AVATARS[p.gender] || DEFAULT_AVATARS['男']);
-    const dispName = p.display_name || p.name_zh || p.name_en || p.preferred_name || p.person_id;
+    const dispName = EntityResolver.person(p.person_id, personMasterList, 1);
     const ageStr = AppDate.toAgeDisplay(p.birthday, p.deceased_date, '');
     const genderAge = `${p.gender || '未填'} ${ageStr ? `(${ageStr})` : ''}`;
 
@@ -498,7 +512,7 @@ function renderDataTableView(list) {
 // ============================================================================
 const getPieTooltipOptions = () => ({
     plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } },
+        legend: { position: 'bottom', labels: { color: '#f5f3ff', font: { size: 12 } } },
         tooltip: {
             callbacks: {
                 label: function (context) {
@@ -834,7 +848,7 @@ function openPersonModalForCreate() {
     $('#form-languages-dynamic-tbody').empty();
     $('#form-notes').val('');
 
-    initDropdowns();
+    populateModalRegionDropdowns('', '');
     $('#personEditTabs button:first').tab('show');
     bootstrap.Modal.getOrCreateInstance(document.getElementById('personEditModal')).show();
 }
@@ -846,7 +860,7 @@ function openPersonModalForEdit(personId) {
         return;
     }
 
-    $('#personModalTitle').html(`<i class="fa-solid fa-user-gear text-primary me-1"></i>編輯檔案 - ${person.name_zh || person.preferred_name || person.person_id}`);
+    $('#personModalTitle').html(`<i class="fa-solid fa-user-gear text-primary me-1"></i>編輯檔案 - ${EntityResolver.person(person.person_id, personMasterList, 1)}`);
     $('#form-mode').val('UPDATE');
 
     $('#form-person-id').val(person.person_id);
@@ -866,25 +880,7 @@ function openPersonModalForEdit(personId) {
     $('#form-health-status').val(person.health_status || '良好');
     $('#form-financial-status').val(person.financial_status || '穩定');
 
-    const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
-    UISelectOptions.geo.populateRegionsDropdown({
-        target: '#form-hometown',
-        placeholder: '請選擇或輸入家鄉城市...',
-        customRegions: customRegions,
-        selectedValue: person.hometown || '',
-        creatable: true,
-        searchable: true,
-        dropdownParent: '#personEditModal'
-    });
-    UISelectOptions.geo.populateRegionsDropdown({
-        target: '#form-current-residence',
-        placeholder: '請選擇或輸入現居城市...',
-        customRegions: customRegions,
-        selectedValue: person.current_residence || '',
-        creatable: true,
-        searchable: true,
-        dropdownParent: '#personEditModal'
-    });
+    populateModalRegionDropdowns(person.current_residence || '', person.hometown || '');
 
     $('#form-contact-address').val(person.contact_address || '');
     $('#form-met-date').val(AppDate.toInput(person.met_date));
@@ -931,7 +927,7 @@ function openPersonModalForView(personId) {
         return;
     }
 
-    const dispName = person.display_name || person.name_zh || person.name_en || person.preferred_name || person.person_id;
+    const dispName = EntityResolver.person(person.person_id, personMasterList, 1);
     const avatarUrl = person.avatar_url || (DEFAULT_AVATARS[person.gender] || DEFAULT_AVATARS['男']);
     const countryBadge = `<span class="badge badge-outline-secondary-subtle">${person.nationality || '未填'}</span>`;
 
@@ -1024,8 +1020,17 @@ function openPersonModalForView(personId) {
     $('#view-notes').text(person.notes || '暫無個人備註。');
 
     $('#btn-view-to-edit').off('click').on('click', function () {
-        bootstrap.Modal.getInstance(document.getElementById('personViewModal'))?.hide();
-        setTimeout(() => { openPersonModalForEdit(personId); }, 250);
+        const viewModalEl = document.getElementById('personViewModal');
+        const viewModalInstance = bootstrap.Modal.getInstance(viewModalEl);
+        
+        if (viewModalInstance) {
+            $(viewModalEl).one('hidden.bs.modal', function () {
+                openPersonModalForEdit(personId);
+            });
+            viewModalInstance.hide();
+        } else {
+            openPersonModalForEdit(personId);
+        }
     });
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('personViewModal')).show();
@@ -1057,6 +1062,12 @@ async function savePersonRecord() {
         $('#form-usage-identity').focus();
         return;
     }
+    if (!$('#form-gender').val()) {
+        AppToast.warning('請選擇「生理性別」！');
+        $('#tab-btn-person').tab('show');
+        $('#form-gender').focus();
+        return;
+    }
 
     const birthdayRaw = $('#form-birthday').val().trim();
     if (birthdayRaw && !/^\d{4}(\/\d{1,2}\/\d{1,2})?$/.test(birthdayRaw)) {
@@ -1086,6 +1097,9 @@ async function savePersonRecord() {
 
     const currentUser = getCurrentUser();
     const nowStr = AppDate.now('full');
+    const existingPerson = personMasterList.find(p => p.person_id === personId);
+    const personCreatedBy = (mode === 'UPDATE' && existingPerson) ? (existingPerson.created_by || currentUser) : currentUser;
+    const personCreatedAt = (mode === 'UPDATE' && existingPerson) ? (existingPerson.created_at || nowStr) : nowStr;
 
     const updatedPerson = {
         person_id: personId,
@@ -1186,7 +1200,7 @@ async function savePersonRecord() {
         updatedPerson.occupation_background, updatedPerson.health_status, updatedPerson.financial_status, updatedPerson.avatar_url,
         updatedPerson.career_education_notes, updatedPerson.health_notes, updatedPerson.financial_notes, updatedPerson.consumption_notes,
         updatedPerson.notes,
-        currentUser, nowStr, currentUser, nowStr
+        personCreatedBy, personCreatedAt, currentUser, nowStr
     ];
 
     try {
@@ -1244,7 +1258,17 @@ async function savePersonRecord() {
 async function deletePersonRecord(personId) {
     const person = personMasterList.find(p => p.person_id === personId);
     if (!person) return;
-    const dispName = person.display_name || person.name_zh || person.preferred_name || person.person_id;
+
+    // ★ 核心修復 Bug 5：外鍵依賴防護
+    const hasPartner = partnersList.some(p => p.person_id === personId);
+    const hasCustomer = customersList.some(c => c.person_id === personId);
+
+    if (hasPartner || hasCustomer) {
+        AppToast.warning('必須先刪除夥伴及客戶主檔！');
+        return;
+    }
+
+    const dispName = EntityResolver.person(person.person_id, personMasterList, 1);
 
     AppDialog.confirm(
         `確定要自雲端試算表中移除人員【${dispName} (${personId})】嗎？<br><small class="text-warning">該人員之相關通訊與語言設定將一併清除。</small>`,
