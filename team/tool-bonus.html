@@ -24,28 +24,24 @@
         <main class="container-fluid p-3 p-md-4">
 
             <!-- 頂部戰情控制台指揮列 -->
-            <header class="war-room-header mb-3">
+            <header class="glass-panel mb-3">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge bg-primary text-white"><i class="fa-solid fa-shield-halved"></i> 戰術系統</span>
-                            <span class="text-muted small"><i class="fa-solid fa-bolt"></i> 官方制度全相容引擎 (PV=25)</span>
-                        </div>
-                        <h1 class="h4 header-brand mb-0"><i class="fa-solid fa-calculator"></i> 葡眾獎金精算與組織沙盒控制台</h1>
+                    <div class="fs-5 fw-bold text-white">
+                        <i class="fa-solid fa-calculator text-primary me-1"></i>獎金試算
                     </div>
 
                     <!-- 全域係數微調視窗 -->
                     <div class="d-flex flex-wrap gap-2 align-items-center bg-dark p-2 rounded border border-secondary border-opacity-25">
                         <div class="d-flex align-items-center gap-1">
-                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-coins"></i> 生產力 PV：</span>
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-coins me-1"></i>生產力 PV：</span>
                             <input type="number" id="cfgPvRatio" class="form-control form-control-sm text-end" style="width: 75px;" value="25" step="0.5" min="1">
                         </div>
                         <div class="d-flex align-items-center gap-1">
-                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-chart-line"></i> 領導點值：</span>
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-chart-line me-1"></i>領導點值：</span>
                             <input type="number" id="cfgPointValue" class="form-control form-control-sm text-end" style="width: 75px;" value="0.70" step="0.05" min="0.1">
                         </div>
                         <div class="d-flex align-items-center gap-1">
-                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-file-invoice"></i> 所得稅率：</span>
+                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-file-invoice me-1"></i>所得稅率：</span>
                             <input type="number" id="cfgTaxRate" class="form-control form-control-sm text-end" style="width: 70px;" value="10" step="1" min="0">%
                         </div>
                     </div>
@@ -57,21 +53,21 @@
                 <!-- 戰術情境快速載入列 -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="p-3 rounded" style="background-color: var(--bg-panel); border: 1px solid var(--border-color);">
+                        <div class="glass-panel p-3">
                             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                                <div class="fw-bold text-cyan"><i class="fa-solid fa-sliders"></i> 典型事業階梯推演情境：</div>
+                                <div class="fw-bold text-cyan"><i class="fa-solid fa-sliders me-1"></i>典型事業階梯推演情境：</div>
                                 <div class="d-flex flex-wrap gap-2">
                                     <button type="button" class="scenario-btn" data-scenario="PART_TIME">
-                                        <i class="fa-solid fa-user-clock"></i> 例算 I：兼差型經理 (~2.4萬)
+                                        <i class="fa-solid fa-user-clock me-1"></i>例算 I：兼差型經理 (~2.4萬)
                                     </button>
                                     <button type="button" class="scenario-btn" data-scenario="FULL_TIME">
-                                        <i class="fa-solid fa-briefcase"></i> 例算 II：專職型珍珠 (~14.5萬)
+                                        <i class="fa-solid fa-briefcase me-1"></i>例算 II：專職型珍珠 (~14.5萬)
                                     </button>
                                     <button type="button" class="scenario-btn" data-scenario="ENTERPRISE">
-                                        <i class="fa-solid fa-gem"></i> 例算 III：事業型藍鑽 (~25萬)
+                                        <i class="fa-solid fa-gem me-1"></i>例算 III：事業型藍鑽 (~25萬)
                                     </button>
                                     <button type="button" class="scenario-btn active" data-scenario="CUSTOM">
-                                        <i class="fa-solid fa-gear"></i> 自訂組織配置
+                                        <i class="fa-solid fa-gear me-1"></i>自訂組織配置
                                     </button>
                                 </div>
                             </div>
@@ -86,17 +82,17 @@
                         <div class="d-flex flex-column gap-4">
 
                             <!-- 模組 1：個人與小組基礎業績輸入 -->
-                            <div class="tactical-card">
+                            <div class="card">
                                 <div class="card-header-bar">
-                                    <h2 class="card-header-title"><i class="fa-solid fa-user-gear"></i> 核心個人與小組業績 (SV)</h2>
+                                    <span class="fw-bold text-white"><i class="fa-solid fa-user-gear text-secondary me-1"></i>核心個人與小組業績 (SV)</span>
                                     <span id="rankBadgeContainer">
-                                        <span class="badge-rank badge-rank-mgr"><i class="fa-solid fa-user-tie"></i> 合格經理 (20%)</span>
+                                        <span class="badge-rank badge-rank-mgr"><i class="fa-solid fa-user-tie me-1"></i>合格經理 (20%)</span>
                                     </span>
                                 </div>
 
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpPersonalSv"><i class="fa-solid fa-box-open"></i> 本月個人業績 (SV)</label>
+                                        <label class="form-label" for="inpPersonalSv"><i class="fa-solid fa-box-open me-1"></i>本月個人業績 (SV)</label>
                                         <div class="input-group">
                                             <input type="number" id="inpPersonalSv" class="form-control text-end" value="400" min="0" step="10">
                                             <span class="input-group-text">SV</span>
@@ -105,23 +101,15 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label" for="selRank"><i class="fa-solid fa-award"></i> 當前名義職級</label>
+                                        <label class="form-label" for="selRank"><i class="fa-solid fa-award me-1"></i>當前名義職級</label>
                                         <select id="selRank" class="form-select">
-                                            <option value="MEMBER">會員 (5% 回饋)</option>
-                                            <option value="DIRECTOR">主任 (10% 回饋)</option>
-                                            <option value="VICE_MANAGER">副理 (15% 回饋)</option>
-                                            <option value="MANAGER" selected>經理 (20% 回饋)</option>
-                                            <option value="PINECREST">松柏經理 (20% + 2代6%)</option>
-                                            <option value="EVERGREEN">長青經理 (20% + 3代6%)</option>
-                                            <option value="PEARL">珍珠經理 (20% + 4代6% + 珍鑽)</option>
-                                            <option value="EMERALD">翡翠經理 (20% + 5代6% + 珍鑽)</option>
-                                            <option value="DIAMOND">藍鑽經理 (20% + 6代6% + 購車)</option>
+                                            <option value="">正在載入職級資料庫...</option>
                                         </select>
                                         <div class="form-text text-muted">名義職級保留，當月獎金依實動考核發放。</div>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpGroupSv"><i class="fa-solid fa-users-viewfinder"></i> 本月個人小組業績 (SV)</label>
+                                        <label class="form-label" for="inpGroupSv"><i class="fa-solid fa-users-viewfinder me-1"></i>本月個人小組業績 (SV)</label>
                                         <div class="input-group">
                                             <input type="number" id="inpGroupSv" class="form-control text-end" value="2800" min="0" step="100">
                                             <span class="input-group-text">SV</span>
@@ -130,7 +118,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpHistoryCumSv"><i class="fa-solid fa-timeline"></i> 整組歷史累計 SV</label>
+                                        <label class="form-label" for="inpHistoryCumSv"><i class="fa-solid fa-timeline me-1"></i>整組歷史累計 SV</label>
                                         <div class="input-group">
                                             <input type="number" id="inpHistoryCumSv" class="form-control text-end" value="15000" min="0" step="500">
                                             <span class="input-group-text">SV</span>
@@ -140,31 +128,31 @@
                                 </div>
 
                                 <!-- 狀態提示列 -->
-                                <div class="mt-3 p-2 rounded bg-dark border border-secondary border-opacity-25 d-flex flex-wrap justify-content-between align-items-center gap-2 small">
-                                    <span id="txtPersonalQualified"><i class="fa-solid fa-circle-check text-success"></i> 個人責任額已達標 (400 / 160 SV)</span>
-                                    <span id="txtGroupQualified"><i class="fa-solid fa-circle-check text-success"></i> 小組責任額已達標 (3,200 SV 合併達標)</span>
+                                <div class="card-incard mt-3 p-2 d-flex flex-wrap justify-content-between align-items-center gap-2 small">
+                                    <span id="txtPersonalQualified"><i class="fa-solid fa-circle-check text-success me-1"></i>個人責任額已達標 (400 / 160 SV)</span>
+                                    <span id="txtGroupQualified"><i class="fa-solid fa-circle-check text-success me-1"></i>小組責任額已達標 (3,200 SV 合併達標)</span>
                                 </div>
                             </div>
 
                             <!-- 模組 2：直屬下線階差試算 (未升經理夥伴) -->
-                            <div class="tactical-card">
+                            <div class="card">
                                 <div class="card-header-bar">
-                                    <h2 class="card-header-title"><i class="fa-solid fa-sitemap"></i> 直屬非經理下線組織 (階差獎金源)</h2>
+                                    <span class="fw-bold text-white"><i class="fa-solid fa-sitemap text-secondary me-1"></i>直屬非經理下線組織 (階差獎金源)</span>
                                     <button type="button" class="btn btn-sm btn-outline-info" id="btnAddDownline">
-                                        <i class="fa-solid fa-user-plus"></i> 新增下線夥伴
+                                        <i class="fa-solid fa-user-plus me-1"></i>新增下線夥伴
                                     </button>
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table table-tactical table-hover" id="tblDownlines">
+                                    <table class="table table-dark-custom" id="tblDownlines">
                                         <thead>
                                             <tr>
                                                 <th>下線夥伴名稱</th>
                                                 <th>下線職級</th>
-                                                <th class="text-end">當月業績 (SV)</th>
-                                                <th class="text-center">階差比率</th>
-                                                <th class="text-end">預估階差金額</th>
-                                                <th class="text-center" style="width: 50px;">操作</th>
+                                                <th>當月業績 (SV)</th>
+                                                <th>階差比率</th>
+                                                <th>預估階差金額</th>
+                                                <th>操作</th>
                                             </tr>
                                         </thead>
                                         <tbody id="downlineListBody">
@@ -173,40 +161,40 @@
                                     </table>
                                 </div>
                                 <div class="form-text text-muted mt-2">
-                                    <i class="fa-solid fa-circle-info"></i> 當本人職級高於下線時，享有該線業績之階差獎金（本人% - 下線%）。
+                                    <i class="fa-solid fa-circle-info me-1"></i>當本人職級高於下線時，享有該線業績之階差獎金（本人% - 下線%）。
                                 </div>
                             </div>
 
                             <!-- 模組 3：高階組織合格經理線與深層代數配置 (松柏以上解鎖) -->
-                            <div class="tactical-card" id="highRankConfigCard">
+                            <div class="card" id="highRankConfigCard">
                                 <div class="card-header-bar">
-                                    <h2 class="card-header-title"><i class="fa-solid fa-network-wired"></i> 高階體系合格線與領導代數</h2>
-                                    <span class="badge bg-secondary font-mono" id="txtLeadershipDepth">解鎖深度：4 代</span>
+                                    <span class="fw-bold text-white"><i class="fa-solid fa-network-wired text-secondary me-1"></i>高階體系合格線與領導代數</span>
+                                    <span class="badge bg-secondary" id="txtLeadershipDepth">解鎖深度：4 代</span>
                                 </div>
 
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpActiveLines"><i class="fa-solid fa-diagram-project"></i> 直屬合格經理線數 (實動線)</label>
-                                        <input type="number" id="inpActiveLines" class="form-control font-mono" value="7" min="0" max="30">
+                                        <label class="form-label" for="inpActiveLines"><i class="fa-solid fa-diagram-project me-1"></i>直屬合格經理線數 (實動線)</label>
+                                        <input type="number" id="inpActiveLines" class="form-control" value="7" min="0" max="30">
                                         <div class="form-text text-muted">松柏 ≥ 1, 長青 ≥ 2, 珍珠 ≥ 4, 翡翠 ≥ 6, 藍鑽 ≥ 10。</div>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpPearlLines"><i class="fa-solid fa-gem"></i> 實動珍珠線數</label>
-                                        <input type="number" id="inpPearlLines" class="form-control font-mono" value="0" min="0" max="15">
+                                        <label class="form-label" for="inpPearlLines"><i class="fa-solid fa-gem me-1"></i>實動珍珠線數</label>
+                                        <input type="number" id="inpPearlLines" class="form-control" value="0" min="0" max="15">
                                         <div class="form-text text-muted">藍鑽考核需具備 3 條不同線實動珍珠。</div>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpTotalManagersInDepth"><i class="fa-solid fa-users"></i> 合格代數內合格經理總人數</label>
-                                        <input type="number" id="inpTotalManagersInDepth" class="form-control font-mono" value="13" min="0">
+                                        <label class="form-label" for="inpTotalManagersInDepth"><i class="fa-solid fa-users me-1"></i>合格代數內合格經理總人數</label>
+                                        <input type="number" id="inpTotalManagersInDepth" class="form-control" value="13" min="0">
                                         <div class="form-text text-muted">每位合格經理基本以 3,200 SV 提撥 6% 領導獎金。</div>
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label" for="inpTotalOrgSv"><i class="fa-solid fa-globe"></i> 當月全組織整組總 SV</label>
+                                        <label class="form-label" for="inpTotalOrgSv"><i class="fa-solid fa-globe me-1"></i>當月全組織整組總 SV</label>
                                         <div class="input-group">
-                                            <input type="number" id="inpTotalOrgSv" class="form-control font-mono" value="45000" min="0" step="5000">
+                                            <input type="number" id="inpTotalOrgSv" class="form-control" value="45000" min="0" step="5000">
                                             <span class="input-group-text">SV</span>
                                         </div>
                                         <div class="form-text text-muted">藍鑽衝聘需連續 4 個月達 100,000 SV。</div>
@@ -214,11 +202,11 @@
                                 </div>
 
                                 <!-- 業績自動補救機制狀態提示 -->
-                                <div class="mt-3 p-3 rounded bg-dark border border-warning border-opacity-25" id="autoRescueBox">
+                                <div class="card-incard mt-3 p-3" id="autoRescueBox">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="fa-solid fa-shield-virus text-warning fs-5"></i>
                                         <div>
-                                            <div class="fw-bold text-warning" id="autoRescueTitle"><i class="fa-solid fa-circle-check"></i> 業績自動補救條件：已啟動</div>
+                                            <div class="fw-bold text-warning" id="autoRescueTitle"><i class="fa-solid fa-circle-check me-1"></i>業績自動補救條件：已啟動</div>
                                             <div class="small text-muted" id="autoRescueDesc">直屬具備 5 條以上合格經理線，免除個人小組 3,200 SV 壓力，專注輔導夥伴！</div>
                                         </div>
                                     </div>
@@ -235,33 +223,33 @@
                             <!-- 戰術數值總覽卡 (三主數值) -->
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <div class="kpi-tile">
-                                        <div class="kpi-label"><i class="fa-solid fa-file-invoice-dollar"></i> 應發總獎金 (稅前)</div>
-                                        <div class="kpi-value-lg" id="valGrossBonus">NT$ 0</div>
-                                        <div class="small text-muted mt-1 font-mono" id="valGrossBonusWan">約 0.00 萬元</div>
+                                    <div class="card h-100">
+                                        <div><i class="fa-solid fa-file-invoice-dollar text-yellow me-1"></i>應發總獎金 (稅前)</div>
+                                        <div class="fs-2 fw-bold text-yellow" id="valGrossBonus">NT$ 0</div>
+                                        <div class="small text-muted mt-1" id="valGrossBonusWan">約 0.00 萬元</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="kpi-tile">
-                                        <div class="kpi-label"><i class="fa-solid fa-hand-holding-dollar"></i> 法定代扣款 (稅+費)</div>
-                                        <div class="kpi-value-md text-danger" id="valTotalDeduction">NT$ 0</div>
-                                        <div class="small text-muted mt-1 font-mono" id="valDeductionDetail">所得稅10% + 健保2.11%</div>
+                                    <div class="card h-100">
+                                        <div><i class="fa-solid fa-hand-holding-dollar text-danger me-1"></i>法定代扣款 (稅+費)</div>
+                                        <div class="fs-2 fw-bold text-danger" id="valTotalDeduction">NT$ 0</div>
+                                        <div class="small text-muted mt-1" id="valDeductionDetail">所得稅10% + 健保2.11%</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="kpi-tile">
-                                        <div class="kpi-label"><i class="fa-solid fa-wallet"></i> 預估實撥入帳 (淨額)</div>
-                                        <div class="kpi-value-green" id="valNetPayout">NT$ 0</div>
-                                        <div class="small text-muted mt-1 font-mono">次月 20 日撥款入帳</div>
+                                    <div class="card h-100">
+                                        <div><i class="fa-solid fa-wallet text-orange me-1"></i>預估實撥入帳 (淨額)</div>
+                                        <div class="fs-2 fw-bold text-orange" id="valNetPayout">NT$ 0</div>
+                                        <div class="small text-muted mt-1">次月 20 日撥款入帳</div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- 收入架構佔比圖表 (Chart.js) -->
-                            <div class="tactical-card">
+                            <div class="card">
                                 <div class="card-header-bar">
-                                    <h2 class="card-header-title"><i class="fa-solid fa-chart-pie"></i> 獎金結構流向分析</h2>
-                                    <span class="small text-muted font-mono"><i class="fa-solid fa-arrow-trend-up"></i> 被動現金流比例：<span class="text-info fw-bold" id="valPassiveRatio">0%</span></span>
+                                    <span class="fw-bold text-white"><i class="fa-solid fa-chart-pie text-secondary me-1"></i>獎金結構流向分析</span>
+                                    <span class="small text-muted"><i class="fa-solid fa-arrow-trend-up me-1"></i>被動現金流比例：<span class="text-info fw-bold" id="valPassiveRatio">0%</span></span>
                                 </div>
                                 <div style="height: 220px; position: relative;">
                                     <canvas id="bonusDoughnutChart"></canvas>
@@ -269,20 +257,20 @@
                             </div>
 
                             <!-- 葡眾官方八大獎金逐項穿透清冊 (DataTable.js) -->
-                            <div class="tactical-card">
+                            <div class="card">
                                 <div class="card-header-bar">
-                                    <h2 class="card-header-title"><i class="fa-solid fa-table-list"></i> 葡眾八大獎金明細核算清冊</h2>
-                                    <span class="badge bg-info text-dark font-mono">即時核算</span>
+                                    <span class="fw-bold text-white"><i class="fa-solid fa-table-list text-secondary me-1"></i>葡眾八大獎金明細核算清冊</span>
+                                    <span class="badge bg-info text-dark">即時核算</span>
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table table-tactical table-hover w-100" id="tblBonusAudit">
+                                    <table class="table table-dark-custom" id="tblBonusAudit">
                                         <thead>
                                             <tr>
                                                 <th>獎金類別</th>
                                                 <th>官方提撥</th>
                                                 <th>核算依據與點數</th>
-                                                <th class="text-end">預估金額 (NT$)</th>
+                                                <th>預估金額 (NT$)</th>
                                             </tr>
                                         </thead>
                                         <tbody id="bonusAuditBody">
@@ -291,7 +279,7 @@
                                         <tfoot>
                                             <tr class="fw-bold border-top border-info">
                                                 <td colspan="3" class="text-info">應發獎金總額合計 (Gross Total)：</td>
-                                                <td class="text-end text-gold font-mono fs-6" id="valTableGrossTotal">NT$ 0</td>
+                                                <td class="text-end text-gold fs-6" id="valTableGrossTotal">NT$ 0</td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -299,7 +287,7 @@
 
                                 <!-- 備忘註記 -->
                                 <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 mt-3 small text-muted">
-                                    <i class="fa-solid fa-triangle-exclamation text-warning"></i> 備註：珍鑽年度卓越獎金（5%）採月累計至12月合併發放；旅遊獎勵金（1.5%）採7月至翌年6月累計發放；購車基金達標包含70萬頭期款贈與及36期每月補貼款。
+                                    <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>備註：珍鑽年度卓越獎金（5%）採月累計至12月合併發放；旅遊獎勵金（1.5%）採7月至翌年6月累計發放；購車基金達標包含70萬頭期款贈與及36期每月補貼款。
                                 </div>
                             </div>
 

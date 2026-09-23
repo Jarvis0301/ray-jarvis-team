@@ -1,57 +1,160 @@
-/**
- * 葡眾官方職級回饋率與門檻配置
- */
-const RANK_CONFIGS = {
-    MEMBER: { title: "會員", rate: 0.05, minCumSv: 0, depth: 0, icon: "fa-user" },
-    DIRECTOR: { title: "主任", rate: 0.10, minCumSv: 1200, depth: 0, icon: "fa-user-check" },
-    VICE_MANAGER: { title: "副理", rate: 0.15, minCumSv: 6000, depth: 0, icon: "fa-user-shield" },
-    MANAGER: { title: "經理", rate: 0.20, minCumSv: 12000, depth: 0, icon: "fa-user-tie" },
-    PINECREST: { title: "松柏", rate: 0.20, minCumSv: 12000, depth: 2, icon: "fa-tree" },
-    EVERGREEN: { title: "長青", rate: 0.20, minCumSv: 12000, depth: 3, icon: "fa-seedling" },
-    PEARL: { title: "珍珠", rate: 0.20, minCumSv: 12000, depth: 4, icon: "fa-gem" },
-    EMERALD: { title: "翡翠", rate: 0.20, minCumSv: 12000, depth: 5, icon: "fa-award" },
-    DIAMOND: { title: "藍鑽", rate: 0.20, minCumSv: 12000, depth: 6, icon: "fa-crown" }
+const SPREADSHEET_ID = {
+    ORG: APP_CONFIG.SHEETS.ORG
 };
 
-// 下線非經理組織模擬清單
+const SHEET_NAMES = {
+    RANKS: APP_CONFIG.SHEET_NAMES.ORG.RANKS
+};
+
+let appState = {
+    ranks: []
+};
+
+// 預設下線非經理組織模擬清單 (預設職級代碼對齊 org_ranks)
 let downlinePartners = [
-    { id: 1, name: "夥伴 A (自用家庭)", rank: "MEMBER", sv: 800 },
-    { id: 2, name: "夥伴 B (副理核心)", rank: "VICE_MANAGER", sv: 1200 },
-    { id: 3, name: "夥伴 C (衝刺主任)", rank: "DIRECTOR", sv: 800 }
+    { id: 1, name: "夥伴 A (自用家庭)", rank: "RANK_01_MEMBER", sv: 800 },
+    { id: 2, name: "夥伴 B (副理核心)", rank: "RANK_03_SENIOR_ASSOCIATE", sv: 1200 },
+    { id: 3, name: "夥伴 C (衝刺主任)", rank: "RANK_02_ASSOCIATE", sv: 800 }
 ];
 
 let doughnutChartInstance = null;
 let bonusDataTableInstance = null;
 
-window.addEventListener('AppReady', function () {
-    // 初始化 DataTable
-    initBonusTable();
-    // 初始化 Chart.js
-    initBonusChart();
-    // 渲染下線列表
-    renderDownlines();
-    // 執行第一次即時精算
-    recalculateAll();
+/**
+ * 自 Google 試算表 (org_ranks) 讀取最新職級制度資料 (無靜態備援)
+ */
+async function fetchGoogleSheetsData() {
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取職級資料庫...', '載入中...');
+    
+    try {
+        const rankRows = await fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.RANKS);
+        appState.ranks = parseRanksTable(rankRows);
 
-    // 綁定輸入即時聯動監聽
+        if (!appState.ranks || appState.ranks.length === 0) {
+            throw new Error("職級主檔資料表為空或未取得有效職級設定");
+        }
+
+        // 動態填充主選單與下線夥伴職級選單
+        populateRankSelects();
+        renderDownlines();
+        recalculateAll();
+
+        AppToast.success("職級與獎金制度資料載入完成");
+    } catch (err) {
+        console.error("職級資料表讀取異常:", err);
+        AppToast.error(`職級資料讀取失敗：${err.message}`);
+    } finally {
+        AppLoading.hide();
+    }
+}
+
+/**
+ * 解析 org_ranks 試算表資料列 (對齊 org-ranks.js 標準 33 欄位定義)
+ */
+function parseRanksTable(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) return [];
+    
+    return rows.map((r, idx) => {
+        const activeRaw = String(getVal(r, 28, 'Y')).trim().toUpperCase();
+        const isActive = (activeRaw === 'Y' || activeRaw === '是' || activeRaw === 'TRUE' || activeRaw === '1' || activeRaw === '');
+
+        return {
+            rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
+            rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
+            rank_level: parseInt(getVal(r, 2, String((idx + 1) * 10)), 10) || 0,
+            rank_name_zh: getVal(r, 3, ''),
+            rank_name_en: getVal(r, 4, ''),
+            star_rating: parseInt(getVal(r, 5, '0'), 10) || 0,
+            cooling_period_month: parseInt(getVal(r, 6, '0'), 10) || 0,
+            cum_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
+            month_personal_sv_req: parseFloat(getVal(r, 8, '160')) || 160,
+            month_group_sv_req: parseFloat(getVal(r, 9, '0')) || 0,
+            new_mgr_group_sv_req: parseFloat(getVal(r, 10, '0')) || 0,
+            qualified_lines_req: parseInt(getVal(r, 11, '0'), 10) || 0,
+            pearl_lines_req: parseInt(getVal(r, 12, '0'), 10) || 0,
+            month_org_sv_req: parseFloat(getVal(r, 13, '0')) || 0,
+            consecutive_months_req: parseInt(getVal(r, 14, '1'), 10) || 1,
+            direct_rebate_rate: parseFloat(getVal(r, 15, '0.05')) || 0.05,
+            leadership_gen_depth: parseInt(getVal(r, 16, '0'), 10) || 0,
+            leadership_gen_rate: parseFloat(getVal(r, 17, '0.06')) || 0.06,
+            has_group_bonus: String(getVal(r, 18, 'N')).trim().toUpperCase(),
+            has_manager_bonus: String(getVal(r, 19, 'N')).trim().toUpperCase(),
+            has_pearl_dividend: String(getVal(r, 20, 'N')).trim().toUpperCase(),
+            has_annual_excellence: String(getVal(r, 21, 'N')).trim().toUpperCase(),
+            has_travel_incentive: String(getVal(r, 22, 'N')).trim().toUpperCase(),
+            has_car_fund: String(getVal(r, 23, 'N')).trim().toUpperCase(),
+            car_reward_type: getVal(r, 24, '無'),
+            badge_icon_class: getVal(r, 25, 'fa-solid fa-award'),
+            badge_color_hex: getVal(r, 26, '#8b5cf6'),
+            sort_order: parseInt(getVal(r, 27, String(idx + 1)), 10) || (idx + 1),
+            is_active: isActive ? 'Y' : 'N'
+        };
+    }).filter(r => r.rank_name_zh !== '' && r.is_active === 'Y').sort((a, b) => a.sort_order - b.sort_order);
+}
+
+/**
+ * 依據資料表動態渲染主職級選單
+ */
+function populateRankSelects() {
+    const $selRank =$('#selRank');
+    $selRank.empty();
+
+    appState.ranks.forEach(rank => {
+        const ratePercent = Math.round(rank.direct_rebate_rate * 100);
+        const bonusDesc = rank.leadership_gen_depth > 0 
+            ? `${ratePercent}% + ${rank.leadership_gen_depth}代6%` 
+            : `${ratePercent}% 回饋`;
+
+        $selRank.append($('<option>', {
+                value: rank.rank_id,
+                text: `${rank.rank_name_zh} (${bonusDesc})`
+            })
+        );
+    });
+
+    // 預設鎖定在經理級 (位階 40)
+    const defaultRank = appState.ranks.find(r => r.rank_level === 40 || r.rank_code === 'R40') || appState.ranks[0];
+    if (defaultRank) {
+        $selRank.val(defaultRank.rank_id);
+    }
+}
+
+/**
+ * 依據背景 HEX 色彩動態計算最佳 WCAG 對比字色
+ * 避免會員 (#FFFFFF)、松柏 (#00FA9A)、翡翠 (#00FF00) 等淺底造成白字隱形
+ */
+function getContrastTextColor(hexColor) {
+    if (!hexColor) return '#ffffff';
+    const cleanHex = String(hexColor).replace('#', '').trim();
+    const r = parseInt(cleanHex.substring(0, 2), 16) || 0;
+    const g = parseInt(cleanHex.substring(2, 4), 16) || 0;
+    const b = parseInt(cleanHex.substring(4, 6), 16) || 0;
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 145 ? '#000000' : '#ffffff';
+}
+
+window.addEventListener('AppReady', async function () {
+    initBonusTable();
+    initBonusChart();
+
+    // 綁定所有輸入欄位即時聯動監聽
     $("#inpPersonalSv, #inpGroupSv, #inpHistoryCumSv, #selRank, #inpActiveLines, #inpPearlLines, #inpTotalManagersInDepth, #inpTotalOrgSv, #cfgPvRatio, #cfgPointValue, #cfgTaxRate").on("input change", function () {
         recalculateAll();
     });
 
-    // 新增下線夥伴
     $("#btnAddDownline").on("click", function () {
         const nextId = Date.now();
+        const defaultDownlineRank = appState.ranks.find(r => r.rank_level < 40)?.rank_id || 'RANK_01_MEMBER';
         downlinePartners.push({
             id: nextId,
             name: `新進夥伴 ${downlinePartners.length + 1}`,
-            rank: "MEMBER",
+            rank: defaultDownlineRank,
             sv: 400
         });
         renderDownlines();
         recalculateAll();
     });
 
-    // 刪除下線夥伴事件
     $(document).on("click", ".btn-del-downline", function () {
         const id = $(this).data("id");
         downlinePartners = downlinePartners.filter(d => d.id !== id);
@@ -59,7 +162,6 @@ window.addEventListener('AppReady', function () {
         recalculateAll();
     });
 
-    // 下線數據異動監聽
     $(document).on("input change", ".inp-dl-name, .sel-dl-rank, .inp-dl-sv", function () {
         const id = $(this).closest("tr").data("id");
         const item = downlinePartners.find(d => d.id === id);
@@ -72,22 +174,33 @@ window.addEventListener('AppReady', function () {
         recalculateAll();
     });
 
-    // 典型情境切換
     $(".scenario-btn").on("click", function () {
         $(".scenario-btn").removeClass("active");
         $(this).addClass("active");
         applyScenario($(this).data("scenario"));
     });
+
+    // 啟動雲端職級資料庫載入
+    await fetchGoogleSheetsData();
 });
 
 /**
- * 渲染非經理下線組織列表
+ * 動態渲染非經理下線組織列表 (僅抓取 rank_level < 40 之職級)
  */
 function renderDownlines() {
     const $tbody =$("#downlineListBody");
     $tbody.empty();
 
+    // 動態自資料表擷取非經理階層職級
+    const nonManagerRanks = appState.ranks.filter(r => r.rank_level < 40);
+
     downlinePartners.forEach(item => {
+        let rankOptionsHtml = '';
+        nonManagerRanks.forEach(r => {
+            const isSelected = (item.rank === r.rank_id || item.rank === r.rank_code) ? 'selected' : '';
+            rankOptionsHtml += `<option value="${r.rank_id}" ${isSelected}>${r.rank_name_zh} (${Math.round(r.direct_rebate_rate * 100)}%)</option>`;
+        });
+
         const rowHtml = `
             <tr data-id="${item.id}">
                 <td>
@@ -95,9 +208,7 @@ function renderDownlines() {
                 </td>
                 <td>
                     <select class="form-select form-select-sm sel-dl-rank">
-                        <option value="MEMBER" ${item.rank === 'MEMBER' ? 'selected' : ''}>會員 (5%)</option>
-                        <option value="DIRECTOR" ${item.rank === 'DIRECTOR' ? 'selected' : ''}>主任 (10%)</option>
-                        <option value="VICE_MANAGER" ${item.rank === 'VICE_MANAGER' ? 'selected' : ''}>副理 (15%)</option>
+                        ${rankOptionsHtml}
                     </select>
                 </td>
                 <td>
@@ -120,6 +231,8 @@ function renderDownlines() {
  * 核心獎金精算排程 (AppCalc 嚴格定點數計算)
  */
 function recalculateAll() {
+    if (!appState.ranks || appState.ranks.length === 0) return;
+
     const pvRatio = parseFloat($("#cfgPvRatio").val()) || 25;
     const pointVal = parseFloat($("#cfgPointValue").val()) || 0.70;
     const taxRate = AppCalc.divide(parseFloat($("#cfgTaxRate").val()) || 10, 100, 4);
@@ -127,45 +240,51 @@ function recalculateAll() {
     const personalSV = parseFloat($("#inpPersonalSv").val()) || 0;
     const groupSV = parseFloat($("#inpGroupSv").val()) || 0;
     const selectedRankKey = $("#selRank").val();
-    const currentRank = RANK_CONFIGS[selectedRankKey] || RANK_CONFIGS.MEMBER;
+
+    // 自動態陣列搜尋選定之職級定義
+    const currentRank = appState.ranks.find(r => r.rank_id === selectedRankKey || r.rank_code === selectedRankKey) || appState.ranks[0];
 
     const activeLines = parseInt($("#inpActiveLines").val()) || 0;
     const pearlLines = parseInt($("#inpPearlLines").val()) || 0;
     const managersInDepth = parseInt($("#inpTotalManagersInDepth").val()) || 0;
     const totalOrgSV = parseFloat($("#inpTotalOrgSv").val()) || 0;
 
-    // 1. 檢核資格指標
-    const isPersonalQualified = personalSV >= 160;
-    const isAutoRescued = (selectedRankKey === 'PEARL' || selectedRankKey === 'EMERALD' || selectedRankKey === 'DIAMOND') && activeLines >= 5;
+    // 1. 檢核資格指標 (門檻直接讀取資料庫定義)
+    const isPersonalQualified = personalSV >= currentRank.month_personal_sv_req;
+    const isAutoRescued = (currentRank.has_pearl_dividend === 'Y' || currentRank.rank_level >= 70) && activeLines >= 5;
     const effectiveGroupSV = AppCalc.add(personalSV, groupSV);
-    const isManagerQualified = isPersonalQualified && (effectiveGroupSV >= 3200 || isAutoRescued);
+    const isManagerQualified = isPersonalQualified && (currentRank.rank_level >= 40) && (effectiveGroupSV >= (currentRank.month_group_sv_req || 3200) || isAutoRescued);
 
-    if (typeof UIBadges !== 'undefined' && UIBadges.partner?.rank) {
-        $("#rankBadgeContainer").html(UIBadges.partner.rank(selectedRankKey));
-    } else {
-        $("#rankBadgeContainer").html(`<span class="badge-rank badge-rank-mgr"><i class="fa-solid ${currentRank.icon}"></i> ${currentRank.title} (${AppCalc.multiply(currentRank.rate, 100, 0)}%)</span>`);
-    }
+    // 取得動態對比字色 (解決白底白字被吃掉之視覺 Bug)
+    const badgeTextColor = getContrastTextColor(currentRank.badge_color_hex);
+    const rebatePercent = Math.round(currentRank.direct_rebate_rate * 100);
 
-    // 更新個人達標與自動補救狀態 UI
+    // 更新職級徽章與領導深度標籤
+    $("#rankBadgeContainer").html(`
+        <span class="badge-rank" style="background-color: ${currentRank.badge_color_hex}; color: ${badgeTextColor}; border: 1px solid rgba(255, 255, 255, 0.25);">
+            <i class="${currentRank.badge_icon_class} me-1"></i> ${currentRank.rank_name_zh} (${rebatePercent}%)
+        </span>
+    `);
+    $("#txtLeadershipDepth").text(`解鎖深度：${currentRank.leadership_gen_depth} 代`);
+
     updateQualificationStatus(isPersonalQualified, isManagerQualified, isAutoRescued, activeLines);
 
     // 2. 個人業績回饋獎金
-    // 公式：個人SV * 職級% * PV
     let personalBonus = 0;
     if (isPersonalQualified) {
-        personalBonus = AppCalc.multiply(AppCalc.multiply(personalSV, currentRank.rate, 4), pvRatio, 2);
+        personalBonus = AppCalc.multiply(AppCalc.multiply(personalSV, currentRank.direct_rebate_rate, 4), pvRatio, 2);
     }
 
-    // 3. 組織階差獎金
-    // 遍歷下線：下線SV * (本人% - 下線%) * PV
+    // 3. 組織階差獎金 (即時與資料庫各下線職級 rate 比對)
     let differentialBonus = 0;
     $("#downlineListBody tr").each(function () {
         const id = $(this).data("id");
         const item = downlinePartners.find(d => d.id === id);
         if (!item) return;
 
-        const downlineRate = RANK_CONFIGS[item.rank] ? RANK_CONFIGS[item.rank].rate : 0.05;
-        const diffRate = Math.max(0, AppCalc.sub(currentRank.rate, downlineRate));
+        const dlRank = appState.ranks.find(r => r.rank_id === item.rank || r.rank_code === item.rank);
+        const downlineRate = dlRank ? dlRank.direct_rebate_rate : 0.05;
+        const diffRate = Math.max(0, AppCalc.sub(currentRank.direct_rebate_rate, downlineRate));
         const lineBonus = isPersonalQualified ? AppCalc.multiply(AppCalc.multiply(item.sv, diffRate, 4), pvRatio, 2) : 0;
 
         differentialBonus = AppCalc.add(differentialBonus, lineBonus);
@@ -174,55 +293,48 @@ function recalculateAll() {
         $(this).find(".cell-diff-amount").text(`NT$ ${Math.round(lineBonus).toLocaleString()}`);
     });
 
-    // 4. 合格小組獎金 (10%) & 合格經理獎金 (5%)
-    // 依官方簡報標準：合格小組約 10,000 元，合格經理約 5,000 元
-    let qualifiedGroupBonus = 0;
-    let qualifiedManagerBonus = 0;
-    if (isManagerQualified) {
-        qualifiedGroupBonus = 10000;
-        qualifiedManagerBonus = 5000;
-    }
+    // 4. 合格小組與合格經理獎金
+    let qualifiedGroupBonus = (isManagerQualified && (currentRank.has_group_bonus === 'Y' || currentRank.has_group_bonus === '是')) ? 10000 : 0;
+    let qualifiedManagerBonus = (isManagerQualified && (currentRank.has_manager_bonus === 'Y' || currentRank.has_manager_bonus === '是')) ? 5000 : 0;
 
-    // 5. 全球領導獎金 (20% 提撥，各代 6%)
-    // 公式：代數經理人數 * 3,200 SV * 6% * 點值 * PV
+    // 5. 全球領導獎金 (依資料表 leadership_gen_depth 與 leadership_gen_rate 計算)
     let leadershipBonus = 0;
-    if (isManagerQualified && currentRank.depth > 0 && managersInDepth > 0) {
-        const singleMgrScore = AppCalc.multiply(3200, 0.06, 4); // 192
+    if (isManagerQualified && currentRank.leadership_gen_depth > 0 && managersInDepth > 0) {
+        const singleMgrScore = AppCalc.multiply(3200, currentRank.leadership_gen_rate, 4);
         const totalScore = AppCalc.multiply(singleMgrScore, managersInDepth, 2);
         leadershipBonus = AppCalc.multiply(AppCalc.multiply(totalScore, pointVal, 4), pvRatio, 2);
     }
 
-    // 6. 珍鑽分紅 (5%)
-    // 珍珠以上，以實動經理線數計算，每條實動線預估約 6,000 元 (0.6 萬元)
+    // 6. 珍鑽分紅
     let pearlDividend = 0;
-    if (isManagerQualified && (selectedRankKey === 'PEARL' || selectedRankKey === 'EMERALD' || selectedRankKey === 'DIAMOND')) {
+    if (isManagerQualified && (currentRank.has_pearl_dividend === 'Y' || currentRank.has_pearl_dividend === '是')) {
         pearlDividend = AppCalc.multiply(activeLines, 6000, 2);
     }
 
-    // 7. 珍鑽年度卓越獎勵金 (5%) - 每月累算攤提
-    // 珍珠以上每條線約 3,500 ~ 4,600 元，專職珍珠約 2.5 萬，藍鑽 10 線約 4.6 萬
+    // 7. 珍鑽年度卓越獎金
     let annualExcellenceBonus = 0;
-    if (isManagerQualified && (selectedRankKey === 'PEARL' || selectedRankKey === 'EMERALD' || selectedRankKey === 'DIAMOND')) {
-        const perLineAnnual = selectedRankKey === 'DIAMOND' ? 4600 : 3571;
+    if (isManagerQualified && (currentRank.has_annual_excellence === 'Y' || currentRank.has_annual_excellence === '是')) {
+        const perLineAnnual = (currentRank.rank_level >= 90) ? 4600 : 3571;
         annualExcellenceBonus = AppCalc.multiply(activeLines, perLineAnnual, 2);
     }
 
-    // 8. 珍鑽旅遊獎勵金 (1.5%) - 每月累算攤提
-    // 珍珠以上每條線約 1,400 ~ 1,900 元，專職珍珠約 1 萬，藍鑽約 1.9 萬
+    // 8. 珍鑽旅遊獎勵金
     let travelIncentiveBonus = 0;
-    if (isManagerQualified && (selectedRankKey === 'PEARL' || selectedRankKey === 'EMERALD' || selectedRankKey === 'DIAMOND')) {
-        const perLineTravel = selectedRankKey === 'DIAMOND' ? 1900 : 1428;
+    if (isManagerQualified && (currentRank.has_travel_incentive === 'Y' || currentRank.has_travel_incentive === '是')) {
+        const perLineTravel = (currentRank.rank_level >= 90) ? 1900 : 1428;
         travelIncentiveBonus = AppCalc.multiply(activeLines, perLineTravel, 2);
     }
 
-    // 9. 購車基金 (3.5%)
-    // 藍鑽且考核滿 10 線 + 3 條珍珠 + 10 萬 SV，每月分期 27,000 元
+    // 9. 購車基金
     let carFundBonus = 0;
-    if (selectedRankKey === 'DIAMOND' && isManagerQualified && activeLines >= 10 && pearlLines >= 3 && totalOrgSV >= 100000) {
+    if (isManagerQualified && (currentRank.has_car_fund === 'Y' || currentRank.has_car_fund === '是') && 
+        activeLines >= currentRank.qualified_lines_req && 
+        pearlLines >= currentRank.pearl_lines_req && 
+        totalOrgSV >= currentRank.month_org_sv_req) {
         carFundBonus = 27000;
     }
 
-    // 總額加總
+    // 加總與代扣款計算
     let grossBonus = AppCalc.add(personalBonus, differentialBonus);
     grossBonus = AppCalc.add(grossBonus, qualifiedGroupBonus);
     grossBonus = AppCalc.add(grossBonus, qualifiedManagerBonus);
@@ -232,38 +344,34 @@ function recalculateAll() {
     grossBonus = AppCalc.add(grossBonus, travelIncentiveBonus);
     grossBonus = AppCalc.add(grossBonus, carFundBonus);
 
-    // 法定代扣款計算 (所得稅 10% + 二代健保 2.11%)
     const withholdingTax = AppCalc.multiply(grossBonus, taxRate, 2);
     const nhiTax = grossBonus > 20000 ? AppCalc.multiply(grossBonus, 0.0211, 2) : 0;
     const totalDeduction = AppCalc.add(withholdingTax, nhiTax);
     const netPayout = AppCalc.sub(grossBonus, totalDeduction);
 
-    // 渲染頂部與面板 KPI
+    // 渲染 UI 統計面板
     $("#valGrossBonus").text(`NT$ ${Math.round(grossBonus).toLocaleString()}`);
     $("#valGrossBonusWan").text(`約 ${(grossBonus / 10000).toFixed(2)} 萬元`);
     $("#valTotalDeduction").text(`- NT$ ${Math.round(totalDeduction).toLocaleString()}`);
     $("#valDeductionDetail").text(`所得稅 ${Math.round(withholdingTax)} + 健保 ${Math.round(nhiTax)}`);
     $("#valNetPayout").text(`NT$ ${Math.round(netPayout).toLocaleString()}`);
 
-    // 渲染表格
     renderBonusTableData([
-        { name: "個人回饋獎金", rate: `${AppCalc.multiply(currentRank.rate, 100, 0)}%`, basis: `${personalSV.toLocaleString()} SV × PV`, amount: personalBonus },
+        { name: "個人回饋獎金", rate: `${AppCalc.multiply(currentRank.direct_rebate_rate, 100, 0)}%`, basis: `${personalSV.toLocaleString()} SV × PV`, amount: personalBonus },
         { name: "組織階差獎金", rate: "階梯差額", basis: "非經理下線業績差額加總", amount: differentialBonus },
-        { name: "合格小組獎金", rate: "10% 提撥", basis: isManagerQualified ? "合格經理全球加權分攤" : "未達合格經理責任額", amount: qualifiedGroupBonus },
-        { name: "合格經理獎金", rate: "5% 提撥", basis: isManagerQualified ? "合格經理全球加權分攤" : "未達合格經理責任額", amount: qualifiedManagerBonus },
-        { name: "全球領導獎金", rate: "20% (每代6%)", basis: `${managersInDepth} 位經理 × 3,200 SV × 6% × 點值`, amount: leadershipBonus },
+        { name: "合格小組獎金", rate: "10% 提撥", basis: qualifiedGroupBonus > 0 ? "合格經理全球加權分攤" : "未達合格經理責任額", amount: qualifiedGroupBonus },
+        { name: "合格經理獎金", rate: "5% 提撥", basis: qualifiedManagerBonus > 0 ? "合格經理全球加權分攤" : "未達合格經理責任額", amount: qualifiedManagerBonus },
+        { name: "全球領導獎金", rate: `${currentRank.leadership_gen_depth}代各${AppCalc.multiply(currentRank.leadership_gen_rate, 100, 0)}%`, basis: `${managersInDepth} 位經理 × 3,200 SV × 6% × 點值`, amount: leadershipBonus },
         { name: "珍鑽分紅獎金", rate: "5% 提撥", basis: `${activeLines} 條合格經理實動線加權`, amount: pearlDividend },
         { name: "珍鑽年度卓越獎金", rate: "5% 提撥", basis: "年度 1~12 月累積 (月均攤提)", amount: annualExcellenceBonus },
         { name: "珍鑽旅遊獎勵金", rate: "1.5% 提撥", basis: "年度 7~6 月累積 (月均攤提)", amount: travelIncentiveBonus },
         { name: "藍鑽購車分期基金", rate: "3.5% 提撥", basis: carFundBonus > 0 ? "藍鑽考核達標 (分 36 期月補貼)" : "未達藍鑽門檻", amount: carFundBonus }
     ], grossBonus);
 
-    // 被動現金流佔比計算 (領導獎金 + 分紅 + 基金 / 總獎金)
     const passiveTotal = AppCalc.add(AppCalc.add(leadershipBonus, pearlDividend), AppCalc.add(annualExcellenceBonus, AppCalc.add(travelIncentiveBonus, carFundBonus)));
     const passiveRatio = grossBonus > 0 ? AppCalc.multiply(AppCalc.divide(passiveTotal, grossBonus, 4), 100, 1) : 0;
     $("#valPassiveRatio").text(`${passiveRatio}%`);
 
-    // 更新圖表
     updateBonusChart({
         personal: AppCalc.add(personalBonus, differentialBonus),
         groupMgr: AppCalc.add(qualifiedGroupBonus, qualifiedManagerBonus),
@@ -410,9 +518,17 @@ function updateBonusChart(data) {
  * 快速載入制度典型範例情境
  */
 function applyScenario(scenarioKey) {
-    if (scenarioKey === 'PART_TIME') {
-        // 例算 I：兼差型經理
-        $("#selRank").val("MANAGER");
+    if (!appState.ranks || appState.ranks.length === 0) return;
+
+    const rankMember = appState.ranks.find(r => r.rank_level === 10) || appState.ranks[0];
+    const rankDir = appState.ranks.find(r => r.rank_level === 20) || appState.ranks[0];
+    const rankVmgr = appState.ranks.find(r => r.rank_level === 30) || appState.ranks[0];
+    const rankMgr = appState.ranks.find(r => r.rank_level === 40);
+    const rankPearl = appState.ranks.find(r => r.rank_level === 70);
+    const rankDiamond = appState.ranks.find(r => r.rank_level === 90);
+
+    if (scenarioKey === 'PART_TIME' && rankMgr) {
+        $("#selRank").val(rankMgr.rank_id);
         $("#inpPersonalSv").val(400);
         $("#inpGroupSv").val(2800);
         $("#inpActiveLines").val(0);
@@ -421,12 +537,11 @@ function applyScenario(scenarioKey) {
         $("#inpTotalOrgSv").val(3200);
 
         downlinePartners = [
-            { id: 1, name: "下線夥伴甲 (主任)", rank: "DIRECTOR", sv: 1400 },
-            { id: 2, name: "下線夥伴乙 (會員)", rank: "MEMBER", sv: 1400 }
+            { id: 1, name: "下線夥伴甲 (主任)", rank: rankDir.rank_id, sv: 1400 },
+            { id: 2, name: "下線夥伴乙 (會員)", rank: rankMember.rank_id, sv: 1400 }
         ];
-    } else if (scenarioKey === 'FULL_TIME') {
-        // 例算 II：專職型珍珠經理
-        $("#selRank").val("PEARL");
+    } else if (scenarioKey === 'FULL_TIME' && rankPearl) {
+        $("#selRank").val(rankPearl.rank_id);
         $("#inpPersonalSv").val(400);
         $("#inpGroupSv").val(2800);
         $("#inpActiveLines").val(7);
@@ -435,11 +550,10 @@ function applyScenario(scenarioKey) {
         $("#inpTotalOrgSv").val(45000);
 
         downlinePartners = [
-            { id: 1, name: "零售與直屬夥伴", rank: "VICE_MANAGER", sv: 2800 }
+            { id: 1, name: "零售與直屬夥伴", rank: rankVmgr.rank_id, sv: 2800 }
         ];
-    } else if (scenarioKey === 'ENTERPRISE') {
-        // 例算 III：事業型藍鑽經理
-        $("#selRank").val("DIAMOND");
+    } else if (scenarioKey === 'ENTERPRISE' && rankDiamond) {
+        $("#selRank").val(rankDiamond.rank_id);
         $("#inpPersonalSv").val(400);
         $("#inpGroupSv").val(2800);
         $("#inpActiveLines").val(10);
@@ -448,7 +562,7 @@ function applyScenario(scenarioKey) {
         $("#inpTotalOrgSv").val(110000);
 
         downlinePartners = [
-            { id: 1, name: "直屬零售小組", rank: "VICE_MANAGER", sv: 2800 }
+            { id: 1, name: "直屬零售小組", rank: rankVmgr.rank_id, sv: 2800 }
         ];
     }
 
