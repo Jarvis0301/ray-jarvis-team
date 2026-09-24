@@ -23,7 +23,7 @@ let rankDataTableInstance = null;
 let isInitialized = false;
 
 // 幣別與匯率管理
-let currentCurrency = 'TWD';
+let currentCurrency = APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD';
 
 // 圖表實例管理
 let chartBonusPie = null;
@@ -34,12 +34,13 @@ let chartRankIncomeBar = null;
  * 取得當前設定匯率與幣別換算比率
  */
 function getCurrencyFactor() {
-    const exchangeRate = parseFloat($('#inputExchangeRate').val()) || 8.00;
+    const defaultRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
+    const exchangeRate = parseFloat($('#inputExchangeRate').val()) || defaultRate;
     const isMYR = (currentCurrency === 'MYR');
     return {
         symbol: isMYR ? 'RM' : 'NT$',
         rate: isMYR ? AppCalc.divide(1, exchangeRate, 6) : 1,
-        pv: isMYR ? 3.5 : 25
+        pv: isMYR ? (APP_CONFIG.ORG?.PV_RATE?.MY || 3.5) : (APP_CONFIG.ORG?.PV_RATE?.TW || 25)
     };
 }
 
@@ -70,6 +71,8 @@ window.addEventListener('AppReady', async () => {
 async function initApp() {
     if (isInitialized) return;
     isInitialized = true;
+
+    $('#inputExchangeRate').val((APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00).toFixed(2));
 
     bindUIEvents();
 
@@ -143,7 +146,7 @@ function parseRanksTable(rows) {
             star_rating: parseInt(getVal(r, 5, '0'), 10) || 0,
             cooling_period_month: parseInt(getVal(r, 6, '0'), 10) || 0,
             cum_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
-            month_personal_sv_req: parseFloat(getVal(r, 8, '160')) || 160,
+            month_personal_sv_req: parseFloat(getVal(r, 8, String(defaultActiveSv))) || defaultActiveSv,
             month_group_sv_req: parseFloat(getVal(r, 9, '0')) || 0,
             new_mgr_group_sv_req: parseFloat(getVal(r, 10, '0')) || 0,
             qualified_lines_req: parseInt(getVal(r, 11, '0'), 10) || 0,
@@ -201,10 +204,10 @@ function bindUIEvents() {
     $('#btnPresetPartTime').off('click').on('click', function () {
         $('.btn-preset').removeClass('active');
         $(this).addClass('active');
-        $('#inputPersonalSv').val(160);
+        $('#inputPersonalSv').val(APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160);
         $('#inputCumGroupSv').val(12000);
-        $('#inputMonthGroupSv').val(3200);
-        $('#inputTotalOrgSv').val(3200);
+        $('#inputMonthGroupSv').val(APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200);
+        $('#inputTotalOrgSv').val(APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200);
         $('#inputManagerLines').val(0);
         $('#inputPearlLines').val(0);
         $('#inputConsecutiveMonths').val(1);
@@ -217,9 +220,9 @@ function bindUIEvents() {
     $('#btnPresetFullTime').off('click').on('click', function () {
         $('.btn-preset').removeClass('active');
         $(this).addClass('active');
-        $('#inputPersonalSv').val(160);
+        $('#inputPersonalSv').val(APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160);
         $('#inputCumGroupSv').val(80000);
-        $('#inputMonthGroupSv').val(3200);
+        $('#inputMonthGroupSv').val(APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200);
         $('#inputTotalOrgSv').val(45000);
         $('#inputManagerLines').val(4);
         $('#inputPearlLines').val(0);
@@ -233,9 +236,9 @@ function bindUIEvents() {
     $('#btnPresetDiamond').off('click').on('click', function () {
         $('.btn-preset').removeClass('active');
         $(this).addClass('active');
-        $('#inputPersonalSv').val(160);
+        $('#inputPersonalSv').val(APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160);
         $('#inputCumGroupSv').val(500000);
-        $('#inputMonthGroupSv').val(3200);
+        $('#inputMonthGroupSv').val(APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200);
         $('#inputTotalOrgSv').val(100000);
         $('#inputManagerLines').val(10);
         $('#inputPearlLines').val(3);
@@ -354,7 +357,8 @@ function runSimulation() {
     // 3. 實戰收益精算 (台灣 PV=25 / 馬來西亞 PV=3.5, 點值=0.7)
     const { pv, rate: currencyRate } = getCurrencyFactor();
     const isMYR = (currentCurrency === 'MYR');
-    const pointValue = 0.7;
+    const pointValue = APP_CONFIG.ORG?.LEADERSHIP_POINT_VALUE || 0.7;
+    const managerSvLine = APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200;
 
     $('#dispPvRate').text(`PV = ${pv}`);
 
@@ -362,7 +366,7 @@ function runSimulation() {
     const groupDiffIncome = mSv * 0.10 * pv;
 
     let rawQualified = (currentRank.has_group_bonus || currentRank.has_manager_bonus) ? 15000 : 0;
-    let rawLeadership = (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines);
+    let rawLeadership = (currentRank.leadership_gen_depth * managerSvLine * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines);
     let rawPearlDiv = currentRank.has_pearl_dividend ? (5500 * Math.max(1, lines)) : 0;
     let rawExcellence = currentRank.has_annual_excellence ? 13000 : 0;
     let rawTravel = currentRank.has_travel_incentive ? 6500 : 0;
@@ -371,7 +375,7 @@ function runSimulation() {
     const qualifiedBonusIncome = isMYR ? Math.round(rawQualified * currencyRate) : rawQualified;
     const leadershipBonusIncome = isMYR 
         ? (currentRank.leadership_gen_depth > 0 && currentRank.rank_level < 70 
-            ? (currentRank.leadership_gen_depth * 3200 * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines) 
+            ? (currentRank.leadership_gen_depth * managerSvLine * currentRank.leadership_gen_rate * pointValue * pv) * Math.max(1, lines) 
             : rawLeadership) 
         : rawLeadership;
     const pearlDividendIncome = isMYR ? Math.round(rawPearlDiv * currencyRate) : rawPearlDiv;
@@ -632,6 +636,7 @@ function renderIncomeBreakdownTable(rebate, groupDiff, qualified, leadership, pe
 function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     const $container = $('#topologyRescueContainer');
     $container.empty();
+    const mgrSvText = (APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200).toLocaleString();
 
     $container.append(`
         <div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
@@ -659,7 +664,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
                     <i class="fa-solid fa-shield-cat fs-5 me-1"></i>第 5 條線業績自動補救已啟動
                 </div>
                 <div class="text-warning small" style="font-size: 0.78rem;">
-                    您已培育 5 條以上合格經理線，第 5 條經理線之小組業績已自動填補您本人 3,200 SV 小組缺口，免除保級顧慮。
+                    您已培育 5 條以上合格經理線，第 5 條經理線之小組業績已自動填補您本人 ${mgrSvText} SV 小組缺口，免除保級顧慮。
                 </div>
            </div>`
         : `<div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
@@ -667,7 +672,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
                     <i class="fa-solid fa-shield text-secondary me-1"></i>業績自動補救機制守則
                 </div>
                 <div class="text-secondary small" style="font-size: 0.78rem;">
-                    珍珠級以上經營者若培育達 5 條合格經理線，將啟動自動補救機制，免受每月 3,200 SV 考核限制。
+                    珍珠級以上經營者若培育達 5 條合格經理線，將啟動自動補救機制，免受每月 ${mgrSvText} SV 考核限制。
                 </div>
            </div>`;
 

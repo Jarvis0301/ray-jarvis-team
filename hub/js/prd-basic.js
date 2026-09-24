@@ -70,7 +70,7 @@ let currentAnalyticsRegion = 'ALL';
 let masterDataTableInstance = null;
 let chartInstances = {};
 let isInitialized = false;
-let currentFxRate = 8.00;           // 基準結算匯率狀態變數 (預設 1 MYR = 8.00 TWD)
+let currentFxRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;           // 基準結算匯率狀態變數 (預設 1 MYR = 8.00 TWD)
 let matrixTableInstance = null;
 let rawTableInstance = null;
 
@@ -87,6 +87,8 @@ window.addEventListener('AppReady', async () => {
 async function initApp() {
     if (isInitialized) return;
     isInitialized = true;
+
+    $('#crossBorderFxRateInput').val(currentFxRate.toFixed(2));
 
     bindUIEvents();
 
@@ -141,6 +143,7 @@ async function fetchGoogleSheetsData() {
 }
 
 function parseItemsTable(rows) {
+    const defaultCurr = APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD';
     return rows.map((r, idx) => ({
         product_code: getVal(r, 0, `SKU_${idx + 1}`),
         region_code: getVal(r, 1, 'TW'),
@@ -159,7 +162,7 @@ function parseItemsTable(rows) {
         pieces_per_box: parseInt(getVal(r, 14, '1'), 10) || 1, // Index 14: 單盒(箱)散件總量 N
         allow_decant: getVal(r, 15, 'Y').toUpperCase() === 'N' ? 'N' : 'Y', // Index 15: 是否開放拆盒散賣
         price: parseFloat(getVal(r, 16, '0')) || 0,
-        currency: getVal(r, 17, 'TWD'),
+        currency: getVal(r, 17, defaultCurr),
         sv_point: parseInt(getVal(r, 18, '0'), 10) || 0,
         primary_image_url: getVal(r, 19, 'https://via.placeholder.com/150/1a122d/c084fc?text=No+Image'),
         is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 20, 'FALSE').toUpperCase()),
@@ -317,7 +320,7 @@ function bindUIEvents() {
     $('#crossBorderFxRateInput').off('input change').on('input change', function () {
         let rate = parseFloat($(this).val());
         if (isNaN(rate) || rate <= 0) {
-            rate = 8.00;
+            rate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
         }
         currentFxRate = rate;
         renderCrossBorderMatrix();
@@ -414,7 +417,7 @@ function populateModalTaxonomySelects(regionCode = 'TW') {
 }
 
 function getCurrencyByRegion(regionCode) {
-    return String(regionCode).toUpperCase() === 'MY' ? 'MYR' : 'TWD';
+    return String(regionCode).toUpperCase() === 'MY' ? 'MYR' : (APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD');
 }
 
 function updateModalCurrency(regionCode, forcedCurrency = null) {

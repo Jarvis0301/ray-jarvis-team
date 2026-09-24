@@ -132,18 +132,47 @@ const APP_CONFIG = {
             FAMILY_RELATIONS: "家庭關係"
         }
     },
-    // 倉儲
+    // 03_倉儲
     PSI: {
         EXPIRY_RADAR_DAYS: {        // 效期警戒
             WARNING: 90,            // 效期警戒第一道防線（預設 90 天，觸發近效期調撥或促銷告警）
             CRITICAL: 30            // 效期警戒極危防線（預設 30 天，觸發極危銷毀或試飲消耗處置）
         }
     },
-    // 財務
+    // 04_組織
+    ORG: {
+        // 考核指標門檻 (SV)
+        SV_LINE_ACTIVE: 160,                      // 當月自用活躍合格責任額 (全職級領獎門檻)
+        SV_LINE_MANAGER: 3200,                    // 經理當月合格小組責任額 (領取合格小組/經理獎金門檻)
+
+        // 點值算力體系 (PV & 點值係數)
+        PV_RATE: {
+            TW: 25.0,                             // 台灣生產力點值 (1 PV = NT$ 25)
+            MY: 3.5                               // 馬來西亞生產力點值 (1 PV = RM 3.5)
+        },
+        LEADERSHIP_POINT_VALUE: 0.7               // 全球領導獎金基準點值 (0.7)
+    },
+
+    // 06_財務
     FIN: {
-        DEFAULT_CURRENCY: "TWD",      // 預設幣別
-        EXCHANGE_RATE: {            // 匯率
-            MYR_TWD: 8.00           // 馬幣換算新台幣（ 1 MYR = ? NTD）
+        DEFAULT_CURRENCY: "TWD",                  // 系統預設結算幣別
+        EXCHANGE_RATE: {
+            MYR_TWD: 8.00                         // 馬幣兌換新台幣基準匯率 (1 MYR = ? TWD)
+        },
+
+        // 雙國法定代扣稅率與單筆起扣門檻
+        TAX_RULES: {
+            // 台灣執行業務所得稅 (10%)
+            TAX_RATE_TW: 0.1000,
+            TAX_THRESHOLD_TW: 20000.00,           // 台灣所得稅起扣門檻 (NT$ 20,000)
+
+            // 台灣二代健保補充保費 (2.11%)
+            NHI_RATE_TW: 0.0211,
+            NHI_THRESHOLD_TW: 20000.00,           // 台灣二代健保起扣門檻 (NT$ 20,000)
+
+            // 馬來西亞官方 107D 條款扣繳稅 (2%)
+            TAX_RATE_MY_107D: 0.0200,
+            TAX_THRESHOLD_MY_107D: 100000.00      // 馬來西亞 107D 條款起扣門檻 (RM 100,000)
         }
     }
 };

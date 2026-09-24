@@ -31,18 +31,64 @@
                     </div>
 
                     <!-- 全域係數微調視窗 -->
-                    <div class="d-flex flex-wrap gap-2 align-items-center bg-dark p-2 rounded border border-secondary border-opacity-25">
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-coins me-1"></i>生產力 PV：</span>
-                            <input type="number" id="cfgPvRatio" class="form-control form-control-sm text-end" style="width: 75px;" value="25" step="0.5" min="1">
-                        </div>
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-chart-line me-1"></i>領導點值：</span>
-                            <input type="number" id="cfgPointValue" class="form-control form-control-sm text-end" style="width: 75px;" value="0.70" step="0.05" min="0.1">
-                        </div>
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="small text-muted text-nowrap"><i class="fa-solid fa-file-invoice me-1"></i>所得稅率：</span>
-                            <input type="number" id="cfgTaxRate" class="form-control form-control-sm text-end" style="width: 70px;" value="10" step="1" min="0">%
+                    <div class="card-incard p-2">
+                        <div class="row g-3 align-items-center">
+                            <!-- 幣別切換按鈕群組 (TWD / MYR) -->
+                            <div class="col-auto">
+                                <div class="btn-group" role="group" id="grpCurrency">
+                                    <button type="button" class="btn btn-outline-info btn-sm active" data-currency="TWD">TWD</button>
+                                    <button type="button" class="btn btn-outline-info btn-sm" data-currency="MYR">MYR</button>
+                                </div>
+                            </div>
+
+                            <!-- 匯率輸入框 (預設 8.00 TWD) -->
+                            <div class="col-auto">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted text-nowrap"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i>匯率 (1 MYR =)：</span>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" id="cfgExchangeRate" class="form-control form-control-sm text-end" style="width: 80px;" value="8.00" step="0.05" min="0.1">
+                                        <span class="input-group-text">TWD</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 生產力 PV -->
+                            <div class="col-auto">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted text-nowrap"><i class="fa-solid fa-coins me-1"></i>生產力 PV：</span>
+                                    <input type="number" id="cfgPvRatio" class="form-control form-control-sm text-end" style="width: 80px;" value="25" step="0.5" min="0.1">
+                                </div>
+                            </div>
+
+                            <!-- 領導點值 -->
+                            <div class="col-auto">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted text-nowrap"><i class="fa-solid fa-chart-line me-1"></i>領導點值：</span>
+                                    <input type="number" id="cfgPointValue" class="form-control form-control-sm text-end" style="width: 80px;" value="0.70" step="0.05" min="0.1">
+                                </div>
+                            </div>
+
+                            <!-- 動態稅率標籤 -->
+                            <div class="col-auto">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted text-nowrap" id="lblTaxRate"><i class="fa-solid fa-file-invoice me-1"></i>所得稅率：</span>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" id="cfgTaxRate" class="form-control form-control-sm text-end" style="width: 80px;" value="10" step="0.5" min="0">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 健保扣除率 (切換 MYR 時隱藏整個 col) -->
+                            <div class="col-auto" id="boxNhiRate">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="small text-muted text-nowrap"><i class="fa-solid fa-heart-pulse me-1"></i>健保扣除率：</span>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" id="cfgNhiRate" class="form-control form-control-sm text-end" style="width: 80px;" value="2.11" step="0.01" min="0">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,7 +132,7 @@
                                 <div class="card-header-bar">
                                     <span class="fw-bold text-white"><i class="fa-solid fa-user-gear text-secondary me-1"></i>核心個人與小組業績 (SV)</span>
                                     <span id="rankBadgeContainer">
-                                        <span class="badge-rank badge-rank-mgr"><i class="fa-solid fa-user-tie me-1"></i>合格經理 (20%)</span>
+                                        <span class="badge-rank"><i class="fa-solid fa-user-tie me-1"></i>合格經理 (20%)</span>
                                     </span>
                                 </div>
 
@@ -221,27 +267,33 @@
                         <div class="d-flex flex-column gap-4">
 
                             <!-- 戰術數值總覽卡 (三主數值) -->
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <div class="card h-100">
-                                        <div><i class="fa-solid fa-file-invoice-dollar text-yellow me-1"></i>應發總獎金 (稅前)</div>
-                                        <div class="fs-2 fw-bold text-yellow" id="valGrossBonus">NT$ 0</div>
-                                        <div class="small text-muted mt-1" id="valGrossBonusWan">約 0.00 萬元</div>
+                            <div class="card">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="card-incard h-100">
+                                            <div><i class="fa-solid fa-file-invoice-dollar text-yellow me-1"></i>應發總獎金 (稅前)</div>
+                                            <div class="fs-2 fw-bold text-yellow" id="valGrossBonus">NT$ 0</div>
+                                            <div class="small text-muted mt-1" id="valGrossBonusWan">約 0.00 萬元</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card-incard h-100">
+                                            <div><i class="fa-solid fa-hand-holding-dollar text-danger me-1"></i>法定代扣款 (稅+費)</div>
+                                            <div class="fs-2 fw-bold text-danger" id="valTotalDeduction">NT$ 0</div>
+                                            <div class="small text-muted mt-1" id="valDeductionDetail">所得稅10% + 健保2.11%</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card-incard h-100">
+                                            <div><i class="fa-solid fa-wallet text-orange me-1"></i>預估實撥入帳 (淨額)</div>
+                                            <div class="fs-2 fw-bold text-orange" id="valNetPayout">NT$ 0</div>
+                                            <div class="small text-muted mt-1">次月 15 日撥款入帳</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="card h-100">
-                                        <div><i class="fa-solid fa-hand-holding-dollar text-danger me-1"></i>法定代扣款 (稅+費)</div>
-                                        <div class="fs-2 fw-bold text-danger" id="valTotalDeduction">NT$ 0</div>
-                                        <div class="small text-muted mt-1" id="valDeductionDetail">所得稅10% + 健保2.11%</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card h-100">
-                                        <div><i class="fa-solid fa-wallet text-orange me-1"></i>預估實撥入帳 (淨額)</div>
-                                        <div class="fs-2 fw-bold text-orange" id="valNetPayout">NT$ 0</div>
-                                        <div class="small text-muted mt-1">次月 20 日撥款入帳</div>
-                                    </div>
+
+                                <div class="alert alert-muted small mb-0">
+                                    <div id="taxRuleText"></div>
                                 </div>
                             </div>
 
@@ -286,7 +338,7 @@
                                 </div>
 
                                 <!-- 備忘註記 -->
-                                <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 mt-3 small text-muted">
+                                <div class="alert alert-muted small mb-0">
                                     <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>備註：珍鑽年度卓越獎金（5%）採月累計至12月合併發放；旅遊獎勵金（1.5%）採7月至翌年6月累計發放；購車基金達標包含70萬頭期款贈與及36期每月補貼款。
                                 </div>
                             </div>

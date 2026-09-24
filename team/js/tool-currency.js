@@ -13,7 +13,7 @@ const SHEET_NAMES = {
 // 2. 系統狀態管理
 // ==========================================================================
 let appState = {
-    exchangeRate: 8.00, // 基準匯率 (預設 1 MYR = 8.00 TWD)
+    exchangeRate: APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00, // 基準匯率 (預設 1 MYR = 8.00 TWD)
     products: {
         ALL: [],
         TW: [],
@@ -39,6 +39,11 @@ window.addEventListener('AppReady', async () => {
 async function initApp() {
     if (isInitialized) return;
     isInitialized = true;
+
+    // 同步匯率輸入框與目標 SV 至全域設定預設值
+    $('#fxRateRange').val(appState.exchangeRate);
+    $('#fxRateInput').val(appState.exchangeRate.toFixed(2));
+    $('#solverTargetSV').val(APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160);
 
     bindUIEvents();
     initChart();
@@ -150,23 +155,24 @@ function getProductStatus(launchDateVal, discontinueDateVal) {
 // ==========================================
 // 5. 介面事件綁定
 // ==========================================
+function handleRateChange(val) {
+    let rate = parseFloat(val);
+    const defaultRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;
+    if (isNaN(rate) || rate <= 0) rate = defaultRate;
+    rate = Math.min(Math.max(rate, 7.00), 9.00);
+
+    appState.exchangeRate = rate;
+
+    $('#fxRateRange').val(rate);
+    $('#fxRateInput').val(rate.toFixed(2));
+
+    triggerConverterFromTWD();
+    renderCart();
+    refreshAllViews();
+    recalculateSolver();
+}
+
 function bindUIEvents() {
-    function handleRateChange(val) {
-        let rate = parseFloat(val);
-        if (isNaN(rate) || rate <= 0) rate = 8.00;
-        rate = Math.min(Math.max(rate, 7.00), 9.00);
-
-        appState.exchangeRate = rate;
-
-        $('#fxRateRange').val(rate);
-        $('#fxRateInput').val(rate.toFixed(2));
-
-        triggerConverterFromTWD();
-        renderCart();
-        refreshAllViews();
-        recalculateSolver();
-    }
-
     $('#fxRateRange').off('input change').on('input change', function () {
         handleRateChange($(this).val());
     });
@@ -401,9 +407,10 @@ function updateCartTotals(totalSV, totalTWD, totalMYR) {
 // 8. 缺額智能湊單求解器 (Goal SV Solver)
 // ==========================================================================
 function recalculateSolver() {
-    const targetSV = parseFloat($('#solverTargetSV').val()) || 160;
+    const defaultTargetSV = APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160;
+    const targetSV = parseFloat($('#solverTargetSV').val()) || defaultTargetSV;
     const strategy = $('#solverStrategy').val();
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : (APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00);
 
     let candidateProducts = [...(appState.products.TW || [])];
     if (candidateProducts.length === 0) return;
