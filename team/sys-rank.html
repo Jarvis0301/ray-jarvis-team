@@ -1,267 +1,347 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-bs-theme="dark-blue">
+<html lang="zh-TW" data-bs-theme="dark-cyan">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>職級晉升制度介紹 | 榮祥葡眾團隊戰術軍備庫</title>
+        <title>職級晉升 | 榮祥團隊 - 團隊版</title>
 
+        <!-- 認證守衛 -->
         <script src="../assets/js/auth-guard.js"></script>
         
+        <!-- 第三方函式庫載入器 -->
         <script src="../assets/js/vendor-loader.js"></script>
 
+        <!-- 共用核心模組 -->
         <script src="../assets/js/common.js"></script>
-
         <link rel="stylesheet" href="../assets/css/common.css">
 
-        <script src="./js/system-rank.js" defer></script>
-
-        <link rel="stylesheet" href="./css/system-rank.css">
+        <!-- 頁面專屬 -->
+        <script src="./js/sys-rank.js" defer></script>
+        <link rel="stylesheet" href="./css/sys-rank.css">
     </head>
     
     <body>
 
         <main class="container-fluid p-3 p-md-4">
 
-            <section class="mb-5">
-                <h2 class="h4 header-title mb-4"><i class="fa-solid fa-fort-awesome"></i> 葡眾制度四大事業護城河</h2>
+            <section class="mb-3">
+                <h2 class="h4 section-title mb-4"><i class="fa-solid fa-shield-halved me-1"></i>葡眾制度四大事業護城河</h2>
                 <div class="row g-4">
                     <div class="col-12 col-md-6 col-xl-3">
-                        <div class="card-warroom p-4 h-100">
+                        <div class="card p-4 h-100">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="rounded-circle p-3 me-3" style="background: rgba(52, 211, 153, 0.15); color: var(--accent-green);">
+                                <div class="bg-teal-subtle border border-1 border-teal-subtle rounded-circle p-3 me-3">
                                     <i class="fa-solid fa-infinity fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h3 class="h5 mb-0 fw-bold">累計不歸零</h3>
-                                    <span class="badge badge-green small">業績永續保留</span>
+                                    <h3 class="h5 mb-0 fw-bold">累積不歸零</h3>
+                                    <span class="text-teal small">進度永續保留</span>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-0">努力100%保留！個人與團隊積分（SV）採跨月無限期累積，絕不因跨月而清零，每一分汗水都是奠基石。</p>
+                            <p class="text-muted small mb-0">業績不因跨月清空，不需月底硬買硬湊。累積不歸零是讓新人有時間把事情學會：先學會，再做快；先做對，再做大。</p>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-6 col-xl-3">
-                        <div class="card-warroom p-4 h-100">
+                        <div class="card p-4 h-100">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="rounded-circle p-3 me-3" style="background: rgba(250, 204, 21, 0.15); color: var(--accent-gold);">
+                                <div class="bg-yellow-subtle border border-1 border-yellow-subtle rounded-circle p-3 me-3">
                                     <i class="fa-solid fa-lock fa-2x"></i>
                                 </div>
                                 <div>
                                     <h3 class="h5 mb-0 fw-bold">職級不下聘</h3>
-                                    <span class="badge badge-gold small">高榮耀鎖頭</span>
+                                    <span class="text-yellow small">終身榮耀鎖頭</span>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-0">晉升後終身鎖定最高職級！不需每月重新考核資格，不掉聘、不降階，完全擺脫傳統直銷的降階焦慮。</p>
+                            <p class="text-muted small mb-0">升上去的名目職級永久保留，過去爬到哪裡不用重新證明。當月獎金依實動核發，徹底告別傳統直銷掉聘降階的焦慮。</p>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-6 col-xl-3">
-                        <div class="card-warroom p-4 h-100">
+                        <div class="card p-4 h-100">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="rounded-circle p-3 me-3" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
+                                <div class="bg-cyan-subtle border border-1 border-cyan-subtle rounded-circle p-3 me-3">
                                     <i class="fa-solid fa-faucet-drip fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h3 class="h5 mb-0 fw-bold">珍珠自動補救</h3>
-                                    <span class="badge badge-blue small">被動收入水龍頭</span>
+                                    <h3 class="h5 mb-0 fw-bold">從挑水到建管線</h3>
+                                    <span class="text-cyan small">珍珠 5 線自動補救</span>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-0">達到珍珠級（輔導 5 線合格經理）開啟系統自動安全補救機制，確保組織被動管道收益穩定流入。</p>
+                            <p class="text-muted small mb-0">珍珠培育 5 線合格經理啟動自動補救，系統撥用 1 線抵扣 3,200 SV 責任額。重心由「自己挑水」轉向「輔導建管線」，工作角色從此蛻變。</p>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-6 col-xl-3">
-                        <div class="card-warroom p-4 h-100">
+                        <div class="card p-4 h-100">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="rounded-circle p-3 me-3" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
-                                    <i class="fa-solid fa-box-open fa-2x"></i>
+                                <div class="bg-orange-subtle border border-1 border-orange-subtle rounded-circle p-3 me-3">
+                                    <i class="fa-solid fa-handshake-simple fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h3 class="h5 mb-0 fw-bold">零囤貨壓力</h3>
-                                    <span class="badge mb-0" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;">健康消費轉移</span>
+                                    <h3 class="h5 mb-0 fw-bold">可繼承 ‧ 可買賣</h3>
+                                    <span class="text-orange small">資產傳承延續</span>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-0">僅需 160 SV（約 NT$ 1,800~2,400）個人基本盤即可領取組織獎金，自己與家人吃出健康即可維繫經營。</p>
+                            <p class="text-muted small mb-0">一般高薪工作無法繼承給子女，但葡眾直銷權具備正式法定繼承程序與轉讓權限，今天建立的管道，未來能完整留給下一代。</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="mb-5">
-                <h2 class="h4 header-title mb-4"><i class="fa-solid fa-cubes-stacked"></i> 事業發展三大戰略階段</h2>
+            <section class="mb-3">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+                    <h2 class="h4 section-title mb-0"><i class="fa-solid fa-route me-1"></i>事業晉升時程與預估月收入藍圖</h2>
+                    <span class="text-muted small">僅為預估時程，須配合團隊</span>
+                    <span class="text-muted small mt-2 mt-md-0"><i class="fa-solid fa-quote-left text-info me-1"></i>前面驗收你會不會做，後面驗收你能不能讓別人也會做</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-3 border-indigo">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-indigo">入門基石</span>
+                                <span class="text-muted small">約 3 ~ 6 個月</span>
+                            </div>
+                            <h3 class="h6 fw-bold text-white mb-2">
+                                <i class="fa-solid fa-user-check text-indigo me-1"></i>晉升經理
+                            </h3>
+                            <div class="h4 fw-bold text-indigo mb-2">NT$ 20,000 ~ 40,000<span class="fs-6 text-primary ms-1">/月</span></div>
+                            <p class="text-muted small mb-0">自用保健轉移，整組累計滿 12,000 SV，解鎖 20% 最高階差與經理小組分紅。</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-3 border-pink">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-pink">管線成型</span>
+                                <span class="text-muted small">約 6 個月 ~ 1 年</span>
+                            </div>
+                            <h3 class="h6 fw-bold text-white mb-2">
+                                <i class="fa-solid fa-gem text-pink me-1"></i>晉升珍珠
+                            </h3>
+                            <div class="h4 fw-bold text-pink mb-2">NT$ 70,000 ~ 200,000<span class="fs-6 text-primary ms-1">/月</span></div>
+                            <p class="text-muted small mb-0">培育 4 線合格經理，解鎖 4 代 6% 領導獎金、珍鑽分紅 5% 及海外旅遊基金。</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-3 border-teal">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-teal">組織壯大</span>
+                                <span class="text-muted small">約 1 ~ 3 年</span>
+                            </div>
+                            <h3 class="h6 fw-bold text-white mb-2">
+                                <i class="fa-solid fa-award text-teal me-1"></i>晉升翡翠
+                            </h3>
+                            <div class="h4 fw-bold text-teal mb-2">NT$ 200,000 ~ 300,000<span class="fs-6 text-primary ms-1">/月</span></div>
+                            <p class="text-muted small mb-0">連續 3 個月合格 6 線經理，拓展深層第 5 代領導獎金，團隊進入自主運轉期。</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-3 border-warning">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-yellow">領航自由</span>
+                                <span class="text-muted small">約 3 ~ 5 年</span>
+                            </div>
+                            <h3 class="h6 fw-bold text-white mb-2">
+                                <i class="fa-solid fa-crown text-warning me-1"></i>晉升藍鑽
+                            </h3>
+                            <div class="h4 fw-bold text-warning mb-2">NT$ 300,000 +<span class="fs-6 text-primary ms-1">/月</span></div>
+                            <p class="text-muted small mb-0">連 4 個月 10 線（含 3 實動珍珠），享黃金 6 代提撥與 Benz/BMW 高級新車真產權贈予。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-3">
+                <h2 class="h4 section-title mb-4"><i class="fa-solid fa-cubes-stacked me-1"></i>事業發展三大戰略階段</h2>
                 
                 <div class="row g-4">
+                    <!-- 第一階段：消費者與經理奠基期 -->
                     <div class="col-12 col-lg-4">
-                        <div class="card-warroom p-4 stage-card green-stage">
+                        <div class="card p-4 stage-card indigo-stage">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge badge-green"><i class="fa-solid fa-seedling"></i> 第一階段</span>
+                                <span class="badge badge-indigo"><i class="fa-solid fa-seedling me-1"></i>第一階段</span>
                                 <span class="text-muted small">累積提撥 5% ~ 20%</span>
                             </div>
-                            <h3 class="h5 fw-bold text-white mb-2"><i class="fa-solid fa-user-check"></i> 消費者與經理奠基期</h3>
-                            <p class="text-muted small mb-3">包含「會員、主任、副理、經理」。透過自用保健與分享，快速累積 12,000 SV 邁向經理階梯，解鎖最高 20% 回饋。</p>
+                            <h3 class="h5 fw-bold text-white mb-2"><i class="fa-solid fa-user-check me-1"></i>消費者與經理奠基期</h3>
+                            <p class="text-muted small mb-3">入會費僅 NT$ 1,000（大馬 RM 80），不必租店請人壓庫存。從自用牙膏、益生菌累積滿 12,000 SV，越用越便宜，直上 20% 階差最高回饋。</p>
                             
                             <div class="img-placeholder-container my-3">
                                 <i class="fa-solid fa-image img-placeholder-icon"></i>
-                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image"></i> 預留：經理晉升結構圖</div>
-                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined"></i> 建議尺寸 600x350 (16:9) | manager-structure.png</div>
+                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image me-1"></i>預留：經理晉升結構圖</div>
+                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined me-1"></i>建議尺寸 600x350 (16:9) | manager-structure.png</div>
                             </div>
 
                             <ul class="list-unstyled small text-muted mb-0">
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-success"></i> 會員 (5%)：1,200 SV 取得經營權</li>
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-success"></i> 主任 (10%)：累積 6,000 SV</li>
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-success"></i> 副理 (15%)：累積 12,000 SV</li>
-                                <li class="mb-0"><i class="fa-solid fa-check-circle text-success"></i> 經理 (20%)：累積 30,000 SV + 組織 4,000 SV</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-indigo me-1"></i>會員 (5%)：入會資料袋 NT$ 1,000（個人自備 160 SV）</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-indigo me-1"></i>主任 (10%)：整組累積滿 1,200 SV（跨月不歸零）</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-indigo me-1"></i>副理 (15%)：整組累積滿 6,000 SV（跨月不歸零）</li>
+                                <li class="mb-0"><i class="fa-solid fa-check-circle text-indigo me-1"></i>經理 (20%)：整組累積滿 12,000 SV + 當月小組 3,200 SV</li>
                             </ul>
                         </div>
                     </div>
 
+                    <!-- 第二階段：組織擴張與管道建構期 -->
                     <div class="col-12 col-lg-4">
-                        <div class="card-warroom p-4 stage-card">
+                        <div class="card p-4 stage-card pink-stage">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge badge-blue"><i class="fa-solid fa-diagram-project"></i> 第二階段</span>
-                                <span class="text-muted small">解鎖組織獎金與領導獎金</span>
+                                <span class="badge badge-pink"><i class="fa-solid fa-diagram-project me-1"></i>第二階段</span>
+                                <span class="text-muted small">解鎖領導獎金 2 ~ 5 代</span>
                             </div>
-                            <h3 class="h5 fw-bold text-white mb-2"><i class="fa-solid fa-people-group"></i> 組織擴張與管道建構期</h3>
-                            <p class="text-muted small mb-3">包含「珍珠、翡翠、藍鑽」。著重於培育下線夥伴成為合格經理，建構多管道事業網，實現被動收入。</p>
+                            <h3 class="h5 fw-bold text-white mb-2"><i class="fa-solid fa-people-group me-1"></i>組織擴張與管道建構期</h3>
+                            <p class="text-muted small mb-3">人進來只是多一個人，人能自己做才形成組織。考核核心從個人業績轉為「合格經理線」，深耕領導獎金，啟動自動補救管道。</p>
                             
                             <div class="img-placeholder-container my-3">
                                 <i class="fa-solid fa-sitemap img-placeholder-icon"></i>
-                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image"></i> 預留：珍珠與藍鑽矩陣圖</div>
-                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined"></i> 建議尺寸 600x350 (16:9) | organization-matrix.png</div>
+                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image me-1"></i>預留：珍珠與經理矩陣圖</div>
+                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined me-1"></i>建議尺寸 600x350 (16:9) | organization-matrix.png</div>
                             </div>
 
                             <ul class="list-unstyled small text-muted mb-0">
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-info"></i> 珍珠：培育 2 線經理（5線啟動補救）</li>
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-info"></i> 翡翠：培育 4 線合格經理</li>
-                                <li class="mb-0"><i class="fa-solid fa-check-circle text-info"></i> 藍鑽：培育 6 線合格經理（解鎖分紅）</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-pink me-1"></i>松柏：培育 1 線合格經理（領導獎金 2 代）</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-pink me-1"></i>長青：培育 2～3 線合格經理（領導獎金 3 代）</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-pink me-1"></i>珍珠：培育 4 線經理（5線啟動補救，解鎖珍鑽分紅/卓越/旅遊）</li>
+                                <li class="mb-0"><i class="fa-solid fa-check-circle text-pink me-1"></i>翡翠：連續 3 個月 6 線合格經理（領導獎金 5 代）</li>
                             </ul>
                         </div>
                     </div>
 
+                    <!-- 第三階段：高階領航與分紅成就期 -->
                     <div class="col-12 col-lg-4">
-                        <div class="card-warroom p-4 stage-card gold-stage">
+                        <div class="card p-4 stage-card gold-stage">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge badge-gold"><i class="fa-solid fa-crown"></i> 第三階段</span>
-                                <span class="text-muted small">全國分紅 + 海外旅遊</span>
+                                <span class="badge badge-yellow"><i class="fa-solid fa-crown me-1"></i>第三階段</span>
+                                <span class="text-muted small">全球 6 代 + 贈車真產權</span>
                             </div>
-                            <h3 class="h5 fw-bold text-white mb-2"><i class="fa-solid fa-award"></i> 高階領航與分紅成就期</h3>
-                            <p class="text-muted small mb-3">包含「雙藍鑽、皇冠、雙皇冠」。跨入企業企業家階層，享有全球與全國業績分紅、榮耀表揚與自由人生。</p>
+                            <h3 class="h5 fw-bold text-white mb-2"><i class="fa-solid fa-award me-1"></i>高階領航與分紅成就期</h3>
+                            <p class="text-muted small mb-3">參與營業額 52.6% 分配體系。達成藍鑽享有高級進口車贈車獎勵（非公司租賃車，行照真產權），並享有法定世襲傳承保障。</p>
                             
                             <div class="img-placeholder-container my-3">
-                                <i class="fa-solid fa-trophy img-placeholder-icon" style="color: var(--accent-gold);"></i>
-                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image"></i> 預留：皇冠榮耀與海外旅遊實景</div>
-                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined"></i> 建議尺寸 600x350 (16:9) | crown-lifestyle.jpg</div>
+                                <i class="fa-solid fa-trophy img-placeholder-icon"></i>
+                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image me-1"></i>預留：藍鑽購車表揚與海外研習</div>
+                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined me-1"></i>建議尺寸 600x350 (16:9) | diamond-lifestyle.jpg</div>
                             </div>
 
                             <ul class="list-unstyled small text-muted mb-0">
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-warning"></i> 雙藍鑽：培育 8 線合格經理</li>
-                                <li class="mb-1"><i class="fa-solid fa-check-circle text-warning"></i> 皇冠：培育 10 線合格經理</li>
-                                <li class="mb-0"><i class="fa-solid fa-check-circle text-warning"></i> 雙皇冠：培育 12 線合格經理</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-warning me-1"></i>藍鑽：連 4 個月 10 線（含 3 實動珍珠）+ 整組 100,000 SV</li>
+                                <li class="mb-1"><i class="fa-solid fa-check-circle text-warning me-1"></i>雙星～六星藍鑽：期滿 3 年連 4 個月達標（二/四/六星再領購車基金）</li>
+                                <li class="mb-0"><i class="fa-solid fa-check-circle text-warning me-1"></i>耀星藍鑽：最高榮譽，期滿 3 年達標享終身表揚與購車基金</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="rank-table-section" class="mb-5">
+            <section id="rank-table-section" class="mb-3">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-                    <h2 class="h4 header-title mb-0"><i class="fa-solid fa-list-check"></i> 10 大職級晉升條件與權益對照表</h2>
-                    <span class="text-muted small mt-2 mt-md-0"><i class="fa-solid fa-info-circle"></i> 支援多欄動態搜尋與即時排序</span>
+                    <h2 class="h4 section-title mb-0"><i class="fa-solid fa-list-check me-1"></i>11 大職級晉升條件與權益對照表</h2>
+                    <span class="text-muted small mt-2 mt-md-0"><i class="fa-solid fa-info-circle me-1"></i>支援多欄動態搜尋與即時排序</span>
                 </div>
 
-                <div class="card-warroom p-4">
+                <div class="card p-4">
                     <div class="table-responsive">
-                        <table id="rankAdvancementTable" class="table table-dark table-hover align-middle w-100 mb-0">
+                        <table id="rankAdvancementTable" class="table table-dark-custom mb-0">
                             <thead>
                                 <tr>
                                     <th>職級名稱</th>
                                     <th>階層類別</th>
                                     <th>累積業績 (SV)</th>
-                                    <th>當月合格個人門檻</th>
+                                    <th>當月責任額門檻</th>
                                     <th>培育合格經理線</th>
                                     <th>提撥率 / 權益亮點</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><span class="fw-bold text-white"><i class="fa-solid fa-user"></i> 會員</span></td>
-                                    <td><span class="badge badge-green">奠基期</span></td>
-                                    <td>1,200 SV（入會）</td>
-                                    <td>--</td>
-                                    <td>--</td>
-                                    <td><span class="text-success fw-bold">5%</span> 消費回饋金</td>
+                                    <td><span class="fw-bold text-indigo"><i class="fa-solid fa-user me-1"></i>會員</span></td>
+                                    <td class="text-center"><span class="badge badge-indigo">奠基期</span></td>
+                                    <td class="text-end">入會資料袋</td>
+                                    <td class="text-end">個人 160 SV</td>
+                                    <td class="text-end text-muted">-</td>
+                                    <td><span class="text-success fw-bold">5%</span> 階差獎金</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-white"><i class="fa-solid fa-user-gear"></i> 主任</span></td>
-                                    <td><span class="badge badge-green">奠基期</span></td>
-                                    <td>累積 6,000 SV</td>
-                                    <td>--</td>
-                                    <td>--</td>
+                                    <td><span class="fw-bold text-indigo"><i class="fa-solid fa-user-check me-1"></i>主任</span></td>
+                                    <td class="text-center"><span class="badge badge-indigo">奠基期</span></td>
+                                    <td class="text-end">1,200 SV</td>
+                                    <td class="text-end">個人 160 SV</td>
+                                    <td class="text-end text-muted">-</td>
                                     <td><span class="text-success fw-bold">10%</span> 階差獎金</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-white"><i class="fa-solid fa-user-tie"></i> 副理</span></td>
-                                    <td><span class="badge badge-green">奠基期</span></td>
-                                    <td>累積 12,000 SV</td>
-                                    <td>--</td>
-                                    <td>--</td>
+                                    <td><span class="fw-bold text-indigo"><i class="fa-solid fa-user-shield me-1"></i>副理</span></td>
+                                    <td class="text-center"><span class="badge badge-indigo">奠基期</span></td>
+                                    <td class="text-end">6,000 SV</td>
+                                    <td class="text-end">個人 160 SV</td>
+                                    <td class="text-end text-muted">-</td>
                                     <td><span class="text-success fw-bold">15%</span> 階差獎金</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-info"><i class="fa-solid fa-briefcase"></i> 經理</span></td>
-                                    <td><span class="badge badge-green">奠基期</span></td>
-                                    <td>累積 30,000 SV</td>
-                                    <td>160 SV + 組織 4,000 SV</td>
-                                    <td>--</td>
-                                    <td><span class="text-info fw-bold">20%</span> 最高階差獎金</td>
+                                    <td><span class="fw-bold text-indigo"><i class="fa-solid fa-user-tie me-1"></i>經理</span></td>
+                                    <td class="text-center"><span class="badge badge-indigo">奠基期</span></td>
+                                    <td class="text-end">12,000 SV</td>
+                                    <td class="text-end">個人 160 SV + 小組 3,200 SV</td>
+                                    <td class="text-end text-muted">-</td>
+                                    <td><span class="text-info fw-bold">20%</span> 階差 + 小組 10% + 經理 5%</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-info"><i class="fa-solid fa-gem"></i> 珍珠</span></td>
-                                    <td><span class="badge badge-blue">組織期</span></td>
-                                    <td>經理階升級</td>
-                                    <td>個人 160 SV</td>
-                                    <td>2 線經理（5線啟動補救）</td>
-                                    <td>解鎖組織獎金與自動補救</td>
+                                    <td><span class="fw-bold text-pink"><i class="fa-solid fa-tree me-1"></i>松柏</span></td>
+                                    <td class="text-center"><span class="badge badge-pink">組織期</span></td>
+                                    <td class="text-end text-muted">經理階晉升</td>
+                                    <td class="text-end">個人 160 SV + 小組 3,200 SV</td>
+                                    <td class="text-end">1 線合格經理</td>
+                                    <td>解鎖領導獎金 2 代（各 6%）</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-info"><i class="fa-solid fa-leaf"></i> 翡翠</span></td>
-                                    <td><span class="badge badge-blue">組織期</span></td>
-                                    <td>經理階升級</td>
-                                    <td>個人 160 SV</td>
-                                    <td>4 線合格經理</td>
-                                    <td>深層領導獎金提撥</td>
+                                    <td><span class="fw-bold text-pink"><i class="fa-solid fa-seedling me-1"></i>長青</span></td>
+                                    <td class="text-center"><span class="badge badge-pink">組織期</span></td>
+                                    <td class="text-end text-muted">經理階晉升</td>
+                                    <td class="text-end">個人 160 SV + 小組 3,200 SV</td>
+                                    <td class="text-end">2～3 線合格經理</td>
+                                    <td>領導獎金 3 代（各 6%）</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-info"><i class="fa-solid fa-diamond"></i> 藍鑽</span></td>
-                                    <td><span class="badge badge-blue">組織期</span></td>
-                                    <td>經理階升級</td>
-                                    <td>個人 160 SV</td>
-                                    <td>6 線合格經理</td>
-                                    <td>解鎖分紅與榮耀津貼</td>
+                                    <td><span class="fw-bold text-pink"><i class="fa-solid fa-gem me-1"></i>珍珠</span></td>
+                                    <td class="text-center"><span class="badge badge-pink">組織期</span></td>
+                                    <td class="text-end text-muted">經理階晉升</td>
+                                    <td class="text-end">個人 160 SV（滿 5 線免小組責任）</td>
+                                    <td class="text-end">4 線合格經理</td>
+                                    <td>領導 4 代 + 珍鑽分紅 5% + 卓越 5% + 旅遊 1.5%</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-warning"><i class="fa-solid fa-ring"></i> 雙藍鑽</span></td>
-                                    <td><span class="badge badge-gold">領航期</span></td>
-                                    <td>經理階升級</td>
-                                    <td>個人 160 SV</td>
-                                    <td>8 線合格經理</td>
-                                    <td>高階全球分紅與海外研習</td>
+                                    <td><span class="fw-bold text-pink"><i class="fa-solid fa-award me-1"></i>翡翠</span></td>
+                                    <td class="text-center"><span class="badge badge-pink">組織期</span></td>
+                                    <td class="text-end text-muted">經理階晉升</td>
+                                    <td class="text-end">個人 160 SV（滿 5 線免小組責任）</td>
+                                    <td class="text-end">連續 3 個月 6 線經理</td>
+                                    <td>領導 5 代 + 珍鑽分紅全權益</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-warning"><i class="fa-solid fa-crown"></i> 皇冠</span></td>
-                                    <td><span class="badge badge-gold">領航期</span></td>
-                                    <td>經理階升級</td>
-                                    <td>個人 160 SV</td>
-                                    <td>10 線合格經理</td>
-                                    <td>最高等級全國分紅權益</td>
+                                    <td><span class="fw-bold text-warning"><i class="fa-solid fa-crown me-1"></i>藍鑽</span></td>
+                                    <td class="text-center"><span class="badge badge-yellow">領航期</span></td>
+                                    <td class="text-end text-muted">經理階晉升</td>
+                                    <td class="text-end">個人 160 SV + 整組 100,000 SV</td>
+                                    <td class="text-end">連 4 個月 10 線（含 3 實動珍珠）</td>
+                                    <td>領導 6 代 + 進口車基金（頭款 70 萬 + 2.7 萬/月）</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="fw-bold text-warning"><i class="fa-solid fa-chess-king"></i> 雙皇冠</span></td>
-                                    <td><span class="badge badge-gold">領航期</span></td>
-                                    <td>經理階升級</td>
-                                    <td>個人 160 SV</td>
-                                    <td>12 線合格經理</td>
-                                    <td>終極事業成就與家族傳承</td>
+                                    <td><span class="fw-bold text-warning"><i class="fa-solid fa-crown me-1"></i>雙星～六星藍鑽</span></td>
+                                    <td class="text-center"><span class="badge badge-yellow">領航期</span></td>
+                                    <td class="text-end text-muted">任滿 3 年</td>
+                                    <td class="text-end">個人 160 SV + 整組 100,000 SV</td>
+                                    <td class="text-end">連 4 個月達藍鑽標準</td>
+                                    <td>領導 6 代 + 二/四/六星再領購車基金（最高 170 萬）</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="fw-bold text-warning"><i class="fa-solid fa-crown me-1"></i>耀星藍鑽</span></td>
+                                    <td class="text-center"><span class="badge badge-yellow">領航期</span></td>
+                                    <td class="text-end text-muted">任滿 3 年</td>
+                                    <td class="text-end">個人 160 SV + 整組 100,000 SV</td>
+                                    <td class="text-end">連 4 個月達藍鑽標準</td>
+                                    <td>葡眾最高榮譽 + 尊榮終身表揚與購車基金</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -269,77 +349,72 @@
                 </div>
             </section>
 
-            <section class="mb-5">
-                <h2 class="h4 header-title mb-4"><i class="fa-solid fa-chart-column"></i> 職級晉升提撥率與經理線需求視覺化</h2>
+            <section class="mb-3">
+                <h2 class="h4 section-title mb-4"><i class="fa-solid fa-chart-column me-1"></i>職級晉升提撥率與經理線需求視覺化</h2>
                 <div class="row g-4">
                     <div class="col-12 col-lg-8">
-                        <div class="card-warroom p-4 h-100">
+                        <div class="card p-4 h-100">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="h6 fw-bold text-white mb-0"><i class="fa-solid fa-chart-line text-info"></i> 提撥率% 與 培育經理線數 成長趨勢</h3>
-                                <span class="badge badge-blue small">Chart.js 動態繪製</span>
+                                <h3 class="h6 fw-bold text-white mb-0"><i class="fa-solid fa-chart-line text-info me-1"></i>提撥率% 與 培育經理線數 成長趨勢</h3>
                             </div>
-                            <div style="position: relative; height: 320px; width: 100%;">
-                                <canvas id="rankProgressChart"></canvas>
-                            </div>
+                            <div class="card-chart-container"><canvas id="rankProgressChart"></canvas></div>
                         </div>
                     </div>
 
                     <div class="col-12 col-lg-4">
-                        <div class="card-warroom p-4 h-100 d-flex flex-column justify-content-between">
+                        <div class="card p-4 h-100 d-flex flex-column justify-content-between">
                             <div>
-                                <h3 class="h6 fw-bold text-white mb-3"><i class="fa-solid fa-lightbulb text-warning"></i> 戰術趨勢關鍵解讀</h3>
+                                <h3 class="h6 fw-bold text-white mb-3"><i class="fa-solid fa-lightbulb text-warning me-1"></i>戰術趨勢關鍵解讀</h3>
                                 <div class="mb-3">
-                                    <div class="text-info fw-bold small mb-1"><i class="fa-solid fa-angle-right"></i> 經理階為關鍵樞紐：</div>
-                                    <p class="text-muted small">只要累積滿 30,000 SV，提撥率秒速衝上 20% 最高階差。這是每一位夥伴必須首要達成的戰略目標。</p>
+                                    <div class="text-cyan fw-bold small mb-1"><i class="fa-solid fa-angle-right me-1"></i>突破 24 小時物理天花板：</div>
+                                    <p class="text-muted small">靠個人能力再強，時間上限只有 24 小時。經理以上考核「合格經理線」，是透過組織把不同人的時間整合，產生倍增影響力。</p>
                                 </div>
                                 <div class="mb-3">
-                                    <div class="text-warning fw-bold small mb-1"><i class="fa-solid fa-angle-right"></i> 組織複製為長期價值：</div>
-                                    <p class="text-muted small">邁入珍珠（2線經理）至雙皇冠（12線經理），重點轉化為「輔導與培育」。線數越多，被動收入管道越穩固。</p>
+                                    <div class="text-warning fw-bold small mb-1"><i class="fa-solid fa-angle-right me-1"></i>從挑水走向建管線：</div>
+                                    <p class="text-muted small">前面制度驗收自己會不會做，後面開始驗收能否讓別人也會做。培育滿 5 線經理啟動自動補救，將工作時間真正轉化為長期穩固的被動水管。</p>
                                 </div>
                             </div>
 
                             <div class="img-placeholder-container mt-2">
                                 <i class="fa-solid fa-diagram-successor img-placeholder-icon" style="font-size: 2rem;"></i>
-                                <div class="img-placeholder-title small"><i class="fa-solid fa-file-image"></i> 預留：職級戰略心智圖</div>
-                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined"></i> 建議尺寸 400x200 (2:1) | rank-mindmap.png</div>
+                                <div class="img-placeholder-title small"><i class="fa-solid fa-file-image me-1"></i>預留：職級戰略心智圖</div>
+                                <div class="img-placeholder-spec"><i class="fa-solid fa-ruler-combined me-1"></i>建議尺寸 400x200 (2:1) | rank-mindmap.png</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="visual-gallery" class="mb-5">
+            <section id="visual-gallery" class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="h4 header-title mb-0"><i class="fa-solid fa-images"></i> 制度圖解與高清展示預留區</h2>
+                    <h2 class="h4 section-title mb-0"><i class="fa-solid fa-images me-1"></i>制度圖解與高清展示預留區</h2>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-12 col-md-6">
-                        <div class="card-warroom p-4">
+                        <div class="card p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="h6 fw-bold text-white mb-0"><i class="fa-solid fa-map text-info"></i> 完整職級晉升路線全景圖</h3>
-                                <span class="badge badge-blue">地圖展示</span>
+                                <h3 class="h6 fw-bold text-white mb-0"><i class="fa-solid fa-map text-info me-1"></i>完整職級晉升路線全景圖</h3>
                             </div>
                             <div class="img-placeholder-container">
                                 <i class="fa-solid fa-route img-placeholder-icon"></i>
-                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image"></i> 預留放圖片空間：《職級晉升圖.png》</div>
-                                <p class="text-muted small mb-2">建議上傳高解析度全景地圖，展示從會員至雙皇冠的清晰路徑。</p>
-                                <div class="img-placeholder-spec"><i class="fa-solid fa-file-code"></i> 路徑：assets/images/rank-advancement-map.png</div>
+                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image me-1"></i>預留放圖片空間：《職級晉升圖.png》</div>
+                                <p class="text-muted small mb-2">建議上傳高解析度全景地圖，展示從會員至耀星藍鑽的清晰晉升路徑。</p>
+                                <div class="img-placeholder-spec"><i class="fa-solid fa-file-code me-1"></i>路徑：assets/images/rank-advancement-map.png</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <div class="card-warroom p-4">
+                        <div class="card p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="h6 fw-bold text-white mb-0"><i class="fa-solid fa-shield-cat text-warning"></i> 珍珠自動補救機制圖解</h3>
-                                <span class="badge badge-gold">核心護城河</span>
+                                <h3 class="h6 fw-bold text-white mb-0"><i class="fa-solid fa-shield-cat text-warning me-1"></i>珍珠自動補救機制圖解</h3>
                             </div>
                             <div class="img-placeholder-container">
                                 <i class="fa-solid fa-network-wired img-placeholder-icon" style="color: var(--accent-gold);"></i>
-                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image"></i> 預留放圖片空間：《自動補救結構圖.png》</div>
+                                <div class="img-placeholder-title"><i class="fa-solid fa-file-image me-1"></i>預留放圖片空間：《自動補救結構圖.png》</div>
                                 <p class="text-muted small mb-2">建議上傳 5 線合格經理觸發自動補救安全網的架構對比圖。</p>
-                                <div class="img-placeholder-spec"><i class="fa-solid fa-file-code"></i> 路徑：assets/images/auto-remedy-structure.png</div>
+                                <div class="img-placeholder-spec"><i class="fa-solid fa-file-code me-1"></i>路徑：assets/images/auto-remedy-structure.png</div>
                             </div>
                         </div>
                     </div>

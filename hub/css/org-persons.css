@@ -1,0 +1,75 @@
+/* ==========================================================================
+   榮祥團隊戰術控制台 - 人員管理樣式庫 (org-persons.css)
+   ========================================================================== */
+/* 2. 人員戰術全息卡片 */
+.person-card {
+    background: var(--uvaco-bg-card, rgba(25, 18, 51, 0.7));
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.2));
+    border-radius: var(--uvaco-border-radius-lg, 16px);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.person-card:hover {
+    border-color: var(--uvaco-primary, #8b5cf6);
+    background: var(--uvaco-bg-card-hover, #211842);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.person-avatar-wrap {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.person-avatar-wrap .person-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--uvaco-primary, #8b5cf6);
+    background: #2d1f47;
+}
+
+/* 3. 檔案檢視視窗 (Dossier) 樣式 */
+.dossier-hero-card {
+    background: linear-gradient(135deg, rgba(32, 17, 66, 0.9) 0%, rgba(19, 14, 36, 0.95) 100%);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.35));
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.dossier-sub-card {
+    background: rgba(25, 18, 51, 0.65);
+    border: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.2));
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.dossier-card-header {
+    color: #ffffff;
+    font-weight: 700;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--uvaco-border, rgba(139, 92, 246, 0.2));
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.dossier-text-block {
+    background: rgba(10, 6, 24, 0.5);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    min-height: 2.2rem;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+}

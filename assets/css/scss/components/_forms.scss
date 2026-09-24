@@ -1,0 +1,774 @@
+.form-label {
+    color: var(--uvaco-secondary, #c084fc);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.form-control {
+    background-color: var(--uvaco-bg-card-primary);
+    border: 1px solid var(--uvaco-border-glow);
+    color: var(--uvaco-text-primary);
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    transition: all 0.2s ease-in-out;
+
+    &:focus {
+        background-color: var(--uvaco-bg-card-primary);
+        border-color: var(--uvaco-secondary);
+        color: var(--uvaco-text-primary);
+        box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow);
+    }
+
+    &:read-only {
+        background-color: rgba(var(--uvaco-bg-dark), 0.4) !important;
+        border-color: var(--uvaco-border-highlight) !important;
+        color: var(--bs-primary-text-emphasis) !important;
+        font-weight: 600;
+    }
+}
+
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: var(--uvaco-text-muted) !important;
+    opacity: 1; /* Firefox */
+}
+
+.form-control:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: var(--uvaco-text-muted) !important;
+}
+
+.form-control::-ms-input-placeholder { /* Microsoft Edge */
+    color: var(--uvaco-text-muted) !important;
+}
+
+/* 系統唯讀鎖定欄位專屬戰術風格 */
+.form-control-readonly {
+    background-color: rgba(var(--uvaco-bg-dark), 0.4) !important;
+    border-color: var(--uvaco-border-highlight) !important;
+    color: var(--bs-primary-text-emphasis) !important;
+    font-weight: 600;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.form-check-input {
+    background-color: --uvaco-bg-card-primary;
+    border: 1px solid var(--uvaco-border-glow);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover { 
+        background-color: var(--uvaco-secondary);
+        opacity: 0.75; 
+    }
+
+    &:checked {
+        background-color: var(--uvaco-primary);
+        border-color: var(--uvaco-primary);
+        opacity: 1;
+        box-shadow: 0 0 10px var(--uvaco-border-glow);
+    }
+}
+
+.form-select {
+    background-color: var(--uvaco-bg-card-primary);
+    border: 1px solid var(--uvaco-border-glow);
+    color: var(--uvaco-text-primary);
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    transition: all 0.2s ease-in-out;
+
+    &:focus {
+        background-color: var(--uvaco-bg-card-primary);
+        border-color: var(--uvaco-secondary);
+        color: var(--uvaco-text-primary);
+        box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow);
+    }
+}
+
+/* ==========================================================================
+   Select2 深度對齊 Bootstrap 5 (.form-select) 戰情控制台深色主題樣式庫
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 容器外框與排版基礎
+   -------------------------------------------------------------------------- */
+.select2-container {
+    width: 100% !important;
+    display: block !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. 未展開外觀主體（單選：100% 像素級對齊 Bootstrap 5 .form-select）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: calc(1.5em + 1rem + 2px) !important; // 對齊 0.5rem 上下 padding + 1.5 行高 + 2px 邊框 (~42px)
+    min-height: calc(1.5em + 1rem + 2px) !important; // 對齊 0.5rem 上下 padding + 1.5 行高 + 2px 邊框 (~42px)
+    padding: 0.5rem 2.25rem 0.5rem 0.85rem !important; // 右側留 2.25rem 空間給 SVG 箭頭安全區
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    color: var(--uvaco-text-primary, var(--bs-body-color)) !important;
+    background-color: var(--uvaco-bg-card-primary, var(--bs-body-bg)) !important;
+    
+    // 注入 Bootstrap 5 官方 Chevron 向量向下箭頭 (淺灰色 SVG)
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.85rem center !important;
+    background-size: 16px 12px !important;
+    
+    border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. 隱藏 Select2 原生粗糙三角形（防止產生雙箭頭）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. 內部文字排版與單行截斷 (Text Ellipsis)
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: inherit !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex-grow: 1 !important;
+}
+
+// 提示占位字顏色 (Placeholder)
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: var(--uvaco-text-muted) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. 清除按鈕「叉叉」（Clear Button）高對比度優化
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    color: var(--uvaco-text-muted, #9ca3af) !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    margin-right: 0.65rem !important;
+    padding: 0.1rem 0.35rem !important;
+    border-radius: 4px !important;
+    transition: all 0.15s ease-in-out !important;
+    order: 1;
+
+    // 滑鼠懸停於叉叉時：切換為警告危險紅並帶微底色
+    &:hover {
+        color: var(--uvaco-danger, #ef4444) !important;
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        transform: scale(1.1);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   6. 聚焦與展開狀態（同步 Bootstrap 5 Focus Glow 呼吸光暈）
+   -------------------------------------------------------------------------- */
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single {
+    background-color: var(--uvaco-bg-card-primary, var(--bs-body-bg)) !important;
+    border-color: var(--uvaco-secondary, var(--bs-primary)) !important;
+    color: var(--uvaco-text-primary) !important;
+    box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(var(--bs-primary-rgb), 0.25)) !important;
+    outline: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. 禁用狀態 (Disabled State)
+   -------------------------------------------------------------------------- */
+.select2-container--default.select2-container--disabled .select2-selection--single {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--uvaco-border-glow, var(--bs-border-color)) !important;
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. 下拉浮層清單外框與捲動條 (Dropdown Container)
+   -------------------------------------------------------------------------- */
+.select2-dropdown {
+    background-color: var(--uvaco-bg-card-primary, #111827) !important;
+    border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    z-index: 1065 !important;
+    overflow: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. 下拉內部搜尋框 (Search Field)
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-search--dropdown {
+    padding: 0.5rem !important;
+    background-color: transparent !important;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    background-color: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+    color: var(--uvaco-text-primary, #ffffff) !important;
+    border-radius: 6px !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    outline: 0 !important;
+
+    &:focus {
+        border-color: var(--uvaco-secondary, var(--bs-primary)) !important;
+        box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(var(--bs-primary-rgb), 0.25)) !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   10. 下拉選單項目狀態
+   -------------------------------------------------------------------------- */
+
+// 10.1 基礎選項（未選中、無懸停）
+.select2-container--default .select2-results__option {
+    background-color: transparent !important;
+    color: var(--uvaco-text-secondary, #e2e8f0) !important;
+    padding: 0.5rem 0.85rem !important;
+    font-size: 0.9rem !important;
+    user-select: none !important;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out !important;
+}
+
+// 10.2 已選擇的項目（當滑鼠移至其他項目時，保持暗黑微光底色，絕不反白）
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: rgba(var(--uvaco-primary), 0.4) !important; // 主題微光深底
+    color: var(--uvaco-text-secondary, var(--bs-primary)) !important;
+    font-weight: 600 !important;
+}
+
+// 10.3 當滑鼠懸停在「其他未選取的項目」時
+.select2-container--default .select2-results__option--highlighted:not([aria-selected="true"]) {
+    background-color: rgba(255, 255, 255, 0.2) !important; // 柔和淺透浮層光
+    color: #ffffff !important;
+}
+
+// 10.4 當滑鼠懸停在「目前已選取的項目」上時
+.select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+    background-color: var(--uvaco-primary, var(--bs-primary)) !important; // 實心主題色
+    color: #ffffff !important;
+}
+
+// 10.5 禁用選項
+.select2-container--default .select2-results__option[aria-disabled="true"] {
+    background-color: transparent !important;
+    color: var(--uvaco-text-muted) !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+// 10.6 群組標籤
+.select2-results__group {
+    color: var(--uvaco-text-muted) !important;
+    font-size: 0.78rem !important;
+    padding: 6px 10px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+   11. 多選模式適配（Multiple Select Badges）
+   -------------------------------------------------------------------------- */
+.select2-container--default .select2-selection--multiple {
+    background-color: var(--uvaco-bg-card-primary, var(--bs-body-bg)) !important;
+    border: 1px solid var(--uvaco-border-glow, var(--bs-border-color)) !important;
+    border-radius: 8px !important;
+    min-height: calc(1.5em + 1rem + 2px) !important;
+    padding: 0.25rem 0.5rem !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+
+    .select2-selection__choice {
+        background-color: rgba(var(--uvaco-primary), 0.2) !important;
+        border: 1px solid var(--uvaco-border-glow, var(--bs-primary)) !important;
+        color: var(--uvaco-text-primary, #ffffff) !important;
+        border-radius: 4px !important;
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.82rem !important;
+        margin: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    .select2-selection__choice__remove {
+        color: var(--uvaco-text-muted, #9ca3af) !important;
+        border: none !important;
+        margin-right: 0.35rem !important;
+        padding: 0 0.2rem !important;
+        font-weight: bold !important;
+
+        &:hover {
+            color: var(--uvaco-danger, #ef4444) !important;
+            background-color: transparent !important;
+        }
+    }
+}
+
+/* --------------------------------------------------------------------------
+   12. 小型精簡版適配（對齊 .form-select-sm 與懸浮戰略島 Filter Dock）
+   -------------------------------------------------------------------------- */
+
+/* 12.1 單選模式 (Single Select) */
+.form-select-sm + .select2-container--default .select2-selection--single,
+.form-select-sm ~ .select2-container--default .select2-selection--single,
+.select2-container--sm .select2-selection--single,
+.filter-dock-grid .select2-container--default .select2-selection--single {
+    /* 強制覆寫第 2 區塊的 height (從 1rem padding 改為 0.5rem padding，總高約 31px) */
+    height: calc(1.5em + 1rem + 2px) !important; 
+    min-height: calc(1.5em + 1rem + 2px) !important;
+    padding: 0.25rem 2rem 0.25rem 0.65rem !important;
+    font-size: 0.875rem !important; /* 對齊 BS5 .form-select-sm 標準字級 */
+    border-radius: 6px !important;
+    background-position: right 0.55rem center !important;
+    background-size: 14px 10px !important;
+
+    .select2-selection__rendered {
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .select2-selection__clear {
+        font-size: 0.95rem !important;
+        margin-right: 0.4rem !important;
+    }
+}
+
+/* 12.2 多選模式 (Multiple Select) 補強適配 */
+.form-select-sm + .select2-container--default .select2-selection--multiple,
+.form-select-sm ~ .select2-container--default .select2-selection--multiple,
+.select2-container--sm .select2-selection--multiple {
+    min-height: calc(1.5em + 0.5rem + 2px) !important;
+    padding: 0.15rem 0.35rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 6px !important;
+
+    .select2-selection__choice {
+        padding: 0.1rem 0.35rem !important;
+        font-size: 0.75rem !important;
+        margin: 0.1rem 0.2rem 0.1rem 0 !important;
+    }
+}
+
+/* ==========================================================================
+   全域表單開關與選取元件視覺強化 (Checkbox / Radio / Switch)
+   針對深色主題未選取狀態大幅提升輪廓度、背景層次與互動光感
+   ========================================================================== */
+
+/* 1. Checkbox 與 Radio Button 未選取狀態強化 */
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    vertical-align: top;
+    cursor: pointer;
+    /* 未選取時：加入微透亮沉降底色與 1.5px 明晰實線邊框 */
+    background-color: var(--uvaco-bg-card-hover, rgba(255, 255, 255, 0.08));
+    border: 1.5px solid var(--uvaco-secondary, rgba(255, 255, 255, 0.4)) !important;
+    border-radius: 0.35rem;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Radio Button 專屬圓形邊界 */
+.form-check-input[type="radio"] {
+    border-radius: 50%;
+}
+
+/* 未選取狀態下的滑鼠懸停 (Hover)：外框提亮並觸發主題光暈 */
+.form-check-input:hover:not(:checked):not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: var(--uvaco-secondary, #34d399) !important;
+    box-shadow: 0 0 8px var(--uvaco-border-glow, rgba(52, 211, 153, 0.35));
+}
+
+/* 鍵盤聚焦與觸摸焦點 (Focus) */
+.form-check-input:focus {
+    border-color: var(--uvaco-secondary, #34d399) !important;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(52, 211, 153, 0.25)) !important;
+}
+
+/* 選中狀態 (Checked)：填入當前主題 Primary 色並維持高對比外發光 */
+.form-check-input:checked {
+    background-color: var(--uvaco-primary, #10b981) !important;
+    border-color: var(--uvaco-primary, #10b981) !important;
+    box-shadow: 0 0 10px var(--uvaco-border-glow, rgba(16, 185, 129, 0.45));
+}
+
+/* --------------------------------------------------------------------------
+   2. Switch (開關滑桿) 專屬軌道與撥鈕重構
+   -------------------------------------------------------------------------- */
+.form-switch .form-check-input {
+    width: 2.65rem;
+    height: 1.45rem;
+    margin-left: -2.85rem;
+    border-radius: 2rem;
+    /* 未選取軌道：加深底色但給予高對比實心邊框 */
+    background-color: var(--uvaco-bg-card-hover, rgba(255, 255, 255, 0.12));
+    border: 1.5px solid var(--uvaco-secondary, rgba(255, 255, 255, 0.45)) !important;
+    /* 重繪未選取時的 SVG 圓鈕：置換為高感光純亮白/銀灰圓點 (#f1f5f9) */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f1f5f9'/%3e%3c/svg%3e") !important;
+    background-position: left center;
+}
+
+/* 未選取 Switch 滑鼠懸停 (Hover)：滑軌提亮、圓鈕呈現 100% 純白 */
+.form-switch .form-check-input:hover:not(:checked):not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: var(--uvaco-secondary, #34d399) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+    box-shadow: 0 0 10px var(--uvaco-border-glow, rgba(52, 211, 153, 0.35));
+}
+
+/* Switch 選中狀態 (Checked)：滑軌填色，滑鈕移至右側 */
+.form-switch .form-check-input:checked {
+    background-color: var(--uvaco-primary, #10b981) !important;
+    border-color: var(--uvaco-primary, #10b981) !important;
+    background-position: right center;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. 禁用與輔助文字微調
+   -------------------------------------------------------------------------- */
+.form-check-input:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+    color: var(--uvaco-text-primary, #ecfdf5);
+    padding-left: 0.25rem;
+}
+
+/* ==========================================================================
+   表單輸入框附屬圖示與後綴元件視覺強化 (Input Group Trailing Icon)
+   ========================================================================== */
+.input-group {
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* 1. 標準後綴圖示容器 (.input-group-text) */
+    .input-group-text {
+        background-color: var(--uvaco-bg-card-light, rgba(255, 255, 255, 0.05));
+        border: 1.5px solid var(--uvaco-border-highlight, rgba(255, 255, 255, 0.3));
+        color: var(--uvaco-text-secondary, #94a3b8);
+        padding: 0.5rem 0.85rem;
+        transition: all 0.25s ease-in-out;
+
+        /* 圖示專屬顯色加強 */
+        i {
+            color: var(--uvaco-secondary, #34d399);
+            font-size: 0.95rem;
+            filter: drop-shadow(0 0 4px var(--uvaco-border-glow, rgba(52, 211, 153, 0.3)));
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        /* 若後綴有文字與圖示並存，維持半形空白距離 */
+        i + span, span + i {
+            margin-left: 0.5rem;
+        }
+    }
+
+    /* 2. 輸入框主體邊框與對齊 */
+    .form-control {
+        //border: 1.5px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.3));
+        //background-color: var(--uvaco-input-bg, rgba(255, 255, 255, 0.04));
+        //color: var(--uvaco-text-primary, #ecfdf5);
+
+        &:focus {
+            //background-color: var(--uvaco-input-bg-focus, rgba(255, 255, 255, 0.08));
+            border-color: var(--uvaco-primary, #10b981);
+            box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(16, 185, 129, 0.25));
+        }
+    }
+
+    /* 3. 輸入框獲取焦點時：整組後方圖示與容器自動連動激活 (:focus-within) */
+    &:focus-within {
+        .input-group-text {
+            border-color: var(--uvaco-primary, #10b981);
+            background-color: var(--uvaco-bg-card-light-hover);
+
+            i {
+                color: var(--uvaco-primary, #10b981);
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 6px var(--uvaco-primary, #10b981));
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   全原生 Input 內部後綴控制項 --uvaco-secondary 主題次要色覆寫
+   以 CSS Mask 遮罩技術取代死白濾鏡，實現 0 毫秒動態色彩注入與微光景深
+   ========================================================================== */
+
+/* 1. 日期、月份、週別控制項：日曆圖示映射 --uvaco-secondary */
+input[type="date"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+    position: relative;
+
+    &::-webkit-calendar-picker-indicator {
+        display: block;
+        //width: 1.35rem;
+        //height: 1.35rem;
+        opacity: 1 !important;
+        cursor: pointer;
+        margin-right: 2px;
+        /* 核心重構：以向量遮罩填入 --uvaco-secondary，徹底淘汰純白 invert(1) */
+        background-color: var(--uvaco-secondary, #34d399) !important;
+        /* Font Awesome 官方 fa-calendar-days 向量 Path */
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='black' d='M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48H96V32c0-17.7 14.3-32 32-32zM400 192H48V464H400V192zM96 256h48v48H96V256zm96 0h48v48H192V256zm96 0h48v48H288V256zm-192 96h48v48H96V352zm96 0h48v48H192V352zm96 0h48v48H288V352z'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='black' d='M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48H96V32c0-17.7 14.3-32 32-32zM400 192H48V464H400V192zM96 256h48v48H96V256zm96 0h48v48H192V256zm96 0h48v48H288V256zm-192 96h48v48H96V352zm96 0h48v48H192V352zm96 0h48v48H288V352z'/%3E%3C/svg%3E");
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        filter: drop-shadow(0 0 4px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.4)));
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, filter 0.2s ease;
+
+        &:hover {
+            transform: scale(1.18);
+            background-color: var(--uvaco-secondary-hover, #10b981) !important;
+            filter: drop-shadow(0 0 8px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.65)));
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+}
+
+/* 2. 時間控制項 (type="time")：時鐘圖示映射 --uvaco-secondary */
+input[type="time"] {
+    position: relative;
+
+    &::-webkit-calendar-picker-indicator {
+        display: block;
+        //width: 1.35rem;
+        //height: 1.35rem;
+        opacity: 1 !important;
+        cursor: pointer;
+        margin-right: 2px;
+        background-color: var(--uvaco-secondary, #34d399) !important;
+        /* Font Awesome 官方 fa-clock 向量 Path */
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='black' d='M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zm0 464a208 208 0 1 0 0-416 208 208 0 1 0 0 416zm-8-304c0-13.3 10.7-24 24-24s24 10.7 24 24v96c0 6.4-2.5 12.5-7 17l-64 64c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l57-57V160z'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='black' d='M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zm0 464a208 208 0 1 0 0-416 208 208 0 1 0 0 416zm-8-304c0-13.3 10.7-24 24-24s24 10.7 24 24v96c0 6.4-2.5 12.5-7 17l-64 64c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l57-57V160z'/%3E%3C/svg%3E");
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        filter: drop-shadow(0 0 4px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.4)));
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, filter 0.2s ease;
+
+        &:hover {
+            transform: scale(1.18);
+            background-color: var(--uvaco-secondary-hover, #10b981) !important;
+            filter: drop-shadow(0 0 8px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.65)));
+        }
+    }
+}
+
+/* 3. 搜尋欄位 (type="search")：清除叉叉向量圖示改為 --uvaco-secondary */
+input[type="search"] {
+    &::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 1.15rem;
+        height: 1.15rem;
+        opacity: 0.85 !important;
+        cursor: pointer;
+        margin-right: 0.45rem;
+        
+        /* 1. 平時外觀：對齊 Select2 沉靜次要灰，取消綠光干擾 */
+        background-color: var(--uvaco-text-muted, #9ca3af) !important;
+
+        /* 2. 向量圖示：置換為 Font Awesome 官方標準俐落叉叉 (fa-xmark，淘汰圓圈圈 fa-circle-xmark) */
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='black' d='M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='black' d='M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z'/%3E%3C/svg%3E");
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        filter: none !important;
+        transition: all 0.15s ease-in-out !important;
+
+        /* 3. 懸停回饋：同步 Select2 之警告危險紅、微縮放放大與微光暈 */
+        &:hover {
+            opacity: 1 !important;
+            background-color: var(--uvaco-danger, #ef4444) !important;
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.5)) !important;
+        }
+
+        /* 4. 點擊瞬間彈性反饋 */
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+}
+
+/* 4. 滑動條 (type="range")：圓形撥鈕改為 --uvaco-secondary 實心與懸停光澤 */
+input[type="range"] {
+    &::-webkit-slider-thumb {
+        background-color: var(--uvaco-secondary, #34d399) !important;
+        box-shadow: 0 0 8px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.5));
+
+        &:hover {
+            transform: scale(1.25);
+            background-color: var(--uvaco-secondary-hover, #10b981) !important;
+            box-shadow: 0 0 12px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.8));
+        }
+    }
+}
+
+/* 5. 色彩挑選器 (type="color")：內外邊框改以 --uvaco-secondary 勾勒 */
+input[type="color"] {
+    &::-webkit-color-swatch {
+        border: 1.5px solid var(--uvaco-secondary, #34d399) !important;
+    }
+
+    &:hover {
+        border-color: var(--uvaco-secondary, #34d399) !important;
+        box-shadow: 0 0 8px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.35));
+    }
+}
+
+/* 6. 檔案上傳按鈕 (type="file")：文字與邊框預設對齊 --uvaco-secondary */
+input[type="file"] {
+    &::file-selector-button {
+        background-color: var(--uvaco-bg-card, #10241b);
+        color: var(--uvaco-secondary, #34d399) !important;
+        border: 1.5px solid var(--uvaco-secondary, #34d399) !important;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background-color: var(--uvaco-secondary, #34d399) !important;
+            border-color: var(--uvaco-secondary, #34d399) !important;
+            color: var(--uvaco-secondary-contrast, #062e1e) !important;
+            box-shadow: 0 0 10px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.45));
+        }
+    }
+}
+
+/* 7. 數值微調器 (type="number")：維持深色原生引擎，杜絕白方塊 */
+input[type="number"] {
+    color-scheme: dark !important;
+    position: relative;
+
+    /* 1. 徹底隱藏 outer-spin，阻絕 Chromium 雙重按鈕渲染 */
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+        display: none !important;
+    }
+
+    /* 2. 重構 inner-spin 微調鍵：Font Awesome 專屬上下分離微調箭頭 */
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        display: inline-block !important;
+        width: 1.15rem !important;
+        height: 1.65rem !important;
+        opacity: 1 !important;
+        cursor: pointer;
+        /* 拉出獨立內距與左右呼吸空間，絕不與外框或後綴粘連 */
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+
+        /* 核心色彩：100% 綁定主題次要色，杜絕綠色污染 */
+        background-color: var(--uvaco-secondary) !important;
+
+        /* Font Awesome 官方標準上下雙向微調箭頭 (fa-sort 幾何分離路徑) */
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath fill='black' d='M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8L32 224c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.2l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8l256 0c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z'/%3E%3C/svg%3E") !important;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath fill='black' d='M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8L32 224c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.2l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8l256 0c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z'/%3E%3C/svg%3E") !important;
+        -webkit-mask-repeat: no-repeat !important;
+        mask-repeat: no-repeat !important;
+        -webkit-mask-position: center !important;
+        mask-position: center !important;
+        /* 鎖定向量寬高比例，確保上下箭頭縱向分明、不產生視覺重疊 */
+        -webkit-mask-size: 0.75rem 1.25rem !important;
+        mask-size: 0.75rem 1.25rem !important;
+
+        /* 次要色專屬微光投影 */
+        filter: drop-shadow(0 0 3px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.4))) !important;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, opacity 0.2s ease !important;
+
+        /* 懸停 (Hover)：維持 --uvaco-secondary，僅透過微幅提亮與光暈加強，絕不切換為綠色 */
+        &:hover {
+            background-color: var(--uvaco-secondary) !important;
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 8px var(--uvaco-secondary-glow, rgba(52, 211, 153, 0.75))) brightness(1.2) !important;
+        }
+
+        /* 點擊 (Active)：物理微幅回彈 */
+        &:active {
+            background-color: var(--uvaco-secondary) !important;
+            transform: scale(0.92);
+        }
+    }
+
+    /* 3. 🌟 新增模式：無箭頭模式 (.no-spin / .form-control-no-spin / [data-no-spin]) */
+    &.no-spin,
+    &.form-control-no-spin,
+    &[data-no-spin] {
+        -moz-appearance: textfield !important;
+        appearance: textfield !important;
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            -webkit-appearance: none !important;
+            display: none !important;
+            margin: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            background-color: transparent !important;
+            -webkit-mask-image: none !important;
+            mask-image: none !important;
+            pointer-events: none !important;
+        }
+    }
+
+    /* 4. Firefox 核心相容保護 */
+    -moz-appearance: textfield;
+}
+
+/* 5. 防外層重疊：修正 Bootstrap .input-group 容器中的層疊邊界 */
+.input-group {
+    input[type="number"] {
+        /* 確保微調按鈕與緊鄰的後綴圖示/標籤保有清晰邊界，層級分明 */
+        & + .input-group-text,
+        & + .btn {
+            border-left: 1px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.2)) !important;
+            position: relative;
+            z-index: 2;
+        }
+    }
+}

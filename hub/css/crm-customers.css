@@ -1,0 +1,69 @@
+/* ==========================================================================
+   榮祥團隊戰術控制台 - 客戶模組專用樣式庫 (crm-customers.css)
+   完全收斂至全域標準變數 --uvaco-*，無自訂字型 font-chakra
+   ========================================================================== */
+
+/* 3. 客戶全息戰術卡片 */
+.customer-card {
+    background: var(--uvaco-bg-card, rgba(22, 13, 46, 0.75));
+    border: 1px solid var(--uvaco-border-glow, rgba(139, 92, 246, 0.25));
+    border-radius: var(--uvaco-radius-lg, 16px);
+    padding: 1.25rem;
+    position: relative;
+    transition: all 0.25s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.customer-card:hover {
+    border-color: var(--uvaco-secondary, #c084fc);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(139, 92, 246, 0.25);
+}
+
+.customer-card.is-seed { border-left: 4px solid #f43f5e; }
+.customer-card.is-vip { border-left: 4px solid #fbbf24; }
+.customer-card.is-converted { border-left: 4px solid #10b981; }
+
+.avatar-wrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.15rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.25));
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.badge-tag {
+    font-size: 0.72rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--uvaco-text-sub, #c4b5fd);
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 6. 360° 全景檔案檢視視窗卡片 */
+.dossier-sub-card {
+    background: rgba(25, 18, 51, 0.65);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+}
+
+.dossier-card-header {
+    font-weight: 600;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.18);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.88rem;
+}

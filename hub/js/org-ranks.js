@@ -1,0 +1,1229 @@
+// ==========================================================================
+// 職級晉升管理與推演中台 (org-ranks.js)
+// 對接 SheetAdapter, UIBadges, AppDialog, AppToast, AppLoading
+// ==========================================================================
+
+const SPREADSHEET_ID = {
+    ORG: APP_CONFIG.SHEETS.ORG,
+    PSN: APP_CONFIG.SHEETS.PSN
+};
+
+const GAS_DEPLOY_ID = {
+    ORG: APP_CONFIG.GAS.ORG
+};
+
+const SHEET_NAMES = {
+    RANKS: APP_CONFIG.SHEET_NAMES.ORG.RANKS,
+    HISTORY: APP_CONFIG.SHEET_NAMES.ORG.RANK_HISTORY,
+    PARTNERS: APP_CONFIG.SHEET_NAMES.ORG.PARTNERS,
+    PERSONS: APP_CONFIG.SHEET_NAMES.PSN.PERSON
+};
+
+// ==========================================================================
+// 工具函式與數值/日期轉換
+// ==========================================================================
+function parseNullableFloat(val) {
+    if (val === undefined || val === null || String(val).trim() === '') return null;
+    const num = parseFloat(String(val).replace(/,/g, ''));
+    return isNaN(num) ? null : num;
+}
+
+function parseNullableInt(val) {
+    if (val === undefined || val === null || String(val).trim() === '') return null;
+    const num = parseInt(String(val).replace(/,/g, ''), 10);
+    return isNaN(num) ? null : num;
+}
+
+function formatDateToSlash(dateStr) {
+    if (!dateStr || String(dateStr).trim() === '' || dateStr === '-') return '';
+    const cleanStr = String(dateStr).trim().replace(/-/g, '/');
+    const parts = cleanStr.split('/');
+    if (parts.length === 3) {
+        return `${parts[0]}/${parts[1].padStart(2, '0')}/${parts[2].padStart(2, '0')}`;
+    }
+    return cleanStr;
+}
+
+function generateNextHistoryId(partnerId) {
+    const targetPid = partnerId ? partnerId.trim() : 'PTN-0001';
+    // 篩選該夥伴已有的晉升紀錄
+    const ptnHistories = appState.history.filter(h => h.partner_id === targetPid);
+    
+    // 擷取該夥伴歷程末尾流水號
+    const seqNumbers = ptnHistories.map(h => {
+        const idStr = String(h.history_id).trim();
+        // 匹配 RANK-HIS-PTN-xxxx-001 或舊式 RANK-HIS-001 格式末尾序號
+        const match = idStr.match(/(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+    }).filter(n => !isNaN(n));
+
+    const maxSeq = seqNumbers.length > 0 ? Math.max(...seqNumbers) : 0;
+    return `RANK-HIS-${targetPid}-${String(maxSeq + 1).padStart(3, '0')}`;
+}
+
+function getEffectiveHistoryPartner(partnerId) {
+    if (!partnerId) return null;
+    const partner = appState.partners.find(p => p.partner_id === partnerId);
+    if (!partner) return null;
+
+    // 判斷是否為共同經營者且設有主帳號夥伴
+    const isCoOp = (partner.account_holder_type === '共同經營者' || partner.operation_mode === '共同經營');
+    const primaryId = partner.official_account_partner_id || partner.spouse_partner_id;
+
+    if (isCoOp && primaryId && primaryId !== partner.partner_id) {
+        const primaryPartner = appState.partners.find(p => p.partner_id === primaryId);
+        return {
+            isDelegated: true,
+            targetPartnerId: primaryId,
+            primaryPartner: primaryPartner || null,
+            originalPartner: partner
+        };
+    }
+
+    return {
+        isDelegated: false,
+        targetPartnerId: partnerId,
+        primaryPartner: partner,
+        originalPartner: partner
+    };
+}
+
+function getEffectiveRankHistory(partnerId) {
+    const delegation = getEffectiveHistoryPartner(partnerId);
+    if (!delegation) return [];
+
+    // 優先查詢主要經營者之歷史晉升歷程
+    let history = appState.history.filter(h => h.partner_id === delegation.targetPartnerId);
+    
+    // 若主要經營者歷程為空，但共同經營者有獨立歷史記錄時的容錯防禦
+    if (history.length === 0 && delegation.isDelegated) {
+        history = appState.history.filter(h => h.partner_id === partnerId);
+    }
+
+    return history.sort((a, b) => (a.effective_month > b.effective_month ? 1 : -1));
+}
+
+/**
+ * 正規化晉升正式生效年月：限定為 YYYY 或 YYYY-MM
+ */
+function normalizeEffectiveMonth(val) {
+    if (!val || val === '-' || val === '未填寫') return '';
+    const p = AppDate.parse(val);
+    if (!p) return String(val).trim();
+    // 若解析為年精度輸出 YYYY，其餘（包含月精度與日精度）皆收斂輸出 YYYY-MM
+    return p.precision === 'Y' ? p.year : `${p.year}-${p.month}`;
+}
+
+// ==========================================================================
+// 系統狀態管理 (State Management)
+// ==========================================================================
+let appState = {
+    ranks: [],
+    history: [],
+    partners: [],
+    persons: [],
+    selectedRankId: ''
+};
+
+let historyDataTable = null;
+let singlePartnerDataTable = null;
+let partnerRankChartInstance = null;
+
+// ==========================================================================
+// 系統生命週期
+// ==========================================================================
+window.addEventListener('AppReady', async () => {
+    if (window.SheetAdapter) {
+        SheetAdapter.init(GAS_DEPLOY_ID.ORG);
+    }
+    await fetchGoogleSheetsData();
+});
+
+// ==========================================================================
+// 資料讀取引擎 (解析 4 張中文工作表)
+// ==========================================================================
+async function fetchGoogleSheetsData() {
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
+    
+    try {
+        const [rankRows, historyRows, partnerRows, personRows] = await Promise.all([
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.RANKS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.HISTORY).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.ORG, SHEET_NAMES.PARTNERS).catch(() => []),
+            fetchGoogleSheetCsv(SPREADSHEET_ID.PSN, SHEET_NAMES.PERSONS).catch(() => [])
+        ]);
+
+        appState.ranks = parseRanksTable(rankRows);
+        appState.history = parseRankHistoryTable(historyRows);
+        appState.partners = parsePartnersTable(partnerRows);
+        appState.persons = parsePersonsTable(personRows);
+
+        if (appState.ranks.length > 0) {
+            const exists = appState.ranks.some(r => r.rank_id === appState.selectedRankId);
+            if (!exists) {
+                appState.selectedRankId = appState.ranks[0].rank_id;
+            }
+        }
+
+        refreshView();
+        AppToast.success("試算表資料同步完成");
+    } catch (err) {
+        console.error("Google Sheets 讀取異常:", err);
+        AppToast.error(`資料讀取失敗：${err.message}`);
+    } finally {
+        AppLoading.hide();
+    }
+}
+
+function parseRanksTable(rows) {
+    return rows.map((r, idx) => {
+        // is_active 位於索引 28
+        const activeRaw = getVal(r, 28, 'Y').toUpperCase();
+        const isActive = (activeRaw === 'Y' || activeRaw === '是' || activeRaw === 'TRUE' || activeRaw === '1' || activeRaw === '');
+
+        return {
+            rank_id: getVal(r, 0, `RANK_${String(idx + 1).padStart(2, '0')}`),
+            rank_code: getVal(r, 1, `R${(idx + 1) * 10}`),
+            rank_level: parseInt(getVal(r, 2, String((idx + 1) * 10)), 10) || 0,
+            rank_name_zh: getVal(r, 3, ''),
+            rank_name_en: getVal(r, 4, ''),
+            star_rating: parseInt(getVal(r, 5, '0'), 10) || 0,
+            cooling_period_month: parseInt(getVal(r, 6, '0'), 10) || 0,
+            cum_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
+            month_personal_sv_req: parseFloat(getVal(r, 8, '160')) || 160,
+            month_group_sv_req: parseFloat(getVal(r, 9, '0')) || 0,
+            new_mgr_group_sv_req: parseFloat(getVal(r, 10, '0')) || 0,
+            qualified_lines_req: parseInt(getVal(r, 11, '0'), 10) || 0,
+            pearl_lines_req: parseInt(getVal(r, 12, '0'), 10) || 0,
+            month_org_sv_req: parseFloat(getVal(r, 13, '0')) || 0,
+            consecutive_months_req: parseInt(getVal(r, 14, '1'), 10) || 1,
+            direct_rebate_rate: parseFloat(getVal(r, 15, '0.05')) || 0.05,
+            leadership_gen_depth: parseInt(getVal(r, 16, '0'), 10) || 0,
+            leadership_gen_rate: parseFloat(getVal(r, 17, '0.06')) || 0.06,
+            has_group_bonus: getVal(r, 18, 'N').toUpperCase(),
+            has_manager_bonus: getVal(r, 19, 'N').toUpperCase(),
+            has_pearl_dividend: getVal(r, 20, 'N').toUpperCase(),
+            has_annual_excellence: getVal(r, 21, 'N').toUpperCase(),
+            has_travel_incentive: getVal(r, 22, 'N').toUpperCase(),
+            has_car_fund: getVal(r, 23, 'N').toUpperCase(),
+            car_reward_type: getVal(r, 24, '無'),
+            badge_icon_class: getVal(r, 25, 'fa-solid fa-award'),
+            badge_color_hex: getVal(r, 26, '#8b5cf6'),
+            sort_order: parseInt(getVal(r, 27, String(idx + 1)), 10) || (idx + 1),
+            is_active: isActive ? 'Y' : 'N',
+            created_by: getVal(r, 29, 'SYSTEM'),
+            created_at: getVal(r, 30, ''),
+            modified_by: getVal(r, 31, 'SYSTEM'),
+            modified_at: getVal(r, 32, '')
+        };
+    }).filter(r => r.rank_name_zh !== '' && r.is_active === 'Y').sort((a, b) => a.sort_order - b.sort_order);
+}
+
+function parseRankHistoryTable(rows) {
+    return rows.map((r, idx) => {
+        const partnerId = getVal(r, 1, 'PTN-0001');
+        const defaultHisId = `RANK-HIS-${partnerId}-${String(idx + 1).padStart(3, '0')}`;
+
+        return {
+            history_id: getVal(r, 0, defaultHisId),
+            partner_id: partnerId,
+            previous_rank_id: getVal(r, 2, ''),
+            new_rank_id: getVal(r, 3, ''),
+            star_rating: parseInt(getVal(r, 4, '0'), 10) || 0,
+            effective_month: getVal(r, 5, ''),
+            cooling_start_date: formatDateToSlash(getVal(r, 6, '')),
+            consecutive_qualified_months: parseNullableInt(getVal(r, 7, '')),
+            cum_group_sv_snapshot: parseNullableFloat(getVal(r, 8, '')),
+            month_group_sv_snapshot: parseNullableFloat(getVal(r, 9, '')),
+            active_manager_legs_count: parseNullableInt(getVal(r, 10, '')),
+            active_pearl_legs_count: parseNullableInt(getVal(r, 11, '')),
+            month_total_org_sv_snapshot: parseNullableFloat(getVal(r, 12, '')),
+            company_recognition_date: formatDateToSlash(getVal(r, 13, '')),
+            notes: getVal(r, 14, '') || null,
+            created_by: getVal(r, 15, 'SYSTEM'),
+            created_at: getVal(r, 16, ''),
+            modified_by: getVal(r, 17, 'SYSTEM'),
+            modified_at: getVal(r, 18, '')
+        };
+    }).filter(h => h.partner_id !== '');
+}
+
+function parsePartnersTable(rows) {
+    return rows.map(r => ({
+        partner_id: getVal(r, 0, ''),
+        person_id: getVal(r, 1, ''),
+        member_no: getVal(r, 2, ''),
+        leader_title: getVal(r, 3, ''),
+        account_holder_type: getVal(r, 4, '個人經營者'),
+        official_account_partner_id: getVal(r, 5, ''),
+        operation_mode: getVal(r, 6, '個人經營'),
+        spouse_partner_id: getVal(r, 7, ''),
+        node_nature: getVal(r, 8, '常態夥伴'),
+        sponsor_id: getVal(r, 9, ''),
+        placement_id: getVal(r, 10, ''),
+        known_mentor_id: getVal(r, 11, ''),
+        upline_link_type: getVal(r, 12, '直屬已知'),
+        current_rank_id: getVal(r, 13, ''),
+        highest_rank_id: getVal(r, 14, ''),
+        diamond_star_level: parseInt(getVal(r, 15, '0'), 10) || 0,
+        star_eval_eligible_date: getVal(r, 16, ''),
+        country_code: getVal(r, 17, 'TW'),
+        is_our_team: getVal(r, 18, 'Y').toUpperCase(),
+        relation_type: getVal(r, 19, '下線'),
+        activity_level: getVal(r, 20, ''),
+        member_status: getVal(r, 21, ''),
+        operator_status: getVal(r, 22, '活躍'),
+        work_status: getVal(r, 23, ''),
+        status_change_reason: getVal(r, 24, ''),
+        successor_partner_id: getVal(r, 25, ''),
+        surrendered_to_upline_id: getVal(r, 26, ''),
+        joining_motive: getVal(r, 27, ''),
+        team_skills: getVal(r, 28, ''),
+        team_notes: getVal(r, 29, ''),
+        join_date: formatDateToSlash(getVal(r, 30, '')),
+        renewal_due_date: formatDateToSlash(getVal(r, 31, '')),
+        last_order_date: formatDateToSlash(getVal(r, 32, '')),
+        exit_date: getVal(r, 33, ''),
+        avatar_url: getVal(r, 34, ''),
+        created_by: getVal(r, 35, 'SYSTEM'),
+        created_at: getVal(r, 36, ''),
+        modified_by: getVal(r, 37, 'SYSTEM'),
+        modified_at: getVal(r, 38, '')
+    })).filter(p => p.partner_id !== '');
+}
+
+function parsePersonsTable(rows) {
+    return rows.map(r => ({
+        person_id: getVal(r, 0, ''),
+        name_zh: getVal(r, 1, ''),
+        name_en: getVal(r, 2, ''),
+        preferred_name: getVal(r, 3, ''),
+        display_name: getVal(r, 4, '')
+    })).filter(p => p.person_id !== '');
+}
+
+// ==========================================================================
+// 介面渲染中樞
+// ==========================================================================
+function refreshView() {
+    renderRankOrbit();
+    populateRankSelects();
+    if (appState.selectedRankId) {
+        selectRank(appState.selectedRankId);
+    }
+    renderHistoryTable();
+    populatePartnerDropdown();
+    initPartnerSelect2();
+}
+
+function renderRankOrbit() {
+    const $container = $('#rankTrackContainer').empty();
+    appState.ranks.forEach(rank => {
+        const isSelected = rank.rank_id === appState.selectedRankId ? 'active' : '';
+        const html = `
+            <div class="rank-node-btn ${isSelected}" data-rank-id="${rank.rank_id}" onclick="selectRank('${rank.rank_id}')">
+                <div class="rank-badge-icon" style="color: ${rank.badge_color_hex};">
+                    <i class="${rank.badge_icon_class}"></i>
+                </div>
+                <div class="fw-bold text-white">${rank.rank_name_zh}</div>
+                <div class="text-muted text-truncate">${rank.rank_code}</div>
+            </div>
+        `;
+        $container.append(html);
+    });
+    $('#ranksCountBadge').text(`${appState.ranks.length} 個職級已載入`);
+}
+
+function selectRank(rankId) {
+    appState.selectedRankId = rankId;
+    $('.rank-node-btn').removeClass('active');
+    $(`.rank-node-btn[data-rank-id="${rankId}"]`).addClass('active');
+
+    const rank = appState.ranks.find(r => r.rank_id === rankId);
+    if (!rank) return;
+
+    $('#activeRankCode').text(`代碼：${rank.rank_code}`).css('color', rank.badge_color_hex);
+    $('#activeRankName').html(`
+        <i class="${rank.badge_icon_class} me-2" style="color: ${rank.badge_color_hex};"></i>
+        <span>${rank.rank_name_zh} ${rank.rank_name_en ? '(' + rank.rank_name_en + ')' : ''}</span>
+    `);
+    $('#activeRebateRate').text(`${(rank.direct_rebate_rate * 100).toFixed(2)}%`);
+
+    $('#activePersonalSv').text(`${rank.month_personal_sv_req.toLocaleString()} SV`);
+    $('#activeMonthGroupSv').text(`${rank.month_group_sv_req.toLocaleString()} SV`);
+    $('#activeMonthOrgSv').text(rank.month_org_sv_req > 0 ? `${rank.month_org_sv_req.toLocaleString()} SV` : '無門檻');
+    $('#activeCumSv').text(rank.cum_group_sv_req > 0 ? `${rank.cum_group_sv_req.toLocaleString()} SV` : '不歸零');
+    $('#activeQualifiedLines').text(`${rank.qualified_lines_req} 條`);
+    $('#activePearlLines').text(`${rank.pearl_lines_req} 條`);
+    $('#activeConsecutiveMonths').text(`${rank.consecutive_months_req} 個月`);
+    $('#activeCoolingMonths').text(rank.cooling_period_month > 0 ? `${rank.cooling_period_month} 個月` : '無冷卻期');
+
+    const $flags = $('#privilegeFlagsContainer').empty();
+    const addFlag = (label, active, icon) => {
+        const badgeClass = active ? 'badge badge-accent' : 'badge badge-muted';
+        $flags.append(`
+            <div class="col-12 col-md-4">
+                <div class="fs-6 p-2 rounded ${badgeClass} d-flex align-items-center gap-2">
+                    <i class="${icon} me-1"></i>${label}
+                </div>
+            </div>
+        `);
+    };
+
+    // 獎金分紅特權旗標渲染
+    addFlag(`階差獎金 ${(rank.direct_rebate_rate * 100).toFixed(0)}%`, true, 'fa-solid fa-percent');
+    addFlag(`合格小組獎金 10%`, rank.has_group_bonus === 'Y', 'fa-solid fa-circle-check');
+    addFlag(`合格經理獎金 5%`, rank.has_manager_bonus === 'Y', 'fa-solid fa-circle-check');
+    addFlag(`全球領導獎金 ${rank.leadership_gen_depth} 代 (6%)`, rank.leadership_gen_depth > 0, 'fa-solid fa-layer-group');
+    addFlag(`業績自動補救權益`, rank.pearl_lines_req > 0 || rank.qualified_lines_req >= 4, 'fa-solid fa-shield-heart');
+    addFlag(`珍鑽分紅 5%`, rank.has_pearl_dividend === 'Y', 'fa-solid fa-gem');
+    addFlag(`珍鑽年度卓越 5%`, rank.has_annual_excellence === 'Y', 'fa-solid fa-trophy');
+    addFlag(`珍鑽旅遊獎勵 1.5%`, rank.has_travel_incentive === 'Y', 'fa-solid fa-plane-departure');
+    
+    // 購車基金 3.5% 資格與具體方案說明
+    addFlag(`購車基金 3.5%`, rank.has_car_fund === 'Y', 'fa-solid fa-car-side');
+    if (rank.car_reward_type && rank.car_reward_type !== '無') {
+        addFlag(`方案：${rank.car_reward_type}`, true, 'fa-solid fa-car');
+    }
+}
+
+// 依據新職級自動推算前一階原職級
+function autoCalcPrevRank(newRankId) {
+    if (!newRankId || !appState.ranks.length) return;
+    const currentIndex = appState.ranks.findIndex(r => r.rank_id === newRankId || r.rank_code === newRankId);
+    const newRank = appState.ranks[currentIndex];
+
+    if (currentIndex > 0) {
+        const prevRank = appState.ranks[currentIndex - 1];
+        $('#fieldPrevRankId').val(prevRank.rank_id).trigger('change');
+    } else {
+        $('#fieldPrevRankId').val(appState.ranks[0].rank_id).trigger('change');
+    }
+
+    if (newRank) {
+        $('#fieldStarRating').val(newRank.star_rating || 0);
+
+        // ★ 核心修訂：新晉升職級在經理以下 (rank_level <= 40)，解除原職級鎖定
+        if (newRank.rank_level <= 40) {
+            $('#fieldPrevRankId').prop('disabled', false).css({ 'pointer-events': 'auto', 'opacity': '1' });
+        } else {
+            $('#fieldPrevRankId').prop('disabled', true).css({ 'pointer-events': 'none', 'opacity': '0.75' });
+        }
+    }
+}
+
+function populateRankSelects() {
+    const rankData = appState.ranks;
+
+    // 1. 原職級選單
+    UISelectOptions.core.render({
+        target: '#fieldPrevRankId',
+        data: rankData,
+        valueKey: 'rank_id',
+        textKey: (r) => `${r.rank_code} - ${r.rank_name_zh}`,
+        placeholder: '請選擇原職級...',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        dropdownParent: '#rankHistoryModal'
+    });
+
+    // 2. 新晉升職級選單
+    UISelectOptions.core.render({
+        target: '#fieldNewRankId',
+        data: rankData,
+        valueKey: 'rank_id',
+        textKey: (r) => `${r.rank_code} - ${r.rank_name_zh}`,
+        placeholder: '請選擇新晉升職級...',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        dropdownParent: '#rankHistoryModal'
+    });
+
+    // 當新晉升職級變更時，立即自動計算原職級
+    $('#fieldNewRankId').off('change.autoPrev').on('change.autoPrev', function() {
+        autoCalcPrevRank($(this).val());
+    });
+}
+
+// ==========================================================================
+// 夥伴專屬戰況與折線圖分析
+// ==========================================================================
+function populatePartnerDropdown() {
+    const $select = $('#partnerSelect');
+    const partnerList = appState.partners.length > 0 
+        ? appState.partners 
+        : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
+
+    // 透過共用模組渲染夥伴戰情下拉選單 (可搜尋、不可自訂新增)
+    UISelectOptions.partner.populate({
+        target: $select,
+        partners: partnerList,
+        persons: appState.persons,
+        displayMode: 2,
+        placeholder: '請選擇或搜尋夥伴...',
+        selectedValue: $select.val() || (partnerList[0]?.partner_id || ''),
+        searchable: true
+    });
+
+    $select.off('change.partnerDash').on('change.partnerDash', function () {
+        onPartnerSelected($(this).val());
+    });
+
+    const selectedPtn = $select.val();
+    if (selectedPtn) {
+        onPartnerSelected(selectedPtn);
+    }
+}
+
+function onPartnerSelected(partnerId) {
+    if (!partnerId) return;
+
+    const delegation = getEffectiveHistoryPartner(partnerId);
+    const ptnHistory = getEffectiveRankHistory(partnerId);
+
+    renderPartnerRankChart(ptnHistory, delegation);
+    renderPartnerSingleTable(ptnHistory, delegation);
+}
+
+// 年月字串（YYYYMM、YYYY-MM、YYYY/MM 或 YYYY）轉為標準 Timestamp 數值
+function parseYmToTimestamp(ymStr) {
+    if (!ymStr) return 0;
+    const clean = String(ymStr).trim().replace(/[-/]/g, '');
+    let year = 2026, month = 1;
+    if (clean.length === 4) {
+        year = parseInt(clean, 10);
+        month = 1;
+    } else if (clean.length >= 6) {
+        year = parseInt(clean.substring(0, 4), 10);
+        month = parseInt(clean.substring(4, 6), 10);
+    }
+    return new Date(year, month - 1, 1).getTime();
+}
+
+function renderPartnerRankChart(ptnHistory, delegation = null) {
+    const ctx = document.getElementById('partnerRankChart');
+    if (!ctx) return;
+
+    const currentPartnerId = $('#partnerSelect').val();
+    const partnerInfo = appState.partners.find(p => p.partner_id === currentPartnerId);
+
+    // 從「職級主檔」動態取得會員職級資料與專屬代表色
+    const memberRank = appState.ranks.find(r => 
+        r.rank_level === 10 || 
+        r.rank_code === 'R10' || 
+        r.rank_name_zh === '會員' || 
+        r.rank_id === 'RANK_01_MEMBER'
+    );
+    const memberColor = (memberRank && memberRank.badge_color_hex) ? memberRank.badge_color_hex : '#a1a1aa';
+
+    const chartNodes = [];
+
+    // 若共同經營者自身無加入日期，嘗試取用主要經營者之加入日期
+    let rawJoinDate = partnerInfo && partnerInfo.join_date ? String(partnerInfo.join_date).trim() : '';
+    if ((!rawJoinDate || rawJoinDate === '-') && delegation && delegation.primaryPartner) {
+        rawJoinDate = delegation.primaryPartner.join_date ? String(delegation.primaryPartner.join_date).trim() : '';
+    }
+    // 嚴格檢查：只有在夥伴主檔確實有「加入葡眾日」且非空值時，才建立「會員」節點
+    if (rawJoinDate && rawJoinDate !== '-') {
+        const joinParts = rawJoinDate.replace(/-/g, '/').split('/');
+        if (joinParts.length >= 2) {
+            const year = parseInt(joinParts[0], 10);
+            const month = parseInt(joinParts[1], 10);
+            if (!isNaN(year) && !isNaN(month) && year > 1990) {
+                const joinTimestamp = new Date(year, month - 1, 1).getTime();
+                const joinYmStr = `${year}/${String(month).padStart(2, '0')}`;
+
+                chartNodes.push({
+                    x: joinTimestamp,
+                    y: 10,
+                    dateLabel: joinYmStr,
+                    rankName: `${memberRank ? memberRank.rank_name_zh : '會員'} (加入葡眾)`,
+                    color: memberColor // ★ 使用職級主檔設定之代表色
+                });
+            }
+        }
+    }
+
+    // 加入升階歷程節點：排除 <= 10 的會員初始歷程，避免無加入日的夥伴出現 2026/06 假節點
+    ptnHistory.forEach(h => {
+        const rank = appState.ranks.find(r => 
+            r.rank_id === h.new_rank_id || 
+            r.rank_code === h.new_rank_id || 
+            r.rank_name_zh === h.new_rank_id
+        );
+        
+        // 未找到職級或為會員等級時跳過（會員點僅由加入葡眾日提供）
+        if (!rank || rank.rank_level <= 10) return;
+
+        const level = rank.rank_level;
+        const color = rank.badge_color_hex || '#8b5cf6';
+
+        // 利用 AppDate.toTimestamp 自適應解析 YYYY 或 YYYY-MM
+        const timestamp = AppDate.toTimestamp(h.effective_month);
+        if (!timestamp) return;
+
+        chartNodes.push({
+            x: timestamp,
+            y: level,
+            dateLabel: normalizeEffectiveMonth(h.effective_month),
+            rankName: rank.rank_name_zh,
+            color: color
+        });
+    });
+
+    // 依時間先後嚴格排序
+    chartNodes.sort((a, b) => a.x - b.x);
+    
+    // 計算 X 軸起訖邊界（起訖點均對齊偶數月）
+    const now = new Date();
+    const minTimestamp = chartNodes.length > 0 ? chartNodes[0].x : new Date(now.getFullYear(), 0, 1).getTime();
+    const maxTimestamp = chartNodes.length > 0 ? chartNodes[chartNodes.length - 1].x : new Date(now.getFullYear(), 11, 1).getTime();
+
+    const dMin = new Date(minTimestamp);
+    let startYear = dMin.getFullYear();
+    let startMonth = dMin.getMonth() + 1;
+    let startEvenMonth = (startMonth % 2 === 0) ? startMonth - 2 : startMonth - 1;
+    if (startEvenMonth <= 0) {
+        startYear -= 1;
+        startEvenMonth += 12;
+    }
+
+    const dMax = new Date(maxTimestamp);
+    let endYear = dMax.getFullYear();
+    let endMonth = dMax.getMonth() + 1;
+    let endEvenMonth = (endMonth % 2 === 0) ? endMonth + 2 : endMonth + 1;
+    if (endEvenMonth > 12) {
+        endYear += 1;
+        endEvenMonth -= 12;
+    }
+
+    // 計算跨越總月數，動態決定刻度步長（保證皆為 2 的倍數月份）
+    const totalSpanMonths = (endYear - startYear) * 12 + (endEvenMonth - startEvenMonth);
+    const stepCandidates = [2, 4, 6, 12, 24, 36, 48];
+    let stepMonths = 2;
+    for (const step of stepCandidates) {
+        if (totalSpanMonths / step <= 10) { // 刻度數控制在 10 個以內
+            stepMonths = step;
+            break;
+        }
+        stepMonths = step;
+    }
+
+    const startBound = new Date(startYear, startEvenMonth - 1, 1).getTime();
+    const endBound = new Date(endYear, endEvenMonth - 1, 1).getTime();
+
+    // 依動態步長生成偶數月刻度陣列
+    const evenMonthTicks = [];
+    let cur = new Date(startYear, startEvenMonth - 1, 1);
+    while (cur.getTime() <= endBound) {
+        evenMonthTicks.push(cur.getTime());
+        cur = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, 1);
+    }
+    // 補齊最後一個刻度，確保圖表最右側節點能完整落在可視區內
+    if (evenMonthTicks[evenMonthTicks.length - 1] < endBound) {
+        evenMonthTicks.push(cur.getTime());
+    }
+
+    const finalStart = evenMonthTicks[0];
+    const finalEnd = evenMonthTicks[evenMonthTicks.length - 1];
+
+    // RWD 動態畫布寬度計算
+    const $wrapper = $('#partnerRankChartWrapper');
+    if ($wrapper.length) {
+        const minDynamicWidth = Math.max(100, evenMonthTicks.length * 85);
+        $wrapper.css('min-width', evenMonthTicks.length > 6 ? `${minDynamicWidth}px` : '100%');
+    }
+
+    if (partnerRankChartInstance) {
+        partnerRankChartInstance.destroy();
+    }
+
+    // Chart.js 實體生成
+    partnerRankChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: '職級位階',
+                data: chartNodes.map(node => ({ x: node.x, y: node.y })),
+                borderColor: '#c084fc',
+                backgroundColor: 'transparent',
+                fill: false,
+                borderWidth: 2.5,
+                tension: 0,
+                segment: {
+                    borderDash: ctx => {
+                        const p0 = chartNodes[ctx.p0DataIndex];
+                        const p1 = chartNodes[ctx.p1DataIndex];
+                        if (!p0 || !p1) return undefined;
+                        return Math.abs(p1.y - p0.y) > 10 ? [6, 6] : undefined;
+                    }
+                },
+                pointBackgroundColor: chartNodes.map(n => n.color),
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: chartNodes.map(n => n.color)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 10,
+                    max: 100,
+                    offset: true,
+                    ticks: {
+                        stepSize: 10,
+                        color: '#f5f3ff',
+                        font: { weight: '600' },
+                        callback: val => {
+                            const r = appState.ranks.find(x => x.rank_level === val);
+                            return r ? r.rank_name_zh : `R${val}`;
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(192, 132, 252, 0.40)',
+                        lineWidth: 1.2,
+                        drawBorder: true
+                    }
+                },
+                x: {
+                    type: 'linear',
+                    min: finalStart,
+                    max: finalEnd,
+                    offset: false,
+                    afterBuildTicks: axis => {
+                        axis.ticks = evenMonthTicks.map(v => ({ value: v }));
+                    },
+                    ticks: {
+                        color: '#f5f3ff',
+                        font: { weight: '500' },
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 0,
+                        callback: val => {
+                            const d = new Date(val);
+                            if (isNaN(d.getTime())) return '';
+                            return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(139, 92, 246, 0.20)',
+                        lineWidth: 1.2,
+                        drawBorder: true
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: items => {
+                            const node = chartNodes[items[0].dataIndex];
+                            return node ? `年月：${node.dateLabel}` : '';
+                        },
+                        label: ctx => {
+                            const node = chartNodes[ctx.dataIndex];
+                            return ` 職級：${node ? node.rankName : ''} (位階 ${ctx.parsed.y})`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 在 org-ranks.js 中替換原 renderPartnerSingleTable 內部迴圈與標頭提示
+function renderPartnerSingleTable(ptnHistory, delegation = null) {
+    const isDelegated = delegation && delegation.isDelegated;
+    const primaryDisplayName = isDelegated ? EntityResolver.partner(delegation.targetPartnerId, appState.partners, appState.persons, 2) : '';
+
+    const formatted = ptnHistory.map(h => {
+        const prevRank = appState.ranks.find(r => r.rank_id === h.previous_rank_id);
+        const newRank = appState.ranks.find(r => r.rank_id === h.new_rank_id);
+
+        let actionBtns = '';
+        if (isDelegated) {
+            // 共同經營者採動態同步，提示需至主要經營者處異動
+            actionBtns = `<span class="badge badge-info" title="本歷程同步自 ${primaryDisplayName}"><i class="fa-solid fa-arrows-rotate me-1"></i>共同經營同步</span>`;
+        } else {
+            actionBtns = `
+                <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+            `;
+        }
+
+        const noteSyncTag = isDelegated 
+            ? `<span class="badge badge-info me-1"><i class="fa-solid fa-user-group me-1"></i>共同經營</span>` 
+            : '';
+
+        return {
+            previous: prevRank ? UIBadges.rank.badge(prevRank) : `<span class="badge badge-gray">${h.previous_rank_id || '-'}</span>`,
+            new_rank: newRank ? UIBadges.rank.badge(newRank) : `<span class="badge badge-purple">${h.new_rank_id || '-'}</span>`,
+            effective_month: `${h.effective_month}`,
+            consecutive: h.consecutive_qualified_months !== null ? `${h.consecutive_qualified_months} 個月` : '-',
+            cum_sv: h.cum_group_sv_snapshot !== null ? `${h.cum_group_sv_snapshot.toLocaleString()} SV` : '-',
+            manager_legs: h.active_manager_legs_count !== null ? `${h.active_manager_legs_count} 條` : '-',
+            pearl_legs: h.active_pearl_legs_count !== null ? `${h.active_pearl_legs_count} 條` : '-',
+            recognition: h.company_recognition_date || '-',
+            notes: `${noteSyncTag}<span class="text-truncate d-inline-block" style="max-width: 140px;" title="${h.notes || ''}">${h.notes || '-'}</span>`,
+            actions: actionBtns
+        };
+    });
+
+    if (singlePartnerDataTable) {
+        singlePartnerDataTable.clear().rows.add(formatted).draw();
+    } else {
+        singlePartnerDataTable = $('#partnerSingleHistoryTable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'previous', className: 'text-center' },
+                { data: 'new_rank', className: 'text-center' },
+                { data: 'effective_month' },
+                { data: 'consecutive', className: 'text-end' },
+                { data: 'cum_sv', className: 'text-end' },
+                { data: 'manager_legs', className: 'text-end' },
+                { data: 'pearl_legs', className: 'text-end' },
+                { data: 'recognition' },
+                { data: 'notes' },
+                { data: 'actions', className: 'text-center', orderable: false }
+            ],
+            searching: false,
+            info: false,
+            paging: false,
+            lengthChange: false
+        });
+    }
+}
+
+// ==========================================================================
+// 全團隊夥伴晉升歷程表格渲染
+// ==========================================================================
+function renderHistoryTable() {
+    const formatted = appState.history.map(h => {
+        const prevRank = appState.ranks.find(r => r.rank_id === h.previous_rank_id);
+        const newRank = appState.ranks.find(r => r.rank_id === h.new_rank_id);
+
+        const actionBtns = `
+            <button class="btn btn-sm btn-outline-primary" onclick="openEditHistoryModal('${h.history_id}')" title="編輯"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRankHistoryItem('${h.history_id}')" title="刪除"><i class="fa-solid fa-trash-alt"></i></button>
+        `;
+
+        return {
+            partner_name: `<strong class="text-white">${EntityResolver.partner(h.partner_id, appState.partners, appState.persons, 2)}</strong>`,
+            previous: prevRank ? UIBadges.rank.badge(prevRank) : `<span class="badge badge-gray">${h.previous_rank_id || '-'}</span>`,
+            new_rank: newRank ? UIBadges.rank.badge(newRank) : `<span class="badge badge-purple">${h.new_rank_id || '-'}</span>`,
+            effective_month: `${h.effective_month}`,
+            consecutive: h.consecutive_qualified_months !== null ? `${h.consecutive_qualified_months} 個月` : '-',
+            cum_sv: h.cum_group_sv_snapshot !== null ? `${h.cum_group_sv_snapshot.toLocaleString()} SV` : '-',
+            manager_legs: h.active_manager_legs_count !== null ? `${h.active_manager_legs_count} 條` : '-',
+            pearl_legs: h.active_pearl_legs_count !== null ? `${h.active_pearl_legs_count} 條` : '-',
+            recognition: h.company_recognition_date || '-',
+            notes: `<span class="text-truncate d-inline-block" style="max-width: 160px;" title="${h.notes || ''}">${h.notes || '-'}</span>`,
+            actions: actionBtns
+        };
+    });
+
+    if (historyDataTable) {
+        historyDataTable.clear().rows.add(formatted).draw();
+    } else {
+        historyDataTable = $('#rankHistoryTable').DataTable({
+            data: formatted,
+            columns: [
+                { data: 'partner_name' },
+                { data: 'previous', className: 'text-center' },
+                { data: 'new_rank', className: 'text-center' },
+                { data: 'effective_month' },
+                { data: 'consecutive', className: 'text-end' },
+                { data: 'cum_sv', className: 'text-end' },
+                { data: 'manager_legs', className: 'text-end' },
+                { data: 'pearl_legs', className: 'text-end' },
+                { data: 'recognition' },
+                { data: 'notes' },
+                { data: 'actions', className: 'text-center', orderable: false }
+            ]
+        });
+    }
+}
+
+// ==========================================================================
+// Select2 與彈窗互動處理
+// ==========================================================================
+function initPartnerSelect2() {
+    const $partnerSelect = $('#fieldPartnerId');
+    const partnerList = appState.partners.length > 0 
+        ? appState.partners 
+        : [...new Set(appState.history.map(h => h.partner_id))].map(id => ({ partner_id: id }));
+
+    // 透過共用模組渲染晉升登記之夥伴選單 (綁定 Modal 父層與防脫軌捲動守衛)
+    UISelectOptions.partner.populate({
+        target: $partnerSelect,
+        partners: partnerList,
+        persons: appState.persons,
+        displayMode: 2,
+        placeholder: '請選擇或搜尋夥伴...',
+        selectedValue: $partnerSelect.val() || '',
+        searchable: true,
+        dropdownParent: '#rankHistoryModal'
+    });
+
+    // 當新增狀態下更換夥伴時，動態重算其專屬晉升流水號
+    $partnerSelect.off('change.historyIdGen').on('change.historyIdGen', function () {
+        if ($('#fieldHistoryMode').val() === 'add') {
+            const selectedPid = $(this).val();
+            if (selectedPid) {
+                $('#fieldHistoryId').val(generateNextHistoryId(selectedPid));
+            } else {
+                $('#fieldHistoryId').val('');
+            }
+        }
+    });
+
+    $partnerSelect.off('change.historyPartner').on('change.historyPartner', function () {
+        const selectedPid = $(this).val();
+        if ($('#fieldHistoryMode').val() === 'add') {
+            if (selectedPid) {
+                $('#fieldHistoryId').val(generateNextHistoryId(selectedPid));
+                const ptn = appState.partners.find(p => p.partner_id === selectedPid);
+                if (ptn && ptn.current_rank_id) {
+                    $('#fieldPrevRankId').val(ptn.current_rank_id).trigger('change');
+                }
+            } else {
+                $('#fieldHistoryId').val('');
+            }
+        }
+    });
+}
+
+function openAddRankModal() {
+    $('#modalHistoryTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>登錄夥伴職級晉升');
+    $('#fieldHistoryMode').val('add');
+    $('#formRankHistory')[0].reset();
+    $('#fieldHistoryId').val(''); // 選擇夥伴後動態產生
+
+    // 預設為當前系統年月 (YYYY-MM，例如 2026-09)
+    $('#fieldEffectiveMonth').val(AppDate.now('month'));
+    $('#fieldConsecutiveMonths').val('');
+    $('#fieldCumSvSnapshot').val('');
+    $('#fieldManagerLegsSnapshot').val('');
+    $('#fieldPearlLegsSnapshot').val('');
+    $('#fieldRecognitionDate').val('');
+    $('#fieldCoolingStartDate').val('');
+    $('#fieldStarRating').val('0');
+
+    $('#fieldPrevRankId').prop('disabled', true);
+    if (appState.ranks.length > 1) {
+        $('#fieldNewRankId').val(appState.ranks[1].rank_id);
+        autoCalcPrevRank(appState.ranks[1].rank_id);
+    }
+    
+    $('#fieldPartnerId').val('').trigger('change');
+    new bootstrap.Modal(document.getElementById('rankHistoryModal')).show();
+}
+
+function openEditHistoryModal(historyId) {
+    const item = appState.history.find(h => h.history_id === historyId);
+    if (!item) return;
+
+    $('#modalHistoryTitle').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯晉升紀錄');
+    $('#fieldHistoryMode').val('edit');
+    $('#fieldHistoryId').val(item.history_id);
+    $('#fieldPartnerId').val(item.partner_id).trigger('change');
+    $('#fieldPrevRankId').prop('disabled', true);
+    $('#fieldNewRankId').val(item.new_rank_id);
+
+    if (item.previous_rank_id) {
+        $('#fieldPrevRankId').val(item.previous_rank_id);
+    } else {
+        autoCalcPrevRank(item.new_rank_id);
+    }
+
+    const newRankObj = appState.ranks.find(r => r.rank_id === item.new_rank_id);
+    if (newRankObj && newRankObj.rank_level <= 40) {
+        $('#fieldPrevRankId').prop('disabled', false).css({ 'pointer-events': 'auto', 'opacity': '1' });
+    } else {
+        $('#fieldPrevRankId').prop('disabled', true).css({ 'pointer-events': 'none', 'opacity': '0.75' });
+    }
+    
+    $('#fieldStarRating').val(item.star_rating || 0);
+    $('#fieldEffectiveMonth').val(normalizeEffectiveMonth(item.effective_month));
+    $('#fieldConsecutiveMonths').val(item.consecutive_qualified_months !== null ? item.consecutive_qualified_months : '');
+    
+    const recDate = item.company_recognition_date ? item.company_recognition_date.replace(/\//g, '-') : '';
+    $('#fieldRecognitionDate').val(recDate);
+    
+    const coolDate = item.cooling_start_date ? item.cooling_start_date.replace(/\//g, '-') : '';
+    $('#fieldCoolingStartDate').val(coolDate);
+
+    $('#fieldCumSvSnapshot').val(item.cum_group_sv_snapshot !== null ? item.cum_group_sv_snapshot : '');
+    $('#fieldManagerLegsSnapshot').val(item.active_manager_legs_count !== null ? item.active_manager_legs_count : '');
+    $('#fieldPearlLegsSnapshot').val(item.active_pearl_legs_count !== null ? item.active_pearl_legs_count : '');
+    $('#fieldNotes').val(item.notes || '');
+
+    new bootstrap.Modal(document.getElementById('rankHistoryModal')).show();
+}
+
+// ==========================================================================
+// 試算表 C/U/D 寫入操作
+// ==========================================================================
+/**
+ * 儲存或更新夥伴職級晉升歷程 (saveRankHistoryItem)
+ * 核心業務邏輯：
+ * 1. 貫徹 SSOT 原則：若選取共同經營者，自動重導向至主要經營者實體存檔
+ * 2. 嚴格驗證年月格式 (YYYY 或 YYYY-MM) 與必填欄位
+ * 3. 雙向同步回寫：自動更新夥伴主檔 (org_partners) 之當前職級、最高職級與藍鑽星階
+ * 4. 夫妻動態鏡像：同步更新關聯之共同經營配偶主檔職級
+ */
+async function saveRankHistoryItem() {
+    const mode = $('#fieldHistoryMode').val();
+    let partnerId = ($('#fieldPartnerId').val() || '').trim();
+    const newRankId = $('#fieldNewRankId').val();
+    const rawEffectiveMonth = $('#fieldEffectiveMonth').val().trim();
+    const $btnSave =$('#btnSaveHistory');
+
+    // 1. 欄位基礎檢核
+    if (!partnerId) {
+        AppToast.warning('請選擇「夥伴名稱」！');
+        $('#fieldPartnerId').select2('open');
+        return;
+    }
+    if (!newRankId) {
+        AppToast.warning('請選擇「新晉升職級」！');
+        $('#fieldNewRankId').focus();
+        return;
+    }
+    if (!rawEffectiveMonth) {
+        AppToast.warning('請輸入「生效年月」！');
+        $('#fieldEffectiveMonth').focus();
+        return;
+    }
+
+    // 2. SSOT 防呆：若選取共同經營者，自動將歷程目標導回其主要經營者
+    const targetPtn = appState.partners.find(p => p.partner_id === partnerId);
+    if (targetPtn && (targetPtn.account_holder_type === '共同經營者' || targetPtn.operation_mode === '共同經營')) {
+        const primaryId = targetPtn.official_account_partner_id || targetPtn.spouse_partner_id;
+        if (primaryId && primaryId !== partnerId) {
+            AppToast.info(`已自動將晉升紀錄重導向登記於主要經營者【${getPartnerDisplayName(primaryId)}】`);
+            partnerId = primaryId;
+        }
+    }
+
+    // 3. 流水號主鍵驗證與生成
+    let historyId = $('#fieldHistoryId').val().trim();
+    if (mode === 'add' && (!historyId || !historyId.includes(partnerId))) {
+        historyId = generateNextHistoryId(partnerId);
+        $('#fieldHistoryId').val(historyId);
+    }
+
+    // 4. 生效年月正規化與格式校驗 (YYYY 或 YYYY-MM)
+    const effectiveMonth = normalizeEffectiveMonth(rawEffectiveMonth);
+    if (!effectiveMonth || !/^\d{4}(-\d{2})?$/.test(effectiveMonth)) {
+        AppToast.warning('「生效年月」格式不符！請輸入 YYYY（如 2026）或 YYYY-MM（如 2026-08）');
+        $('#fieldEffectiveMonth').focus();
+        return;
+    }
+
+    const currentUser = getCurrentUser();
+    const nowStr = AppDate.now('full');
+    const existing = appState.history.find(h => h.history_id === historyId);
+    const createdBy = (mode === 'edit' && existing) ? existing.created_by : currentUser;
+    const createdAt = (mode === 'edit' && existing) ? existing.created_at : nowStr;
+
+    const starRatingVal = parseInt($('#fieldStarRating').val(), 10) || 0;
+    const consecutiveVal = parseNullableInt($('#fieldConsecutiveMonths').val());
+    const cumSvVal = parseNullableFloat($('#fieldCumSvSnapshot').val());
+    const mgrLegsVal = parseNullableInt($('#fieldManagerLegsSnapshot').val());
+    const pearlLegsVal = parseNullableInt($('#fieldPearlLegsSnapshot').val());
+    const coolingStartDateVal = formatDateToSlash($('#fieldCoolingStartDate').val());
+    const recognitionDateVal = formatDateToSlash($('#fieldRecognitionDate').val());
+    const notesVal = $('#fieldNotes').val().trim() || '';
+
+    // 5. 封裝 19 欄位職級歷程 (org_rank_history) 資料列
+    const rowDataArray = [
+        historyId,
+        partnerId,
+        $('#fieldPrevRankId').val(),
+        newRankId,
+        starRatingVal,
+        effectiveMonth,
+        coolingStartDateVal || '',
+        consecutiveVal !== null ? consecutiveVal : '',
+        cumSvVal !== null ? cumSvVal : '',
+        '',
+        mgrLegsVal !== null ? mgrLegsVal : '',
+        pearlLegsVal !== null ? pearlLegsVal : '',
+        '',
+        recognitionDateVal || '',
+        notesVal || '',
+        createdBy,
+        createdAt,
+        currentUser,
+        nowStr
+    ];
+
+    const updatedHistoryObj = {
+        history_id: historyId,
+        partner_id: partnerId,
+        previous_rank_id: $('#fieldPrevRankId').val(),
+        new_rank_id: newRankId,
+        star_rating: starRatingVal,
+        effective_month: effectiveMonth,
+        cooling_start_date: coolingStartDateVal || null,
+        consecutive_qualified_months: consecutiveVal,
+        cum_group_sv_snapshot: cumSvVal,
+        month_group_sv_snapshot: null,
+        active_manager_legs_count: mgrLegsVal,
+        active_pearl_legs_count: pearlLegsVal,
+        month_total_org_sv_snapshot: null,
+        company_recognition_date: recognitionDateVal || null,
+        notes: notesVal || null,
+        created_by: createdBy,
+        created_at: createdAt,
+        modified_by: currentUser,
+        modified_at: nowStr
+    };
+
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> 正在儲存晉升紀錄並同步夥伴主檔...', '資料寫入中');
+    $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 儲存寫入中...');
+
+    try {
+        const silentOpt = { silent: true };
+        const writePromises = [];
+
+        // 6. 寫入 / 更新職級歷程檔 (表 404/405)
+        if (mode === 'add') {
+            writePromises.push(SheetAdapter.createRow(SHEET_NAMES.HISTORY, historyId, rowDataArray, GAS_DEPLOY_ID.ORG, silentOpt));
+        } else {
+            writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.HISTORY, historyId, rowDataArray, GAS_DEPLOY_ID.ORG, silentOpt));
+        }
+
+        // 7. ★ 修復 Bug 3：即時同步更新夥伴主檔 (org_partners) 職級狀態
+        const primaryPartner = appState.partners.find(p => p.partner_id === partnerId);
+        if (primaryPartner) {
+            const newRankObj = appState.ranks.find(r => r.rank_id === newRankId || r.rank_code === newRankId);
+            const highestRankObj = appState.ranks.find(r => r.rank_id === primaryPartner.highest_rank_id || r.rank_code === primaryPartner.highest_rank_id);
+
+            // 更新當前結算職級
+            primaryPartner.current_rank_id = newRankId;
+
+            // 位階權重比較：若新職級高於歷史最高職級，更新最高職級
+            if (!highestRankObj || (newRankObj && newRankObj.rank_level > highestRankObj.rank_level)) {
+                primaryPartner.highest_rank_id = newRankId;
+            }
+
+            // 更新藍鑽星階
+            if (starRatingVal > 0 || (newRankObj && newRankObj.star_rating > 0)) {
+                primaryPartner.diamond_star_level = starRatingVal || newRankObj.star_rating;
+            }
+
+            primaryPartner.modified_by = currentUser;
+            primaryPartner.modified_at = nowStr;
+
+            // 輔助函式：組裝標準 39 欄位夥伴主檔陣列
+            const buildPartnerRow = (p) => [
+                p.partner_id || '',
+                p.person_id || '',
+                p.member_no || '',
+                p.leader_title || '',
+                p.account_holder_type || '個人經營者',
+                p.official_account_partner_id || p.partner_id,
+                p.operation_mode || '個人經營',
+                p.spouse_partner_id || '',
+                p.node_nature || '常態夥伴',
+                p.sponsor_id || '',
+                p.placement_id || '',
+                p.known_mentor_id || '',
+                p.upline_link_type || '直屬已知',
+                p.current_rank_id || '',
+                p.highest_rank_id || '',
+                p.diamond_star_level || 0,
+                p.star_eval_eligible_date || '',
+                p.country_code || 'TW',
+                p.is_our_team || 'Y',
+                p.relation_type || '下線',
+                p.activity_level || '',
+                p.member_status || '',
+                p.operator_status || '活躍',
+                p.work_status || '',
+                p.status_change_reason || '',
+                p.successor_partner_id || '',
+                p.surrendered_to_upline_id || '',
+                p.joining_motive || '',
+                p.team_skills || '',
+                p.team_notes || '',
+                p.join_date || '',
+                p.renewal_due_date || '',
+                p.last_order_date || '',
+                p.exit_date || '',
+                p.avatar_url || '',
+                p.created_by || 'SYSTEM',
+                p.created_at || nowStr,
+                currentUser,
+                nowStr
+            ];
+
+            writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, primaryPartner.partner_id, buildPartnerRow(primaryPartner), GAS_DEPLOY_ID.ORG, silentOpt));
+
+            // 8. 夫妻共同經營鏡像投影同步：若有副權配偶，連動更新配偶主檔職級
+            const spouseId = primaryPartner.spouse_partner_id;
+            if (spouseId) {
+                const spousePartner = appState.partners.find(p => p.partner_id === spouseId && p.account_holder_type === '共同經營者');
+                if (spousePartner) {
+                    spousePartner.current_rank_id = primaryPartner.current_rank_id;
+                    spousePartner.highest_rank_id = primaryPartner.highest_rank_id;
+                    spousePartner.diamond_star_level = primaryPartner.diamond_star_level;
+                    spousePartner.modified_by = currentUser;
+                    spousePartner.modified_at = nowStr;
+
+                    writePromises.push(SheetAdapter.updateRow(SHEET_NAMES.PARTNERS, spousePartner.partner_id, buildPartnerRow(spousePartner), GAS_DEPLOY_ID.ORG, silentOpt));
+                }
+            }
+        }
+
+        // 9. 平行執行所有遠端寫入
+        await Promise.all(writePromises);
+
+        // 10. 本地記憶體狀態樂觀更新
+        if (mode === 'add') {
+            appState.history.unshift(updatedHistoryObj);
+        } else {
+            const idx = appState.history.findIndex(h => h.history_id === historyId);
+            if (idx !== -1) {
+                appState.history[idx] = updatedHistoryObj;
+            }
+        }
+
+        // 11. 重繪視圖與關閉彈窗
+        refreshView();
+        bootstrap.Modal.getInstance(document.getElementById('rankHistoryModal'))?.hide();
+        AppToast.success(`晉升紀錄【${historyId}】已成功儲存，夥伴職級與配偶狀態已同步更新！`);
+    } catch (err) {
+        console.error('[org-ranks] 儲存晉升紀錄失敗:', err);
+        AppToast.error('寫入試算表失敗：' + err.message);
+    } finally {
+        AppLoading.hide();
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+    }
+}
+
+async function deleteRankHistoryItem(historyId) {
+    const confirmed = await AppDialog.confirm(`確定要刪除晉升紀錄【${historyId}】嗎？`, {
+        title: '刪除確認',
+        confirmText: '確定刪除',
+        confirmClass: 'btn-danger'
+    });
+    if (!confirmed) return;
+
+    try {
+        await SheetAdapter.deleteRow(SHEET_NAMES.HISTORY, historyId, GAS_DEPLOY_ID.ORG);
+        appState.history = appState.history.filter(h => h.history_id !== historyId);
+        refreshView();
+        AppToast.success(`晉升紀錄【${historyId}】已成功刪除！`);
+    } catch (err) {
+        AppToast.error("刪除失敗：" + err.message);
+    }
+}

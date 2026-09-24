@@ -1,48 +1,51 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-bs-theme="dark">
+<html lang="zh-TW" data-bs-theme="dark-purple">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>H81000 系統權限全域動態配置與存取沙盒中樞 | 葡眾三軌數位戰情室</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>權限管理 | 榮祥團隊 - 核心版</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.bootstrap5.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* 核心版 魅影深紫主題色系 (Dark Phantom Purple) */
-            --uvaco-bg-base: #070312;
-            --uvaco-bg-surface: #0f0721;
-            --uvaco-bg-card: #170c31;
-            --uvaco-bg-elevated: #221244;
-            --uvaco-border-color: rgba(192, 132, 252, 0.15);
-            --uvaco-border-focus: rgba(192, 132, 252, 0.5);
-            
-            --uvaco-primary: #a855f7;
-            --uvaco-primary-light: #c084fc;
-            --uvaco-secondary: #c084fc;
-            --uvaco-accent-pink: #f472b6;
-            --uvaco-accent-cyan: #38bdf8;
-            --uvaco-accent-green: #34d399;
-            --uvaco-accent-amber: #fbbf24;
-            --uvaco-accent-red: #fb7185;
-            
-            --uvaco-text-main: #faf5ff;
-            --uvaco-text-muted: #9e8eb3;
-            --uvaco-text-dim: #65567a;
-            
-            --uvaco-glow-purple: 0 0 25px rgba(168, 85, 247, 0.25);
-            --uvaco-glow-pink: 0 0 20px rgba(244, 114, 182, 0.3);
-            --uvaco-glow-cyan: 0 0 20px rgba(56, 189, 248, 0.3);
+            --bg-base: #090514;
+            --bg-surface: rgba(22, 11, 44, 0.75);
+            --bg-surface-elevated: rgba(33, 17, 66, 0.85);
+            --bg-card-hover: rgba(48, 25, 94, 0.6);
+            --primary-purple: #8b5cf6;
+            --primary-light: #c084fc;
+            --primary-dark: #6d28d9;
+            --accent-pink: #f472b6;
+            --accent-rose: #fb7185;
+            --accent-amber: #fbbf24;
+            --accent-emerald: #34d399;
+            --accent-cyan: #38bdf8;
+            --border-glow: rgba(139, 92, 246, 0.25);
+            --border-glow-active: rgba(192, 132, 252, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #a78bfa;
+            --font-main: 'Noto Sans TC', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         body {
-            background-color: var(--uvaco-bg-base);
-            color: var(--uvaco-text-main);
-            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(244, 114, 182, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(15, 7, 34, 0.9) 0px, transparent 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
             margin: 0;
             padding: 1.25rem;
             min-height: 100vh;
@@ -52,339 +55,412 @@
             background-attachment: fixed;
         }
 
-        .mono-font {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* 玻璃擬態面板容器 */
-        .nexus-panel {
-            background: linear-gradient(135deg, rgba(23, 12, 49, 0.75) 0%, rgba(15, 7, 33, 0.85) 100%);
+        /* 玻璃擬態微光面板 */
+        .cyber-glass-panel {
+            background: var(--bg-surface);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--uvaco-border-color);
+            border: 1px solid var(--border-glow);
             border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .nexus-panel:hover {
-            border-color: rgba(192, 132, 252, 0.3);
+        .cyber-glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
+            opacity: 0.4;
         }
 
-        /* 神經防禦頂部 HUD */
-        .hud-status-strip {
-            background: linear-gradient(90deg, rgba(34, 18, 68, 0.8) 0%, rgba(23, 12, 49, 0.9) 100%);
-            border: 1px solid var(--uvaco-border-color);
-            border-radius: 0.875rem;
-            padding: 0.875rem 1.25rem;
+        .cyber-glass-panel:hover {
+            border-color: var(--border-glow-active);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.25);
         }
 
-        .pulse-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px currentColor;
-            animation: pulse-glow 2s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.85); }
-        }
-
-        /* 三軌色彩徽章 */
-        .badge-track-public {
-            background: rgba(52, 211, 153, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(52, 211, 153, 0.3);
-        }
-        .badge-track-team {
-            background: rgba(56, 189, 248, 0.15);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-        }
-        .badge-track-core {
-            background: rgba(192, 132, 252, 0.15);
-            color: #c084fc;
-            border: 1px solid rgba(192, 132, 252, 0.4);
-            box-shadow: var(--uvaco-glow-purple);
-        }
-
-        /* 模組矩陣膠囊標籤 */
-        .module-matrix-chip {
-            padding: 0.35rem 0.65rem;
-            border-radius: 0.5rem;
-            font-size: 0.78rem;
-            display: inline-flex;
+        /* 戰情 HUD 數據指標膠囊 */
+        .hud-stat-capsule {
+            background: rgba(15, 7, 34, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 0.85rem;
+            padding: 1rem 1.25rem;
+            display: flex;
             align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--uvaco-text-muted);
-            transition: all 0.2s ease;
-            user-select: none;
-            cursor: pointer;
-        }
-        .module-matrix-chip.active {
-            background: rgba(168, 85, 247, 0.2);
-            border-color: var(--uvaco-primary-light);
-            color: var(--uvaco-text-main);
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
-        }
-        .module-matrix-chip:hover {
-            border-color: var(--uvaco-primary-light);
-            color: var(--uvaco-text-main);
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
 
-        /* 按鈕系統 */
-        .btn-nexus-primary {
-            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
-            border: none;
+        .hud-stat-capsule:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-light);
+            background: rgba(26, 13, 56, 0.8);
+        }
+
+        .hud-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+
+        /* 霓虹按鈕體系 */
+        .btn-cyber-primary {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-dark) 100%);
             color: #ffffff;
+            border: 1px solid var(--primary-light);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
             font-weight: 600;
-            padding: 0.6rem 1.25rem;
-            border-radius: 0.65rem;
-            box-shadow: var(--uvaco-glow-purple);
+            border-radius: 0.6rem;
+            padding: 0.55rem 1.25rem;
             transition: all 0.25s ease;
         }
-        .btn-nexus-primary:hover {
-            background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
-            box-shadow: 0 0 25px rgba(192, 132, 252, 0.6);
+
+        .btn-cyber-primary:hover {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-purple) 100%);
+            box-shadow: 0 0 25px rgba(192, 132, 252, 0.7);
             color: #ffffff;
             transform: translateY(-1px);
         }
-        
-        .btn-nexus-outline {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--uvaco-border-color);
-            color: var(--uvaco-text-main);
-            font-weight: 500;
-            padding: 0.6rem 1rem;
-            border-radius: 0.65rem;
+
+        .btn-cyber-outline {
+            background: rgba(26, 13, 56, 0.5);
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            border-radius: 0.6rem;
+            padding: 0.55rem 1rem;
             transition: all 0.2s ease;
-        }
-        .btn-nexus-outline:hover {
-            background: rgba(192, 132, 252, 0.1);
-            border-color: var(--uvaco-primary-light);
-            color: var(--uvaco-primary-light);
         }
 
-        .btn-nexus-danger {
-            background: rgba(251, 113, 133, 0.1);
-            border: 1px solid rgba(251, 113, 133, 0.3);
-            color: var(--uvaco-accent-red);
-            font-weight: 600;
-            padding: 0.45rem 0.85rem;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
+        .btn-cyber-outline:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--primary-light);
+            color: #ffffff;
         }
-        .btn-nexus-danger:hover {
-            background: var(--uvaco-accent-red);
+
+        .btn-cyber-danger {
+            background: rgba(251, 113, 133, 0.15);
+            border: 1px solid var(--accent-rose);
+            color: var(--accent-rose);
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-cyber-danger:hover {
+            background: var(--accent-rose);
             color: #ffffff;
             box-shadow: 0 0 15px rgba(251, 113, 133, 0.5);
         }
 
-        /* 互動式身分卡片 */
-        .persona-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+        /* 角色權限矩陣卡片 (Role Cards) */
+        .user-matrix-card {
+            background: rgba(17, 8, 38, 0.65);
+            border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 0.75rem;
             padding: 1rem;
-            cursor: pointer;
+            margin-bottom: 0.85rem;
             transition: all 0.25s ease;
         }
-        .persona-card:hover, .persona-card.selected {
-            background: rgba(168, 85, 247, 0.12);
-            border-color: var(--uvaco-primary-light);
-            box-shadow: var(--uvaco-glow-purple);
+
+        .user-matrix-card:hover {
+            background: rgba(30, 15, 66, 0.75);
+            border-color: var(--primary-light);
+            transform: translateX(4px);
         }
 
-        /* DataTables 深色微光客製化 */
-        .table-nexus {
-            --bs-table-bg: transparent;
-            --bs-table-color: var(--uvaco-text-main);
-            border-collapse: separate;
-            border-spacing: 0 0.5rem;
+        .user-matrix-card.role-founder {
+            border-left: 4px solid var(--accent-amber);
         }
-        .table-nexus thead th {
-            background-color: rgba(34, 18, 68, 0.6) !important;
-            color: var(--uvaco-text-muted) !important;
-            font-weight: 600;
-            font-size: 0.82rem;
+
+        .user-matrix-card.role-admin {
+            border-left: 4px solid var(--accent-cyan);
+        }
+
+        .user-matrix-card.role-partner {
+            border-left: 4px solid var(--primary-purple);
+        }
+
+        /* 權限開關 Pill Badge */
+        .perm-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.55rem;
+            border-radius: 0.4rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            margin: 0.15rem;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .perm-badge.active {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: var(--primary-light);
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .perm-badge.active.badge-danger {
+            background: rgba(251, 113, 133, 0.25);
+            border-color: var(--accent-rose);
+            color: #ffffff;
+        }
+
+        /* 表格自訂美化 */
+        .table-cyber {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--text-main);
+            border-collapse: separate;
+            border-spacing: 0 0.4rem;
+        }
+
+        .table-cyber thead th {
+            background: rgba(15, 7, 34, 0.8);
+            border-bottom: 1px solid var(--border-glow);
+            color: var(--text-muted);
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            border: none !important;
-            padding: 0.75rem 1rem !important;
+            padding: 0.85rem 1rem;
         }
-        .table-nexus thead th:first-child { border-radius: 0.5rem 0 0 0.5rem; }
-        .table-nexus thead th:last-child { border-radius: 0 0.5rem 0.5rem 0; }
-        
-        .table-nexus tbody tr {
-            background-color: rgba(255, 255, 255, 0.02);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
+
+        .table-cyber tbody tr {
+            background: rgba(19, 9, 43, 0.6);
+            transition: background 0.2s ease;
         }
-        .table-nexus tbody tr:hover {
-            background-color: rgba(168, 85, 247, 0.08) !important;
-            transform: translateY(-1px);
+
+        .table-cyber tbody tr:hover {
+            background: rgba(38, 19, 82, 0.7) !important;
         }
-        .table-nexus tbody td {
-            padding: 0.85rem 1rem !important;
+
+        .table-cyber tbody td {
+            padding: 0.85rem 1rem;
             vertical-align: middle;
-            border: none !important;
+            border-top: 1px solid rgba(139, 92, 246, 0.1);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
             font-size: 0.9rem;
         }
-        .table-nexus tbody td:first-child { border-radius: 0.5rem 0 0 0.5rem; }
-        .table-nexus tbody td:last-child { border-radius: 0 0.5rem 0.5rem 0; }
 
-        /* 表單控制項 */
-        .form-control-nexus, .form-select-nexus {
-            background-color: rgba(15, 7, 33, 0.8);
-            border: 1px solid var(--uvaco-border-color);
-            color: var(--uvaco-text-main);
-            border-radius: 0.6rem;
-            padding: 0.6rem 0.9rem;
-            transition: all 0.2s ease;
+        .table-cyber tbody td:first-child {
+            border-left: 1px solid rgba(139, 92, 246, 0.1);
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
         }
-        .form-control-nexus:focus, .form-select-nexus:focus {
-            background-color: rgba(23, 12, 49, 0.95);
-            border-color: var(--uvaco-primary-light);
+
+        .table-cyber tbody td:last-child {
+            border-right: 1px solid rgba(139, 92, 246, 0.1);
+            border-top-right-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        /* DataTables 搜尋框與分頁客製化 */
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+            background: rgba(15, 7, 34, 0.8);
+            border: 1px solid var(--border-glow);
             color: #ffffff;
-            box-shadow: var(--uvaco-glow-purple);
+            border-radius: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            outline: none;
         }
 
-        /* 模態彈窗 (Modal) 極客風格 */
-        .modal-content-nexus {
-            background: linear-gradient(145deg, #130728 0%, #090317 100%);
-            border: 1px solid var(--uvaco-primary);
-            border-radius: 1.25rem;
-            box-shadow: 0 0 50px rgba(168, 85, 247, 0.35);
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
         }
 
-        /* 響應式微調 */
-        @media (max-width: 768px) {
-            body { padding: 0.75rem; }
-            .hud-status-strip { padding: 0.75rem; }
-            .btn-nexus-primary, .btn-nexus-outline { width: 100%; margin-bottom: 0.5rem; }
+        .page-link {
+            background: rgba(22, 11, 44, 0.8);
+            border-color: var(--border-glow);
+            color: var(--text-muted);
+        }
+
+        .page-link:hover, .page-item.active .page-link {
+            background: var(--primary-purple);
+            border-color: var(--primary-light);
+            color: #ffffff;
+        }
+
+        /* 模態框 Modal 樣式 */
+        .modal-cyber .modal-content {
+            background: var(--bg-surface-elevated);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--primary-light);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.35);
+            border-radius: 1rem;
+            color: var(--text-main);
+        }
+
+        .modal-cyber .modal-header, .modal-cyber .modal-footer {
+            border-color: var(--border-glow);
+        }
+
+        .form-control-cyber, .form-select-cyber {
+            background: rgba(12, 6, 26, 0.8);
+            border: 1px solid var(--border-glow);
+            color: #ffffff;
+            border-radius: 0.5rem;
+            padding: 0.6rem 0.85rem;
+        }
+
+        .form-control-cyber:focus, .form-select-cyber:focus {
+            background: rgba(18, 9, 38, 0.95);
+            border-color: var(--primary-light);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+        }
+
+        .font-mono {
+            font-family: var(--font-mono);
         }
     </style>
 </head>
 <body>
 
-    <div class="container-fluid p-0">
-        
-        <div class="hud-status-strip mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="pulse-indicator text-success" style="color: var(--uvaco-accent-green);"></span>
-                    <span class="fw-bold fs-5 tracking-wide text-white">
-                        <i class="fa-solid fa-shield-halved text-purple-light" style="color: var(--uvaco-primary-light);"></i> 系統權限全域動態配置與存取沙盒中樞
-                    </span>
+    <div class="container-fluid px-lg-4">
+
+        <div class="row g-3 mb-4 align-items-center">
+            <div class="col-12 col-xl-6">
+                <div class="d-flex align-items-center">
+                    <div class="hud-icon-box bg-purple-glow me-3" style="background: rgba(139,92,246,0.2); border: 1px solid var(--primary-purple);">
+                        <i class="fa-solid fa-shield-halved text-purple" style="color: var(--primary-light);"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 fw-bold tracking-wide">權限管理與零信任安全中樞</h3>
+                            <span class="badge bg-purple-900 border border-purple-500 font-mono text-uppercase" style="background: rgba(139,92,246,0.25); border-color: var(--primary-light); color: #fff;">H71000 - SYS_SENTINEL</span>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">
+                            <i class="fa-solid fa-circle-check text-success me-1"></i>Google OAuth 白名單連線正常 ｜ 
+                            <i class="fa-solid fa-database text-info me-1"></i>701 權限主檔與 702 存取日誌雙向解耦運作中
+                        </p>
+                    </div>
                 </div>
-                <span class="badge badge-track-core d-none d-md-inline-block">
-                    <i class="fa-solid fa-key"></i> H81000 · 極密創始權限
-                </span>
+            </div>
+            <div class="col-12 col-xl-6">
+                <div class="d-flex flex-wrap justify-content-xl-end gap-2">
+                    <button class="btn btn-cyber-outline" id="btn-sync-gviz">
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步 Google 試算表
+                    </button>
+                    <button class="btn btn-cyber-outline" id="btn-export-audit">
+                        <i class="fa-solid fa-file-shield me-1"></i>匯出安全審計清單
+                    </button>
+                    <button class="btn btn-cyber-primary" data-bs-toggle="modal" data-bs-target="#modal-permission-edit" id="btn-add-whitelist">
+                        <i class="fa-solid fa-user-plus me-1"></i>新增白名單帳號
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hud-stat-capsule">
+                    <div>
+                        <div class="text-muted small fw-semibold">白名單授權總數 (701)</div>
+                        <div class="h3 fw-bold mb-0 font-mono text-white mt-1" id="stat-total-users">18 <span class="fs-6 text-muted">位</span></div>
+                        <small class="text-emerald" style="color: var(--accent-emerald);"><i class="fa-solid fa-circle text-success font-size-xs me-1"></i>雙創始人 + 16 夥伴</small>
+                    </div>
+                    <div class="hud-icon-box" style="background: rgba(52, 211, 153, 0.15); color: var(--accent-emerald);">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-                    <i class="fa-solid fa-user-check text-info" style="color: var(--uvaco-accent-cyan);"></i>
-                    <span class="small text-white">Ray & Jarvis 雙核心密鑰就緒</span>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hud-stat-capsule">
+                    <div>
+                        <div class="text-muted small fw-semibold">24H 存取與操作總量 (702)</div>
+                        <div class="h3 fw-bold mb-0 font-mono text-white mt-1" id="stat-total-logs">1,429 <span class="fs-6 text-muted">次</span></div>
+                        <small class="text-cyan" style="color: var(--accent-cyan);"><i class="fa-solid fa-arrow-trend-up me-1"></i>正常流量運作中</small>
+                    </div>
+                    <div class="hud-icon-box" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan);">
+                        <i class="fa-solid fa-bolt-lightning"></i>
+                    </div>
                 </div>
+            </div>
 
-                <button id="btn-sync-sheet" class="btn btn-nexus-outline btn-sm py-1 px-3">
-                    <i class="fa-solid fa-rotate"></i> 試算表欄位熱同步
-                </button>
-                
-                <button class="btn btn-nexus-primary btn-sm py-1 px-3" data-bs-toggle="modal" data-bs-target="#modal-enroll-permission">
-                    <i class="fa-solid fa-user-plus"></i> 新增白名單金鑰
-                </button>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hud-stat-capsule">
+                    <div>
+                        <div class="text-muted small fw-semibold">零信任攔截阻斷率 (403)</div>
+                        <div class="h3 fw-bold mb-0 font-mono text-white mt-1" id="stat-block-rate">0.42 <span class="fs-6 text-muted">%</span></div>
+                        <small class="text-rose" style="color: var(--accent-rose);"><i class="fa-solid fa-shield-virus me-1"></i>6 筆越權存取已熔斷</small>
+                    </div>
+                    <div class="hud-icon-box" style="background: rgba(251, 113, 133, 0.15); color: var(--accent-rose);">
+                        <i class="fa-solid fa-hand"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="hud-stat-capsule">
+                    <div>
+                        <div class="text-muted small fw-semibold">系統安全防禦等級</div>
+                        <div class="h3 fw-bold mb-0 font-mono text-warning mt-1" style="color: var(--accent-amber);">TIER-1 <span class="fs-6 text-white">最高</span></div>
+                        <small class="text-muted"><i class="fa-solid fa-lock text-warning me-1"></i>全軌強制 OAuth 驗證</small>
+                    </div>
+                    <div class="hud-icon-box" style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber);">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="row g-4 mb-4">
             
-            <div class="col-lg-8">
-                <div class="nexus-panel p-4 h-100">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="col-12 col-xl-7">
+                <div class="cyber-glass-panel p-3 p-lg-4 h-100">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple-500" style="border-color: var(--border-glow) !important;">
                         <div>
-                            <h5 class="fw-bold mb-1 text-white">
-                                <i class="fa-solid fa-diagram-project" style="color: var(--uvaco-primary-light);"></i> 三軌模組動態授權光譜 (RBAC Spectrum)
-                            </h5>
-                            <p class="small text-muted mb-0">點擊角色階層或特定模組，即時預覽前端選單過濾與資料表存取邊界</p>
+                            <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-user-shield text-purple" style="color: var(--primary-light);"></i>701 身份權限與白名單矩陣</h5>
+                            <span class="text-muted small">精確控制檢視 (R)、新增 (C)、修改 (U)、刪除 (D) 與匯出 (E) 行為</span>
                         </div>
-                        <div class="btn-group btn-group-sm" role="group" id="track-filter-group">
-                            <button type="button" class="btn btn-nexus-outline active" data-track="ALL">
-                                <i class="fa-solid fa-layer-group"></i> 全軌道
-                            </button>
-                            <button type="button" class="btn btn-nexus-outline" data-track="CORE_FOUNDER">
-                                <i class="fa-solid fa-crown" style="color: var(--uvaco-primary-light);"></i> 創始核心
-                            </button>
-                            <button type="button" class="btn btn-nexus-outline" data-track="TEAM">
-                                <i class="fa-solid fa-users" style="color: var(--uvaco-accent-cyan);"></i> 團隊白名單
-                            </button>
-                            <button type="button" class="btn btn-nexus-outline" data-track="PUBLIC">
-                                <i class="fa-solid fa-globe" style="color: var(--uvaco-accent-green);"></i> 公開大眾
-                            </button>
+                        <div class="btn-group btn-group-sm mt-2 mt-sm-0" role="group">
+                            <button type="button" class="btn btn-cyber-outline active" data-filter-role="ALL">全部 (<span id="count-all">18</span>)</button>
+                            <button type="button" class="btn btn-cyber-outline" data-filter-role="FOUNDER">雙創始人 (2)</button>
+                            <button type="button" class="btn btn-cyber-outline" data-filter-role="ADMIN">核心管理 (3)</button>
+                            <button type="button" class="btn btn-cyber-outline" data-filter-role="PARTNER">夥伴白名單 (13)</button>
                         </div>
                     </div>
 
-                    <div class="p-3 rounded-3 mb-3" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.05);">
-                        <div class="small text-muted mb-2 d-flex justify-content-between">
-                            <span><i class="fa-solid fa-cubes"></i> 54+5 張資料庫解耦實體表關聯模組</span>
-                            <span class="mono-font text-purple-light" id="active-permission-counter">已啟用：7 / 7 模組</span>
+                    <div id="permission-cards-container" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
                         </div>
-                        <div class="d-flex flex-wrap gap-2" id="module-chips-container">
-                            <span class="module-matrix-chip active" data-mod="PRD"><i class="fa-solid fa-boxes-stacked"></i> 產品模組 (prd_)</span>
-                            <span class="module-matrix-chip active" data-mod="TRN"><i class="fa-solid fa-graduation-cap"></i> 培訓模組 (trn_)</span>
-                            <span class="module-matrix-chip active" data-mod="PSI"><i class="fa-solid fa-warehouse"></i> 進銷存 (psi_)</span>
-                            <span class="module-matrix-chip active" data-mod="ORG"><i class="fa-solid fa-sitemap"></i> 組織模組 (org_)</span>
-                            <span class="module-matrix-chip active" data-mod="CRM"><i class="fa-solid fa-user-tag"></i> 客戶模組 (crm_)</span>
-                            <span class="module-matrix-chip active" data-mod="FIN"><i class="fa-solid fa-sack-dollar"></i> 財務模組 (fin_)</span>
-                            <span class="module-matrix-chip active" data-mod="SYS"><i class="fa-solid fa-gears"></i> 系統模組 (sys_)</span>
-                        </div>
-                    </div>
+                </div>
+            </div>
 
-                    <div class="row g-3" id="persona-sandbox-cards">
-                        <div class="col-md-4">
-                            <div class="persona-card selected" data-role="CORE_FOUNDER">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge badge-track-core"><i class="fa-solid fa-crown"></i> 核心創始層</span>
-                                    <i class="fa-solid fa-circle-check text-success"></i>
-                                </div>
-                                <h6 class="fw-bold text-white mb-1">創始決策者 (Ray / Jarvis)</h6>
-                                <p class="small text-muted mb-2">完全解鎖 54 張表 C/R/U/D、50/50 財務結算、白名單審批</p>
-                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08);">
-                                    <div class="progress-bar" style="width: 100%; background: var(--uvaco-primary-light);"></div>
-                                </div>
+            <div class="col-12 col-xl-5">
+                <div class="cyber-glass-panel p-3 p-lg-4 h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: var(--border-glow) !important;">
+                        <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-chart-area text-purple" style="color: var(--accent-pink);"></i>24H 存取與攔截流量態勢</h5>
+                        <span class="badge bg-dark font-mono text-muted border border-secondary">即時連線流</span>
+                    </div>
+                    <div class="flex-grow-1" style="min-height: 240px; position: relative;">
+                        <canvas id="chart-security-trends"></canvas>
+                    </div>
+                    <div class="row g-2 mt-3 pt-3 border-top border-purple-500" style="border-color: var(--border-glow) !important;">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-dark-purple border border-purple-900" style="background: rgba(15,7,34,0.7); border-color: var(--border-glow);">
+                                <small class="text-muted d-block">最高頻存取模組</small>
+                                <span class="fw-bold font-mono text-info"><i class="fa-solid fa-boxes-stacked me-1"></i>H30000 (進銷存)</span>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="persona-card" data-role="TEAM_LEADER">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge badge-track-team"><i class="fa-solid fa-award"></i> 珍珠/經理領航層</span>
-                                    <span class="small text-muted mono-font">12,000 SV</span>
-                                </div>
-                                <h6 class="fw-bold text-white mb-1">團隊主力夥伴 (經理白名單)</h6>
-                                <p class="small text-muted mb-2">開展業務軍備、小組業績看板、客戶復購預警、唯讀獎金試算</p>
-                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08);">
-                                    <div class="progress-bar" style="width: 65%; background: var(--uvaco-accent-cyan);"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="persona-card" data-role="PUBLIC_GUEST">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge badge-track-public"><i class="fa-solid fa-globe"></i> 公開訪客層</span>
-                                    <span class="small text-muted mono-font">無門檻</span>
-                                </div>
-                                <h6 class="fw-bold text-white mb-1">大眾會員與潛在客戶</h6>
-                                <p class="small text-muted mb-2">僅限健康科普、產品型錄、事業招商故事與公開體驗落地頁</p>
-                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08);">
-                                    <div class="progress-bar" style="width: 25%; background: var(--uvaco-accent-green);"></div>
-                                </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-dark-purple border border-purple-900" style="background: rgba(15,7,34,0.7); border-color: var(--border-glow);">
+                                <small class="text-muted d-block">最近高危警報觸發</small>
+                                <span class="fw-bold font-mono text-rose" style="color: var(--accent-rose);"><i class="fa-solid fa-ban me-1"></i>未授權匯出 (已熔斷)</span>
                             </div>
                         </div>
                     </div>
@@ -429,124 +505,126 @@
 
         </div>
 
-        <div class="nexus-panel p-4">
-            
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                <div>
-                    <h4 class="fw-bold mb-1 text-white">
-                        <i class="fa-solid fa-id-badge" style="color: var(--uvaco-primary-light);"></i> 三軌存取白名單與金鑰授權管理表
-                    </h4>
-                    <p class="small text-muted mb-0">資料源自動直連 Google 試算表 `sys_permissions`，支援異步解耦、即時撤銷與動態延期</p>
-                </div>
-                
-                <div class="d-flex align-items-center gap-2">
-                    <div class="input-group input-group-sm" style="width: 250px;">
-                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" id="custom-table-search" class="form-control form-control-nexus" placeholder="搜尋姓名、Email、角色...">
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="cyber-glass-panel p-3 p-lg-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-list-check text-purple" style="color: var(--primary-light);"></i>702 存取與操作安全日誌流 (sys_access_logs)</h5>
+                            <span class="text-muted small">全域即時紀錄 IP、存取路徑、操作指令、狀態碼與零信任風險指標</span>
+                        </div>
+                        <div class="d-flex gap-2 mt-2 mt-md-0">
+                            <span class="badge d-flex align-items-center gap-1" style="background: rgba(52,211,153,0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald);">
+                                <i class="fa-solid fa-circle-check me-1"></i>200 正常
+                            </span>
+                            <span class="badge d-flex align-items-center gap-1" style="background: rgba(251,191,36,0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber);">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i>401/403 警告
+                            </span>
+                            <span class="badge d-flex align-items-center gap-1" style="background: rgba(251,113,133,0.15); color: var(--accent-rose); border: 1px solid var(--accent-rose);">
+                                <i class="fa-solid fa-skull-crossbones me-1"></i>CRITICAL 高危
+                            </span>
+                        </div>
                     </div>
-                    <button class="btn btn-nexus-outline btn-sm" id="btn-export-whitelist">
-                        <i class="fa-solid fa-file-arrow-down"></i> 匯出安全備份
-                    </button>
+
+                    <div class="table-responsive">
+                        <table id="table-access-logs" class="table table-cyber w-100">
+                            <thead>
+                                <tr>
+                                    <th>日誌序號</th>
+                                    <th>操作時間戳</th>
+                                    <th>操作者 Google 帳號</th>
+                                    <th>角色身分</th>
+                                    <th>操作模組 / 動作</th>
+                                    <th>客戶端 IP / 地區</th>
+                                    <th>HTTP 狀態</th>
+                                    <th>風險評級</th>
+                                    <th>防護處置</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
-            <div class="table-responsive">
-                <table id="permissions-datatable" class="table table-nexus w-100">
-                    <thead>
-                        <tr>
-                            <th>金鑰識別碼</th>
-                            <th>通行持有者</th>
-                            <th>Google 驗證帳號</th>
-                            <th>三軌角色等級</th>
-                            <th>模組授權範疇</th>
-                            <th>eSIM / 漫遊 IP 白名單</th>
-                            <th>有效截止日</th>
-                            <th>金鑰狀態</th>
-                            <th class="text-end">動態調度指令</th>
-                        </tr>
-                    </thead>
-                    <tbody id="permissions-table-body">
-                        </tbody>
-                </table>
-            </div>
-
         </div>
 
     </div>
 
-    <div class="modal fade" id="modal-enroll-permission" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-cyber" id="modal-permission-edit" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content modal-content-nexus">
-                <div class="modal-header border-bottom border-secondary border-opacity-25 p-4">
-                    <h5 class="modal-title fw-bold text-white">
-                        <i class="fa-solid fa-key" style="color: var(--uvaco-primary-light);"></i> 配發三軌動態通行金鑰 (Issue Access Key)
-                    </h5>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modal-title"><i class="fa-solid fa-user-gear text-purple" style="color: var(--primary-light);"></i>編輯 701 白名單權限設定</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <form id="form-enroll-key">
+                <div class="modal-body">
+                    <form id="form-permission">
+                        <input type="hidden" id="perm-record-id">
+                        
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-user"></i> 夥伴姓名 / 稱謂</label>
-                                <input type="text" id="enroll-name" class="form-control form-control-nexus" placeholder="例如：林榮祥 (Ray)" required>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small fw-bold">Google 帳號信箱 (OAuth ID) <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control form-control-sm form-control-cyber font-mono" id="perm-user-email" placeholder="example@gmail.com" required>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-brands fa-google"></i> Google 登入驗證 Email</label>
-                                <input type="email" id="enroll-email" class="form-control form-control-nexus" placeholder="user@gmail.com" required>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small fw-bold">夥伴姓名 / 代號 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm form-control-cyber" id="perm-user-name" placeholder="例如：Ray (創始人) 或 王小美" required>
                             </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-shield-halved"></i> 賦予角色層級 (RBAC)</label>
-                                <select id="enroll-role" class="form-select form-select-nexus">
-                                    <option value="CORE_FOUNDER">🟣 核心創始人 (Core Founder · 全權限)</option>
-                                    <option value="TEAM_LEADER" selected>🔵 團隊領導者 (Team Leader · 經理級以上)</option>
-                                    <option value="TEAM_MEMBER">🔵 團隊一般夥伴 (Team Member · 展業專用)</option>
-                                    <option value="PUBLIC_GUEST">🟢 公開體驗用戶 (Public · 僅限公開版)</option>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small fw-bold">系統角色歸屬 (Role)</label>
+                                <select class="form-select form-select-sm form-select-cyber" id="perm-role-code">
+                                    <option value="FOUNDER">雙創始人 (FOUNDER - 全權最高限度)</option>
+                                    <option value="ADMIN">團隊管理員 (ADMIN - 營運與審計)</option>
+                                    <option value="PARTNER" selected>一般夥伴白名單 (PARTNER - 唯讀與團隊支援)</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-calendar-days"></i> 授權有效期限</label>
-                                <input type="date" id="enroll-expiry" class="form-control form-control-nexus" value="2026-12-31">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label text-muted small fw-bold">帳號啟用狀態 (Active)</label>
+                                <select class="form-select form-select-sm form-select-cyber" id="perm-is-active">
+                                    <option value="Y">啟用 (ACTIVE - 允許 OAuth 通關)</option>
+                                    <option value="N">停用 (DISABLED - 立即熔斷登入)</option>
+                                </select>
                             </div>
 
-                            <div class="col-12">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-cubes"></i> 細粒度模組授權 (Fine-grained ACL)</label>
-                                <div class="p-3 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+                            <div class="col-12 mt-3">
+                                <label class="form-label text-muted small fw-bold d-block">細粒度 CRUD 授權矩陣 (Granular Access Controls)</label>
+                                <div class="p-3 rounded bg-dark border border-purple-900" style="background: rgba(12,6,26,0.9); border-color: var(--border-glow);">
                                     <div class="row g-2">
-                                        <div class="col-md-4">
+                                        <div class="col-6 col-sm-4 col-md-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mod-prd" checked>
-                                                <label class="form-check-label text-white small" for="mod-prd">產品管理 (prd_)</label>
+                                                <input class="form-check-input" type="checkbox" id="perm-can-view" checked>
+                                                <label class="form-check-label text-white small" for="perm-can-view">檢視 (View)</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-6 col-sm-4 col-md-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mod-trn" checked>
-                                                <label class="form-check-label text-white small" for="mod-trn">培訓系統 (trn_)</label>
+                                                <input class="form-check-input" type="checkbox" id="perm-can-create">
+                                                <label class="form-check-label text-white small" for="perm-can-create">新增 (Create)</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-6 col-sm-4 col-md-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mod-psi" checked>
-                                                <label class="form-check-label text-white small" for="mod-psi">進銷存調度 (psi_)</label>
+                                                <input class="form-check-input" type="checkbox" id="perm-can-update">
+                                                <label class="form-check-label text-white small" for="perm-can-update">編輯 (Update)</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-6 col-sm-4 col-md-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mod-org" checked>
-                                                <label class="form-check-label text-white small" for="mod-org">組織業績 (org_)</label>
+                                                <input class="form-check-input" type="checkbox" id="perm-can-delete">
+                                                <label class="form-check-label text-white small" for="perm-can-delete">刪除 (Delete)</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-6 col-sm-4 col-md-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mod-crm" checked>
-                                                <label class="form-check-label text-white small" for="mod-crm">客戶復購 (crm_)</label>
+                                                <input class="form-check-input" type="checkbox" id="perm-can-export">
+                                                <label class="form-check-label text-white small" for="perm-can-export">匯出 (Export)</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-6 col-sm-4 col-md-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mod-fin">
-                                                <label class="form-check-label text-white small" for="mod-fin">財務分潤 (fin_ 創始專屬)</label>
+                                                <input class="form-check-input" type="checkbox" id="perm-can-crossborder">
+                                                <label class="form-check-label text-white small" for="perm-can-crossborder">跨國對沖</label>
                                             </div>
                                         </div>
                                     </div>
@@ -554,17 +632,16 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label small text-muted"><i class="fa-solid fa-network-wired"></i> 跨國漫遊 / eSIM IP 白名單約束 (留空表示不限制)</label>
-                                <input type="text" id="enroll-ip-whitelist" class="form-control form-control-nexus mono-font" placeholder="例如：115.164.*.*, 210.186.*.* (馬來西亞漫遊區段)">
+                                <label class="form-label text-muted small fw-bold">白名單授權備註與資安標籤</label>
+                                <textarea class="form-control form-control-sm form-control-cyber" id="perm-remarks" rows="2" placeholder="填寫該夥伴的體系歸屬、推薦人或授權原因..."></textarea>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25 p-4">
-                    <button type="button" class="btn btn-nexus-outline" data-bs-dismiss="modal">取消關閉</button>
-                    <button type="button" class="btn btn-nexus-primary" id="btn-save-enrollment">
-                        <i class="fa-solid fa-signature"></i> 雙簽驗章並寫入白名單
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cyber-outline" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-cyber-danger d-none" id="btn-delete-perm"><i class="fa-solid fa-trash-can me-1"></i>刪除此白名單</button>
+                    <button type="button" class="btn btn-cyber-primary" id="btn-save-perm"><i class="fa-solid fa-floppy-disk me-1"></i>儲存授權設定</button>
                 </div>
             </div>
         </div>
@@ -572,382 +649,472 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <script>
         /**
-         * 葡眾三軌戰情系統：H81000 權限動態調度中樞
-         * 具備 Google 試算表欄位解耦對映、DataTables 深色微光適配與 Chart.js 雷達渲染
+         * 1. 試算表欄位解耦合轉接字典 (Anti-Corruption Layer)
+         * 將 Google 試算表中文標題轉換為前端系統固定之 CamelCase 屬性
          */
-        const SysPermissionsNexus = (function ($) {
+        const PermissionsFieldMap = {
+            '權限編號': 'id',
+            '使用者帳號': 'email',
+            '夥伴姓名': 'name',
+            '角色代碼': 'role',
+            '檢視權限': 'canView',
+            '新增權限': 'canCreate',
+            '編輯權限': 'canUpdate',
+            '刪除權限': 'canDelete',
+            '匯出權限': 'canExport',
+            '啟用狀態': 'isActive',
+            '授權備註': 'remarks',
+            '最後更新時間': 'updatedAt'
+        };
+
+        const AccessLogsFieldMap = {
+            '日誌序號': 'logId',
+            '存取時間': 'timestamp',
+            '操作者帳號': 'userEmail',
+            '角色名稱': 'roleName',
+            '目標模組': 'moduleCode',
+            '操作動作': 'actionName',
+            '客戶端IP': 'clientIp',
+            '地理位置': 'location',
+            'HTTP狀態': 'statusCode',
+            '風險等級': 'riskLevel'
+        };
+
+        /**
+         * 2. 本地資料狀態儲存庫 (State Management)
+         */
+        let permissionsData = [
+            { id: 'PRM-001', email: 'ray.founder@gmail.com', name: 'Ray (創始人)', role: 'FOUNDER', canView: true, canCreate: true, canUpdate: true, canDelete: true, canExport: true, isActive: true, remarks: '雙創始人核心帳號，全權掌控三軌進銷存與財務對帳', updatedAt: '2026-08-20 09:15' },
+            { id: 'PRM-002', email: 'jarvis.founder@gmail.com', name: 'Jarvis (創始人)', role: 'FOUNDER', canView: true, canCreate: true, canUpdate: true, canDelete: true, canExport: true, isActive: true, remarks: '雙創始人核心帳號，掌管馬來西亞跨境對沖與組織血緣', updatedAt: '2026-08-20 08:30' },
+            { id: 'PRM-003', email: 'admin.ops@rayteam.com', name: '林營運 (行政主管)', role: 'ADMIN', canView: true, canCreate: true, canUpdate: true, canDelete: false, canExport: true, isActive: true, remarks: '台灣進銷存倉儲打單與培訓公告發布維護', updatedAt: '2026-08-19 18:22' },
+            { id: 'PRM-004', email: 'chen.leader@gmail.com', name: '陳經理 (珍珠領袖)', role: 'PARTNER', canView: true, canCreate: true, canUpdate: false, canDelete: false, canExport: false, isActive: true, remarks: '授權自營客戶追蹤與 160 SV 訂單試算', updatedAt: '2026-08-18 14:10' },
+            { id: 'PRM-005', email: 'my.partner.wong@gmail.com', name: '黃總監 (吉隆坡)', role: 'PARTNER', canView: true, canCreate: false, canUpdate: false, canDelete: false, canExport: false, isActive: true, remarks: '大馬市場招商教材與吉隆坡考察行程檢視', updatedAt: '2026-08-17 11:05' },
+            { id: 'PRM-006', email: 'suspect.crawler@temp.org', name: '未知外來帳號', role: 'PARTNER', canView: false, canCreate: false, canUpdate: false, canDelete: false, canExport: false, isActive: false, remarks: '非白名單登入嘗試，已被系統自動熔斷封鎖', updatedAt: '2026-08-16 23:40' }
+        ];
+
+        let accessLogsData = [
+            { logId: 'LOG-88901', timestamp: '2026-08-20 11:42:15', userEmail: 'ray.founder@gmail.com', roleName: 'FOUNDER', moduleCode: 'H36000 庫存預警', actionName: 'QUERY_EXPORT', clientIp: '114.34.12.88', location: '台灣 台北', statusCode: 200, riskLevel: 'LOW' },
+            { logId: 'LOG-88902', timestamp: '2026-08-20 11:38:02', userEmail: 'jarvis.founder@gmail.com', roleName: 'FOUNDER', moduleCode: 'HM6000 差旅費用', actionName: 'MUTATION_UPDATE', clientIp: '175.143.62.19', location: '馬來西亞 吉隆坡', statusCode: 200, riskLevel: 'LOW' },
+            { logId: 'LOG-88903', timestamp: '2026-08-20 11:25:40', userEmail: 'chen.leader@gmail.com', roleName: 'PARTNER', moduleCode: 'H40000 組織脈絡', actionName: 'UNAUTHORIZED_VIEW', clientIp: '220.133.45.12', location: '台灣 新竹', statusCode: 403, riskLevel: 'MEDIUM' },
+            { logId: 'LOG-88904', timestamp: '2026-08-20 10:55:18', userEmail: 'suspect.crawler@temp.org', roleName: 'PARTNER', moduleCode: 'H61000 財務總覽', actionName: 'FORCE_CRAWL', clientIp: '45.154.255.90', location: '荷蘭 阿姆斯特丹', statusCode: 403, riskLevel: 'CRITICAL' },
+            { logId: 'LOG-88905', timestamp: '2026-08-20 10:12:09', userEmail: 'admin.ops@rayteam.com', roleName: 'ADMIN', moduleCode: 'H11000 產品主檔', actionName: 'MUTATION_INSERT', clientIp: '118.163.80.5', location: '台灣 台北', statusCode: 200, riskLevel: 'LOW' }
+        ];
+
+        let logsDataTableInstance = null;
+        let securityChartInstance = null;
+        let currentRoleFilter = 'ALL';
+
+        /**
+         * 3. DOM Ready 初始化引擎
+         */
+        $(document).ready(function () {
+            renderPermissionCards();
+            initAccessLogsTable();
+            initSecurityTrendsChart();
+            bindEventHandlers();
+        });
+
+        /**
+         * 4. 渲染 701 權限卡片矩陣 (支援即時 Filter 與 CRUD 視圖)
+         */
+        function renderPermissionCards() {
+            const container = $('#permission-cards-container');
+            container.empty();
+
+            const filteredData = permissionsData.filter(item => {
+                if (currentRoleFilter === 'ALL') return true;
+                return item.role === currentRoleFilter;
+            });
+
+            $('#stat-total-users').html(`${permissionsData.length} <span class="fs-6 text-muted">位</span>`);
+            $('#count-all').text(permissionsData.length);
+
+            if (filteredData.length === 0) {
+                container.html(`
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-user-slash fs-2 mb-2 d-block"></i>
+                        目前沒有符合此篩選條件的白名單帳號
+                    </div>
+                `);
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const roleClass = item.role === 'FOUNDER' ? 'role-founder' : (item.role === 'ADMIN' ? 'role-admin' : 'role-partner');
+                const roleBadge = item.role === 'FOUNDER' 
+                    ? '<span class="badge" style="background: rgba(251,191,36,0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber);"><i class="fa-solid fa-crown me-1"></i>雙創始人</span>'
+                    : (item.role === 'ADMIN'
+                        ? '<span class="badge" style="background: rgba(56,189,248,0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);"><i class="fa-solid fa-user-tie me-1"></i>核心管理</span>'
+                        : '<span class="badge" style="background: rgba(139,92,246,0.2); color: var(--primary-light); border: 1px solid var(--primary-purple);"><i class="fa-solid fa-user me-1"></i>夥伴白名單</span>');
+
+                const statusIndicator = item.isActive 
+                    ? '<span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>通關中</span>'
+                    : '<span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa-solid fa-ban me-1"></i>已熔斷</span>';
+
+                const cardHtml = `
+                    <div class="user-matrix-card ${roleClass}">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h6 class="fw-bold text-white mb-0">${item.name}</h6>
+                                    ${roleBadge}
+                                    ${statusIndicator}
+                                </div>
+                                <span class="font-mono text-muted small">${item.email}</span>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-cyber-outline py-1 px-2 btn-edit-perm" data-id="${item.id}" title="細粒度設定">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-sm ${item.isActive ? 'btn-cyber-danger' : 'btn-cyber-outline'} py-1 px-2 btn-toggle-status" data-id="${item.id}" title="切換啟用/停用">
+                                    <i class="fa-solid ${item.isActive ? 'fa-user-xmark' : 'fa-user-check'}"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center pt-2 border-top border-secondary border-opacity-25 mt-2">
+                            <span class="text-muted small me-2 font-mono" style="font-size: 0.75rem;">CRUD權限:</span>
+                            <span class="perm-badge ${item.canView ? 'active' : ''}" data-type="canView" data-id="${item.id}"><i class="fa-solid fa-eye me-1"></i>檢視</span>
+                            <span class="perm-badge ${item.canCreate ? 'active' : ''}" data-type="canCreate" data-id="${item.id}"><i class="fa-solid fa-plus me-1"></i>新增</span>
+                            <span class="perm-badge ${item.canUpdate ? 'active' : ''}" data-type="canUpdate" data-id="${item.id}"><i class="fa-solid fa-pen me-1"></i>編輯</span>
+                            <span class="perm-badge ${item.canDelete ? 'active badge-danger' : ''}" data-type="canDelete" data-id="${item.id}"><i class="fa-solid fa-trash me-1"></i>刪除</span>
+                            <span class="perm-badge ${item.canExport ? 'active' : ''}" data-type="canExport" data-id="${item.id}"><i class="fa-solid fa-file-export me-1"></i>匯出</span>
+                            <span class="ms-auto text-muted font-mono" style="font-size: 0.7rem;">更新：${item.updatedAt}</span>
+                        </div>
+                        <div class="mt-2 text-muted small" style="font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.35rem 0.6rem; border-radius: 0.4rem;">
+                            <i class="fa-solid fa-circle-info text-purple" style="color: var(--primary-light);"></i>${item.remarks}
+                        </div>
+                    </div>
+                `;
+                container.append(cardHtml);
+            });
+        }
+
+        /**
+         * 5. 初始化 702 存取安全日誌 DataTable.js
+         */
+        function initAccessLogsTable() {
+            logsDataTableInstance = $('#table-access-logs').DataTable({
+                data: accessLogsData,
+                responsive: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50],
+                order: [[1, 'desc']],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "搜尋日誌、IP、帳號或模組...",
+                    lengthMenu: "每頁顯示 _MENU_ 筆",
+                    info: "顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆日誌",
+                    infoEmpty: "暫無日誌資料",
+                    emptyTable: "無存取紀錄",
+                    paginate: {
+                        first: '<i class="fa-solid fa-angles-left"></i>',
+                        previous: '<i class="fa-solid fa-chevron-left"></i>',
+                        next: '<i class="fa-solid fa-chevron-right"></i>',
+                        last: '<i class="fa-solid fa-angles-right"></i>'
+                    }
+                },
+                columns: [
+                    { 
+                        data: 'logId',
+                        className: 'font-mono text-muted small'
+                    },
+                    { 
+                        data: 'timestamp',
+                        className: 'font-mono text-white small'
+                    },
+                    { 
+                        data: 'userEmail',
+                        render: function (data, type, row) {
+                            return `<div class="fw-semibold text-white">${data}</div>`;
+                        }
+                    },
+                    { 
+                        data: 'roleName',
+                        render: function (data) {
+                            if (data === 'FOUNDER') return '<span class="badge bg-warning-subtle text-warning font-mono">創始人</span>';
+                            if (data === 'ADMIN') return '<span class="badge bg-info-subtle text-info font-mono">管理員</span>';
+                            return '<span class="badge badge-secondary-subtl font-mono">夥伴</span>';
+                        }
+                    },
+                    { 
+                        data: 'moduleCode',
+                        render: function (data, type, row) {
+                            return `<div><span class="badge bg-dark border border-purple-500 font-mono text-purple" style="color:var(--primary-light);">${data}</span> <span class="small font-mono text-muted d-block">${row.actionName}</span></div>`;
+                        }
+                    },
+                    { 
+                        data: 'clientIp',
+                        render: function (data, type, row) {
+                            return `<div class="font-mono text-cyan" style="color:var(--accent-cyan); font-size: 0.85rem;"><i class="fa-solid fa-location-dot me-1"></i>${data} <span class="text-muted d-block" style="font-size:0.75rem;">${row.location}</span></div>`;
+                        }
+                    },
+                    { 
+                        data: 'statusCode',
+                        render: function (data) {
+                            if (data === 200) return '<span class="badge bg-success font-mono">200 OK</span>';
+                            if (data === 403) return '<span class="badge bg-danger font-mono">403 DENY</span>';
+                            return `<span class="badge bg-warning text-dark font-mono">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'riskLevel',
+                        render: function (data) {
+                            if (data === 'LOW') return '<span class="badge" style="background:rgba(52,211,153,0.2); color:var(--accent-emerald); border:1px solid var(--accent-emerald);">低風險</span>';
+                            if (data === 'MEDIUM') return '<span class="badge" style="background:rgba(251,191,36,0.2); color:var(--accent-amber); border:1px solid var(--accent-amber);">中度警示</span>';
+                            return '<span class="badge" style="background:rgba(251,113,133,0.2); color:var(--accent-rose); border:1px solid var(--accent-rose);"><i class="fa-solid fa-fire me-1"></i>高危熔斷</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            if (row.riskLevel === 'CRITICAL' || row.statusCode === 403) {
+                                return `<button class="btn btn-sm btn-cyber-danger py-0 px-2 btn-block-ip" data-ip="${row.clientIp}" title="立即全域封鎖此 IP"><i class="fa-solid fa-shield-slash me-1"></i>封鎖</button>`;
+                            }
+                            return `<span class="text-muted font-mono" style="font-size:0.75rem;"><i class="fa-solid fa-check me-1"></i>放行</span>`;
+                        }
+                    }
+                ]
+            });
+        }
+
+        /**
+         * 6. 初始化 Chart.js 24H 存取與資安趨勢圖
+         */
+        function initSecurityTrendsChart() {
+            const ctx = document.getElementById('chart-security-trends').getContext('2d');
             
-            // 試算表欄位解耦字典 (sys_permissions -> UI Schema Decoupling)
-            const SCHEMA_MAP = {
-                "金鑰編號": "perm_id",
-                "成員姓名": "partner_name",
-                "登入帳號": "auth_email",
-                "角色等級": "user_role",
-                "模組許可": "allowed_modules",
-                "IP限制": "ip_whitelist",
-                "截止期限": "valid_until",
-                "狀態": "status"
-            };
+            // 建立漸層色
+            const purpleGradient = ctx.createLinearGradient(0, 0, 0, 240);
+            purpleGradient.addColorStop(0, 'rgba(139, 92, 246, 0.5)');
+            purpleGradient.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
 
-            // 預設模擬資料庫 (符合表 50 sys_permissions 綱要)
-            let permissionsDataset = [
-                {
-                    perm_id: "KEY-COR-001",
-                    partner_name: "林榮祥 (Ray)",
-                    auth_email: "ray.founder@gmail.com",
-                    user_role: "CORE_FOUNDER",
-                    allowed_modules: "PRD, TRN, PSI, ORG, CRM, FIN, SYS",
-                    ip_whitelist: "跨國漫遊放行 (TW/MY)",
-                    valid_until: "2099-12-31",
-                    status: "ACTIVE"
-                },
-                {
-                    perm_id: "KEY-COR-002",
-                    partner_name: "Jarvis (共同創始)",
-                    auth_email: "jarvis.director@gmail.com",
-                    user_role: "CORE_FOUNDER",
-                    allowed_modules: "PRD, TRN, PSI, ORG, CRM, FIN, SYS",
-                    ip_whitelist: "跨國漫遊放行 (TW/MY)",
-                    valid_until: "2099-12-31",
-                    status: "ACTIVE"
-                },
-                {
-                    perm_id: "KEY-TEM-108",
-                    partner_name: "陳經理 (台北一體系)",
-                    auth_email: "chen.leader@gmail.com",
-                    user_role: "TEAM_LEADER",
-                    allowed_modules: "PRD, TRN, PSI, ORG, CRM",
-                    ip_whitelist: "118.163.*.*",
-                    valid_until: "2026-12-31",
-                    status: "ACTIVE"
-                },
-                {
-                    perm_id: "KEY-TEM-204",
-                    partner_name: "黃珍珠 (吉隆坡先鋒)",
-                    auth_email: "huang.kl@gmail.com",
-                    user_role: "TEAM_LEADER",
-                    allowed_modules: "PRD, TRN, ORG, CRM",
-                    ip_whitelist: "115.164.*.* (MY eSIM)",
-                    valid_until: "2026-09-30",
-                    status: "ACTIVE"
-                },
-                {
-                    perm_id: "KEY-PUB-901",
-                    partner_name: "VIP 體驗貴賓",
-                    auth_email: "vip.guest@gmail.com",
-                    user_role: "PUBLIC_GUEST",
-                    allowed_modules: "PRD, TRN",
-                    ip_whitelist: "無限制",
-                    valid_until: "2026-06-30",
-                    status: "ACTIVE"
-                }
-            ];
+            const roseGradient = ctx.createLinearGradient(0, 0, 0, 240);
+            roseGradient.addColorStop(0, 'rgba(251, 113, 133, 0.5)');
+            roseGradient.addColorStop(1, 'rgba(251, 113, 133, 0.0)');
 
-            let dataTableInstance = null;
-            let radarChartInstance = null;
-
-            // 角色徽章渲染輔助器
-            function renderRoleBadge(role) {
-                switch(role) {
-                    case 'CORE_FOUNDER':
-                        return `<span class="badge badge-track-core"><i class="fa-solid fa-crown"></i> 核心創始層</span>`;
-                    case 'TEAM_LEADER':
-                        return `<span class="badge badge-track-team"><i class="fa-solid fa-users-gear"></i> 團隊領航層</span>`;
-                    case 'PUBLIC_GUEST':
-                        return `<span class="badge badge-track-public"><i class="fa-solid fa-globe"></i> 公開訪客層</span>`;
-                    default:
-                        return `<span class="badge bg-secondary">${role}</span>`;
-                }
-            }
-
-            // 狀態徽章渲染輔助器
-            function renderStatusBadge(status) {
-                if (status === 'ACTIVE') {
-                    return `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25"><i class="fa-solid fa-shield-check"></i> 通行中</span>`;
-                } else {
-                    return `<span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25"><i class="fa-solid fa-ban"></i> 已凍結</span>`;
-                }
-            }
-
-            // 初始化 DataTable
-            function initDataTable() {
-                dataTableInstance = $('#permissions-datatable').DataTable({
-                    data: permissionsDataset,
-                    responsive: true,
-                    pageLength: 5,
-                    lengthChange: false,
-                    dom: 'rt<"d-flex justify-content-between align-items-center mt-3"ip>',
-                    columns: [
-                        { 
-                            data: 'perm_id',
-                            render: function(data) {
-                                return `<span class="mono-font fw-bold" style="color: var(--uvaco-primary-light);">${data}</span>`;
-                            }
-                        },
-                        { 
-                            data: 'partner_name',
-                            render: function(data) {
-                                return `<span class="fw-bold text-white"><i class="fa-solid fa-user text-muted"></i> ${data}</span>`;
-                            }
-                        },
-                        { 
-                            data: 'auth_email',
-                            render: function(data) {
-                                return `<span class="mono-font text-muted small">${data}</span>`;
-                            }
-                        },
-                        { 
-                            data: 'user_role',
-                            render: function(data) {
-                                return renderRoleBadge(data);
-                            }
-                        },
-                        { 
-                            data: 'allowed_modules',
-                            render: function(data) {
-                                const mods = data.split(', ');
-                                return mods.map(m => `<span class="badge bg-dark border border-secondary border-opacity-50 me-1 mono-font small">${m}</span>`).join('');
-                            }
-                        },
-                        { 
-                            data: 'ip_whitelist',
-                            render: function(data) {
-                                return `<span class="mono-font small text-info"><i class="fa-solid fa-network-wired"></i> ${data}</span>`;
-                            }
-                        },
-                        { 
-                            data: 'valid_until',
-                            render: function(data) {
-                                return `<span class="mono-font small text-muted">${data}</span>`;
-                            }
-                        },
-                        { 
-                            data: 'status',
-                            render: function(data) {
-                                return renderStatusBadge(data);
-                            }
+            securityChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                    datasets: [
+                        {
+                            label: '正常存取流量 (200)',
+                            data: [65, 20, 15, 280, 420, 310, 240, 79],
+                            borderColor: '#a855f7',
+                            backgroundColor: purpleGradient,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#c084fc',
+                            pointRadius: 3
                         },
                         {
-                            data: null,
-                            orderable: false,
-                            className: 'text-end',
-                            render: function(data, type, row) {
-                                return `
-                                    <button class="btn btn-nexus-outline btn-sm py-1 px-2 me-1 btn-toggle-status" data-id="${row.perm_id}" title="切換凍結/啟用">
-                                        <i class="fa-solid fa-power-off"></i>
-                                    </button>
-                                    <button class="btn btn-nexus-danger btn-sm py-1 px-2 btn-revoke-key" data-id="${row.perm_id}" title="廢除金鑰">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                `;
-                            }
+                            label: '越權與攔截次數 (403)',
+                            data: [2, 0, 1, 3, 5, 2, 4, 1],
+                            borderColor: '#fb7185',
+                            backgroundColor: roseGradient,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#f43f5e',
+                            pointRadius: 4
                         }
-                    ],
-                    language: {
-                        info: "顯示 _START_ 至 _END_ 筆，共 _TOTAL_ 筆通行金鑰",
-                        infoEmpty: "無符合條件的名單",
-                        zeroRecords: "未找到符合的權限白名單資料",
-                        paginate: {
-                            next: '<i class="fa-solid fa-chevron-right"></i>',
-                            previous: '<i class="fa-solid fa-chevron-left"></i>'
-                        }
-                    }
-                });
-
-                // 綁定自訂搜尋欄位
-                $('#custom-table-search').on('keyup', function () {
-                    dataTableInstance.search(this.value).draw();
-                });
-            }
-
-            // 初始化 Chart.js 存取時空雷達圖表
-            function initRadarChart() {
-                const ctx = document.getElementById('access-radar-chart').getContext('2d');
-                radarChartInstance = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: ['產品', '培訓', '進銷存', '組織', '客戶', '財務', '系統'],
-                        datasets: [
-                            {
-                                label: '創始核心存取頻率',
-                                data: [95, 80, 100, 90, 85, 100, 95],
-                                borderColor: '#c084fc',
-                                backgroundColor: 'rgba(192, 132, 252, 0.25)',
-                                pointBackgroundColor: '#c084fc',
-                                borderWidth: 2
-                            },
-                            {
-                                label: '團隊白名單活躍度',
-                                data: [85, 90, 40, 75, 80, 0, 15],
-                                borderColor: '#38bdf8',
-                                backgroundColor: 'rgba(56, 189, 248, 0.15)',
-                                pointBackgroundColor: '#38bdf8',
-                                borderWidth: 1.5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.08)' },
-                                pointLabels: {
-                                    color: '#9e8eb3',
-                                    font: { size: 10, family: 'Noto Sans TC' }
-                                },
-                                ticks: { display: false, max: 100 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#f5f3ff',
+                                font: { family: "'Noto Sans TC', sans-serif", size: 12 }
                             }
                         },
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 7, 34, 0.95)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            borderColor: 'rgba(139, 92, 246, 0.4)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(139, 92, 246, 0.1)' },
+                            ticks: { color: '#f5f3ff', font: { family: "'JetBrains Mono', monospace" } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(139, 92, 246, 0.1)' },
+                            ticks: { color: '#f5f3ff', font: { family: "'JetBrains Mono', monospace" } }
                         }
                     }
-                });
-            }
-
-            // 綁定動態事件
-            function bindEvents() {
-                
-                // 軌道快速篩選按鈕
-                $('#track-filter-group button').on('click', function () {
-                    $('#track-filter-group button').removeClass('active');
-                    $(this).addClass('active');
-                    const track = $(this).data('track');
-                    if (track === 'ALL') {
-                        dataTableInstance.column(3).search('').draw();
-                    } else {
-                        dataTableInstance.column(3).search(track).draw();
-                    }
-                });
-
-                // 身分沙盒卡片切換
-                $('.persona-card').on('click', function () {
-                    $('.persona-card').removeClass('selected');
-                    $(this).addClass('selected');
-                    const role = $(this).data('role');
-                    // 根據沙盒切換模組高亮
-                    if (role === 'CORE_FOUNDER') {
-                        $('.module-matrix-chip').addClass('active');
-                        $('#active-permission-counter').text('已啟用：7 / 7 模組');
-                    } else if (role === 'TEAM_LEADER') {
-                        $('.module-matrix-chip').removeClass('active');
-                        $('.module-matrix-chip[data-mod="PRD"], .module-matrix-chip[data-mod="TRN"], .module-matrix-chip[data-mod="ORG"], .module-matrix-chip[data-mod="CRM"]').addClass('active');
-                        $('#active-permission-counter').text('已啟用：4 / 7 模組');
-                    } else {
-                        $('.module-matrix-chip').removeClass('active');
-                        $('.module-matrix-chip[data-mod="PRD"], .module-matrix-chip[data-mod="TRN"]').addClass('active');
-                        $('#active-permission-counter').text('已啟用：2 / 7 模組');
-                    }
-                });
-
-                // 模組矩陣膠囊點擊互動
-                $('.module-matrix-chip').on('click', function () {
-                    $(this).toggleClass('active');
-                    const count = $('.module-matrix-chip.active').length;
-                    $('#active-permission-counter').text(`已啟用：${count} / 7 模組`);
-                });
-
-                // 切換通行狀態 (凍結/啟用)
-                $('#permissions-datatable').on('click', '.btn-toggle-status', function () {
-                    const id = $(this).data('id');
-                    const item = permissionsDataset.find(x => x.perm_id === id);
-                    if (item) {
-                        item.status = item.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-                        dataTableInstance.clear().rows.add(permissionsDataset).draw();
-                    }
-                });
-
-                // 廢除金鑰
-                $('#permissions-datatable').on('click', '.btn-revoke-key', function () {
-                    const id = $(this).data('id');
-                    if (confirm(`確定要永久註銷通行金鑰 [${id}] 嗎？此操作將立即阻斷該 Google 帳號存取戰情系統！`)) {
-                        permissionsDataset = permissionsDataset.filter(x => x.perm_id !== id);
-                        dataTableInstance.clear().rows.add(permissionsDataset).draw();
-                    }
-                });
-
-                // 儲存並配發新金鑰
-                $('#btn-save-enrollment').on('click', function () {
-                    const name = $('#enroll-name').val().trim();
-                    const email = $('#enroll-email').val().trim();
-                    const role = $('#enroll-role').val();
-                    const expiry = $('#enroll-expiry').val();
-                    const ip = $('#enroll-ip-whitelist').val().trim() || '無限制';
-
-                    if (!name || !email) {
-                        alert('請填寫夥伴姓名與 Google 驗證 Email！');
-                        return;
-                    }
-
-                    // 收集模組權限
-                    let selectedMods = [];
-                    if ($('#mod-prd').is(':checked')) selectedMods.push('PRD');
-                    if ($('#mod-trn').is(':checked')) selectedMods.push('TRN');
-                    if ($('#mod-psi').is(':checked')) selectedMods.push('PSI');
-                    if ($('#mod-org').is(':checked')) selectedMods.push('ORG');
-                    if ($('#mod-crm').is(':checked')) selectedMods.push('CRM');
-                    if ($('#mod-fin').is(':checked')) selectedMods.push('FIN');
-                    if (role === 'CORE_FOUNDER') selectedMods.push('SYS');
-
-                    const newKey = {
-                        perm_id: `KEY-${role.substring(0, 3)}-${Math.floor(100 + Math.random() * 900)}`,
-                        partner_name: name,
-                        auth_email: email,
-                        user_role: role,
-                        allowed_modules: selectedMods.join(', '),
-                        ip_whitelist: ip,
-                        valid_until: expiry,
-                        status: 'ACTIVE'
-                    };
-
-                    permissionsDataset.unshift(newKey);
-                    dataTableInstance.clear().rows.add(permissionsDataset).draw();
-                    
-                    $('#modal-enroll-permission').modal('hide');
-                    $('#form-enroll-key')[0].reset();
-                    alert(`✅ 通行金鑰 [${newKey.perm_id}] 已成功簽發並掛載至 Google 帳號：${email}`);
-                });
-
-                // 模擬 Google GViz / 試算表同步
-                $('#btn-sync-sheet').on('click', function () {
-                    const btn = $(this);
-                    btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 欄位解耦同步中...').prop('disabled', true);
-                    
-                    setTimeout(() => {
-                        btn.html('<i class="fa-solid fa-check text-success"></i> 試算表同步完成');
-                        setTimeout(() => {
-                            btn.html('<i class="fa-solid fa-rotate"></i> 試算表欄位熱同步').prop('disabled', false);
-                        }, 2000);
-                    }, 1200);
-                });
-            }
-
-            return {
-                init: function () {
-                    initDataTable();
-                    initRadarChart();
-                    bindEvents();
                 }
-            };
+            });
+        }
 
-        })(jQuery);
+        /**
+         * 7. 事件監聽與 CRUD 互動邏輯
+         */
+        function bindEventHandlers() {
+            // 角色分類篩選
+            $('[data-filter-role]').on('click', function () {
+                $('[data-filter-role]').removeClass('active');
+                $(this).addClass('active');
+                currentRoleFilter = $(this).data('filter-role');
+                renderPermissionCards();
+            });
 
-        // 頁面就緒後啟動中樞
-        $(document).ready(function () {
-            SysPermissionsNexus.init();
-        });
+            // 快捷切換啟用狀態
+            $(document).on('click', '.btn-toggle-status', function () {
+                const id = $(this).data('id');
+                const user = permissionsData.find(u => u.id === id);
+                if (user) {
+                    user.isActive = !user.isActive;
+                    user.updatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                    renderPermissionCards();
+                }
+            });
+
+            // 快捷點擊切換單項 CRUD
+            $(document).on('click', '.perm-badge', function () {
+                const id = $(this).data('id');
+                const field = $(this).data('type');
+                const user = permissionsData.find(u => u.id === id);
+                if (user && field in user) {
+                    user[field] = !user[field];
+                    user.updatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                    renderPermissionCards();
+                }
+            });
+
+            // 打開新增白名單 Modal
+            $('#btn-add-whitelist').on('click', function () {
+                $('#modal-title').html('<i class="fa-solid fa-user-plus text-purple" style="color:var(--primary-light);"></i>新增 701 白名單帳號');
+                $('#form-permission')[0].reset();
+                $('#perm-record-id').val('');
+                $('#btn-delete-perm').addClass('d-none');
+                $('#perm-can-view').prop('checked', true);
+            });
+
+            // 打開編輯白名單 Modal
+            $(document).on('click', '.btn-edit-perm', function () {
+                const id = $(this).data('id');
+                const user = permissionsData.find(u => u.id === id);
+                if (user) {
+                    $('#modal-title').html('<i class="fa-solid fa-user-pen text-purple" style="color:var(--primary-light);"></i>編輯 701 白名單權限');
+                    $('#perm-record-id').val(user.id);
+                    $('#perm-user-email').val(user.email);
+                    $('#perm-user-name').val(user.name);
+                    $('#perm-role-code').val(user.role);
+                    $('#perm-is-active').val(user.isActive ? 'Y' : 'N');
+                    $('#perm-can-view').prop('checked', user.canView);
+                    $('#perm-can-create').prop('checked', user.canCreate);
+                    $('#perm-can-update').prop('checked', user.canUpdate);
+                    $('#perm-can-delete').prop('checked', user.canDelete);
+                    $('#perm-can-export').prop('checked', user.canExport);
+                    $('#perm-remarks').val(user.remarks);
+                    $('#btn-delete-perm').removeClass('d-none');
+                    $('#modal-permission-edit').modal('show');
+                }
+            });
+
+            // 儲存權限設定 (新增 / 修改)
+            $('#btn-save-perm').on('click', function () {
+                const id = $('#perm-record-id').val();
+                const email = $('#perm-user-email').val().trim();
+                const name = $('#perm-user-name').val().trim();
+                if (!email || !name) {
+                    alert('請完整填寫 Google 帳號與夥伴名稱！');
+                    return;
+                }
+
+                const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+                if (id) {
+                    // Update
+                    const user = permissionsData.find(u => u.id === id);
+                    if (user) {
+                        user.email = email;
+                        user.name = name;
+                        user.role = $('#perm-role-code').val();
+                        user.isActive = ($('#perm-is-active').val() === 'Y');
+                        user.canView = $('#perm-can-view').is(':checked');
+                        user.canCreate = $('#perm-can-create').is(':checked');
+                        user.canUpdate = $('#perm-can-update').is(':checked');
+                        user.canDelete = $('#perm-can-delete').is(':checked');
+                        user.canExport = $('#perm-can-export').is(':checked');
+                        user.remarks = $('#perm-remarks').val().trim();
+                        user.updatedAt = nowStr;
+                    }
+                } else {
+                    // Create
+                    const newId = `PRM-00${permissionsData.length + 1}`;
+                    permissionsData.unshift({
+                        id: newId,
+                        email: email,
+                        name: name,
+                        role: $('#perm-role-code').val(),
+                        isActive: ($('#perm-is-active').val() === 'Y'),
+                        canView: $('#perm-can-view').is(':checked'),
+                        canCreate: $('#perm-can-create').is(':checked'),
+                        canUpdate: $('#perm-can-update').is(':checked'),
+                        canDelete: $('#perm-can-delete').is(':checked'),
+                        canExport: $('#perm-can-export').is(':checked'),
+                        remarks: $('#perm-remarks').val().trim() || '手動建立之白名單成員',
+                        updatedAt: nowStr
+                    });
+                }
+
+                $('#modal-permission-edit').modal('hide');
+                renderPermissionCards();
+            });
+
+            // 刪除白名單
+            $('#btn-delete-perm').on('click', function () {
+                const id = $('#perm-record-id').val();
+                if (confirm('確定要從白名單移除此帳號？此操作將立即撤銷其所有系統存取權！')) {
+                    permissionsData = permissionsData.filter(u => u.id !== id);
+                    $('#modal-permission-edit').modal('hide');
+                    renderPermissionCards();
+                }
+            });
+
+            // 封鎖 IP 處置
+            $(document).on('click', '.btn-block-ip', function () {
+                const ip = $(this).data('ip');
+                alert(`【資安指令執行】\n已將來源 IP [ ${ip} ] 寫入雲端防火牆黑名單，該 IP 所有跨域請求已即刻熔斷！`);
+                $(this).replaceWith('<span class="badge bg-danger"><i class="fa-solid fa-ban me-1"></i>已封鎖</span>');
+            });
+
+            // Google 試算表同步與欄位解耦模擬 (GViz / PapaParse Adapter)
+            $('#btn-sync-gviz').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-arrows-rotate fa-spin me-1"></i>正在解耦同步...');
+
+                setTimeout(() => {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步 Google 試算表');
+                    alert('【Google 試算表連線成功】\n透過 PermissionsFieldMap 與 AccessLogsFieldMap 字典，成功從 Google Sheets 重新載入最新白名單與存取稽核日誌，欄位名稱解耦無誤！');
+                }, 800);
+            });
+
+            // 匯出稽核清單
+            $('#btn-export-audit').on('click', function () {
+                alert('正在匯出「701 權限白名單」與「702 存取稽核日誌」為安全鑑識 CSV 檔...');
+            });
+        }
     </script>
 </body>
 </html>

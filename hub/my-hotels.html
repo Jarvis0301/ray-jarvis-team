@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>旅店住宿 - 核心戰情室</title>
+    <title>旅店住宿 | 榮祥團隊 - 核心版</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -147,7 +147,7 @@
             height: 100%;
         }
 
-        /* 快速複製按鈕與小晶片標籤 */
+        /* 快速複製按鈕與小徽章標籤 */
         .copy-pill {
             background: rgba(139, 92, 246, 0.15);
             border: 1px solid rgba(139, 92, 246, 0.3);
@@ -315,7 +315,7 @@
             color: #fff;
         }
 
-        /* 自訂滾動條 */
+        /* 自訂捲動條 */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -340,13 +340,13 @@
             <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="brand-badge-glow">
-                        <i class="fa-solid fa-hotel"></i> HM4000
+                        <i class="fa-solid fa-hotel me-1"></i>HM4000
                     </span>
                     <span class="badge bg-dark border border-secondary text-light">
-                        <i class="fa-solid fa-satellite-dish text-info"></i> 馬來西亞專區
+                        <i class="fa-solid fa-satellite-dish text-info me-1"></i>馬來西亞專區
                     </span>
                     <span class="badge bg-purple-subtle text-purple border border-purple-subtle" id="badgeCurrentTrip">
-                        <i class="fa-solid fa-plane-departure"></i> MY-202608-KL
+                        <i class="fa-solid fa-plane-departure me-1"></i>MY-202608-KL
                     </span>
                 </div>
                 <h2 class="h4 mb-0 fw-bold text-white d-flex align-items-center gap-2">
@@ -363,11 +363,11 @@
                 </select>
 
                 <button class="btn btn-outline-light btn-sm" id="btnSyncGviz">
-                    <i class="fa-solid fa-rotate"></i> 試算表同步
+                    <i class="fa-solid fa-rotate me-1"></i>試算表同步
                 </button>
                 
                 <button class="btn btn-primary btn-sm px-3 shadow" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;" data-bs-toggle="modal" data-bs-target="#modalAddHotel">
-                    <i class="fa-solid fa-plus"></i> 新增預訂
+                    <i class="fa-solid fa-plus me-1"></i>新增預訂
                 </button>
             </div>
         </div>
@@ -384,7 +384,7 @@
                         <div class="text-end">
                             <i class="fa-solid fa-wifi keycard-nfc-icon"></i>
                             <div class="badge bg-success-subtle text-success border border-success-subtle mt-1 d-block">
-                                <i class="fa-solid fa-circle-check"></i> 已確認入住房源
+                                <i class="fa-solid fa-circle-check me-1"></i>已確認入住房源
                             </div>
                         </div>
                     </div>
@@ -413,14 +413,14 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2">
                         <div class="d-flex align-items-center gap-2">
                             <span class="copy-pill" onclick="copyText('Westin-Guest-5G', 'Wi-Fi 名稱')">
-                                <i class="fa-solid fa-wifi"></i> Westin-5G
+                                <i class="fa-solid fa-wifi me-1"></i>Westin-5G
                             </span>
                             <span class="copy-pill" onclick="copyText('westin2026vip', 'Wi-Fi 密碼')">
-                                <i class="fa-solid fa-key"></i> 複製密碼
+                                <i class="fa-solid fa-key me-1"></i>複製密碼
                             </span>
                         </div>
                         <button class="btn btn-sm btn-outline-info" onclick="showVoucherModal()">
-                            <i class="fa-solid fa-qrcode"></i> 入住憑證 QR
+                            <i class="fa-solid fa-qrcode me-1"></i>入住憑證 QR
                         </button>
                     </div>
                 </div>
@@ -432,7 +432,7 @@
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
-                                <i class="fa-solid fa-clock-rotate-left text-primary"></i> 行程入住時序檢視 (STAY TIMELINE)
+                                <i class="fa-solid fa-clock-rotate-left text-primary me-1"></i>行程入住時序檢視 (STAY TIMELINE)
                             </h5>
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="stayDurationBadge">
                                 共 5 晚 (2026/08/20 - 08/25)
@@ -468,7 +468,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);">
                                 <div class="text-muted small mb-1">
-                                    <i class="fa-solid fa-money-bill-wave text-success"></i> 總房費 (MYR / TWD)
+                                    <i class="fa-solid fa-money-bill-wave text-success me-1"></i>總房費 (MYR / TWD)
                                 </div>
                                 <div class="h5 fw-bold text-white mb-0" id="statTotalPrice">RM 2,850</div>
                                 <div class="text-muted small" style="font-size: 0.75rem;" id="statTotalPriceTwd">折合 NT$ 19,950</div>
@@ -477,7 +477,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);">
                                 <div class="text-muted small mb-1">
-                                    <i class="fa-solid fa-user-shield text-info"></i> 代墊付款人 (50/50)
+                                    <i class="fa-solid fa-user-shield text-info me-1"></i>代墊付款人 (50/50)
                                 </div>
                                 <div class="h5 fw-bold text-info mb-0" id="statPayer">Ray 代墊 (待平帳)</div>
                                 <div class="text-muted small" style="font-size: 0.75rem;">每人分攤 RM 1,425</div>
@@ -486,7 +486,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-3" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);">
                                 <div class="text-muted small mb-1">
-                                    <i class="fa-solid fa-receipt text-warning"></i> 現場押金 (Deposit)
+                                    <i class="fa-solid fa-receipt text-warning me-1"></i>現場押金 (Deposit)
                                 </div>
                                 <div class="h5 fw-bold text-warning mb-0" id="statDeposit">RM 500 (刷卡預授權)</div>
                                 <div class="text-muted small" style="font-size: 0.75rem;">退房時自動解除扣額</div>
@@ -506,12 +506,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
-                                <i class="fa-solid fa-location-crosshairs text-danger"></i> 戰略半徑與 Grab 跳點導航
+                                <i class="fa-solid fa-location-crosshairs text-danger me-1"></i>戰略半徑與 Grab 跳點導航
                             </h5>
                             <span class="text-muted small">以當前住宿為核心之通勤與公關拜訪距離</span>
                         </div>
                         <a href="https://maps.google.com" target="_blank" class="btn btn-sm btn-outline-light" id="btnGoogleMapLink">
-                            <i class="fa-solid fa-map-location-dot"></i> 開啟地圖導航
+                            <i class="fa-solid fa-map-location-dot me-1"></i>開啟地圖導航
                         </a>
                     </div>
 
@@ -571,7 +571,7 @@
                 <div class="glass-panel">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
-                            <i class="fa-solid fa-chart-pie text-neon-pink"></i> 差旅住宿成本配置結構
+                            <i class="fa-solid fa-chart-pie text-neon-pink me-1"></i>差旅住宿成本配置結構
                         </h5>
                         <span class="text-muted small">MYR 幣別佔比</span>
                     </div>
@@ -586,7 +586,7 @@
         <div class="glass-panel mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="h6 text-uppercase text-muted fw-bold mb-0">
-                    <i class="fa-solid fa-list-ul text-primary"></i> 跨國差旅住宿資料庫明細 (my_accommodations)
+                    <i class="fa-solid fa-list-ul text-primary me-1"></i>跨國差旅住宿資料庫明細 (my_accommodations)
                 </h5>
                 <span class="text-muted small">支援排序、關鍵字搜尋與即時編輯</span>
             </div>
@@ -620,7 +620,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold text-white">
-                        <i class="fa-solid fa-hotel text-primary"></i> 新增 / 登記旅店預訂資料
+                        <i class="fa-solid fa-hotel text-primary me-1"></i>新增 / 登記旅店預訂資料
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -628,7 +628,7 @@
                     <form id="formHotel">
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">出差專案代碼</label>
+                                <label class="form-label small text-muted">出差專案代碼 <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm" id="inTripId" required>
                                     <option value="MY-202608-KL">MY-202608-KL (吉隆坡)</option>
                                     <option value="MY-202611-PG">MY-202611-PG (檳城考察)</option>
@@ -645,12 +645,12 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">訂房確認編號 (Booking Ref)</label>
+                                <label class="form-label small text-muted">訂房確認編號 (Booking Ref) <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm" id="inBookingRef" placeholder="例：AG-88392019" required>
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label class="form-label small text-muted">飯店中文名稱</label>
+                                <label class="form-label small text-muted">飯店中文名稱 <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm" id="inHotelZh" placeholder="例：吉隆坡威斯汀酒店" required>
                             </div>
                             <div class="col-12 col-md-6">
@@ -659,11 +659,11 @@
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">入住日期</label>
+                                <label class="form-label small text-muted">入住日期 <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control form-control-sm" id="inCheckIn" required>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">退房日期</label>
+                                <label class="form-label small text-muted">退房日期 <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control form-control-sm" id="inCheckOut" required>
                             </div>
                             <div class="col-12 col-md-4">
@@ -672,7 +672,7 @@
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label small text-muted">總房費 (MYR)</label>
+                                <label class="form-label small text-muted">總房費 (MYR) <span class="text-danger">*</span></label>
                                 <input type="number" step="0.01" class="form-control form-control-sm" id="inPriceMyr" placeholder="例：2850.00" required>
                             </div>
                             <div class="col-12 col-md-4">
@@ -707,7 +707,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-primary btn-sm px-3" id="btnSaveHotel" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none;">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存預訂
+                        <i class="fa-solid fa-floppy-disk me-1"></i>儲存預訂
                     </button>
                 </div>
             </div>
@@ -727,7 +727,7 @@
                     <h6 class="text-white fw-bold mt-2 mb-1" id="modalQrHotelTitle">吉隆坡威斯汀酒店</h6>
                     <div class="text-muted small font-monospace" id="modalQrBookingCode">AGODA-88392019</div>
                     <div class="text-secondary small mt-2" style="font-size: 0.75rem;">
-                        <i class="fa-solid fa-circle-info"></i> 前台辦理入住請出示本二維碼與護照
+                        <i class="fa-solid fa-circle-info me-1"></i>前台辦理入住請出示本二維碼與護照
                     </div>
                 </div>
             </div>
@@ -885,3 +885,226 @@
                             return `<span class="badge bg-info-subtle text-info">${data} 晚</span>`;
                         }
                     },
+                    { 
+                        data: 'room_type',
+                        render: function(data) {
+                            return `<span class="small text-light">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'price_myr',
+                        render: function(data) {
+                            return `<span class="fw-bold text-warning font-monospace">RM ${Number(data).toLocaleString()}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'payer',
+                        render: function(data) {
+                            const badgeClass = data === 'Ray' ? 'bg-primary-subtle text-primary' : 'bg-danger-subtle text-danger';
+                            return `<span class="badge ${badgeClass} border">${data} 代墊</span>`;
+                        }
+                    },
+                    { 
+                        data: 'booking_ref',
+                        render: function(data) {
+                            return `<span class="font-monospace small text-muted">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: null,
+                        orderable: false,
+                        render: function(data) {
+                            return `
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-info p-1 px-2" onclick="showVoucherModalByRef('${data.hotel_name_zh}', '${data.booking_ref}')" title="檢視憑證 QR">
+                                        <i class="fa-solid fa-qrcode"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-light p-1 px-2" onclick="activateHotelCard('${data.hotel_id}')" title="設為主房卡">
+                                        <i class="fa-solid fa-id-card"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // 2. 渲染主智慧房卡與頂部 HUD
+        function renderActiveHotelKeycard(hotel) {
+            if (!hotel) return;
+
+            $('#cardHotelZh').text(hotel.hotel_name_zh);
+            $('#cardHotelEn').text(hotel.hotel_name_en);
+            $('#cardBookingRef').text(hotel.booking_ref);
+            $('#cardRoomType').text(hotel.room_type);
+            $('#cardRoomNo').text(hotel.room_no || 'Room 2308 (23F)');
+
+            $('#stayDurationBadge').text(`共 ${hotel.stay_nights} 晚 (${hotel.check_in_date} - ${hotel.check_out_date})`);
+            $('#statTotalPrice').text(`RM ${Number(hotel.price_myr).toLocaleString()}`);
+            $('#statTotalPriceTwd').text(`折合 NT$ ${Number(hotel.price_twd).toLocaleString()}`);
+            $('#statPayer').text(`${hotel.payer} 代墊 (待平帳)`);
+            $('#statDeposit').text(hotel.deposit);
+
+            if (hotel.map_url) {
+                $('#btnGoogleMapLink').attr('href', hotel.map_url);
+            }
+        }
+
+        // 3. 設為當前房卡
+        window.activateHotelCard = function(hotelId) {
+            const found = rawAccommodationsData.find(h => h.hotel_id === hotelId);
+            if (found) {
+                renderActiveHotelKeycard(found);
+                $('html, body').animate({ scrollTop: 0 }, 400);
+            }
+        };
+
+        // 4. 初始化房費成本分佈 Chart.js
+        function initExpenseChart() {
+            const ctx = document.getElementById('chartHotelExpenses').getContext('2d');
+            
+            const labels = rawAccommodationsData.map(h => h.hotel_name_zh.replace('吉隆坡', '').replace('酒店', ''));
+            const dataValues = rawAccommodationsData.map(h => h.price_myr);
+
+            expenseChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: [
+                            'rgba(139, 92, 246, 0.85)',
+                            'rgba(236, 72, 153, 0.85)',
+                            'rgba(56, 189, 248, 0.85)'
+                        ],
+                        borderColor: '#120924',
+                        borderWidth: 3,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f5f3ff',
+                                font: {
+                                    size: 11
+                                },
+                                padding: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: RM ${Number(context.raw).toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // 5. 事件監聽綁定
+        function bindEventListeners() {
+            // 專案篩選下拉
+            $('#selTripFilter').on('change', function () {
+                const val = $(this).val();
+                if (val === 'ALL') {
+                    dataTableInstance.column(1).search('').draw();
+                } else {
+                    dataTableInstance.column(1).search(val).draw();
+                    const matched = rawAccommodationsData.find(h => h.trip_id === val);
+                    if (matched) renderActiveHotelKeycard(matched);
+                }
+            });
+
+            // GViz / 試算表同步按鈕
+            $('#btnSyncGviz').on('click', function () {
+                const $btn = $(this);
+                const originalHtml = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>數據同步中...');
+
+                setTimeout(() => {
+                    $btn.prop('disabled', false).html(originalHtml);
+                    alert('已成功自 Google 試算表 (my_accommodations) 解耦同步最新房源與憑證數據！');
+                }, 1000);
+            });
+
+            // 新增住宿資料儲存
+            $('#btnSaveHotel').on('click', function () {
+                const newHotel = {
+                    hotel_id: `HTL-${Date.now().toString().slice(-6)}`,
+                    trip_id: $('#inTripId').val(),
+                    hotel_name_zh: $('#inHotelZh').val(),
+                    hotel_name_en: $('#inHotelEn').val() || $('#inHotelZh').val(),
+                    platform: $('#inPlatform').val(),
+                    booking_ref: $('#inBookingRef').val(),
+                    check_in_date: $('#inCheckIn').val(),
+                    check_out_date: $('#inCheckOut').val(),
+                    stay_nights: 3,
+                    room_type: $('#inRoomType').val() || '標準套房',
+                    room_no: '待分配',
+                    price_myr: parseFloat($('#inPriceMyr').val()) || 0,
+                    price_twd: (parseFloat($('#inPriceMyr').val()) || 0) * 7,
+                    payer: $('#inPayer').val(),
+                    deposit: $('#inDeposit').val() || '無押金',
+                    wifi_ssid: $('#inWifi').val() || 'Hotel-WiFi',
+                    wifi_pass: '12345678',
+                    address: $('#inAddress').val() || '市區中心',
+                    map_url: $('#inMapUrl').val() || 'https://maps.google.com',
+                    status: 'CONFIRMED'
+                };
+
+                if (!newHotel.hotel_name_zh || !newHotel.booking_ref) {
+                    alert('請填寫飯店中文名稱與訂房編號！');
+                    return;
+                }
+
+                rawAccommodationsData.unshift(newHotel);
+                dataTableInstance.clear().rows.add(rawAccommodationsData).draw();
+                renderActiveHotelKeycard(newHotel);
+
+                // 更新圖表
+                expenseChartInstance.data.labels.unshift(newHotel.hotel_name_zh);
+                expenseChartInstance.data.datasets[0].data.unshift(newHotel.price_myr);
+                expenseChartInstance.update();
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalAddHotel'));
+                modal.hide();
+                $('#formHotel')[0].reset();
+                alert(`已成功登記「${newHotel.hotel_name_zh}」並同步排入差旅戰情報表！`);
+            });
+        }
+
+        // 6. 一鍵複製小工具
+        window.copyText = function(text, label) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`已複製 ${label}：${text}`);
+            }).catch(err => {
+                console.error('複製失敗', err);
+            });
+        };
+
+        // 7. 彈出電子入住憑證 QR 燈箱
+        window.showVoucherModal = function() {
+            const currentHotel = rawAccommodationsData[0];
+            showVoucherModalByRef(currentHotel.hotel_name_zh, currentHotel.booking_ref);
+        };
+
+        window.showVoucherModalByRef = function(hotelZh, bookingRef) {
+            $('#modalQrHotelTitle').text(hotelZh);
+            $('#modalQrBookingCode').text(bookingRef);
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(bookingRef)}`;
+            $('#imgQrCode').attr('src', qrUrl);
+            const modal = new bootstrap.Modal(document.getElementById('modalVoucherQr'));
+            modal.show();
+        };
+    </script>
+</body>
+</html>

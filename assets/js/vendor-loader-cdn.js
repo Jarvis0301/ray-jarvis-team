@@ -1,6 +1,6 @@
 /**
  * assets/js/vendor-loader.js
- * 專責非同步加載所有第三方 CDN JavaScript 套件
+ * 專責非同步載入所有第三方 CDN JavaScript 套件
  */
 (function() {
     const cssResources = [

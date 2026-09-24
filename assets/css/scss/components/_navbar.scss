@@ -1,0 +1,112 @@
+/* ==========================================================================
+   assets/css/scss/components/_navbar.scss
+   全域標籤頁元件庫 (Nav Tabs & Mobile Form Pills)
+   ========================================================================== */
+
+// --------------------------------------------------------------------------
+// 1. 戰術與樞紐視圖主分頁標籤 (.nav-tabs)
+// --------------------------------------------------------------------------
+.nav-tabs {
+    border-bottom: 2px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.2));
+    gap: 0.35rem;
+
+    .nav-link {
+        color: var(--uvaco-text-muted, #94a3b8);
+        background: var(--uvaco-bg-card-secondary);
+        border: 1px solid var(--uvaco-border-glow);
+        border-bottom: none;
+        border-top-left-radius: var(--uvaco-border-radius-md, 10px);
+        border-top-right-radius: var(--uvaco-border-radius-md, 10px);
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease-in-out;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+
+        &:hover {
+            color: var(--uvaco-text-primary, #ffffff);
+            background: var(--uvaco-bg-card-secondary-hover, rgba(139, 92, 246, 0.12));
+            border-color: var(--uvaco-border-color, rgba(139, 92, 246, 0.25)) var(--uvaco-border-color, rgba(139, 92, 246, 0.25)) transparent;
+        }
+
+        &.active {
+            color: var(--uvaco-text-primary, #ffffff);
+            background: var(--uvaco-bg-card-light, #1a122d);
+            border-color: var(--uvaco-border-color, rgba(139, 92, 246, 0.4)) var(--uvaco-border-color, rgba(139, 92, 246, 0.4)) var(--uvaco-bg-card, #1a122d);
+            border-top: 2px solid var(--uvaco-primary, #8b5cf6);
+            border-bottom: 2px solid var(--uvaco-primary, #8b5cf6);
+            box-shadow: 0 -4px 12px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.2));
+            font-weight: 700;
+        }
+    }
+}
+
+// 視圖標籤行動端 RWD 適配
+@media (max-width: 767.98px) {
+    .nav-tabs {
+        border-bottom: none !important;
+        gap: 0.25rem;
+
+        .nav-item {
+            flex: 1 1 calc(50% - 0.25rem);
+        }
+
+        .nav-link {
+            border-radius: var(--uvaco-border-radius-sm, 8px);
+            border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.18)) !important;
+            padding: 0.5rem 0.6rem;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.03);
+
+            &.active {
+                border-color: var(--uvaco-primary, #8b5cf6) !important;
+                background: var(--uvaco-bg-card-hover, rgba(139, 92, 246, 0.25));
+                box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.3));
+            }
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// 2. 表單/彈窗子分頁膠囊列 (.form-tabs-mobile-nav，支援手機端橫向手勢滑動)
+// --------------------------------------------------------------------------
+.form-tabs-mobile-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    gap: 0.35rem;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    scrollbar-width: none; // Firefox
+
+    .nav-link {
+        font-size: 0.84rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--uvaco-border-color, rgba(139, 92, 246, 0.18));
+        color: var(--uvaco-text-muted, #94a3b8);
+        white-space: nowrap;
+        transition: all 0.2s ease;
+
+        &:hover {
+            color: #ffffff;
+            background: var(--uvaco-bg-card-hover, rgba(139, 92, 246, 0.15));
+        }
+
+        &.active {
+            background: var(--uvaco-primary, #8b5cf6);
+            color: #ffffff;
+            border-color: var(--uvaco-primary, #8b5cf6);
+            box-shadow: 0 0 10px var(--uvaco-primary-glow, rgba(139, 92, 246, 0.35));
+        }
+    }
+}

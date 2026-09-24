@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark-purple">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>採購協調 | 榮祥團隊 - 核心版</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root[data-bs-theme="dark-purple"] {
+            --bs-body-bg: #0a0518;
+            --bs-body-color: #e5e1f0;
+            --bs-purple-base: #8b5cf6;
+            --bs-purple-neon: #c084fc;
+            --bs-pink-neon: #ec4899;
+            --bs-card-bg: #140c2b;
+            --bs-card-border: rgba(139, 92, 246, 0.22);
+            --bs-glass-bg: rgba(20, 12, 43, 0.78);
+            --bs-yellow: #fde047;
+            --bs-orange: #fb923c;
+            --bs-teal: #2dd4bf;
+            --bs-teal-emphasis: #5eead4;
+            --bs-gray-bg: #1d1338;
+        }
+
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            font-family: 'Noto Sans TC', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: 0.02rem;
+            min-height: 100vh;
+        }
+
+        /* 戰術控制台自訂卡片與玻璃擬態 */
+        .tactical-card {
+            background-color: var(--bs-card-bg);
+            border: 1px solid var(--bs-card-border);
+            border-radius: 0.85rem;
+            box-shadow: 0 8px 24px rgba(5, 2, 12, 0.45);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .tactical-card:hover {
+            border-color: rgba(192, 132, 252, 0.45);
+        }
+
+        /* 戰情 HUD 晶片 */
+        .hud-chip {
+            background: linear-gradient(145deg, #170e33 0%, #100824 100%);
+            border: 1px solid rgba(139, 92, 246, 0.28);
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hud-chip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--bs-purple-neon);
+        }
+        .hud-chip.chip-warning::before {
+            background: var(--bs-orange);
+        }
+        .hud-chip.chip-success::before {
+            background: var(--bs-teal);
+        }
+
+        /* 戰術進度條 */
+        .quota-progress-track {
+            background-color: #231644;
+            height: 7px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .quota-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #8b5cf6, #c084fc);
+            transition: width 0.6s ease;
+        }
+
+        /* 策略徽章 */
+        .strategy-badge-early {
+            background-color: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.35);
+        }
+        .strategy-badge-delay {
+            background-color: rgba(251, 146, 60, 0.15);
+            color: #fb923c;
+            border: 1px solid rgba(251, 146, 60, 0.35);
+        }
+        .strategy-badge-ontime {
+            background-color: rgba(45, 212, 191, 0.15);
+            color: #2dd4bf;
+            border: 1px solid rgba(45, 212, 191, 0.35);
+        }
+
+        /* 甘特時間槽卡片樣式 */
+        .flow-bucket-card {
+            background-color: #120926;
+            border: 1px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            min-height: 220px;
+        }
+        .flow-item-card {
+            background: #1b1038;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 0.5rem;
+            padding: 0.65rem 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .flow-item-card:hover {
+            border-color: var(--bs-purple-neon);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+        }
+
+        /* DataTables 自訂暗黑紫外觀 */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #8b5cf6 !important;
+            border-color: #8b5cf6 !important;
+            color: #ffffff !important;
+            border-radius: 50%;
+        }
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: rgba(139, 92, 246, 0.08) !important;
+        }
+        .table > :not(caption) > * > * {
+            border-bottom-color: rgba(139, 92, 246, 0.15);
+        }
+
+        /* 顏色語意 */
+        .text-yellow { color: var(--bs-yellow) !important; }
+        .text-orange { color: var(--bs-orange) !important; }
+        .text-teal { color: var(--bs-teal) !important; }
+        .text-teal-emphasis { color: var(--bs-teal-emphasis) !important; }
+        .text-purple-neon { color: var(--bs-purple-neon) !important; }
+
+        /* 模態彈窗磨砂玻璃 */
+        .modal-content {
+            background-color: #150c2e;
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            box-shadow: 0 16px 40px rgba(5, 2, 15, 0.85);
+            border-radius: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<main class="container-fluid p-3 p-md-4">
+    
+    <!-- 頂部戰術指揮列 -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill bg-primary bg-opacity-25 text-purple-neon px-3 py-1 border border-primary border-opacity-50">
+                    <i class="fa-solid fa-crosshairs me-1"></i> H52000 控制台
+                </span>
+                <span class="badge rounded-pill bg-dark border border-secondary border-opacity-50 text-muted px-2 py-1">
+                    表 505 crm_schedules
+                </span>
+            </div>
+            <h2 class="h4 fw-bold mt-2 mb-0 d-flex align-items-center">
+                <i class="fa-solid fa-calendar-days text-purple-neon me-2"></i> 採購協調戰術控制台
+            </h2>
+            <small class="text-secondary">Ray 專屬戰術：協調自用客戶先買／延買排程，對沖經理 160 / 12,000 SV 門檻缺口</small>
+        </div>
+
+        <!-- 戰術快捷工具按鈕組 -->
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: 170px;">
+                <span class="input-group-text bg-dark border-secondary border-opacity-50 text-secondary">
+                    <i class="fa-solid fa-calendar me-1"></i> 月份
+                </span>
+                <input type="month" id="filterTargetMonth" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white" value="2026-09" onchange="filterTacticalData()">
+            </div>
+            <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-3 btn-manual-sync" onclick="manualSyncSheetsData(this)">
+                <i class="fa-solid fa-arrows-rotate me-1"></i> 同步試算表
+            </button>
+            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow" onclick="openCreateScheduleModal()">
+                <i class="fa-solid fa-plus me-1"></i> 新增協調排程
+            </button>
+        </div>
+    </div>
+
+    <!-- 戰術決策 HUD 晶片群組 -->
+    <div class="row g-3 mb-4">
+        <!-- 經理門檻對沖監控 -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-chip">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="text-secondary fw-semibold">
+                        <i class="fa-solid fa-shield-halved me-1 text-primary"></i> 經理合格 SV 缺口
+                    </small>
+                    <span class="badge rounded-pill bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25" id="hudManagerStatus">缺口警戒</span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-4 fw-bold text-white font-monospace" id="hudCurrentTotalSv">2,480</span>
+                    <span class="text-muted small">/ 3,200 SV</span>
+                </div>
+                <div class="quota-progress-track mt-2">
+                    <div class="quota-progress-bar" id="hudSvProgressBar" style="width: 77.5%;"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1 text-muted" style="font-size: 0.75rem;">
+                    <span>達成率 77.5%</span>
+                    <span class="text-orange">尚缺 720 SV</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 先買提早池（衝刺當月） -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-chip chip-warning">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="text-secondary fw-semibold">
+                        <i class="fa-solid fa-forward me-1 text-pink-neon"></i> 提前下單對沖額
+                    </small>
+                    <span class="badge rounded-pill bg-pink-neon bg-opacity-10 text-pink-neon border border-pink-neon border-opacity-25" id="hudEarlyCount">4 筆協商</span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-4 fw-bold text-teal font-monospace" id="hudEarlySv">+ 580</span>
+                    <span class="text-teal small">SV</span>
+                </div>
+                <small class="text-secondary d-block mt-2" style="font-size: 0.75rem;">
+                    預支次月需求，補足當月合格差額 80.5%
+                </small>
+            </div>
+        </div>
+
+        <!-- 延後緩衝池（蓄力次月） -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-chip chip-success">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="text-secondary fw-semibold">
+                        <i class="fa-solid fa-hourglass-half me-1 text-warning"></i> 延後下單蓄水池
+                    </small>
+                    <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" id="hudDelayCount">3 筆協調</span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-4 fw-bold text-orange font-monospace" id="hudDelaySv">360</span>
+                    <span class="text-orange small">SV 預留</span>
+                </div>
+                <small class="text-secondary d-block mt-2" style="font-size: 0.75rem;">
+                    引導於次月 1~5 日下單，預約下月起跑量
+                </small>
+            </div>
+        </div>
+
+        <!-- 促銷贈禮成本與轉化 -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="hud-chip">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="text-secondary fw-semibold">
+                        <i class="fa-solid fa-gift me-1 text-info"></i> 促銷誘因投放數
+                    </small>
+                    <span class="badge rounded-pill bg-info bg-opacity-10 text-info border border-info border-opacity-25">活躍激勵</span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="fs-4 fw-bold text-yellow font-monospace" id="hudIncentiveCount">6</span>
+                    <span class="text-muted small">份贈禮約定</span>
+                </div>
+                <small class="text-secondary d-block mt-2" style="font-size: 0.75rem;">
+                    平均每 100 SV 贈禮誘因成本約 NT$ 120
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 中間區塊：流向甘特視圖與效益結構圖 -->
+    <div class="row g-3 mb-4">
+        <!-- 戰術排程對沖流動管道 (Gantt 流水池) -->
+        <div class="col-12 col-lg-8">
+            <div class="tactical-card p-3 p-md-4 h-100">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                    <div>
+                        <h3 class="h6 fw-bold mb-0 text-white d-flex align-items-center">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-purple-neon me-2"></i> 採購排程雙軌調度管道
+                        </h3>
+                        <small class="text-secondary">即時監控客戶原本耗盡日與協調約定日之時間位移差</small>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary active" onclick="switchPipelineFilter('ALL', this)">全部</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="switchPipelineFilter('提前下單', this)">提前下單</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="switchPipelineFilter('延後下單', this)">延後下單</button>
+                    </div>
+                </div>
+
+                <!-- 三欄戰術流動槽 -->
+                <div class="row g-2" id="tacticalPipelineFlow">
+                    <!-- 提前下單槽 -->
+                    <div class="col-12 col-md-4">
+                        <div class="flow-bucket-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-secondary border-opacity-25">
+                                <span class="fw-semibold text-pink-neon small">
+                                    <i class="fa-solid fa-angles-left me-1"></i> 提前下單（衝當月）
+                                </span>
+                                <span class="badge rounded-pill bg-dark text-muted border border-secondary border-opacity-25" id="earlyPillCount">0</span>
+                            </div>
+                            <div id="earlyContainer" class="flow-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- 當月如期槽 -->
+                    <div class="col-12 col-md-4">
+                        <div class="flow-bucket-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-secondary border-opacity-25">
+                                <span class="fw-semibold text-teal small">
+                                    <i class="fa-solid fa-arrows-to-dot me-1"></i> 當月如期（穩基底）
+                                </span>
+                                <span class="badge rounded-pill bg-dark text-muted border border-secondary border-opacity-25" id="ontimePillCount">0</span>
+                            </div>
+                            <div id="ontimeContainer" class="flow-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- 延後下單槽 -->
+                    <div class="col-12 col-md-4">
+                        <div class="flow-bucket-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-secondary border-opacity-25">
+                                <span class="fw-semibold text-orange small">
+                                    <i class="fa-solid fa-angles-right me-1"></i> 延後下單（蓄次月）
+                                </span>
+                                <span class="badge rounded-pill bg-dark text-muted border border-secondary border-opacity-25" id="delayPillCount">0</span>
+                            </div>
+                            <div id="delayContainer" class="flow-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 促銷誘因與 SV 貢獻圖表 (Chart.js) -->
+        <div class="col-12 col-lg-4">
+            <div class="tactical-card p-3 p-md-4 h-100 d-flex flex-column">
+                <div class="mb-2">
+                    <h3 class="h6 fw-bold mb-0 text-white d-flex align-items-center">
+                        <i class="fa-solid fa-chart-pie text-purple-neon me-2"></i> 協調誘因結構與點數貢獻
+                    </h3>
+                    <small class="text-secondary">促銷贈禮誘因轉化之 SV 占比</small>
+                </div>
+                <div class="position-relative flex-grow-1" style="min-height: 200px;">
+                    <canvas id="incentiveChart"></canvas>
+                </div>
+                <div class="border-top border-secondary border-opacity-25 pt-2 mt-2" style="font-size: 0.78rem;">
+                    <div class="d-flex justify-content-between text-muted mb-1">
+                        <span><i class="fa-solid fa-circle text-primary me-1"></i> 贈搖搖杯/周邊</span>
+                        <span class="text-teal font-monospace" id="chartLabel1">320 SV</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted mb-1">
+                        <span><i class="fa-solid fa-circle text-pink-neon me-1"></i> 贈體驗包加碼</span>
+                        <span class="text-teal font-monospace" id="chartLabel2">280 SV</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted">
+                        <span><i class="fa-solid fa-circle text-warning me-1"></i> 免運特惠回饋</span>
+                        <span class="text-teal font-monospace" id="chartLabel3">160 SV</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 採購協調詳細履約排程總表 (DataTables) -->
+    <div class="tactical-card p-3 p-md-4 mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+            <div>
+                <h3 class="h6 fw-bold mb-0 text-white d-flex align-items-center">
+                    <i class="fa-solid fa-list-check text-purple-neon me-2"></i> 採購協調主明細管理 (crm_schedules)
+                </h3>
+                <small class="text-secondary">精確追蹤約定下單日、受益經銷夥伴與直接結轉銷貨出庫</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <select id="filterCoordStatus" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white" onchange="filterTacticalData()">
+                    <option value="">所有協調狀態</option>
+                    <option value="協商中">協商中</option>
+                    <option value="顧客同意">顧客同意</option>
+                    <option value="已轉出貨單">已轉出貨單</option>
+                    <option value="協調取消">協調取消</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="scheduleDataTable" class="table table-dark table-hover align-middle w-100" style="font-size: 0.88rem;">
+                <thead>
+                    <tr class="text-secondary border-secondary border-opacity-25">
+                        <th>排程單號</th>
+                        <th>客戶姓名 (代號)</th>
+                        <th>預定產品 SKU</th>
+                        <th>約定盒數</th>
+                        <th>預計 SV</th>
+                        <th>原本耗盡日</th>
+                        <th>約定下單日</th>
+                        <th>策略類型</th>
+                        <th>協商進度</th>
+                        <th>促銷贈禮誘因</th>
+                        <th>受益夥伴</th>
+                        <th class="text-center">戰術操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 由 DataTables 動態以物件模式載入 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- 新增/編輯採購協調排程 Modal -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <section class="modal-content">
+            <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
+                <h5 class="modal-title h6 fw-bold text-white d-flex align-items-center" id="scheduleModalLabel">
+                    <i class="fa-solid fa-calendar-plus text-purple-neon me-2"></i> <span id="modalActionTitle">新增採購協調排程</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </header>
+            <div class="modal-body p-3 p-md-4">
+                <form id="scheduleForm" novalidate onsubmit="return false;">
+                    <input type="hidden" id="formScheduleId">
+
+                    <!-- 第一列：客戶與目標夥伴 -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary small mb-1">
+                                協調客戶姓名 / 代號 <span class="text-danger">*</span>
+                            </label>
+                            <select id="formCustomerId" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white" required onchange="onCustomerSelectChange(this.value)">
+                                <option value="">請選擇客戶...</option>
+                                <option value="CST-000101" data-name="陳美麗">陳美麗 (CST-000101) - 腸胃調養熟客</option>
+                                <option value="CST-000102" data-name="張文祥">張文祥 (CST-000102) - 995 規律使用者</option>
+                                <option value="CST-000103" data-name="林佩君">林佩君 (CST-000103) - 樟芝益愛用 VIP</option>
+                                <option value="CST-000104" data-name="黃國棟">黃國棟 (CST-000104) - 晶亮保健常客</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary small mb-1">
+                                衝刺掛點受益夥伴 <span class="text-danger">*</span>
+                            </label>
+                            <select id="formTargetPartnerId" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white" required>
+                                <option value="PTN-RAY001">Ray 翁榮祥 (核心創始)</option>
+                                <option value="PTN-JARVIS002">Jarvis 林承志 (核心創始)</option>
+                                <option value="PTN-000301">李宏達 (合格經理衝刺線)</option>
+                                <option value="PTN-000302">王淑芬 (珍珠經理衝刺線)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 第二列：產品、盒數與 SV 計算 -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary small mb-1">
+                                預定採購產品 SKU <span class="text-danger">*</span>
+                            </label>
+                            <select id="formProductCode" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white" required onchange="calculatePlannedSv()">
+                                <option value="">選擇產品...</option>
+                                <option value="PRD-TW-001" data-sv="40" data-price="1420">PRD-TW-001 康爾喜乳酸菌 (40 SV / NT$1,420)</option>
+                                <option value="PRD-TW-002" data-sv="120" data-price="4850">PRD-TW-002 樟芝益菌絲體 (120 SV / NT$4,850)</option>
+                                <option value="PRD-TW-003" data-sv="130" data-price="5040">PRD-TW-003 995超級營養液 (130 SV / NT$5,040)</option>
+                                <option value="PRD-TW-004" data-sv="35" data-price="1260">PRD-TW-004 欣悅康調理沖泡包 (35 SV / NT$1,260)</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label text-secondary small mb-1">
+                                協調盒數 <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" id="formPlannedQuantity" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white text-end" value="2" min="1" max="100" required oninput="calculatePlannedSv()">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label text-secondary small mb-1">
+                                預估 SV 點數
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="formPlannedSv" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-teal fw-bold text-end" readonly value="80">
+                                <span class="input-group-text bg-dark border-secondary border-opacity-50 text-teal">SV</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第三列：耗盡日、約定下單日與策略類型 -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-secondary small mb-1">
+                                原本耗盡日 <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" id="formOriginalExhaustDate" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white" required onchange="detectStrategyType()">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-secondary small mb-1">
+                                協調約定下單日 <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" id="formScheduledOrderDate" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white" required onchange="detectStrategyType()">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-secondary small mb-1">
+                                策略類型 (自動判定)
+                            </label>
+                            <select id="formStrategyType" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white" required>
+                                <option value="提前下單">提前下單 (衝當月考核)</option>
+                                <option value="延後下單">延後下單 (蓄次月基底)</option>
+                                <option value="當月如期">當月如期 (正常回購)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 第四列：協調狀態與目標業績月份 -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary small mb-1">
+                                協調進度狀態 <span class="text-danger">*</span>
+                            </label>
+                            <select id="formCoordinationStatus" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white" required>
+                                <option value="協商中">協商中 (正在連繫確認)</option>
+                                <option value="顧客同意">顧客同意 (已達成下單共識)</option>
+                                <option value="已轉出貨單">已轉出貨單 (已結轉出庫帳)</option>
+                                <option value="協調取消">協調取消 (維持原排程)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary small mb-1">
+                                歸戶目標月份 <span class="text-danger">*</span>
+                            </label>
+                            <input type="month" id="formTargetCalcMonth" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white" value="2026-09" required>
+                        </div>
+                    </div>
+
+                    <!-- 第五列：促銷誘因與贈禮備忘 -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-12">
+                            <label class="form-label text-secondary small mb-1">
+                                促銷誘因與贈禮備忘 (Incentive Offer)
+                            </label>
+                            <input type="text" id="formIncentiveOffer" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white" placeholder="如：贈送專屬刻字搖搖杯、免收宅配運費、加贈康爾喜3小包體驗試用等">
+                        </div>
+                    </div>
+
+                    <!-- 第六列：備忘事由 -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-12">
+                            <label class="form-label text-secondary small mb-1">
+                                協調細節備註 (顧客薪資日、家庭出國行程等)
+                            </label>
+                            <textarea id="formRemarks" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white" rows="2" placeholder="備註詳細溝通紀錄與顧客生活考量..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark me-1"></i> 取消
+                </button>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow" onclick="saveScheduleRecord()">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> 儲存排程
+                </button>
+            </footer>
+        </section>
+    </div>
+</div>
+
+<!-- 一鍵轉為銷貨出庫單 Modal -->
+<div class="modal fade" id="convertOutboundModal" tabindex="-1" aria-labelledby="convertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <section class="modal-content">
+            <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
+                <h5 class="modal-title h6 fw-bold text-white d-flex align-items-center" id="convertModalLabel">
+                    <i class="fa-solid fa-cart-flatbed text-purple-neon me-2"></i> 結轉銷貨出庫單 (psi_outbound_orders)
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </header>
+            <div class="modal-body p-3 p-md-4">
+                <div class="alert alert-dark border-secondary border-opacity-50 d-flex align-items-center gap-3 mb-3">
+                    <i class="fa-solid fa-circle-info text-info fs-4"></i>
+                    <small class="text-secondary">
+                        系統將依據顧客同意之協調約定日與產品盒數，原子性生成出庫單據並扣減安全庫存批號（FIFO），同時核銷此協調排程為「已轉出貨單」。
+                    </small>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <small class="text-secondary d-block">來源排程單號</small>
+                        <span class="text-white font-monospace" id="convScheduleId">-</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-secondary d-block">協調顧客</small>
+                        <span class="text-white fw-bold" id="convCustomerName">-</span>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <small class="text-secondary d-block">出庫商品與盒數</small>
+                        <span class="text-white" id="convProductDetails">-</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-secondary d-block">結算總點數 (SV)</small>
+                        <span class="text-teal-emphasis fw-bold" id="convTotalSv">-</span>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small mb-1">出貨倉庫據點 <span class="text-danger">*</span></label>
+                        <select id="convWarehouseId" class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white">
+                            <option value="WH-TW-TP-01">WH-TW-TP-01 台北自用營運庫</option>
+                            <option value="WH-TW-KH-01">WH-TW-KH-01 高雄戰術發貨中心</option>
+                            <option value="WH-TW-TRN-DIRECT">WH-TW-TRN-DIRECT 葡眾總公司直寄宅配</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small mb-1">扣庫出貨日期 <span class="text-danger">*</span></label>
+                        <input type="date" id="convShipDate" class="form-control form-control-sm bg-dark border-secondary border-opacity-50 text-white">
+                    </div>
+                </div>
+            </div>
+            <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark me-1"></i> 取消
+                </button>
+                <button type="button" class="btn btn-success btn-sm rounded-pill px-3 shadow" onclick="executeConvertToOutbound()">
+                    <i class="fa-solid fa-check me-1"></i> 確認生成出貨單
+                </button>
+            </footer>
+        </section>
+    </div>
+</div>
+
+<!-- Vendor Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script>
+    /*
+     * 榮祥團隊（Ray & Jarvis）數位戰術控制台
+     * H52000 採購協調控制模組 (crm-schedules.html)
+     * 資料表對映：crm_schedules (表 505)
+     */
+
+    // Google 試算表欄位名稱與系統模型解耦合 Adapter (Field Mapping)
+    const SCHEDULE_FIELD_MAPPING = {
+        '排程單號': 'schedule_id',
+        '客戶代號': 'customer_id',
+        '產品編號': 'product_code',
+        '監控代號': 'monitor_id',
+        '衝刺夥伴': 'target_partner_id',
+        '目標月份': 'target_calc_month',
+        '約定盒數': 'planned_quantity',
+        '預估SV': 'planned_sv',
+        '原本耗盡日': 'original_exhaust_date',
+        '約定下單日': 'scheduled_order_date',
+        '策略類型': 'strategy_type',
+        '協調進度': 'coordination_status',
+        '促銷贈禮誘因': 'incentive_offer',
+        '備忘事由': 'remarks'
+    };
+
+    // 產品資料常數字典（價格與單盒 SV，與 prd_items 解耦對映）
+    const PRODUCT_DICTIONARY = {
+        'PRD-TW-001': { name: '康爾喜乳酸菌', sv: 40, price: 1420 },
+        'PRD-TW-002': { name: '樟芝益菌絲體', sv: 120, price: 4850 },
+        'PRD-TW-003': { name: '995超級營養液', sv: 130, price: 5040 },
+        'PRD-TW-004': { name: '欣悅康調理沖泡包', sv: 35, price: 1260 }
+    };
+
+    // 記憶體暫存資料（初始戰術 mock 資料，符合 Schema 與實戰情境）
+    let scheduleMemoryStore = [
+        {
+            schedule_id: 'SCH-20260915-0001',
+            customer_id: 'CST-000101',
+            customer_name: '陳美麗',
+            product_code: 'PRD-TW-001',
+            product_name: '康爾喜乳酸菌',
+            monitor_id: 'MON-202609-01',
+            target_partner_id: 'PTN-RAY001',
+            target_partner_name: 'Ray 翁榮祥',
+            target_calc_month: '2026-09',
+            planned_quantity: 4,
+            planned_sv: 160,
+            original_exhaust_date: '2026-10-06',
+            scheduled_order_date: '2026-09-24',
+            strategy_type: '提前下單',
+            coordination_status: '顧客同意',
+            incentive_offer: '贈送特製搖搖杯 1 只 + 滿額免運',
+            remarks: '十月初出國，溝通提前備貨並充實當月經理缺口'
+        },
+        {
+            schedule_id: 'SCH-20260917-0002',
+            customer_id: 'CST-000102',
+            customer_name: '張文祥',
+            product_code: 'PRD-TW-003',
+            product_name: '995超級營養液',
+            monitor_id: 'MON-202609-01',
+            target_partner_id: 'PTN-000301',
+            target_partner_name: '李宏達',
+            target_calc_month: '2026-09',
+            planned_quantity: 2,
+            planned_sv: 260,
+            original_exhaust_date: '2026-10-02',
+            scheduled_order_date: '2026-09-26',
+            strategy_type: '提前下單',
+            coordination_status: '協商中',
+            incentive_offer: '下單加碼贈 995 試用體驗包 2 入',
+            remarks: '預計於 9/25 發薪日確認下單'
+        },
+        {
+            schedule_id: 'SCH-20260918-0003',
+            customer_id: 'CST-000103',
+            customer_name: '林佩君',
+            product_code: 'PRD-TW-002',
+            product_name: '樟芝益菌絲體',
+            monitor_id: 'MON-202609-02',
+            target_partner_id: 'PTN-JARVIS002',
+            target_partner_name: 'Jarvis 林承志',
+            target_calc_month: '2026-09',
+            planned_quantity: 1,
+            planned_sv: 120,
+            original_exhaust_date: '2026-09-28',
+            scheduled_order_date: '2026-10-02',
+            strategy_type: '延後下單',
+            coordination_status: '顧客同意',
+            incentive_offer: '免收宅配運費（由團隊代墊）',
+            remarks: '本月經理額已超標，協調客戶延後 4 天下單蓄力十月'
+        },
+        {
+            schedule_id: 'SCH-20260919-0004',
+            customer_id: 'CST-000104',
+            customer_name: '黃國棟',
+            product_code: 'PRD-TW-001',
+            product_name: '康爾喜乳酸菌',
+            monitor_id: 'MON-202609-01',
+            target_partner_id: 'PTN-RAY001',
+            target_partner_name: 'Ray 翁榮祥',
+            target_calc_month: '2026-09',
+            planned_quantity: 2,
+            planned_sv: 80,
+            original_exhaust_date: '2026-09-25',
+            scheduled_order_date: '2026-09-25',
+            strategy_type: '當月如期',
+            coordination_status: '已轉出貨單',
+            incentive_offer: '常態贈送產品手冊與隨身隨行包',
+            remarks: '已於台北營運中心自提完成出貨'
+        },
+        {
+            schedule_id: 'SCH-20260920-0005',
+            customer_id: 'CST-000102',
+            customer_name: '張文祥',
+            product_code: 'PRD-TW-002',
+            product_name: '樟芝益菌絲體',
+            monitor_id: 'MON-202609-01',
+            target_partner_id: 'PTN-RAY001',
+            target_partner_name: 'Ray 翁榮祥',
+            target_calc_month: '2026-09',
+            planned_quantity: 2,
+            planned_sv: 240,
+            original_exhaust_date: '2026-09-29',
+            scheduled_order_date: '2026-10-03',
+            strategy_type: '延後下單',
+            coordination_status: '協商中',
+            incentive_offer: '贈送欣悅康試飲包 3 包',
+            remarks: '與張先生溝通留至下月初下單享有團隊新人滿額禮'
+        }
+    ];
+
+    let dataTableInstance = null;
+    let incentiveChartInstance = null;
+
+    // 監聽架構 AppReady，具備原生安全降級相容
+    window.addEventListener('AppReady', function () {
+        initTacticalDashboard();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.AppReadyDispatched) {
+            initTacticalDashboard();
+        }
+    });
+
+    // 初始化整體戰情介面
+    function initTacticalDashboard() {
+        initDataTable();
+        initIncentiveChart();
+        refreshTacticalView();
+    }
+
+    // 初始化 DataTables（物件直接載入模式）
+    function initDataTable() {
+        dataTableInstance = $('#scheduleDataTable').DataTable({
+            responsive: true,
+            data: scheduleMemoryStore,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "搜尋排程、客戶、產品或夥伴...",
+                lengthMenu: "每頁 _MENU_ 筆",
+                info: "第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆協調單",
+                infoEmpty: "無協調資料",
+                zeroRecords: "查無符合條件之採購協調單",
+                paginate: {
+                    first: "第一頁",
+                    previous: "上頁",
+                    next: "下頁",
+                    last: "最後一頁"
+                }
+            },
+            columns: [
+                { 
+                    data: 'schedule_id',
+                    render: function(data) {
+                        return `<span class="font-monospace text-secondary">${data}</span>`;
+                    }
+                },
+                {
+                    data: 'customer_name',
+                    render: function(data, type, row) {
+                        return `<div class="fw-bold text-white">${data}</div><small class="text-secondary font-monospace">${row.customer_id}</small>`;
+                    }
+                },
+                {
+                    data: 'product_name',
+                    render: function(data, type, row) {
+                        return `<div>${data}</div><small class="text-secondary font-monospace">${row.product_code}</small>`;
+                    }
+                },
+                {
+                    data: 'planned_quantity',
+                    className: 'text-end font-monospace',
+                    render: function(data) {
+                        return `${data} <span class="text-secondary small">盒</span>`;
+                    }
+                },
+                {
+                    data: 'planned_sv',
+                    className: 'text-end font-monospace',
+                    render: function(data) {
+                        return `<span class="text-teal fw-bold">${data}</span> <span class="text-secondary small">SV</span>`;
+                    }
+                },
+                {
+                    data: 'original_exhaust_date',
+                    className: 'font-monospace text-secondary'
+                },
+                {
+                    data: 'scheduled_order_date',
+                    className: 'font-monospace text-white fw-semibold'
+                },
+                {
+                    data: 'strategy_type',
+                    render: function(data) {
+                        if (data === '提前下單') return `<span class="badge strategy-badge-early px-2 py-1"><i class="fa-solid fa-forward me-1"></i> 提前下單</span>`;
+                        if (data === '延後下單') return `<span class="badge strategy-badge-delay px-2 py-1"><i class="fa-solid fa-hourglass-start me-1"></i> 延後下單</span>`;
+                        return `<span class="badge strategy-badge-ontime px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i> 當月如期</span>`;
+                    }
+                },
+                {
+                    data: 'coordination_status',
+                    render: function(data) {
+                        let colorClass = 'bg-secondary';
+                        let icon = 'fa-clock';
+                        if (data === '顧客同意') { colorClass = 'bg-primary text-white'; icon = 'fa-thumbs-up'; }
+                        if (data === '已轉出貨單') { colorClass = 'bg-success text-white'; icon = 'fa-truck-fast'; }
+                        if (data === '協調取消') { colorClass = 'bg-danger text-white'; icon = 'fa-ban'; }
+                        return `<span class="badge ${colorClass} bg-opacity-25 border border-secondary border-opacity-25 px-2 py-1"><i class="fa-solid ${icon} me-1"></i> ${data}</span>`;
+                    }
+                },
+                {
+                    data: 'incentive_offer',
+                    render: function(data) {
+                        return data ? `<span class="text-yellow small"><i class="fa-solid fa-gift me-1"></i> ${data}</span>` : `<span class="text-secondary small">無誘因登記</span>`;
+                    }
+                },
+                {
+                    data: 'target_partner_name',
+                    render: function(data, type, row) {
+                        return `<span class="text-purple-neon small">${data}</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    className: 'text-center',
+                    render: function(data, type, row) {
+                        const canConvert = (row.coordination_status === '顧客同意');
+                        return `
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-light btn-sm" onclick="editScheduleRecord('${row.schedule_id}')" title="編輯協調細節">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm ${canConvert ? '' : 'disabled'}" onclick="openConvertOutboundModal('${row.schedule_id}')" title="一鍵結轉出貨單">
+                                    <i class="fa-solid fa-cart-arrow-down"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            ],
+            order: [[6, 'asc']] // 依協調約定下單日排序
+        });
+    }
+
+    // 初始化 Chart.js（圓形甜甜圈圖，懸停顯示百分比）
+    function initIncentiveChart() {
+        const ctx = document.getElementById('incentiveChart').getContext('2d');
+        incentiveChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['贈搖搖杯/周邊', '贈體驗包加碼', '免運特惠回饋'],
+                datasets: [{
+                    data: [320, 280, 160],
+                    backgroundColor: ['#8b5cf6', '#ec4899', '#fde047'],
+                    borderWidth: 2,
+                    borderColor: '#140c2b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const value = context.parsed;
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return ` ${context.label}: ${value} SV (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '72%'
+            }
+        });
+    }
+
+    // 重新計算並繪製戰術 HUD、流動管道甘特卡片與圖表
+    function refreshTacticalView() {
+        const targetMonth = $('#filterTargetMonth').val();
+        const coordFilter = $('#filterCoordStatus').val();
+
+        // 依月份與進度過濾數據
+        const activeItems = scheduleMemoryStore.filter(item => {
+            const matchMonth = !targetMonth || item.target_calc_month === targetMonth;
+            const matchCoord = !coordFilter || item.coordination_status === coordFilter;
+            return matchMonth && matchCoord;
+        });
+
+        // 統計指標
+        let totalCurrentSv = 2480; // 模擬當前基本盤累積 SV
+        let earlySvTotal = 0;
+        let delaySvTotal = 0;
+        let earlyCount = 0;
+        let delayCount = 0;
+        let incentiveCount = 0;
+
+        // 清空三個流動池
+        $('#earlyContainer').empty();
+        $('#ontimeContainer').empty();
+        $('#delayContainer').empty();
+
+        let earlyList = [];
+        let ontimeList = [];
+        let delayList = [];
+
+        activeItems.forEach(item => {
+            if (item.incentive_offer) incentiveCount++;
+
+            if (item.strategy_type === '提前下單') {
+                earlySvTotal += item.planned_sv;
+                earlyCount++;
+                earlyList.push(item);
+            } else if (item.strategy_type === '延後下單') {
+                delaySvTotal += item.planned_sv;
+                delayCount++;
+                delayList.push(item);
+            } else {
+                ontimeList.push(item);
+            }
+        });
+
+        // 渲染 HUD 晶片數值
+        $('#hudEarlyCount').text(`${earlyCount} 筆協商`);
+        $('#hudEarlySv').text(`+ ${earlySvTotal}`);
+        $('#hudDelayCount').text(`${delayCount} 筆協調`);
+        $('#hudDelaySv').text(delaySvTotal);
+        $('#hudIncentiveCount').text(incentiveCount);
+
+        // 經理合格 3,200 SV 試算
+        const qualifiedGoal = 3200;
+        const projectedSv = totalCurrentSv + earlySvTotal;
+        const gap = Math.max(0, qualifiedGoal - projectedSv);
+        const percent = Math.min(100, ((projectedSv / qualifiedGoal) * 100)).toFixed(1);
+
+        $('#hudCurrentTotalSv').text(projectedSv);
+        $('#hudSvProgressBar').css('width', `${percent}%`);
+        if (gap === 0) {
+            $('#hudManagerStatus').text('門檻達成').removeClass('bg-danger text-danger').addClass('bg-success text-success');
+        } else {
+            $('#hudManagerStatus').text(`缺口 ${gap} SV`).removeClass('bg-success text-success').addClass('bg-danger text-danger');
+        }
+
+        // 渲染三槽項目
+        renderFlowItems('earlyContainer', earlyList, 'strategy-badge-early');
+        renderFlowItems('ontimeContainer', ontimeList, 'strategy-badge-ontime');
+        renderFlowItems('delayContainer', delayList, 'strategy-badge-delay');
+
+        $('#earlyPillCount').text(earlyList.length);
+        $('#ontimePillCount').text(ontimeList.length);
+        $('#delayPillCount').text(delayList.length);
+
+        // 更新 DataTable 資料
+        if (dataTableInstance) {
+            dataTableInstance.clear();
+            dataTableInstance.rows.add(activeItems);
+            dataTableInstance.draw();
+        }
+    }
+
+    // 渲染流動槽內的卡片
+    function renderFlowItems(containerId, list, badgeClass) {
+        const container = $(`#${containerId}`);
+        if (list.length === 0) {
+            container.html('<div class="text-secondary text-center small py-4">無調度排程</div>');
+            return;
+        }
+
+        list.forEach(item => {
+            const cardHtml = `
+                <div class="flow-item-card" onclick="editScheduleRecord('${item.schedule_id}')">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <span class="fw-bold text-white small">${item.customer_name}</span>
+                        <span class="badge ${badgeClass} small" style="font-size: 0.7rem;">${item.planned_sv} SV</span>
+                    </div>
+                    <div class="text-secondary small d-flex justify-content-between">
+                        <span>${item.product_name} × ${item.planned_quantity}</span>
+                        <span class="text-purple-neon">${item.target_partner_name}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-1 border-top border-secondary border-opacity-10" style="font-size: 0.72rem;">
+                        <span class="text-muted"><i class="fa-regular fa-clock me-1"></i>原耗: ${item.original_exhaust_date}</span>
+                        <span class="text-white fw-semibold"><i class="fa-solid fa-calendar-check text-info me-1"></i>約定: ${item.scheduled_order_date}</span>
+                    </div>
+                </div>
+            `;
+            container.append(cardHtml);
+        });
+    }
+
+    // 依耗盡日與約定日自動判定策略
+    function detectStrategyType() {
+        const originalDate = $('#formOriginalExhaustDate').val();
+        const scheduledDate = $('#formScheduledOrderDate').val();
+        if (!originalDate || !scheduledDate) return;
+
+        const orig = new Date(originalDate);
+        const sched = new Date(scheduledDate);
+
+        if (sched < orig) {
+            $('#formStrategyType').val('提前下單');
+        } else if (sched > orig) {
+            $('#formStrategyType').val('延後下單');
+        } else {
+            $('#formStrategyType').val('當月如期');
+        }
+    }
+
+    // 依選定產品與盒數計算 SV
+    function calculatePlannedSv() {
+        const productCode = $('#formProductCode').val();
+        const qty = parseInt($('#formPlannedQuantity').val(), 10) || 0;
+        if (!productCode || !PRODUCT_DICTIONARY[productCode]) {
+            $('#formPlannedSv').val(0);
+            return;
+        }
+        const unitSv = PRODUCT_DICTIONARY[productCode].sv;
+        $('#formPlannedSv').val(unitSv * qty);
+    }
+
+    // 客戶切換自動補登備用耗盡日（模擬關聯 crm_consumption_estimates）
+    function onCustomerSelectChange(customerId) {
+        if (customerId === 'CST-000101') {
+            $('#formOriginalExhaustDate').val('2026-10-06');
+            $('#formProductCode').val('PRD-TW-001');
+        } else if (customerId === 'CST-000102') {
+            $('#formOriginalExhaustDate').val('2026-10-02');
+            $('#formProductCode').val('PRD-TW-003');
+        } else if (customerId === 'CST-000103') {
+            $('#formOriginalExhaustDate').val('2026-09-28');
+            $('#formProductCode').val('PRD-TW-002');
+        } else {
+            $('#formOriginalExhaustDate').val('2026-09-30');
+            $('#formProductCode').val('PRD-TW-001');
+        }
+        $('#formScheduledOrderDate').val('2026-09-26');
+        calculatePlannedSv();
+        detectStrategyType();
+    }
+
+    // 打開新增排程彈窗
+    function openCreateScheduleModal() {
+        $('#modalActionTitle').text('新增採購協調排程');
+        $('#scheduleForm')[0].reset();
+        $('#formScheduleId').val('');
+        
+        // 預設給定日期
+        const todayStr = '2026-09-22';
+        $('#formOriginalExhaustDate').val('2026-10-05');
+        $('#formScheduledOrderDate').val(todayStr);
+        $('#formPlannedQuantity').val(2);
+        $('#formTargetCalcMonth').val('2026-09');
+        calculatePlannedSv();
+        detectStrategyType();
+
+        const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+        modal.show();
+    }
+
+    // 編輯排程紀錄
+    function editScheduleRecord(scheduleId) {
+        const item = scheduleMemoryStore.find(s => s.schedule_id === scheduleId);
+        if (!item) return;
+
+        $('#modalActionTitle').text(`編輯採購協調 (${item.schedule_id})`);
+        $('#formScheduleId').val(item.schedule_id);
+        $('#formCustomerId').val(item.customer_id);
+        $('#formTargetPartnerId').val(item.target_partner_id);
+        $('#formProductCode').val(item.product_code);
+        $('#formPlannedQuantity').val(item.planned_quantity);
+        $('#formPlannedSv').val(item.planned_sv);
+        $('#formOriginalExhaustDate').val(item.original_exhaust_date);
+        $('#formScheduledOrderDate').val(item.scheduled_order_date);
+        $('#formStrategyType').val(item.strategy_type);
+        $('#formCoordinationStatus').val(item.coordination_status);
+        $('#formTargetCalcMonth').val(item.target_calc_month);
+        $('#formIncentiveOffer').val(item.incentive_offer || '');
+        $('#formRemarks').val(item.remarks || '');
+
+        const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+        modal.show();
+    }
+
+    // 儲存排程（樂觀更新 Optimistic Update）
+    function saveScheduleRecord() {
+        const form = document.getElementById('scheduleForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const scheduleId = $('#formScheduleId').val();
+        const customerId = $('#formCustomerId').val();
+        const customerName = $('#formCustomerId option:selected').data('name') || '客戶';
+        const partnerId = $('#formTargetPartnerId').val();
+        const partnerName = $('#formTargetPartnerId option:selected').text().split(' ')[0];
+        const productCode = $('#formProductCode').val();
+        const productName = PRODUCT_DICTIONARY[productCode] ? PRODUCT_DICTIONARY[productCode].name : productCode;
+        const qty = parseInt($('#formPlannedQuantity').val(), 10) || 1;
+        const sv = parseInt($('#formPlannedSv').val(), 10) || 0;
+        const origDate = $('#formOriginalExhaustDate').val();
+        const schedDate = $('#formScheduledOrderDate').val();
+        const strategy = $('#formStrategyType').val();
+        const status = $('#formCoordinationStatus').val();
+        const targetMonth = $('#formTargetCalcMonth').val();
+        const incentive = $('#formIncentiveOffer').val();
+        const remarks = $('#formRemarks').val();
+
+        if (scheduleId) {
+            // 更新現存記錄
+            const idx = scheduleMemoryStore.findIndex(s => s.schedule_id === scheduleId);
+            if (idx !== -1) {
+                scheduleMemoryStore[idx] = {
+                    ...scheduleMemoryStore[idx],
+                    customer_id: customerId,
+                    customer_name: customerName,
+                    target_partner_id: partnerId,
+                    target_partner_name: partnerName,
+                    product_code: productCode,
+                    product_name: productName,
+                    planned_quantity: qty,
+                    planned_sv: sv,
+                    original_exhaust_date: origDate,
+                    scheduled_order_date: schedDate,
+                    strategy_type: strategy,
+                    coordination_status: status,
+                    target_calc_month: targetMonth,
+                    incentive_offer: incentive,
+                    remarks: remarks
+                };
+            }
+        } else {
+            // 新增排程
+            const newId = `SCH-${targetMonth.replace('-', '')}-${String(scheduleMemoryStore.length + 1).padStart(4, '0')}`;
+            scheduleMemoryStore.unshift({
+                schedule_id: newId,
+                customer_id: customerId,
+                customer_name: customerName,
+                target_partner_id: partnerId,
+                target_partner_name: partnerName,
+                product_code: productCode,
+                product_name: productName,
+                monitor_id: 'MON-202609-AUTO',
+                planned_quantity: qty,
+                planned_sv: sv,
+                original_exhaust_date: origDate,
+                scheduled_order_date: schedDate,
+                strategy_type: strategy,
+                coordination_status: status,
+                target_calc_month: targetMonth,
+                incentive_offer: incentive,
+                remarks: remarks
+            });
+        }
+
+        // 關閉 Modal 並刷新前端視圖
+        const modalEl = document.getElementById('scheduleModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+
+        refreshTacticalView();
+    }
+
+    // 打開結轉出庫單 Modal
+    let pendingConvertScheduleId = null;
+    function openConvertOutboundModal(scheduleId) {
+        const item = scheduleMemoryStore.find(s => s.schedule_id === scheduleId);
+        if (!item) return;
+
+        pendingConvertScheduleId = scheduleId;
+        $('#convScheduleId').text(item.schedule_id);
+        $('#convCustomerName').text(`${item.customer_name} (${item.customer_id})`);
+        $('#convProductDetails').text(`${item.product_name} × ${item.planned_quantity} 盒`);
+        $('#convTotalSv').text(`${item.planned_sv} SV`);
+        $('#convShipDate').val(item.scheduled_order_date);
+
+        const modal = new bootstrap.Modal(document.getElementById('convertOutboundModal'));
+        modal.show();
+    }
+
+    // 執行轉銷貨出庫（閉環連動）
+    function executeConvertToOutbound() {
+        if (!pendingConvertScheduleId) return;
+
+        const idx = scheduleMemoryStore.findIndex(s => s.schedule_id === pendingConvertScheduleId);
+        if (idx !== -1) {
+            // 樂觀更新狀態為「已轉出貨單」
+            scheduleMemoryStore[idx].coordination_status = '已轉出貨單';
+        }
+
+        const modalEl = document.getElementById('convertOutboundModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+
+        refreshTacticalView();
+    }
+
+    // 管道過濾切換
+    function switchPipelineFilter(strategy, btn) {
+        $(btn).siblings().removeClass('active');
+        $(btn).addClass('active');
+
+        if (strategy === 'ALL') {
+            $('#earlyContainer').parent().parent().show();
+            $('#ontimeContainer').parent().parent().show();
+            $('#delayContainer').parent().parent().show();
+        } else if (strategy === '提前下單') {
+            $('#earlyContainer').parent().parent().show();
+            $('#ontimeContainer').parent().parent().hide();
+            $('#delayContainer').parent().parent().hide();
+        } else if (strategy === '延後下單') {
+            $('#earlyContainer').parent().parent().hide();
+            $('#ontimeContainer').parent().parent().hide();
+            $('#delayContainer').parent().parent().show();
+        }
+    }
+
+    // 篩選更新觸發
+    function filterTacticalData() {
+        refreshTacticalView();
+    }
+
+    // 手動同步試算表（遵守指定按鈕規格）
+    function manualSyncSheetsData(btn) {
+        const icon = $(btn).find('i');
+        icon.addClass('fa-spin');
+        $(btn).prop('disabled', true);
+
+        setTimeout(() => {
+            icon.removeClass('fa-spin');
+            $(btn).prop('disabled', false);
+            refreshTacticalView();
+        }, 800);
+    }
+</script>
+</body>
+</html>

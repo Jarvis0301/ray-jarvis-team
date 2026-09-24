@@ -1,0 +1,268 @@
+/* _tables.scss */
+
+.table-dark-custom {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--uvaco-text-light);
+    --bs-table-border-color: var(--uvaco-border-color);
+    border-color: var(--uvaco-border-glow) !important;
+    color: var(--uvaco-text-primary, #f8fafc) !important;
+    margin-bottom: 0 !important;
+    width: 100%;
+
+    thead th {
+        background-color: var(--uvaco-bg-card-hover) !important;
+        color: var(--uvaco-secondary) !important;
+        border-bottom: 2px solid var(--uvaco-border-color) !important;
+        font-weight: 600;
+        padding: 0.75rem 1rem !important;   /* 左右 padding 必須與 td 嚴格一致 */
+        vertical-align: middle;
+        white-space: nowrap !important;     /* 避免表頭折行造成欄寬計算偏差 */
+        text-align: center !important;      /* 加上 !important 防止被 DataTables / BS5 預設靠左覆蓋 */
+    }
+
+    tbody tr {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        transition: background-color 0.15s ease;
+
+        td {
+            background-color: transparent !important;
+            vertical-align: middle;
+            padding: 0.75rem 1rem !important;   /* 左右 padding 必須與 th 嚴格一致 */
+            border-bottom: 1px solid var(--uvaco-border-color) !important;
+            white-space: nowrap !important;     /* 防止內容折行擠壓寬度 */
+        }
+
+        &:hover td {
+            background-color: var(--uvaco-bg-card-hover) !important;
+        }
+
+        &:last-child td {
+            border-bottom: 2px solid var(--uvaco-border-glow) !important;
+        }
+    }
+
+    /* 限制表格內頭像與產品縮圖尺寸，防止非同步載入撐開欄位 */
+    img.avatar-img,
+    img.product-thumb {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        border-radius: 50%;
+        display: inline-block;
+    }
+}
+
+/* DataTables */
+.dataTables_wrapper {
+    width: 100%;
+    
+    .dataTables_scrollHead {
+        overflow: hidden !important;
+    }
+
+    .dataTables_scrollHeadInner {
+        box-sizing: content-box !important;
+        
+        table {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    .dataTables_scrollBody {
+        table {
+            border-bottom: 1px solid var(--uvaco-border-color) !important;
+            margin-bottom: 0 !important;
+        }
+    }
+}
+
+/* ==========================================================================
+   DataTables 全域分頁主題色系穿透覆寫 (相容 DataTables 1.x / 2.x / 3.x 與 Bootstrap 5.3+)
+   ========================================================================== */
+
+/* 1. 從根源重設 Bootstrap 5.3+ 分頁 CSS 變數 */
+.pagination,
+.dataTables_paginate .pagination,
+.dt-paging .pagination {
+    --bs-pagination-color: var(--uvaco-text-secondary, #94a3b8);
+    --bs-pagination-bg: var(--uvaco-bg-card, #10241b);
+    --bs-pagination-border-color: var(--uvaco-border-color, rgba(255, 255, 255, 0.1));
+    
+    --bs-pagination-hover-color: var(--uvaco-text-primary, #ffffff);
+    --bs-pagination-hover-bg: var(--uvaco-bg-card-hover, #1a3f33);
+    --bs-pagination-hover-border-color: var(--uvaco-border-glow, rgba(16, 185, 129, 0.5));
+    
+    --bs-pagination-focus-color: var(--uvaco-text-primary, #ffffff);
+    --bs-pagination-focus-bg: var(--uvaco-bg-card-hover, #1a3f33);
+    --bs-pagination-focus-box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(16, 185, 129, 0.25));
+    
+    /* 當前選中頁 (Active) 變數：直接套用當前主題 Primary 色 */
+    --bs-pagination-active-color: var(--uvaco-dark, #062e1e) !important;
+    --bs-pagination-active-bg: var(--uvaco-primary, #10b981) !important;
+    --bs-pagination-active-border-color: var(--uvaco-primary, #10b981) !important;
+    
+    --bs-pagination-disabled-color: var(--uvaco-muted, #6c757d);
+    --bs-pagination-disabled-bg: rgba(255, 255, 255, 0.02);
+    --bs-pagination-disabled-border-color: rgba(255, 255, 255, 0.05);
+
+    margin-top: 1rem;
+    gap: 0.25rem;
+}
+
+/* 2. 實體 DOM 樣式強效穿透 (跨版本 DataTables 全量覆蓋) */
+:is(.dataTables_wrapper, .dt-container, body) :is(.pagination, .dataTables_paginate, .dt-paging) {
+    
+    /* 一般頁碼按鈕 */
+    .page-item .page-link,
+    .page-link {
+        background-color: var(--uvaco-bg-card, #10241b) !important;
+        border: 1px solid var(--uvaco-border-color, rgba(255, 255, 255, 0.1)) !important;
+        color: var(--uvaco-text-secondary, #94a3b8) !important;
+        border-radius: 6px !important;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        box-shadow: none !important;
+
+        &:hover {
+            background-color: var(--uvaco-bg-card-hover, #1a3f33) !important;
+            border-color: var(--uvaco-border-glow, rgba(16, 185, 129, 0.5)) !important;
+            color: var(--uvaco-text-primary, #ffffff) !important;
+        }
+
+        &:focus {
+            box-shadow: 0 0 0 0.25rem var(--uvaco-border-glow, rgba(16, 185, 129, 0.25)) !important;
+        }
+    }
+
+    /* 當前選中頁碼 (Active)：消除預設藍色，套用主題色與外發光 */
+    .page-item.active .page-link,
+    .page-item.active > .page-link,
+    .page-link.active,
+    .active > .page-link {
+        background-color: var(--uvaco-primary, #10b981) !important;
+        border-color: var(--uvaco-primary, #10b981) !important;
+        color: var(--uvaco-dark, #062e1e) !important;
+        font-weight: 700 !important;
+        box-shadow: 0 0 10px var(--uvaco-border-glow, rgba(16, 185, 129, 0.5)) !important;
+    }
+
+    /* 禁用按鈕 (Disabled) */
+    .page-item.disabled .page-link,
+    .page-item.disabled > .page-link,
+    .page-link.disabled {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        color: var(--uvaco-muted, #6c757d) !important;
+        opacity: 0.4 !important;
+        cursor: not-allowed !important;
+    }
+
+    /* 3. DataTables 原生按鈕結構相容（若未載入 Bootstrap 5 分頁外掛時的回退防護） */
+    .paginate_button {
+        border-radius: 6px !important;
+        border: 1px solid var(--uvaco-border-color) !important;
+        background: var(--uvaco-bg-card) !important;
+        color: var(--uvaco-text-secondary) !important;
+
+        &.current,
+        &.current:hover {
+            background: var(--uvaco-primary) !important;
+            border-color: var(--uvaco-primary) !important;
+            color: var(--uvaco-dark) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 10px var(--uvaco-border-glow) !important;
+        }
+
+        &:hover {
+            background: var(--uvaco-bg-card-hover) !important;
+            border-color: var(--uvaco-border-glow) !important;
+            color: var(--uvaco-text-primary) !important;
+        }
+    }
+}
+
+/* ==========================================================================
+   DataTables 自訂文字排序符號 (⇅ / ▲ / ▼)
+   ========================================================================== */
+:is(.dataTables_wrapper, .dt-container, body) :is(.table-dark-custom, table.dataTable, .dataTables_scrollHead table) thead th {
+
+    /* 1. 清除所有原生箭頭並保留右側文字符號空間 */
+    &.sorting,
+    &.sorting_asc,
+    &.sorting_desc,
+    &.dt-orderable-asc,
+    &.dt-orderable-desc,
+    &.dt-ordering-asc,
+    &.dt-ordering-desc {
+        position: relative !important;
+        padding-right: 1.8rem !important;
+        background-image: none !important; /* 清除 DT 1.x 原生圖片 */
+        cursor: pointer !important;
+        user-select: none;
+
+        /* 清除 Bootstrap 5 原生 ::before 向上箭頭與 DT 2.x DOM */
+        &::before {
+            content: none !important;
+            display: none !important;
+        }
+        .dt-column-order {
+            display: none !important;
+        }
+
+        /* 統一由 ::after 輸出符號 */
+        &::after {
+            position: absolute !important;
+            right: 0.75rem !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            transition: color 0.2s ease, opacity 0.2s ease, text-shadow 0.2s ease;
+        }
+    }
+
+    /* 2. 未排序狀態：顯示淡灰色雙向箭頭 ⇅ */
+    &:is(.sorting, .dt-orderable-asc, .dt-orderable-desc):not(.sorting_asc, .sorting_desc, .dt-ordering-asc, .dt-ordering-desc)::after {
+        content: "⇅" !important;
+        color: var(--uvaco-text-secondary) !important;
+        opacity: 0.5;
+    }
+
+    &:is(.sorting, .dt-orderable-asc, .dt-orderable-desc):hover::after {
+        opacity: 0.9;
+    }
+
+    /* 3. 升冪排序狀態：高亮主題色 ▲ */
+    &:is(.sorting_asc, .dt-ordering-asc) {
+        &::after {
+            content: "▲" !important;
+            color: var(--uvaco-secondary) !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 8px var(--uvaco-border-glow);
+        }
+    }
+
+    /* 4. 降冪排序狀態：高亮主題色 ▼ */
+    &:is(.sorting_desc, .dt-ordering-desc) {
+        &::after {
+            content: "▼" !important;
+            color: var(--uvaco-secondary) !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 8px var(--uvaco-border-glow);
+        }
+    }
+
+    /* 5. 禁用排序欄位：隱藏符號 */
+    &.sorting_disabled {
+        cursor: default !important;
+        padding-right: 1rem !important;
+
+        &::before,
+        &::after {
+            content: none !important;
+            display: none !important;
+        }
+    }
+}

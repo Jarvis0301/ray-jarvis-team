@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>葡眾網站 - 專利認證管理 (Patents & Awards CMS)</title>
+    <title>專利認證 | 榮祥團隊 - 核心版</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -265,7 +265,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="page-header-title mb-0">專利認證與品質標章</h3>
                             <span class="badge badge-bio badge-bio-invention">
-                                <i class="fa-solid fa-shield-halved"></i> H15000 CMS
+                                <i class="fa-solid fa-shield-halved me-1"></i>H15000 CMS
                             </span>
                         </div>
                         <p class="text-muted small mb-0 mt-1">維護葡萄王生技 234+ 項官方國際發明專利、SNQ 國家品質標章與產品關聯矩陣</p>
@@ -275,10 +275,10 @@
             <div class="col-12 col-md-5 text-md-end">
                 <div class="d-flex flex-wrap justify-content-md-end gap-2">
                     <button class="btn btn-outline-purple" id="btnSyncGoogleSheets">
-                        <i class="fa-solid fa-arrows-rotate"></i> 同步試算表
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
                     </button>
                     <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#patentModal" onclick="openPatentModal('add')">
-                        <i class="fa-solid fa-plus"></i> 新增專利認證
+                        <i class="fa-solid fa-plus me-1"></i>新增專利認證
                     </button>
                 </div>
             </div>
@@ -289,7 +289,7 @@
                 <div class="glass-panel p-3 p-md-4 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="fw-bold fs-6 text-white d-flex align-items-center">
-                            <i class="fa-solid fa-chart-pie me-2 text-purple" style="color: var(--purple-light);"></i> 專利技術與認證資產分佈
+                            <i class="fa-solid fa-chart-pie me-2 text-purple" style="color: var(--purple-light);"></i>專利技術與認證資產分佈
                         </div>
                         <span class="badge bg-dark text-muted border border-secondary small">Real-time Metrics</span>
                     </div>
@@ -319,7 +319,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="p-2 rounded-3" style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2);">
-                                        <div class="text-muted small">SKU 賦能關聯次數</div>
+                                        <div class="text-muted small">SKU 支援關聯次數</div>
                                         <div class="fs-4 fw-bold text-white mt-1" id="statRelCount">115 <span class="fs-6 fw-normal text-muted">次</span></div>
                                     </div>
                                 </div>
@@ -333,30 +333,30 @@
                 <div class="glass-panel p-3 p-md-4 h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="fw-bold fs-6 text-white mb-2 d-flex align-items-center">
-                            <i class="fa-solid fa-filter me-2" style="color: var(--purple-light);"></i> 專利類別篩選
+                            <i class="fa-solid fa-filter me-2" style="color: var(--purple-light);"></i>專利類別篩選
                         </div>
                         <p class="text-muted small mb-3">依據官方認證類別切換檢視專利與產品關聯</p>
                         
                         <div class="d-flex flex-wrap gap-2 mb-3" id="filterButtonGroup">
                             <button class="btn btn-outline-purple btn-sm active" data-filter="ALL">
-                                <i class="fa-solid fa-list-ul"></i> 全部標章 (246)
+                                <i class="fa-solid fa-list-ul me-1"></i>全部標章 (246)
                             </button>
                             <button class="btn btn-outline-purple btn-sm" data-filter="INVENTION">
-                                <i class="fa-solid fa-microchip"></i> 發明專利
+                                <i class="fa-solid fa-microchip me-1"></i>發明專利
                             </button>
                             <button class="btn btn-outline-purple btn-sm" data-filter="SNQ">
-                                <i class="fa-solid fa-medal"></i> SNQ 標章
+                                <i class="fa-solid fa-medal me-1"></i>SNQ 標章
                             </button>
                             <button class="btn btn-outline-purple btn-sm" data-filter="GOLD_MEDAL">
-                                <i class="fa-solid fa-trophy"></i> 國際金牌
+                                <i class="fa-solid fa-trophy me-1"></i>國際金牌
                             </button>
                         </div>
                     </div>
 
                     <div class="pt-2 border-top border-secondary border-opacity-25">
                         <div class="d-flex justify-content-between align-items-center text-muted small">
-                            <span><i class="fa-solid fa-database"></i> 數據源解耦狀態</span>
-                            <span class="text-success"><i class="fa-solid fa-circle-check"></i> GViz Connected</span>
+                            <span><i class="fa-solid fa-database me-1"></i>數據源解耦狀態</span>
+                            <span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>GViz Connected</span>
                         </div>
                     </div>
                 </div>
@@ -366,10 +366,10 @@
         <div class="glass-panel p-3 p-md-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                 <div class="fw-bold fs-5 text-white d-flex align-items-center">
-                    <i class="fa-solid fa-table-list me-2 text-purple" style="color: var(--purple-light);"></i> 專利認證與產品關聯清單 (prd_patents)
+                    <i class="fa-solid fa-table-list me-2 text-purple" style="color: var(--purple-light);"></i>專利認證與產品關聯清單 (prd_patents)
                 </div>
                 <div class="text-muted small">
-                    <i class="fa-solid fa-circle-info"></i> 點擊「證書圖檔」可調閱官方高清掃描檔進行核驗
+                    <i class="fa-solid fa-circle-info me-1"></i>點擊「證書圖檔」可調閱官方高清掃描檔進行核驗
                 </div>
             </div>
 
@@ -400,7 +400,7 @@
             <div class="modal-content purple-modal">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold text-white d-flex align-items-center">
-                        <i class="fa-solid fa-award me-2" style="color: var(--purple-light);"></i> 編輯專利認證主檔
+                        <i class="fa-solid fa-award me-2" style="color: var(--purple-light);"></i>編輯專利認證主檔
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -410,11 +410,11 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">專利/標章公號 (patent_no) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-dark text-white border-secondary" id="patent_no" placeholder="例：I524814 或 SNQ2025-A018" required>
+                                <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" id="patent_no" placeholder="例：I524814 或 SNQ2025-A018" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">認證類別 (patent_type) <span class="text-danger">*</span></label>
-                                <select class="form-select bg-dark text-white border-secondary" id="patent_type">
+                                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="patent_type">
                                     <option value="INVENTION">發明專利 (INVENTION)</option>
                                     <option value="SNQ">SNQ 國家品質標章 (SNQ)</option>
                                     <option value="GOLD_MEDAL">國際發明展金牌 (GOLD_MEDAL)</option>
@@ -422,27 +422,27 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-muted small">專利中文名稱 (title_zh) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-dark text-white border-secondary" id="title_zh" placeholder="例：樟芝菌絲體活性成分萃取與護肝用途" required>
+                                <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" id="title_zh" placeholder="例：樟芝菌絲體活性成分萃取與護肝用途" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">頒發國別或權威機構 (country_or_org)</label>
-                                <input type="text" class="form-control bg-dark text-white border-secondary" id="country_or_org" placeholder="例：中華民國經濟部智慧財產局">
+                                <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" id="country_or_org" placeholder="例：中華民國經濟部智慧財產局">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">專利公告/頒發日期 (issue_date)</label>
-                                <input type="date" class="form-control bg-dark text-white border-secondary" id="issue_date">
+                                <input type="date" class="form-control form-control-sm bg-dark text-white border-secondary" id="issue_date">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">官方專利證書掃描圖檔網址 (certificate_url)</label>
-                                <input type="url" class="form-control bg-dark text-white border-secondary" id="certificate_url" placeholder="https://...">
+                                <input type="url" class="form-control form-control-sm bg-dark text-white border-secondary" id="certificate_url" placeholder="https://...">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">徽章小圖示網址 (badge_icon_url)</label>
-                                <input type="url" class="form-control bg-dark text-white border-secondary" id="badge_icon_url" placeholder="https://...">
+                                <input type="url" class="form-control form-control-sm bg-dark text-white border-secondary" id="badge_icon_url" placeholder="https://...">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">前台展示排序 (sort_order)</label>
-                                <input type="number" class="form-control bg-dark text-white border-secondary" id="sort_order" value="0">
+                                <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary" id="sort_order" value="0">
                             </div>
                             <div class="col-md-6 d-flex align-items-center pt-4">
                                 <div class="form-check form-switch">
@@ -454,7 +454,7 @@
                             <div class="col-12">
                                 <div class="p-3 rounded-3" style="background: rgba(13, 10, 26, 0.7); border: 1px solid var(--border-color);">
                                     <label class="form-label text-white small fw-bold mb-2">
-                                        <i class="fa-solid fa-link" style="color: var(--purple-light);"></i> 綁定賦能產品 SKU (prd_patent_rels)
+                                        <i class="fa-solid fa-link" style="color: var(--purple-light);"></i>綁定支援產品 SKU (prd_patent_rels)
                                     </label>
                                     <div class="row g-2" id="skuBindingContainer">
                                         </div>
@@ -466,7 +466,7 @@
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-purple" id="btnSavePatent">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存認證資料
+                        <i class="fa-solid fa-floppy-disk me-1"></i>儲存認證資料
                     </button>
                 </div>
             </div>
@@ -478,7 +478,7 @@
             <div class="modal-content purple-modal">
                 <div class="modal-header border-0 pb-0">
                     <h6 class="modal-title text-white fw-bold" id="certModalTitle">
-                        <i class="fa-solid fa-file-shield me-2" style="color: var(--neon-gold);"></i> 官方專利證書核驗
+                        <i class="fa-solid fa-file-shield me-2" style="color: var(--neon-gold);"></i>官方專利證書核驗
                     </h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -488,8 +488,8 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center px-2">
                         <span class="text-muted small" id="certNoDisplay">專利公號：-</span>
-                        <a href="#" id="certDownloadLink" target="_blank" class="btn btn-sm btn-outline-purple">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟原圖
+                        <a href="#" id="certDownloadLink" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>開啟原圖
                         </a>
                     </div>
                 </div>
@@ -682,11 +682,11 @@
                         data: 'patent_type',
                         render: function(data) {
                             if (data === 'INVENTION') {
-                                return `<span class="badge-bio badge-bio-invention"><i class="fa-solid fa-microchip me-1"></i> 發明專利</span>`;
+                                return `<span class="badge-bio badge-bio-invention"><i class="fa-solid fa-microchip me-1"></i>發明專利</span>`;
                             } else if (data === 'SNQ') {
-                                return `<span class="badge-bio badge-bio-snq"><i class="fa-solid fa-medal me-1"></i> 品質標章</span>`;
+                                return `<span class="badge-bio badge-bio-snq"><i class="fa-solid fa-medal me-1"></i>品質標章</span>`;
                             } else {
-                                return `<span class="badge-bio badge-bio-gold"><i class="fa-solid fa-trophy me-1"></i> 國際金牌</span>`;
+                                return `<span class="badge-bio badge-bio-gold"><i class="fa-solid fa-trophy me-1"></i>國際金牌</span>`;
                             }
                         }
                     },
@@ -720,8 +720,8 @@
                         data: 'is_active',
                         render: function(data) {
                             return data 
-                                ? `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25"><i class="fa-solid fa-check"></i> 公開</span>`
-                                : `<span class="badge bg-secondary bg-opacity-20 text-muted"><i class="fa-solid fa-eye-slash"></i> 隱藏</span>`;
+                                ? `<span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25"><i class="fa-solid fa-check me-1"></i>公開</span>`
+                                : `<span class="badge bg-secondary bg-opacity-20 text-muted"><i class="fa-solid fa-eye-slash me-1"></i>隱藏</span>`;
                         }
                     },
                     {
@@ -730,10 +730,10 @@
                         render: function(data, type, row) {
                             return `
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-outline-purple" onclick="viewCertificate('${row.certificate_url}', '${row.patent_no}', '${row.title_zh}')" title="檢驗證書">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewCertificate('${row.certificate_url}', '${row.patent_no}', '${row.title_zh}')" title="檢驗證書">
                                         <i class="fa-solid fa-certificate"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-purple" onclick="openPatentModal('edit', ${row.id})" title="編輯專利">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="openPatentModal('edit', ${row.id})" title="編輯專利">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="deletePatent(${row.id})" title="刪除">
@@ -798,7 +798,7 @@
 
         // 6. 檢驗專利證書 Lightbox
         window.viewCertificate = function(url, no, title) {
-            $('#certModalTitle').html(`<i class="fa-solid fa-file-shield me-2" style="color: var(--neon-gold);"></i> 官方專利證書核驗 - ${title}`);
+            $('#certModalTitle').html(`<i class="fa-solid fa-file-shield me-2" style="color: var(--neon-gold);"></i>官方專利證書核驗 - ${title}`);
             $('#certNoDisplay').text(`專利公號：${no}`);
             $('#certViewerImg').attr('src', url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80');
             $('#certDownloadLink').attr('href', url || '#');
@@ -852,7 +852,7 @@
             refreshTableData();
         });
 
-        // 重新加載 DataTable
+        // 重新載入 DataTable
         function refreshTableData() {
             if (dataTableInstance) {
                 dataTableInstance.clear();
@@ -878,11 +878,11 @@
             // 試算表 GViz / PapaParse 解耦同步示範
             $('#btnSyncGoogleSheets').on('click', function() {
                 const $btn = $(this);
-                $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 載入中...').prop('disabled', true);
+                $btn.html('<i class="fa-solid fa-spinner fa-spin me-1"></i>載入中...').prop('disabled', true);
                 
                 // 模擬 GViz API 抓取與解耦轉換流程
                 setTimeout(() => {
-                    $btn.html('<i class="fa-solid fa-arrows-rotate"></i> 同步試算表').prop('disabled', false);
+                    $btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表').prop('disabled', false);
                     alert('已成功透過解耦管道同步 Google 試算表 [01_產品 - 專利認證主表] 最新數據！');
                 }, 900);
             });

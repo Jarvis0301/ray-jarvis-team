@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公告管理 | 創始核心戰情室</title>
+    <title>公告管理 | 榮祥團隊 - 核心版</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -39,7 +39,7 @@
             padding: 1.25rem;
         }
 
-        /* 滾動條美化 */
+        /* 捲動條美化 */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -257,23 +257,23 @@
             <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
                 <div class="btn-group p-1 rounded-3" style="background: rgba(0,0,0,0.3); border: 1px solid var(--uvaco-border);">
                     <button class="btn btn-sm btn-cyber-outline active" id="btnViewCards" title="動態情報流">
-                        <i class="fa-solid fa-table-cells-large"></i> 情報卡片
+                        <i class="fa-solid fa-table-cells-large me-1"></i>情報卡片
                     </button>
                     <button class="btn btn-sm btn-cyber-outline" id="btnViewTable" title="資料矩陣管理表">
-                        <i class="fa-solid fa-table-list"></i> 資料矩陣
+                        <i class="fa-solid fa-table-list me-1"></i>資料矩陣
                     </button>
                 </div>
 
                 <button class="btn btn-sm btn-cyber-outline" id="btnSyncGoogleSheets">
-                    <i class="fa-solid fa-rotate"></i> 同步試算表
+                    <i class="fa-solid fa-rotate me-1"></i>同步試算表
                 </button>
 
                 <button class="btn btn-sm btn-cyber-outline" id="btnScrapeOfficial">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> 擷取官方公告
+                    <i class="fa-solid fa-cloud-arrow-down me-1"></i>擷取官方公告
                 </button>
 
                 <button class="btn btn-sm btn-cyber-primary" id="btnOpenCreateModal">
-                    <i class="fa-solid fa-plus"></i> 發布新公告
+                    <i class="fa-solid fa-plus me-1"></i>發布新公告
                 </button>
             </div>
         </div>
@@ -283,11 +283,11 @@
         <div class="col-12 col-xl-8">
             <div class="marquee-container p-2 px-3 d-flex align-items-center">
                 <span class="badge badge-cyber badge-cyber-pink me-2 flex-shrink-0">
-                    <i class="fa-solid fa-tower-broadcast"></i> 前台跑馬
+                    <i class="fa-solid fa-tower-broadcast me-1"></i>前台跑馬
                 </span>
                 <div class="overflow-hidden w-100" style="white-space: nowrap;">
                     <div id="liveMarqueeText" class="text-light small text-truncate">
-                        <i class="fa-solid fa-thumbtack text-warning me-1"></i> 【重要調價】自 2026 年 3 月 1 日起，康爾喜益生菌與 995 營養液實施春季最新積分調整方案，請核心夥伴詳閱說明。
+                        <i class="fa-solid fa-thumbtack text-warning me-1"></i>【重要調價】自 2026 年 3 月 1 日起，康爾喜益生菌與 995 營養液實施春季最新積分調整方案，請核心夥伴詳閱說明。
                     </div>
                 </div>
             </div>
@@ -322,9 +322,9 @@
         <div class="row g-2 align-items-center">
             <div class="col-6 col-sm-4 col-md-2">
                 <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterCountry">
-                    <option value="ALL"><i class="fa-solid fa-globe"></i> 全部市場 (ALL)</option>
-                    <option value="TW">台灣市場 (TW)</option>
-                    <option value="MY">馬來西亞 (MY)</option>
+                    <option value="ALL"><i class="fa-solid fa-globe me-1"></i>全部市場 (ALL)</option>
+                    <option value="TW">🇹🇼 台灣 (TW)</option>
+                    <option value="MY">🇲🇾 馬來西亞 (MY)</option>
                 </select>
             </div>
             <div class="col-6 col-sm-4 col-md-2">
@@ -362,7 +362,7 @@
             </div>
             <div class="col-12 col-sm-4 col-md-2">
                 <div class="input-group input-group-sm">
-                    <input type="text" class="form-control bg-dark text-light border-secondary" id="filterKeyword" placeholder="搜尋標題/內文...">
+                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="filterKeyword" placeholder="搜尋標題/內文...">
                     <button class="btn btn-cyber-outline" type="button" id="btnResetFilters" title="重設條件">
                         <i class="fa-solid fa-arrows-rotate"></i>
                     </button>
@@ -379,7 +379,7 @@
     <div id="viewContainerTable" class="d-none">
         <div class="glass-panel p-3">
             <div class="table-responsive">
-                <table id="announcementsTable" class="table table-dark-custom table-hover align-middle w-100">
+                <table id="announcementsTable" class="table table-dark-custom">
                     <thead>
                         <tr>
                             <th style="width: 50px;">置頂</th>
@@ -406,7 +406,7 @@
             <div class="modal-content glass-panel" style="background: #15102a; border: 1px solid var(--uvaco-border-glow);">
                 <div class="modal-header border-bottom border-secondary border-opacity-25">
                     <h5 class="modal-title fw-bold text-white d-flex align-items-center" id="modalFormTitle">
-                        <i class="fa-solid fa-pen-nib text-primary me-2"></i> 發布新公告
+                        <i class="fa-solid fa-pen-nib text-primary me-2 me-1"></i>發布新公告
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -416,23 +416,23 @@
 
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-muted small">適用國家市場</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formCountry" required>
+                                <label class="form-label text-muted small">適用國家市場 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formCountry" required>
                                     <option value="ALL">ALL (全區通用)</option>
-                                    <option value="TW">TW (台灣市場)</option>
-                                    <option value="MY">MY (馬來西亞市場)</option>
+                                    <option value="TW">🇹🇼 台灣 (TW)</option>
+                                    <option value="MY">🇲🇾 馬來西亞 (MY)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-muted small">發佈單位</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formPublisher" required>
+                                <label class="form-label text-muted small">發佈單位 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formPublisher" required>
                                     <option value="COMPANY">COMPANY (葡眾官方)</option>
                                     <option value="TEAM" selected>TEAM (團隊自營)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-muted small">公告類型</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formCategory" required>
+                                <label class="form-label text-muted small">公告類型 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formCategory" required>
                                     <option value="PROMOTION">PROMOTION (促銷活動)</option>
                                     <option value="TEAM">TEAM (團隊活動)</option>
                                     <option value="PRICE">PRICE (調價通知)</option>
@@ -442,19 +442,19 @@
 
                             <div class="col-12">
                                 <label class="form-label text-muted small">公告主標題 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-dark text-light border-secondary" id="formTitle" placeholder="請輸入吸睛且精確的公告標題..." required>
+                                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="formTitle" placeholder="請輸入吸睛且精確的公告標題..." required>
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label text-muted small">摘要 / 跑馬燈廣播文字 (Summary)</label>
-                                <textarea class="form-control bg-dark text-light border-secondary" id="formSummary" rows="2" placeholder="簡述重點，將顯示於列表摘要與前台跑馬燈..."></textarea>
+                                <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="formSummary" rows="2" placeholder="簡述重點，將顯示於列表摘要與前台跑馬燈..."></textarea>
                             </div>
 
                             <div class="col-12 col-md-8">
                                 <label class="form-label text-muted small">封面圖片 URL (Cover Image)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-image"></i></span>
-                                    <input type="url" class="form-control bg-dark text-light border-secondary" id="formCoverUrl" placeholder="https://images.unsplash.com/...">
+                                    <input type="url" class="form-control form-control-sm bg-dark text-light border-secondary" id="formCoverUrl" placeholder="https://images.unsplash.com/...">
                                 </div>
                             </div>
 
@@ -462,26 +462,26 @@
                                 <label class="form-label text-muted small">外連網址 (填 # 為彈窗)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-link"></i></span>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="formLinkUrl" value="#" placeholder="# 或 https://...">
+                                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="formLinkUrl" value="#" placeholder="# 或 https://...">
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label text-muted small">公告詳細富文本內容 (HTML 格式支援) <span class="text-danger">*</span></label>
-                                <textarea class="form-control bg-dark text-light border-secondary font-monospace" id="formContentHtml" rows="5" placeholder="<p>請輸入 HTML 排版內容或段落...</p>" required></textarea>
+                                <textarea class="form-control form-control-sm bg-dark text-light border-secondary font-monospace" id="formContentHtml" rows="5" placeholder="<p>請輸入 HTML 排版內容或段落...</p>" required></textarea>
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-muted small">發布對象門禁</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formTargetScope" required>
+                                <label class="form-label text-muted small">發布對象門禁 <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formTargetScope" required>
                                     <option value="ALL">ALL (全站公開)</option>
                                     <option value="TEAM">TEAM (僅團隊夥伴)</option>
                                     <option value="CORE">CORE (僅核心幹部)</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-muted small">狀態 (Status)</label>
-                                <select class="form-select bg-dark text-light border-secondary" id="formStatus" required>
+                                <label class="form-label text-muted small">狀態 (Status) <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="formStatus" required>
                                     <option value="PUBLISHED">PUBLISHED (已發布)</option>
                                     <option value="DRAFT">DRAFT (草稿中)</option>
                                     <option value="SCHEDULED">SCHEDULED (排程中)</option>
@@ -492,28 +492,28 @@
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="formIsPinned" style="cursor: pointer;">
                                     <label class="form-check-label text-white" for="formIsPinned">
-                                        <i class="fa-solid fa-thumbtack text-warning"></i> 強制置頂顯示
+                                        <i class="fa-solid fa-thumbtack text-warning me-1"></i>強制置頂顯示
                                     </label>
                                 </div>
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label text-muted small">上架生效時間 (Start At)</label>
-                                <input type="datetime-local" class="form-control bg-dark text-light border-secondary" id="formPublishStart">
+                                <input type="datetime-local" class="form-control form-control-sm bg-dark text-light border-secondary" id="formPublishStart">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label text-muted small">下架失效時間 (留空為永久有效)</label>
-                                <input type="datetime-local" class="form-control bg-dark text-light border-secondary" id="formPublishEnd">
+                                <input type="datetime-local" class="form-control form-control-sm bg-dark text-light border-secondary" id="formPublishEnd">
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer border-top border-secondary border-opacity-25">
                     <button type="button" class="btn btn-cyber-outline" data-bs-dismiss="modal">
-                        <i class="fa-solid fa-xmark"></i> 取消
+                        <i class="fa-solid fa-xmark me-1"></i>取消
                     </button>
                     <button type="button" class="btn btn-cyber-primary" id="btnSaveAnnouncement">
-                        <i class="fa-solid fa-floppy-disk"></i> 儲存並寫入試算表
+                        <i class="fa-solid fa-floppy-disk me-1"></i>儲存並寫入試算表
                     </button>
                 </div>
             </div>
@@ -530,7 +530,7 @@
                 </div>
                 <div class="text-center mt-3">
                     <button type="button" class="btn btn-sm btn-cyber-outline" data-bs-dismiss="modal">
-                        <i class="fa-solid fa-xmark"></i> 關閉預覽
+                        <i class="fa-solid fa-xmark me-1"></i>關閉預覽
                     </button>
                 </div>
             </div>
@@ -689,24 +689,24 @@
          */
         function getCategoryBadge(cat) {
             switch(cat) {
-                case 'PROMOTION': return '<span class="badge badge-cyber badge-cyber-pink"><i class="fa-solid fa-gift me-1"></i> 促銷活動</span>';
-                case 'PRICE': return '<span class="badge badge-cyber badge-cyber-warning"><i class="fa-solid fa-tags me-1"></i> 調價通知</span>';
-                case 'POLICY': return '<span class="badge badge-cyber badge-cyber-success"><i class="fa-solid fa-scale-balanced me-1"></i> 重要規章</span>';
-                default: return '<span class="badge badge-cyber badge-cyber-primary"><i class="fa-solid fa-users me-1"></i> 團隊公告</span>';
+                case 'PROMOTION': return '<span class="badge badge-cyber badge-cyber-pink"><i class="fa-solid fa-gift me-1"></i>促銷活動</span>';
+                case 'PRICE': return '<span class="badge badge-cyber badge-cyber-warning"><i class="fa-solid fa-tags me-1"></i>調價通知</span>';
+                case 'POLICY': return '<span class="badge badge-cyber badge-cyber-success"><i class="fa-solid fa-scale-balanced me-1"></i>重要規章</span>';
+                default: return '<span class="badge badge-cyber badge-cyber-primary"><i class="fa-solid fa-users me-1"></i>團隊公告</span>';
             }
         }
 
         function getPublisherBadge(pub) {
             return pub === 'COMPANY' 
-                ? '<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25"><i class="fa-solid fa-building me-1"></i> 官方</span>'
-                : '<span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25"><i class="fa-solid fa-flag me-1"></i> 團隊</span>';
+                ? '<span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25"><i class="fa-solid fa-building me-1"></i>官方</span>'
+                : '<span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25"><i class="fa-solid fa-flag me-1"></i>團隊</span>';
         }
 
         function getScopeBadge(scope) {
             switch(scope) {
-                case 'CORE': return '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25"><i class="fa-solid fa-shield-halved me-1"></i> 核心</span>';
-                case 'TEAM': return '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25"><i class="fa-solid fa-user-group me-1"></i> 夥伴</span>';
-                default: return '<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25"><i class="fa-solid fa-earth-asia me-1"></i> 公開</span>';
+                case 'CORE': return '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25"><i class="fa-solid fa-shield-halved me-1"></i>核心</span>';
+                case 'TEAM': return '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25"><i class="fa-solid fa-user-group me-1"></i>夥伴</span>';
+                default: return '<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25"><i class="fa-solid fa-earth-asia me-1"></i>公開</span>';
             }
         }
 
@@ -770,7 +770,7 @@
             const topPin = dataList.find(d => d.is_pinned && d.status === 'PUBLISHED') || dataList[0];
             if (topPin) {
                 $('#liveMarqueeText').html(`
-                    <i class="fa-solid fa-thumbtack text-warning me-1"></i> <strong>${topPin.title}</strong> — ${topPin.summary || '點擊進入查閱完整公文排版'}
+                    <i class="fa-solid fa-thumbtack text-warning me-1"></i><strong>${topPin.title}</strong> — ${topPin.summary || '點擊進入查閱完整公文排版'}
                 `);
             } else {
                 $('#liveMarqueeText').html('<span class="text-muted">目前暫無置頂發布之公文通知</span>');
@@ -802,7 +802,7 @@
 
             sortedList.forEach(item => {
                 const coverImg = item.cover_image_url || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop&q=80';
-                const pinBadge = item.is_pinned ? `<span class="badge badge-cyber badge-cyber-warning position-absolute top-0 start-0 m-3 z-2"><i class="fa-solid fa-thumbtack me-1"></i> 置頂</span>` : '';
+                const pinBadge = item.is_pinned ? `<span class="badge badge-cyber badge-cyber-warning position-absolute top-0 start-0 m-3 z-2"><i class="fa-solid fa-thumbtack me-1"></i>置頂</span>` : '';
                 const countryTag = item.country_code === 'ALL' ? '全區' : (item.country_code === 'TW' ? '台灣' : '大馬');
 
                 const cardHtml = `
@@ -813,7 +813,7 @@
                                 <img src="${coverImg}" class="cover-img" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop&q=80'">
                                 <div class="cover-overlay"></div>
                                 <span class="badge bg-dark bg-opacity-75 text-light position-absolute bottom-0 start-0 m-2 border border-secondary border-opacity-50 small">
-                                    <i class="fa-solid fa-globe me-1"></i> ${countryTag}
+                                    <i class="fa-solid fa-globe me-1"></i>${countryTag}
                                 </span>
                                 <span class="position-absolute bottom-0 end-0 m-2">
                                     ${getStatusBadge(item.status)}
@@ -836,11 +836,11 @@
 
                                 <div class="pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
                                     <span class="text-muted small">
-                                        <i class="fa-solid fa-eye me-1"></i> ${item.view_count || 0} 次查閱
+                                        <i class="fa-solid fa-eye me-1"></i>${item.view_count || 0} 次查閱
                                     </span>
                                     <div class="btn-group btn-group-sm">
                                         <button class="btn btn-cyber-outline btn-preview" data-id="${item.announcement_id}" title="手機端模擬預覽">
-                                            <i class="fa-solid fa-mobile-screen"></i> 模擬
+                                            <i class="fa-solid fa-mobile-screen me-1"></i>模擬
                                         </button>
                                         <button class="btn btn-cyber-outline btn-edit" data-id="${item.announcement_id}" title="編輯內容">
                                             <i class="fa-solid fa-pen-to-square"></i>
@@ -965,7 +965,7 @@
             $('#btnOpenCreateModal').on('click', function() {
                 $('#formAnnouncement')[0].reset();
                 $('#formAnnId').val('');
-                $('#modalFormTitle').html('<i class="fa-solid fa-plus text-primary me-2"></i> 發布新公告');
+                $('#modalFormTitle').html('<i class="fa-solid fa-plus text-primary me-2 me-1"></i>發布新公告');
                 $('#formCountry').val('ALL');
                 $('#formPublisher').val('TEAM');
                 $('#formCategory').val('TEAM');
@@ -1042,7 +1042,7 @@
                 if (!item) return;
 
                 $('#formAnnId').val(item.announcement_id);
-                $('#modalFormTitle').html(`<i class="fa-solid fa-pen-nib text-primary me-2"></i> 編輯公告 [${item.announcement_id}]`);
+                $('#modalFormTitle').html(`<i class="fa-solid fa-pen-nib text-primary me-2 me-1"></i>編輯公告 [${item.announcement_id}]`);
                 $('#formCountry').val(item.country_code);
                 $('#formPublisher').val(item.publisher_unit);
                 $('#formCategory').val(item.category);
@@ -1092,8 +1092,8 @@
                         </span>
                         <h5 class="fw-bold text-white mb-2">${item.title}</h5>
                         <div class="d-flex justify-content-between text-muted small pb-2 border-bottom border-secondary border-opacity-25">
-                            <span><i class="fa-solid fa-clock me-1"></i> ${item.publish_start_at ? item.publish_start_at.slice(0, 10) : '即時發布'}</span>
-                            <span><i class="fa-solid fa-eye me-1"></i> ${item.view_count} 次</span>
+                            <span><i class="fa-solid fa-clock me-1"></i>${item.publish_start_at ? item.publish_start_at.slice(0, 10) : '即時發布'}</span>
+                            <span><i class="fa-solid fa-eye me-1"></i>${item.view_count} 次</span>
                         </div>
                     </div>
                     ${item.cover_image_url ? `<img src="${item.cover_image_url}" class="img-fluid rounded-3 mb-3 border border-secondary border-opacity-25" style="max-height: 180px; width: 100%; object-fit: cover;">` : ''}
@@ -1101,7 +1101,7 @@
                         ${item.content_html}
                     </div>
                     <div class="p-2 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25 text-center">
-                        <small class="text-secondary"><i class="fa-solid fa-shield-check me-1"></i> 榮祥團隊官方資安認證發布</small>
+                        <small class="text-secondary"><i class="fa-solid fa-shield-check me-1"></i>榮祥團隊官方資安認證發布</small>
                     </div>
                 `;
 
@@ -1112,7 +1112,7 @@
             // Google 試算表同步按鈕（模擬 PapaParse / GViz 抓取並解耦）
             $('#btnSyncGoogleSheets').on('click', function() {
                 const $btn = $(this);
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 解析試算表中...');
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>解析試算表中...');
 
                 setTimeout(() => {
                     // 模擬自試算表抓取的混合中文/英文非正規欄位資料
@@ -1124,7 +1124,7 @@
                     announcementsData.unshift(parsedRow);
                     refreshViews();
 
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-rotate"></i> 同步試算表');
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-rotate me-1"></i>同步試算表');
                     alert('已透過解耦引擎成功自 Google 試算表 (trn_announcements) 載入最新數據！');
                 }, 900);
             });
@@ -1132,7 +1132,7 @@
             // 官方爬取最新公告模擬
             $('#btnScrapeOfficial').on('click', function() {
                 const $btn = $(this);
-                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 官方連線擷取中...');
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>官方連線擷取中...');
 
                 setTimeout(() => {
                     const officialScraped = {
@@ -1156,7 +1156,7 @@
                     announcementsData.unshift(officialScraped);
                     refreshViews();
 
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down"></i> 擷取官方公告');
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-cloud-arrow-down me-1"></i>擷取官方公告');
                     alert('成功連線並擷取葡眾官方最新公告！');
                 }, 1000);
             });
