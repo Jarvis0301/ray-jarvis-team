@@ -210,7 +210,7 @@ function updateTaxRuleInfo(isMyr) {
             <br/>
             台灣二代健保扣繳門檻：NT$ ${nhiThresholdTw.toLocaleString()}，扣繳比率：${nhiPercent.toLocaleString()}%
             <br/>
-            個人 ${(CFG_ORG.SV_LINE_MANAGER || 3200).toLocaleString()} SV，免扣二代健保。
+            （個人 ${(CFG_ORG.SV_LINE_MANAGER || 3200).toLocaleString()} SV，免扣二代健保。）
             <br/>
             次月 15 日撥款入帳
         `);
