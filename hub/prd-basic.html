@@ -423,6 +423,28 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-12">
+                                <section class="card-chart">
+                                    <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
+                                        <div>
+                                            <span class="fw-bold text-light">
+                                                <i class="fa-solid fa-chart-line text-warning me-1"></i>每元換點效率性價比分析（進貨經理價 vs. 官方考核 SV）
+                                            </span>
+                                            <span class="text-secondary small ms-md-2 d-block d-md-inline">
+                                                散佈圖落於左上方（斜率愈陡）代表單位現金換點效率愈高之黃金衝分單品
+                                            </span>
+                                        </div>
+                                        <div class="text-muted small text-md-end font-monospace" id="scatterSummaryStats">
+                                            <!-- 動態帶入平均每元換點點數 -->
+                                        </div>
+                                    </header>
+                                    <div class="card-chart-container" style="height: 380px;">
+                                        <canvas id="chartProductSvEfficiencyScatter"></canvas>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
                     </section>
                 </section>
 

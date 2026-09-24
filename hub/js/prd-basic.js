@@ -1449,6 +1449,113 @@ function renderAnalyticsCharts() {
             }
         });
     }
+
+    // 產品每元換點效率散佈圖 (Scatter: 進貨經理價 vs. 考核 SV)
+    if (chartInstances.efficiencyScatter) {
+        chartInstances.efficiencyScatter.destroy();
+    }
+
+    const ctxScatter = document.getElementById('chartProductSvEfficiencyScatter')?.getContext('2d');
+    if (ctxScatter) {
+        // 篩選台灣營運且具備有效價格與 SV 的單品
+        const validProducts = (appState.products || [])
+            .filter(p => (p.region_code === 'TW' || !p.region_code) && Number(p.price) > 0 && Number(p.sv_point) > 0);
+
+        // 彙整散佈點資料：計算經理價、換點效率 (每千元換點數)
+        const scatterPoints = validProducts.map(p => {
+            const price = Number(p.price);
+            const sv = Number(p.sv_point);
+            // 經理回饋 20% 折算實質進貨成本
+            const managerPrice = Math.round(price - (sv * 0.20));
+            const efficiencyPerThousand = managerPrice > 0 ? Number(((sv / managerPrice) * 1000).toFixed(1)) : 0;
+            const cat = typeof getCategoryByCode === 'function' ? getCategoryByCode(p.category_code) : null;
+
+            return {
+                x: managerPrice,
+                y: sv,
+                name: p.name,
+                code: p.product_code,
+                retailPrice: price,
+                categoryName: cat?.name_zh || '未分類',
+                pointColor: cat?.text_color || '#8b5cf6',
+                efficiency: efficiencyPerThousand,
+                costPerSv: managerPrice > 0 ? Number((managerPrice / sv).toFixed(2)) : 0
+            };
+        });
+
+        // 依每千元換點效率排序，標註性價比榜首 (Top 1)
+        const topItem = [...scatterPoints].sort((a, b) => b.efficiency - a.efficiency)[0];
+        if (topItem) {
+            $('#scatterSummaryStats').html(`性價比之王：<span class="text-warning fw-bold">${topItem.name}</span> (${topItem.efficiency.toLocaleString()} SV / 千元)`);
+        }
+
+        chartInstances.efficiencyScatter = new Chart(ctxScatter, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '單品點數與經理價分佈',
+                    data: scatterPoints,
+                    backgroundColor: scatterPoints.map(pt => pt.pointColor),
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const raw = ctx.raw;
+                                return [
+                                    ` 品名：${raw.name} (${raw.code})`,
+                                    ` 主系列：${raw.categoryName}`,
+                                    ` 官方零售價：NT$ ${raw.retailPrice.toLocaleString()}`,
+                                    ` 進貨經理價：NT$ ${raw.x.toLocaleString()}`,
+                                    ` 官方考核 SV：${raw.y.toLocaleString()} SV`,
+                                    ` 每千元換點效率：${raw.efficiency.toLocaleString()} SV`,
+                                    ` 取得單點成本：NT$ ${raw.costPerSv.toLocaleString()} / SV`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '進貨經理價 (NT$)',
+                            color: '#a78bfa',
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            color: '#f5f3ff',
+                            callback: (value) => `NT$ ${Number(value).toLocaleString()}`
+                        },
+                        grid: { color: 'rgba(192, 132, 252, 0.08)' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '官方考核 SV 積分',
+                            color: '#2dd4bf',
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            color: '#f5f3ff',
+                            callback: (value) => `${Number(value).toLocaleString()} SV`
+                        },
+                        grid: { color: 'rgba(192, 132, 252, 0.08)' }
+                    }
+                }
+            }
+        });
+    }
 }
 
 // ==========================================================================

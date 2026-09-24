@@ -306,17 +306,17 @@ class AppToast {
         const container = this._ensureContainer();
         const toastId = 'toast_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
 
-        let iconHtml = '<i class="fa-solid fa-circle-check text-success me-2"></i> ';
+        let iconHtml = '<i class="fa-solid fa-circle-check text-success me-1"></i>';
         let borderClass = 'border-success-subtle';
 
         if (type === 'info') {
-            iconHtml = '<i class="fa-solid fa-circle-info text-info me-2"></i> ';
+            iconHtml = '<i class="fa-solid fa-circle-info text-info me-1"></i>';
             borderClass = 'border-info-subtle';
         } else if (type === 'warning') {
-            iconHtml = '<i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> ';
+            iconHtml = '<i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>';
             borderClass = 'border-warning-subtle';
         } else if (type === 'danger' || type === 'error') {
-            iconHtml = '<i class="fa-solid fa-circle-xmark text-danger me-2"></i> ';
+            iconHtml = '<i class="fa-solid fa-circle-xmark text-danger me-1"></i>';
             borderClass = 'border-danger-subtle';
         }
 

@@ -426,7 +426,7 @@ function recalculateAll() {
     const rebatePercent = Math.round(currentRank.direct_rebate_rate * 100);
     $("#rankBadgeContainer").html(`
         <span class="badge-rank" style="background-color: ${currentRank.badge_color_hex}; color: ${badgeTextColor}; border: 1px solid rgba(255, 255, 255, 0.25);">
-            <i class="${currentRank.badge_icon_class} me-1"></i> ${currentRank.rank_name_zh} (${rebatePercent}%)
+            <i class="${currentRank.badge_icon_class} me-1"></i>${currentRank.rank_name_zh} (${rebatePercent}%)
         </span>
     `);
     $("#txtLeadershipDepth").text(`解鎖深度：${currentRank.leadership_gen_depth} 代`);

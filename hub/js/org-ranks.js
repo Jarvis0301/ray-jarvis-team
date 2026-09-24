@@ -1087,8 +1087,8 @@ async function saveRankHistoryItem() {
         modified_at: nowStr
     };
 
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> 正在儲存晉升紀錄並同步夥伴主檔...', '資料寫入中');
-    $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 儲存寫入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i>正在儲存晉升紀錄並同步夥伴主檔...', '資料寫入中');
+    $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存寫入中...');
 
     try {
         const silentOpt = { silent: true };
@@ -1206,7 +1206,7 @@ async function saveRankHistoryItem() {
         AppToast.error('寫入試算表失敗：' + err.message);
     } finally {
         AppLoading.hide();
-        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        $btnSave.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

@@ -3087,10 +3087,10 @@ async function savePartnerRecord(e) {
     const btnSubmit = $('#form-submit-btn');
     const silentOpt = { silent: true };
 
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> 正在平行同步全域組織與檔案...', '資料庫寫入中');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i>正在平行同步全域組織與檔案...', '資料庫寫入中');
 
     try {
-        btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 儲存寫入中...');
+        btnSubmit.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存寫入中...');
 
         // 1. 清理舊子表記錄 (通訊與語言使用 GAS_DEPLOY_ID.PSN)
         const deletePromises = [];
@@ -3183,7 +3183,7 @@ async function savePartnerRecord(e) {
         AppLoading.hide();
         AppToast.error('寫入試算表失敗: ' + err.message);
     } finally {
-        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        btnSubmit.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

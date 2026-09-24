@@ -73,7 +73,7 @@ window.addEventListener('AppReady', function() {
                         const downloadUrl = row[keys[5]] || '#';
 
                         materialsTable.row.add([
-                            `<span class="fw-bold text-white"><i class="fa-regular fa-file text-info me-2"></i>${title}</span>`,
+                            `<span class="fw-bold text-white"><i class="fa-regular fa-file text-info me-1"></i>${title}</span>`,
                             `<span class="badge badge-primary">${category}</span>`,
                             format,
                             stage,

@@ -108,7 +108,7 @@ async function initStockApp() {
 // 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
 // ==========================================================================
 async function fetchGoogleSheetsData() {
-    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i> 正在讀取雲端庫存資料庫...', '載入中...');
+    AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端庫存資料庫...', '載入中...');
 
     try {
         const [rawStockRows, rawWhRows, rawPrdRows] = await Promise.all([
@@ -764,7 +764,7 @@ function renderTacticalCharts() {
 // 9. 表單 CRUD 操作 (嚴格依據表 302 欄位順序 0～19 封裝)
 // ==========================================================================
 function openAddStockModal() {
-    $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i> 新增庫存批號');
+    $('#stockModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增庫存批號');
     $('#formMode').val('add');
     $('#stockForm')[0].reset();
 
@@ -795,7 +795,7 @@ function openEditStockModal(stockId) {
     const s = appState.stocks.find(item => item.id === stockId);
     if (!s) return;
 
-    $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i> 編輯庫存批號');
+    $('#stockModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯庫存批號');
     $('#formMode').val('edit');
     $('#fieldId').prop('readonly', true).val(s.id);
     $('#fieldBatchNo').val(s.batch_no);
@@ -906,7 +906,7 @@ async function saveStockItem() {
 
     const $btn =$('button[onclick="saveStockItem()"]');
     try {
-        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> 寫入中...');
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>寫入中...');
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_NAMES.STOCKS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
@@ -926,7 +926,7 @@ async function saveStockItem() {
     } catch (err) {
         AppToast.error("庫存批號儲存失敗: " + err.message);
     } finally {
-        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> 儲存');
+        $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i>儲存');
     }
 }
 

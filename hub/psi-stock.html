@@ -28,7 +28,7 @@
                 ========================================================================== -->
             <header class="row align-items-center mb-3">
                 <h4 class="fw-bold mb-0 text-light">
-                    <i class="fa-solid fa-boxes-stacked text-primary me-1"></i> 庫存管理
+                    <i class="fa-solid fa-boxes-stacked text-primary me-1"></i>庫存管理
                 </h4>
             </header>
             
@@ -39,37 +39,37 @@
                         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-box-open text-primary me-1"></i> 整盒現貨</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-box-open text-primary me-1"></i>整盒現貨</span>
                                     <span class="text-primary fs-6 fw-bold" id="hudTotalQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-success me-1"></i> 可用整盒</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-success me-1"></i>可用整盒</span>
                                     <span class="text-success fs-6 fw-bold" id="hudAvailableQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-lock text-warning me-1"></i> 預扣整盒</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-lock text-warning me-1"></i>預扣整盒</span>
                                     <span class="text-warning fs-6 fw-bold" id="hudReservedQty">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-shapes text-info me-1"></i> 散裝現貨</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-shapes text-info me-1"></i>散裝現貨</span>
                                     <span class="text-info fs-6 fw-bold" id="hudTotalPieces">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-teal me-1"></i> 可用散件</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-circle-check text-teal me-1"></i>可用散件</span>
                                     <span class="text-teal fs-6 fw-bold" id="hudAvailablePieces">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
-                                    <span class="text-secondary"><i class="fa-solid fa-lock text-orange me-1"></i> 預扣散件</span>
+                                    <span class="text-secondary"><i class="fa-solid fa-lock text-orange me-1"></i>預扣散件</span>
                                     <span class="text-orange fs-6 fw-bold" id="hudReservedPieces">0</span>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                     </div>
                     <div class="col-12 col-xl-2 d-flex justify-content-xl-end">
                         <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddStockModal()">
-                            <i class="fa-solid fa-plus me-1"></i> 新增庫存
+                            <i class="fa-solid fa-plus me-1"></i>新增庫存
                         </button>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                     <!-- 1. 據點下拉 -->
                     <div class="col-12 col-md-3 col-xl-3">
                         <label class="form-label fw-bold mb-1" for="filterWarehouse">
-                            <i class="fa-solid fa-warehouse text-primary me-1"></i> 據點倉儲
+                            <i class="fa-solid fa-warehouse text-primary me-1"></i>據點倉儲
                         </label>
                         <select class="form-select form-select-sm" id="filterWarehouse">
                             <option value="ALL">全部據點倉儲</option>
@@ -96,7 +96,7 @@
                     <!-- 2. 產品下拉 -->
                     <div class="col-12 col-md-3 col-xl-3">
                         <label class="form-label fw-bold mb-1" for="filterProduct">
-                            <i class="fa-solid fa-box text-info me-1"></i> 產品品項
+                            <i class="fa-solid fa-box text-info me-1"></i>產品品項
                         </label>
                         <select class="form-select form-select-sm" id="filterProduct">
                             <option value="ALL">全部產品品項</option>
@@ -106,7 +106,7 @@
                     <!-- 3. 時效下拉 -->
                     <div class="col-6 col-md-3 col-xl-3">
                         <label class="form-label fw-bold mb-1" for="filterExpiry">
-                            <i class="fa-solid fa-hourglass-half text-warning me-1"></i> 時效區間
+                            <i class="fa-solid fa-hourglass-half text-warning me-1"></i>時效區間
                         </label>
                         <select class="form-select form-select-sm" id="filterExpiry">
                             <option value="ALL">全部時效</option>
@@ -120,7 +120,7 @@
                     <!-- 4. 狀態下拉 -->
                     <div class="col-6 col-md-3 col-xl-3">
                         <label class="form-label fw-bold mb-1" for="filterStatus">
-                            <i class="fa-solid fa-shield-halved text-success me-1"></i> 庫存狀態
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i>庫存狀態
                         </label>
                         <select class="form-select form-select-sm" id="filterStatus">
                             <option value="ALL">全部狀態</option>
@@ -139,12 +139,12 @@
                     <ul class="nav nav-tabs" id="stockViewTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="tab-table" data-bs-toggle="tab" data-bs-target="#container-table-view" type="button" role="tab" aria-controls="container-table-view" aria-selected="true">
-                                <i class="fa-solid fa-table-list me-1"></i> 庫存列表
+                                <i class="fa-solid fa-table-list me-1"></i>庫存列表
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="tab-charts" data-bs-toggle="tab" data-bs-target="#container-charts-view" type="button" role="tab" aria-controls="container-charts-view" aria-selected="false">
-                                <i class="fa-solid fa-chart-pie me-1"></i> 統計圖表
+                                <i class="fa-solid fa-chart-pie me-1"></i>統計圖表
                             </button>
                         </li>
                     </ul>
@@ -158,7 +158,7 @@
                         <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom border-purple-subtle">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="text-white fw-bold"><i class="fa-solid fa-table-list text-primary me-1"></i> 批號庫存清單</span>
+                                    <span class="text-white fw-bold"><i class="fa-solid fa-table-list text-primary me-1"></i>批號庫存清單</span>
                                 </div>
                             </header>
 
@@ -194,7 +194,7 @@
                         <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple-subtle gap-2">
                                 <div>
-                                    <span class="fw-bold text-white fs-6"><i class="fa-solid fa-boxes-stacked text-primary me-1"></i> 現貨數量與管制態勢</span>
+                                    <span class="fw-bold text-white fs-6"><i class="fa-solid fa-boxes-stacked text-primary me-1"></i>現貨數量與管制態勢</span>
                                     <span class="text-secondary small ms-2 d-none d-md-inline-block">即時統計在庫盒數於據點、品項、效期階梯與凍結標記之百分比分佈</span>
                                 </div>
                             </header>
@@ -203,7 +203,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-warehouse text-primary me-1"></i> 據點容積佔比</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-warehouse text-primary me-1"></i>據點容積佔比</span>
                                             <span class="badge badge-secondary small">現貨盒數</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartWarehouseShare"></canvas></div>
@@ -213,7 +213,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-box text-info me-1"></i> 產品品項佔比</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-box text-info me-1"></i>產品品項佔比</span>
                                             <span class="badge badge-secondary small">現貨盒數</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartProductShare"></canvas></div>
@@ -223,7 +223,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-hourglass-half text-warning me-1"></i> 效期狀態佔比</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-hourglass-half text-warning me-1"></i>效期狀態佔比</span>
                                             <span class="badge badge-secondary small">現貨盒數</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartExpiryShare"></canvas></div>
@@ -233,7 +233,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-shield-halved text-success me-1"></i> 管制狀態佔比</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-shield-halved text-success me-1"></i>管制狀態佔比</span>
                                             <span class="badge badge-secondary small">現貨盒數</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartStatusShare"></canvas></div>
@@ -246,7 +246,7 @@
                         <article class="glass-panel p-3 mb-4">
                             <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple-subtle gap-2">
                                 <div>
-                                    <span class="fw-bold text-white fs-6"><i class="fa-solid fa-coins text-warning me-1"></i> 資產價值、流動性與時效排程</span>
+                                    <span class="fw-bold text-white fs-6"><i class="fa-solid fa-coins text-warning me-1"></i>資產價值、流動性與時效排程</span>
                                     <span class="text-secondary small ms-2 d-none d-md-inline-block">深入分析據點資金水位、產品 SV 點數池、可用流動性與未來月份到期排程</span>
                                 </div>
                             </header>
@@ -255,7 +255,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-money-bill-wave text-success me-1"></i> 據點庫存資金水位</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-money-bill-wave text-success me-1"></i>據點庫存資金水位</span>
                                             <span class="badge badge-secondary small">成本總值</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartWarehouseCost"></canvas></div>
@@ -265,7 +265,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-award text-warning me-1"></i> 在線 SV 點數池 Top 5</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-award text-warning me-1"></i>在線 SV 點數池 Top 5</span>
                                             <span class="badge badge-secondary small">總 SV</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartProductSv"></canvas></div>
@@ -275,7 +275,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-layer-group text-info me-1"></i> 可用 vs 預扣流動性</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-layer-group text-info me-1"></i>可用 vs 預扣流動性</span>
                                             <span class="badge badge-secondary small">雙軌盒數</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartLiquidityStack"></canvas></div>
@@ -285,7 +285,7 @@
                                 <div class="col-12 col-sm-6 col-xl-3">
                                     <div class="card-chart">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="fw-bold text-white"><i class="fa-solid fa-calendar-days text-danger me-1"></i> 未來月份到期排程</span>
+                                            <span class="fw-bold text-white"><i class="fa-solid fa-calendar-days text-danger me-1"></i>未來月份到期排程</span>
                                             <span class="badge badge-secondary small">即期盒數</span>
                                         </div>
                                         <div class="card-chart-container"><canvas id="chartMonthlyExpiry"></canvas></div>
@@ -307,7 +307,7 @@
                 <section class="modal-content">
                     <header class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
                         <h5 class="modal-title fw-bold text-white" id="stockModalLabel">
-                            <i class="fa-solid fa-box-archive text-primary me-1"></i> 庫存批號主檔編輯
+                            <i class="fa-solid fa-box-archive text-primary me-1"></i>庫存批號主檔編輯
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </header>
@@ -351,7 +351,7 @@
                             <div class="card p-3 mb-2 bg-dark-subtle border-secondary border-opacity-25">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="badge badge-primary-subtle">
-                                        <i class="fa-solid fa-cubes-stacked me-1"></i> 雙軌庫存與預扣鎖定配置
+                                        <i class="fa-solid fa-cubes-stacked me-1"></i>雙軌庫存與預扣鎖定配置
                                     </span>
                                 </div>
 
@@ -411,7 +411,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" role="switch" id="fieldIsLocked">
                                         <label class="form-check-label text-white small fw-bold" for="fieldIsLocked">
-                                            <i class="fa-solid fa-lock text-danger me-1"></i> 品質異常/凍結出庫
+                                            <i class="fa-solid fa-lock text-danger me-1"></i>品質異常/凍結出庫
                                         </label>
                                     </div>
                                 </div>
@@ -427,10 +427,10 @@
                     </div>
                     <footer class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2 p-3">
                         <button type="button" class="btn btn-muted btn-sm rounded-pill px-3" data-bs-dismiss="modal">
-                            <i class="fa-solid fa-xmark me-1"></i> 取消
+                            <i class="fa-solid fa-xmark me-1"></i>取消
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" onclick="saveStockItem()">
-                            <i class="fa-solid fa-floppy-disk me-1"></i> 儲存
+                            <i class="fa-solid fa-floppy-disk me-1"></i>儲存
                         </button>
                     </footer>
                 </section>
