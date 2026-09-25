@@ -30,12 +30,11 @@ let appState = {
 
 // 預設下線非經理組織模擬清單 (預設職級代碼對齊 org_ranks)
 let downlinePartners = [
-    { id: 1, name: "夥伴 A (自用家庭)", rank: "RANK_01_MEMBER", sv: 800 },
-    { id: 2, name: "夥伴 B (副理核心)", rank: "RANK_03_SENIOR_ASSOCIATE", sv: 1200 },
-    { id: 3, name: "夥伴 C (衝刺主任)", rank: "RANK_02_ASSOCIATE", sv: 800 }
+    { id: 1, name: "夥伴 A", rank: "RANK_01_MEMBER", sv: 800 },
+    { id: 2, name: "夥伴 B", rank: "RANK_03_SENIOR_ASSOCIATE", sv: 1200 },
+    { id: 3, name: "夥伴 C", rank: "RANK_02_ASSOCIATE", sv: 800 }
 ];
 
-let doughnutChartInstance = null;
 let bonusDataTableInstance = null;
 
 // ============================================================================
@@ -222,7 +221,6 @@ function updateTaxRuleInfo(isMyr) {
 // ============================================================================
 window.addEventListener('AppReady', async function () {
     initBonusTable();
-    initBonusChart();
     initDefaultConfigValues();
 
     // 監聽所有輸入欄位即時聯動精算
@@ -335,8 +333,8 @@ function renderDownlines() {
                 <td>
                     <input type="number" class="form-control form-control-sm text-end inp-dl-sv" value="${item.sv}" step="100" min="0">
                 </td>
-                <td class="text-center text-cyan cell-diff-rate">0%</td>
-                <td class="text-end text-info cell-diff-amount">0</td>
+                <td class="text-end text-secondary cell-diff-rate">0%</td>
+                <td class="text-end text-yellow cell-diff-amount">0</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-del-downline" data-id="${item.id}" title="刪除夥伴">
                         <i class="fa-solid fa-trash-can"></i>
@@ -425,7 +423,7 @@ function recalculateAll() {
     const badgeTextColor = getContrastTextColor(currentRank.badge_color_hex);
     const rebatePercent = Math.round(currentRank.direct_rebate_rate * 100);
     $("#rankBadgeContainer").html(`
-        <span class="badge-rank" style="background-color: ${currentRank.badge_color_hex}; color: ${badgeTextColor}; border: 1px solid rgba(255, 255, 255, 0.25);">
+        <span class="badge rounded-pill py-2" style="background-color: ${currentRank.badge_color_hex}; color: ${badgeTextColor};">
             <i class="${currentRank.badge_icon_class} me-1"></i>${currentRank.rank_name_zh} (${rebatePercent}%)
         </span>
     `);
@@ -588,7 +586,7 @@ function recalculateAll() {
         leadership: leadershipBonus,
         dividends: AppCalc.add(AppCalc.add(pearlDividend, annualExcellenceBonus), travelIncentiveBonus),
         carFund: carFundBonus
-    });
+    }, grossBonus);
 }
 
 // ============================================================================
@@ -607,7 +605,7 @@ function initBonusTable() {
         data: [],
         columns: [
             { data: 'name', render: data => `<span class="fw-bold">${data}</span>` },
-            { data: 'rate', render: data => `<span class="badge bg-secondary">${data}</span>` },
+            { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
             { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` },
             { 
                 data: 'amount', 
@@ -615,7 +613,7 @@ function initBonusTable() {
                 render: data => {
                     const val = Number(data) || 0;
                     const prefix = appState.currency === 'MYR' ? 'RM ' : 'NT$ ';
-                    return `<span class="${val > 0 ? 'text-info fw-bold' : 'text-muted'}">${prefix}${Math.round(val).toLocaleString()}</span>`;
+                    return `<span class="${val > 0 ? 'text-yellow fw-bold' : 'text-muted'}">${prefix}${Math.round(val).toLocaleString()}</span>`;
                 }
             }
         ],
@@ -640,70 +638,32 @@ function renderBonusTableData(dataset, grossTotal) {
 }
 
 /**
- * 初始化 Chart.js 環狀結構圖
+ * 渲染八大獎金結構環形甜甜圈圖 (對接 AppChart 全域視覺中樞)
+ * 支援貨幣前綴 (NT$ / RM) 與幾何真圓心垂直置中總金額 KPI
  */
-function initBonusChart() {
-    const ctx = document.getElementById('bonusDoughnutChart').getContext('2d');
-    doughnutChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['個人與小組階差', '合格小組與經理獎', '全球領導獎金 (6%)', '珍鑽分紅與年終', '購車基金'],
-            datasets: [{
-                data: [0, 0, 0, 0, 0],
-                backgroundColor: [
-                    '#38bdf8',
-                    '#20c997',
-                    '#f59e0b',
-                    '#818cf8',
-                    '#ec4899'
-                ],
-                borderWidth: 2,
-                borderColor: '#0f1a36'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#f5f3ff',
-                        font: { size: 12 },
-                        padding: 14
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const label = context.label || '';
-                            const val = context.raw || 0;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percent = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                            const prefix = appState.currency === 'MYR' ? 'RM ' : 'NT$ ';
-                            return `${label}: ${prefix}${Math.round(val).toLocaleString()} (${percent}%)`;
-                        }
-                    }
-                }
-            },
-            cutout: '65%'
+function updateBonusChart(data, grossTotal = 0) {
+    const curr = appState.currency; // 'TWD' 或 'MYR'
+    const currencyUnit = curr === 'MYR' ? 'RM' : 'NT$';
+
+    const config = AppChart.createDoughnut({
+        labels: ['個人與小組階差', '合格小組與經理', '全球領導獎金', '珍鑽分紅與年終', '購車基金'],
+        data: [
+            Math.round(data.personal),
+            Math.round(data.groupMgr),
+            Math.round(data.leadership),
+            Math.round(data.dividends),
+            Math.round(data.carFund)
+        ],
+        colors: ['#38bdf8', '#20c997', '#f59e0b', '#818cf8', '#ec4899'],
+        unit: currencyUnit, // ★ 自動探測為前綴：Tooltip 輸出 "個人與小組階差：NT$ 12,500 (35.2%)"
+        cutout: '65%',
+        centerKpi: {
+            label: '預估應發總額',
+            value: `${currencyUnit} ${Math.round(grossTotal).toLocaleString()}`
         }
     });
-}
 
-/**
- * 更新環狀圖數據
- */
-function updateBonusChart(data) {
-    if (!doughnutChartInstance) return;
-    doughnutChartInstance.data.datasets[0].data = [
-        Math.round(data.personal),
-        Math.round(data.groupMgr),
-        Math.round(data.leadership),
-        Math.round(data.dividends),
-        Math.round(data.carFund)
-    ];
-    doughnutChartInstance.update();
+    AppChart.render('bonusDoughnutChart', config);
 }
 
 // ============================================================================

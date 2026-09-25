@@ -2512,11 +2512,14 @@ body {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 .card .card-header {
+  display: flex;
+  justify-content: space-between;
   background-color: transparent;
   border-bottom: 1px solid var(--uvaco-border-color);
   color: var(--uvaco-primary);
   font-weight: 600;
   padding: 0.5rem 0.5rem;
+  margin-bottom: 0.5rem;
 }
 .card .card-body {
   padding: 0.5rem;
@@ -2549,7 +2552,6 @@ body {
 .card-chart {
   background-color: transparent;
   border: transparent;
-  border-radius: var(--uvaco-border-radius-lg, 0.5rem);
   padding: 0.5rem;
   height: 100%;
 }
@@ -2558,6 +2560,15 @@ body {
   background-color: var(--uvaco-bg-card-hover);
   border: 1px solid var(--uvaco-border-highlight);
   border-radius: var(--uvaco-border-radius-xl, 1rem);
+  padding: 1rem;
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.card-chart-container-transparent {
+  background-color: transparent;
+  border: transparent;
   padding: 1rem;
   position: relative;
   height: 300px;

@@ -45,13 +45,6 @@ let chartBarMetric = 'TWD';
 let chart4Metric = 'TWD';
 let chart5Metric = 'TWD';
 
-let chartMainCategoryPieInstance = null;
-let chartSeriesCombinedBarInstance = null;
-let chartTypeQtyInstance = null;
-let chartTopItemsInstance = null;
-let chartTypeSvRadarInstance = null;
-let chartSubInstances = {};
-
 // ==========================================
 // 3. 頁面生命週期初始化
 // ==========================================
@@ -225,24 +218,14 @@ async function fetchGoogleSheetsData() {
 // 依據上市日期與下市日期判定狀態：'COMING_SOON' (即將上市)、'ACTIVE' (販售中)、'DISCONTINUED' (已下市)
 function getProductStatus(launchDateVal, discontinueDateVal) {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayTs = today.getTime();
+
     const launchDate = AppDate.toTimestamp(launchDateVal);
     const discontinueDate = AppDate.toTimestamp(discontinueDateVal);
 
-    // 1. 若有上市日期且晚於今天 -> 即將上市
-    if (launchDate) {
-        if (launchDate > today) {
-            return 'COMING_SOON';
-        }
-    }
-
-    // 2. 若有下市日期且早於今天 -> 已下市
-    if (discontinueDate) {
-        if (discontinueDate < today) {
-            return 'DISCONTINUED';
-        }
-    }
-
-    // 3. 其餘情況 -> 販售中
+    if (launchDate > 0 && launchDate > todayTs) return 'COMING_SOON';
+    if (discontinueDate > 0 && discontinueDate <= todayTs) return 'DISCONTINUED';
     return 'ACTIVE';
 }
 
@@ -1033,162 +1016,178 @@ function updateCartSummary() {
 // ==========================================
 function initAllCharts() {
     bindChartControls();
-
-    const mainCats = appState.categoryList.map(c => getCategoryInfo(c.category_code, appState.country));
-    const allTypes = appState.typeList.map(t => getTypeInfo(t.type_code, appState.country).name);
-
-    const ctx1 = document.getElementById('chartMainCategoryPie')?.getContext('2d');
-    if (ctx1) {
-        chartMainCategoryPieInstance = new Chart(ctx1, {
-            type: 'pie',
-            data: {
-                labels: mainCats.map(c => `${c.code} ${c.name}`),
-                datasets: [{
-                    data: new Array(mainCats.length).fill(0),
-                    backgroundColor: ['#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7', '#facc15', '#22d3ee'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: {
-                    legend: { position: 'right', labels: { color: '#f5f3ff', font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const label = context.label || '';
-                                const val = context.raw || 0;
-                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                const symbol = chart1Metric === 'SV' ? ' SV' : (chart1Metric === 'MYR' ? ' RM' : ' NT$');
-                                return ` ${label}：${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    const ctx2 = document.getElementById('chartSeriesCombinedBar')?.getContext('2d');
-    if (ctx2) {
-        chartSeriesCombinedBarInstance = new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: mainCats.map(c => `${c.code} ${c.name}`),
-                datasets: [{
-                    label: '數據',
-                    data: new Array(mainCats.length).fill(0),
-                    backgroundColor: ['rgba(56, 189, 248, 0.8)', 'rgba(251, 146, 60, 0.8)', 'rgba(52, 211, 153, 0.8)', 'rgba(244, 63, 94, 0.8)', 'rgba(168, 85, 247, 0.8)'],
-                    borderWidth: 0,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { ticks: { color: '#f8fafc', font: { size: 12 } }, grid: { display: false } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    const ctx3 = document.getElementById('chartTypeQty')?.getContext('2d');
-    if (ctx3) {
-        chartTypeQtyInstance = new Chart(ctx3, {
-            type: 'bar',
-            data: {
-                labels: allTypes,
-                datasets: [{
-                    label: '訂購數量',
-                    data: new Array(allTypes.length).fill(0),
-                    backgroundColor: 'rgba(52, 211, 153, 0.75)',
-                    borderColor: '#34d399',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: '#f5f3ff', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    const ctx4 = document.getElementById('chartTopItems')?.getContext('2d');
-    if (ctx4) {
-        chartTopItemsInstance = new Chart(ctx4, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: '數值',
-                    data: [],
-                    backgroundColor: 'rgba(251, 191, 36, 0.8)',
-                    borderColor: '#fbbf24',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                scales: {
-                    x: { beginAtZero: true, ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#f8fafc', font: { size: 12 } }, grid: { display: false } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    const ctx5 = document.getElementById('chartTypeSvRadar')?.getContext('2d');
-    if (ctx5) {
-        chartTypeSvRadarInstance = new Chart(ctx5, {
-            type: 'radar',
-            data: {
-                labels: allTypes,
-                datasets: [{
-                    label: '貢獻度',
-                    data: new Array(allTypes.length).fill(0),
-                    backgroundColor: 'rgba(244, 63, 94, 0.25)',
-                    borderColor: '#f43f5e',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#f43f5e'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                scales: {
-                    r: {
-                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: { color: '#f5f3ff', font: { size: 12 } },
-                        ticks: { display: false, beginAtZero: true }
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
     renderSubSeriesChartCards();
+}
+
+/**
+ * 依據當前購物車明細動態重繪 5 大主戰情圖表與次系列圖表
+ */
+function updateAllChartsData() {
+    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
+    const mainCats = appState.categoryList.map(c => getCategoryInfo(c.category_code, appState.country));
+    const allTypes = appState.typeList.map(t => getTypeInfo(t.type_code, appState.country));
+
+    let mainCatData = {};
+    mainCats.forEach(c => {
+        mainCatData[c.code] = { TWD: 0, MYR: 0, SV: 0 };
+    });
+
+    let subCatDataMap = {};
+    let typeQtyMap = {};
+    let typeMetricMap5 = {};
+    allTypes.forEach(t => { 
+        typeQtyMap[t.code] = 0; 
+        typeMetricMap5[t.code] = 0; 
+    });
+
+    // 累計各維度數值
+    Object.keys(cartState).forEach(code => {
+        const qty = cartState[code];
+        const p = findProductByCode(code);
+        if (p && qty > 0) {
+            const priceOrig = p.price || 0;
+            const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
+            const sv = p.sv_point || 0;
+
+            let priceTWD = itemCurr === 'MYR' ? priceOrig * rate : priceOrig;
+            let priceMYR = itemCurr === 'TWD' ? priceOrig / rate : priceOrig;
+
+            let itemTWD = priceTWD * qty;
+            let itemMYR = priceMYR * qty;
+            let itemSV = sv * qty;
+
+            let mainCode = p.category_code || (p.subcategory_code ? p.subcategory_code.slice(0, 2) : '01');
+            if (!mainCatData[mainCode] && mainCats[0]) mainCode = mainCats[0].code;
+
+            if (mainCatData[mainCode]) {
+                mainCatData[mainCode].TWD += itemTWD;
+                mainCatData[mainCode].MYR += itemMYR;
+                mainCatData[mainCode].SV += itemSV;
+            }
+
+            const subCode = p.subcategory_code;
+            if (subCode) {
+                const subInfo = getSubcategoryInfo(subCode, appState.country);
+                if (!subCatDataMap[subCode]) {
+                    subCatDataMap[subCode] = {
+                        code: subCode,
+                        mainCode: mainCode,
+                        name: subInfo.name,
+                        TWD: 0, MYR: 0, SV: 0
+                    };
+                }
+                subCatDataMap[subCode].TWD += itemTWD;
+                subCatDataMap[subCode].MYR += itemMYR;
+                subCatDataMap[subCode].SV += itemSV;
+            }
+
+            const typeCode = p.type_code;
+            if (typeQtyMap[typeCode] !== undefined) {
+                typeQtyMap[typeCode] += qty;
+                typeMetricMap5[typeCode] += (chart5Metric === 'SV' ? itemSV : (chart5Metric === 'MYR' ? itemMYR : itemTWD));
+            }
+        }
+    });
+
+    // 單位換算輔助
+    const getUnitString = (metric) => metric === 'SV' ? 'SV' : (metric === 'MYR' ? 'RM' : 'NT$');
+
+    // --- 圖表 1：主系列佔比 (升級為甜甜圈環形圖，中央嵌入當前指標總量) ---
+    const chart1Data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chart1Metric] : 0);
+    const chart1Total = chart1Data.reduce((a, b) => a + b, 0);
+    const chart1Unit = getUnitString(chart1Metric);
+
+    AppChart.render('chartMainCategoryPie', AppChart.createDoughnut({
+        labels: mainCats.map(c => `${c.code} ${c.name}`),
+        data: chart1Data,
+        colors: ['#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7', '#facc15', '#22d3ee'],
+        unit: chart1Unit,
+        centerKpi: {
+            label: `選購${chart1Metric}總量`,
+            value: AppChart.formatValue(Math.round(chart1Total), { unit: chart1Unit })
+        }
+    }));
+
+    // --- 圖表 2：各系列採購數據 (垂直柱狀圖) ---
+    const chartBarUnit = getUnitString(chartBarMetric);
+    AppChart.render('chartSeriesCombinedBar', AppChart.createBar({
+        labels: mainCats.map(c => `${c.code} ${c.name}`),
+        data: mainCats.map(c => mainCatData[c.code] ? Math.round(mainCatData[c.code][chartBarMetric]) : 0),
+        datasetLabel: `採購數值 (${chartBarMetric})`,
+        colors: '#38bdf8',
+        isHorizontal: false,
+        unit: chartBarUnit
+    }));
+
+    // --- 圖表 3：型態訂購數量統計 (垂直柱狀圖，強制整數步長) ---
+    AppChart.render('chartTypeQty', AppChart.createBar({
+        labels: allTypes.map(t => t.name),
+        data: allTypes.map(t => typeQtyMap[t.code] || 0),
+        datasetLabel: '訂購數量',
+        colors: '#34d399',
+        isHorizontal: false,
+        unit: '件',
+        yStepInteger: true
+    }));
+
+    // --- 圖表 4：單品採購 Top 5 (水平長條圖) ---
+    let topList = [];
+    Object.keys(cartState).forEach(code => {
+        const qty = cartState[code];
+        const p = findProductByCode(code);
+        if (p && qty > 0) {
+            const priceOrig = p.price || 0;
+            const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
+            const sv = p.sv_point || 0;
+
+            let val = 0;
+            if (chart4Metric === 'SV') val = sv * qty;
+            else if (chart4Metric === 'MYR') val = (itemCurr === 'TWD' ? priceOrig / rate : priceOrig) * qty;
+            else val = (itemCurr === 'MYR' ? priceOrig * rate : priceOrig) * qty;
+
+            topList.push({ name: p.short_name, val: Math.round(val) });
+        }
+    });
+    topList.sort((a, b) => b.val - a.val);
+    const top5 = topList.slice(0, 5);
+    const chart4Unit = getUnitString(chart4Metric);
+
+    AppChart.render('chartTopItems', AppChart.createBar({
+        labels: top5.map(i => i.name),
+        data: top5.map(i => i.val),
+        datasetLabel: `採購數值 (${chart4Metric})`,
+        colors: '#fbbf24',
+        isHorizontal: true,
+        unit: chart4Unit
+    }));
+
+    // --- 圖表 5：型態貢獻雷達圖 ---
+    const chart5Unit = getUnitString(chart5Metric);
+    AppChart.render('chartTypeSvRadar', AppChart.createRadar({
+        labels: allTypes.map(t => t.name),
+        datasets: [{
+            label: `貢獻度 (${chart5Metric})`,
+            data: allTypes.map(t => Math.round(typeMetricMap5[t.code] || 0)),
+            color: '#f43f5e',
+            fill: true
+        }],
+        unit: chart5Unit
+    }));
+
+    // --- 彈窗子圖表：各主系列之次系列分佈 ---
+    mainCats.forEach(cat => {
+        const canvasId = `chartSub_${cat.code}`;
+        const subList = Object.values(subCatDataMap)
+            .filter(s => s.mainCode === cat.code && s[chart1Metric] > 0)
+            .sort((a, b) => a.code.localeCompare(b.code));
+
+        AppChart.render(canvasId, AppChart.createDoughnut({
+            labels: subList.length ? subList.map(s => `${s.code} ${s.name}`) : ['無選購項目'],
+            data: subList.length ? subList.map(s => Math.round(s[chart1Metric])) : [0],
+            colors: subList.length ? ['#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7'] : ['#334155'],
+            unit: chart1Unit
+        }));
+    });
 }
 
 function bindChartControls() {
@@ -1238,176 +1237,14 @@ function bindChartControls() {
     });
 
     $('#subSeriesChartsModal').off('shown.bs.modal').on('shown.bs.modal', function () {
-        if (Object.keys(chartSubInstances).length === 0) {
-            renderSubSeriesChartCards();
-        }
         updateCartSummary();
-
-        Object.values(chartSubInstances).forEach(inst => {
-            if (inst) {
-                inst.resize();
-                inst.update();
-            }
-        });
-    });
-}
-
-function updateAllChartsData() {
-    const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.0;
-    const mainCats = appState.categoryList.map(c => getCategoryInfo(c.category_code, appState.country));
-    const allTypes = appState.typeList.map(t => getTypeInfo(t.type_code, appState.country));
-
-    let mainCatData = {};
-    mainCats.forEach(c => {
-        mainCatData[c.code] = { TWD: 0, MYR: 0, SV: 0 };
-    });
-
-    let subCatDataMap = {};
-    let typeQtyMap = {};
-    let typeMetricMap5 = {};
-    allTypes.forEach(t => { 
-        typeQtyMap[t.code] = 0; 
-        typeMetricMap5[t.code] = 0; 
-    });
-
-    Object.keys(cartState).forEach(code => {
-        const qty = cartState[code];
-        const p = findProductByCode(code);
-        if (p && qty > 0) {
-            const priceOrig = p.price || 0;
-            const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
-            const sv = p.sv_point || 0;
-
-            let priceTWD = itemCurr === 'MYR' ? priceOrig * rate : priceOrig;
-            let priceMYR = itemCurr === 'TWD' ? priceOrig / rate : priceOrig;
-
-            let itemTWD = priceTWD * qty;
-            let itemMYR = priceMYR * qty;
-            let itemSV = sv * qty;
-
-            let mainCode = p.category_code || (p.subcategory_code ? p.subcategory_code.slice(0, 2) : '01');
-            if (!mainCatData[mainCode] && mainCats[0]) mainCode = mainCats[0].code;
-
-            if (mainCatData[mainCode]) {
-                mainCatData[mainCode].TWD += itemTWD;
-                mainCatData[mainCode].MYR += itemMYR;
-                mainCatData[mainCode].SV += itemSV;
-            }
-
-            const subCode = p.subcategory_code;
-            if (subCode) {
-                const subInfo = getSubcategoryInfo(subCode, appState.country);
-                if (!subCatDataMap[subCode]) {
-                    subCatDataMap[subCode] = {
-                        code: subCode,
-                        mainCode: mainCode,
-                        name: subInfo.name,
-                        TWD: 0, MYR: 0, SV: 0
-                    };
-                }
-                subCatDataMap[subCode].TWD += itemTWD;
-                subCatDataMap[subCode].MYR += itemMYR;
-                subCatDataMap[subCode].SV += itemSV;
-            }
-
-            const typeCode = p.type_code;
-            if (typeQtyMap[typeCode] !== undefined) {
-                typeQtyMap[typeCode] += qty;
-                typeMetricMap5[typeCode] += (chart5Metric === 'SV' ? itemSV : (chart5Metric === 'MYR' ? itemMYR : itemTWD));
-            }
-        }
-    });
-
-    if (chartMainCategoryPieInstance) {
-        chartMainCategoryPieInstance.data.labels = mainCats.map(c => `${c.code} ${c.name}`);
-        chartMainCategoryPieInstance.data.datasets[0].data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chart1Metric] : 0);
-        chartMainCategoryPieInstance.update();
-    }
-
-    if (chartSeriesCombinedBarInstance) {
-        chartSeriesCombinedBarInstance.data.labels = mainCats.map(c => `${c.code} ${c.name}`);
-        chartSeriesCombinedBarInstance.data.datasets[0].label = `採購數值 (${chartBarMetric})`;
-        chartSeriesCombinedBarInstance.data.datasets[0].data = mainCats.map(c => mainCatData[c.code] ? mainCatData[c.code][chartBarMetric] : 0);
-        chartSeriesCombinedBarInstance.update();
-    }
-
-    if (chartTypeQtyInstance) {
-        chartTypeQtyInstance.data.labels = allTypes.map(t => t.name);
-        chartTypeQtyInstance.data.datasets[0].data = allTypes.map(t => typeQtyMap[t.code] || 0);
-        chartTypeQtyInstance.update();
-    }
-
-    if (chartTopItemsInstance) {
-        let topList = [];
-        Object.keys(cartState).forEach(code => {
-            const qty = cartState[code];
-            const p = findProductByCode(code);
-            if (p && qty > 0) {
-                const priceOrig = p.price || 0;
-                const itemCurr = p.currency || (p.region_code === 'MY' ? 'MYR' : 'TWD');
-                const sv = p.sv_point || 0;
-
-                let val = 0;
-                if (chart4Metric === 'SV') {
-                    val = sv * qty;
-                } else if (chart4Metric === 'MYR') {
-                    val = (itemCurr === 'TWD' ? priceOrig / rate : priceOrig) * qty;
-                } else {
-                    val = (itemCurr === 'MYR' ? priceOrig * rate : priceOrig) * qty;
-                }
-
-                topList.push({ name: p.name, val: Math.round(val) });
-            }
-        });
-
-        topList.sort((a, b) => b.val - a.val);
-        const top5 = topList.slice(0, 5);
-
-        chartTopItemsInstance.data.labels = top5.map(i => i.name);
-        chartTopItemsInstance.data.datasets[0].label = `數值 (${chart4Metric})`;
-        chartTopItemsInstance.data.datasets[0].data = top5.map(i => i.val);
-        chartTopItemsInstance.update();
-    }
-
-    if (chartTypeSvRadarInstance) {
-        chartTypeSvRadarInstance.data.labels = allTypes.map(t => t.name);
-        chartTypeSvRadarInstance.data.datasets[0].label = `貢獻度 (${chart5Metric})`;
-        chartTypeSvRadarInstance.data.datasets[0].data = allTypes.map(t => typeMetricMap5[t.code] || 0);
-        chartTypeSvRadarInstance.update();
-    }
-
-    mainCats.forEach(cat => {
-        const instance = chartSubInstances[cat.code];
-        if (instance) {
-            const subList = Object.values(subCatDataMap)
-                .filter(s => s.mainCode === cat.code && s[chart1Metric] > 0)
-                .sort((a, b) => a.code.localeCompare(b.code));
-
-            if (subList.length > 0) {
-                instance.data.labels = subList.map(s => `${s.code} ${s.name}`);
-                instance.data.datasets[0].data = subList.map(s => s[chart1Metric]);
-                instance.data.datasets[0].backgroundColor = [
-                    '#38bdf8', '#fb923c', '#34d399', '#f43f5e', '#a855f7', '#facc15', '#22d3ee'
-                ];
-            } else {
-                instance.data.labels = ['無選購項目'];
-                instance.data.datasets[0].data = [1];
-                instance.data.datasets[0].backgroundColor = ['#334155'];
-            }
-            instance.update();
-        }
     });
 }
 
 function renderSubSeriesChartCards() {
-    const $container = $('#subSeriesChartsContainer');
+    const $container =$('#subSeriesChartsContainer');
     if (!$container.length) return;
     $container.empty();
-
-    Object.values(chartSubInstances).forEach(inst => {
-        if (inst) inst.destroy();
-    });
-    chartSubInstances = {};
 
     const mainCats = appState.categoryList.map(c => getCategoryInfo(c.category_code, appState.country));
     if (!mainCats || mainCats.length === 0) return;
@@ -1427,47 +1264,6 @@ function renderSubSeriesChartCards() {
             </div>
         `;
         $container.append(html);
-
-        const ctx = document.getElementById(canvasId)?.getContext('2d');
-        if (ctx) {
-            chartSubInstances[cat.code] = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['無選購項目'],
-                    datasets: [{
-                        data: [1],
-                        backgroundColor: ['#334155'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { color: '#f5f3ff', font: { size: 12 } }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    const label = context.label || '';
-                                    if (label === '無選購項目') {
-                                        return ' 尚無選購項目';
-                                    }
-                                    const val = context.raw || 0;
-                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + (Number(b) || 0), 0);
-                                    const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                                    const symbol = chart1Metric === 'SV' ? ' SV' : (chart1Metric === 'MYR' ? ' RM' : ' NT$');
-                                    return ` ${label}：${symbol} ${Math.round(val).toLocaleString()} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
     });
 }
 
@@ -1814,7 +1610,7 @@ function exportAnalyticsReport() {
             };
 
             const reportData = {
-                dateStr: new Date().toLocaleDateString('zh-TW'),
+                dateStr: AppDate.toDisplay(new Date()),
                 chart1: {
                     metric: chart1Metric,
                     img: generatePrintChartImg(chartMainCategoryPieInstance, 'pie', chart1Metric, showDataLabels),

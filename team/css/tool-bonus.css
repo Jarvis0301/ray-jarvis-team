@@ -1,43 +1,7 @@
-:root {
-    --bg-dark: #070d1e;
-    --bg-panel: #0f1a36;
-    --bg-card: #152246;
-    --bg-card-hover: #1b2c5b;
-    --bg-input: #0a1329;
-    --border-color: rgba(56, 189, 248, 0.22);
-    --border-focus: #38bdf8;
-    --accent-blue: #38bdf8;
-    --accent-cyan: #67e8f9;
-    --accent-teal: #20c997;
-    --accent-gold: #facc15;
-    --accent-orange: #f97316;
-    --accent-rose: #f43f5e;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-}
-
-.card-header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 12px;
-    margin-bottom: 18px;
-}
-
-/* 職級徽章 */
-.badge-rank {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-}
-
 /* 情境按鈕群組 */
 .scenario-btn {
-    background-color: var(--bg-input);
-    border: 1px solid var(--border-color);
+    background-color: var(--uvaco-bg-input);
+    border: 1px solid var(--uvaco-border-color);
     color: #cbd5e1;
     font-weight: 600;
     padding: 8px 14px;
@@ -46,13 +10,13 @@
 }
 
 .scenario-btn:hover {
-    border-color: var(--accent-blue);
-    color: var(--accent-blue);
+    border-color: var(--uvaco-secondary);
+    color: var(--uvaco-secondary);
 }
 
 .scenario-btn.active {
     background-color: #1e3a66;
-    border-color: var(--accent-blue);
-    color: var(--accent-cyan);
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    border-color: var(--uvaco-secondary);
+    color: var(--bs-info-text-emphasis);
+    box-shadow: 0 0 12px var(--uvaco-border-glow);
 }

@@ -25,11 +25,6 @@ let isInitialized = false;
 // 幣別與匯率管理
 let currentCurrency = APP_CONFIG.FIN?.DEFAULT_CURRENCY || 'TWD';
 
-// 圖表實例管理
-let chartBonusPie = null;
-let chartGapsRadar = null;
-let chartRankIncomeBar = null;
-
 /**
  * 取得當前設定匯率與幣別換算比率
  */
@@ -680,10 +675,9 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
 }
 
 function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps) {
-    const textColor = '#94a3b8';
-    const gridColor = 'rgba(255, 255, 255, 0.08)';
-    const { symbol: currencySymbol, rate: currencyRate } = getCurrencyFactor();
+    const { symbol: currencySymbol } = getCurrencyFactor(); // 'NT$' 或 'RM'
 
+    // 1. 各項獎金拆解資料
     const bonusItems = [
         { label: '個人階差', val: incomeData.rebateIncome },
         { label: '小組差額', val: incomeData.groupDiffIncome },
@@ -695,117 +689,52 @@ function renderDashboardCharts(incomeData, currentRank, targetRank, currentGaps)
         { label: '贈車基金', val: incomeData.carFundIncome }
     ].filter(i => i.val > 0);
 
-    const ctxPie = document.getElementById('chartBonusPie');
-    if (ctxPie) {
-        if (chartBonusPie) chartBonusPie.destroy();
-        chartBonusPie = new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: bonusItems.map(i => i.label),
-                datasets: [{
-                    data: bonusItems.map(i => Math.round(i.val)),
-                    backgroundColor: [
-                        '#38bdf8', '#0284c7', '#10b981', '#facc15',
-                        '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: { color: textColor, boxWidth: 12, font: { size: 12 } }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const val = context.parsed;
-                                const total = context.dataset.data.reduce((acc, cur) => acc + cur, 0);
-                                const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                return ` ${context.label}：${currencySymbol} ${val.toLocaleString()} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    const totalIncome = bonusItems.reduce((acc, cur) => acc + cur.val, 0);
 
-    const ctxRadar = document.getElementById('chartGapsRadar');
-    if (ctxRadar) {
-        if (chartGapsRadar) chartGapsRadar.destroy();
-        chartGapsRadar = new Chart(ctxRadar, {
-            type: 'radar',
-            data: {
-                labels: ['個人業績', '累計業績', '責任小組', '經理線數', '珍珠線數', '總業績'],
-                datasets: [{
-                    label: '達成率 (%)',
-                    data: currentGaps.rates,
-                    backgroundColor: 'rgba(139, 92, 246, 0.25)',
-                    borderColor: '#8b5cf6',
-                    pointBackgroundColor: '#8b5cf6',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        min: 0,
-                        max: 100,
-                        ticks: { display: false, stepSize: 25 },
-                        angleLines: { color: gridColor },
-                        grid: { color: gridColor },
-                        pointLabels: { color: textColor, font: { size: 12 } }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
+    // --- 圖表 1：獎金結構佔比 (甜甜圈環形圖 + 中央 KPI 注入) ---
+    AppChart.render('chartBonusPie', AppChart.createDoughnut({
+        labels: bonusItems.map(i => i.label),
+        data: bonusItems.map(i => Math.round(i.val)),
+        colors: [
+            '#38bdf8', '#0284c7', '#10b981', '#facc15',
+            '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1'
+        ],
+        unit: currencySymbol,     // ★ 自動探測為前綴：Tooltip 輸出 "個人階差：NT$ 4,500 (25.0%)"
+        centerKpi: {
+            label: '預估總收益',
+            value: formatLocalCurrency(totalIncome)
+        }
+    }));
 
-    const ctxBar = document.getElementById('chartRankIncomeBar');
-    if (ctxBar) {
-        if (chartRankIncomeBar) chartRankIncomeBar.destroy();
-        const ranksSample = appState.activeRankList.slice(0, 7);
-        const sampleIncomes = [1200, 4800, 15000, 32000, 65000, 145000, 280000];
+    // --- 圖表 2：目標晉升六維度達成率 (多維雷達圖) ---
+    AppChart.render('chartGapsRadar', AppChart.createRadar({
+        labels: ['個人業績', '累計業績', '責任小組', '經理線數', '珍珠線數', '總業績'],
+        datasets: [{
+            label: '達成率',
+            data: currentGaps.rates,
+            color: '#8b5cf6',
+            fill: true
+        }],
+        suggestedMax: 100,
+        unit: '%'
+    }));
 
-        chartRankIncomeBar = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: ranksSample.map(r => r.rank_name_zh),
-                datasets: [{
-                    data: sampleIncomes.slice(0, ranksSample.length).map(v => Math.round(v * currencyRate)),
-                    backgroundColor: ranksSample.map(r => r.rank_id === currentRank.rank_id ? '#fbbf24' : 'rgba(139, 92, 246, 0.6)'),
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false } },
-                    y: { ticks: { color: textColor, font: { size: 12 } }, grid: { color: gridColor } }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                return ` 基準預估：${currencySymbol} ${ctx.parsed.y.toLocaleString()}`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    // --- 圖表 3：各階職級基準收益對比 (垂直柱狀圖) ---
+    const ranksSample = appState.activeRankList.slice(0, 7);
+    const sampleIncomesTwd = [1200, 4800, 15000, 32000, 65000, 145000, 280000];
+    const { rate: currencyRate } = getCurrencyFactor();
+
+    const barColors = ranksSample.map(r => r.rank_id === currentRank.rank_id ? '#fbbf24' : '#8b5cf6');
+
+    AppChart.render('chartRankIncomeBar', AppChart.createBar({
+        labels: ranksSample.map(r => r.rank_name_zh),
+        data: sampleIncomesTwd.slice(0, ranksSample.length).map(v => Math.round(v * currencyRate)),
+        datasetLabel: '基準預估',
+        colors: barColors,
+        isHorizontal: false,
+        unit: currencySymbol,     // ★ 自動探測為前綴：Tooltip 輸出 "基準預估：NT$ 32,000"
+        yStepInteger: false
+    }));
 }
 
 // ==========================================================================

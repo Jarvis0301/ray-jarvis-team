@@ -26,7 +26,6 @@ let appState = {
 let swapCart = [];
 let matrixTableInstance = null;
 let rawTableInstance = null;
-let chartEfficiencyInstance = null;
 let isInitialized = false;
 
 // ==========================================================================
@@ -46,7 +45,6 @@ async function initApp() {
     $('#solverTargetSV').val(APP_CONFIG.ORG?.SV_LINE_ACTIVE || 160);
 
     bindUIEvents();
-    initChart();
 
     if (SPREADSHEET_ID) {
         await fetchGoogleSheetsData();
@@ -128,7 +126,7 @@ function parseProductsTable(rows) {
             currency: getVal(r, 17, regionCode === 'MY' ? 'MYR' : 'TWD'),
             sv_point: svNum,
             primary_image_url: getVal(r, 19),
-            is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 15, 'FALSE').toUpperCase()),
+            is_featured: ['TRUE', 'Y', '1'].includes(getVal(r, 20, 'FALSE').toUpperCase()),
             stock_status: stockStatus,
             launch_date: launchDate,
             discontinue_date: discontinueDate,
@@ -361,15 +359,6 @@ window.updateCartQty = function (index, change) {
     renderCart();
 };
 
-window.setCartQty = function (index, val) {
-    let qty = parseInt(val, 10);
-    if (isNaN(qty) || qty <= 0) {
-        qty = 1;
-    }
-    swapCart[index].qty = qty;
-    renderCart();
-};
-
 window.removeCartItem = function (index) {
     swapCart.splice(index, 1);
     renderCart();
@@ -524,7 +513,7 @@ function formatCrossBorderMatrixRow(code) {
             : `<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" disabled><i class="fa-solid fa-ban me-1"></i>無貨</button>`);
 
     return {
-        base_code: `<span class="badge badge-secondary-subtle font-monospace">${code}</span>`,
+        base_code: `<span class="badge badge-secondary-subtle">${code}</span>`,
         tw_info: twInfo,
         tw_price: twPrice,
         my_info: myInfo,
@@ -629,64 +618,7 @@ window.addSkuToCart = function (productCode) {
 // ==========================================================================
 // 11. Chart.js 單點 SV 效益視覺化圖表 (依 base_code 雙向對照)
 // ==========================================================================
-function initChart() {
-    const canvas = document.getElementById('arbitrageDiffChart');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    chartEfficiencyInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: '台馬換算價差 (NT$)',
-                data: [],
-                backgroundColor: [],
-                borderColor: [],
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const val = context.raw;
-                            return ` 價差：${val >= 0 ? '+' : ''}${val} NT$ (${val >= 0 ? '大馬高於台灣' : '台灣高於大馬'})`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#f5f3ff',
-                        font: { size: 9 },
-                        callback: val => `${val} 元`
-                    },
-                    grid: { color: 'rgba(56, 189, 248, 0.08)' }
-                },
-                y: {
-                    ticks: {
-                        color: '#f1f5f9',
-                        font: { size: 10, weight: '500' }
-                    },
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-
-    updateChartData();
-}
-
 function updateChartData() {
-    if (!chartEfficiencyInstance) return;
     const rate = appState.exchangeRate > 0 ? appState.exchangeRate : 8.00;
 
     const pairedDiffList = [];
@@ -698,7 +630,7 @@ function updateChartData() {
             const myTwd = my.price * rate;
             const diff = Math.round(myTwd - tw.price);
             pairedDiffList.push({
-                name: tw.name.length > 6 ? tw.name.slice(0, 6) + '…' : tw.name,
+                name: tw.name.length > 7 ? tw.name.slice(0, 7) + '…' : tw.name,
                 diff: diff
             });
         }
@@ -707,17 +639,28 @@ function updateChartData() {
     pairedDiffList.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
     const top5 = pairedDiffList.slice(0, 5);
 
-    chartEfficiencyInstance.data.labels = top5.map(i => i.name);
-    chartEfficiencyInstance.data.datasets[0].data = top5.map(i => i.diff);
+    const labels = top5.map(i => i.name);
+    const data = top5.map(i => i.diff);
+    // 正價差（大馬高於台灣）顯示綠色，負價差（台灣高於大馬）顯示紅色
+    const barColors = top5.map(i => i.diff >= 0 ? '#10b981' : '#ef4444');
 
-    chartEfficiencyInstance.data.datasets[0].backgroundColor = top5.map(i => 
-        i.diff >= 0 ? 'rgba(34, 197, 94, 0.65)' : 'rgba(239, 68, 68, 0.65)'
-    );
-    chartEfficiencyInstance.data.datasets[0].borderColor = top5.map(i => 
-        i.diff >= 0 ? '#22c55e' : '#ef4444'
-    );
+    const config = AppChart.createBar({
+        labels: labels.length ? labels : ['無對照數據'],
+        data: data.length ? data : [0],
+        datasetLabel: '台馬換算價差',
+        colors: barColors,
+        isHorizontal: true,       // ★ 水平橫條圖展開長品名
+        unit: 'NT$',              // ★ 智慧前綴：Tooltip 輸出 "台馬換算價差：NT$ +450"
+        yStepInteger: true
+    });
 
-    chartEfficiencyInstance.update();
+    // 擴充自訂 Tooltip 補充兩地定價高低判讀
+    config.options.plugins.tooltip.callbacks.afterLabel = function (ctx) {
+        const val = Number(ctx.parsed.x || 0);
+        return val >= 0 ? ' (大馬換算售價高於台灣)' : ' (台灣售價高於大馬換算)';
+    };
+
+    AppChart.render('arbitrageDiffChart', config);
 }
 
 // ==========================================================================

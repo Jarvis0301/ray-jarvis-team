@@ -167,7 +167,7 @@ function showMobileReceiptModal(orderData) {
         </div>
     `).join('');
 
-    let textSummary = `【葡眾團隊 - 訂購試算單】\n日期：${new Date().toLocaleDateString('zh-TW')}\n--------------------\n`;
+    let textSummary = `【葡眾團隊 - 訂購試算單】\n日期：${AppDate.toDisplay(new Date())}\n--------------------\n`;
     items.forEach(item => {
         textSummary += `${item.name} x${item.qty} = ${currencySymbol}${Math.round(item.price)}\n`;
     });
@@ -263,7 +263,9 @@ function printAnalyticsReport(reportData) {
     let chart1TableHtml = chart1.rows.map(r => `
         <tr>
             <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; color: #334155;">${r.name}</td>
-            <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #0f172a;">${r.val.toLocaleString()} ${chart1.metric}</td>
+            <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #0f172a;">
+                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart1.metric }) : `${r.val.toLocaleString()}${chart1.metric}`}
+            </td>
             <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; text-align: right; color: #0284c7; font-weight: bold;">${r.pct}%</td>
         </tr>
     `).join('');
@@ -271,7 +273,9 @@ function printAnalyticsReport(reportData) {
     let chart4TableHtml = chart4.rows.map((r, i) => `
         <tr>
             <td style="padding: 5px; border-bottom: 1px solid #f1f5f9; color: #334155;">第 ${i + 1} 名：${r.name}</td>
-            <td style="padding: 5px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #d97706;">${r.val.toLocaleString()} ${chart4.metric}</td>
+            <td style="padding: 5px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #d97706;">
+                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart4.metric }) : `${r.val.toLocaleString()}${chart4.metric}`}
+            </td>
         </tr>
     `).join('');
 
@@ -368,7 +372,9 @@ function showMobileAnalyticsModal(reportData) {
     let chart1RowsHtml = chart1.rows.map(r => `
         <div class="d-flex justify-content-between py-1 border-bottom small">
             <span class="text-secondary">${r.name}</span>
-            <span class="fw-bold text-primary">${r.val.toLocaleString()} ${chart1.metric} (${r.pct}%)</span>
+            <span class="fw-bold text-primary">
+                ${typeof AppChart !== 'undefined' ? AppChart.formatValue(r.val, { unit: chart1.metric }) : `${r.val.toLocaleString()}${chart1.metric}`} (${r.pct}%)
+            </span>
         </div>
     `).join('');
 
