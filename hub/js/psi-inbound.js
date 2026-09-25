@@ -393,26 +393,26 @@ function renderCharts() {
         labels: labels.length ? labels : ['無資料'],
         lines: [
             {
-                label: '月度考核 SV',
-                data: svData,
-                color: '#8b5cf6',
-                yAxisID: 'y',
-                tension: 0,
-                fill: false
-            },
-            {
                 label: '進貨實付支出 (TWD)',
                 data: costData,
                 color: '#34d399',
                 yAxisID: 'y1',
                 tension: 0,
                 fill: false
+            },
+            {
+                label: '月度考核 SV',
+                data: svData,
+                color: '#8b5cf6',
+                yAxisID: 'y',
+                tension: 0,
+                fill: false
             }
         ],
         unit: '',
         useDualAxis: true,
-        yLeftTitle: '考核 SV',
-        yRightTitle: '支出金額 (TWD)'
+        yLeftTitle: '支出金額 (NT$)',
+        yRightTitle: '考核 SV'
     }));
 
     // ======================================================================
@@ -432,7 +432,7 @@ function renderCharts() {
         labels: pLabels,
         data: pData,
         colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185', '#a855f7'],
-        unit: '元'
+        unit: 'NT$'
     }));
 
     // ======================================================================

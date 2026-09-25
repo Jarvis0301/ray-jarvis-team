@@ -636,7 +636,7 @@ function renderCharts() {
         color: '#34d399',
         tension: 0,
         fill: false,
-        unit: '元',
+        unit: 'NT$',
         yAxisTitle: '毛利 (NT$)'
     }));
 
@@ -656,7 +656,7 @@ function renderCharts() {
         labels: Object.keys(fundMap),
         data: Object.values(fundMap),
         colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185', '#a855f7'],
-        unit: '元',
+        unit: 'NT$',
         centerKpi: { label: '實收總金額', value: `NT$ ${totalSalesSum.toLocaleString()}` }
     }));
 

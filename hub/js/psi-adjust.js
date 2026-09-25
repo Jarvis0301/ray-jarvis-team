@@ -1239,7 +1239,7 @@ function renderCharts() {
         labels: Object.keys(lossMap),
         data: Object.values(lossMap),
         colors: ['#fb7185', '#f43f5e', '#e11d48', '#be123c', '#fda4af', '#fecdd3'],
-        unit: '元'
+        unit: 'NT$'
     }));
 
     // ======================================================================
@@ -1261,7 +1261,7 @@ function renderCharts() {
         labels: ['試用發放 (推廣轉化)', '自用消耗 (團隊免稅)'],
         data: [demoCost, personalCost],
         colors: ['#fbbf24', '#c084fc'],
-        unit: '元'
+        unit: 'NT$'
     }));
 
     // ======================================================================

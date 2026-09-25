@@ -557,7 +557,7 @@ function renderTacticalCharts() {
         datasetLabel: '成本總值',
         colors: '#10b981',
         isHorizontal: false,
-        unit: '元',
+        unit: 'NT$',
         yStepInteger: false
     }));
 
