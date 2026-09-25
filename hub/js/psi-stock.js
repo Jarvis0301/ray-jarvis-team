@@ -41,18 +41,6 @@ let appState = {
     currentStatusFilter: 'ALL'
 };
 
-let chartInstances = {
-    warehouse: null,
-    product: null,
-    expiry: null,
-    status: null,
-    whCost: null,
-    prdSv: null,
-    liquidity: null,
-    monthlyExpiry: null,
-    stockAgingScatter: null
-};
-
 let stockDataTableInstance = null;
 let isInitialized = false;
 
@@ -480,402 +468,236 @@ function formatStockRow(s) {
 // 8. 視覺化圖表渲染 (8 張戰術圖表，懸浮皆顯示精準數據與百分比)
 // ==========================================================================
 function renderTacticalCharts() {
-    Object.keys(chartInstances).forEach(k => {
-        if (chartInstances[k]) {
-            chartInstances[k].destroy();
-            chartInstances[k] = null;
+    const filtered = getFilteredStocks();
+
+    // ======================================================================
+    // 區塊 A：庫存分佈與狀態結構分析 (4 張甜甜圈環形圖)
+    // ======================================================================
+    // 1. 據點容積佔比 (甜甜圈環形圖 + 中央 KPI 注入)
+    const whTotals = {};
+    let totalStockBoxes = 0;
+    filtered.forEach(s => {
+        const name = getWarehouseName(s.warehouse_id);
+        whTotals[name] = AppCalc.add(whTotals[name] || 0, s.quantity);
+        totalStockBoxes = AppCalc.add(totalStockBoxes, s.quantity);
+    });
+
+    AppChart.render('chartWarehouseShare', AppChart.createDoughnut({
+        labels: Object.keys(whTotals),
+        data: Object.values(whTotals),
+        colors: ['#a855f7', '#ec4899', '#38bdf8', '#f59e0b', '#10b981', '#6366f1'],
+        unit: '盒',
+        centerKpi: { label: '在庫總盒數', value: `${totalStockBoxes.toLocaleString()} 盒` }
+    }));
+
+    // 2. 產品品項分佈佔比 (甜甜圈環形圖)
+    const prdTotals = {};
+    filtered.forEach(s => {
+        const name = getProductShortName(s.product_id);
+        prdTotals[name] = AppCalc.add(prdTotals[name] || 0, s.quantity);
+    });
+
+    AppChart.render('chartProductShare', AppChart.createDoughnut({
+        labels: Object.keys(prdTotals),
+        data: Object.values(prdTotals),
+        colors: ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#fbbf24', '#34d399', '#f97316'],
+        unit: '盒'
+    }));
+
+    // 3. 效期狀態佔比 (甜甜圈環形圖：嚴格對齊語意色彩)
+    const expTotals = { '效期充裕 (>90天)': 0, '近效期 (31-90天)': 0, '極限警示 (1-30天)': 0, '已逾期 (≤0天)': 0 };
+    filtered.forEach(s => {
+        if (!s.expiry_date) return;
+        const days = getDaysToExpiry(s.expiry_date);
+        if (days <= 0) expTotals['已逾期 (≤0天)'] = AppCalc.add(expTotals['已逾期 (≤0天)'], s.quantity);
+        else if (days <= 30) expTotals['極限警示 (1-30天)'] = AppCalc.add(expTotals['極限警示 (1-30天)'], s.quantity);
+        else if (days <= 90) expTotals['近效期 (31-90天)'] = AppCalc.add(expTotals['近效期 (31-90天)'], s.quantity);
+        else expTotals['效期充裕 (>90天)'] = AppCalc.add(expTotals['效期充裕 (>90天)'], s.quantity);
+    });
+
+    AppChart.render('chartExpiryShare', AppChart.createDoughnut({
+        labels: Object.keys(expTotals),
+        data: Object.values(expTotals),
+        colors: ['#10b981', '#f59e0b', '#f43f5e', '#64748b'],
+        unit: '盒'
+    }));
+
+    // 4. 管制狀態佔比 (甜甜圈環形圖 + 中央 KPI 注入)
+    let normalQty = 0;
+    let lockedQty = 0;
+    filtered.forEach(s => {
+        if (s.is_locked === 'Y') lockedQty = AppCalc.add(lockedQty, s.quantity);
+        else normalQty = AppCalc.add(normalQty, s.quantity);
+    });
+    const totalLockCheck = normalQty + lockedQty;
+    const freeRatio = totalLockCheck > 0 ? ((normalQty / totalLockCheck) * 100).toFixed(0) : '100';
+
+    AppChart.render('chartStatusShare', AppChart.createDoughnut({
+        labels: ['自由流通', '凍結禁出'],
+        data: [normalQty, lockedQty],
+        colors: ['#10b981', '#ef4444'],
+        unit: '盒',
+        centerKpi: { label: '自由流通率', value: `${freeRatio}%` }
+    }));
+
+    // ======================================================================
+    // 區塊 B：資金水位、SV 排行與到期排程 (長條圖 / 橫條圖)
+    // ======================================================================
+    // 5. 據點庫存資金水位 (垂直柱狀圖)
+    const whCost = {};
+    filtered.forEach(s => {
+        const name = getWarehouseName(s.warehouse_id);
+        const itemTotalCost = AppCalc.multiply(s.quantity, s.cost_price || 0, 2);
+        whCost[name] = AppCalc.add(whCost[name] || 0, itemTotalCost);
+    });
+
+    AppChart.render('chartWarehouseCost', AppChart.createBar({
+        labels: Object.keys(whCost),
+        data: Object.values(whCost),
+        datasetLabel: '成本總值',
+        colors: '#10b981',
+        isHorizontal: false,
+        unit: '元',
+        yStepInteger: false
+    }));
+
+    // 6. 在線 SV 點數池 Top 5 (水平長條圖)
+    const prdSv = {};
+    filtered.forEach(s => {
+        const name = getProductShortName(s.product_id);
+        const itemTotalSv = AppCalc.multiply(s.quantity, s.sv_point || 0, 0);
+        prdSv[name] = AppCalc.add(prdSv[name] || 0, itemTotalSv);
+    });
+    const sortedPrd = Object.entries(prdSv).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    AppChart.render('chartProductSv', AppChart.createBar({
+        labels: sortedPrd.map(item => item[0]),
+        data: sortedPrd.map(item => item[1]),
+        datasetLabel: '在線 SV',
+        colors: '#38bdf8',
+        isHorizontal: true,
+        unit: 'SV',
+        yStepInteger: true
+    }));
+
+    // 7. 各據點流動性：自由可用 vs. 預扣鎖定 (雙色堆疊柱狀圖)
+    const whLabels = [...new Set(filtered.map(s => getWarehouseName(s.warehouse_id)))];
+    const availData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => AppCalc.add(sum, s.available_qty), 0));
+    const reservedData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => AppCalc.add(sum, s.reserved_qty), 0));
+
+    AppChart.render('chartLiquidityStack', {
+        type: 'bar',
+        data: {
+            labels: whLabels.length ? whLabels : ['無資料'],
+            datasets: [
+                {
+                    label: '自由可用現貨',
+                    data: availData.length ? availData : [0],
+                    backgroundColor: '#10b981',
+                    borderRadius: 4
+                },
+                {
+                    label: '代領預扣鎖定',
+                    data: reservedData.length ? reservedData : [0],
+                    backgroundColor: '#f59e0b',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true,
+                    ticks: { color: AppChart.tokens.text, font: { size: 12 } },
+                    grid: { display: false }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                        color: AppChart.tokens.text,
+                        font: { size: 12 },
+                        callback: v => `${Number(v).toLocaleString()} 盒`
+                    },
+                    grid: { color: AppChart.tokens.grid }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: AppChart.tokens.text, font: { size: 12 }, boxWidth: 10 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}：${Number(ctx.parsed.y || 0).toLocaleString()} 盒`
+                    }
+                }
+            }
         }
     });
 
-    const filtered = getFilteredStocks();
+    // 8. 未來月份到期排程 (垂直柱狀圖)
+    const monthTotals = {};
+    filtered.forEach(s => {
+        if (!s.expiry_date) return;
+        const ym = s.expiry_date.substring(0, 7);
+        monthTotals[ym] = AppCalc.add(monthTotals[ym] || 0, s.quantity);
+    });
+    const sortedMonths = Object.keys(monthTotals).sort().slice(0, 6);
 
-    const getDoughnutConfig = (labels, data, colors) => {
-        const total = data.reduce((acc, cur) => acc + Number(cur), 0);
-        const isEmpty = total === 0 || labels.length === 0;
+    AppChart.render('chartMonthlyExpiry', AppChart.createBar({
+        labels: sortedMonths.length ? sortedMonths : ['無到期資料'],
+        data: sortedMonths.length ? sortedMonths.map(m => monthTotals[m]) : [0],
+        datasetLabel: '到期盒數',
+        colors: '#f43f5e',
+        isHorizontal: false,
+        unit: '盒',
+        yStepInteger: true
+    }));
+
+    // ======================================================================
+    // 區塊 C：在庫天數 vs. 剩餘效期倒數分佈 (笛卡爾坐標散佈圖)
+    // ======================================================================
+    const scatterPoints = filtered.map(s => {
+        const daysInStock = getDaysInStock(s.created_at);
+        const daysToExpiry = getDaysToExpiry(s.expiry_date);
+        const prdName = getProductShortName(s.product_id);
+        const whName = getWarehouseName(s.warehouse_id);
+
+        // 戰術判定：落入右下高危象限 (在庫 >= 60 天且剩餘效期 <= 90 天) 或極危 (效期 <= 30 天)
+        const isDangerZone = (daysInStock >= 60 && daysToExpiry <= 90) || daysToExpiry <= 30;
+        const isWarningZone = daysToExpiry <= 90 && !isDangerZone;
+
+        let pointColor = '#38bdf8'; // 常態：天藍色
+        if (isDangerZone) {
+            pointColor = '#f43f5e'; // 高危出清標的：緋紅色
+        } else if (isWarningZone) {
+            pointColor = '#f59e0b'; // 警戒標的：琥珀黃
+        }
 
         return {
-            type: 'doughnut',
-            data: {
-                labels: isEmpty ? ['暫無庫存現貨'] : labels,
-                datasets: [{
-                    data: isEmpty ? [1] : data,
-                    backgroundColor: isEmpty ? ['#334155'] : colors,
-                    borderWidth: 0,
-                    hoverOffset: isEmpty ? 0 : 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#f5f3ff', boxWidth: 8, padding: 6, font: { size: 12 } }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                if (isEmpty) return ' 0 盒 (0.0%)';
-                                const label = context.label || '';
-                                const val = Number(context.parsed) || 0;
-                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                                return ` ${label}：${val.toLocaleString()} 盒 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
+            x: daysInStock,
+            y: daysToExpiry,
+            name: `${prdName} [${s.batch_no || s.id}] (${whName} 存量: ${s.quantity} 盒)`,
+            color: pointColor
         };
-    };
+    });
 
-    // --- 圖表 1：據點容積佔比 (Doughnut) ---
-    const ctxWh = document.getElementById('chartWarehouseShare');
-    if (ctxWh) {
-        const whTotals = {};
-        filtered.forEach(s => {
-            const name = getWarehouseName(s.warehouse_id);
-            whTotals[name] = AppCalc.add(whTotals[name] || 0, s.quantity);
-        });
-        chartInstances.warehouse = new Chart(ctxWh.getContext('2d'), getDoughnutConfig(
-            Object.keys(whTotals), Object.values(whTotals),
-            ['#a855f7', '#ec4899', '#38bdf8', '#f59e0b', '#10b981', '#6366f1']
-        ));
-    }
-
-    // --- 圖表 2：產品品項分佈佔比 (Doughnut) ---
-    const ctxPrd = document.getElementById('chartProductShare');
-    if (ctxPrd) {
-        const prdTotals = {};
-        filtered.forEach(s => {
-            const name = getProductShortName(s.product_id);
-            prdTotals[name] = AppCalc.add(prdTotals[name] || 0, s.quantity);
-        });
-        chartInstances.product = new Chart(ctxPrd.getContext('2d'), getDoughnutConfig(
-            Object.keys(prdTotals), Object.values(prdTotals),
-            ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#fbbf24', '#34d399', '#f97316']
-        ));
-    }
-
-    // --- 圖表 3：效期狀態佔比 (Doughnut) ---
-    const ctxExp = document.getElementById('chartExpiryShare');
-    if (ctxExp) {
-        const expTotals = { '效期充裕 (>90天)': 0, '近效期 (31-90天)': 0, '極限警示 (1-30天)': 0, '已逾期 (≤0天)': 0 };
-        filtered.forEach(s => {
-            if (!s.expiry_date) return;
-            const days = getDaysToExpiry(s.expiry_date);
-            if (days <= 0) expTotals['已逾期 (≤0天)'] = AppCalc.add(expTotals['已逾期 (≤0天)'], s.quantity);
-            else if (days <= 30) expTotals['極限警示 (1-30天)'] = AppCalc.add(expTotals['極限警示 (1-30天)'], s.quantity);
-            else if (days <= 90) expTotals['近效期 (31-90天)'] = AppCalc.add(expTotals['近效期 (31-90天)'], s.quantity);
-            else expTotals['效期充裕 (>90天)'] = AppCalc.add(expTotals['效期充裕 (>90天)'], s.quantity);
-        });
-        const activeKeys = Object.keys(expTotals).filter(k => expTotals[k] > 0);
-        const expColorMap = {
-            '效期充裕 (>90天)': '#10b981',
-            '近效期 (31-90天)': '#f59e0b',
-            '極限警示 (1-30天)': '#f43f5e',
-            '已逾期 (≤0天)': '#64748b'
-        };
-        chartInstances.expiry = new Chart(ctxExp.getContext('2d'), getDoughnutConfig(
-            activeKeys.length > 0 ? activeKeys : Object.keys(expTotals),
-            activeKeys.length > 0 ? activeKeys.map(k => expTotals[k]) : Object.values(expTotals),
-            activeKeys.length > 0 ? activeKeys.map(k => expColorMap[k]) : ['#10b981', '#f59e0b', '#f43f5e', '#64748b']
-        ));
-    }
-
-    // --- 圖表 4：管制狀態佔比 (Doughnut) ---
-    const ctxStatus = document.getElementById('chartStatusShare');
-    if (ctxStatus) {
-        let normalQty = 0, lockedQty = 0;
-        filtered.forEach(s => {
-            if (s.is_locked === 'Y') lockedQty = AppCalc.add(lockedQty, s.quantity);
-            else normalQty = AppCalc.add(normalQty, s.quantity);
-        });
-        chartInstances.status = new Chart(ctxStatus.getContext('2d'), getDoughnutConfig(
-            ['自由流通', '凍結禁出'], [normalQty, lockedQty], ['#10b981', '#ef4444']
-        ));
-    }
-
-    // --- 圖表 5：據點庫存資金水位 (Bar) ---
-    const ctxWhCost = document.getElementById('chartWarehouseCost');
-    if (ctxWhCost) {
-        const whCost = {};
-        filtered.forEach(s => {
-            const name = getWarehouseName(s.warehouse_id);
-            const itemTotalCost = AppCalc.multiply(s.quantity, s.cost_price || 0, 2);
-            whCost[name] = AppCalc.add(whCost[name] || 0, itemTotalCost);
-        });
-        const totalCost = Object.values(whCost).reduce((a, b) => AppCalc.add(a, b), 0);
-
-        chartInstances.whCost = new Chart(ctxWhCost.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: Object.keys(whCost),
-                datasets: [{
-                    label: '成本總值',
-                    data: Object.values(whCost),
-                    backgroundColor: '#10b981',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const val = Number(ctx.parsed.y) || 0;
-                                const pct = totalCost > 0 ? ((val / totalCost) * 100).toFixed(1) : '0.0';
-                                return ` 成本總額：$${val.toLocaleString()} (${pct}%)`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 9 }, callback: v => `$${v.toLocaleString()}` }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                }
-            }
-        });
-    }
-
-    // --- 圖表 6：在線 SV 點數池 Top 5 (Horizontal Bar) ---
-    const ctxPrdSv = document.getElementById('chartProductSv');
-    if (ctxPrdSv) {
-        const prdSv = {};
-        filtered.forEach(s => {
-            const name = getProductShortName(s.product_id);
-            const itemTotalSv = AppCalc.multiply(s.quantity, s.sv_point || 0, 0);
-            prdSv[name] = AppCalc.add(prdSv[name] || 0, itemTotalSv);
-        });
-        const sortedPrd = Object.entries(prdSv).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        const totalSv = Object.values(prdSv).reduce((a, b) => AppCalc.add(a, b), 0);
-
-        chartInstances.prdSv = new Chart(ctxPrdSv.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: sortedPrd.map(item => item[0]),
-                datasets: [{
-                    label: 'SV 點數',
-                    data: sortedPrd.map(item => item[1]),
-                    backgroundColor: '#38bdf8',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const val = Number(ctx.parsed.x) || 0;
-                                const pct = totalSv > 0 ? ((val / totalSv) * 100).toFixed(1) : '0.0';
-                                return ` 總 SV：${val.toLocaleString()} SV (${pct}%)`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
-
-    // --- 圖表 7：各據點流動性：自由可用 vs 預扣鎖定 (Stacked Bar) ---
-    const ctxLiquidity = document.getElementById('chartLiquidityStack');
-    if (ctxLiquidity) {
-        const whLabels = [...new Set(filtered.map(s => getWarehouseName(s.warehouse_id)))];
-        const availData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => AppCalc.add(sum, s.available_qty), 0));
-        const reservedData = whLabels.map(wh => filtered.filter(s => getWarehouseName(s.warehouse_id) === wh).reduce((sum, s) => AppCalc.add(sum, s.reserved_qty), 0));
-
-        chartInstances.liquidity = new Chart(ctxLiquidity.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: whLabels,
-                datasets: [
-                    { label: '自由可用', data: availData, backgroundColor: '#10b981' },
-                    { label: '預扣鎖定', data: reservedData, backgroundColor: '#f59e0b' }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { stacked: true, ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
-                    y: { stacked: true, ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                },
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const val = Number(ctx.parsed.y) || 0;
-                                return ` ${ctx.dataset.label}：${val.toLocaleString()} 盒`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // --- 圖表 8：未來月份到期排程 (Bar) ---
-    const ctxMonth = document.getElementById('chartMonthlyExpiry');
-    if (ctxMonth) {
-        const monthTotals = {};
-        filtered.forEach(s => {
-            if (!s.expiry_date) return;
-            const ym = s.expiry_date.substring(0, 7);
-            monthTotals[ym] = AppCalc.add(monthTotals[ym] || 0, s.quantity);
-        });
-        const sortedMonths = Object.keys(monthTotals).sort().slice(0, 6);
-        const totalExp = sortedMonths.reduce((sum, m) => AppCalc.add(sum, monthTotals[m]), 0);
-
-        chartInstances.monthlyExpiry = new Chart(ctxMonth.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: sortedMonths,
-                datasets: [{
-                    label: '即期盒數',
-                    data: sortedMonths.map(m => monthTotals[m]),
-                    backgroundColor: '#f43f5e',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const val = Number(ctx.parsed.y) || 0;
-                                const pct = totalExp > 0 ? ((val / totalExp) * 100).toFixed(1) : '0.0';
-                                return ` 到期：${val.toLocaleString()} 盒 (${pct}%)`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                }
-            }
-        });
-    }
-
-    // --- 圖表 9：在庫庫存天數 vs 剩餘效期倒數天數分佈圖 (Scatter) ---
-    const ctxScatter = document.getElementById('chartStockAgingScatter');
-    if (ctxScatter) {
-        // 彙整批號散佈點資料
-        const scatterPoints = filtered.map(s => {
-            const daysInStock = getDaysInStock(s.created_at);
-            const daysToExpiry = getDaysToExpiry(s.expiry_date);
-            const prdName = getProductShortName(s.product_id);
-            const whName = getWarehouseName(s.warehouse_id);
-
-            // 戰術判定：落入右下方象限 (入庫 >= 60 天且剩餘效期 <= 90 天) 或極危 (效期 <= 30 天)
-            const isDangerZone = (daysInStock >= 60 && daysToExpiry <= 90) || daysToExpiry <= 30;
-            const isWarningZone = daysToExpiry <= 90 && !isDangerZone;
-
-            // 依危急度給予不同亮色標記
-            let pointColor = '#38bdf8'; // 常態：天藍色
-            if (isDangerZone) {
-                pointColor = '#f43f5e'; // 高危急標的：鮮紅
-            } else if (isWarningZone) {
-                pointColor = '#f59e0b'; // 警戒標的：琥珀黃
-            }
-
-            return {
-                x: daysInStock,
-                y: daysToExpiry,
-                id: s.id,
-                batchNo: s.batch_no || '--',
-                productName: prdName,
-                warehouseName: whName,
-                quantity: s.quantity || 0,
-                color: pointColor,
-                isDanger: isDangerZone
-            };
-        });
-
-        chartInstances.stockAgingScatter = new Chart(ctxScatter.getContext('2d'), {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: '批號庫存分佈',
-                    data: scatterPoints,
-                    backgroundColor: scatterPoints.map(pt => pt.color),
-                    borderColor: '#ffffff',
-                    borderWidth: 1,
-                    pointRadius: 6,
-                    pointHoverRadius: 9,
-                    pointHoverBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const pt = ctx.raw;
-                                const lines = [
-                                    ` 產品品項：${pt.productName}`,
-                                    ` 官方批號：${pt.batchNo} (${pt.id})`,
-                                    ` 存放據點：${pt.warehouseName}`,
-                                    ` 在線盒數：${pt.quantity.toLocaleString()} 盒`,
-                                    ` 入庫累積：${pt.x.toLocaleString()} 天`,
-                                    ` 剩餘效期：${pt.y.toLocaleString()} 天`
-                                ];
-                                if (pt.isDanger) {
-                                    lines.push(' ⚠️ 戰術告警：落入右下高危象限，列為最高危急出庫標的！');
-                                }
-                                return lines;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: '入庫累積天數 (天)',
-                            color: '#a78bfa',
-                            font: { size: 12, weight: 'bold' }
-                        },
-                        ticks: {
-                            color: '#f5f3ff',
-                            callback: v => `${Number(v).toLocaleString()} 天`
-                        },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: '距離保存期限到期天數 (天)',
-                            color: '#38bdf8',
-                            font: { size: 12, weight: 'bold' }
-                        },
-                        ticks: {
-                            color: '#f5f3ff',
-                            callback: v => `${Number(v).toLocaleString()} 天`
-                        },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartStockAgingScatter', AppChart.createScatter({
+        datasets: [{
+            label: '批號效期分佈',
+            data: scatterPoints,
+            color: '#38bdf8'
+        }],
+        xTitle: '在庫累積天數',
+        yTitle: '距離過期剩餘天數',
+        xUnit: '天',
+        yUnit: '天'
+    }));
 }
 
 // ==========================================================================

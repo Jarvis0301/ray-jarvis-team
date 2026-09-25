@@ -59,19 +59,6 @@ let alertsDataTableInstance = null;
 let thresholdsDataTableInstance = null;
 let isInitialized = false;
 
-// 統計圖表實例管理池 (防止記憶體洩漏與重疊渲染)
-let chartInstances = {
-    alertType: null,
-    alertSeverity: null,
-    alertStatus: null,
-    warehouseAlerts: null,
-    productAlerts: null,
-    expiryAging: null,
-    monitoredRatio: null,
-    stockGapDepth: null,
-    safetyFulfillmentMixed: null // 指定複合圖表
-};
-
 // ==========================================================================
 // 3. 生命週期與初始化
 // ==========================================================================
@@ -812,498 +799,284 @@ async function triggerBatchResolve() {
 // 9. 統計圖表渲染引擎 (8 張戰術分析圖 + 1 張複合圖表)
 // ==========================================================================
 function renderAlertCharts() {
-    // 銷毀既有實例
-    Object.keys(chartInstances).forEach(key => {
-        if (chartInstances[key]) {
-            chartInstances[key].destroy();
-            chartInstances[key] = null;
-        }
-    });
-
     const filteredAlerts = getFilteredAlerts();
     const filteredThresholds = getFilteredThresholds();
 
-    const chartTextColor = '#f5f3ff';
-    const chartFont = { size: 12 };
-    const gridColor = 'rgba(255, 255, 255, 0.08)';
+    // ======================================================================
+    // 區塊 A：結構分佈分析 (4 張甜甜圈環形圖)
+    // ======================================================================
+    // 1. 預警類型結構分佈 (甜甜圈環形圖 + 中央 KPI 注入)
+    const typeCounts = {};
+    filteredAlerts.forEach(a => {
+        typeCounts[a.alert_type] = (typeCounts[a.alert_type] || 0) + 1;
+    });
 
-    // --- 圖表 1：預警類型結構分佈 (Donut) ---
-    const ctxType = document.getElementById('chartAlertType')?.getContext('2d');
-    if (ctxType) {
-        const typeCounts = {};
-        filteredAlerts.forEach(a => {
-            typeCounts[a.alert_type] = (typeCounts[a.alert_type] || 0) + 1;
-        });
-        const labels = Object.keys(typeCounts);
-        const data = Object.values(typeCounts);
-        const total = data.reduce((a, b) => a + b, 0);
+    AppChart.render('chartAlertType', AppChart.createDoughnut({
+        labels: Object.keys(typeCounts),
+        data: Object.values(typeCounts),
+        colors: ['#f97316', '#eab308', '#ef4444', '#a855f7', '#38bdf8'],
+        unit: '件',
+        centerKpi: { label: '告警總件數', value: `${filteredAlerts.length.toLocaleString()} 件` }
+    }));
 
-        chartInstances.alertType = new Chart(ctxType, {
-            type: 'doughnut',
-            data: {
-                labels,
-                datasets: [{
-                    data,
-                    backgroundColor: ['#f97316', '#eab308', '#ef4444', '#a855f7', '#38bdf8'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const val = Number(ctx.raw) || 0;
-                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                return ` ${ctx.label}：${val.toLocaleString()} 件 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
+    // 2. 嚴重性等級佔比 (由 pie 升級為 doughnut)
+    const levels = { '緊急': 0, '注意': 0, '一般': 0 };
+    filteredAlerts.forEach(a => {
+        if (levels[a.alert_level] !== undefined) levels[a.alert_level]++;
+    });
+
+    AppChart.render('chartAlertSeverity', AppChart.createDoughnut({
+        labels: ['緊急', '注意', '一般'],
+        data: [levels['緊急'], levels['注意'], levels['一般']],
+        colors: ['#ef4444', '#f59e0b', '#38bdf8'],
+        unit: '件'
+    }));
+
+    // 3. 處置狀態進度佔比 (甜甜圈環形圖)
+    const statusCounts = {};
+    filteredAlerts.forEach(a => {
+        statusCounts[a.status] = (statusCounts[a.status] || 0) + 1;
+    });
+
+    AppChart.render('chartAlertStatus', AppChart.createDoughnut({
+        labels: Object.keys(statusCounts),
+        data: Object.values(statusCounts),
+        colors: ['#64748b', '#0ea5e9', '#10b981', '#a855f7'],
+        unit: '件'
+    }));
+
+    // 4. 門檻即時監控狀態佔比 (由 pie 升級為 doughnut)
+    const activeCount = filteredThresholds.filter(t => t.is_monitored === 'Y').length;
+    const pausedCount = filteredThresholds.filter(t => t.is_monitored === 'N').length;
+
+    AppChart.render('chartMonitoredRatio', AppChart.createDoughnut({
+        labels: ['啟動監控中', '暫停掃描'],
+        data: [activeCount, pausedCount],
+        colors: ['#10b981', '#64748b'],
+        unit: '組'
+    }));
+
+    // ======================================================================
+    // 區塊 B：長條統計與排行 (4 張長條圖)
+    // ======================================================================
+    // 5. 各據點倉儲預警案件數量分佈 (垂直長條圖)
+    const whMap = {};
+    filteredAlerts.forEach(a => {
+        const name = getWarehouseName(a.warehouse_id);
+        whMap[name] = (whMap[name] || 0) + 1;
+    });
+
+    AppChart.render('chartWarehouseAlerts', AppChart.createBar({
+        labels: Object.keys(whMap),
+        data: Object.values(whMap),
+        datasetLabel: '預警次數',
+        colors: '#8b5cf6',
+        isHorizontal: false,
+        unit: '件',
+        yStepInteger: true
+    }));
+
+    // 6. Top 8 高頻告警品項排行 (水平長條圖)
+    const prdMap = {};
+    filteredAlerts.forEach(a => {
+        const name = getProductShortName(a.product_id);
+        prdMap[name] = (prdMap[name] || 0) + 1;
+    });
+    const sortedPrd = Object.entries(prdMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+    AppChart.render('chartProductAlerts', AppChart.createBar({
+        labels: sortedPrd.map(i => i[0]),
+        data: sortedPrd.map(i => i[1]),
+        datasetLabel: '告警次數',
+        colors: '#f59e0b',
+        isHorizontal: true,
+        unit: '次',
+        yStepInteger: true
+    }));
+
+    // 7. 效期剩餘天數區間分佈 (垂直長條圖)
+    const agingBuckets = { '已逾期 (<=0天)': 0, '1~30天極危': 0, '31~60天警戒': 0, '61~90天注意': 0, '90天以上常態': 0 };
+    filteredAlerts.forEach(a => {
+        const d = a.days_to_expire;
+        if (d === null || isNaN(d)) return;
+        if (d <= 0) agingBuckets['已逾期 (<=0天)']++;
+        else if (d <= 30) agingBuckets['1~30天極危']++;
+        else if (d <= 60) agingBuckets['31~60天警戒']++;
+        else if (d <= 90) agingBuckets['61~90天注意']++;
+        else agingBuckets['90天以上常態']++;
+    });
+
+    AppChart.render('chartExpiryAging', AppChart.createBar({
+        labels: Object.keys(agingBuckets),
+        data: Object.values(agingBuckets),
+        datasetLabel: '批號筆數',
+        colors: ['#ef4444', '#f43f5e', '#f97316', '#eab308', '#10b981'],
+        isHorizontal: false,
+        unit: '筆',
+        yStepInteger: true
+    }));
+
+    // 8. 低於水位缺口深度排行 (水平長條圖)
+    const gaps = filteredAlerts
+        .filter(a => a.alert_type === '低於安全水位' && a.threshold_qty !== null)
+        .map(a => {
+            const diff = Math.max(0, (a.threshold_qty || 0) - a.current_qty);
+            return {
+                label: `${getProductShortName(a.product_id)} (${getWarehouseName(a.warehouse_id)})`,
+                gap: diff
+            };
+        })
+        .sort((a, b) => b.gap - a.gap)
+        .slice(0, 6);
+
+    AppChart.render('chartStockGapDepth', AppChart.createBar({
+        labels: gaps.length ? gaps.map(g => g.label) : ['目前無缺口'],
+        data: gaps.length ? gaps.map(g => g.gap) : [0],
+        datasetLabel: '缺口盒數',
+        colors: '#ef4444',
+        isHorizontal: true,
+        unit: '盒',
+        yStepInteger: true
+    }));
+
+    // ======================================================================
+    // 區塊 C：各項產品庫存滿足率與安全警戒線對比圖 (Mixed Charts)
+    // 結構：堆疊柱狀圖 (現有安全現貨 + 預扣鎖定現貨) + 警戒折線 (最低安全存量)
+    // ======================================================================
+    const prdCodeList = appState.filters.product !== 'ALL'
+        ? [appState.filters.product]
+        : (Object.keys(appState.products).length > 0
+            ? Object.keys(appState.products)
+            : [...new Set([...filteredThresholds.map(t => t.product_id), ...filteredAlerts.map(a => a.product_id)])]);
+
+    const labels = prdCodeList.map(code => getProductShortName(code));
+    const safeStockData = [];
+    const reservedStockData = [];
+    const thresholdLineData = [];
+
+    prdCodeList.forEach(code => {
+        // 累計各據點為該產品設定之安全門檻盒數 (監控中)
+        const prdThresholds = filteredThresholds.filter(t => t.product_id === code && t.is_monitored === 'Y');
+        const totalThreshold = prdThresholds.reduce((sum, t) => sum + (Number(t.threshold_qty) || 0), 0);
+        thresholdLineData.push(totalThreshold);
+
+        // 累計該產品在庫現有安全現貨與品質/代領預扣鎖定現貨
+        const prdAlerts = filteredAlerts.filter(a => a.product_id === code);
+        let lockedQty = 0;
+        let currentSafeQty = 0;
+
+        prdAlerts.forEach(a => {
+            if (a.alert_type === '品質鎖定') {
+                lockedQty += (Number(a.current_qty) || 0);
+            } else {
+                currentSafeQty += (Number(a.current_qty) || 0);
             }
         });
-    }
 
-    // --- 圖表 2：嚴重性等級佔比 (Pie) ---
-    const ctxSeverity = document.getElementById('chartAlertSeverity')?.getContext('2d');
-    if (ctxSeverity) {
-        const levels = { '緊急': 0, '注意': 0, '一般': 0 };
-        filteredAlerts.forEach(a => {
-            if (levels[a.alert_level] !== undefined) levels[a.alert_level]++;
-        });
-        const data = [levels['緊急'], levels['注意'], levels['一般']];
-        const total = data.reduce((a, b) => a + b, 0);
+        safeStockData.push(currentSafeQty);
+        reservedStockData.push(lockedQty);
+    });
 
-        chartInstances.alertSeverity = new Chart(ctxSeverity, {
-            type: 'pie',
-            data: {
-                labels: ['緊急', '注意', '一般'],
-                datasets: [{
-                    data,
-                    backgroundColor: ['#ef4444', '#f59e0b', '#38bdf8'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const val = Number(ctx.raw) || 0;
-                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                return ` ${ctx.label}：${val.toLocaleString()} 件 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    // 透過 AppChart.calcCeil5Max 動態計算 Y 軸最高點，向上取整至 5 的倍數
+    const allValues = [...safeStockData.map((v, i) => v + reservedStockData[i]), ...thresholdLineData];
+    const yMax = AppChart.calcCeil5Max(allValues, 10);
 
-    // --- 圖表 3：處置狀態進度佔比 (Doughnut) ---
-    const ctxStatus = document.getElementById('chartAlertStatus')?.getContext('2d');
-    if (ctxStatus) {
-        const statusCounts = {};
-        filteredAlerts.forEach(a => {
-            statusCounts[a.status] = (statusCounts[a.status] || 0) + 1;
-        });
-        const labels = Object.keys(statusCounts);
-        const data = Object.values(statusCounts);
-        const total = data.reduce((a, b) => a + b, 0);
-
-        chartInstances.alertStatus = new Chart(ctxStatus, {
-            type: 'doughnut',
-            data: {
-                labels,
-                datasets: [{
-                    data,
-                    backgroundColor: ['#64748b', '#0ea5e9', '#10b981', '#a855f7'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const val = Number(ctx.raw) || 0;
-                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                return ` ${ctx.label}：${val.toLocaleString()} 件 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // --- 圖表 4：門檻即時監控狀態佔比 (Pie) ---
-    const ctxMonitored = document.getElementById('chartMonitoredRatio')?.getContext('2d');
-    if (ctxMonitored) {
-        const activeCount = filteredThresholds.filter(t => t.is_monitored === 'Y').length;
-        const pausedCount = filteredThresholds.filter(t => t.is_monitored === 'N').length;
-        const total = activeCount + pausedCount;
-
-        chartInstances.monitoredRatio = new Chart(ctxMonitored, {
-            type: 'pie',
-            data: {
-                labels: ['啟動監控中', '暫停掃描'],
-                datasets: [{
-                    data: [activeCount, pausedCount],
-                    backgroundColor: ['#10b981', '#64748b'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const val = Number(ctx.raw) || 0;
-                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                                return ` ${ctx.label}：${val.toLocaleString()} 組 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // --- 圖表 5：各據點倉儲預警案件數量分佈 (Bar) ---
-    const ctxWh = document.getElementById('chartWarehouseAlerts')?.getContext('2d');
-    if (ctxWh) {
-        const whMap = {};
-        filteredAlerts.forEach(a => {
-            const name = getWarehouseName(a.warehouse_id);
-            whMap[name] = (whMap[name] || 0) + 1;
-        });
-        const labels = Object.keys(whMap);
-        const data = Object.values(whMap);
-        const maxVal = Math.max(...data, 5);
-        const yMax = Math.ceil(maxVal / 5) * 5;
-
-        chartInstances.warehouseAlerts = new Chart(ctxWh, {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    label: '預警次數',
-                    data,
-                    backgroundColor: '#8b5cf6',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } },
-                    y: {
-                        beginAtZero: true,
-                        max: yMax,
-                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
-                        grid: { color: gridColor }
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // --- 圖表 6：Top 8 高頻告警品項排行 (Horizontal Bar) ---
-    const ctxPrd = document.getElementById('chartProductAlerts')?.getContext('2d');
-    if (ctxPrd) {
-        const prdMap = {};
-        filteredAlerts.forEach(a => {
-            const name = getProductShortName(a.product_id);
-            prdMap[name] = (prdMap[name] || 0) + 1;
-        });
-        const sorted = Object.entries(prdMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
-        const labels = sorted.map(i => i[0]);
-        const data = sorted.map(i => i[1]);
-        const maxVal = Math.max(...data, 5);
-        const xMax = Math.ceil(maxVal / 5) * 5;
-
-        chartInstances.productAlerts = new Chart(ctxPrd, {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    label: '告警次數',
-                    data,
-                    backgroundColor: '#f59e0b',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: xMax,
-                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
-                        grid: { color: gridColor }
-                    },
-                    y: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // --- 圖表 7：效期剩餘天數區間分佈 (Bar) ---
-    const ctxAging = document.getElementById('chartExpiryAging')?.getContext('2d');
-    if (ctxAging) {
-        const agingBuckets = { '已逾期 (<=0天)': 0, '1~30天極危': 0, '31~60天警戒': 0, '61~90天注意': 0, '90天以上常態': 0 };
-        filteredAlerts.forEach(a => {
-            const d = a.days_to_expire;
-            if (d === null || isNaN(d)) return;
-            if (d <= 0) agingBuckets['已逾期 (<=0天)']++;
-            else if (d <= 30) agingBuckets['1~30天極危']++;
-            else if (d <= 60) agingBuckets['31~60天警戒']++;
-            else if (d <= 90) agingBuckets['61~90天注意']++;
-            else agingBuckets['90天以上常態']++;
-        });
-        const data = Object.values(agingBuckets);
-        const maxVal = Math.max(...data, 5);
-        const yMax = Math.ceil(maxVal / 5) * 5;
-
-        chartInstances.expiryAging = new Chart(ctxAging, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(agingBuckets),
-                datasets: [{
-                    label: '批號筆數',
-                    data,
-                    backgroundColor: ['#ef4444', '#f43f5e', '#f97316', '#eab308', '#10b981'],
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } },
-                    y: {
-                        beginAtZero: true,
-                        max: yMax,
-                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
-                        grid: { color: gridColor }
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // --- 圖表 8：低於水位缺口深度排行 (Bar) ---
-    const ctxGap = document.getElementById('chartStockGapDepth')?.getContext('2d');
-    if (ctxGap) {
-        const gaps = filteredAlerts
-            .filter(a => a.alert_type === '低於安全水位' && a.threshold_qty !== null)
-            .map(a => {
-                const diff = Math.max(0, (a.threshold_qty || 0) - a.current_qty);
-                return {
-                    label: `${getProductShortName(a.product_id)} (${getWarehouseName(a.warehouse_id)})`,
-                    gap: diff
-                };
-            })
-            .sort((a, b) => b.gap - a.gap)
-            .slice(0, 6);
-
-        const labels = gaps.length ? gaps.map(g => g.label) : ['目前無缺口'];
-        const data = gaps.length ? gaps.map(g => g.gap) : [0];
-        const maxVal = Math.max(...data, 5);
-        const yMax = Math.ceil(maxVal / 5) * 5;
-
-        chartInstances.stockGapDepth = new Chart(ctxGap, {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    label: '缺口盒數',
-                    data,
+    AppChart.render('chartWarehouseSafetyFulfillment', {
+        data: {
+            labels,
+            datasets: [
+                {
+                    type: 'line',
+                    label: '最低安全存量警戒線 (Safety Line)',
+                    data: thresholdLineData,
+                    borderColor: '#ef4444',
                     backgroundColor: '#ef4444',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } },
-                    y: {
-                        beginAtZero: true,
-                        max: yMax,
-                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
-                        grid: { color: gridColor }
-                    }
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#ef4444',
+                    pointBorderWidth: 2,
+                    fill: false,
+                    tension: 0,
+                    order: 1
                 },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // ======================================================================
-    // 指定第 9 張圖表：各項產品庫存滿足率與安全警戒線對比圖 (Mixed Charts)
-    // 結構：堆疊柱狀圖 (現有安全現貨 + 預扣鎖定現貨) + 水平折線 (各品項最低安全存量)
-    // ======================================================================
-    const ctxMixed = document.getElementById('chartWarehouseSafetyFulfillment')?.getContext('2d');
-    if (ctxMixed) {
-        // 依據全域篩選決定 X 軸產品範圍 (特定品項或全品項)
-        const prdCodeList = appState.filters.product !== 'ALL'
-            ? [appState.filters.product]
-            : (Object.keys(appState.products).length > 0
-                ? Object.keys(appState.products)
-                : [...new Set([...filteredThresholds.map(t => t.product_id), ...filteredAlerts.map(a => a.product_id)])]);
-
-        // X 軸標籤改為產品簡稱
-        const labels = prdCodeList.map(code => getProductShortName(code));
-
-        const safeStockData = [];
-        const reservedStockData = [];
-        const thresholdLineData = [];
-
-        prdCodeList.forEach(code => {
-            // 累計各據點為該產品設定之安全門檻盒數 (監控中)
-            const prdThresholds = filteredThresholds.filter(t => t.product_id === code && t.is_monitored === 'Y');
-            const totalThreshold = prdThresholds.reduce((sum, t) => sum + (Number(t.threshold_qty) || 0), 0);
-            thresholdLineData.push(totalThreshold);
-
-            // 累計該產品在庫現有安全現貨與預扣/品質鎖定現貨
-            const prdAlerts = filteredAlerts.filter(a => a.product_id === code);
-            let lockedQty = 0;
-            let currentSafeQty = 0;
-
-            prdAlerts.forEach(a => {
-                if (a.alert_type === '品質鎖定') {
-                    lockedQty += (Number(a.current_qty) || 0);
-                } else {
-                    currentSafeQty += (Number(a.current_qty) || 0);
+                {
+                    type: 'bar',
+                    label: '現有安全現貨 (Safe Stock)',
+                    data: safeStockData,
+                    backgroundColor: '#38bdf8',
+                    stack: 'stockStack',
+                    borderRadius: 4,
+                    order: 2
+                },
+                {
+                    type: 'bar',
+                    label: '預扣鎖定現貨 (Reserved / Hold)',
+                    data: reservedStockData,
+                    backgroundColor: '#f59e0b',
+                    stack: 'stockStack',
+                    borderRadius: 4,
+                    order: 3
                 }
-            });
-
-            safeStockData.push(currentSafeQty);
-            reservedStockData.push(lockedQty);
-        });
-
-        // 計算最大值並向上取整到 5 的倍數
-        const allValues = [...safeStockData.map((v, i) => v + reservedStockData[i]), ...thresholdLineData];
-        const maxVal = Math.max(...allValues, 10);
-        const yMax = Math.ceil(maxVal / 5) * 5;
-
-        chartInstances.safetyFulfillmentMixed = new Chart(ctxMixed, {
-            data: {
-                labels,
-                datasets: [
-                    {
-                        type: 'line',
-                        label: '最低安全存量警戒線 (Safety Line)',
-                        data: thresholdLineData,
-                        borderColor: '#ef4444',
-                        backgroundColor: '#ef4444',
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#ef4444',
-                        pointBorderWidth: 2,
-                        fill: false, // 折線下方不填色
-                        tension: 0,  // 線條無曲率
-                        order: 1
-                    },
-                    {
-                        type: 'bar',
-                        label: '現有安全現貨 (Safe Stock)',
-                        data: safeStockData,
-                        backgroundColor: '#38bdf8',
-                        stack: 'stockStack',
-                        borderRadius: 4,
-                        order: 2
-                    },
-                    {
-                        type: 'bar',
-                        label: '預扣鎖定現貨 (Reserved / Hold)',
-                        data: reservedStockData,
-                        backgroundColor: '#f59e0b',
-                        stack: 'stockStack',
-                        borderRadius: 4,
-                        order: 3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true,
-                        ticks: { color: chartTextColor, font: chartFont },
-                        grid: { color: gridColor }
-                    },
-                    y: {
-                        stacked: false,
-                        beginAtZero: true,
-                        max: yMax,
-                        title: {
-                            display: true,
-                            text: '存量盒數 (盒)',
-                            color: chartTextColor,
-                            font: { size: 12, weight: 'bold' }
-                        },
-                        ticks: {
-                            color: chartTextColor,
-                            font: chartFont,
-                            precision: 0,
-                            callback: v => `${Number(v).toLocaleString()} 盒`
-                        },
-                        grid: { color: gridColor }
-                    }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true,
+                    ticks: { color: AppChart.tokens.text, font: { size: 12 } },
+                    grid: { color: AppChart.tokens.grid }
                 },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: { color: chartTextColor, font: chartFont }
+                y: {
+                    stacked: false,
+                    beginAtZero: true,
+                    max: yMax,
+                    title: {
+                        display: true,
+                        text: '存量盒數 (盒)',
+                        color: AppChart.tokens.text,
+                        font: { size: 12, weight: 'bold' }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const val = Number(ctx.parsed.y) || 0;
-                                const dsLabel = ctx.dataset.label || '';
-                                return ` ${dsLabel}：${val.toLocaleString()} 盒`;
-                            },
-                            afterBody: function (ctxItems) {
-                                if (!ctxItems || ctxItems.length === 0) return '';
-                                const idx = ctxItems[0].dataIndex;
-                                const prdName = labels[idx];
-                                const totalAvailable = safeStockData[idx] + reservedStockData[idx];
-                                const threshold = thresholdLineData[idx];
-                                if (threshold > 0 && totalAvailable < threshold) {
-                                    const gap = threshold - totalAvailable;
-                                    return `\n⚠️ 戰術警報：【${prdName}】總庫存跌破安全線 (短缺 ${gap.toLocaleString()} 盒)，已自動觸發進貨提單流程！`;
-                                }
-                                return `\n✅ 戰術狀態：【${prdName}】庫存充裕，高於安全警戒線。`;
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                        color: AppChart.tokens.text,
+                        font: { size: 12 },
+                        callback: v => `${Number(v).toLocaleString()} 盒`
+                    },
+                    grid: { color: AppChart.tokens.grid }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: AppChart.tokens.text, font: { size: 12 }, boxWidth: 10 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (ctx) {
+                            const val = Number(ctx.parsed.y) || 0;
+                            const dsLabel = ctx.dataset.label || '';
+                            return ` ${dsLabel}：${val.toLocaleString()} 盒`;
+                        },
+                        afterBody: function (ctxItems) {
+                            if (!ctxItems || ctxItems.length === 0) return '';
+                            const idx = ctxItems[0].dataIndex;
+                            const prdName = labels[idx];
+                            const totalAvailable = safeStockData[idx] + reservedStockData[idx];
+                            const threshold = thresholdLineData[idx];
+                            if (threshold > 0 && totalAvailable < threshold) {
+                                const gap = threshold - totalAvailable;
+                                return `\n⚠️ 戰術警報：【${prdName}】總庫存跌破安全線 (短缺 ${gap.toLocaleString()} 盒)，已自動觸發進貨提單流程！`;
                             }
+                            return `\n✅ 戰術狀態：【${prdName}】庫存充裕，高於安全警戒線。`;
                         }
                     }
                 }
             }
-        });
-    }
+        }
+    });
 }

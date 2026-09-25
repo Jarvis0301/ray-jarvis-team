@@ -200,7 +200,8 @@ const APP_CONFIG = {
         '../assets/js/ui-select-options.js',
         '../assets/js/entity-resolver.js',
         '../assets/js/date.js',
-        '../assets/js/calc.js'
+        '../assets/js/calc.js',
+        '../assets/js/chart.js'
     ];
 
     /**

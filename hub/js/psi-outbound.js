@@ -42,18 +42,6 @@ let appState = {
         warehouseId: 'ALL',
         operatorId: 'ALL',
         recipientId: 'ALL'
-    },
-    chartInstances: {
-        scale: null,
-        profit: null,
-        purchaserFund: null,
-        category: null,
-        paymentStatus: null,
-        payment: null,
-        warehouse: null,
-        delivery: null,
-        fulfillmentStatus: null,
-        holdStatus: null
     }
 };
 
@@ -587,462 +575,204 @@ function renderKpis() {
 }
 
 function renderCharts() {
-    Object.keys(appState.chartInstances).forEach(k => {
-        if (appState.chartInstances[k]) {
-            appState.chartInstances[k].destroy();
-            appState.chartInstances[k] = null;
-        }
-    });
-
     const currentList = getFilteredData();
     const activeOrders = currentList.filter(d => d.fulfillment_status !== '已取消');
 
-    // 1. 銷貨規模與考核走勢 (雙軸折線圖)
-    const ctxScale = document.getElementById('outboundScaleChart');
-    if (ctxScale) {
-        const monthMap = {};
-        activeOrders.forEach(d => {
-            const m = d.order_date ? d.order_date.slice(0, 7) : '未分類';
-            if (!monthMap[m]) monthMap[m] = { sales: 0, sv: 0 };
-            monthMap[m].sales = AppCalc.add(monthMap[m].sales, parseFloat(d.total_sales_amount) || 0);
-            monthMap[m].sv = AppCalc.add(monthMap[m].sv, parseFloat(d.total_sv) || 0);
-        });
+    // ======================================================================
+    // 1. 銷貨規模與考核走勢 (雙 Y 軸硬派折線圖：無曲率、不填色、5 的倍數上限)
+    // ======================================================================
+    const monthMap = {};
+    activeOrders.forEach(d => {
+        const m = d.order_date ? d.order_date.slice(0, 7) : '未分類';
+        if (!monthMap[m]) monthMap[m] = { sales: 0, sv: 0 };
+        monthMap[m].sales = AppCalc.add(monthMap[m].sales, parseFloat(d.total_sales_amount) || 0);
+        monthMap[m].sv = AppCalc.add(monthMap[m].sv, parseFloat(d.total_sv) || 0);
+    });
 
-        const labels = Object.keys(monthMap).sort();
-        appState.chartInstances.scale = new Chart(ctxScale, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: '銷貨實收收入 (NT$)',
-                        data: labels.map(l => monthMap[l].sales),
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.15)',
-                        borderWidth: 2.5,
-                        tension: 0,
-                        fill: false,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: '月度考核出庫 SV',
-                        data: labels.map(l => monthMap[l].sv),
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                        borderWidth: 2.5,
-                        tension: 0,
-                        fill: false,
-                        yAxisID: 'y1'
-                    }
-                ]
+    const labels = Object.keys(monthMap).sort();
+    const salesData = labels.map(l => monthMap[l].sales);
+    const svData = labels.map(l => monthMap[l].sv);
+
+    AppChart.render('outboundScaleChart', AppChart.createMultiLine({
+        labels: labels.length ? labels : ['無資料'],
+        lines: [
+            {
+                label: '銷貨實收收入 (NT$)',
+                data: salesData,
+                color: '#8b5cf6',
+                yAxisID: 'y',
+                tension: 0,
+                fill: false
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
-                    y: {
-                        type: 'linear', position: 'left',
-                        title: { display: true, text: '金額 (NT$)', color: '#8b5cf6' },
-                        ticks: { color: '#f5f3ff' },
-                        grid: { color: 'rgba(139, 92, 246, 0.12)' }
-                    },
-                    y1: {
-                        type: 'linear', position: 'right',
-                        title: { display: true, text: '考核 SV', color: '#f59e0b' },
-                        ticks: { color: '#f59e0b' },
-                        grid: { drawOnChartArea: false }
-                    }
-                },
-                plugins: { legend: { labels: { color: '#f5f3ff', font: { size: 12 } } } }
+            {
+                label: '月度考核出庫 SV',
+                data: svData,
+                color: '#f59e0b',
+                yAxisID: 'y1',
+                tension: 0,
+                fill: false
             }
-        });
-    }
+        ],
+        unit: '',
+        useDualAxis: true,
+        yLeftTitle: '銷貨實收 (NT$)',
+        yRightTitle: '考核 SV'
+    }));
 
-    // 2. 實質毛利價差趨勢 (折線圖)
-    const ctxProfit = document.getElementById('outboundProfitChart');
-    if (ctxProfit) {
-        const profitMap = {};
-        activeOrders.forEach(d => {
-            const m = d.order_date ? d.order_date.slice(0, 7) : '未分類';
-            profitMap[m] = AppCalc.add(profitMap[m] || 0, parseFloat(d.total_profit_amount) || 0);
-        });
+    // ======================================================================
+    // 2. 實質毛利價差趨勢 (硬派單折線圖：無曲率、不填色、5 的倍數上限)
+    // ======================================================================
+    const profitMap = {};
+    activeOrders.forEach(d => {
+        const m = d.order_date ? d.order_date.slice(0, 7) : '未分類';
+        profitMap[m] = AppCalc.add(profitMap[m] || 0, parseFloat(d.total_profit_amount) || 0);
+    });
 
-        const labels = Object.keys(profitMap).sort();
-        appState.chartInstances.profit = new Chart(ctxProfit, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '毛利價差利潤 (NT$)',
-                    data: labels.map(l => profitMap[l]),
-                    borderColor: '#34d399',
-                    backgroundColor: 'rgba(52, 211, 153, 0.12)',
-                    borderWidth: 2.5,
-                    tension: 0,
-                    fill: false,
-                    yAxisID: 'y'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
-                    y: {
-                        ticks: { color: '#34d399' },
-                        grid: { color: 'rgba(52, 211, 153, 0.12)' },
-                        title: { display: true, text: '毛利 (NT$)', color: '#34d399' }
-                    }
-                },
-                plugins: { legend: { labels: { color: '#f5f3ff', font: { size: 12 } } } }
-            }
-        });
-    }
+    const profitLabels = Object.keys(profitMap).sort();
+    AppChart.render('outboundProfitChart', AppChart.createLine({
+        labels: profitLabels.length ? profitLabels : ['無資料'],
+        data: profitLabels.map(l => profitMap[l]),
+        datasetLabel: '毛利價差利潤 (NT$)',
+        color: '#34d399',
+        tension: 0,
+        fill: false,
+        unit: '元',
+        yAxisTitle: '毛利 (NT$)'
+    }));
 
-    // 3. 出資夥伴資金佔比
-    const ctxFund = document.getElementById('chartPurchaserFundShare');
-    if (ctxFund) {
-        const fundMap = {};
-        activeOrders.forEach(d => {
-            const partnerName = EntityResolver.partner(d.operator_partner_id, appState.partners, appState.persons, 1);
-            fundMap[partnerName] = AppCalc.add(fundMap[partnerName] || 0, parseFloat(d.total_sales_amount) || 0);
-        });
+    // ======================================================================
+    // 3. 出資夥伴資金佔比 (甜甜圈環形圖 + 中央 KPI 注入)
+    // ======================================================================
+    const fundMap = {};
+    let totalSalesSum = 0;
+    activeOrders.forEach(d => {
+        const partnerName = EntityResolver.partner(d.operator_partner_id, appState.partners, appState.persons, 1);
+        const amt = parseFloat(d.total_sales_amount) || 0;
+        fundMap[partnerName] = AppCalc.add(fundMap[partnerName] || 0, amt);
+        totalSalesSum = AppCalc.add(totalSalesSum, amt);
+    });
 
-        const labels = Object.keys(fundMap);
-        const data = labels.map(k => fundMap[k]);
-        const totalFund = data.reduce((a, b) => AppCalc.add(a, b), 0);
-        const colors = ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185', '#a855f7'];
+    AppChart.render('chartPurchaserFundShare', AppChart.createDoughnut({
+        labels: Object.keys(fundMap),
+        data: Object.values(fundMap),
+        colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185', '#a855f7'],
+        unit: '元',
+        centerKpi: { label: '實收總金額', value: `NT$ ${totalSalesSum.toLocaleString()}` }
+    }));
 
-        appState.chartInstances.purchaserFund = new Chart(ctxFund, {
-            type: 'doughnut',
-            data: {
-                labels: labels.length ? labels : ['無數據'],
-                datasets: [{
-                    data: data.length ? data : [1],
-                    backgroundColor: data.length ? colors.slice(0, labels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalFund > 0 ? ((val / totalFund) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：NT$ ${Number(val).toLocaleString()} (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    // ======================================================================
+    // 4. 銷貨業務類別佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const catMap = { '零售客銷售': 0, '下線夥伴調度': 0 };
+    activeOrders.forEach(d => {
+        const cat = d.order_category || '零售客銷售';
+        catMap[cat] = (catMap[cat] || 0) + 1;
+    });
 
-    // 4. 銷貨業務類別佔比
-    const ctxCategory = document.getElementById('chartCategoryShare');
-    if (ctxCategory) {
-        const catMap = { '零售客銷售': 0, '下線夥伴調度': 0 };
-        activeOrders.forEach(d => {
-            const cat = d.order_category || '零售客銷售';
-            catMap[cat] = (catMap[cat] || 0) + 1;
-        });
+    AppChart.render('chartCategoryShare', AppChart.createDoughnut({
+        labels: Object.keys(catMap),
+        data: Object.values(catMap),
+        colors: ['#8b5cf6', '#38bdf8'],
+        unit: '筆'
+    }));
 
-        const labels = Object.keys(catMap);
-        const data = Object.values(catMap);
-        const totalCat = data.reduce((a, b) => a + b, 0);
+    // ======================================================================
+    // 5. 收款狀態佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const payStatusMap = { '已收訖': 0, '未付款': 0, '部分訂金': 0 };
+    currentList.forEach(d => {
+        const st = d.payment_status || '已收訖';
+        if (payStatusMap[st] !== undefined) payStatusMap[st]++;
+    });
 
-        appState.chartInstances.category = new Chart(ctxCategory, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: totalCat > 0 ? data : [1],
-                    backgroundColor: totalCat > 0 ? ['#8b5cf6', '#38bdf8'] : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalCat > 0 ? ((val / totalCat) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartPaymentStatusShare', AppChart.createDoughnut({
+        labels: Object.keys(payStatusMap),
+        data: Object.values(payStatusMap),
+        colors: ['#34d399', '#fb7185', '#fbbf24'],
+        unit: '筆'
+    }));
 
-    // 5. 收款狀態佔比
-    const ctxPayStatus = document.getElementById('chartPaymentStatusShare');
-    if (ctxPayStatus) {
-        const payStatusMap = { '已收訖': 0, '未付款': 0, '部分訂金': 0 };
-        currentList.forEach(d => {
-            const st = d.payment_status || '已收訖';
-            if (payStatusMap[st] !== undefined) payStatusMap[st]++;
-        });
+    // ======================================================================
+    // 6. 付款金流管道佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const payMap = {};
+    activeOrders.forEach(d => {
+        const platform = d.payment_platform || d.payment_method || '現金';
+        payMap[platform] = (payMap[platform] || 0) + 1;
+    });
 
-        const labels = Object.keys(payStatusMap);
-        const data = Object.values(payStatusMap);
-        const totalPayStatus = data.reduce((a, b) => a + b, 0);
+    AppChart.render('chartPaymentShare', AppChart.createDoughnut({
+        labels: Object.keys(payMap),
+        data: Object.values(payMap),
+        colors: ['#38bdf8', '#818cf8', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#fb7185'],
+        unit: '筆'
+    }));
 
-        appState.chartInstances.paymentStatus = new Chart(ctxPayStatus, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: totalPayStatus > 0 ? data : [1],
-                    backgroundColor: totalPayStatus > 0 ? ['#34d399', '#fb7185', '#fbbf24'] : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalPayStatus > 0 ? ((val / totalPayStatus) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    // ======================================================================
+    // 7. 出貨倉庫盒數佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const whMap = {};
+    activeOrders.forEach(d => {
+        const name = EntityResolver.warehouse(d.warehouse_id, appState.warehouses, 1);
+        whMap[name] = AppCalc.add(whMap[name] || 0, parseInt(d.total_boxes, 10) || 0);
+    });
 
-    // 6. 付款金流管道佔比
-    const ctxPayment = document.getElementById('chartPaymentShare');
-    if (ctxPayment) {
-        const payMap = {};
-        activeOrders.forEach(d => {
-            const platform = d.payment_platform || d.payment_method || '現金';
-            payMap[platform] = (payMap[platform] || 0) + 1;
-        });
+    AppChart.render('chartWarehouseShare', AppChart.createDoughnut({
+        labels: Object.keys(whMap),
+        data: Object.values(whMap),
+        colors: ['#38bdf8', '#c084fc', '#34d399', '#f97316', '#fb7185'],
+        unit: '盒'
+    }));
 
-        const labels = Object.keys(payMap);
-        const data = Object.values(payMap);
-        const totalPayCount = data.reduce((a, b) => a + b, 0);
-        const colors = ['#38bdf8', '#818cf8', '#34d399', '#fbbf24', '#f472b6', '#a78bfa', '#fb7185'];
+    // ======================================================================
+    // 8. 交付管道結構佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const dlvMap = {};
+    activeOrders.forEach(d => {
+        const method = d.delivery_method || '面交自取';
+        dlvMap[method] = (dlvMap[method] || 0) + 1;
+    });
 
-        appState.chartInstances.payment = new Chart(ctxPayment, {
-            type: 'doughnut',
-            data: {
-                labels: labels.length ? labels : ['無數據'],
-                datasets: [{
-                    data: totalPayCount > 0 ? data : [1],
-                    backgroundColor: totalPayCount > 0 ? colors.slice(0, labels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalPayCount > 0 ? ((val / totalPayCount) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartDeliveryShare', AppChart.createDoughnut({
+        labels: Object.keys(dlvMap),
+        data: Object.values(dlvMap),
+        colors: ['#fbbf24', '#38bdf8', '#34d399', '#c084fc', '#fb7185', '#a855f7'],
+        unit: '筆'
+    }));
 
-    // 7. 出貨倉庫盒數佔比
-    const ctxWh = document.getElementById('chartWarehouseShare');
-    if (ctxWh) {
-        const whMap = {};
-        activeOrders.forEach(d => {
-            const name = EntityResolver.warehouse(d.warehouse_id, appState.warehouses, 1);
-            whMap[name] = AppCalc.add(whMap[name] || 0, parseInt(d.total_boxes, 10) || 0);
-        });
+    // ======================================================================
+    // 9. 出庫履約狀態佔比 (甜甜圈環形圖 + 中央 KPI 注入)
+    // ======================================================================
+    const statusTypes = ['草稿', '待取貨', '已寄出', '已交付', '已取消'];
+    const statusColors = ['#94a3b8', '#f59e0b', '#38bdf8', '#34d399', '#fb7185'];
+    const statusCounts = statusTypes.map(st => currentList.filter(d => d.fulfillment_status === st).length);
 
-        const labels = Object.keys(whMap);
-        const data = labels.map(k => whMap[k]);
-        const totalBoxes = data.reduce((a, b) => AppCalc.add(a, b), 0);
-        const colors = ['#38bdf8', '#c084fc', '#34d399', '#f97316', '#fb7185'];
+    AppChart.render('chartFulfillmentStatusShare', AppChart.createDoughnut({
+        labels: statusTypes,
+        data: statusCounts,
+        colors: statusColors,
+        unit: '筆',
+        centerKpi: { label: '出庫單總數', value: `${currentList.length.toLocaleString()} 筆` }
+    }));
 
-        appState.chartInstances.warehouse = new Chart(ctxWh, {
-            type: 'doughnut',
-            data: {
-                labels: labels.length ? labels : ['無數據'],
-                datasets: [{
-                    data: data.length ? data : [1],
-                    backgroundColor: data.length ? colors.slice(0, labels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalBoxes > 0 ? ((val / totalBoxes) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${Number(val).toLocaleString()} 盒 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    // ======================================================================
+    // 10. 代領預扣鎖定狀態佔比 (甜甜圈環形圖 + 中央 KPI 注入)
+    // ======================================================================
+    let holdCount = 0;
+    let normalCount = 0;
 
-    // 8. 交付管道結構佔比
-    const ctxDelivery = document.getElementById('chartDeliveryShare');
-    if (ctxDelivery) {
-        const dlvMap = {};
-        activeOrders.forEach(d => {
-            const method = d.delivery_method || '面交自取';
-            dlvMap[method] = (dlvMap[method] || 0) + 1;
-        });
+    currentList.forEach(d => {
+        if (d.is_pre_order_hold === 'Y') holdCount++;
+        else normalCount++;
+    });
 
-        const labels = Object.keys(dlvMap);
-        const data = Object.values(dlvMap);
-        const totalDlvCount = data.reduce((a, b) => a + b, 0);
-        const colors = ['#fbbf24', '#38bdf8', '#34d399', '#c084fc', '#fb7185', '#a855f7'];
-
-        appState.chartInstances.delivery = new Chart(ctxDelivery, {
-            type: 'doughnut',
-            data: {
-                labels: labels.length ? labels : ['無數據'],
-                datasets: [{
-                    data: totalDlvCount > 0 ? data : [1],
-                    backgroundColor: totalDlvCount > 0 ? colors.slice(0, labels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalDlvCount > 0 ? ((val / totalDlvCount) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // 9. 出庫履約狀態佔比
-    const ctxFulfill = document.getElementById('chartFulfillmentStatusShare');
-    if (ctxFulfill) {
-        const statusTypes = ['草稿', '待取貨', '已寄出', '已交付', '已取消'];
-        const statusColors = ['#94a3b8', '#f59e0b', '#38bdf8', '#34d399', '#fb7185'];
-        const statusCounts = statusTypes.map(st => currentList.filter(d => d.fulfillment_status === st).length);
-        const totalFulfill = statusCounts.reduce((a, b) => a + b, 0);
-
-        appState.chartInstances.fulfillmentStatus = new Chart(ctxFulfill, {
-            type: 'doughnut',
-            data: {
-                labels: statusTypes,
-                datasets: [{
-                    data: totalFulfill > 0 ? statusCounts : [1],
-                    backgroundColor: totalFulfill > 0 ? statusColors : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalFulfill > 0 ? ((val / totalFulfill) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // 10. 預扣狀態佔比
-    const ctxHold = document.getElementById('chartHoldStatusShare');
-    if (ctxHold) {
-        let holdCount = 0;
-        let normalCount = 0;
-
-        currentList.forEach(d => {
-            if (d.is_pre_order_hold === 'Y') holdCount++;
-            else normalCount++;
-        });
-
-        const totalHold = holdCount + normalCount;
-
-        appState.chartInstances.holdStatus = new Chart(ctxHold, {
-            type: 'doughnut',
-            data: {
-                labels: ['代領預扣鎖定 (HOLD)', '常態現貨流通'],
-                datasets: [{
-                    data: totalHold > 0 ? [holdCount, normalCount] : [1],
-                    backgroundColor: totalHold > 0 ? ['#f59e0b', '#38bdf8'] : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalHold > 0 ? ((val / totalHold) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartHoldStatusShare', AppChart.createDoughnut({
+        labels: ['代領預扣鎖定 (HOLD)', '常態現貨流通'],
+        data: [holdCount, normalCount],
+        colors: ['#f59e0b', '#38bdf8'],
+        unit: '筆',
+        centerKpi: { label: 'HOLD 鎖定單數', value: `${holdCount.toLocaleString()} 筆` }
+    }));
 }
 
 function renderDataTable() {

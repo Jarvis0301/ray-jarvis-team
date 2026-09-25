@@ -68,7 +68,6 @@ let appState = {
 
 let currentAnalyticsRegion = 'ALL';
 let masterDataTableInstance = null;
-let chartInstances = {};
 let isInitialized = false;
 let currentFxRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;           // 基準結算匯率狀態變數 (預設 1 MYR = 8.00 TWD)
 let matrixTableInstance = null;
@@ -1013,31 +1012,6 @@ function renderCrossBorderMatrix() {
 // ==========================================================================
 // 11. Tab 4：統計分析與視覺化圖表
 // ==========================================================================
-function getDoughnutTooltipOptions() {
-    return {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function (context) {
-                        const label = context.label || '';
-                        const value = Number(context.parsed) || 0;
-                        const dataset = context.dataset;
-                        const total = dataset.data.reduce((acc, curr) => acc + Number(curr), 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return ` ${label}：${value} 筆 (${percentage}%)`;
-                    }
-                }
-            },
-            legend: {
-                position: 'bottom',
-                labels: { color: '#f5f3ff', boxWidth: 10, font: { size: 12 } }
-            }
-        }
-    };
-}
-
 function renderAnalyticsCharts() {
     const dataset = appState.products.filter(p => {
         if (currentAnalyticsRegion === 'ALL') return true;
@@ -1045,25 +1019,25 @@ function renderAnalyticsCharts() {
     });
 
     const total = dataset.length;
-    const totalSv = dataset.reduce((sum, p) => sum + p.sv_point, 0);
+    const totalSv = dataset.reduce((sum, p) => sum + (Number(p.sv_point) || 0), 0);
     const avgSv = total > 0 ? (totalSv / total).toFixed(1) : 0;
 
     const twProducts = appState.products.filter(p => p.region_code === 'TW');
     const myProducts = appState.products.filter(p => p.region_code === 'MY');
 
-    const twAvgPrice = twProducts.length > 0 ? Math.round(twProducts.reduce((sum, p) => sum + p.price, 0) / twProducts.length) : 0;
-    const myAvgPrice = myProducts.length > 0 ? Math.round(myProducts.reduce((sum, p) => sum + p.price, 0) / myProducts.length) : 0;
+    const twAvgPrice = twProducts.length > 0 ? Math.round(twProducts.reduce((sum, p) => sum + (Number(p.price) || 0), 0) / twProducts.length) : 0;
+    const myAvgPrice = myProducts.length > 0 ? Math.round(myProducts.reduce((sum, p) => sum + (Number(p.price) || 0), 0) / myProducts.length) : 0;
 
     const validCount = dataset.filter(p => p.is_valid === 'Y').length;
     const validRate = total > 0 ? Math.round((validCount / total) * 100) : 0;
 
-    // 1. 最新上市產品識別：利用 AppDate.toTimestamp 排序，避免原生 Date 解析字串異常
+    // 1. 最新上市產品識別
     const sortedByLaunch = [...dataset]
         .filter(p => p.launch_date && String(p.launch_date).trim() !== '')
         .sort((a, b) => AppDate.toTimestamp(b.launch_date) - AppDate.toTimestamp(a.launch_date));
     const latestItem = sortedByLaunch[0] || null;
 
-    $('#statTotalSku').text(total);
+    $('#statTotalSku').text(total.toLocaleString());
     $('#statRegionBreakdown').text(`台灣：${twProducts.length} / 馬來西亞：${myProducts.length}`);
 
     if (currentAnalyticsRegion === 'MY') {
@@ -1082,12 +1056,16 @@ function renderAnalyticsCharts() {
 
     if (latestItem) {
         $('#statLatestProduct').text(latestItem.name);
-        $('#statLatestProductDate').html(`<i class="fa-solid fa-calendar-check text-success me-1"></i>上市日期：${AppDate.toDisplay(latestItem.launch_date)}`);
+        $('#statLatestProductDate').html(`<i class="fa-solid fa-calendar-check text-accent me-1"></i>上市日期：${AppDate.toDisplay(latestItem.launch_date)}`);
     } else {
         $('#statLatestProduct').text('暫無數據');
         $('#statLatestProductDate').text('-');
     }
 
+    // ======================================================================
+    // 區塊 A：分類與狀態結構分析 (5 張甜甜圈環形圖)
+    // ======================================================================
+    // 1. 主系列分佈
     const catMap = {};
     appState.categories.forEach(c => {
         catMap[c.name_zh] = { count: 0, color: c.text_color || '#8b5cf6' };
@@ -1101,24 +1079,15 @@ function renderAnalyticsCharts() {
         if (catMap[cat.name_zh]) catMap[cat.name_zh].count++;
     });
 
-    if (chartInstances.cat) chartInstances.cat.destroy();
-    const ctxCat = document.getElementById('chartCategoryDist')?.getContext('2d');
-    if (ctxCat) {
-        chartInstances.cat = new Chart(ctxCat, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(catMap),
-                datasets: [{
-                    data: Object.values(catMap).map(v => v.count),
-                    backgroundColor: Object.values(catMap).map(v => v.color),
-                    borderColor: '#1a122d',
-                    borderWidth: 2
-                }]
-            },
-            options: getDoughnutTooltipOptions()
-        });
-    }
+    AppChart.render('chartCategoryDist', AppChart.createDoughnut({
+        labels: Object.keys(catMap),
+        data: Object.values(catMap).map(v => v.count),
+        colors: Object.values(catMap).map(v => v.color),
+        unit: '項',
+        centerKpi: { label: '產品總數', value: `${total.toLocaleString()} 項` }
+    }));
 
+    // 2. 次系列分佈
     const subcatMap = {};
     appState.subcategories.forEach(s => {
         subcatMap[s.name_zh] = { count: 0, color: s.text_color || '#c084fc' };
@@ -1128,24 +1097,14 @@ function renderAnalyticsCharts() {
         if (subcatMap[s.name_zh]) subcatMap[s.name_zh].count++;
     });
 
-    if (chartInstances.subcat) chartInstances.subcat.destroy();
-    const ctxSubcat = document.getElementById('chartSubcategoryDist')?.getContext('2d');
-    if (ctxSubcat) {
-        chartInstances.subcat = new Chart(ctxSubcat, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(subcatMap),
-                datasets: [{
-                    data: Object.values(subcatMap).map(v => v.count),
-                    backgroundColor: Object.values(subcatMap).map(v => v.color),
-                    borderColor: '#1a122d',
-                    borderWidth: 2
-                }]
-            },
-            options: getDoughnutTooltipOptions()
-        });
-    }
+    AppChart.render('chartSubcategoryDist', AppChart.createDoughnut({
+        labels: Object.keys(subcatMap),
+        data: Object.values(subcatMap).map(v => v.count),
+        colors: Object.values(subcatMap).map(v => v.color),
+        unit: '項'
+    }));
 
+    // 3. 物理型態分佈
     const typeMap = {};
     appState.types.forEach(t => {
         typeMap[t.name_zh] = { count: 0, color: t.text_color || '#38bdf8' };
@@ -1155,48 +1114,28 @@ function renderAnalyticsCharts() {
         if (typeMap[t.name_zh]) typeMap[t.name_zh].count++;
     });
 
-    if (chartInstances.type) chartInstances.type.destroy();
-    const ctxType = document.getElementById('chartTypeDist')?.getContext('2d');
-    if (ctxType) {
-        chartInstances.type = new Chart(ctxType, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(typeMap),
-                datasets: [{
-                    data: Object.values(typeMap).map(v => v.count),
-                    backgroundColor: Object.values(typeMap).map(v => v.color),
-                    borderColor: '#1a122d',
-                    borderWidth: 2
-                }]
-            },
-            options: getDoughnutTooltipOptions()
-        });
-    }
+    AppChart.render('chartTypeDist', AppChart.createDoughnut({
+        labels: Object.keys(typeMap),
+        data: Object.values(typeMap).map(v => v.count),
+        colors: Object.values(typeMap).map(v => v.color),
+        unit: '項'
+    }));
 
+    // 4. 上市流通狀態分佈
     const launchStatusMap = { '販售中': 0, '即將上市': 0, '已下市': 0 };
     dataset.forEach(p => {
         const st = getLaunchStatus(p.launch_date, p.discontinue_date);
         launchStatusMap[st.text] = (launchStatusMap[st.text] || 0) + 1;
     });
 
-    if (chartInstances.launchStatus) chartInstances.launchStatus.destroy();
-    const ctxLaunchSt = document.getElementById('chartLaunchStatusDist')?.getContext('2d');
-    if (ctxLaunchSt) {
-        chartInstances.launchStatus = new Chart(ctxLaunchSt, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(launchStatusMap),
-                datasets: [{
-                    data: Object.values(launchStatusMap),
-                    backgroundColor: ['#10b981', '#38bdf8', '#71717a'],
-                    borderColor: '#1a122d',
-                    borderWidth: 2
-                }]
-            },
-            options: getDoughnutTooltipOptions()
-        });
-    }
+    AppChart.render('chartLaunchStatusDist', AppChart.createDoughnut({
+        labels: Object.keys(launchStatusMap),
+        data: Object.values(launchStatusMap),
+        colors: ['#10b981', '#38bdf8', '#64748b'],
+        unit: '項'
+    }));
 
+    // 5. 供貨現貨狀態分佈
     const statusCounts = { '現貨': 0, '缺貨': 0, '預購': 0 };
     dataset.forEach(p => {
         if (p.stock_status === '現貨') statusCounts['現貨']++;
@@ -1205,92 +1144,43 @@ function renderAnalyticsCharts() {
         else statusCounts['未設定']++;
     });
 
-    if (chartInstances.statusDist) chartInstances.statusDist.destroy();
-    const ctxStatusDist = document.getElementById('chartStatusDist')?.getContext('2d');
-    if (ctxStatusDist) {
-        chartInstances.statusDist = new Chart(ctxStatusDist, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(statusCounts),
-                datasets: [{
-                    data: Object.values(statusCounts),
-                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#71717a'],
-                    borderColor: '#1a122d',
-                    borderWidth: 2
-                }]
-            },
-            options: getDoughnutTooltipOptions()
-        });
-    }
+    AppChart.render('chartStatusDist', AppChart.createDoughnut({
+        labels: Object.keys(statusCounts),
+        data: Object.values(statusCounts),
+        colors: ['#10b981', '#ef4444', '#f59e0b', '#64748b'],
+        unit: '項'
+    }));
 
-    const topPriceProducts = [...dataset].sort((a, b) => b.price - a.price).slice(0, 5);
-    if (chartInstances.priceRank) chartInstances.priceRank.destroy();
-    const ctxPriceRank = document.getElementById('chartPriceRank')?.getContext('2d');
-    if (ctxPriceRank) {
-        chartInstances.priceRank = new Chart(ctxPriceRank, {
-            type: 'bar',
-            data: {
-                labels: topPriceProducts.map(p => p.short_name || p.name),
-                datasets: [{
-                    label: '售價',
-                    data: topPriceProducts.map(p => p.price),
-                    backgroundColor: currentAnalyticsRegion === 'MY' ? '#f97316' : '#ef4444',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const item = topPriceProducts[ctx.dataIndex];
-                                const prefix = (item.currency === 'MYR' || item.region_code === 'MY') ? 'RM' : 'NT$';
-                                return ` 售價：${prefix} ${Number(ctx.parsed.x).toLocaleString()}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    // ======================================================================
+    // 區塊 B：戰術指標排行 (4 張水平橫條圖)
+    // ======================================================================
+    // 6. 產品售價排行 Top 5
+    const topPriceProducts = [...dataset].sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0)).slice(0, 5);
+    const priceCurrencyUnit = (currentAnalyticsRegion === 'MY') ? 'RM' : 'NT$';
+    AppChart.render('chartPriceRank', AppChart.createBar({
+        labels: topPriceProducts.map(p => p.short_name || p.name),
+        data: topPriceProducts.map(p => Number(p.price) || 0),
+        datasetLabel: '售價',
+        colors: currentAnalyticsRegion === 'MY' ? '#f97316' : '#ef4444',
+        isHorizontal: true,
+        unit: priceCurrencyUnit,
+        yStepInteger: false
+    }));
 
-    const topSvProducts = [...dataset].sort((a, b) => b.sv_point - a.sv_point).slice(0, 5);
-    if (chartInstances.topSv) chartInstances.topSv.destroy();
-    const ctxTopSv = document.getElementById('chartTopSvRank')?.getContext('2d');
-    if (ctxTopSv) {
-        chartInstances.topSv = new Chart(ctxTopSv, {
-            type: 'bar',
-            data: {
-                labels: topSvProducts.map(p => p.short_name || p.name),
-                datasets: [{
-                    label: 'SV 點數',
-                    data: topSvProducts.map(p => p.sv_point),
-                    backgroundColor: '#ec4899',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    // 7. 考核 SV 點數排行 Top 5
+    const topSvProducts = [...dataset].sort((a, b) => (Number(b.sv_point) || 0) - (Number(a.sv_point) || 0)).slice(0, 5);
+    AppChart.render('chartTopSvRank', AppChart.createBar({
+        labels: topSvProducts.map(p => p.short_name || p.name),
+        data: topSvProducts.map(p => Number(p.sv_point) || 0),
+        datasetLabel: '考核 SV',
+        colors: '#ec4899',
+        isHorizontal: true,
+        unit: 'SV',
+        yStepInteger: true
+    }));
 
-    const isMyr = currentAnalyticsRegion === 'MY';
+    // 8. 每千元換點效率排行 Top 5
+    const isMyr = (currentAnalyticsRegion === 'MY');
     const multiplier = isMyr ? 100 : 1000;
     const unitText = isMyr ? 'SV / 百元 (MYR)' : 'SV / 千元 (TWD)';
     $('#titleSvEfficiencyRank').html(`<i class="fa-solid fa-bolt text-warning me-1"></i>每${isMyr ? '百' : '千'}元 SV 貢獻率排行 (Top 5)`);
@@ -1304,91 +1194,43 @@ function renderAnalyticsCharts() {
         .sort((a, b) => b.ratio - a.ratio)
         .slice(0, 5);
 
-    if (chartInstances.svEfficiency) chartInstances.svEfficiency.destroy();
-    const ctxSvEff = document.getElementById('chartSvEfficiencyRank')?.getContext('2d');
-    if (ctxSvEff) {
-        chartInstances.svEfficiency = new Chart(ctxSvEff, {
-            type: 'bar',
-            data: {
-                labels: svEfficiencyList.map(item => item.name),
-                datasets: [{
-                    label: `點數貢獻 (${unitText})`,
-                    data: svEfficiencyList.map(item => item.ratio),
-                    backgroundColor: '#eab308',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` 點數貢獻：${ctx.parsed.x} ${unitText}`
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chartSvEfficiencyRank', AppChart.createBar({
+        labels: svEfficiencyList.map(item => item.name),
+        data: svEfficiencyList.map(item => item.ratio),
+        datasetLabel: '點數貢獻',
+        colors: '#eab308',
+        isHorizontal: true,
+        unit: unitText,
+        yStepInteger: false
+    }));
 
+    // 9. 產品實體重量排行 Top 5
     const weightList = dataset
         .map(p => {
             const weightVal = parseInt(p.product_weight, 10) || 0;
             return {
                 name: p.short_name || p.name,
-                weight: weightVal,
-                rawDisplay: weightVal > 0 ? `${weightVal.toLocaleString()} g` : '-'
+                weight: weightVal
             };
         })
         .filter(p => p.weight > 0)
         .sort((a, b) => b.weight - a.weight)
         .slice(0, 5);
 
-    if (chartInstances.weightRank) chartInstances.weightRank.destroy();
-    const ctxWeight = document.getElementById('chartWeightRank')?.getContext('2d');
-    if (ctxWeight) {
-        chartInstances.weightRank = new Chart(ctxWeight, {
-            type: 'bar',
-            data: {
-                labels: weightList.map(item => item.name),
-                datasets: [{
-                    label: '產品重量 (g)',
-                    data: weightList.map(item => item.weight),
-                    backgroundColor: '#06b6d4',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const item = weightList[ctx.dataIndex];
-                                return ` 產品重量：${item.rawDisplay} (${ctx.parsed.x} g)`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.1)' } },
-                    y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chartWeightRank', AppChart.createBar({
+        labels: weightList.map(item => item.name),
+        data: weightList.map(item => item.weight),
+        datasetLabel: '產品重量',
+        colors: '#06b6d4',
+        isHorizontal: true,
+        unit: 'g',
+        yStepInteger: true
+    }));
 
-    // 2. 歷年上市趨勢圖：利用 AppDate.toYear 自適應解析年份 (支援 YYYY, YYYY-MM, YYYY/MM/DD)
+    // ======================================================================
+    // 區塊 C：時序趨勢與性價比散佈圖
+    // ======================================================================
+    // 10. 歷年上市趨勢圖 (硬派折線圖：無曲率、不填色、5 的倍數上限)
     const yearCounts = {};
     dataset.forEach(p => {
         const year = AppDate.toYear(p.launch_date);
@@ -1398,164 +1240,53 @@ function renderAnalyticsCharts() {
     });
 
     const sortedYears = Object.keys(yearCounts).sort();
-    const launchCounts = Object.values(yearCounts);
-    const maxLaunchCount = launchCounts.length > 0 ? Math.max(...launchCounts) : 0;
-    const yMaxLaunch = maxLaunchCount > 0 ? Math.ceil(maxLaunchCount / 5) * 5 : 5;
+    AppChart.render('chartLaunchTrend', AppChart.createLine({
+        labels: sortedYears.length > 0 ? sortedYears : ['無年份資料'],
+        data: sortedYears.length > 0 ? sortedYears.map(y => yearCounts[y]) : [0],
+        datasetLabel: '上市品項數',
+        color: '#10b981',
+        tension: 0,
+        fill: false,
+        unit: '項',
+        yAxisTitle: '品項數'
+    }));
 
-    if (chartInstances.launchTrend) chartInstances.launchTrend.destroy();
-    const ctxLaunch = document.getElementById('chartLaunchTrend')?.getContext('2d');
-    if (ctxLaunch) {
-        chartInstances.launchTrend = new Chart(ctxLaunch, {
-            type: 'line',
-            data: {
-                labels: sortedYears.length > 0 ? sortedYears : ['無年份資料'],
-                datasets: [{
-                    label: '上市品項數',
-                    data: sortedYears.length > 0 ? sortedYears.map(y => yearCounts[y]) : [0],
-                    borderColor: '#10b981',
-                    backgroundColor: '#10b981',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#10b981',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: false,        // ★ 線條下方不填色
-                    tension: 0          // ★ 線條不要有曲率
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` 上市商品數：${ctx.parsed.y} 項`
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(192, 132, 252, 0.05)' } },
-                    y: { 
-                        min: 0,
-                        max: yMaxLaunch,
-                        ticks: { 
-                            color: '#f5f3ff', 
-                            stepSize: 1, 
-                            precision: 0 
-                        }, 
-                        grid: { color: 'rgba(192, 132, 252, 0.1)' } 
-                    }
-                }
-            }
-        });
+    // 11. 產品換點效率散佈圖 (Scatter: 進貨經理價 vs. 考核 SV)
+    const validProducts = dataset
+        .filter(p => (p.region_code === 'TW' || !p.region_code) && Number(p.price) > 0 && Number(p.sv_point) > 0);
+
+    const scatterPoints = validProducts.map(p => {
+        const price = Number(p.price);
+        const sv = Number(p.sv_point);
+        const managerPrice = Math.round(price - (sv * 0.20));
+        const efficiencyPerThousand = managerPrice > 0 ? Number(((sv / managerPrice) * 1000).toFixed(1)) : 0;
+        const cat = typeof getCategoryByCode === 'function' ? getCategoryByCode(p.category_code) : null;
+
+        return {
+            x: managerPrice,
+            y: sv,
+            name: `${p.name} (${p.product_code})`,
+            categoryName: cat?.name_zh || '未分類',
+            efficiency: efficiencyPerThousand
+        };
+    });
+
+    const topItem = [...scatterPoints].sort((a, b) => b.efficiency - a.efficiency)[0];
+    if (topItem) {
+        $('#scatterSummaryStats').html(`性價比之王：<span class="text-warning fw-bold">${topItem.name}</span> (${topItem.efficiency.toLocaleString()} SV / 千元)`);
     }
 
-    // 產品每元換點效率散佈圖 (Scatter: 進貨經理價 vs. 考核 SV)
-    if (chartInstances.efficiencyScatter) {
-        chartInstances.efficiencyScatter.destroy();
-    }
-
-    const ctxScatter = document.getElementById('chartProductSvEfficiencyScatter')?.getContext('2d');
-    if (ctxScatter) {
-        // 篩選台灣營運且具備有效價格與 SV 的單品
-        const validProducts = (appState.products || [])
-            .filter(p => (p.region_code === 'TW' || !p.region_code) && Number(p.price) > 0 && Number(p.sv_point) > 0);
-
-        // 彙整散佈點資料：計算經理價、換點效率 (每千元換點數)
-        const scatterPoints = validProducts.map(p => {
-            const price = Number(p.price);
-            const sv = Number(p.sv_point);
-            // 經理回饋 20% 折算實質進貨成本
-            const managerPrice = Math.round(price - (sv * 0.20));
-            const efficiencyPerThousand = managerPrice > 0 ? Number(((sv / managerPrice) * 1000).toFixed(1)) : 0;
-            const cat = typeof getCategoryByCode === 'function' ? getCategoryByCode(p.category_code) : null;
-
-            return {
-                x: managerPrice,
-                y: sv,
-                name: p.name,
-                code: p.product_code,
-                retailPrice: price,
-                categoryName: cat?.name_zh || '未分類',
-                pointColor: cat?.text_color || '#8b5cf6',
-                efficiency: efficiencyPerThousand,
-                costPerSv: managerPrice > 0 ? Number((managerPrice / sv).toFixed(2)) : 0
-            };
-        });
-
-        // 依每千元換點效率排序，標註性價比榜首 (Top 1)
-        const topItem = [...scatterPoints].sort((a, b) => b.efficiency - a.efficiency)[0];
-        if (topItem) {
-            $('#scatterSummaryStats').html(`性價比之王：<span class="text-warning fw-bold">${topItem.name}</span> (${topItem.efficiency.toLocaleString()} SV / 千元)`);
-        }
-
-        chartInstances.efficiencyScatter = new Chart(ctxScatter, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: '單品點數與經理價分佈',
-                    data: scatterPoints,
-                    backgroundColor: scatterPoints.map(pt => pt.pointColor),
-                    borderColor: '#ffffff',
-                    borderWidth: 1,
-                    pointRadius: 6,
-                    pointHoverRadius: 9,
-                    pointHoverBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const raw = ctx.raw;
-                                return [
-                                    ` 品名：${raw.name} (${raw.code})`,
-                                    ` 主系列：${raw.categoryName}`,
-                                    ` 官方零售價：NT$ ${raw.retailPrice.toLocaleString()}`,
-                                    ` 進貨經理價：NT$ ${raw.x.toLocaleString()}`,
-                                    ` 官方考核 SV：${raw.y.toLocaleString()} SV`,
-                                    ` 每千元換點效率：${raw.efficiency.toLocaleString()} SV`,
-                                    ` 取得單點成本：NT$ ${raw.costPerSv.toLocaleString()} / SV`
-                                ];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: '進貨經理價 (NT$)',
-                            color: '#a78bfa',
-                            font: { size: 12, weight: 'bold' }
-                        },
-                        ticks: {
-                            color: '#f5f3ff',
-                            callback: (value) => `NT$ ${Number(value).toLocaleString()}`
-                        },
-                        grid: { color: 'rgba(192, 132, 252, 0.08)' }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: '官方考核 SV 積分',
-                            color: '#2dd4bf',
-                            font: { size: 12, weight: 'bold' }
-                        },
-                        ticks: {
-                            color: '#f5f3ff',
-                            callback: (value) => `${Number(value).toLocaleString()} SV`
-                        },
-                        grid: { color: 'rgba(192, 132, 252, 0.08)' }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartProductSvEfficiencyScatter', AppChart.createScatter({
+        datasets: [{
+            label: '單品點數與經理價分佈',
+            data: scatterPoints,
+            color: '#8b5cf6'
+        }],
+        xTitle: '進貨經理價',
+        yTitle: '官方考核 SV 積分',
+        xUnit: 'NT$',
+        yUnit: 'SV'
+    }));
 }
 
 // ==========================================================================

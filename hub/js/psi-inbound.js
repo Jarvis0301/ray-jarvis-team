@@ -39,13 +39,6 @@ let appState = {
         warehouseId: 'ALL',
         purchaserId: 'ALL',
         svOwnerId: 'ALL'
-    },
-    chartInstances: {
-        inboundTrend: null,
-        purchaserShare: null,
-        warehouseShare: null,
-        centerShare: null,
-        statusShare: null
     }
 };
 
@@ -379,256 +372,122 @@ function renderKpis() {
 }
 
 function renderCharts() {
-    Object.keys(appState.chartInstances).forEach(k => {
-        if (appState.chartInstances[k]) {
-            appState.chartInstances[k].destroy();
-            appState.chartInstances[k] = null;
-        }
-    });
-
     const currentList = getFilteredData().filter(d => d.status !== '已取消');
 
-    // 圖表 1：月度進貨趨勢 (雙軸折線圖)
-    const ctxTrend = document.getElementById('chartInboundTrend');
-    if (ctxTrend) {
-        const monthMap = {};
-        currentList.forEach(d => {
-            const m = d.performance_month || (d.order_date ? d.order_date.slice(0, 7) : '未分類');
-            if (!monthMap[m]) monthMap[m] = { sv: 0, cost: 0 };
-            monthMap[m].sv = AppCalc.add(monthMap[m].sv, parseFloat(d.total_sv) || 0);
-            monthMap[m].cost = AppCalc.add(monthMap[m].cost, parseFloat(d.total_cost_amount) || 0);
-        });
+    // ======================================================================
+    // 1. 月度進貨趨勢 (雙 Y 軸硬派折線圖：無曲率、不填色、5 的倍數上限)
+    // ======================================================================
+    const monthMap = {};
+    currentList.forEach(d => {
+        const m = d.performance_month || (d.order_date ? d.order_date.slice(0, 7) : '未分類');
+        if (!monthMap[m]) monthMap[m] = { sv: 0, cost: 0 };
+        monthMap[m].sv = AppCalc.add(monthMap[m].sv, parseFloat(d.total_sv) || 0);
+        monthMap[m].cost = AppCalc.add(monthMap[m].cost, parseFloat(d.total_cost_amount) || 0);
+    });
 
-        const labels = Object.keys(monthMap).sort();
-        const svData = labels.map(l => monthMap[l].sv);
-        const costData = labels.map(l => monthMap[l].cost);
+    const labels = Object.keys(monthMap).sort();
+    const svData = labels.map(l => monthMap[l].sv);
+    const costData = labels.map(l => monthMap[l].cost);
 
-        appState.chartInstances.inboundTrend = new Chart(ctxTrend, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: '月度考核 SV',
-                        data: svData,
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.15)',
-                        pointBackgroundColor: '#8b5cf6',
-                        borderWidth: 2.5,
-                        fill: false,
-                        tension: 0,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: '進貨實付支出 (TWD)',
-                        data: costData,
-                        borderColor: '#34d399',
-                        backgroundColor: 'rgba(52, 211, 153, 0.12)',
-                        pointBackgroundColor: '#34d399',
-                        borderWidth: 2.5,
-                        fill: false,
-                        tension: 0,
-                        yAxisID: 'y1'
-                    }
-                ]
+    AppChart.render('chartInboundTrend', AppChart.createMultiLine({
+        labels: labels.length ? labels : ['無資料'],
+        lines: [
+            {
+                label: '月度考核 SV',
+                data: svData,
+                color: '#8b5cf6',
+                yAxisID: 'y',
+                tension: 0,
+                fill: false
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { ticks: { color: '#f5f3ff' }, grid: { color: 'rgba(139, 92, 246, 0.08)' } },
-                    y: {
-                        type: 'linear', position: 'left',
-                        title: { display: true, text: '考核 SV', color: '#8b5cf6' },
-                        ticks: { color: '#f5f3ff' },
-                        grid: { color: 'rgba(139, 92, 246, 0.12)' }
-                    },
-                    y1: {
-                        type: 'linear', position: 'right',
-                        title: { display: true, text: '支出金額 (TWD)', color: '#34d399' },
-                        ticks: { color: '#34d399' },
-                        grid: { drawOnChartArea: false }
-                    }
-                },
-                plugins: {
-                    legend: { labels: { color: '#f5f3ff', font: { size: 12 } } }
-                }
+            {
+                label: '進貨實付支出 (TWD)',
+                data: costData,
+                color: '#34d399',
+                yAxisID: 'y1',
+                tension: 0,
+                fill: false
             }
-        });
-    }
+        ],
+        unit: '',
+        useDualAxis: true,
+        yLeftTitle: '考核 SV',
+        yRightTitle: '支出金額 (TWD)'
+    }));
 
-    // 圖表 2：出資夥伴採購支出佔比
-    const ctxPurchaser = document.getElementById('chartPurchaserShare');
-    if (ctxPurchaser) {
-        const purchaserMap = {};
-        currentList.forEach(d => {
-            const name = EntityResolver.partner(d.purchaser_partner_id, appState.partners, appState.persons, 1);
-            const cost = parseFloat(d.total_cost_amount) || 0;
-            purchaserMap[name] = AppCalc.add(purchaserMap[name] || 0, cost);
-        });
+    // ======================================================================
+    // 2. 出資夥伴採購支出佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const purchaserMap = {};
+    currentList.forEach(d => {
+        const name = EntityResolver.partner(d.purchaser_partner_id, appState.partners, appState.persons, 1);
+        const cost = parseFloat(d.total_cost_amount) || 0;
+        purchaserMap[name] = AppCalc.add(purchaserMap[name] || 0, cost);
+    });
 
-        const pLabels = Object.keys(purchaserMap);
-        const pData = pLabels.map(k => purchaserMap[k]);
-        const totalPurchaserCost = pData.reduce((sum, v) => AppCalc.add(sum, v), 0);
-        const pColors = ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185', '#a855f7'];
+    const pLabels = Object.keys(purchaserMap);
+    const pData = pLabels.map(k => purchaserMap[k]);
 
-        appState.chartInstances.purchaserShare = new Chart(ctxPurchaser, {
-            type: 'doughnut',
-            data: {
-                labels: pLabels.length ? pLabels : ['暫無數據'],
-                datasets: [{
-                    data: pData.length ? pData : [1],
-                    backgroundColor: pData.length ? pColors.slice(0, pLabels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalPurchaserCost > 0 ? ((val / totalPurchaserCost) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：NT$ ${val.toLocaleString()} (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartPurchaserShare', AppChart.createDoughnut({
+        labels: pLabels,
+        data: pData,
+        colors: ['#34d399', '#38bdf8', '#fbbf24', '#c084fc', '#fb7185', '#a855f7'],
+        unit: '元'
+    }));
 
-    // 圖表 3：各收貨倉儲盒數佔比
-    const ctxWh = document.getElementById('chartWarehouseShare');
-    if (ctxWh) {
-        const whMap = {};
-        currentList.forEach(d => {
-            const name = EntityResolver.warehouse(d.warehouse_id, appState.warehouses, 1);
-            const boxes = parseInt(d.total_boxes, 10) || 0;
-            whMap[name] = AppCalc.add(whMap[name] || 0, boxes);
-        });
+    // ======================================================================
+    // 3. 各收貨倉儲盒數佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const whMap = {};
+    currentList.forEach(d => {
+        const name = EntityResolver.warehouse(d.warehouse_id, appState.warehouses, 1);
+        const boxes = parseInt(d.total_boxes, 10) || 0;
+        whMap[name] = AppCalc.add(whMap[name] || 0, boxes);
+    });
 
-        const whLabels = Object.keys(whMap);
-        const whData = whLabels.map(k => whMap[k]);
-        const totalBoxesCount = whData.reduce((sum, v) => AppCalc.add(sum, v), 0);
-        const whColors = ['#38bdf8', '#c084fc', '#34d399', '#f97316', '#fb7185'];
+    const whLabels = Object.keys(whMap);
+    const whData = whLabels.map(k => whMap[k]);
 
-        appState.chartInstances.warehouseShare = new Chart(ctxWh, {
-            type: 'doughnut',
-            data: {
-                labels: whLabels.length ? whLabels : ['暫無數據'],
-                datasets: [{
-                    data: whData.length ? whData : [1],
-                    backgroundColor: whData.length ? whColors.slice(0, whLabels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalBoxesCount > 0 ? ((val / totalBoxesCount) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val.toLocaleString()} 盒 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartWarehouseShare', AppChart.createDoughnut({
+        labels: whLabels,
+        data: whData,
+        colors: ['#38bdf8', '#c084fc', '#34d399', '#f97316', '#fb7185'],
+        unit: '盒'
+    }));
 
-    // 圖表 4：官方訂購中心佔比
-    const ctxCenter = document.getElementById('chartCenterShare');
-    if (ctxCenter) {
-        const centerMap = {};
-        currentList.forEach(d => {
-            const name = getOrderCenterDisplayName(d.order_center);
-            centerMap[name] = (centerMap[name] || 0) + 1;
-        });
+    // ======================================================================
+    // 4. 官方訂購中心佔比 (甜甜圈環形圖)
+    // ======================================================================
+    const centerMap = {};
+    currentList.forEach(d => {
+        const name = getOrderCenterDisplayName(d.order_center);
+        centerMap[name] = (centerMap[name] || 0) + 1;
+    });
 
-        const cLabels = Object.keys(centerMap);
-        const cData = cLabels.map(k => centerMap[k]);
-        const totalCenterOrders = cData.reduce((sum, v) => sum + v, 0);
-        const centerPalette = ['#fbbf24', '#38bdf8', '#34d399', '#c084fc', '#f97316', '#ec4899', '#64748b'];
+    const cLabels = Object.keys(centerMap);
+    const cData = cLabels.map(k => centerMap[k]);
 
-        appState.chartInstances.centerShare = new Chart(ctxCenter, {
-            type: 'doughnut',
-            data: {
-                labels: cLabels.length ? cLabels : ['暫無數據'],
-                datasets: [{
-                    data: cData.length ? cData : [1],
-                    backgroundColor: cData.length ? centerPalette.slice(0, cLabels.length) : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalCenterOrders > 0 ? ((val / totalCenterOrders) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val.toLocaleString()} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartCenterShare', AppChart.createDoughnut({
+        labels: cLabels,
+        data: cData,
+        colors: ['#fbbf24', '#38bdf8', '#34d399', '#c084fc', '#f97316', '#ec4899', '#64748b'],
+        unit: '筆'
+    }));
 
-    // 圖表 5：進貨狀態結構佔比
-    const ctxStatus = document.getElementById('chartStatusShare');
-    if (ctxStatus) {
-        const statusTypes = ['草稿', '待自取', '運輸中', '已入庫', '已取消'];
-        const statusColors = ['#94a3b8', '#38bdf8', '#fbbf24', '#34d399', '#fb7185'];
-        const statusCounts = statusTypes.map(st => appState.inbounds.filter(item => item.status === st).length);
-        const totalStatusOrders = statusCounts.reduce((sum, v) => sum + v, 0);
+    // ======================================================================
+    // 5. 進貨狀態結構佔比 (甜甜圈環形圖 + 中央 KPI 注入)
+    // ======================================================================
+    const statusTypes = ['草稿', '待自取', '運輸中', '已入庫', '已取消'];
+    const statusColors = ['#94a3b8', '#38bdf8', '#fbbf24', '#34d399', '#fb7185'];
+    const statusCounts = statusTypes.map(st => appState.inbounds.filter(item => item.status === st).length);
 
-        appState.chartInstances.statusShare = new Chart(ctxStatus, {
-            type: 'doughnut',
-            data: {
-                labels: statusTypes,
-                datasets: [{
-                    data: totalStatusOrders > 0 ? statusCounts : [1],
-                    backgroundColor: totalStatusOrders > 0 ? statusColors : ['#334155'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#f5f3ff', boxWidth: 8, font: { size: 12 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => {
-                                const val = ctx.parsed || 0;
-                                const pct = totalStatusOrders > 0 ? ((val / totalStatusOrders) * 100).toFixed(1) : '0.0';
-                                return ` ${ctx.label}：${val.toLocaleString()} 筆 (${pct}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
+    AppChart.render('chartStatusShare', AppChart.createDoughnut({
+        labels: statusTypes,
+        data: statusCounts,
+        colors: statusColors,
+        unit: '筆',
+        centerKpi: { label: '進貨單總數', value: `${appState.inbounds.length.toLocaleString()} 筆` }
+    }));
 }
 
 function renderDataTable() {

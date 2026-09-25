@@ -53,7 +53,6 @@ let orgRelationsList = [];
 
 let customerDataTable = null;
 let conversionsDataTable = null;
-let chartInstances = {};
 let activeViewingCustomerId = null;
 
 // ============================================================================
@@ -1877,24 +1876,6 @@ async function saveCustomerConversion() {
 // ============================================================================
 // 12. 戰情統計與分析圖表 (語言能力 + 個人畫像 12 圖 + 客戶戰術 14 圖)
 // ============================================================================
-const getPieTooltipOptions = () => ({
-    plugins: {
-        legend: { position: 'bottom', labels: { color: '#f5f3ff', font: { size: 12 } } },
-        tooltip: {
-            callbacks: {
-                label: function (context) {
-                    const label = context.label || '';
-                    const val = Number(context.parsed) || 0;
-                    const dataset = context.chart.data.datasets[context.datasetIndex];
-                    const total = dataset.data.reduce((acc, cur) => acc + Number(cur), 0);
-                    const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                    return ` ${label}：${val.toLocaleString()} 人 (${percentage}%)`;
-                }
-            }
-        }
-    }
-});
-
 function populateLanguageFilterDropdown() {
     const $langSelect =$('#select-lang-filter');
     const currentSelected = $langSelect.val() || '中文';
@@ -1928,15 +1909,10 @@ function changeLanguageAnalysis(selectedLang) {
     renderLanguageSectionCharts(selectedLang, dataset);
 }
 
+/**
+ * 區塊 A：跨國語言能力矩陣圖表（聽、說、讀、寫）
+ */
 function renderLanguageSectionCharts(targetLang, dataset) {
-    const langChartKeys = ['langListening', 'langSpeaking', 'langReading', 'langWriting'];
-    langChartKeys.forEach(k => {
-        if (chartInstances[k]) {
-            chartInstances[k].destroy();
-            delete chartInstances[k];
-        }
-    });
-
     const activePersonIds = new Set(dataset.map(c => c.person_id));
     const langRecords = personLanguagesList.filter(l =>
         l.language_name === targetLang && activePersonIds.has(l.person_id)
@@ -1956,28 +1932,21 @@ function renderLanguageSectionCharts(targetLang, dataset) {
     };
 
     const dimensions = [
-        { id: 'chart-lang-listening', key: 'langListening', field: 'listening_level' },
-        { id: 'chart-lang-speaking', key: 'langSpeaking', field: 'speaking_level' },
-        { id: 'chart-lang-reading', key: 'langReading', field: 'reading_level' },
-        { id: 'chart-lang-writing', key: 'langWriting', field: 'writing_level' }
+        { id: 'chart-lang-listening', field: 'listening_level' },
+        { id: 'chart-lang-speaking', field: 'speaking_level' },
+        { id: 'chart-lang-reading', field: 'reading_level' },
+        { id: 'chart-lang-writing', field: 'writing_level' }
     ];
 
     dimensions.forEach(dim => {
-        const ctx = document.getElementById(dim.id);
-        if (ctx) {
-            chartInstances[dim.key] = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: levels,
-                    datasets: [{
-                        data: countProficiency(dim.field),
-                        backgroundColor: levelColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-            });
-        }
+        const config = AppChart.createDoughnut({
+            labels: levels,
+            data: countProficiency(dim.field),
+            colors: levelColors,
+            unit: '人',
+            cutout: '60%'
+        });
+        AppChart.render(dim.id, config);
     });
 }
 
@@ -1998,13 +1967,7 @@ function createExactCountMap(dataset, fieldExtractor) {
     const sortedEntries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const labels = sortedEntries.map(e => e[0]);
     const data = sortedEntries.map(e => e[1]);
-
-    const basePalette = [
-        '#8b5cf6', '#38bdf8', '#10b981', '#fbbf24', '#f43f5e', 
-        '#a855f7', '#06b6d4', '#f97316', '#ec4899', '#34d399', 
-        '#6366f1', '#eab308', '#14b8a6', '#f472b6'
-    ];
-    const colors = labels.map((_, idx) => basePalette[idx % basePalette.length]);
+    const colors = labels.map((_, idx) => AppChart.tokens.palette[idx % AppChart.tokens.palette.length]);
 
     if (unsetCount > 0) {
         labels.push('未設定');
@@ -2015,10 +1978,10 @@ function createExactCountMap(dataset, fieldExtractor) {
     return { labels, data, colors };
 }
 
+/**
+ * 核心視圖渲染：個人畫像 12 圖 + 客戶營運轉化 14 圖
+ */
 function renderChartsView(filteredDataset = null) {
-    Object.values(chartInstances).forEach(chart => chart.destroy());
-    chartInstances = {};
-
     const dataset = filteredDataset || getFilteredCustomers();
 
     const createCountMap = (key, defaultKeys = []) => {
@@ -2038,29 +2001,25 @@ function renderChartsView(filteredDataset = null) {
     renderLanguageSectionCharts(currentSelectedLang, dataset);
 
     // ========================================================================
-    // 區塊 B：個人主檔畫像指標 (12 張圓餅圖)
+    // 區塊 B：個人主檔畫像指標 (12 張環形甜甜圈圖)
     // ========================================================================
     // 1. 人脈身份
     const idTypeCounts = createCountMap('identity_type', ['客戶', '潛在客戶', '夥伴', '團隊成員', '潛在團隊成員']);
-    const ctxIdType = document.getElementById('chart-identity-type-split');
-    if (ctxIdType) {
-        chartInstances.idType = new Chart(ctxIdType, {
-            type: 'pie',
-            data: { labels: Object.keys(idTypeCounts), datasets: [{ data: Object.values(idTypeCounts), backgroundColor: ['#10b981', '#64748b', '#8b5cf6', '#3b82f6', '#06b6d4'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-identity-type-split', AppChart.createDoughnut({
+        labels: Object.keys(idTypeCounts),
+        data: Object.values(idTypeCounts),
+        colors: ['#10b981', '#64748b', '#8b5cf6', '#3b82f6', '#06b6d4'],
+        unit: '人'
+    }));
 
     // 2. 使用身份
     const usageCounts = createCountMap('usage_identity', ['消費者', '經營者']);
-    const ctxUsage = document.getElementById('chart-usage-identity-split');
-    if (ctxUsage) {
-        chartInstances.usageId = new Chart(ctxUsage, {
-            type: 'pie',
-            data: { labels: Object.keys(usageCounts), datasets: [{ data: Object.values(usageCounts), backgroundColor: ['#38bdf8', '#a855f7'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-usage-identity-split', AppChart.createDoughnut({
+        labels: Object.keys(usageCounts),
+        data: Object.values(usageCounts),
+        colors: ['#38bdf8', '#a855f7'],
+        unit: '人'
+    }));
 
     // 3. 年齡層級分佈
     const ageCategories = ['17歲以下', '18-29歲', '30-39歲', '40-49歲', '50-59歲', '60-69歲', '70-79歲', '80歲以上'];
@@ -2080,25 +2039,20 @@ function renderChartsView(filteredDataset = null) {
             else ageCounts['80歲以上']++;
         }
     });
-    const ctxAge = document.getElementById('chart-age-distribution');
-    if (ctxAge) {
-        chartInstances.age = new Chart(ctxAge, {
-            type: 'pie',
-            data: { labels: ageCategories, datasets: [{ data: ageCategories.map(c => ageCounts[c]), backgroundColor: ['#38bdf8', '#34d399', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316', '#a78bfa'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-age-distribution', AppChart.createDoughnut({
+        labels: ageCategories,
+        data: ageCategories.map(c => ageCounts[c]),
+        unit: '人'
+    }));
 
     // 4. 生理性別
     const genderCounts = createCountMap('gender', ['男', '女', '其他', '未填']);
-    const ctxGender = document.getElementById('chart-gender-split');
-    if (ctxGender) {
-        chartInstances.gender = new Chart(ctxGender, {
-            type: 'pie',
-            data: { labels: Object.keys(genderCounts), datasets: [{ data: Object.values(genderCounts), backgroundColor: ['#38bdf8', '#f472b6', '#a78bfa', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-gender-split', AppChart.createDoughnut({
+        labels: Object.keys(genderCounts),
+        data: Object.values(genderCounts),
+        colors: ['#38bdf8', '#f472b6', '#a78bfa', '#64748b'],
+        unit: '人'
+    }));
 
     // 5. 國籍
     const natSummary = createExactCountMap(dataset, c => {
@@ -2107,47 +2061,39 @@ function renderChartsView(filteredDataset = null) {
         if (n === '台灣' || n === 'TW') n = '中華民國';
         return n;
     });
-    const ctxNat = document.getElementById('chart-nationality-split');
-    if (ctxNat && natSummary.labels.length > 0) {
-        chartInstances.nationality = new Chart(ctxNat, {
-            type: 'pie',
-            data: { labels: natSummary.labels, datasets: [{ data: natSummary.data, backgroundColor: natSummary.colors, borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-nationality-split', AppChart.createDoughnut({
+        labels: natSummary.labels,
+        data: natSummary.data,
+        colors: natSummary.colors,
+        unit: '人'
+    }));
 
     // 6. 種族
     const ethSummary = createExactCountMap(dataset, c => (getPersonMaster(c.person_id).ethnicity || '').trim());
-    const ctxEth = document.getElementById('chart-ethnicity-split');
-    if (ctxEth && ethSummary.labels.length > 0) {
-        chartInstances.ethnicity = new Chart(ctxEth, {
-            type: 'pie',
-            data: { labels: ethSummary.labels, datasets: [{ data: ethSummary.data, backgroundColor: ethSummary.colors, borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-ethnicity-split', AppChart.createDoughnut({
+        labels: ethSummary.labels,
+        data: ethSummary.data,
+        colors: ethSummary.colors,
+        unit: '人'
+    }));
 
     // 7. 家鄉城市
     const homeSummary = createExactCountMap(dataset, c => (getPersonMaster(c.person_id).hometown || '').trim());
-    const ctxHome = document.getElementById('chart-hometown-split');
-    if (ctxHome && homeSummary.labels.length > 0) {
-        chartInstances.hometown = new Chart(ctxHome, {
-            type: 'pie',
-            data: { labels: homeSummary.labels, datasets: [{ data: homeSummary.data, backgroundColor: homeSummary.colors, borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-hometown-split', AppChart.createDoughnut({
+        labels: homeSummary.labels,
+        data: homeSummary.data,
+        colors: homeSummary.colors,
+        unit: '人'
+    }));
 
     // 8. 現居地
     const resSummary = createExactCountMap(dataset, c => (getPersonMaster(c.person_id).current_residence || '').trim());
-    const ctxRes = document.getElementById('chart-residence-split');
-    if (ctxRes && resSummary.labels.length > 0) {
-        chartInstances.residence = new Chart(ctxRes, {
-            type: 'pie',
-            data: { labels: resSummary.labels, datasets: [{ data: resSummary.data, backgroundColor: resSummary.colors, borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-residence-split', AppChart.createDoughnut({
+        labels: resSummary.labels,
+        data: resSummary.data,
+        colors: resSummary.colors,
+        unit: '人'
+    }));
 
     // 9. 認識年份
     const metYearCounts = {};
@@ -2156,95 +2102,78 @@ function renderChartsView(filteredDataset = null) {
         const y = (person.met_date && person.met_date.length >= 4) ? AppDate.toYear(person.met_date) + '年' : '未記錄';
         metYearCounts[y] = (metYearCounts[y] || 0) + 1;
     });
-    const ctxMetYear = document.getElementById('chart-met-year-split');
-    if (ctxMetYear) {
-        chartInstances.metYear = new Chart(ctxMetYear, {
-            type: 'pie',
-            data: { labels: Object.keys(metYearCounts), datasets: [{ data: Object.values(metYearCounts), backgroundColor: ['#10b981', '#38bdf8', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-met-year-split', AppChart.createDoughnut({
+        labels: Object.keys(metYearCounts),
+        data: Object.values(metYearCounts),
+        unit: '人'
+    }));
 
     // 10. 最高學歷
     const eduCounts = createCountMap('highest_education', ['博士', '碩士', '學士', '副學士', '高中職', '國中', '國小']);
-    const ctxEdu = document.getElementById('chart-education-distribution');
-    if (ctxEdu) {
-        chartInstances.education = new Chart(ctxEdu, {
-            type: 'pie',
-            data: { labels: Object.keys(eduCounts), datasets: [{ data: Object.values(eduCounts), backgroundColor: ['#8b5cf6', '#0284c7', '#38bdf8', '#34d399', '#fbbf24', '#f97316', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-education-distribution', AppChart.createDoughnut({
+        labels: Object.keys(eduCounts),
+        data: Object.values(eduCounts),
+        colors: ['#8b5cf6', '#0284c7', '#38bdf8', '#34d399', '#fbbf24', '#f97316', '#64748b'],
+        unit: '人'
+    }));
 
     // 11. 健康狀況
     const healthCategories = ['良好', '亞健康', '慢性體質', '調養中', '罹患疾病', '待了解'];
     const healthCounts = createCountMap('health_status', healthCategories);
-    const ctxHealth = document.getElementById('chart-health-status-split');
-    if (ctxHealth) {
-        chartInstances.healthStatus = new Chart(ctxHealth, {
-            type: 'pie',
-            data: { labels: healthCategories, datasets: [{ data: healthCategories.map(c => healthCounts[c] || 0), backgroundColor: ['#10b981', '#fbbf24', '#f97316', '#38bdf8', '#ef4444', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-health-status-split', AppChart.createDoughnut({
+        labels: healthCategories,
+        data: healthCategories.map(c => healthCounts[c] || 0),
+        colors: ['#10b981', '#fbbf24', '#f97316', '#38bdf8', '#ef4444', '#64748b'],
+        unit: '人'
+    }));
 
     // 12. 財務狀況
     const finCounts = createCountMap('financial_status', ['寬裕', '穩定', '吃緊', '高負債', '尋找副業']);
-    const ctxFin = document.getElementById('chart-financial-status-split');
-    if (ctxFin) {
-        chartInstances.finStatus = new Chart(ctxFin, {
-            type: 'pie',
-            data: { labels: Object.keys(finCounts), datasets: [{ data: Object.values(finCounts), backgroundColor: ['#10b981', '#38bdf8', '#fbbf24', '#ef4444', '#c084fc'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-financial-status-split', AppChart.createDoughnut({
+        labels: Object.keys(finCounts),
+        data: Object.values(finCounts),
+        colors: ['#10b981', '#38bdf8', '#fbbf24', '#ef4444', '#c084fc'],
+        unit: '人'
+    }));
 
     // ========================================================================
     // 區塊 C：客戶營運與轉化指標 (14 張圖表)
     // ========================================================================
     // 1. 客戶身分
     const typeCounts = createCountMap('customer_type', ['潛在對象', '一般零售', 'VIP顧客', '事業種子', '已轉夥伴']);
-    const ctxCustType = document.getElementById('chart-customer-type-split');
-    if (ctxCustType) {
-        chartInstances.custType = new Chart(ctxCustType, {
-            type: 'pie',
-            data: { labels: Object.keys(typeCounts), datasets: [{ data: Object.values(typeCounts), backgroundColor: ['#64748b', '#38bdf8', '#fbbf24', '#f43f5e', '#10b981'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-customer-type-split', AppChart.createDoughnut({
+        labels: Object.keys(typeCounts),
+        data: Object.values(typeCounts),
+        colors: ['#64748b', '#38bdf8', '#fbbf24', '#f43f5e', '#10b981'],
+        unit: '人',
+        centerKpi: { label: '建檔客戶總數', value: dataset.length.toLocaleString() }
+    }));
 
     // 2. 轉化漏斗階段
     const stageCounts = createCountMap('pipeline_stage', ['新線索', '需求確認', '試用體驗', '異議排除', '規律自用', '培育暫緩']);
-    const ctxStage = document.getElementById('chart-pipeline-stage-split');
-    if (ctxStage) {
-        chartInstances.pipeStage = new Chart(ctxStage, {
-            type: 'pie',
-            data: { labels: Object.keys(stageCounts), datasets: [{ data: Object.values(stageCounts), backgroundColor: ['#38bdf8', '#818cf8', '#c084fc', '#f59e0b', '#10b981', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-pipeline-stage-split', AppChart.createDoughnut({
+        labels: Object.keys(stageCounts),
+        data: Object.values(stageCounts),
+        colors: ['#38bdf8', '#818cf8', '#c084fc', '#f59e0b', '#10b981', '#64748b'],
+        unit: '人'
+    }));
 
     // 3. 名單運作狀態
     const statusCounts = createCountMap('status', ['活躍跟進', '沉睡列管', '爭議凍結', '封存歸檔']);
-    const ctxStatus = document.getElementById('chart-customer-status-split');
-    if (ctxStatus) {
-        chartInstances.custStatus = new Chart(ctxStatus, {
-            type: 'pie',
-            data: { labels: Object.keys(statusCounts), datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#10b981', '#fbbf24', '#f43f5e', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-customer-status-split', AppChart.createDoughnut({
+        labels: Object.keys(statusCounts),
+        data: Object.values(statusCounts),
+        colors: ['#10b981', '#fbbf24', '#f43f5e', '#64748b'],
+        unit: '人'
+    }));
 
     // 4. 引流來源渠道
     const channelCounts = createCountMap('source_channel', ['線上陌開', '線下陌開', '社群矩陣', '健康問卷', '親朋好友', '轉介紹', '茶會活動', '其他']);
-    const ctxChannel = document.getElementById('chart-source-channel-split');
-    if (ctxChannel) {
-        chartInstances.sourceChannel = new Chart(ctxChannel, {
-            type: 'pie',
-            data: { labels: Object.keys(channelCounts), datasets: [{ data: Object.values(channelCounts), backgroundColor: ['#8b5cf6', '#a855f7', '#06b6d4', '#38bdf8', '#34d399', '#10b981', '#fbbf24', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-source-channel-split', AppChart.createDoughnut({
+        labels: Object.keys(channelCounts),
+        data: Object.values(channelCounts),
+        unit: '人'
+    }));
 
     // 5. 轉化簽約型態佔比
     const convTypeCounts = {};
@@ -2252,14 +2181,12 @@ function renderChartsView(filteredDataset = null) {
         const t = cv.conversion_type || '零售客轉經銷';
         convTypeCounts[t] = (convTypeCounts[t] || 0) + 1;
     });
-    const ctxConvType = document.getElementById('chart-conversion-type-split');
-    if (ctxConvType) {
-        chartInstances.convType = new Chart(ctxConvType, {
-            type: 'pie',
-            data: { labels: Object.keys(convTypeCounts), datasets: [{ data: Object.values(convTypeCounts), backgroundColor: ['#10b981', '#38bdf8', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-conversion-type-split', AppChart.createDoughnut({
+        labels: Object.keys(convTypeCounts),
+        data: Object.values(convTypeCounts),
+        colors: ['#10b981', '#38bdf8', '#f59e0b', '#8b5cf6'],
+        unit: '人'
+    }));
 
     // 6. 轉化累計消費金額級距
     const spendTiers = { '0元': 0, '1~1萬': 0, '1萬~3萬': 0, '3萬~5萬': 0, '5萬~10萬': 0, '10萬以上': 0 };
@@ -2272,14 +2199,11 @@ function renderChartsView(filteredDataset = null) {
         else if (s <= 100000) spendTiers['5萬~10萬']++;
         else spendTiers['10萬以上']++;
     });
-    const ctxSpendTier = document.getElementById('chart-conversion-spend-tier');
-    if (ctxSpendTier) {
-        chartInstances.spendTier = new Chart(ctxSpendTier, {
-            type: 'pie',
-            data: { labels: Object.keys(spendTiers), datasets: [{ data: Object.values(spendTiers), backgroundColor: ['#64748b', '#38bdf8', '#34d399', '#f59e0b', '#ec4899', '#8b5cf6'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-conversion-spend-tier', AppChart.createDoughnut({
+        labels: Object.keys(spendTiers),
+        data: Object.values(spendTiers),
+        unit: '人'
+    }));
 
     // 7. 轉化貢獻 SV 點數級距
     const svTiers = { '0 SV': 0, '1~1,000': 0, '1,001~5,000': 0, '5,001~10,000': 0, '10,000 SV以上': 0 };
@@ -2291,16 +2215,13 @@ function renderChartsView(filteredDataset = null) {
         else if (v <= 10000) svTiers['5,001~10,000']++;
         else svTiers['10,000 SV以上']++;
     });
-    const ctxSvTier = document.getElementById('chart-conversion-sv-tier');
-    if (ctxSvTier) {
-        chartInstances.svTier = new Chart(ctxSvTier, {
-            type: 'pie',
-            data: { labels: Object.keys(svTiers), datasets: [{ data: Object.values(svTiers), backgroundColor: ['#64748b', '#06b6d4', '#10b981', '#f59e0b', '#a855f7'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-conversion-sv-tier', AppChart.createDoughnut({
+        labels: Object.keys(svTiers),
+        data: Object.values(svTiers),
+        unit: '人'
+    }));
 
-    // 8. 維護負責夥伴名單數 Top 10
+    // 8. 維護負責夥伴名單數 Top 10 (水平長條圖)
     const partnerCounts = {};
     dataset.forEach(c => {
         if (c.assigned_partner_id) {
@@ -2309,28 +2230,16 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const sortedPartners = Object.entries(partnerCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    const ctxAssignedPartner = document.getElementById('chart-assigned-partner-top10');
-    if (ctxAssignedPartner) {
-        chartInstances.assignedPartner = new Chart(ctxAssignedPartner, {
-            type: 'bar',
-            data: { labels: sortedPartners.map(x => x[0]), datasets: [{ label: '負責客戶數', data: sortedPartners.map(x => x[1]), backgroundColor: '#8b5cf6', borderRadius: 4 }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
-                    },
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chart-assigned-partner-top10', AppChart.createBar({
+        labels: sortedPartners.map(x => x[0]),
+        data: sortedPartners.map(x => x[1]),
+        datasetLabel: '負責客戶數',
+        colors: '#8b5cf6',
+        isHorizontal: true,
+        unit: '人'
+    }));
 
-    // 9. 轉介推薦人名單數 Top 10
+    // 9. 轉介推薦人名單數 Top 10 (水平長條圖)
     const referrerCounts = {};
     dataset.forEach(c => {
         if (c.source_referrer_id) {
@@ -2339,28 +2248,16 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const sortedReferrers = Object.entries(referrerCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    const ctxReferrer = document.getElementById('chart-referrer-top10');
-    if (ctxReferrer) {
-        chartInstances.referrer = new Chart(ctxReferrer, {
-            type: 'bar',
-            data: { labels: sortedReferrers.map(x => x[0]), datasets: [{ label: '轉介人數', data: sortedReferrers.map(x => x[1]), backgroundColor: '#10b981', borderRadius: 4 }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
-                    },
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chart-referrer-top10', AppChart.createBar({
+        labels: sortedReferrers.map(x => x[0]),
+        data: sortedReferrers.map(x => x[1]),
+        datasetLabel: '轉介人數',
+        colors: '#10b981',
+        isHorizontal: true,
+        unit: '人'
+    }));
 
-    // 10. 轉化引薦人 Top 10
+    // 10. 轉化引薦人 Top 10 (水平長條圖)
     const convSponsorCounts = {};
     conversionsList.forEach(cv => {
         if (cv.sponsor_partner_id) {
@@ -2369,28 +2266,16 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const sortedSponsors = Object.entries(convSponsorCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    const ctxConvSponsor = document.getElementById('chart-conversion-sponsor-top10');
-    if (ctxConvSponsor) {
-        chartInstances.convSponsor = new Chart(ctxConvSponsor, {
-            type: 'bar',
-            data: { labels: sortedSponsors.map(x => x[0]), datasets: [{ label: '轉化夥伴數', data: sortedSponsors.map(x => x[1]), backgroundColor: '#f59e0b', borderRadius: 4 }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
-                    },
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chart-conversion-sponsor-top10', AppChart.createBar({
+        labels: sortedSponsors.map(x => x[0]),
+        data: sortedSponsors.map(x => x[1]),
+        datasetLabel: '轉化夥伴數',
+        colors: '#f59e0b',
+        isHorizontal: true,
+        unit: '人'
+    }));
 
-    // 11. 轉化簽約年份趨勢
+    // 11. 轉化簽約年份趨勢 (硬派折線圖)
     const convYearCounts = {};
     conversionsList.forEach(cv => {
         if (cv.conversion_date && cv.conversion_date.length >= 4) {
@@ -2399,49 +2284,18 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const convYears = Object.keys(convYearCounts).length ? Object.keys(convYearCounts).sort() : ['2024', '2025', '2026'];
+    AppChart.render('chart-conversion-year-line', AppChart.createLine({
+        labels: convYears,
+        data: convYears.map(k => convYearCounts[k] || 0),
+        datasetLabel: '轉化人數',
+        color: '#10b981',
+        tension: 0,
+        fill: false,
+        unit: '人',
+        yAxisTitle: '簽約人數'
+    }));
 
-    // 計算 Y 軸上限：向上取整至 5 的倍數
-    const convCounts = Object.values(convYearCounts);
-    const maxConvCount = convCounts.length > 0 ? Math.max(...convCounts) : 0;
-    const yMaxConv = maxConvCount > 0 ? Math.ceil(maxConvCount / 5) * 5 : 5;
-
-    const ctxConvYear = document.getElementById('chart-conversion-year-line');
-    if (ctxConvYear) {
-        chartInstances.convYear = new Chart(ctxConvYear, {
-            type: 'line',
-            data: { 
-                labels: convYears, 
-                datasets: [{ 
-                    label: '轉化人數', 
-                    data: convYears.map(k => convYearCounts[k] || 0), 
-                    borderColor: '#10b981', 
-                    backgroundColor: '#10b981',
-                    fill: false,        // ★ 線條下方不填色
-                    tension: 0          // ★ 線條不要有曲率
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        min: 0,
-                        max: yMaxConv,
-                        ticks: {
-                            stepSize: 1,
-                            precision: 0,
-                            color: '#f5f3ff'
-                        },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    },
-                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
-                }
-            }
-        });
-    }
-
-    // 12. 首單成交年份趨勢歷程
+    // 12. 首單成交年份趨勢歷程 (硬派折線圖)
     const orderYearCounts = {};
     dataset.forEach(c => {
         if (c.first_order_date && c.first_order_date.length >= 4) {
@@ -2450,47 +2304,16 @@ function renderChartsView(filteredDataset = null) {
         }
     });
     const orderYears = Object.keys(orderYearCounts).length ? Object.keys(orderYearCounts).sort() : ['2024', '2025', '2026'];
-
-    // 計算 Y 軸上限：向上取整至 5 的倍數
-    const orderCounts = Object.values(orderYearCounts);
-    const maxOrderCount = orderCounts.length > 0 ? Math.max(...orderCounts) : 0;
-    const yMaxOrder = maxOrderCount > 0 ? Math.ceil(maxOrderCount / 5) * 5 : 5;
-
-    const ctxFirstYear = document.getElementById('chart-first-order-year-line');
-    if (ctxFirstYear) {
-        chartInstances.firstYear = new Chart(ctxFirstYear, {
-            type: 'line',
-            data: { 
-                labels: orderYears, 
-                datasets: [{ 
-                    label: '首單成交人數', 
-                    data: orderYears.map(k => orderYearCounts[k] || 0), 
-                    borderColor: '#38bdf8', 
-                    backgroundColor: '#38bdf8',
-                    fill: false,        // ★ 線條下方不填色
-                    tension: 0          // ★ 線條不要有曲率
-                }] 
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        min: 0,
-                        max: yMaxOrder,
-                        ticks: { 
-                            stepSize: 1, 
-                            precision: 0,
-                            color: '#f5f3ff' 
-                        }, 
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
-                    },
-                    x: { ticks: { color: '#f5f3ff' }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chart-first-order-year-line', AppChart.createLine({
+        labels: orderYears,
+        data: orderYears.map(k => orderYearCounts[k] || 0),
+        datasetLabel: '首單成交人數',
+        color: '#38bdf8',
+        tension: 0,
+        fill: false,
+        unit: '人',
+        yAxisTitle: '成交人數'
+    }));
 
     // 13. 首單成交月份分佈 (1~12月)
     const firstOrderMonthCounts = {};
@@ -2501,26 +2324,14 @@ function renderChartsView(filteredDataset = null) {
             if (m >= 1 && m <= 12) firstOrderMonthCounts[`${m}月`]++;
         }
     });
-    const ctxFirstMonth = document.getElementById('chart-first-order-month-bar');
-    if (ctxFirstMonth) {
-        chartInstances.firstMonth = new Chart(ctxFirstMonth, {
-            type: 'bar',
-            data: { labels: Object.keys(firstOrderMonthCounts), datasets: [{ label: '首單成交人數', data: Object.values(firstOrderMonthCounts), backgroundColor: '#38bdf8', borderRadius: 4 }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
-                    },
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chart-first-order-month-bar', AppChart.createBar({
+        labels: Object.keys(firstOrderMonthCounts),
+        data: Object.values(firstOrderMonthCounts),
+        datasetLabel: '首單人數',
+        colors: '#38bdf8',
+        isHorizontal: false,
+        unit: '人'
+    }));
 
     // 14. 最近關懷月份分佈 (1~12月)
     const contactMonthCounts = {};
@@ -2531,24 +2342,12 @@ function renderChartsView(filteredDataset = null) {
             if (m >= 1 && m <= 12) contactMonthCounts[`${m}月`]++;
         }
     });
-    const ctxContactMonth = document.getElementById('chart-last-contact-month-bar');
-    if (ctxContactMonth) {
-        chartInstances.contactMonth = new Chart(ctxContactMonth, {
-            type: 'bar',
-            data: { labels: Object.keys(contactMonthCounts), datasets: [{ label: '關懷次數', data: Object.values(contactMonthCounts), backgroundColor: '#fbbf24', borderRadius: 4 }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1, precision: 0, color: '#f5f3ff' }, // ★ 鎖定整數
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' } 
-                    },
-                    x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } }
-                }
-            }
-        });
-    }
+    AppChart.render('chart-last-contact-month-bar', AppChart.createBar({
+        labels: Object.keys(contactMonthCounts),
+        data: Object.values(contactMonthCounts),
+        datasetLabel: '關懷次數',
+        colors: '#fbbf24',
+        isHorizontal: false,
+        unit: '次'
+    }));
 }

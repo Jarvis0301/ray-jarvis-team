@@ -41,7 +41,6 @@ let partnersList = [];
 let customersList = [];
 
 let dataTableInstance = null;
-let chartInstances = {};
 
 // ============================================================================
 // 2. 生命週期與初始化
@@ -510,33 +509,10 @@ function renderDataTableView(list) {
 // ============================================================================
 // 7. 圖表分析 (Chart.js 引擎)
 // ============================================================================
-const getPieTooltipOptions = () => ({
-    plugins: {
-        legend: { position: 'bottom', labels: { color: '#f5f3ff', font: { size: 12 } } },
-        tooltip: {
-            callbacks: {
-                label: function (context) {
-                    const label = context.label || '';
-                    const val = Number(context.parsed) || 0;
-                    const dataset = context.chart.data.datasets[context.datasetIndex];
-                    const total = dataset.data.reduce((acc, cur) => acc + Number(cur), 0);
-                    const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                    return ` ${label}：${val.toLocaleString()} 人 (${percentage}%)`;
-                }
-            }
-        }
-    }
-});
-
+/**
+ * 區塊 A：跨國語言能力矩陣圖表（聽、說、讀、寫）
+ */
 function renderLanguageSectionCharts(targetLang, dataset) {
-    const langChartKeys = ['langListening', 'langSpeaking', 'langReading', 'langWriting'];
-    langChartKeys.forEach(k => {
-        if (chartInstances[k]) {
-            chartInstances[k].destroy();
-            delete chartInstances[k];
-        }
-    });
-
     const activePersonIds = new Set(dataset.map(p => p.person_id));
     const langRecords = personLanguagesList.filter(l =>
         l.language_name === targetLang && activePersonIds.has(l.person_id)
@@ -556,42 +532,59 @@ function renderLanguageSectionCharts(targetLang, dataset) {
     };
 
     const dimensions = [
-        { id: 'chart-lang-listening', key: 'langListening', field: 'listening_level' },
-        { id: 'chart-lang-speaking', key: 'langSpeaking', field: 'speaking_level' },
-        { id: 'chart-lang-reading', key: 'langReading', field: 'reading_level' },
-        { id: 'chart-lang-writing', key: 'langWriting', field: 'writing_level' }
+        { id: 'chart-lang-listening', field: 'listening_level' },
+        { id: 'chart-lang-speaking', field: 'speaking_level' },
+        { id: 'chart-lang-reading', field: 'reading_level' },
+        { id: 'chart-lang-writing', field: 'writing_level' }
     ];
 
     dimensions.forEach(dim => {
-        const ctx = document.getElementById(dim.id);
-        if (ctx) {
-            chartInstances[dim.key] = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: levels,
-                    datasets: [{
-                        data: countProficiency(dim.field),
-                        backgroundColor: levelColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    ...getPieTooltipOptions()
-                }
-            });
-        }
+        AppChart.render(dim.id, AppChart.createDoughnut({
+            labels: levels,
+            data: countProficiency(dim.field),
+            colors: levelColors,
+            unit: '人',
+            cutout: '60%'
+        }));
     });
 }
 
-function renderChartsView(filteredDataset = null) {
-    Object.values(chartInstances).forEach(chart => chart.destroy());
-    chartInstances = {};
+/**
+ * 輔助工具：精確統計非固定枚舉欄位 (國籍、種族、家鄉、現居地) 並動態配置調色盤
+ */
+function createExactCountMap(dataset, fieldExtractor) {
+    const counts = {};
+    let unsetCount = 0;
 
+    dataset.forEach(p => {
+        const val = fieldExtractor(p);
+        if (!val || String(val).trim() === '' || String(val).trim() === '未填寫' || String(val).trim() === '未設定') {
+            unsetCount++;
+        } else {
+            const cleanVal = String(val).trim();
+            counts[cleanVal] = (counts[cleanVal] || 0) + 1;
+        }
+    });
+
+    const sortedEntries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const labels = sortedEntries.map(e => e[0]);
+    const data = sortedEntries.map(e => e[1]);
+    const colors = labels.map((_, idx) => AppChart.tokens.palette[idx % AppChart.tokens.palette.length]);
+
+    if (unsetCount > 0) {
+        labels.push('未設定');
+        data.push(unsetCount);
+        colors.push('#64748b');
+    }
+
+    return { labels, data, colors };
+}
+
+/**
+ * 核心視圖渲染：語言能力 4 圖 + 自然人畫像 12 圖
+ */
+function renderChartsView(filteredDataset = null) {
     const dataset = filteredDataset || getFilteredPersons();
-    const curLang = $('#select-lang-filter').val() || '中文';
-    renderLanguageSectionCharts(curLang, dataset);
 
     const createCountMap = (key, defaultKeys = []) => {
         const map = {};
@@ -603,29 +596,33 @@ function renderChartsView(filteredDataset = null) {
         return map;
     };
 
+    // 區塊 A：跨國語言能力分析
+    const curLang = $('#select-lang-filter').val() || '中文';
+    renderLanguageSectionCharts(curLang, dataset);
+
+    // ========================================================================
+    // 區塊 B：自然人 SSOT 生活畫像指標 (12 張甜甜圈環形圖)
+    // ========================================================================
     // 1. 身份類型
     const idMap = createCountMap('identity_type', ['夥伴', '團隊成員', '潛在團隊成員', '客戶', '潛在客戶', '親友家屬']);
-    const ctxId = document.getElementById('chart-identity-type');
-    if (ctxId) {
-        chartInstances.idType = new Chart(ctxId, {
-            type: 'pie',
-            data: { labels: Object.keys(idMap), datasets: [{ data: Object.values(idMap), backgroundColor: ['#8b5cf6', '#3b82f6', '#06b6d4', '#10b981', '#fbbf24', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-identity-type', AppChart.createDoughnut({
+        labels: Object.keys(idMap),
+        data: Object.values(idMap),
+        colors: ['#8b5cf6', '#3b82f6', '#06b6d4', '#10b981', '#fbbf24', '#64748b'],
+        unit: '人',
+        centerKpi: { label: '自然人總數', value: dataset.length.toLocaleString() }
+    }));
 
     // 2. 使用身份
     const usageMap = createCountMap('usage_identity', ['經營者', '消費者']);
-    const ctxUsage = document.getElementById('chart-usage-identity');
-    if (ctxUsage) {
-        chartInstances.usageId = new Chart(ctxUsage, {
-            type: 'pie',
-            data: { labels: Object.keys(usageMap), datasets: [{ data: Object.values(usageMap), backgroundColor: ['#a855f7', '#38bdf8'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-usage-identity', AppChart.createDoughnut({
+        labels: Object.keys(usageMap),
+        data: Object.values(usageMap),
+        colors: ['#a855f7', '#38bdf8'],
+        unit: '人'
+    }));
 
-    // 3. 年齡層級
+    // 3. 年齡層級分佈
     const ageCategories = ['17歲以下', '18-29歲', '30-39歲', '40-49歲', '50-59歲', '60-69歲', '70歲以上'];
     const ageCounts = {};
     ageCategories.forEach(c => { ageCounts[c] = 0; });
@@ -641,69 +638,61 @@ function renderChartsView(filteredDataset = null) {
             else ageCounts['70歲以上']++;
         }
     });
-    const ctxAge = document.getElementById('chart-age-distribution');
-    if (ctxAge) {
-        chartInstances.age = new Chart(ctxAge, {
-            type: 'pie',
-            data: { labels: ageCategories, datasets: [{ data: ageCategories.map(c => ageCounts[c]), backgroundColor: ['#38bdf8', '#34d399', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-age-distribution', AppChart.createDoughnut({
+        labels: ageCategories,
+        data: ageCategories.map(c => ageCounts[c]),
+        colors: ['#38bdf8', '#34d399', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#64748b'],
+        unit: '人'
+    }));
 
     // 4. 生理性別
     const genderMap = createCountMap('gender', ['男', '女', '其他', '未填']);
-    const ctxGender = document.getElementById('chart-gender-split');
-    if (ctxGender) {
-        chartInstances.gender = new Chart(ctxGender, {
-            type: 'pie',
-            data: { labels: Object.keys(genderMap), datasets: [{ data: Object.values(genderMap), backgroundColor: ['#38bdf8', '#f472b6', '#a78bfa', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-gender-split', AppChart.createDoughnut({
+        labels: Object.keys(genderMap),
+        data: Object.values(genderMap),
+        colors: ['#38bdf8', '#f472b6', '#a78bfa', '#64748b'],
+        unit: '人'
+    }));
 
     // 5. 國籍
-    const natMap = createCountMap('nationality');
-    const ctxNat = document.getElementById('chart-nationality-split');
-    if (ctxNat) {
-        chartInstances.nat = new Chart(ctxNat, {
-            type: 'pie',
-            data: { labels: Object.keys(natMap), datasets: [{ data: Object.values(natMap), backgroundColor: ['#38bdf8', '#fbbf24', '#10b981', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    const natSummary = createExactCountMap(dataset, p => {
+        let n = (p.nationality || '').trim();
+        if (n === '台灣' || n === 'TW') n = '中華民國';
+        return n;
+    });
+    AppChart.render('chart-nationality-split', AppChart.createDoughnut({
+        labels: natSummary.labels,
+        data: natSummary.data,
+        colors: natSummary.colors,
+        unit: '人'
+    }));
 
     // 6. 種族
-    const ethMap = createCountMap('ethnicity');
-    const ctxEth = document.getElementById('chart-ethnicity-split');
-    if (ctxEth) {
-        chartInstances.eth = new Chart(ctxEth, {
-            type: 'pie',
-            data: { labels: Object.keys(ethMap), datasets: [{ data: Object.values(ethMap), backgroundColor: ['#8b5cf6', '#38bdf8', '#f59e0b', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    const ethSummary = createExactCountMap(dataset, p => (p.ethnicity || '').trim());
+    AppChart.render('chart-ethnicity-split', AppChart.createDoughnut({
+        labels: ethSummary.labels,
+        data: ethSummary.data,
+        colors: ethSummary.colors,
+        unit: '人'
+    }));
 
     // 7. 家鄉城市
-    const homeMap = createCountMap('hometown');
-    const ctxHome = document.getElementById('chart-hometown-split');
-    if (ctxHome) {
-        chartInstances.home = new Chart(ctxHome, {
-            type: 'pie',
-            data: { labels: Object.keys(homeMap), datasets: [{ data: Object.values(homeMap), backgroundColor: ['#10b981', '#38bdf8', '#a855f7', '#fbbf24', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    const homeSummary = createExactCountMap(dataset, p => (p.hometown || '').trim());
+    AppChart.render('chart-hometown-split', AppChart.createDoughnut({
+        labels: homeSummary.labels,
+        data: homeSummary.data,
+        colors: homeSummary.colors,
+        unit: '人'
+    }));
 
     // 8. 現居城市
-    const resMap = createCountMap('current_residence');
-    const ctxRes = document.getElementById('chart-residence-split');
-    if (ctxRes) {
-        chartInstances.res = new Chart(ctxRes, {
-            type: 'pie',
-            data: { labels: Object.keys(resMap), datasets: [{ data: Object.values(resMap), backgroundColor: ['#06b6d4', '#f97316', '#3b82f6', '#ec4899', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    const resSummary = createExactCountMap(dataset, p => (p.current_residence || '').trim());
+    AppChart.render('chart-residence-split', AppChart.createDoughnut({
+        labels: resSummary.labels,
+        data: resSummary.data,
+        colors: resSummary.colors,
+        unit: '人'
+    }));
 
     // 9. 認識年份
     const metMap = {};
@@ -711,47 +700,38 @@ function renderChartsView(filteredDataset = null) {
         const y = (p.met_date && p.met_date.length >= 4) ? p.met_date.substring(0, 4) + '年' : '未記錄';
         metMap[y] = (metMap[y] || 0) + 1;
     });
-    const ctxMet = document.getElementById('chart-met-year-split');
-    if (ctxMet) {
-        chartInstances.met = new Chart(ctxMet, {
-            type: 'pie',
-            data: { labels: Object.keys(metMap), datasets: [{ data: Object.values(metMap), backgroundColor: ['#10b981', '#38bdf8', '#fbbf24', '#ec4899', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-met-year-split', AppChart.createDoughnut({
+        labels: Object.keys(metMap),
+        data: Object.values(metMap),
+        unit: '人'
+    }));
 
     // 10. 最高學歷
     const eduMap = createCountMap('highest_education', ['博士', '碩士', '學士', '副學士', '高中職', '國中', '國小']);
-    const ctxEdu = document.getElementById('chart-education-distribution');
-    if (ctxEdu) {
-        chartInstances.edu = new Chart(ctxEdu, {
-            type: 'pie',
-            data: { labels: Object.keys(eduMap), datasets: [{ data: Object.values(eduMap), backgroundColor: ['#8b5cf6', '#0284c7', '#38bdf8', '#34d399', '#fbbf24', '#f97316', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-education-distribution', AppChart.createDoughnut({
+        labels: Object.keys(eduMap),
+        data: Object.values(eduMap),
+        colors: ['#8b5cf6', '#0284c7', '#38bdf8', '#34d399', '#fbbf24', '#f97316', '#64748b'],
+        unit: '人'
+    }));
 
     // 11. 健康狀況
     const healthMap = createCountMap('health_status', ['良好', '亞健康', '慢性體質', '調養中', '罹患疾病', '待了解']);
-    const ctxHealth = document.getElementById('chart-health-status-split');
-    if (ctxHealth) {
-        chartInstances.health = new Chart(ctxHealth, {
-            type: 'pie',
-            data: { labels: Object.keys(healthMap), datasets: [{ data: Object.values(healthMap), backgroundColor: ['#10b981', '#fbbf24', '#f97316', '#38bdf8', '#ef4444', '#64748b'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-health-status-split', AppChart.createDoughnut({
+        labels: Object.keys(healthMap),
+        data: Object.values(healthMap),
+        colors: ['#10b981', '#fbbf24', '#f97316', '#38bdf8', '#ef4444', '#64748b'],
+        unit: '人'
+    }));
 
     // 12. 財務狀況
     const finMap = createCountMap('financial_status', ['寬裕', '穩定', '吃緊', '高負債', '尋找副業']);
-    const ctxFin = document.getElementById('chart-financial-status-split');
-    if (ctxFin) {
-        chartInstances.fin = new Chart(ctxFin, {
-            type: 'pie',
-            data: { labels: Object.keys(finMap), datasets: [{ data: Object.values(finMap), backgroundColor: ['#10b981', '#38bdf8', '#fbbf24', '#ef4444', '#c084fc'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, ...getPieTooltipOptions() }
-        });
-    }
+    AppChart.render('chart-financial-status-split', AppChart.createDoughnut({
+        labels: Object.keys(finMap),
+        data: Object.values(finMap),
+        colors: ['#10b981', '#38bdf8', '#fbbf24', '#ef4444', '#c084fc'],
+        unit: '人'
+    }));
 }
 
 // ============================================================================

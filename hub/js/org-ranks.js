@@ -127,7 +127,6 @@ let appState = {
 
 let historyDataTable = null;
 let singlePartnerDataTable = null;
-let partnerRankChartInstance = null;
 
 // ==========================================================================
 // 系統生命週期
@@ -503,29 +502,31 @@ function parseYmToTimestamp(ymStr) {
 }
 
 function renderPartnerRankChart(ptnHistory, delegation = null) {
-    const ctx = document.getElementById('partnerRankChart');
-    if (!ctx) return;
+    const canvasId = 'partnerRankChart';
+    const canvasEl = document.getElementById(canvasId);
+    if (!canvasEl) return;
 
     const currentPartnerId = $('#partnerSelect').val();
     const partnerInfo = appState.partners.find(p => p.partner_id === currentPartnerId);
 
-    // 從「職級主檔」動態取得會員職級資料與專屬代表色
+    // 1. 動態取得會員職級基本資訊與專屬代表色
     const memberRank = appState.ranks.find(r => 
         r.rank_level === 10 || 
         r.rank_code === 'R10' || 
         r.rank_name_zh === '會員' || 
         r.rank_id === 'RANK_01_MEMBER'
     );
-    const memberColor = (memberRank && memberRank.badge_color_hex) ? memberRank.badge_color_hex : '#a1a1aa';
+    const memberColor = (memberRank && memberRank.badge_color_hex) ? memberRank.badge_color_hex : '#94a3b8';
 
     const chartNodes = [];
 
-    // 若共同經營者自身無加入日期，嘗試取用主要經營者之加入日期
+    // 2. 共同經營權穿透防禦：若副經營者無加入日，自動沿用主經營者加入日期
     let rawJoinDate = partnerInfo && partnerInfo.join_date ? String(partnerInfo.join_date).trim() : '';
     if ((!rawJoinDate || rawJoinDate === '-') && delegation && delegation.primaryPartner) {
         rawJoinDate = delegation.primaryPartner.join_date ? String(delegation.primaryPartner.join_date).trim() : '';
     }
-    // 嚴格檢查：只有在夥伴主檔確實有「加入葡眾日」且非空值時，才建立「會員」節點
+
+    // 嚴格檢核：僅在主檔具備有效加入日且非 '-' 時，建立會員起點
     if (rawJoinDate && rawJoinDate !== '-') {
         const joinParts = rawJoinDate.replace(/-/g, '/').split('/');
         if (joinParts.length >= 2) {
@@ -540,27 +541,24 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                     y: 10,
                     dateLabel: joinYmStr,
                     rankName: `${memberRank ? memberRank.rank_name_zh : '會員'} (加入葡眾)`,
-                    color: memberColor // ★ 使用職級主檔設定之代表色
+                    color: memberColor
                 });
             }
         }
     }
 
-    // 加入升階歷程節點：排除 <= 10 的會員初始歷程，避免無加入日的夥伴出現 2026/06 假節點
+    // 3. 加入歷程節點 (過濾會員等級，會員點統一由加入日產生)
     ptnHistory.forEach(h => {
         const rank = appState.ranks.find(r => 
             r.rank_id === h.new_rank_id || 
             r.rank_code === h.new_rank_id || 
             r.rank_name_zh === h.new_rank_id
         );
-        
-        // 未找到職級或為會員等級時跳過（會員點僅由加入葡眾日提供）
+
         if (!rank || rank.rank_level <= 10) return;
 
         const level = rank.rank_level;
         const color = rank.badge_color_hex || '#8b5cf6';
-
-        // 利用 AppDate.toTimestamp 自適應解析 YYYY 或 YYYY-MM
         const timestamp = AppDate.toTimestamp(h.effective_month);
         if (!timestamp) return;
 
@@ -575,8 +573,8 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
 
     // 依時間先後嚴格排序
     chartNodes.sort((a, b) => a.x - b.x);
-    
-    // 計算 X 軸起訖邊界（起訖點均對齊偶數月）
+
+    // 4. 計算 X 軸起訖邊界 (起訖點自動對齊偶數月份)
     const now = new Date();
     const minTimestamp = chartNodes.length > 0 ? chartNodes[0].x : new Date(now.getFullYear(), 0, 1).getTime();
     const maxTimestamp = chartNodes.length > 0 ? chartNodes[chartNodes.length - 1].x : new Date(now.getFullYear(), 11, 1).getTime();
@@ -599,12 +597,12 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
         endEvenMonth -= 12;
     }
 
-    // 計算跨越總月數，動態決定刻度步長（保證皆為 2 的倍數月份）
+    // 動態步長計算 (確保刻度數適中且皆為偶數月)
     const totalSpanMonths = (endYear - startYear) * 12 + (endEvenMonth - startEvenMonth);
     const stepCandidates = [2, 4, 6, 12, 24, 36, 48];
     let stepMonths = 2;
     for (const step of stepCandidates) {
-        if (totalSpanMonths / step <= 10) { // 刻度數控制在 10 個以內
+        if (totalSpanMonths / step <= 10) {
             stepMonths = step;
             break;
         }
@@ -614,14 +612,12 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
     const startBound = new Date(startYear, startEvenMonth - 1, 1).getTime();
     const endBound = new Date(endYear, endEvenMonth - 1, 1).getTime();
 
-    // 依動態步長生成偶數月刻度陣列
     const evenMonthTicks = [];
     let cur = new Date(startYear, startEvenMonth - 1, 1);
     while (cur.getTime() <= endBound) {
         evenMonthTicks.push(cur.getTime());
         cur = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, 1);
     }
-    // 補齊最後一個刻度，確保圖表最右側節點能完整落在可視區內
     if (evenMonthTicks[evenMonthTicks.length - 1] < endBound) {
         evenMonthTicks.push(cur.getTime());
     }
@@ -629,19 +625,19 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
     const finalStart = evenMonthTicks[0];
     const finalEnd = evenMonthTicks[evenMonthTicks.length - 1];
 
-    // RWD 動態畫布寬度計算
-    const $wrapper = $('#partnerRankChartWrapper');
+    // RWD 畫布寬度自動適應計算
+    const $wrapper =$('#partnerRankChartWrapper');
     if ($wrapper.length) {
         const minDynamicWidth = Math.max(100, evenMonthTicks.length * 85);
         $wrapper.css('min-width', evenMonthTicks.length > 6 ? `${minDynamicWidth}px` : '100%');
     }
 
-    if (partnerRankChartInstance) {
-        partnerRankChartInstance.destroy();
-    }
+    // 5. 動態計算職級 Y 軸最大上限 (相容星級藍鑽 100/150 階層)
+    const allRankLevels = appState.ranks.map(r => r.rank_level || 0);
+    const dynamicMaxLevel = allRankLevels.length > 0 ? Math.max(...allRankLevels, 100) : 100;
 
-    // Chart.js 實體生成
-    partnerRankChartInstance = new Chart(ctx, {
+    // 6. 組裝圖表設定物件，並交由 AppChart 統一渲染
+    const chartConfig = {
         type: 'line',
         data: {
             datasets: [{
@@ -657,6 +653,7 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                         const p0 = chartNodes[ctx.p0DataIndex];
                         const p1 = chartNodes[ctx.p1DataIndex];
                         if (!p0 || !p1) return undefined;
+                        // 戰術特色：跨階跳級晉升（位階差 > 10）時自動轉為虛線呈現
                         return Math.abs(p1.y - p0.y) > 10 ? [6, 6] : undefined;
                     }
                 },
@@ -674,21 +671,20 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
             scales: {
                 y: {
                     min: 10,
-                    max: 100,
+                    max: dynamicMaxLevel,
                     offset: true,
                     ticks: {
                         stepSize: 10,
-                        color: '#f5f3ff',
-                        font: { weight: '600' },
+                        color: AppChart.tokens.text,
+                        font: { size: 12, weight: '600' },
                         callback: val => {
                             const r = appState.ranks.find(x => x.rank_level === val);
                             return r ? r.rank_name_zh : `R${val}`;
                         }
                     },
                     grid: {
-                        color: 'rgba(192, 132, 252, 0.40)',
-                        lineWidth: 1.2,
-                        drawBorder: true
+                        color: AppChart.tokens.gridActive,
+                        lineWidth: 1
                     }
                 },
                 x: {
@@ -700,8 +696,8 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                         axis.ticks = evenMonthTicks.map(v => ({ value: v }));
                     },
                     ticks: {
-                        color: '#f5f3ff',
-                        font: { weight: '500' },
+                        color: AppChart.tokens.text,
+                        font: { size: 11, weight: '500' },
                         autoSkip: false,
                         maxRotation: 45,
                         minRotation: 0,
@@ -712,9 +708,8 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                         }
                     },
                     grid: {
-                        color: 'rgba(139, 92, 246, 0.20)',
-                        lineWidth: 1.2,
-                        drawBorder: true
+                        color: AppChart.tokens.grid,
+                        lineWidth: 1
                     }
                 }
             },
@@ -724,17 +719,20 @@ function renderPartnerRankChart(ptnHistory, delegation = null) {
                     callbacks: {
                         title: items => {
                             const node = chartNodes[items[0].dataIndex];
-                            return node ? `年月：${node.dateLabel}` : '';
+                            return node ? `生效年月：${node.dateLabel}` : '';
                         },
                         label: ctx => {
                             const node = chartNodes[ctx.dataIndex];
-                            return ` 職級：${node ? node.rankName : ''} (位階 ${ctx.parsed.y})`;
+                            return ` 晉升職級：${node ? node.rankName : ''} (位階權重 ${ctx.parsed.y})`;
                         }
                     }
                 }
             }
         }
-    });
+    };
+
+    // 委派 AppChart 視覺中樞統一掛載實例 (自動銷毀舊實例防崩潰)
+    AppChart.render(canvasId, chartConfig);
 }
 
 // 在 org-ranks.js 中替換原 renderPartnerSingleTable 內部迴圈與標頭提示
