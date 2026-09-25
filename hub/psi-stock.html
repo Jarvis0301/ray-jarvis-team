@@ -294,6 +294,36 @@
                             </div>
                         </article>
 
+                        <!-- 區塊 C：庫存週轉與過期風險矩陣 (col-12 散佈圖) -->
+                        <article class="glass-panel p-3 mb-4">
+                            <header class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple-subtle gap-2">
+                                <div>
+                                    <span class="fw-bold text-white fs-6">
+                                        <i class="fa-solid fa-chart-line text-warning me-1"></i>在庫時效 vs 效期倒數矩陣
+                                    </span>
+                                    <span class="text-secondary small ms-2 d-none d-md-inline-block">
+                                        落入右下方象限之品項代表「入庫已久且即將過期」，列為最高危急出庫標的
+                                    </span>
+                                </div>
+                            </header>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <section class="card-chart">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="fw-bold text-white">
+                                                <i class="fa-solid fa-arrows-to-dot text-danger me-1"></i>在庫庫存天數 vs 剩餘效期倒數天數分佈圖
+                                            </span>
+                                            <span class="badge badge-secondary small">批號時效態勢</span>
+                                        </div>
+                                        <div class="card-chart-container" style="height: 380px;">
+                                            <canvas id="chartStockAgingScatter"></canvas>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </article>
+
                     </div>
                 </div>
             </section>

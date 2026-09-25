@@ -11,10 +11,10 @@ const GAS_DEPLOY_ID = {
 };
 
 const SHEET_NAMES = {
-    ALERTS: APP_CONFIG.SHEET_NAMES.PSI.ALERTS,
-    THRESHOLDS: APP_CONFIG.SHEET_NAMES.PSI.SAFETY_THRESHOLDS,
-    WAREHOUSES: APP_CONFIG.SHEET_NAMES.PSI.WAREHOUSES,
-    PRODUCTS: APP_CONFIG.SHEET_NAMES.PRD.PRODUCTS
+    ALERTS: APP_CONFIG.SHEET_NAMES?.PSI?.ALERTS || '庫存預警',
+    THRESHOLDS: APP_CONFIG.SHEET_NAMES?.PSI?.SAFETY_THRESHOLDS || '安全門檻',
+    WAREHOUSES: APP_CONFIG.SHEET_NAMES?.PSI?.WAREHOUSES || '據點倉儲',
+    PRODUCTS: APP_CONFIG.SHEET_NAMES?.PRD?.PRODUCTS || '產品主檔'
 };
 
 function getWarehouseName(whId, displayMode = 1) {
@@ -25,24 +25,55 @@ function getProductShortName(prdId, displayMode = 1) {
     return EntityResolver.product(prdId, appState.products, displayMode);
 }
 
+function getWarehouseTypeOrder(type) {
+    const orderMap = {
+        '自用常備倉': 1,
+        '海外商務倉': 2,
+        '官方營運中心': 3,
+        '物流在途倉': 4
+    };
+    return orderMap[type] || 99;
+}
+
 // ==========================================================================
 // 2. 系統狀態管理 (State Management)
 // ==========================================================================
 let appState = {
     alerts: [],
     thresholds: [],
-    warehouses: {}, // 格式: { [id]: { id, name } }
-    products: {},   // 格式: { [code]: { code, name, short_name } }
-    currentWorkspace: 'ALERTS', // 'ALERTS' | 'THRESHOLDS'
-    alertFilter: 'ALL'
+    warehouses: {}, // 格式: { [id]: { id, name, type } }
+    products: {},   // 格式: { [code]: { code, region, name, short_name } }
+    currentWorkspace: 'ALERTS', // 'ALERTS' | 'THRESHOLDS' | 'CHARTS'
+    alertFilter: 'ALL', // 膠囊快篩
+    filters: {
+        warehouse: 'ALL',   // 據點倉儲
+        product: 'ALL',     // 產品品項
+        alertType: 'ALL',   // 預警類型
+        severity: 'ALL',    // 嚴重性
+        status: 'ALL',      // 處置狀態
+        monitored: 'ALL'    // 監控狀態
+    }
 };
 
 let alertsDataTableInstance = null;
 let thresholdsDataTableInstance = null;
 let isInitialized = false;
 
+// 統計圖表實例管理池 (防止記憶體洩漏與重疊渲染)
+let chartInstances = {
+    alertType: null,
+    alertSeverity: null,
+    alertStatus: null,
+    warehouseAlerts: null,
+    productAlerts: null,
+    expiryAging: null,
+    monitoredRatio: null,
+    stockGapDepth: null,
+    safetyFulfillmentMixed: null // 指定複合圖表
+};
+
 // ==========================================================================
-// 3. 生命週期與初始化 (對齊 common.js 共用規範)
+// 3. 生命週期與初始化
 // ==========================================================================
 window.addEventListener('AppReady', async () => {
     if (window.SheetAdapter) {
@@ -60,13 +91,12 @@ async function initAlertsApp() {
 }
 
 // ==========================================================================
-// 4. 資料讀取引擎：PapaParse 0-Based 順序解析，無假資料注入
+// 4. 資料讀取引擎：PapaParse 0-Based 順序解析
 // ==========================================================================
 async function fetchGoogleSheetsData() {
     AppLoading.show('<i class="fa-solid fa-cloud-arrow-down text-primary me-1"></i>正在讀取雲端資料庫...', '載入中...');
     
     try {
-        // 並行獲取預警表、門檻表、據點表，以及來自另一試算表的產品主檔
         const [rawAlertRows, rawThresholdRows, rawWhRows, rawPrdRows] = await Promise.all([
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.ALERTS).catch(() => []),
             fetchGoogleSheetCsv(SPREADSHEET_ID.PSI, SHEET_NAMES.THRESHOLDS).catch(() => []),
@@ -79,19 +109,19 @@ async function fetchGoogleSheetsData() {
         (rawWhRows || []).forEach(r => {
             const id = getVal(r, 0);   // Col 0: id
             const name = getVal(r, 1); // Col 1: warehouse_name
-            const type = getVal(r, 2);     // Col 2: warehouse_type ('自用常備倉','海外商務倉','官方營運中心','物流在途倉')
+            const type = getVal(r, 2); // Col 2: warehouse_type
             if (id) {
                 appState.warehouses[id] = { id, name: name || id, type };
             }
         });
 
-        // 2. 解析產品主檔 (表 101 prd_items)
+        // 2. 解析產品主檔 (表 101)
         appState.products = {};
         (rawPrdRows || []).forEach(r => {
-           const code = getVal(r, 0);       // Col 0: product_code (PK)
-            const region = getVal(r, 1, 'TW').toUpperCase(); // Col 1: region_code ('TW' / 'MY')
-            const name = getVal(r, 3);       // Col 3: name (官方完整中文品名)
-            const shortName = getVal(r, 4);  // Col 4: short_name (產品簡稱)
+            const code = getVal(r, 0);       // Col 0: product_code (PK)
+            const region = getVal(r, 1, 'TW').toUpperCase(); // Col 1: region_code
+            const name = getVal(r, 3);       // Col 3: name
+            const shortName = getVal(r, 4);  // Col 4: short_name
             if (code) {
                 appState.products[code] = {
                     code,
@@ -106,10 +136,11 @@ async function fetchGoogleSheetsData() {
         appState.alerts = (rawAlertRows && rawAlertRows.length > 0) ? parseAlertsTable(rawAlertRows) : [];
         appState.thresholds = (rawThresholdRows && rawThresholdRows.length > 0) ? parseThresholdsTable(rawThresholdRows) : [];
 
-        // 刷新 Select2 選單與 DataTables 視圖
+        // 初始化下拉選單與介面渲染
+        populateFilterSelectOptions();
         populateThresholdSelectOptions();
         refreshView();
-        AppToast.success(`同步完成：${appState.alerts.length} 筆預警、${appState.thresholds.length} 組門檻規則`);
+        AppToast.success(`同步完成：${appState.alerts.length.toLocaleString()} 筆預警、${appState.thresholds.length.toLocaleString()} 組門檻規則`);
     } catch (err) {
         console.error("Google Sheets 同步失敗:", err);
         appState.alerts = [];
@@ -127,19 +158,19 @@ async function fetchGoogleSheetsData() {
 function parseAlertsTable(rows) {
     return rows.map((r, idx) => {
         return {
-            id: getVal(r, 0, `ALT-${AppDate.toClean8()}-${String(idx + 1).padStart(4, '0')}`), // Col 0: id (PK)
+            id: getVal(r, 0, `ALT-${AppDate.toClean8()}-${String(idx + 1).padStart(4, '0')}`), // Col 0: id
             alert_type: getVal(r, 1, '低於安全水位'),                      // Col 1: alert_type
-            warehouse_id: getVal(r, 2, ''),                               // Col 2: warehouse_id (FK)
-            product_id: getVal(r, 3, ''),                                 // Col 3: product_id (FK)
-            stock_id: getVal(r, 4, ''),                                   // Col 4: stock_id (FK)
+            warehouse_id: getVal(r, 2, ''),                               // Col 2: warehouse_id
+            product_id: getVal(r, 3, ''),                                 // Col 3: product_id
+            stock_id: getVal(r, 4, ''),                                   // Col 4: stock_id
             batch_no: getVal(r, 5, '-'),                                  // Col 5: batch_no
             expiry_date: getVal(r, 6, '-'),                               // Col 6: expiry_date
             current_qty: parseInt(getVal(r, 7, '0'), 10) || 0,            // Col 7: current_qty
             threshold_qty: getVal(r, 8) !== '' ? parseInt(getVal(r, 8), 10) : null, // Col 8: threshold_qty
             days_to_expire: getVal(r, 9) !== '' ? parseInt(getVal(r, 9), 10) : null, // Col 9: days_to_expire
-            alert_level: getVal(r, 10, '注意'),                           // Col 10: alert_level ('一般','注意','緊急')
+            alert_level: getVal(r, 10, '注意'),                           // Col 10: alert_level
             status: getVal(r, 11, '未處理'),                               // Col 11: status
-            remarks: getVal(r, 12, ''),                                   // Col 12: remarks (系統建議)
+            remarks: getVal(r, 12, ''),                                   // Col 12: remarks
             resolved_by: getVal(r, 13, ''),                               // Col 13: resolved_by
             resolved_at: getVal(r, 14, ''),                               // Col 14: resolved_at
             created_by: getVal(r, 15, 'SYSTEM'),                          // Col 15: created_by
@@ -149,6 +180,7 @@ function parseAlertsTable(rows) {
         };
     });
 }
+
 /**
  * 依據表 310 (psi_safety_thresholds) 物理順序解析 (Index 0 ~ 9)
  */
@@ -170,34 +202,169 @@ function parseThresholdsTable(rows) {
 }
 
 // ==========================================================================
-// 5. 介面事件綁定與視圖渲染中樞
+// 5. 介面事件綁定、篩選器與視圖切換
 // ==========================================================================
 function bindUIEvents() {
+    // 膠囊快捷篩選按鈕
     $('[data-alert-filter]').on('click', function() {
         $('[data-alert-filter]').removeClass('active');
         $(this).addClass('active');
         appState.alertFilter = $(this).data('alert-filter');
-        filterAlertsTable();
+        $('#filter-alert-type').val(appState.alertFilter);
+        appState.filters.alertType = appState.alertFilter;
+        onFilterStateChanged();
     });
 
+    // 6 個獨立篩選條件變更事件監聽
+    $('#filter-warehouse, #filter-product, #filter-alert-type, #filter-alert-level, #filter-status, #filter-monitored').on('change', function() {
+        appState.filters.warehouse = $('#filter-warehouse').val();
+        appState.filters.product = $('#filter-product').val();
+        appState.filters.alertType = $('#filter-alert-type').val();
+        appState.filters.severity = $('#filter-alert-level').val();
+        appState.filters.status = $('#filter-status').val();
+        appState.filters.monitored = $('#filter-monitored').val();
+
+        // 雙向連動膠囊按鈕狀態
+        $('[data-alert-filter]').removeClass('active');
+        $(`[data-alert-filter="${appState.filters.alertType}"]`).addClass('active');
+
+        onFilterStateChanged();
+    });
+
+    // 全選 Checkbox
     $('#check-all-alerts').on('change', function() {
         $('.alert-item-check').prop('checked', this.checked);
     });
 }
 
+/**
+ * 填充 6 聯篩選工具列之動態選單 (據點與產品)
+ */
+function populateFilterSelectOptions() {
+    // 據點倉儲篩選器：可搜尋、顯示模式 2 (名稱 [ID])
+    UISelectOptions.warehouse.populate({
+        target: '#filter-warehouse',
+        warehouses: appState.warehouses,
+        displayMode: 2,
+        placeholder: '全部據點倉儲',
+        selectedValue: appState.filters.warehouse === 'ALL' ? '' : appState.filters.warehouse,
+        searchable: true,
+        onChange: (val) => {
+            appState.filters.warehouse = val || 'ALL';
+            onFilterStateChanged();
+        }
+    });
+
+    // 產品品項篩選器：可搜尋、依市場分組 (grouped: true)、顯示模式 2 (名稱 [代號])
+    UISelectOptions.product.populate({
+        target: '#filter-product',
+        products: appState.products,
+        displayMode: 2,
+        placeholder: '全部產品品項',
+        selectedValue: appState.filters.product === 'ALL' ? '' : appState.filters.product,
+        searchable: true,
+        grouped: true,
+        onChange: (val) => {
+            appState.filters.product = val || 'ALL';
+            onFilterStateChanged();
+        }
+    });
+}
+
+/**
+ * 重設全部篩選條件
+ */
+function resetAlertFilters() {
+    // 透過 select2('val', '') 觸發 Select2 介面文字即時還原
+    $('#filter-warehouse').val('').trigger('change.select2');
+    $('#filter-product').val('').trigger('change.select2');
+    $('#filter-alert-type').val('ALL');
+    $('#filter-alert-level').val('ALL');
+    $('#filter-status').val('ALL');
+    $('#filter-monitored').val('ALL');
+
+    appState.filters = {
+        warehouse: 'ALL',
+        product: 'ALL',
+        alertType: 'ALL',
+        severity: 'ALL',
+        status: 'ALL',
+        monitored: 'ALL'
+    };
+    appState.alertFilter = 'ALL';
+    $('[data-alert-filter]').removeClass('active');
+    $('[data-alert-filter="ALL"]').addClass('active');
+
+    onFilterStateChanged();
+    AppToast.info('已重設所有篩選條件');
+}
+
+/**
+ * 篩選狀態變更時重新計算 HUD、表格與圖表
+ */
+function onFilterStateChanged() {
+    renderHudMetrics();
+    if (appState.currentWorkspace === 'ALERTS') {
+        renderAlertsDataTable();
+    } else if (appState.currentWorkspace === 'THRESHOLDS') {
+        renderThresholdsDataTable();
+    } else if (appState.currentWorkspace === 'CHARTS') {
+        renderAlertCharts();
+    }
+}
+
+/**
+ * 依 6 個維度條件精算告警清冊資料子集
+ */
+function getFilteredAlerts() {
+    return appState.alerts.filter(a => {
+        if (appState.filters.warehouse !== 'ALL' && a.warehouse_id !== appState.filters.warehouse) return false;
+        if (appState.filters.product !== 'ALL' && a.product_id !== appState.filters.product) return false;
+        if (appState.filters.alertType !== 'ALL' && a.alert_type !== appState.filters.alertType) return false;
+        if (appState.filters.severity !== 'ALL' && a.alert_level !== appState.filters.severity) return false;
+        if (appState.filters.status !== 'ALL' && a.status !== appState.filters.status) return false;
+        if (appState.filters.monitored !== 'ALL') {
+            const th = appState.thresholds.find(t => t.warehouse_id === a.warehouse_id && t.product_id === a.product_id);
+            const isMon = th ? th.is_monitored : 'N';
+            if (isMon !== appState.filters.monitored) return false;
+        }
+        return true;
+    });
+}
+
+/**
+ * 依 6 個維度條件精算門檻規則資料子集
+ */
+function getFilteredThresholds() {
+    return appState.thresholds.filter(t => {
+        if (appState.filters.warehouse !== 'ALL' && t.warehouse_id !== appState.filters.warehouse) return false;
+        if (appState.filters.product !== 'ALL' && t.product_id !== appState.filters.product) return false;
+        if (appState.filters.monitored !== 'ALL' && t.is_monitored !== appState.filters.monitored) return false;
+        return true;
+    });
+}
+
+/**
+ * 工作區頁籤切換中樞
+ */
 function switchMainWorkspace(tab) {
     appState.currentWorkspace = tab;
+
+    $('#tab-btn-alerts, #tab-btn-thresholds, #tab-btn-charts').removeClass('active');
+    $('#workspace-alerts, #workspace-thresholds, #workspace-charts').addClass('d-none');
+
     if (tab === 'ALERTS') {
         $('#tab-btn-alerts').addClass('active');
-        $('#tab-btn-thresholds').removeClass('active');
         $('#workspace-alerts').removeClass('d-none');
-        $('#workspace-thresholds').addClass('d-none');
-    } else {
+        renderAlertsDataTable();
+    } else if (tab === 'THRESHOLDS') {
         $('#tab-btn-thresholds').addClass('active');
-        $('#tab-btn-alerts').removeClass('active');
         $('#workspace-thresholds').removeClass('d-none');
-        $('#workspace-alerts').addClass('d-none');
         renderThresholdsDataTable();
+    } else if (tab === 'CHARTS') {
+        $('#tab-btn-charts').addClass('active');
+        $('#workspace-charts').removeClass('d-none');
+        renderAlertCharts();
     }
 }
 
@@ -205,86 +372,81 @@ function refreshView() {
     renderHudMetrics();
     renderAlertsDataTable();
     renderThresholdsDataTable();
+    if (appState.currentWorkspace === 'CHARTS') {
+        renderAlertCharts();
+    }
 }
 
 function renderHudMetrics() {
-    const stockout = appState.alerts.filter(a => a.alert_type === '低於安全水位').length;
-    const expiring90 = appState.alerts.filter(a => a.alert_type === '90天近效期').length;
-    const expiring30 = appState.alerts.filter(a => a.alert_type === '30天極危效期').length;
-    const expired = appState.alerts.filter(a => a.alert_type === '已過期').length;
-    const monitored = appState.thresholds.filter(t => t.is_monitored === 'Y').length;
-    const pending = appState.alerts.filter(a => a.status === '未處理').length;
+    const alertsToCount = getFilteredAlerts();
+    const thresholdsToCount = getFilteredThresholds();
+
+    const stockout = alertsToCount.filter(a => a.alert_type === '低於安全水位').length;
+    const expiring90 = alertsToCount.filter(a => a.alert_type === '90天近效期').length;
+    const expiring30 = alertsToCount.filter(a => a.alert_type === '30天極危效期').length;
+    const expired = alertsToCount.filter(a => a.alert_type === '已過期').length;
+    const pending = alertsToCount.filter(a => a.status === '未處理').length;
 
     $('#stat-stockout-count').text(stockout.toLocaleString());
     $('#stat-expiry90-count').text(expiring90.toLocaleString());
     $('#stat-expiry30-count').text(expiring30.toLocaleString());
     $('#stat-expired-count').text(expired.toLocaleString());
-    $('#stat-monitored-rules').text(monitored.toLocaleString());
     $('#stat-pending-count').text(pending.toLocaleString());
-    $('#count-alerts-total').text(appState.alerts.length.toLocaleString());
-    $('#count-thresholds-total').text(appState.thresholds.length.toLocaleString());
+    $('#count-alerts-total').text(alertsToCount.length.toLocaleString());
+
+    if ($('#count-thresholds-total').length) {
+        $('#count-thresholds-total').text(thresholdsToCount.length.toLocaleString());
+    }
 }
 
 // ==========================================================================
-// 6. DataTables 渲染：預警清冊表 (psi_alerts)
+// 6. DataTables 渲染：預警清冊表 (物件資料直接載入重構)
 // ==========================================================================
 function renderAlertsDataTable() {
-    const formatted = appState.alerts.map(a => formatAlertRow(a));
+    const filtered = getFilteredAlerts();
+    const formatted = filtered.map(a => formatAlertRow(a));
 
     if (alertsDataTableInstance) {
-        alertsDataTableInstance.clear();
-        alertsDataTableInstance.rows.add(formatted);
-        alertsDataTableInstance.draw();
+        alertsDataTableInstance.clear().rows.add(formatted).draw();
     } else {
         alertsDataTableInstance = $('#alertsDataTable').DataTable({
             data: formatted,
             columns: [
-                { data: 'checkbox', className: 'text-center' },
+                { data: 'checkbox', className: 'text-center', orderable: false },
                 { data: 'id' },
                 { data: 'type', className: 'text-center' },
                 { data: 'warehouse' },
                 { data: 'product' },
                 { data: 'batch' },
-                { data: 'qty' },
-                { data: 'days' },
+                { data: 'qty', className: 'text-end' },
+                { data: 'days', className: 'text-end' },
                 { data: 'level', className: 'text-center' },
                 { data: 'status', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
             ]
         });
     }
-    filterAlertsTable();
-}
-
-function filterAlertsTable() {
-    if (!alertsDataTableInstance) return;
-    if (appState.alertFilter === 'ALL') {
-        alertsDataTableInstance.column(2).search('').draw();
-    } else {
-        alertsDataTableInstance.column(2).search(appState.alertFilter).draw();
-    }
 }
 
 function formatAlertRow(a) {
-    // 改接 UIBadges.psi 核心模組
     const typeBadge = UIBadges.psi.alertType(a.alert_type);
     const levelBadge = UIBadges.psi.alertLevel(a.alert_level);
     const statusBadge = UIBadges.psi.alertStatus(a.status);
 
-    // 效期倒數顯示
+    // 效期倒數天數格式化顯示
     let daysDisplay = '<span class="text-secondary">-</span>';
     if (a.days_to_expire !== null && !isNaN(a.days_to_expire)) {
         if (a.days_to_expire <= 0) {
-            daysDisplay = `<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>逾期 ${Math.abs(a.days_to_expire)} 天</span>`;
+            daysDisplay = `<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>逾期 ${Math.abs(a.days_to_expire).toLocaleString()} 天</span>`;
         } else if (a.days_to_expire <= 90) {
-            daysDisplay = `<span class="text-warning fw-bold"><i class="fa-solid fa-clock me-1"></i>剩 ${a.days_to_expire} 天</span>`;
+            daysDisplay = `<span class="text-warning fw-bold"><i class="fa-solid fa-clock me-1"></i>剩 ${a.days_to_expire.toLocaleString()} 天</span>`;
         } else {
-            daysDisplay = `<span class="text-secondary">剩 ${a.days_to_expire} 天</span>`;
+            daysDisplay = `<span class="text-secondary">剩 ${a.days_to_expire.toLocaleString()} 天</span>`;
         }
     }
 
     const actionBtn = `
-        <button class="btn btn-sm btn-secondary" onclick="openResolveAlertModal('${a.id}')">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="openResolveAlertModal('${a.id}')">
             <i class="fa-solid fa-bolt me-1"></i>處置
         </button>
     `;
@@ -296,7 +458,7 @@ function formatAlertRow(a) {
         warehouse: `<div><div class="text-white">${getWarehouseName(a.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${a.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(a.product_id)}</div><span class="small text-secondary">${a.product_id}</span></div>`,
         batch: `<div><span class="small text-light">${a.batch_no || '-'}</span><div class="small text-secondary">${a.expiry_date || '-'}</div></div>`,
-        qty: `<div><span class="fw-bold text-white">${a.current_qty}</span> <span class="text-secondary small">/ 門檻 ${a.threshold_qty ?? '-'}</span></div>`,
+        qty: `<div><span class="fw-bold text-white">${a.current_qty.toLocaleString()}</span> <span class="text-secondary small">/ 門檻 ${a.threshold_qty !== null ? a.threshold_qty.toLocaleString() : '-'}</span></div>`,
         days: daysDisplay,
         level: levelBadge,
         status: statusBadge,
@@ -305,15 +467,14 @@ function formatAlertRow(a) {
 }
 
 // ==========================================================================
-// 7. DataTables 渲染與 CRUD：門檻規則表 (psi_safety_thresholds)
+// 7. DataTables 渲染與 CRUD：門檻規則表 (物件資料直接載入重構)
 // ==========================================================================
 function renderThresholdsDataTable() {
-    const formatted = appState.thresholds.map(t => formatThresholdRow(t));
+    const filtered = getFilteredThresholds();
+    const formatted = filtered.map(t => formatThresholdRow(t));
 
     if (thresholdsDataTableInstance) {
-        thresholdsDataTableInstance.clear();
-        thresholdsDataTableInstance.rows.add(formatted);
-        thresholdsDataTableInstance.draw();
+        thresholdsDataTableInstance.clear().rows.add(formatted).draw();
     } else {
         thresholdsDataTableInstance = $('#thresholdsDataTable').DataTable({
             data: formatted,
@@ -321,7 +482,7 @@ function renderThresholdsDataTable() {
                 { data: 'id' },
                 { data: 'warehouse' },
                 { data: 'product' },
-                { data: 'qty' },
+                { data: 'qty', className: 'text-end' },
                 { data: 'monitored', className: 'text-center' },
                 { data: 'actions', className: 'text-center', orderable: false }
             ]
@@ -333,10 +494,10 @@ function formatThresholdRow(t) {
     const monitoredPill = UIBadges.common.boolean(t.is_monitored, '監控中', '暫停');
 
     const actionButtons = `
-        <button class="btn btn-sm btn-outline-primary" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditThresholdModal('${t.id}')" title="編輯規則">
             <i class="fa-solid fa-pen"></i>
         </button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteThresholdItem('${t.id}')" title="刪除規則">
             <i class="fa-solid fa-trash-alt"></i>
         </button>
     `;
@@ -345,7 +506,7 @@ function formatThresholdRow(t) {
         id: `<span class="fw-bold text-info">${t.id}</span>`,
         warehouse: `<div><div class="text-white">${getWarehouseName(t.warehouse_id)}</div><span class="badge badge-outline-secondary-subtle small">${t.warehouse_id}</span></div>`,
         product: `<div><div class="fw-bold text-white">${getProductShortName(t.product_id)}</div><span class="small text-secondary">${t.product_id}</span></div>`,
-        qty: `<span class="h6 fw-bold text-warning mb-0">${t.threshold_qty} 盒</span>`,
+        qty: `<span class="h6 fw-bold text-warning mb-0">${t.threshold_qty.toLocaleString()} 盒</span>`,
         monitored: monitoredPill,
         actions: actionButtons
     };
@@ -353,8 +514,6 @@ function formatThresholdRow(t) {
 
 /**
  * 動態填入門檻 Modal 之下拉選單 (改接 UISelectOptions 共用模組)
- * 1. 倉儲：依自用 -> 海外 -> 官方 -> 物流排序，可搜尋、不分組
- * 2. 產品：依 TW / MY / 其他市場分組，品號升冪排序，可搜尋、分組
  */
 function populateThresholdSelectOptions() {
     const $wh = $('#fieldThresholdWarehouse');
@@ -363,8 +522,11 @@ function populateThresholdSelectOptions() {
     UISelectOptions.warehouse.populate({
         target: '#fieldThresholdWarehouse',
         warehouses: appState.warehouses,
-        selectedValue: $('#fieldThresholdWarehouse').val() || '',
+        displayMode: 2,
+        placeholder: '-- 請選擇據點倉儲 --',
+        selectedValue: $wh.val() || '',
         dropdownParent: '#thresholdModal',
+        searchable: true,
         onChange: () => {
             if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
         }
@@ -373,24 +535,18 @@ function populateThresholdSelectOptions() {
     UISelectOptions.product.populate({
         target: '#fieldThresholdProduct',
         products: appState.products,
-        selectedValue: $('#fieldThresholdProduct').val() || '',
+        displayMode: 2,
+        placeholder: '-- 請選擇產品品項 --',
+        selectedValue: $prd.val() || '',
         dropdownParent: '#thresholdModal',
+        searchable: true,
+        grouped: true,
         onChange: () => {
             if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
         }
     });
-
-    $wh.off('change.autoId').on('change.autoId', function() {
-        if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
-    });
-    $prd.off('change.autoId').on('change.autoId', function() {
-        if ($('#thresholdFormMode').val() === 'add') updateGeneratedThresholdId();
-    });
 }
 
-/**
- * 依據當前選擇的倉儲與產品，自動生成門檻主鍵 (PK: {warehouse_id}_{product_id})
- */
 function updateGeneratedThresholdId() {
     const wh = $('#fieldThresholdWarehouse').val();
     const prd = $('#fieldThresholdProduct').val();
@@ -402,18 +558,12 @@ function updateGeneratedThresholdId() {
     }
 }
 
-/**
- * 開啟新增門檻 Modal
- */
 function openAddThresholdModal() {
     $('#thresholdModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增安全門檻規則');
     $('#thresholdFormMode').val('add');
     $('#thresholdForm')[0].reset();
 
-    // 主鍵由系統生成，維持 readonly
     $('#fieldThresholdId').val('');
-
-    // 新增時開放選擇據點與產品
     $('#fieldThresholdWarehouse').prop('disabled', false).val('').trigger('change');
     $('#fieldThresholdProduct').prop('disabled', false).val('').trigger('change');
 
@@ -423,12 +573,9 @@ function openAddThresholdModal() {
     $('#thresholdFieldCreatedAt').val('');
     $('#thresholdFieldCreatedBy').val('');
 
-    new bootstrap.Modal(document.getElementById('thresholdModal')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('thresholdModal')).show();
 }
 
-/**
- * 開啟編輯門檻 Modal
- */
 function openEditThresholdModal(thresholdId) {
     const t = appState.thresholds.find(item => item.id === thresholdId);
     if (!t) return;
@@ -436,7 +583,6 @@ function openEditThresholdModal(thresholdId) {
     $('#thresholdModalLabel').html('<i class="fa-solid fa-pen-to-square text-primary me-1"></i>編輯安全門檻規則');
     $('#thresholdFormMode').val('edit');
 
-    // 載入主鍵，並鎖定據點與產品（複合主鍵禁止直接修改）
     $('#fieldThresholdId').val(t.id);
     $('#fieldThresholdWarehouse').val(t.warehouse_id).trigger('change').prop('disabled', true);
     $('#fieldThresholdProduct').val(t.product_id).trigger('change').prop('disabled', true);
@@ -447,7 +593,7 @@ function openEditThresholdModal(thresholdId) {
     $('#thresholdFieldCreatedAt').val(t.created_at);
     $('#thresholdFieldCreatedBy').val(t.created_by);
 
-    new bootstrap.Modal(document.getElementById('thresholdModal')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('thresholdModal')).show();
 }
 
 async function saveThresholdItem() {
@@ -472,11 +618,9 @@ async function saveThresholdItem() {
         return;
     }
 
-    // 系統強制依規格生成主鍵：倉儲據點ID_產品SKU ID
     const id = `${wh}_${prd}`;
     $('#fieldThresholdId').val(id);
 
-    // 新增時防呆：不可建立重複據點與產品之門檻
     if (mode === 'add') {
         const isDuplicate = appState.thresholds.some(t => t.id === id);
         if (isDuplicate) {
@@ -485,7 +629,7 @@ async function saveThresholdItem() {
         }
     }
 
-    const qty = parseInt($('#fieldThresholdQty').val(), 10) || 0;
+    const qty = parseInt(qtyVal, 10) || 0;
     const remarks = $('#fieldThresholdRemarks').val().trim();
     const isMonitored = $('#fieldThresholdIsMonitored').is(':checked') ? 'Y' : 'N';
 
@@ -495,18 +639,9 @@ async function saveThresholdItem() {
     const createdBy = (mode === 'edit' && existing) ? (existing.created_by || currentUser) : currentUser;
     const createdAt = (mode === 'edit' && existing) ? (existing.created_at || nowStr) : nowStr;
 
-    // 表 310 (psi_safety_thresholds) 依實體物理欄位 Index 0 ~ 9 組裝
     const rowDataArray = [
-        id,                 // Col 0: id (PK: WH_PRD)
-        wh,                 // Col 1: warehouse_id
-        prd,                // Col 2: product_id
-        qty,                // Col 3: threshold_qty
-        isMonitored,        // Col 4: is_monitored
-        remarks,            // Col 5: remarks
-        createdBy,          // Col 6: created_by
-        createdAt,          // Col 7: created_at
-        currentUser,        // Col 8: modified_by
-        nowStr              // Col 9: modified_at
+        id, wh, prd, qty, isMonitored, remarks,
+        createdBy, createdAt, currentUser, nowStr
     ];
 
     const updatedObj = {
@@ -528,7 +663,7 @@ async function saveThresholdItem() {
 
         if (mode === 'add') {
             await SheetAdapter.createRow(SHEET_NAMES.THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
-            appState.thresholds.push(updatedObj);
+            appState.thresholds.unshift(updatedObj);
         } else {
             await SheetAdapter.updateRow(SHEET_NAMES.THRESHOLDS, id, rowDataArray, GAS_DEPLOY_ID.PSI);
             const index = appState.thresholds.findIndex(t => t.id === id);
@@ -536,9 +671,7 @@ async function saveThresholdItem() {
         }
 
         refreshView();
-
-        const modalEl = document.getElementById('thresholdModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('thresholdModal'));
         if (modalInstance) modalInstance.hide();
 
         AppToast.success(`門檻規則【${id}】儲存成功！`);
@@ -575,15 +708,13 @@ function openResolveAlertModal(alertId) {
     if (!a) return;
 
     $('#resolveAlertId').val(a.id);
-    $('#resolveAlertIdDisplay').text(a.id);
-    $('#resolveAlertTypeBadge').html(UIBadges.psi.alertType(a.alert_type));
     $('#resolveAlertItemText').text(`${getProductShortName(a.product_id)} (${a.product_id})`);
     $('#resolveAlertWhText').text(`${getWarehouseName(a.warehouse_id)} (${a.warehouse_id})`);
     $('#resolveAlertSuggestedText').text(a.remarks || '常規調撥備貨防線');
     $('#resolveStatusSelect').val(a.status || '已知悉');
     $('#resolveRemarksInput').val('');
 
-    new bootstrap.Modal(document.getElementById('resolveAlertModal')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('resolveAlertModal')).show();
 }
 
 async function saveAlertResolution() {
@@ -596,32 +727,17 @@ async function saveAlertResolution() {
     const currentUser = getCurrentUser();
     const nowStr = AppDate.now('full');
 
-    // 更新系統建議/備註欄位 (Col 12)
     const updatedRemarks = userRemarks 
         ? (alertItem.remarks ? `${alertItem.remarks} ‧ [處置：${userRemarks}]` : userRemarks)
         : alertItem.remarks;
 
-    // 嚴格依照表 308 (psi_alerts) 欄位順序 Index 0 ~ 18
     const rowDataArray = [
-        alertItem.id,                                   // Col 0: id
-        alertItem.alert_type,                           // Col 1: alert_type
-        alertItem.warehouse_id,                         // Col 2: warehouse_id
-        alertItem.product_id,                           // Col 3: product_id
-        alertItem.stock_id || '',                       // Col 4: stock_id
-        alertItem.batch_no || '',                       // Col 5: batch_no
-        alertItem.expiry_date || '',                    // Col 6: expiry_date
-        alertItem.current_qty,                          // Col 7: current_qty
-        alertItem.threshold_qty ?? '',                  // Col 8: threshold_qty
-        alertItem.days_to_expire ?? '',                 // Col 9: days_to_expire
-        alertItem.alert_level,                          // Col 10: alert_level
-        newStatus,                                      // Col 11: status
-        updatedRemarks,                                 // Col 12: remarks
-        currentUser,                                    // Col 13: resolved_by
-        nowStr,                                         // Col 14: resolved_at
-        alertItem.created_by,                           // Col 15: created_by
-        alertItem.created_at,                           // Col 16: created_at
-        currentUser,                                    // Col 17: modified_by
-        nowStr                                          // Col 18: modified_at
+        alertItem.id, alertItem.alert_type, alertItem.warehouse_id, alertItem.product_id,
+        alertItem.stock_id || '', alertItem.batch_no || '', alertItem.expiry_date || '',
+        alertItem.current_qty, alertItem.threshold_qty ?? '', alertItem.days_to_expire ?? '',
+        alertItem.alert_level, newStatus, updatedRemarks,
+        currentUser, nowStr, alertItem.created_by, alertItem.created_at,
+        currentUser, nowStr
     ];
 
     try {
@@ -635,9 +751,7 @@ async function saveAlertResolution() {
         alertItem.modified_at = nowStr;
 
         refreshView();
-
-        const modalEl = document.getElementById('resolveAlertModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('resolveAlertModal'));
         if (modalInstance) modalInstance.hide();
 
         AppToast.success(`告警【${alertId}】處置狀態已更新為【${newStatus}】！`);
@@ -691,5 +805,505 @@ async function triggerBatchResolve() {
         AppToast.error("批次處置失敗: " + err.message);
     } finally {
         AppLoading.hide();
+    }
+}
+
+// ==========================================================================
+// 9. 統計圖表渲染引擎 (8 張戰術分析圖 + 1 張複合圖表)
+// ==========================================================================
+function renderAlertCharts() {
+    // 銷毀既有實例
+    Object.keys(chartInstances).forEach(key => {
+        if (chartInstances[key]) {
+            chartInstances[key].destroy();
+            chartInstances[key] = null;
+        }
+    });
+
+    const filteredAlerts = getFilteredAlerts();
+    const filteredThresholds = getFilteredThresholds();
+
+    const chartTextColor = '#f5f3ff';
+    const chartFont = { size: 12 };
+    const gridColor = 'rgba(255, 255, 255, 0.08)';
+
+    // --- 圖表 1：預警類型結構分佈 (Donut) ---
+    const ctxType = document.getElementById('chartAlertType')?.getContext('2d');
+    if (ctxType) {
+        const typeCounts = {};
+        filteredAlerts.forEach(a => {
+            typeCounts[a.alert_type] = (typeCounts[a.alert_type] || 0) + 1;
+        });
+        const labels = Object.keys(typeCounts);
+        const data = Object.values(typeCounts);
+        const total = data.reduce((a, b) => a + b, 0);
+
+        chartInstances.alertType = new Chart(ctxType, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: ['#f97316', '#eab308', '#ef4444', '#a855f7', '#38bdf8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const val = Number(ctx.raw) || 0;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}：${val.toLocaleString()} 件 (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 2：嚴重性等級佔比 (Pie) ---
+    const ctxSeverity = document.getElementById('chartAlertSeverity')?.getContext('2d');
+    if (ctxSeverity) {
+        const levels = { '緊急': 0, '注意': 0, '一般': 0 };
+        filteredAlerts.forEach(a => {
+            if (levels[a.alert_level] !== undefined) levels[a.alert_level]++;
+        });
+        const data = [levels['緊急'], levels['注意'], levels['一般']];
+        const total = data.reduce((a, b) => a + b, 0);
+
+        chartInstances.alertSeverity = new Chart(ctxSeverity, {
+            type: 'pie',
+            data: {
+                labels: ['緊急', '注意', '一般'],
+                datasets: [{
+                    data,
+                    backgroundColor: ['#ef4444', '#f59e0b', '#38bdf8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const val = Number(ctx.raw) || 0;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}：${val.toLocaleString()} 件 (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 3：處置狀態進度佔比 (Doughnut) ---
+    const ctxStatus = document.getElementById('chartAlertStatus')?.getContext('2d');
+    if (ctxStatus) {
+        const statusCounts = {};
+        filteredAlerts.forEach(a => {
+            statusCounts[a.status] = (statusCounts[a.status] || 0) + 1;
+        });
+        const labels = Object.keys(statusCounts);
+        const data = Object.values(statusCounts);
+        const total = data.reduce((a, b) => a + b, 0);
+
+        chartInstances.alertStatus = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: ['#64748b', '#0ea5e9', '#10b981', '#a855f7'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const val = Number(ctx.raw) || 0;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}：${val.toLocaleString()} 件 (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 4：門檻即時監控狀態佔比 (Pie) ---
+    const ctxMonitored = document.getElementById('chartMonitoredRatio')?.getContext('2d');
+    if (ctxMonitored) {
+        const activeCount = filteredThresholds.filter(t => t.is_monitored === 'Y').length;
+        const pausedCount = filteredThresholds.filter(t => t.is_monitored === 'N').length;
+        const total = activeCount + pausedCount;
+
+        chartInstances.monitoredRatio = new Chart(ctxMonitored, {
+            type: 'pie',
+            data: {
+                labels: ['啟動監控中', '暫停掃描'],
+                datasets: [{
+                    data: [activeCount, pausedCount],
+                    backgroundColor: ['#10b981', '#64748b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: chartTextColor, font: chartFont } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const val = Number(ctx.raw) || 0;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}：${val.toLocaleString()} 組 (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 5：各據點倉儲預警案件數量分佈 (Bar) ---
+    const ctxWh = document.getElementById('chartWarehouseAlerts')?.getContext('2d');
+    if (ctxWh) {
+        const whMap = {};
+        filteredAlerts.forEach(a => {
+            const name = getWarehouseName(a.warehouse_id);
+            whMap[name] = (whMap[name] || 0) + 1;
+        });
+        const labels = Object.keys(whMap);
+        const data = Object.values(whMap);
+        const maxVal = Math.max(...data, 5);
+        const yMax = Math.ceil(maxVal / 5) * 5;
+
+        chartInstances.warehouseAlerts = new Chart(ctxWh, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: '預警次數',
+                    data,
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } },
+                    y: {
+                        beginAtZero: true,
+                        max: yMax,
+                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
+                        grid: { color: gridColor }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- 圖表 6：Top 8 高頻告警品項排行 (Horizontal Bar) ---
+    const ctxPrd = document.getElementById('chartProductAlerts')?.getContext('2d');
+    if (ctxPrd) {
+        const prdMap = {};
+        filteredAlerts.forEach(a => {
+            const name = getProductShortName(a.product_id);
+            prdMap[name] = (prdMap[name] || 0) + 1;
+        });
+        const sorted = Object.entries(prdMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+        const labels = sorted.map(i => i[0]);
+        const data = sorted.map(i => i[1]);
+        const maxVal = Math.max(...data, 5);
+        const xMax = Math.ceil(maxVal / 5) * 5;
+
+        chartInstances.productAlerts = new Chart(ctxPrd, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: '告警次數',
+                    data,
+                    backgroundColor: '#f59e0b',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: xMax,
+                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
+                        grid: { color: gridColor }
+                    },
+                    y: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- 圖表 7：效期剩餘天數區間分佈 (Bar) ---
+    const ctxAging = document.getElementById('chartExpiryAging')?.getContext('2d');
+    if (ctxAging) {
+        const agingBuckets = { '已逾期 (<=0天)': 0, '1~30天極危': 0, '31~60天警戒': 0, '61~90天注意': 0, '90天以上常態': 0 };
+        filteredAlerts.forEach(a => {
+            const d = a.days_to_expire;
+            if (d === null || isNaN(d)) return;
+            if (d <= 0) agingBuckets['已逾期 (<=0天)']++;
+            else if (d <= 30) agingBuckets['1~30天極危']++;
+            else if (d <= 60) agingBuckets['31~60天警戒']++;
+            else if (d <= 90) agingBuckets['61~90天注意']++;
+            else agingBuckets['90天以上常態']++;
+        });
+        const data = Object.values(agingBuckets);
+        const maxVal = Math.max(...data, 5);
+        const yMax = Math.ceil(maxVal / 5) * 5;
+
+        chartInstances.expiryAging = new Chart(ctxAging, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(agingBuckets),
+                datasets: [{
+                    label: '批號筆數',
+                    data,
+                    backgroundColor: ['#ef4444', '#f43f5e', '#f97316', '#eab308', '#10b981'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } },
+                    y: {
+                        beginAtZero: true,
+                        max: yMax,
+                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
+                        grid: { color: gridColor }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- 圖表 8：低於水位缺口深度排行 (Bar) ---
+    const ctxGap = document.getElementById('chartStockGapDepth')?.getContext('2d');
+    if (ctxGap) {
+        const gaps = filteredAlerts
+            .filter(a => a.alert_type === '低於安全水位' && a.threshold_qty !== null)
+            .map(a => {
+                const diff = Math.max(0, (a.threshold_qty || 0) - a.current_qty);
+                return {
+                    label: `${getProductShortName(a.product_id)} (${getWarehouseName(a.warehouse_id)})`,
+                    gap: diff
+                };
+            })
+            .sort((a, b) => b.gap - a.gap)
+            .slice(0, 6);
+
+        const labels = gaps.length ? gaps.map(g => g.label) : ['目前無缺口'];
+        const data = gaps.length ? gaps.map(g => g.gap) : [0];
+        const maxVal = Math.max(...data, 5);
+        const yMax = Math.ceil(maxVal / 5) * 5;
+
+        chartInstances.stockGapDepth = new Chart(ctxGap, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: '缺口盒數',
+                    data,
+                    backgroundColor: '#ef4444',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: chartTextColor, font: chartFont }, grid: { color: gridColor } },
+                    y: {
+                        beginAtZero: true,
+                        max: yMax,
+                        ticks: { color: chartTextColor, font: chartFont, precision: 0, callback: v => Number(v).toLocaleString() },
+                        grid: { color: gridColor }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // ======================================================================
+    // 指定第 9 張圖表：各項產品庫存滿足率與安全警戒線對比圖 (Mixed Charts)
+    // 結構：堆疊柱狀圖 (現有安全現貨 + 預扣鎖定現貨) + 水平折線 (各品項最低安全存量)
+    // ======================================================================
+    const ctxMixed = document.getElementById('chartWarehouseSafetyFulfillment')?.getContext('2d');
+    if (ctxMixed) {
+        // 依據全域篩選決定 X 軸產品範圍 (特定品項或全品項)
+        const prdCodeList = appState.filters.product !== 'ALL'
+            ? [appState.filters.product]
+            : (Object.keys(appState.products).length > 0
+                ? Object.keys(appState.products)
+                : [...new Set([...filteredThresholds.map(t => t.product_id), ...filteredAlerts.map(a => a.product_id)])]);
+
+        // X 軸標籤改為產品簡稱
+        const labels = prdCodeList.map(code => getProductShortName(code));
+
+        const safeStockData = [];
+        const reservedStockData = [];
+        const thresholdLineData = [];
+
+        prdCodeList.forEach(code => {
+            // 累計各據點為該產品設定之安全門檻盒數 (監控中)
+            const prdThresholds = filteredThresholds.filter(t => t.product_id === code && t.is_monitored === 'Y');
+            const totalThreshold = prdThresholds.reduce((sum, t) => sum + (Number(t.threshold_qty) || 0), 0);
+            thresholdLineData.push(totalThreshold);
+
+            // 累計該產品在庫現有安全現貨與預扣/品質鎖定現貨
+            const prdAlerts = filteredAlerts.filter(a => a.product_id === code);
+            let lockedQty = 0;
+            let currentSafeQty = 0;
+
+            prdAlerts.forEach(a => {
+                if (a.alert_type === '品質鎖定') {
+                    lockedQty += (Number(a.current_qty) || 0);
+                } else {
+                    currentSafeQty += (Number(a.current_qty) || 0);
+                }
+            });
+
+            safeStockData.push(currentSafeQty);
+            reservedStockData.push(lockedQty);
+        });
+
+        // 計算最大值並向上取整到 5 的倍數
+        const allValues = [...safeStockData.map((v, i) => v + reservedStockData[i]), ...thresholdLineData];
+        const maxVal = Math.max(...allValues, 10);
+        const yMax = Math.ceil(maxVal / 5) * 5;
+
+        chartInstances.safetyFulfillmentMixed = new Chart(ctxMixed, {
+            data: {
+                labels,
+                datasets: [
+                    {
+                        type: 'line',
+                        label: '最低安全存量警戒線 (Safety Line)',
+                        data: thresholdLineData,
+                        borderColor: '#ef4444',
+                        backgroundColor: '#ef4444',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#ef4444',
+                        pointBorderWidth: 2,
+                        fill: false, // 折線下方不填色
+                        tension: 0,  // 線條無曲率
+                        order: 1
+                    },
+                    {
+                        type: 'bar',
+                        label: '現有安全現貨 (Safe Stock)',
+                        data: safeStockData,
+                        backgroundColor: '#38bdf8',
+                        stack: 'stockStack',
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        type: 'bar',
+                        label: '預扣鎖定現貨 (Reserved / Hold)',
+                        data: reservedStockData,
+                        backgroundColor: '#f59e0b',
+                        stack: 'stockStack',
+                        borderRadius: 4,
+                        order: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: chartTextColor, font: chartFont },
+                        grid: { color: gridColor }
+                    },
+                    y: {
+                        stacked: false,
+                        beginAtZero: true,
+                        max: yMax,
+                        title: {
+                            display: true,
+                            text: '存量盒數 (盒)',
+                            color: chartTextColor,
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            color: chartTextColor,
+                            font: chartFont,
+                            precision: 0,
+                            callback: v => `${Number(v).toLocaleString()} 盒`
+                        },
+                        grid: { color: gridColor }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: chartTextColor, font: chartFont }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const val = Number(ctx.parsed.y) || 0;
+                                const dsLabel = ctx.dataset.label || '';
+                                return ` ${dsLabel}：${val.toLocaleString()} 盒`;
+                            },
+                            afterBody: function (ctxItems) {
+                                if (!ctxItems || ctxItems.length === 0) return '';
+                                const idx = ctxItems[0].dataIndex;
+                                const prdName = labels[idx];
+                                const totalAvailable = safeStockData[idx] + reservedStockData[idx];
+                                const threshold = thresholdLineData[idx];
+                                if (threshold > 0 && totalAvailable < threshold) {
+                                    const gap = threshold - totalAvailable;
+                                    return `\n⚠️ 戰術警報：【${prdName}】總庫存跌破安全線 (短缺 ${gap.toLocaleString()} 盒)，已自動觸發進貨提單流程！`;
+                                }
+                                return `\n✅ 戰術狀態：【${prdName}】庫存充裕，高於安全警戒線。`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 }

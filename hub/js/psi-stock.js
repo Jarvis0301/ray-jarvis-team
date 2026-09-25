@@ -49,7 +49,8 @@ let chartInstances = {
     whCost: null,
     prdSv: null,
     liquidity: null,
-    monthlyExpiry: null
+    monthlyExpiry: null,
+    stockAgingScatter: null
 };
 
 let stockDataTableInstance = null;
@@ -264,6 +265,18 @@ function getDaysToExpiry(expiryDateStr) {
     const exp = new Date(expiryDateStr);
     const diffTime = exp - today;
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * 計算入庫累積天數 (由 created_at 計算至今日)
+ */
+function getDaysInStock(createdAtStr) {
+    if (!createdAtStr) return 0;
+    const createdDate = new Date(createdAtStr.replace(/-/g, '/'));
+    if (isNaN(createdDate.getTime())) return 0;
+    const today = new Date();
+    const diffTime = today - createdDate;
+    return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
 }
 
 /**
@@ -494,7 +507,6 @@ function renderTacticalCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '68%',
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -754,6 +766,112 @@ function renderTacticalCharts() {
                 scales: {
                     x: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { display: false } },
                     y: { ticks: { color: '#f5f3ff', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+    }
+
+    // --- 圖表 9：在庫庫存天數 vs 剩餘效期倒數天數分佈圖 (Scatter) ---
+    const ctxScatter = document.getElementById('chartStockAgingScatter');
+    if (ctxScatter) {
+        // 彙整批號散佈點資料
+        const scatterPoints = filtered.map(s => {
+            const daysInStock = getDaysInStock(s.created_at);
+            const daysToExpiry = getDaysToExpiry(s.expiry_date);
+            const prdName = getProductShortName(s.product_id);
+            const whName = getWarehouseName(s.warehouse_id);
+
+            // 戰術判定：落入右下方象限 (入庫 >= 60 天且剩餘效期 <= 90 天) 或極危 (效期 <= 30 天)
+            const isDangerZone = (daysInStock >= 60 && daysToExpiry <= 90) || daysToExpiry <= 30;
+            const isWarningZone = daysToExpiry <= 90 && !isDangerZone;
+
+            // 依危急度給予不同亮色標記
+            let pointColor = '#38bdf8'; // 常態：天藍色
+            if (isDangerZone) {
+                pointColor = '#f43f5e'; // 高危急標的：鮮紅
+            } else if (isWarningZone) {
+                pointColor = '#f59e0b'; // 警戒標的：琥珀黃
+            }
+
+            return {
+                x: daysInStock,
+                y: daysToExpiry,
+                id: s.id,
+                batchNo: s.batch_no || '--',
+                productName: prdName,
+                warehouseName: whName,
+                quantity: s.quantity || 0,
+                color: pointColor,
+                isDanger: isDangerZone
+            };
+        });
+
+        chartInstances.stockAgingScatter = new Chart(ctxScatter.getContext('2d'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '批號庫存分佈',
+                    data: scatterPoints,
+                    backgroundColor: scatterPoints.map(pt => pt.color),
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const pt = ctx.raw;
+                                const lines = [
+                                    ` 產品品項：${pt.productName}`,
+                                    ` 官方批號：${pt.batchNo} (${pt.id})`,
+                                    ` 存放據點：${pt.warehouseName}`,
+                                    ` 在線盒數：${pt.quantity.toLocaleString()} 盒`,
+                                    ` 入庫累積：${pt.x.toLocaleString()} 天`,
+                                    ` 剩餘效期：${pt.y.toLocaleString()} 天`
+                                ];
+                                if (pt.isDanger) {
+                                    lines.push(' ⚠️ 戰術告警：落入右下高危象限，列為最高危急出庫標的！');
+                                }
+                                return lines;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '入庫累積天數 (天)',
+                            color: '#a78bfa',
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            color: '#f5f3ff',
+                            callback: v => `${Number(v).toLocaleString()} 天`
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '距離保存期限到期天數 (天)',
+                            color: '#38bdf8',
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            color: '#f5f3ff',
+                            callback: v => `${Number(v).toLocaleString()} 天`
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
                 }
             }
         });

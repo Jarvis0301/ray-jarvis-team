@@ -76,6 +76,75 @@
                 </div>
             </section>
 
+            <section class="glass-panel p-3 mb-3" aria-label="多維度篩選工具列">
+                <header class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                    <span class="text-white fw-bold small">
+                        <i class="fa-solid fa-filter text-primary me-1"></i>多維度交叉篩選引擎
+                    </span>
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" id="btn-reset-filters" onclick="resetAlertFilters()">
+                        <i class="fa-solid fa-rotate-left me-1"></i>重設篩選
+                    </button>
+                </header>
+                <div class="row g-2">
+                    <!-- 1. 據點倉儲 -->
+                    <div class="col-12 col-sm-6 col-xl-2">
+                        <label class="form-label small text-secondary mb-1" for="filter-warehouse">據點倉儲</label>
+                        <select class="form-select form-select-sm" id="filter-warehouse">
+                            <option value="ALL">全部據點倉儲</option>
+                        </select>
+                    </div>
+                    <!-- 2. 產品品項 -->
+                    <div class="col-12 col-sm-6 col-xl-2">
+                        <label class="form-label small text-secondary mb-1" for="filter-product">產品品項</label>
+                        <select class="form-select form-select-sm" id="filter-product">
+                            <option value="ALL">全部產品品項</option>
+                        </select>
+                    </div>
+                    <!-- 3. 預警類型 -->
+                    <div class="col-12 col-sm-6 col-xl-2">
+                        <label class="form-label small text-secondary mb-1" for="filter-alert-type">預警類型</label>
+                        <select class="form-select form-select-sm" id="filter-alert-type">
+                            <option value="ALL">全部預警類型</option>
+                            <option value="低於安全水位">低於安全水位</option>
+                            <option value="90天近效期">90天近效期</option>
+                            <option value="30天極危效期">30天極危效期</option>
+                            <option value="已過期">已過期</option>
+                            <option value="品質鎖定">品質鎖定</option>
+                        </select>
+                    </div>
+                    <!-- 4. 嚴重性 -->
+                    <div class="col-12 col-sm-6 col-xl-2">
+                        <label class="form-label small text-secondary mb-1" for="filter-alert-level">嚴重性</label>
+                        <select class="form-select form-select-sm" id="filter-alert-level">
+                            <option value="ALL">全部嚴重性</option>
+                            <option value="緊急">緊急</option>
+                            <option value="注意">注意</option>
+                            <option value="一般">一般</option>
+                        </select>
+                    </div>
+                    <!-- 5. 處置狀態 -->
+                    <div class="col-12 col-sm-6 col-xl-2">
+                        <label class="form-label small text-secondary mb-1" for="filter-status">處置狀態</label>
+                        <select class="form-select form-select-sm" id="filter-status">
+                            <option value="ALL">全部處置狀態</option>
+                            <option value="未處理">未處理</option>
+                            <option value="已知悉">已知悉</option>
+                            <option value="已轉特惠促銷/試用">已轉特惠促銷/試用</option>
+                            <option value="已結案出清">已結案出清</option>
+                        </select>
+                    </div>
+                    <!-- 6. 監控狀態 -->
+                    <div class="col-12 col-sm-6 col-xl-2">
+                        <label class="form-label small text-secondary mb-1" for="filter-monitored">監控狀態</label>
+                        <select class="form-select form-select-sm" id="filter-monitored">
+                            <option value="ALL">全部監控狀態</option>
+                            <option value="Y">啟動監控中</option>
+                            <option value="N">暫停掃描</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
             <!-- 2. 主視圖切換頁籤（拉出為獨立 nav 語意化共用元件） -->
             <nav aria-label="庫存預警工作區頁籤" class="mb-3">
                 <ul class="nav nav-tabs" id="psiAlertTabs" role="tablist">
@@ -87,6 +156,11 @@
                     <li class="nav-item" role="presentation">
                         <button type="button" class="nav-link" id="tab-btn-thresholds" onclick="switchMainWorkspace('THRESHOLDS')" role="tab">
                             <i class="fa-solid fa-sliders me-1"></i>門檻規則
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link" id="tab-btn-charts" onclick="switchMainWorkspace('CHARTS')" role="tab">
+                            <i class="fa-solid fa-chart-pie me-1"></i>統計圖表
                         </button>
                     </li>
                 </ul>
@@ -191,6 +265,103 @@
                         <tbody id="thresholds-table-body">
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <section id="workspace-charts" class="glass-panel p-3 mb-4 d-none" aria-label="統計圖表工作區">
+                <header class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                    <div>
+                        <h5 class="fw-bold text-white mb-0">
+                            <i class="fa-solid fa-chart-pie text-primary me-1"></i>庫存預警與門檻戰術決策儀表板
+                        </h5>
+                        <div class="text-secondary small mt-1">
+                            <i class="fa-solid fa-circle-info me-1"></i>依據當前交叉篩選條件即時動態精算各指標與各據點分佈態勢
+                        </div>
+                    </div>
+                </header>
+
+                <div class="row g-3">
+                    <!-- 圖表 1：預警類型結構分佈 (Donut) -->
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-chart-pie text-info me-1"></i>1. 預警類型結構分佈</div>
+                            <div class="card-chart-container"><canvas id="chartAlertType"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 2：告警嚴重性等級佔比 (Pie) -->
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>2. 告警嚴重性等級佔比</div>
+                            <div class="card-chart-container"><canvas id="chartAlertSeverity"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 3：處置推進狀態分佈 (Doughnut) -->
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-list-check text-success me-1"></i>3. 處置推進狀態分佈</div>
+                            <div class="card-chart-container"><canvas id="chartAlertStatus"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 4：安全門檻規則即時監控狀態佔比 (Pie) -->
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-sliders text-info me-1"></i>4. 門檻即時監控狀態佔比</div>
+                            <div class="card-chart-container"><canvas id="chartMonitoredRatio"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 5：各據點預警案件數量排名 (Bar) -->
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-warehouse text-primary me-1"></i>5. 各據點預警案件數量分佈</div>
+                            <div class="card-chart-container"><canvas id="chartWarehouseAlerts"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 6：Top 8 高頻告警品項排行 (Horizontal Bar) -->
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-boxes-stacked text-warning me-1"></i>6. Top 8 高頻告警品項排行</div>
+                            <div class="card-chart-container"><canvas id="chartProductAlerts"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 7：效期剩餘天數區間階梯分佈 (Bar) -->
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-hourglass-half text-danger me-1"></i>7. 效期剩餘天數區間分佈</div>
+                            <div class="card-chart-container"><canvas id="chartExpiryAging"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 8：缺貨品項安全水位缺口深度排行 (Bar) -->
+                    <div class="col-12 col-md-6 col-xl-6">
+                        <article class="card-chart">
+                            <div class="fw-bold text-light mb-2 small"><i class="fa-solid fa-arrow-down-wide-short text-orange me-1"></i>8. 低於水位缺口深度排行 (盒)</div>
+                            <div class="card-chart-container"><canvas id="chartStockGapDepth"></canvas></div>
+                        </article>
+                    </div>
+
+                    <!-- 圖表 9（指定最後圖表）：各項產品庫存滿足率與安全警戒線對比圖 (Mixed Charts) -->
+                    <div class="col-12">
+                        <article class="card-chart">
+                            <header class="d-flex flex-wrap justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
+                                <div>
+                                    <span class="fw-bold text-white fs-6">
+                                        <i class="fa-solid fa-chart-line text-warning me-1"></i>各項產品庫存滿足率與安全警戒線對比圖
+                                    </span>
+                                    <span class="badge badge-secondary small ms-2">複合圖表（Mixed Charts）</span>
+                                </div>
+                                <div class="text-secondary small">
+                                    <i class="fa-solid fa-shield-halved text-warning me-1"></i>戰術決策目的：在庫存跌破安全線時自動觸發進貨提單流程
+                                </div>
+                            </header>
+                            <div class="card-chart-container"><canvas id="chartWarehouseSafetyFulfillment"></canvas></div>
+                        </article>
+                    </div>
                 </div>
             </section>
 

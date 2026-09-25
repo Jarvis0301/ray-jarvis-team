@@ -146,7 +146,7 @@ function parseRanksTable(rows) {
             star_rating: parseInt(getVal(r, 5, '0'), 10) || 0,
             cooling_period_month: parseInt(getVal(r, 6, '0'), 10) || 0,
             cum_group_sv_req: parseFloat(getVal(r, 7, '0')) || 0,
-            month_personal_sv_req: parseFloat(getVal(r, 8, String(defaultActiveSv))) || defaultActiveSv,
+            month_personal_sv_req: parseFloat(getVal(r, 8, '0')) || 0,
             month_group_sv_req: parseFloat(getVal(r, 9, '0')) || 0,
             new_mgr_group_sv_req: parseFloat(getVal(r, 10, '0')) || 0,
             qualified_lines_req: parseInt(getVal(r, 11, '0'), 10) || 0,
