@@ -23,7 +23,7 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
             <!-- 頂部控制面板 -->
-            <section class="glass-panel p-3 mb-4">
+            <section class="card mb-4">
                 <div class="row g-3 align-items-center justify-content-between">
                     <div class="col-12 col-lg-3 d-flex flex-wrap justify-content-center justify-content-lg-start gap-1">
                         <span class="text-secondary small">
@@ -120,11 +120,9 @@
             <!-- 上半部：輸入控制艙 vs 目標缺口與權利 -->
             <section class="row g-4 mb-4">
                 <div class="col-lg-5">
-                    <div class="glass-panel p-4 h-100">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                            <h5 class="section-header mb-0">
-                                <i class="fa-solid fa-sliders text-primary me-1"></i>個人與組織現況參數
-                            </h5>
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <span><i class="fa-solid fa-sliders text-primary me-1"></i>個人與組織現況參數</span>
                         </div>
                         
                         <form id="simulatorForm">
@@ -196,12 +194,11 @@
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <h5 class="section-header">
-                                <i class="fa-solid fa-list-check text-primary me-1"></i>晉升條件檢核與差距診斷
-                            </h5>
-
+                    <div class="card h-100 d-flex flex-column justify-content-between">
+                        <div class="card-header">
+                            <span><i class="fa-solid fa-list-check text-primary me-1"></i>晉升條件檢核與差距診斷</span>
+                        </div>
+                        <div class="card-body">
                             <div class="gap-alert-card mb-3" id="boxGapAnalysis">
                                 <h6 class="fw-bold mb-2 text-warning" id="txtGapTitle">
                                     <i class="fa-solid fa-triangle-exclamation me-1"></i>條件檢核中...
@@ -219,7 +216,7 @@
                             </div>
                         </div>
 
-                        <div class="p-3 rounded-3" style="background: rgba(6, 13, 25, 0.7); border: 1px solid var(--uvaco-border);">
+                        <div class="card-incard p-3 rounded-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="small text-secondary fw-bold">
                                     <i class="fa-solid fa-calculator text-primary me-1"></i>預估當月到手總額：
@@ -234,33 +231,33 @@
             <!-- 圖表戰情展示區 -->
             <section class="row g-4 mb-4">
                 <div class="col-lg-4 col-md-6">
-                    <div class="glass-panel p-4 h-100">
+                    <div class="card h-100">
                         <h6 class="fw-bold text-white mb-3">
                             <i class="fa-solid fa-chart-pie text-warning me-1"></i>獎金收益結構占比
                         </h6>
-                        <div class="card-chart-container">
+                        <div class="card-chart-container-transparent">
                             <canvas id="chartBonusPie"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="glass-panel p-4 h-100">
+                    <div class="card h-100">
                         <h6 class="fw-bold text-white mb-3">
                             <i class="fa-solid fa-chart-line text-primary me-1"></i>晉升指標達成率分析
                         </h6>
-                        <div class="card-chart-container">
+                        <div class="card-chart-container-transparent">
                             <canvas id="chartGapsRadar"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-12">
-                    <div class="glass-panel p-4 h-100">
+                    <div class="card h-100">
                         <h6 class="fw-bold text-white mb-3">
                             <i class="fa-solid fa-chart-simple text-success me-1"></i>各職階預估收益梯隊
                         </h6>
-                        <div class="card-chart-container">
+                        <div class="card-chart-container-transparent">
                             <canvas id="chartRankIncomeBar"></canvas>
                         </div>
                     </div>
@@ -270,7 +267,7 @@
             <!-- 實戰三大落地分析模組 -->
             <section class="row g-4 mb-4">
                 <div class="col-lg-4">
-                    <div class="glass-panel p-4 h-100">
+                    <div class="card h-100">
                         <h6 class="fw-bold text-white mb-3">
                             <i class="fa-solid fa-clipboard-check text-primary me-1"></i>晉升門檻通關檢核表
                         </h6>
@@ -279,7 +276,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="glass-panel p-4 h-100">
+                    <div class="card h-100">
                         <h6 class="fw-bold text-white mb-3">
                             <i class="fa-solid fa-money-bill-transfer text-warning me-1"></i>獎金與分紅細部拆解
                         </h6>
@@ -292,7 +289,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="glass-panel p-4 h-100">
+                    <div class="card h-100">
                         <h6 class="fw-bold text-white mb-3">
                             <i class="fa-solid fa-shield-halved text-success me-1"></i>組織線路健全與補救防線
                         </h6>
@@ -304,11 +301,9 @@
             <!-- 底部：10 大職級官方晉升標準字典表 -->
             <section class="row">
                 <div class="col-12">
-                    <div class="glass-panel p-4">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                            <h5 class="section-header mb-0">
-                                <i class="fa-solid fa-book-bookmark text-primary me-1"></i>葡眾 10 大職級晉升標準字典總表
-                            </h5>
+                    <div class="card">
+                        <div class="card-header">
+                            <span><i class="fa-solid fa-book-bookmark text-primary me-1"></i>葡眾 10 大職級晉升標準字典總表</span>
                         </div>
                         <div class="table-responsive">
                             <table id="tableRankDictionary" class="table table-dark-custom">

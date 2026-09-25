@@ -601,7 +601,7 @@ function renderProducts() {
                                 ${subBadgeHtml}
                                 ${typeBadgeHtml}
                             </div>
-                            <h6 class="product-title">${item.name}</h6>
+                            <h6>${item.name}</h6>
                             <p class="small text-muted mb-2 text-truncate-2">${item.short_summary || "暫無產品簡介"}</p>
                         </div>
                         <div>
@@ -901,10 +901,15 @@ function updateCartSummary() {
             if (itemCurr === 'TWD' && targetCurr === 'MYR') {
                 itemPriceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
             } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
-                itemPriceInDisplay = AppCalc.divide(itemPriceOrig * rate * 100, 100, 2);
+                itemPriceInDisplay = AppCalc.multiply(itemPriceOrig, rate, 2);
             }
-            const itemTotalPrice = AppCalc.divide(itemPriceInDisplay * qty * 100, 100, 2);
-            const itemTotalSV = AppCalc.divide(sv * qty * 100, 100, 2);
+
+            const itemTotalPrice = AppCalc.multiply(itemPriceInDisplay, qty, 2);
+            const itemTotalSV = AppCalc.multiply(sv, qty, 2);
+
+            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
+            totalSV = AppCalc.add(totalSV, itemTotalSV);
+            totalItemsCount += qty;
 
             subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
             totalSV = AppCalc.add(totalSV, itemTotalSV);
@@ -944,7 +949,7 @@ function updateCartSummary() {
     let shippingPercent = 0;
 
     if (appState.country === 'MY') {
-        let subtotalMYR = isTargetMYR ? subtotalDisplay : subtotalDisplay / rate;
+        const subtotalMYR = isTargetMYR ? subtotalDisplay : AppCalc.divide(subtotalDisplay, rate, 2);
         const thresholdMYR = 800;
         let baseShippingMYR = 0;
 
@@ -959,10 +964,11 @@ function updateCartSummary() {
         if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
             shippingFeeInDisplay = 0;
         } else {
-            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : baseShippingMYR * rate;
+            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : AppCalc.multiply(baseShippingMYR, rate, 2);
         }
 
-        shippingPercent = Math.min(100, (subtotalMYR / thresholdMYR) * 100);
+        const progressRatio = AppCalc.divide(subtotalMYR, thresholdMYR, 4);
+        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
         $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
     } else {
         const thresholdSV = 400;
@@ -971,10 +977,11 @@ function updateCartSummary() {
         if (totalSV >= thresholdSV || appState.twRegion === 'PICKUP') {
             shippingFeeInDisplay = 0;
         } else {
-            shippingFeeInDisplay = isTargetMYR ? baseShippingTWD / rate : baseShippingTWD;
+            shippingFeeInDisplay = isTargetMYR ? AppCalc.divide(baseShippingTWD, rate, 2) : baseShippingTWD;
         }
 
-        shippingPercent = Math.min(100, (totalSV / thresholdSV) * 100);
+        const progressRatio = AppCalc.divide(totalSV, thresholdSV, 4);
+        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
         $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 400 SV`);
     }
 
@@ -985,14 +992,17 @@ function updateCartSummary() {
     const pvTw = APP_CONFIG.ORG?.PV_RATE?.TW || 25;
     const pvMy = APP_CONFIG.ORG?.PV_RATE?.MY || 3.5;
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
-    let estimatedRebateDisplay = totalSV * rankRatio * pvMultiplier;
+
+    // totalSV × rankRatio × pvMultiplier
+    const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
+    let estimatedRebateDisplay = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
 
     if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = totalSV * rankRatio * pvTw;
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, pvTw, 2);
         estimatedRebateDisplay = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = totalSV * rankRatio * pvMy;
-        estimatedRebateDisplay = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, pvMy, 2);
+        estimatedRebateDisplay = AppCalc.multiply(rawMyrRebate, rate, 2);
     }
 
     const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';
@@ -1296,13 +1306,16 @@ function exportOrderToExcel() {
             const sv = p.sv_point || 0;
 
             let priceInDisplay = itemPriceOrig;
-            if (itemCurr === 'TWD' && targetCurr === 'MYR') priceInDisplay = itemPriceOrig / rate;
-            else if (itemCurr === 'MYR' && targetCurr === 'TWD') priceInDisplay = itemPriceOrig * rate;
+            if (itemCurr === 'TWD' && targetCurr === 'MYR') {
+                priceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
+            } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
+                priceInDisplay = AppCalc.multiply(itemPriceOrig, rate, 2);
+            }
 
-            const itemTotalNT = priceInDisplay * qty;
-            const itemTotalSV = sv * qty;
-            subtotal += itemTotalNT;
-            totalSV += itemTotalSV;
+            const itemPrice = AppCalc.multiply(priceInDisplay, qty, 2);
+            const itemSv = AppCalc.multiply(sv, qty, 2);
+            subtotal = AppCalc.add(subtotal, itemPrice);
+            totalSV = AppCalc.add(totalSV, itemSv);
 
             const catInfo = getCategoryInfo(p.category_code, appState.country);
             const subInfo = getSubcategoryInfo(p.subcategory_code, appState.country);
@@ -1326,28 +1339,29 @@ function exportOrderToExcel() {
 
     let shipping = 0;
     if (appState.country === 'MY') {
-        let subtotalMYR = isTargetMYR ? subtotal : subtotal / rate;
+        const subtotalMYR = isTargetMYR ? subtotal : AppCalc.divide(subtotal, rate, 2);
         if (subtotalMYR < 800 && appState.myRegion !== 'PICKUP') {
             const baseMYR = appState.myRegion === 'EAST' ? 35 : 15;
-            shipping = isTargetMYR ? baseMYR : baseMYR * rate;
+            shipping = isTargetMYR ? baseMYR : AppCalc.multiply(baseMYR, rate, 2);
         }
     } else {
         if (totalSV < 400 && appState.twRegion !== 'PICKUP') {
-            shipping = isTargetMYR ? 150 / rate : 150;
+            shipping = isTargetMYR ? AppCalc.divide(150, rate, 2) : 150;
         }
     }
 
-    const grandTotal = subtotal + shipping;
+    const grandTotal = AppCalc.add(subtotal, shipping);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
-    
-    let rebate = totalSV * rankRatio * pvMultiplier;
+    const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
+    let rebate = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
+
     if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = totalSV * rankRatio * 25;
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, 25, 2);
         rebate = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = totalSV * rankRatio * 3.5;
-        rebate = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, 3.5, 2);
+        rebate = AppCalc.multiply(rawMyrRebate, rate, 2);
     }
 
     excelData.push([]);
@@ -1389,13 +1403,16 @@ function exportOrderToPDF() {
             const sv = p.sv_point || 0;
 
             let priceInDisplay = itemPriceOrig;
-            if (itemCurr === 'TWD' && targetCurr === 'MYR') priceInDisplay = itemPriceOrig / rate;
-            else if (itemCurr === 'MYR' && targetCurr === 'TWD') priceInDisplay = itemPriceOrig * rate;
+            if (itemCurr === 'TWD' && targetCurr === 'MYR') {
+                priceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
+            } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
+                priceInDisplay = AppCalc.multiply(itemPriceOrig, rate, 2);
+            }
 
-            const itemPrice = priceInDisplay * qty;
-            const itemSv = sv * qty;
-            subtotal += itemPrice;
-            totalSV += itemSv;
+            const itemPrice = AppCalc.multiply(priceInDisplay, qty, 2);
+            const itemSv = AppCalc.multiply(sv, qty, 2);
+            subtotal = AppCalc.add(subtotal, itemPrice);
+            totalSV = AppCalc.add(totalSV, itemSv);
 
             itemsList.push({
                 code: p.product_code,
@@ -1409,28 +1426,29 @@ function exportOrderToPDF() {
 
     let shipping = 0;
     if (appState.country === 'MY') {
-        let subtotalMYR = isTargetMYR ? subtotal : subtotal / rate;
+        const subtotalMYR = isTargetMYR ? subtotal : AppCalc.divide(subtotal, rate, 2);
         if (subtotalMYR < 800 && appState.myRegion !== 'PICKUP') {
             const baseMYR = appState.myRegion === 'EAST' ? 35 : 15;
-            shipping = isTargetMYR ? baseMYR : baseMYR * rate;
+            shipping = isTargetMYR ? baseMYR : AppCalc.multiply(baseMYR, rate, 2);
         }
     } else {
         if (totalSV < 400 && appState.twRegion !== 'PICKUP') {
-            shipping = isTargetMYR ? 150 / rate : 150;
+            shipping = isTargetMYR ? AppCalc.divide(150, rate, 2) : 150;
         }
     }
 
-    const grandTotal = subtotal + shipping;
+    const grandTotal = AppCalc.add(subtotal, shipping);
     const rankRatio = parseFloat($("#rank-select").val()) || 0.20;
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? 3.5 : 25;
+    const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
+    let rebate = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
 
-    let rebate = totalSV * rankRatio * pvMultiplier;
     if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = totalSV * rankRatio * 25;
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, 25, 2);
         rebate = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = totalSV * rankRatio * 3.5;
-        rebate = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, 3.5, 2);
+        rebate = AppCalc.multiply(rawMyrRebate, rate, 2);
     }
 
     if (typeof printOrderReceipt === 'function') {
@@ -1769,10 +1787,11 @@ function updateCartSummaryTotalsOnly() {
             if (itemCurr === 'TWD' && targetCurr === 'MYR') {
                 itemPriceInDisplay = AppCalc.divide(itemPriceOrig, rate, 2);
             } else if (itemCurr === 'MYR' && targetCurr === 'TWD') {
-                itemPriceInDisplay = AppCalc.divide(itemPriceOrig * rate * 100, 100, 2);
+                itemPriceInDisplay = AppCalc.multiply(itemPriceOrig, rate, 2);
             }
-            const itemTotalPrice = AppCalc.divide(itemPriceInDisplay * qty * 100, 100, 2);
-            const itemTotalSV = AppCalc.divide(sv * qty * 100, 100, 2);
+
+            const itemTotalPrice = AppCalc.multiply(itemPriceInDisplay, qty, 2);
+            const itemTotalSV = AppCalc.multiply(sv, qty, 2);
 
             subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
             totalSV = AppCalc.add(totalSV, itemTotalSV);
@@ -1790,28 +1809,39 @@ function updateCartSummaryTotalsOnly() {
     let shippingPercent = 0;
 
     if (appState.country === 'MY') {
-        let subtotalMYR = isTargetMYR ? subtotalDisplay : subtotalDisplay / rate;
+        const subtotalMYR = isTargetMYR ? subtotalDisplay : AppCalc.divide(subtotalDisplay, rate, 2);
         const thresholdMYR = 800;
         let baseShippingMYR = 0;
-        if (appState.myRegion === 'EAST') baseShippingMYR = 35;
-        else if (appState.myRegion === 'WEST') baseShippingMYR = 15;
+
+        if (appState.myRegion === 'EAST') {
+            baseShippingMYR = 35;
+        } else if (appState.myRegion === 'WEST') {
+            baseShippingMYR = 15;
+        } else {
+            baseShippingMYR = 0; // 自取免運
+        }
 
         if (subtotalMYR >= thresholdMYR || appState.myRegion === 'PICKUP') {
             shippingFeeInDisplay = 0;
         } else {
-            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : baseShippingMYR * rate;
+            shippingFeeInDisplay = isTargetMYR ? baseShippingMYR : AppCalc.multiply(baseShippingMYR, rate, 2);
         }
-        shippingPercent = Math.min(100, (subtotalMYR / thresholdMYR) * 100);
+
+        const progressRatio = AppCalc.divide(subtotalMYR, thresholdMYR, 4);
+        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
         $("#shipping-progress-text").text(`${Math.round(subtotalMYR).toLocaleString()} / 800 RM`);
     } else {
         const thresholdSV = 400;
         const baseShippingTWD = appState.twRegion === 'PICKUP' ? 0 : 150;
+
         if (totalSV >= thresholdSV || appState.twRegion === 'PICKUP') {
             shippingFeeInDisplay = 0;
         } else {
-            shippingFeeInDisplay = isTargetMYR ? baseShippingTWD / rate : baseShippingTWD;
+            shippingFeeInDisplay = isTargetMYR ? AppCalc.divide(baseShippingTWD, rate, 2) : baseShippingTWD;
         }
-        shippingPercent = Math.min(100, (totalSV / thresholdSV) * 100);
+
+        const progressRatio = AppCalc.divide(totalSV, thresholdSV, 4);
+        shippingPercent = Math.min(100, AppCalc.multiply(progressRatio, 100, 1));
         $("#shipping-progress-text").text(`${totalSV.toLocaleString()} / 400 SV`);
     }
 
@@ -1822,14 +1852,17 @@ function updateCartSummaryTotalsOnly() {
     const pvTw = APP_CONFIG.ORG?.PV_RATE?.TW || 25;
     const pvMy = APP_CONFIG.ORG?.PV_RATE?.MY || 3.5;
     const pvMultiplier = (appState.country === 'MY' || isTargetMYR) ? pvMy : pvTw;
-    let estimatedRebateDisplay = totalSV * rankRatio * pvMultiplier;
+
+    // totalSV × rankRatio × pvMultiplier
+    const baseRebateScore = AppCalc.multiply(totalSV, rankRatio, 4);
+    let estimatedRebateDisplay = AppCalc.multiply(baseRebateScore, pvMultiplier, 2);
 
     if (appState.country === 'TW' && isTargetMYR) {
-        const rawTwdRebate = totalSV * rankRatio * pvTw;
+        const rawTwdRebate = AppCalc.multiply(baseRebateScore, pvTw, 2);
         estimatedRebateDisplay = AppCalc.divide(rawTwdRebate, rate, 2);
     } else if (appState.country === 'MY' && !isTargetMYR) {
-        const rawMyrRebate = totalSV * rankRatio * pvMy;
-        estimatedRebateDisplay = AppCalc.divide(rawMyrRebate * rate * 100, 100, 2);
+        const rawMyrRebate = AppCalc.multiply(baseRebateScore, pvMy, 2);
+        estimatedRebateDisplay = AppCalc.multiply(rawMyrRebate, rate, 2);
     }
 
     const isPickup = appState.twRegion === 'PICKUP' || appState.myRegion === 'PICKUP';

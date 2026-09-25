@@ -95,7 +95,7 @@ const UIBadges = (function () {
             },
 
             type(entity, regionCode = 'TW') {
-                return UIBadges.product.taxonomy(entity, regionCode, 'badge-type');
+                return UIBadges.product.taxonomy(entity, regionCode, '');
             },
 
             /**

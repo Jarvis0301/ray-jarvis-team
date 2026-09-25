@@ -331,8 +331,8 @@ function updateSubSeriesDropdown(mainCode) {
 function renderTypeFilterButtons() {
     let html = `
         <input type="radio" class="btn-check" name="product-type" id="type-btn-all" value="ALL" autocomplete="off" ${appState.productType === 'ALL' ? 'checked' : ''}>
-        <label class="btn btn-outline-primary btn-sm rounded-pill" for="type-btn-all">
-            <i class="fa-solid fa-border-all me-1"></i>全部型態
+        <label class="filter-pill-btn" for="type-btn-all">
+            <i class="fa-solid fa-border-all me-1"></i>全部
         </label>
     `;
 
@@ -343,7 +343,7 @@ function renderTypeFilterButtons() {
 
         html += `
             <input type="radio" class="btn-check" name="product-type" id="${inputId}" value="${t.type_code}" autocomplete="off" ${isChecked}>
-            <label class="btn btn-outline-primary btn-sm rounded-pill" for="${inputId}">
+            <label class="filter-pill-btn" for="${inputId}">
                 <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
             </label>
         `;
@@ -441,7 +441,7 @@ function renderProducts() {
     if (filtered.length === 0) {
         grid.innerHTML = `
             <div class="col-12">
-                <div class="no-data rounded p-4 text-center text-muted border border-secondary-subtle">
+                <div class="rounded p-4 text-center text-muted border border-secondary-subtle">
                     <i class="fa-solid fa-box-open fs-2 mb-2"></i>
                     <p class="mb-0">未找到符合條件的產品，請調整篩選條件或搜尋關鍵字。</p>
                 </div>
@@ -475,7 +475,7 @@ function renderProducts() {
         col.innerHTML = `
             <div class="card h-100 product-card border-0 text-light shadow-sm">
                 <div class="card-img-wrapper position-relative overflow-hidden">
-                    <div class="card-badges position-absolute top-0 start-0 p-2 d-flex flex-wrap gap-1 z-2">
+                    <div class="position-absolute top-0 start-0 p-2 d-flex flex-wrap gap-1 z-2">
                         ${subcategoryBadge}
                         ${typeBadge}
                     </div>
@@ -483,11 +483,11 @@ function renderProducts() {
                     <img src="${item.primary_image_url}" class="card-img-top product-thumbnail" alt="${item.name}" loading="lazy" onerror="window.imgError(this, 'product', 220, 220)">
                 </div>
                 <div class="card-body d-flex flex-column p-3">
-                    <h3 class="product-title h6 fw-bold mb-2 text-light">${item.name}</h3>
-                    <p class="product-desc small text-muted mb-3 text-truncate-2">${item.short_summary || '暫無產品簡介'}</p>
-                    <div class="price-sv-block mt-auto mb-3 p-2 rounded d-flex justify-content-between align-items-center bg-dark-subtle">
-                        <div class="price-tag fw-bold text-warning">${formattedPrice}</div>
-                        <div class="sv-tag small text-warning"><i class="fa-solid fa-star me-1"></i>${Number(item.sv_point).toLocaleString()} SV</div>
+                    <h5 class="fw-bold text-light mb-2">${item.name}</h5>
+                    <p class="small text-muted mb-3">${item.short_summary || '暫無產品簡介'}</p>
+                    <div class="card-incard mb-3 p-2 rounded d-flex justify-content-between align-items-center">
+                        <div class="fw-bold text-warning">${formattedPrice}</div>
+                        <div class="fw-bold text-teal">${Number(item.sv_point).toLocaleString()} SV</div>
                     </div>
                     <a href="${detailUrl}" target="_blank" class="btn btn-outline-primary w-100 text-center fw-bold">
                         <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>查看產品詳情

@@ -508,7 +508,7 @@ function renderTargetRightsPills(target) {
         if (typeof UIBadges !== 'undefined' && UIBadges.rank && UIBadges.rank.rightPill) {
             $container.append(UIBadges.rank.rightPill(r, isGold));
         } else {
-            const pillClass = isGold ? 'badge-right-pill gold' : 'badge-right-pill';
+            const pillClass = isGold ? 'badge-yellow-subtle' : 'badge-primary-subtle';
             $container.append(`<span class="${pillClass}"><i class="fa-solid fa-check me-1"></i>${r}</span>`);
         }
     });
@@ -571,7 +571,7 @@ function renderGateChecklist(target, pSv, cSv, mSv, totalOrgSv, lines, pearlLine
         const iconPass = g.pass ? '<i class="fa-solid fa-circle-check text-success"></i>' : '<i class="fa-solid fa-circle-xmark text-danger"></i>';
 
         $container.append(`
-            <div class="p-2 px-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(6, 13, 25, 0.6); border: 1px solid var(--uvaco-border);">
+            <div class="card-incard p-2 px-3 rounded-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-secondary"><i class="${g.icon}"></i></span>
                     <span class="small text-white">${g.name}</span>
@@ -634,7 +634,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     const mgrSvText = (APP_CONFIG.ORG?.SV_LINE_MANAGER || 3200).toLocaleString();
 
     $container.append(`
-        <div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
+        <div class="card-incard p-3 rounded-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="small text-secondary fw-bold"><i class="fa-solid fa-sitemap text-secondary me-1"></i>直屬合格經理線拓樸</span>
                 <span class="badge badge-secondary">${lines} 條實動線</span>
@@ -654,7 +654,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
     `);
 
     const rescueStatusHtml = hasAutoRescue
-        ? `<div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-warning border-opacity-50">
+        ? `<div class="card-incard p-3 rounded-3 border-warning0">
                 <div class="d-flex align-items-center gap-2 text-warning fw-bold small mb-1">
                     <i class="fa-solid fa-shield-cat fs-5 me-1"></i>第 5 條線業績自動補救已啟動
                 </div>
@@ -662,7 +662,7 @@ function renderTopologyRescue(lines, pearlLines, hasAutoRescue, currentRank) {
                     您已培育 5 條以上合格經理線，第 5 條經理線之小組業績已自動填補您本人 ${mgrSvText} SV 小組缺口，免除保級顧慮。
                 </div>
            </div>`
-        : `<div class="p-3 rounded-3 bg-dark bg-opacity-10 border border-dark border-opacity-50">
+        : `<div class="card-incard p-3 rounded-3">
                 <div class="d-flex align-items-center gap-2 text-secondary fw-bold small mb-1">
                     <i class="fa-solid fa-shield text-secondary me-1"></i>業績自動補救機制守則
                 </div>

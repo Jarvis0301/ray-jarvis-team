@@ -71,7 +71,6 @@ let masterDataTableInstance = null;
 let isInitialized = false;
 let currentFxRate = APP_CONFIG.FIN?.EXCHANGE_RATE?.MYR_TWD || 8.00;           // 基準結算匯率狀態變數 (預設 1 MYR = 8.00 TWD)
 let matrixTableInstance = null;
-let rawTableInstance = null;
 
 // ==========================================================================
 // 3. 系統生命週期與事件初始化
@@ -335,12 +334,6 @@ function bindUIEvents() {
             }
         }
     });
-
-    // 子頁籤切換時校正寬度
-    $('#matrixViewTabs button[data-bs-toggle="pill"]').on('shown.bs.tab', (e) => {
-        if (matrixTableInstance) matrixTableInstance.columns.adjust().draw(false);
-        if (rawTableInstance) rawTableInstance.columns.adjust().draw(false);
-    });
 }
 
 function refreshView() {
@@ -480,7 +473,7 @@ function formatMasterTableRow(p) {
     const subTitle = p.short_name || p.short_summary || '';
 
     // 組合格格與散裝受控單位標籤
-    let specHtml = `<div class="font-monospace text-light">${p.package_spec || '-'}</div>`;
+    let specHtml = `<div class="text-light">${p.package_spec || '-'}</div>`;
     if (p.piece_spec) {
         specHtml += `<div class="small text-info"><i class="fa-solid fa-cube me-1"></i>${p.piece_spec}</div>`;
     }
@@ -501,7 +494,7 @@ function formatMasterTableRow(p) {
         type: UIBadges.product.type(getTypeByCode(p.type_code), p.region_code),
         spec: `<span class="text-info">${p.package_spec || '-'}</span>`,
         price: `<span class="text-yellow fw-bold">${formattedPrice}</span>`,
-        sv: `<span class="text-teal fw-bold">${p.sv_point} SV</span>`,
+        sv: `<span class="text-teal fw-bold">${Number(p.sv_point).toLocaleString()} SV</span>`,
         launch_status: `<div>${launchStatus.badge}</div>`,
         stock_status: `<div>${stockBadge}</div>`,
         actions: `
@@ -602,9 +595,9 @@ function openDetailModal(productCode) {
     }
 
     $('#viewPrdPrice').text(priceText);
-    $('#viewPrdSv').text(`${item.sv_point} SV`);
+    $('#viewPrdSv').text(`${Number(item.sv_point).toLocaleString()} SV`);
 
-    $('#viewPrdFeatured').html(item.is_featured ? '<span class="badge badge-warning"><i class="fa-solid fa-star me-1"></i>明星商品</span>' : '<span class="text-muted">否</span>');
+    $('#viewPrdFeatured').html(UIBadges.product.featured(item.is_featured));
     $('#viewPrdStock').html(`${stockBadge}`);
     $('#viewPrdIsValid').html(`<div>${launchStatus.badge}</div>`);
 
@@ -715,7 +708,7 @@ function renderTaxonomyTables() {
                     <div class="text-muted small">${t.name_en || '-'}</div>
                 </td>
                 <td>
-                    <span class="badge badge-type" style="color: ${t.text_color}; background-color: ${t.bg_color || t.text_color + '20'}; border-color: ${t.text_color};">
+                    <span class="badge" style="color: ${t.text_color}; background-color: ${t.bg_color || t.text_color + '20'}; border-color: ${t.text_color};">
                         <i class="${t.icon_class} me-1"></i>${t.text_color}
                     </span>
                 </td>
@@ -808,49 +801,47 @@ async function saveTaxonomyItem() {
     try {
         $btnSave.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>儲存中...');
 
+        let targetTable = '';
+        let rowArray = [];
+
         if (type === 'category') {
-            const sheetName = 'prd_categories';
+            targetTable = SHEET_NAMES.CATEGORIES;
             const existing = appState.categories.find(c => c.category_code === code);
-            const rowArray = [
+            rowArray = [
                 code, nameZh, nameEn, iconClass, textColor, bgColor, sortOrder, 'Y',
                 existing ? existing.created_by : currentUser,
                 existing ? existing.created_at : nowStr,
                 currentUser, nowStr
             ];
-            if (existing) {
-                await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
-            } else {
-                await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
-            }
         } else if (type === 'subcategory') {
-            const sheetName = 'prd_subcategories';
+            targetTable = SHEET_NAMES.SUBCATEGORIES;
             const categoryCode = $('#taxParentCategory').val() || '01';
             const existing = appState.subcategories.find(s => s.subcategory_code === code);
-            const rowArray = [
+            rowArray = [
                 code, categoryCode, nameZh, nameEn, iconClass, textColor, bgColor, sortOrder, 'Y',
                 existing ? existing.created_by : currentUser,
                 existing ? existing.created_at : nowStr,
                 currentUser, nowStr
             ];
-            if (existing) {
-                await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
-            } else {
-                await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
-            }
         } else if (type === 'type') {
-            const sheetName = 'prd_types';
+            targetTable = SHEET_NAMES.TYPES;
             const existing = appState.types.find(t => t.type_code === code);
-            const rowArray = [
+            rowArray = [
                 code, nameZh, nameEn, iconClass, textColor, bgColor, sortOrder, 'Y',
                 existing ? existing.created_by : currentUser,
                 existing ? existing.created_at : nowStr,
                 currentUser, nowStr
             ];
-            if (existing) {
-                await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
-            } else {
-                await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
-            }
+        }
+
+        const isExisting = (type === 'category') 
+            ? appState.categories.some(c => c.category_code === code)
+            : ((type === 'subcategory') ? appState.subcategories.some(s => s.subcategory_code === code) : appState.types.some(t => t.type_code === code));
+
+        if (isExisting) {
+            await SheetAdapter.updateRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
+        } else {
+            await SheetAdapter.createRow(targetTable, code, rowArray, GAS_DEPLOY_ID.PRD);
         }
 
         // 記憶體就地更新分類/型態陣列
@@ -883,14 +874,18 @@ async function saveTaxonomyItem() {
 }
 
 function deleteTaxonomyItem(type, code) {
-    const sheetName = type === 'category' ? 'prd_categories' : (type === 'subcategory' ? 'prd_subcategories' : 'prd_types');
+    let targetTable = '';
+    if (type === 'category') targetTable = SHEET_NAMES.CATEGORIES;
+    else if (type === 'subcategory') targetTable = SHEET_NAMES.SUBCATEGORIES;
+    else if (type === 'type') targetTable = SHEET_NAMES.TYPES;
+
     const title = type === 'category' ? '主系列' : (type === 'subcategory' ? '次系列' : '產品型態');
 
     AppDialog.confirm(
         `確定要自 Google 試算表中永久刪除【${title}：${code}】嗎？`,
         async function () {
             try {
-                await SheetAdapter.deleteRow(sheetName, code, GAS_DEPLOY_ID.PRD);
+                await SheetAdapter.deleteRow(targetTable, code, GAS_DEPLOY_ID.PRD);
                 if (type === 'category') {
                     appState.categories = appState.categories.filter(c => c.category_code !== code);
                 } else if (type === 'subcategory') {
@@ -898,7 +893,6 @@ function deleteTaxonomyItem(type, code) {
                 } else if (type === 'type') {
                     appState.types = appState.types.filter(t => t.type_code !== code);
                 }
-                // 移除 await fetchGoogleSheetsData(); 改為直接重繪畫面
                 refreshView();
                 AppToast.success(`【${title}：${code}】已成功刪除！`);
             } catch (err) {
@@ -958,7 +952,7 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
     let diffText = `<span class="text-muted">-</span>`;
     if (twProd && myProd) {
         const myConvertedTwd = AppCalc.multiply(myProd.price, currentFxRate, 2);
-        const diff = AppCalc.sub(myConvertedTwd, twProd.price);
+        const diff = AppCalc.subtract(myConvertedTwd, twProd.price); // 改用 subtract
         diffText = diff >= 0
             ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
             : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
@@ -1020,7 +1014,7 @@ function renderAnalyticsCharts() {
 
     const total = dataset.length;
     const totalSv = dataset.reduce((sum, p) => sum + (Number(p.sv_point) || 0), 0);
-    const avgSv = total > 0 ? (totalSv / total).toFixed(1) : 0;
+    const avgSv = total > 0 ? AppCalc.divide(totalSv, total, 1) : 0;
 
     const twProducts = appState.products.filter(p => p.region_code === 'TW');
     const myProducts = appState.products.filter(p => p.region_code === 'MY');
@@ -1029,7 +1023,7 @@ function renderAnalyticsCharts() {
     const myAvgPrice = myProducts.length > 0 ? Math.round(myProducts.reduce((sum, p) => sum + (Number(p.price) || 0), 0) / myProducts.length) : 0;
 
     const validCount = dataset.filter(p => p.is_valid === 'Y').length;
-    const validRate = total > 0 ? Math.round((validCount / total) * 100) : 0;
+    const validRate = total > 0 ? Math.round(AppCalc.multiply(AppCalc.divide(validCount, total, 4), 100)) : 0;
 
     // 1. 最新上市產品識別
     const sortedByLaunch = [...dataset]
@@ -1298,7 +1292,6 @@ function openAddModal() {
     form.reset();
     $(form).data('mode', 'add').data('code', '');
     $('input[name="product_code"]').prop('readonly', false);
-    populateModalTaxonomySelects('TW');
 
     // 預設拆盒參數
     form.elements['pieces_per_box'].value = 1;
