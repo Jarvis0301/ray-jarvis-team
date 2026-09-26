@@ -23,73 +23,80 @@
     <body>
         <!-- 主內容容器 -->
         <main class="container-fluid p-3 p-md-4">
-            <header class="row align-items-center mb-3 g-3">
-                <div class="col-12 col-md-8 col-lg-10">
-                    <h4 class="fw-bold mb-0 text-light">
+            <header class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-9 col-xl-9">
+                    <h4 class="fw-bold text-light mb-0">
                         <i class="fa-solid fa-address-book text-primary me-1"></i>人員管理
                     </h4>
                 </div>
-                <div class="col-12 col-md-2 col-lg-1">
-                    <button type="button" class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
-                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
-                    </button>
-                </div>
-                <div class="col-12 col-md-2 col-lg-1">
-                    <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" id="btn-open-create-modal" onclick="openPersonModalForCreate()">
-                        <i class="fa-solid fa-user-plus me-1"></i>新增人員
-                    </button>
+
+                <div class="col-12 col-md-3 col-xl-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col">
+                            <button class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" id="btn-open-create-modal" onclick="openPersonModalForCreate()">
+                                <i class="fa-solid fa-user-plus me-1"></i>新增人員
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
-
-            <!-- 1. HUD 數據戰況指標列 (補齊 6 個) -->
-            <section class="glass-panel hud-bar mb-3">
-                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
-                    <div class="col">
-                        <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-users text-primary me-1"></i>人員總數</span>
-                            <span class="fw-bold text-primary fs-5 text-end" id="hud-total-persons">0</span>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-briefcase text-warning me-1"></i>經營對象</span>
-                            <span class="fw-bold text-warning fs-5 text-end" id="hud-operator-persons">0</span>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-cart-shopping text-success me-1"></i>消費客戶</span>
-                            <span class="fw-bold text-success fs-5 text-end" id="hud-consumer-persons">0</span>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-handshake text-yellow me-1"></i>團隊夥伴</span>
-                            <span class="fw-bold text-yellow fs-5 text-end" id="hud-partner-persons">0</span>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-earth-asia text-info me-1"></i>跨國對象</span>
-                            <span class="fw-bold text-info fs-5 text-end" id="hud-crossborder-persons">0</span>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="stat-chip">
-                            <span class="text-secondary"><i class="fa-solid fa-user-clock text-accent me-1"></i>潛在對象</span>
-                            <span class="fw-bold text-accent fs-5 text-end" id="hud-prospect-persons">0</span>
+            
+            <section class="glass-panel hud-bar g-3 mb-3">
+                <!-- 1. HUD 數據戰況指標列 -->
+                <div class="row align-items-center g-3 mb-3">
+                    <div class="col-12">
+                        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-users text-primary me-1"></i>人員總數</span>
+                                    <span class="fw-bold text-primary fs-6 text-end" id="hud-total-persons">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-briefcase text-warning me-1"></i>經營對象</span>
+                                    <span class="fw-bold text-warning fs-6 text-end" id="hud-operator-persons">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-cart-shopping text-success me-1"></i>消費客戶</span>
+                                    <span class="fw-bold text-success fs-6 text-end" id="hud-consumer-persons">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-handshake text-yellow me-1"></i>團隊夥伴</span>
+                                    <span class="fw-bold text-yellow fs-6 text-end" id="hud-partner-persons">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-earth-asia text-info me-1"></i>跨國對象</span>
+                                    <span class="fw-bold text-info fs-6 text-end" id="hud-crossborder-persons">0</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-chip">
+                                    <span class="text-secondary"><i class="fa-solid fa-user-clock text-accent me-1"></i>潛在對象</span>
+                                    <span class="fw-bold text-accent fs-6 text-end" id="hud-prospect-persons">0</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <!-- 2. 多維度篩選導航塢 (移除 label icon、移除重設按鈕、新增年齡選單) -->
-            <section class="glass-panel mb-3">
-                <div class="row g-2 filter-dock-grid" id="filter-controls-dock">
+                
+                <!-- 2. 多維度篩選導航塢 -->
+                <div class="row align-items-center g-3 mt-2 border-top border-primary" id="filter-controls-dock">
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">身份類型</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-identity-type">
-                            <option value="">全部身份</option>
+                            <option value="ALL">全部身份</option>
                             <option value="夥伴">夥伴</option>
                             <option value="團隊成員">團隊成員</option>
                             <option value="潛在團隊成員">潛在團隊成員</option>
@@ -101,7 +108,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">使用身份</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-usage-identity">
-                            <option value="">全部使用身份</option>
+                            <option value="ALL">全部使用身份</option>
                             <option value="經營者">經營者</option>
                             <option value="消費者">消費者</option>
                         </select>
@@ -109,7 +116,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">年齡</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-age-group">
-                            <option value="">全部年齡</option>
+                            <option value="ALL">全部年齡</option>
                             <option value="17歲以下">17歲以下</option>
                             <option value="18-29歲">18-29歲</option>
                             <option value="30-39歲">30-39歲</option>
@@ -120,23 +127,21 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label">國籍市場</label>
+                        <label class="form-label">國籍</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-nationality">
-                            <option value="">全部國籍</option>
-                            <option value="中華民國">🇹🇼 中華民國 (TW)</option>
-                            <option value="馬來西亞">🇲🇾 馬來西亞 (MY)</option>
-                            <option value="新加坡">🇸🇬 新加坡 (SG)</option>
-                            <option value="其他">🌐 其他地區</option>
+                            <option value="ALL">全部國籍</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                        <label class="form-label">現居城市</label>
-                        <select class="form-select form-select-sm form-filter-control" id="filter-current-residence"></select>
+                        <label class="form-label">現居地</label>
+                        <select class="form-select form-select-sm form-filter-control" id="filter-current-residence">
+                            <option value="ALL">全部地區</option>
+                        </select>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">生理性別</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-gender">
-                            <option value="">全部性別</option>
+                            <option value="ALL">全部性別</option>
                             <option value="男">男</option>
                             <option value="女">女</option>
                             <option value="其他">其他</option>
@@ -146,7 +151,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">婚姻狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-marital-status">
-                            <option value="">全部婚姻</option>
+                            <option value="ALL">全部婚姻</option>
                             <option value="未婚">未婚</option>
                             <option value="已婚">已婚</option>
                             <option value="離異">離異</option>
@@ -156,7 +161,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">最高學歷</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-highest-education">
-                            <option value="">全部學歷</option>
+                            <option value="ALL">全部學歷</option>
                             <option value="博士">博士</option>
                             <option value="碩士">碩士</option>
                             <option value="學士">學士</option>
@@ -170,7 +175,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">修業狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-graduation-status">
-                            <option value="">全部修業</option>
+                            <option value="ALL">全部修業</option>
                             <option value="畢業">畢業</option>
                             <option value="肄業">肄業</option>
                             <option value="就學中">就學中</option>
@@ -182,7 +187,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">健康狀況</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-health-status">
-                            <option value="">全部狀況</option>
+                            <option value="ALL">全部狀況</option>
                             <option value="良好">良好</option>
                             <option value="亞健康">亞健康</option>
                             <option value="慢性體質">慢性體質</option>
@@ -194,7 +199,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">財務狀況</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-financial-status">
-                            <option value="">全部狀況</option>
+                            <option value="ALL">全部狀況</option>
                             <option value="寬裕">寬裕</option>
                             <option value="穩定">穩定</option>
                             <option value="吃緊">吃緊</option>
@@ -205,7 +210,7 @@
                     <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                         <label class="form-label">存歿狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-life-status">
-                            <option value="">全部</option>
+                            <option value="ALL">全部</option>
                             <option value="存活">存活</option>
                             <option value="身故">身故</option>
                         </select>

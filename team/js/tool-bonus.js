@@ -605,8 +605,6 @@ function initBonusTable() {
         data: [],
         columns: [
             { data: 'name', render: data => `<span class="fw-bold">${data}</span>` },
-            { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
-            { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` },
             { 
                 data: 'amount', 
                 className: 'text-end',
@@ -615,7 +613,9 @@ function initBonusTable() {
                     const prefix = appState.currency === 'MYR' ? 'RM ' : 'NT$ ';
                     return `<span class="${val > 0 ? 'text-yellow fw-bold' : 'text-muted'}">${prefix}${Math.round(val).toLocaleString()}</span>`;
                 }
-            }
+            },
+            { data: 'rate', render: data => `<span class="text-secondary">${data}</span>` },
+            { data: 'basis', render: data => `<span class="small text-muted">${data}</span>` }
         ],
         language: {
             emptyTable: "尚無核算資料"
@@ -630,8 +630,8 @@ function renderBonusTableData(dataset, grossTotal) {
     if (!bonusDataTableInstance) return;
     const prefix = appState.currency === 'MYR' ? 'RM ' : 'NT$ ';
     
-    // 同步更新表頭幣別標註
-    $('#tblBonusAudit thead th').eq(3).text(appState.currency === 'MYR' ? '預估金額 (RM)' : '預估金額 (NT$)');
+    // 同步更新表頭幣別標註 (更新第 2 欄：index 1)
+    $('#tblBonusAudit thead th').eq(1).text(appState.currency === 'MYR' ? '預估金額 (RM)' : '預估金額 (NT$)');
 
     bonusDataTableInstance.clear().rows.add(dataset).draw();
     $("#valTableGrossTotal").text(`${prefix}${Math.round(grossTotal).toLocaleString()}`);

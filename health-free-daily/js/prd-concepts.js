@@ -58,12 +58,12 @@ const demoMockData = [
 
 // 監聽 common.js 發出的全域 AppReady 事件，確保前置js已全部載入完成
 window.addEventListener('AppReady', function() {
-    initEvents();
+    bindUIEvents();
     loadSheetData();
 });
 
 // 註冊事件監聽
-function initEvents() {
+function bindUIEvents() {
     // 切換視圖按鈕
     $('#btnViewGrid').on('click', function() {
         $(this).addClass('active');

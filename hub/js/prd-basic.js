@@ -281,14 +281,55 @@ function getLocalizedName(entity, regionCode = 'TW') {
 // 6. 介面事件綁定與視圖渲染中樞
 // ==========================================================================
 function bindUIEvents() {
-    $('#btnOpenNewProductModal').on('click', () => openAddModal());
+    $('#btnOpenNewProductModal').on('click', () => openAddProductModal());
     $('#btnSaveFullProduct').on('click', () => saveProductItem());
     $('#btnSaveTaxonomy').on('click', () => saveTaxonomyItem());
 
-    // 篩選條件聯動
-    $('#filterMasterRegion, #filterMasterCategory, #filterMasterSubcategory, #filterMasterType, #filterMasterLaunchStatus, #filterMasterStock').on('change', () => {
+    // 原生/其他篩選條件變更
+    $('#filterMasterRegion, #filterMasterLaunchStatus, #filterMasterStock').on('change', () => {
         applyMasterFilters();
     });
+
+    // 主系列變更、次系列聯動更新與清除叉叉重設為 ALL
+    $('#filterMasterCategory')
+        .off('change select2:clear')
+        .on('change', function () {
+            const catVal = $(this).val() || 'ALL';
+            updateFilterSubcategorySelect(catVal);
+            applyMasterFilters();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
+
+    // 次系列變更與清除叉叉重設為 ALL
+    $('#filterMasterSubcategory')
+        .off('change select2:clear')
+        .on('change', function () {
+            applyMasterFilters();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
+
+    // 產品型態變更與清除叉叉重設為 ALL
+    $('#filterMasterType')
+        .off('change select2:clear')
+        .on('change', function () {
+            applyMasterFilters();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     // 產品 Modal 地區切換時重新渲染主/次系列與型態選項
     $('select[name="region_code"]').on('change', function () {
@@ -355,31 +396,84 @@ function formatFilterOptionText(nameZh, nameEn) {
 }
 
 function populateSelects() {
+    // 1. 產品主系列（做法一：value="ALL" + allowClear）
+    const catOptions = [
+        { code: 'ALL', name: '全部主系列' },
+        ...appState.categories.map(c => ({
+            code: c.category_code,
+            name: formatFilterOptionText(c.name_zh, c.name_en)
+        }))
+    ];
     UISelectOptions.core.render({
         target: '#filterMasterCategory',
-        data: appState.categories,
-        valueKey: 'category_code',
-        textKey: (c) => formatFilterOptionText(c.name_zh, c.name_en),
-        placeholder: '全部主系列'
+        data: catOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部主系列',
+        selectedValue: $('#filterMasterCategory').val() || 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
     });
+
+    // 2. 產品次系列（做法一：依主系列聯動渲染，預設 ALL）
+    updateFilterSubcategorySelect($('#filterMasterCategory').val() || 'ALL');
+
+    // 3. 產品型態（做法一：value="ALL" + allowClear）
+    const typeOptions = [
+        { code: 'ALL', name: '全部產品型態' },
+        ...appState.types.map(t => ({
+            code: t.type_code,
+            name: formatFilterOptionText(t.name_zh, t.name_en)
+        }))
+    ];
+    UISelectOptions.core.render({
+        target: '#filterMasterType',
+        data: typeOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部產品型態',
+        selectedValue: $('#filterMasterType').val() || 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
+    });
+
+    // 彈窗表單維持做法二（占位符 value="" + placeholder）
+    populateModalTaxonomySelects('TW');
+}
+
+/**
+ * 依據選定之主系列動態更新次系列篩選下拉選單
+ */
+function updateFilterSubcategorySelect(categoryCode = 'ALL') {
+    let subList = appState.subcategories;
+    if (categoryCode && categoryCode !== 'ALL') {
+        subList = subList.filter(s => s.category_code === categoryCode);
+    }
+
+    const subOptions = [
+        { code: 'ALL', name: '全部次系列' },
+        ...subList.map(s => ({
+            code: s.subcategory_code,
+            name: formatFilterOptionText(s.name_zh, s.name_en)
+        }))
+    ];
 
     UISelectOptions.core.render({
         target: '#filterMasterSubcategory',
-        data: appState.subcategories,
-        valueKey: 'subcategory_code',
-        textKey: (s) => formatFilterOptionText(s.name_zh, s.name_en),
-        placeholder: '全部次系列'
+        data: subOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部次系列',
+        selectedValue: 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
     });
-
-    UISelectOptions.core.render({
-        target: '#filterMasterType',
-        data: appState.types,
-        valueKey: 'type_code',
-        textKey: (t) => formatFilterOptionText(t.name_zh, t.name_en),
-        placeholder: '全部型態'
-    });
-
-    populateModalTaxonomySelects('TW');
 }
 
 function populateModalTaxonomySelects(regionCode = 'TW') {
@@ -515,9 +609,9 @@ function formatMasterTableRow(p) {
 
 function applyMasterFilters() {
     const reg = $('#filterMasterRegion').val();
-    const cat = $('#filterMasterCategory').val();
-    const subcat = $('#filterMasterSubcategory').val();
-    const type = $('#filterMasterType').val();
+    const cat = $('#filterMasterCategory').val() || 'ALL';
+    const subcat = $('#filterMasterSubcategory').val() || 'ALL';
+    const type = $('#filterMasterType').val() || 'ALL';
     const launch = $('#filterMasterLaunchStatus').val();
     const stock = $('#filterMasterStock').val();
 
@@ -527,14 +621,14 @@ function applyMasterFilters() {
             currentCatCode = getSubcategoryByCode(p.subcategory_code).category_code;
         }
 
-        const matchReg = !reg || p.region_code === reg;
-        const matchCat = !cat || String(currentCatCode) === String(cat);
-        const matchSubcat = !subcat || String(p.subcategory_code) === String(subcat);
-        const matchType = !type || String(p.type_code) === String(type);
-        const matchStock = !stock || p.stock_status === stock;
+        const matchReg = !reg || reg === 'ALL' || p.region_code === reg;
+        const matchCat = !cat || cat === 'ALL' || String(currentCatCode) === String(cat);
+        const matchSubcat = !subcat || subcat === 'ALL' || String(p.subcategory_code) === String(subcat);
+        const matchType = !type || type === 'ALL' || String(p.type_code) === String(type);
+        const matchStock = !stock || stock === 'ALL' || p.stock_status === stock;
 
         const currentLaunch = getLaunchStatus(p.launch_date, p.discontinue_date).code;
-        const matchLaunch = !launch || currentLaunch === launch;
+        const matchLaunch = !launch || launch === 'ALL' || currentLaunch === launch;
 
         return matchReg && matchCat && matchSubcat && matchType && matchStock && matchLaunch;
     });
@@ -952,7 +1046,7 @@ function formatCrossBorderMatrixRow(code, twProducts, myProducts) {
     let diffText = `<span class="text-muted">-</span>`;
     if (twProd && myProd) {
         const myConvertedTwd = AppCalc.multiply(myProd.price, currentFxRate, 2);
-        const diff = AppCalc.subtract(myConvertedTwd, twProd.price); // 改用 subtract
+        const diff = AppCalc.sub(myConvertedTwd, twProd.price); // 改用 subtract
         diffText = diff >= 0
             ? `<span class="badge badge-warning-subtle">+NT$ ${Math.round(diff).toLocaleString()}</span>`
             : `<span class="badge badge-warning-subtle">-NT$ ${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
@@ -1286,7 +1380,7 @@ function renderAnalyticsCharts() {
 // ==========================================================================
 // 12. Modal 產品主檔與規格彈窗維護
 // ==========================================================================
-function openAddModal() {
+function openAddProductModal() {
     $('#productModalHeading').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增產品資料與規格詳情');
     const form = document.getElementById('formFullProduct');
     form.reset();

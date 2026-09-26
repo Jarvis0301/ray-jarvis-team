@@ -25,108 +25,134 @@
         <!-- 主內容容器 -->
         <main class="container-fluid p-3 p-md-4">
             <!-- 頂部標題列 -->
-            <header class="row align-items-center mb-3 g-3">
-                <div class="col-12 col-md-8 col-lg-10">
-                    <h4 class="fw-bold mb-0 text-light">
+            <header class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-9 col-xl-9">
+                    <h4 class="fw-bold text-light mb-0">
                         <i class="fa-solid fa-users text-primary me-1"></i>客戶資料
                     </h4>
                 </div>
-                <div class="col-12 col-md-2 col-lg-1">
-                    <button type="button" class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
-                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
-                    </button>
-                </div>
-                <div class="col-12 col-md-2 col-lg-1">
-                    <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" id="btn-open-create-customer" onclick="openCustomerModalForCreate()">
-                        <i class="fa-solid fa-user-plus me-1"></i>新增客戶
-                    </button>
+
+                <div class="col-12 col-md-3 col-xl-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col">
+                            <button class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-secondary btn-sm rounded-pill w-100" id="btn-open-create-customer" onclick="openCustomerModalForCreate()">
+                                <i class="fa-solid fa-user-plus me-1"></i>新增客戶
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
-
-            <!-- HUD 戰況指標列 -->
-            <section class="glass-panel p-3 mb-3">
-                <div class="row align-items-center g-3">
+            
+            <section class="glass-panel hud-bar g-3 mb-3">
+                <!-- HUD 戰況指標列 -->
+                <div class="row align-items-center g-3 mb-3">
                     <div class="col-12">
                         <div class="row row-cols-2 row-cols-md-6 g-2">
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-users text-primary me-1"></i>客戶總數</span>
-                                    <span class="fw-bold text-primary fs-5 text-end" id="hud-total-customers">0</span>
+                                    <span class="fw-bold text-primary fs-6 text-end" id="hud-total-customers">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-user-clock text-accent me-1"></i>潛在對象</span>
-                                    <span class="fw-bold text-accent fs-5 text-end" id="hud-potential-customers">0</span>
+                                    <span class="fw-bold text-accent fs-6 text-end" id="hud-potential-customers">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-cart-shopping text-info me-1"></i>一般零售客</span>
-                                    <span class="fw-bold text-info fs-5 text-end" id="hud-retail-customers">0</span>
+                                    <span class="fw-bold text-info fs-6 text-end" id="hud-retail-customers">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-crown text-warning me-1"></i>VIP顧客</span>
-                                    <span class="fw-bold text-warning fs-5 text-end" id="hud-vip-customers">0</span>
+                                    <span class="fw-bold text-warning fs-6 text-end" id="hud-vip-customers">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-seedling text-danger me-1"></i>事業種子</span>
-                                    <span class="fw-bold text-danger fs-5 text-end" id="hud-seed-customers">0</span>
+                                    <span class="fw-bold text-danger fs-6 text-end" id="hud-seed-customers">0</span>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-chip">
                                     <span class="text-secondary"><i class="fa-solid fa-user-check text-success me-1"></i>已轉夥伴</span>
-                                    <span class="fw-bold text-success fs-5 text-end" id="hud-converted-customers">0</span>
+                                    <span class="fw-bold text-success fs-6 text-end" id="hud-converted-customers">0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- 多維度快篩導航塢 -->
-            <section class="glass-panel p-3 mb-3">
-                <div class="row g-2 align-items-center" id="filter-controls-dock">
-                    <!-- 第 1 組：客戶營運維度 (6 個) -->
+                <!-- 多維度快篩導航塢 -->
+                <div class="row align-items-center g-3 mt-2 border-top border-primary" id="filter-controls-dock">
+                    <!-- 第 1 組：客戶營運維度 -->
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">客戶身分</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-customer-type">
-                            <option value="">全部身分</option>
+                            <option value="ALL">全部身分</option>
+                            <option value="潛在對象">潛在對象</option>
+                            <option value="一般零售">一般零售</option>
+                            <option value="VIP顧客">VIP顧客</option>
+                            <option value="事業種子">事業種子</option>
+                            <option value="已轉夥伴">已轉夥伴</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">轉化階段</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-pipeline-stage">
-                            <option value="">全部階段</option>
+                            <option value="ALL">全部階段</option>
+                            <option value="新線索">新線索</option>
+                            <option value="需求確認">需求確認</option>
+                            <option value="試用體驗">試用體驗</option>
+                            <option value="異議排除">異議排除</option>
+                            <option value="規律自用">規律自用</option>
+                            <option value="培育暫緩">培育暫緩</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">運作狀態</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-status">
-                            <option value="">全部狀態</option>
+                            <option value="ALL">全部狀態</option>
+                            <option value="活躍跟進">活躍跟進</option>
+                            <option value="沉睡列管">沉睡列管</option>
+                            <option value="爭議凍結">爭議凍結</option>
+                            <option value="封存歸檔">封存歸檔</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">名單來源</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-source-channel">
-                            <option value="">全部來源</option>
+                            <option value="ALL">全部來源</option>
+                            <option value="線上陌開">線上陌開</option>
+                            <option value="線下陌開">線下陌開</option>
+                            <option value="社群矩陣">社群矩陣</option>
+                            <option value="健康問卷">健康問卷</option>
+                            <option value="親朋好友">親朋好友</option>
+                            <option value="轉介紹">轉介紹</option>
+                            <option value="茶會活動">茶會活動</option>
+                            <option value="其他">其他</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">負責夥伴</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-assigned-partner">
-                            <option value="">全體夥伴</option>
+                            <option value="ALL">全體夥伴</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">生理性別</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-gender">
-                            <option value="">全部性別</option>
+                            <option value="ALL">全部性別</option>
                             <option value="男">男</option>
                             <option value="女">女</option>
                             <option value="其他">其他</option>
@@ -134,23 +160,23 @@
                         </select>
                     </div>
 
-                    <!-- 第 2 組：自然人主檔畫像維度 (6 個) -->
+                    <!-- 第 2 組：自然人主檔畫像維度 -->
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">國籍</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-nationality">
-                            <option value="">全部國籍</option>
+                            <option value="ALL">全部國籍</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
-                        <label class="form-label">現居地 / 行政區</label>
+                        <label class="form-label">現居地</label>
                         <select class="form-select form-select-sm form-filter-control select2-filter-region" id="filter-current-residence">
-                            <option value="" selected>全部地區</option>
+                            <option value="ALL">全部地區</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">身份</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-identity-type">
-                            <option value="">全部身份</option>
+                            <option value="ALL">全部身份</option>
                             <option value="客戶">客戶</option>
                             <option value="潛在客戶">潛在客戶</option>
                             <option value="夥伴">夥伴</option>
@@ -161,7 +187,7 @@
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">使用身份</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-usage-identity">
-                            <option value="">全部使用身份</option>
+                            <option value="ALL">全部使用身份</option>
                             <option value="消費者">消費者</option>
                             <option value="經營者">經營者</option>
                         </select>
@@ -169,7 +195,7 @@
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">健康狀況</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-health-status">
-                            <option value="">全部健康狀況</option>
+                            <option value="ALL">全部健康狀況</option>
                             <option value="良好">良好</option>
                             <option value="亞健康">亞健康</option>
                             <option value="慢性體質">慢性體質</option>
@@ -181,7 +207,7 @@
                     <div class="col-6 col-md-4 col-xl-2">
                         <label class="form-label">財務狀況</label>
                         <select class="form-select form-select-sm form-filter-control" id="filter-financial-status">
-                            <option value="">全部財務狀況</option>
+                            <option value="ALL">全部財務狀況</option>
                             <option value="寬裕">寬裕</option>
                             <option value="穩定">穩定</option>
                             <option value="吃緊">吃緊</option>

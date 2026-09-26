@@ -207,25 +207,49 @@ function getProductShortName(prdId, displayMode = 1) {
 }
 
 function populateStockSelectOptions() {
-    // 1. 頂部篩選列 - 據點倉儲
-    UISelectOptions.warehouse.populate({
+    // 1. 頂部篩選列 - 據點倉儲（做法一：value="ALL" + allowClear）
+    const rawWhs = Array.isArray(appState.warehouses) ? appState.warehouses : Object.values(appState.warehouses || {});
+    const whOptions = [
+        { id: 'ALL', name: '全部據點倉儲' },
+        ...rawWhs.map(w => ({
+            id: w.id,
+            name: `${w.warehouse_name || w.name || w.id} [${w.id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterWarehouse',
-        warehouses: appState.warehouses,
+        data: whOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部據點倉儲',
-        selectedValue: appState.currentWhFilter === 'ALL' ? '' : appState.currentWhFilter,
-        searchable: true
+        selectedValue: appState.currentWhFilter || 'ALL',
+        searchable: true,
+        creatable: false,
+        grouped: false
     });
 
-    // 2. 頂部篩選列 - 產品品項
-    UISelectOptions.product.populate({
+    // 2. 頂部篩選列 - 產品品項（做法一：value="ALL" + allowClear）
+    const rawPrds = Array.isArray(appState.products) ? appState.products : Object.values(appState.products || {});
+    const prdOptions = [
+        { code: 'ALL', name: '全部產品品項' },
+        ...rawPrds.map(p => ({
+            code: p.product_code || p.code || p.id,
+            name: `${p.short_name || p.name} [${p.product_code || p.code || p.id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterProduct',
-        products: appState.products,
+        data: prdOptions,
+        valueKey: 'code',
+        textKey: 'name',
         placeholder: '全部產品品項',
-        selectedValue: appState.currentPrdFilter === 'ALL' ? '' : appState.currentPrdFilter,
-        searchable: true
+        selectedValue: appState.currentPrdFilter || 'ALL',
+        searchable: true,
+        creatable: false,
+        grouped: false
     });
 
-    // 3. Modal 編輯表單 - 據點倉儲
+    // 3. Modal 編輯表單維持做法二（占位符 value="" + placeholder）
     UISelectOptions.warehouse.populate({
         target: '#fieldWarehouseId',
         warehouses: appState.warehouses,
@@ -234,7 +258,6 @@ function populateStockSelectOptions() {
         dropdownParent: '#stockModal'
     });
 
-    // 4. Modal 編輯表單 - 產品品項
     UISelectOptions.product.populate({
         target: '#fieldProductId',
         products: appState.products,
@@ -309,10 +332,25 @@ function bindUIEvents() {
         }
     });
 
-    // 4 個篩選選單變更事件：同時觸發表格重繪與圖表更新
-    $('#filterWarehouse, #filterProduct, #filterExpiry, #filterStatus').on('change', function () {
-        appState.currentWhFilter = $('#filterWarehouse').val() || 'ALL';
-        appState.currentPrdFilter = $('#filterProduct').val() || 'ALL';
+    // 4 個篩選選單變更事件：支援清除重設為 ALL
+    $('#filterWarehouse, #filterProduct')
+        .off('change select2:clear')
+        .on('change', function () {
+            appState.currentWhFilter = $('#filterWarehouse').val() || 'ALL';
+            appState.currentPrdFilter = $('#filterProduct').val() || 'ALL';
+            renderStockDataTable();
+            if ($('#container-charts-view').hasClass('active')) {
+                renderTacticalCharts();
+            }
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
+
+    $('#filterExpiry, #filterStatus').on('change', function () {
         appState.currentExpiryFilter = $('#filterExpiry').val() || 'ALL';
         appState.currentStatusFilter = $('#filterStatus').val() || 'ALL';
 

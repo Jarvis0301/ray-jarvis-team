@@ -365,7 +365,7 @@ function formatTableRow(m) {
 // ==========================================================================
 // 6. Modal 表單操作 (CRUD)
 // ==========================================================================
-function openAddModal() {
+function openAddMenuModal() {
     $('#modalTitle').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增選單節點');
     $('#formMode').val('add');
     $('#menuForm')[0].reset();

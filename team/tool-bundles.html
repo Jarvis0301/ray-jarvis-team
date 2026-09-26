@@ -224,7 +224,7 @@
                             </button>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnSyncSheets">
-                            <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
+                            <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
                         </button>
                     </div>
                 </div>
@@ -661,7 +661,7 @@
                 const $btn = $(this);
                 $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...');
                 setTimeout(() => {
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表');
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫');
                     alert('已成功與 Google 試算表（prd_items / tool_bundles）完成欄位解耦對齊！');
                 }, 1000);
             });

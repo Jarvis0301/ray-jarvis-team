@@ -23,33 +23,42 @@
     <body>
         <main class="container-fluid p-3 p-md-4">
             <!-- 主控台頂部宣告與控制列 -->
-            <section class="mb-4 mx-3">
-                <div class="row align-items-center mb-3">
-                    <div class="col-12 col-lg-6">
-                        <h4 class="fw-bold mb-0 text-light">
-                            <i class="fa-solid fa-bars-staggered me-1"></i>選單管理
-                        </h4>
-                    </div>
-                    <div class="col-12 col-lg-4 text-lg-end">
-                        <div class="portal-switcher me-2 mb-2 mb-sm-0">
-                            <button type="button" class="portal-btn active" data-portal="核心版" onclick="switchPortal('核心版')">
-                                <i class="fa-solid fa-crown me-1"></i>核心版
-                            </button>
-                            <button type="button" class="portal-btn" data-portal="團隊版" onclick="switchPortal('團隊版')">
-                                <i class="fa-solid fa-users-gear me-1"></i>團隊版
-                            </button>
-                            <button type="button" class="portal-btn" data-portal="公開版" onclick="switchPortal('公開版')">
-                                <i class="fa-solid fa-leaf me-1"></i>公開版
-                            </button>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-2 text-lg-end">
-                        <button id="btnOpenAddModal" class="btn btn-secondary btn-sm w-100 rounded-pill" onclick="openAddModal()">
-                            <i class="fa-solid fa-plus me-1"></i>新增節點
+            <header class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-6 col-xl-6">
+                    <h4 class="fw-bold text-light mb-0">
+                        <i class="fa-solid fa-bars-staggered text-primary me-1"></i>選單管理
+                    </h4>
+                </div>
+
+                <div class="col-12 col-md-3 col-xl-3 text-lg-end">
+                    <div class="portal-switcher me-2 mb-2 mb-sm-0">
+                        <button type="button" class="portal-btn active" data-portal="核心版" onclick="switchPortal('核心版')">
+                            <i class="fa-solid fa-crown me-1"></i>核心版
+                        </button>
+                        <button type="button" class="portal-btn" data-portal="團隊版" onclick="switchPortal('團隊版')">
+                            <i class="fa-solid fa-users-gear me-1"></i>團隊版
+                        </button>
+                        <button type="button" class="portal-btn" data-portal="公開版" onclick="switchPortal('公開版')">
+                            <i class="fa-solid fa-leaf me-1"></i>公開版
                         </button>
                     </div>
                 </div>
-            </section>
+
+                <div class="col-12 col-md-3 col-xl-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col">
+                            <button class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button id="btnOpenAddModal" class="btn btn-secondary btn-sm rounded-pill w-100" onclick="openAddMenuModal()">
+                                <i class="fa-solid fa-plus me-1"></i>新增節點
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
             <!-- 指標統計列 -->
             <section class="container-fluid mb-4">

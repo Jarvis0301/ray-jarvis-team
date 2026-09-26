@@ -96,7 +96,7 @@ async function initInboundApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    initFormEvents();
+    bindUIEvents();
     await fetchGoogleSheetsData();
 }
 
@@ -288,27 +288,57 @@ function refreshAllViews() {
 }
 
 function populateFilterOptions() {
-    UISelectOptions.warehouse.populate({
+    // 1. 收貨倉庫
+    const whOptions = [
+        { id: 'ALL', name: '全部收貨倉庫' },
+        ...appState.warehouses.map(w => ({
+            id: w.id,
+            name: `${w.warehouse_name || w.name || w.id} [${w.id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterWarehouse',
-        warehouses: appState.warehouses,
+        data: whOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部收貨倉庫',
-        displayMode: 1,
+        selectedValue: appState.filters.warehouseId || 'ALL',
         searchable: true
     });
 
-    UISelectOptions.partner.populate({
+    // 2. 出資夥伴
+    const purchaserOptions = [
+        { id: 'ALL', name: '全部出資夥伴' },
+        ...appState.partners.map(p => ({
+            id: p.partner_id,
+            name: `${EntityResolver.partner(p.partner_id, appState.partners, appState.persons, 1)} [${p.partner_id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterPurchaser',
-        partners: appState.partners,
-        persons: appState.persons,
+        data: purchaserOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部出資夥伴',
+        selectedValue: appState.filters.purchaserId || 'ALL',
         searchable: true
     });
 
-    UISelectOptions.partner.populate({
+    // 3. 掛點人
+    const svOwnerOptions = [
+        { id: 'ALL', name: '全部掛點人' },
+        ...appState.partners.map(p => ({
+            id: p.partner_id,
+            name: `${EntityResolver.partner(p.partner_id, appState.partners, appState.persons, 1)} [${p.partner_id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterSvOwner',
-        partners: appState.partners,
-        persons: appState.persons,
+        data: svOwnerOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部掛點人',
+        selectedValue: appState.filters.svOwnerId || 'ALL',
         searchable: true
     });
 
@@ -622,17 +652,28 @@ function formatTableRow(item) {
 // ==========================================================================
 // 5. 互動與表單事件管理
 // ==========================================================================
-function initFormEvents() {
-    $('#filterOrderDateStart, #filterOrderDateEnd, #filterPerformanceMonth, #filterWarehouse, #filterPurchaser, #filterSvOwner').on('change input', function () {
+function bindUIEvents() {
+    $('#filterOrderDateStart, #filterOrderDateEnd, #filterPerformanceMonth').on('change input', function () {
         appState.filters.startDate = $('#filterOrderDateStart').val() || '';
         appState.filters.endDate = $('#filterOrderDateEnd').val() || '';
         appState.filters.performanceMonth = $('#filterPerformanceMonth').val() || '';
-        appState.filters.warehouseId = $('#filterWarehouse').val() || 'ALL';
-        appState.filters.purchaserId = $('#filterPurchaser').val() || 'ALL';
-        appState.filters.svOwnerId = $('#filterSvOwner').val() || 'ALL';
-
         applyFilters();
     });
+
+    $('#filterWarehouse, #filterPurchaser, #filterSvOwner')
+        .off('change select2:clear')
+        .on('change', function () {
+            appState.filters.warehouseId = $('#filterWarehouse').val() || 'ALL';
+            appState.filters.purchaserId = $('#filterPurchaser').val() || 'ALL';
+            appState.filters.svOwnerId = $('#filterSvOwner').val() || 'ALL';
+            applyFilters();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     $('#fieldOrderDate').on('change input', function () {
         const orderDate = $(this).val();
@@ -684,7 +725,7 @@ function calculateTotalCost() {
     $('#fieldTotalCostAmount').val(formatCurrency(total, curr)).data('raw-amount', total);
 }
 
-function openAddModal() {
+function openAddInboundModal() {
     $('#modalTitle').html('<i class="fa-solid fa-file-circle-plus text-primary me-1"></i>新增進貨入庫單據');
     $('#formMode').val('add');
     $('#inboundForm')[0].reset();
@@ -2026,7 +2067,7 @@ function openInboundMasterDetailModal(orderId) {
 /**
  * 匯出 CSV 報表
  */
-function exportCsv() {
+function exportInboundCsv() {
     const csv = Papa.unparse(appState.inbounds);
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

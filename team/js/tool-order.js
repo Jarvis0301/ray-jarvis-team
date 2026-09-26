@@ -304,51 +304,79 @@ function getTypeInfo(typeCode, country = appState.country) {
 // 6. 下拉選單與型態篩選器
 // ==========================================
 function updateSeriesDropdowns() {
-    const mainSelect = document.getElementById('mainSeriesSelect');
-    if (!mainSelect) return;
+    const mainOptions = [
+        { code: 'ALL', name: '全部主系列' },
+        ...appState.categoryList.map(cat => {
+            const catInfo = getCategoryInfo(cat.category_code, appState.country);
+            return {
+                code: cat.category_code,
+                name: `${cat.category_code} ${catInfo.name}`
+            };
+        })
+    ];
 
-    mainSelect.innerHTML = '<option value="ALL">全部主系列</option>';
-
-    appState.categoryList.forEach(cat => {
-        const catInfo = getCategoryInfo(cat.category_code, appState.country);
-        const opt = document.createElement('option');
-        opt.value = cat.category_code;
-        opt.textContent = `${cat.category_code} ${catInfo.name}`;
-        mainSelect.appendChild(opt);
+    UISelectOptions.core.render({
+        target: '#mainSeriesSelect',
+        data: mainOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部主系列',
+        selectedValue: appState.mainSeries || 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
     });
 
-    mainSelect.value = appState.mainSeries || 'ALL';
-    updateSubSeriesDropdown(mainSelect.value);
+    updateSubSeriesDropdown(appState.mainSeries || 'ALL');
 }
 
 function updateSubSeriesDropdown(mainCode) {
-    const subSelect = document.getElementById('subSeriesSelect');
-    if (!subSelect) return;
-
-    subSelect.innerHTML = '';
+    const $subSelect =$('#subSeriesSelect');
+    if (!$subSelect.length) return;
 
     if (!mainCode || mainCode === 'ALL') {
-        subSelect.disabled = true;
-        subSelect.innerHTML = '<option value="ALL">請先選擇主系列</option>';
+        $subSelect.prop('disabled', true);
+        UISelectOptions.core.render({
+            target: '#subSeriesSelect',
+            data: [{ code: 'ALL', name: '請先選擇主系列' }],
+            valueKey: 'code',
+            textKey: 'name',
+            placeholder: '請先選擇主系列',
+            selectedValue: 'ALL',
+            searchable: false,
+            creatable: false,
+            grouped: false,
+            allowClear: false
+        });
         return;
     }
 
-    subSelect.disabled = false;
-    const defaultOpt = document.createElement('option');
-    defaultOpt.value = 'ALL';
-    defaultOpt.textContent = '全部次系列';
-    subSelect.appendChild(defaultOpt);
-
+    $subSelect.prop('disabled', false);
     const filteredSubs = appState.subcategoryList.filter(s => s.category_code === mainCode);
-    filteredSubs.forEach(sub => {
-        const subInfo = getSubcategoryInfo(sub.subcategory_code, appState.country);
-        const opt = document.createElement('option');
-        opt.value = sub.subcategory_code;
-        opt.textContent = `${sub.subcategory_code} ${subInfo.name}`;
-        subSelect.appendChild(opt);
-    });
+    const subOptions = [
+        { code: 'ALL', name: '全部次系列' },
+        ...filteredSubs.map(sub => {
+            const subInfo = getSubcategoryInfo(sub.subcategory_code, appState.country);
+            return {
+                code: sub.subcategory_code,
+                name: `${sub.subcategory_code} ${subInfo.name}`
+            };
+        })
+    ];
 
-    subSelect.value = appState.subSeries || 'ALL';
+    UISelectOptions.core.render({
+        target: '#subSeriesSelect',
+        data: subOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部次系列',
+        selectedValue: appState.subSeries || 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
+    });
 }
 
 function renderTypeFilterButtons() {
@@ -430,17 +458,37 @@ function bindEvents() {
         updateCartSummary();
     });
 
-    $("#mainSeriesSelect").on("change", function () {
-        appState.mainSeries = $(this).val();
-        appState.subSeries = 'ALL';
-        updateSubSeriesDropdown(appState.mainSeries);
-        renderProducts();
-    });
+    // 主系列變更與清除監聽
+    $("#mainSeriesSelect")
+        .off("change select2:clear")
+        .on("change", function () {
+            const val = $(this).val() || 'ALL';
+            appState.mainSeries = val;
+            appState.subSeries = 'ALL';
+            updateSubSeriesDropdown(appState.mainSeries);
+            renderProducts();
+        })
+        .on("select2:clear", function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
-    $("#subSeriesSelect").on("change", function () {
-        appState.subSeries = $(this).val();
-        renderProducts();
-    });
+    // 次系列變更與清除監聽
+    $("#subSeriesSelect")
+        .off("change select2:clear")
+        .on("change", function () {
+            const val = $(this).val() || 'ALL';
+            appState.subSeries = val;
+            renderProducts();
+        })
+        .on("select2:clear", function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     $("#searchInput").on("input", function () {
         appState.searchKeyword = $(this).val().trim().toLowerCase();
@@ -889,7 +937,7 @@ function updateCartSummary() {
         return;
     }
 
-selectedKeys.forEach(code => {
+    selectedKeys.forEach(code => {
         const qty = cartState[code];
         const product = findProductByCode(code);
         if (product && qty > 0) {
@@ -906,6 +954,10 @@ selectedKeys.forEach(code => {
 
             const itemTotalPrice = AppCalc.multiply(itemPriceInDisplay, qty, 2);
             const itemTotalSV = AppCalc.multiply(sv, qty, 2);
+
+            subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
+            totalSV = AppCalc.add(totalSV, itemTotalSV);
+            totalItemsCount += qty;
 
             subtotalDisplay = AppCalc.add(subtotalDisplay, itemTotalPrice);
             totalSV = AppCalc.add(totalSV, itemTotalSV);

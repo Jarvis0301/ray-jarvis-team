@@ -220,7 +220,7 @@
                     <i class="fa-solid fa-table-list me-1"></i>切換清單管理
                 </button>
                 <button class="btn btn-outline-info btn-sm" id="btnSyncGoogleSheet">
-                    <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
+                    <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
                 </button>
                 <button class="btn btn-cta btn-sm" id="btnOpenAddModal">
                     <i class="fa-solid fa-plus me-1"></i>新增文案
@@ -994,7 +994,7 @@ ${parsedContent}
                     $(this).html('<i class="fa-solid fa-spinner fa-spin me-1"></i>同步中...');
                     setTimeout(() => {
                         fetchGoogleSheetData();
-                        $(this).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表');
+                        $(this).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫');
                         alert('✅ 已重新自 Google 試算表拉取最新行銷文案庫！');
                     }, 500);
                 });

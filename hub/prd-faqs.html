@@ -295,7 +295,7 @@
             
             <div class="col-md-5 text-md-end d-flex justify-content-md-end gap-2">
                 <button class="btn btn-outline-purple" id="btn-sync-gviz" title="重新抓取 Google 試算表">
-                    <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
+                    <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
                 </button>
                 <button class="btn btn-purple" id="btn-add-faq" data-bs-toggle="modal" data-bs-target="#faqModal">
                     <i class="fa-solid fa-plus me-1"></i>新增問答對
@@ -1066,7 +1066,7 @@
                 setTimeout(() => {
                     btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步完成').prop('disabled', false);
                     refreshAllViews();
-                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表'), 2000);
+                    setTimeout(() => btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫'), 2000);
                 }, 800);
             });
         });

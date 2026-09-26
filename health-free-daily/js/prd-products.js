@@ -134,7 +134,10 @@ async function fetchGoogleSheetsData() {
         appState.typeList.sort((a, b) => a.sort_order - b.sort_order);
 
         // 4. 解析產品主檔
-        let parsedAll = [];
+        appState.products.TW = [];
+        appState.products.MY = [];
+        let totalValidProducts = 0;
+
         (productsData || []).forEach(row => {
             const productCode = getVal(row, 0);
             const isValid = getVal(row, 23, 'Y');
@@ -142,14 +145,13 @@ async function fetchGoogleSheetsData() {
             const discontinueDate = getVal(row, 25);
             const status = getProductStatus(launchDate, discontinueDate);
 
-            // 僅保留「即將上市」與「販售中」，排除「已下市」與無效項目
             if (productCode && isValid !== 'N' && status !== 'DISCONTINUED') {
                 let regionCode = getVal(row, 1, 'TW').toUpperCase();
-                if (!regionCode || (regionCode !== 'TW' && regionCode !== 'MY')) {
+                if (regionCode !== 'TW' && regionCode !== 'MY') {
                     regionCode = productCode.startsWith('MY') ? 'MY' : 'TW';
                 }
 
-                parsedAll.push({
+                appState.products[regionCode].push({
                     product_code: productCode,
                     region_code: regionCode,
                     base_code: getVal(row, 2),
@@ -171,16 +173,14 @@ async function fetchGoogleSheetsData() {
                     discontinue_date: discontinueDate,
                     status: status
                 });
+                totalValidProducts++;
             }
         });
-
-        appState.products.TW = parsedAll.filter(p => p.region_code === 'TW');
-        appState.products.MY = parsedAll.filter(p => p.region_code === 'MY');
 
         updateSeriesDropdowns();
         renderTypeFilterButtons();
         renderProducts();
-        AppToast.success(`產品目錄同步完成 (共 ${parsedAll.length} 筆商品)`);
+        AppToast.success(`產品目錄同步完成 (共 ${totalValidProducts} 筆商品)`);
     } catch (err) {
         console.error('無法連線 Google 試算表:', err);
         AppDialog.alert("無法載入產品資料，請確認網路連線或試算表讀取權限！", {
@@ -281,80 +281,104 @@ function getTypeInfo(typeCode, country = appState.country) {
 // 6. 篩選控制與選單維護
 // ==========================================
 function updateSeriesDropdowns() {
-    const mainSelect = document.getElementById('mainSeriesSelect');
-    if (!mainSelect) return;
+    const mainOptions = [
+        { code: 'ALL', name: '全部主系列' },
+        ...appState.categoryList.map(cat => {
+            const catInfo = getCategoryInfo(cat.category_code, appState.country);
+            return {
+                code: cat.category_code,
+                name: `${cat.category_code} ${catInfo.name}`
+            };
+        })
+    ];
 
-    mainSelect.innerHTML = '<option value="ALL">全部主系列</option>';
-
-    appState.categoryList.forEach(cat => {
-        const catInfo = getCategoryInfo(cat.category_code, appState.country);
-        const opt = document.createElement('option');
-        opt.value = cat.category_code;
-        opt.textContent = `${cat.category_code} ${catInfo.name}`;
-        mainSelect.appendChild(opt);
+    UISelectOptions.core.render({
+        target: '#mainSeriesSelect',
+        data: mainOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部主系列',
+        selectedValue: appState.mainSeries || 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
     });
 
-    mainSelect.value = appState.mainSeries || 'ALL';
-    updateSubSeriesDropdown(mainSelect.value);
+    updateSubSeriesDropdown(appState.mainSeries || 'ALL');
 }
 
 function updateSubSeriesDropdown(mainCode) {
-    const subSelect = document.getElementById('subSeriesSelect');
-    if (!subSelect) return;
-
-    subSelect.innerHTML = '';
+    const $subSelect =$('#subSeriesSelect');
+    if (!$subSelect.length) return;
 
     if (!mainCode || mainCode === 'ALL') {
-        subSelect.disabled = true;
-        subSelect.innerHTML = '<option value="ALL">請先選擇主系列</option>';
+        $subSelect.prop('disabled', true);
+        UISelectOptions.core.render({
+            target: '#subSeriesSelect',
+            data: [{ code: 'ALL', name: '請先選擇主系列' }],
+            valueKey: 'code',
+            textKey: 'name',
+            placeholder: '請先選擇主系列',
+            selectedValue: 'ALL',
+            searchable: false,
+            creatable: false,
+            grouped: false,
+            allowClear: false
+        });
         return;
     }
 
-    subSelect.disabled = false;
-    const defaultOpt = document.createElement('option');
-    defaultOpt.value = 'ALL';
-    defaultOpt.textContent = '全部次系列';
-    subSelect.appendChild(defaultOpt);
-
+    $subSelect.prop('disabled', false);
     const filteredSubs = appState.subcategoryList.filter(s => s.category_code === mainCode);
-    filteredSubs.forEach(sub => {
-        const subInfo = getSubcategoryInfo(sub.subcategory_code, appState.country);
-        const opt = document.createElement('option');
-        opt.value = sub.subcategory_code;
-        opt.textContent = `${sub.subcategory_code} ${subInfo.name}`;
-        subSelect.appendChild(opt);
-    });
+    const subOptions = [
+        { code: 'ALL', name: '全部次系列' },
+        ...filteredSubs.map(sub => {
+            const subInfo = getSubcategoryInfo(sub.subcategory_code, appState.country);
+            return {
+                code: sub.subcategory_code,
+                name: `${sub.subcategory_code} ${subInfo.name}`
+            };
+        })
+    ];
 
-    subSelect.value = appState.subSeries || 'ALL';
+    UISelectOptions.core.render({
+        target: '#subSeriesSelect',
+        data: subOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部次系列',
+        selectedValue: appState.subSeries || 'ALL',
+        searchable: false,
+        creatable: false,
+        grouped: false,
+        allowClear: true
+    });
 }
 
 function renderTypeFilterButtons() {
     let html = `
-        <input type="radio" class="btn-check" name="product-type" id="type-btn-all" value="ALL" autocomplete="off" ${appState.productType === 'ALL' ? 'checked' : ''}>
-        <label class="filter-pill-btn" for="type-btn-all">
-            <i class="fa-solid fa-border-all me-1"></i>全部
-        </label>
+        <div class="col col-12">
+            <button class="filter-pill-btn w-100 ${appState.productType === 'ALL' ? 'active' : ''}" data-type="ALL">
+                <i class="fa-solid fa-border-all me-1"></i>全部
+            </button>
+        </div>
     `;
 
-    appState.typeList.forEach((t, index) => {
+    appState.typeList.forEach(t => {
         const typeInfo = getTypeInfo(t.type_code, appState.country);
-        const isChecked = appState.productType === t.type_code ? 'checked' : '';
-        const inputId = `type-btn-${index}`;
-
+        const isActive = appState.productType === t.type_code ? 'active' : '';
         html += `
-            <input type="radio" class="btn-check" name="product-type" id="${inputId}" value="${t.type_code}" autocomplete="off" ${isChecked}>
-            <label class="filter-pill-btn" for="${inputId}">
-                <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
-            </label>
+            <div class="col">
+                <button class="filter-pill-btn w-100 ${isActive}" data-type="${t.type_code}">
+                    <i class="${typeInfo.icon} me-1"></i>${typeInfo.name}
+                </button>
+            </div>
         `;
     });
 
-    const $container = $('#typeFilterContainer');
-    if ($container.length > 0) {
-        $container.html(html);
-        if (window.Utils && typeof UI.equalizeWidths === 'function') {
-            UI.equalizeWidths('#typeFilterContainer label');
-        }
+    const $container =$('#typeFilterContainer');
+    if ($container.length > 0) {$container.html(html);
     }
 }
 
@@ -374,25 +398,47 @@ function bindEvents() {
         AppToast.info(`已切換至【${appState.country === 'MY' ? '馬來西亞' : '台灣'}】地區目錄`);
     });
 
-    $('#mainSeriesSelect').on('change', function () {
-        appState.mainSeries = $(this).val();
-        appState.subSeries = 'ALL';
-        updateSubSeriesDropdown(appState.mainSeries);
-        renderProducts();
-    });
+    // 主系列變更與清除監聽
+    $('#mainSeriesSelect')
+        .off('change select2:clear')
+        .on('change', function () {
+            const val = $(this).val() || 'ALL';
+            appState.mainSeries = val;
+            appState.subSeries = 'ALL';
+            updateSubSeriesDropdown(appState.mainSeries);
+            renderProducts();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
-    $('#subSeriesSelect').on('change', function () {
-        appState.subSeries = $(this).val();
-        renderProducts();
-    });
+    // 次系列變更與清除監聽
+    $('#subSeriesSelect')
+        .off('change select2:clear')
+        .on('change', function () {
+            const val = $(this).val() || 'ALL';
+            appState.subSeries = val;
+            renderProducts();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     $('#searchInput').on('input', function () {
         appState.searchKeyword = $(this).val().trim().toLowerCase();
         renderProducts();
     });
 
-    $('#typeFilterContainer').on('change', 'input[name="product-type"]', function () {
-        appState.productType = $(this).val();
+    $('#typeFilterContainer').off('click', '.filter-pill-btn').on('click', '.filter-pill-btn', function () {
+        $('#typeFilterContainer .filter-pill-btn').removeClass('active');
+        $(this).addClass('active');
+        appState.productType = $(this).data('type');
         renderProducts();
     });
 }
@@ -456,7 +502,7 @@ function renderProducts() {
 
         const detailUrl = `./prd-detail.html?code=${encodeURIComponent(item.product_code)}&region=${encodeURIComponent(item.region_code)}`;
         const priceNum = Number(item.price) || 0;
-        const formattedPrice = item.currency === 'MYR' ? `RM ${priceNum.toLocaleString()}` : `NT$ ${priceNum.toLocaleString()}`;
+        const formattedPrice = formatCurrency(item.price, item.currency);
 
         // 右上角標籤：即將上市優先，其次為明星商品（外層以 position 容器包覆定位）
         let topRightTag = '';
@@ -473,7 +519,7 @@ function renderProducts() {
         const col = document.createElement('div');
         col.className = 'col col-12 col-sm-6 col-lg-3 mb-4';
         col.innerHTML = `
-            <div class="card h-100 product-card border-0 text-light shadow-sm">
+            <div class="card h-100 product-card text-light shadow-sm">
                 <div class="card-img-wrapper position-relative overflow-hidden">
                     <div class="position-absolute top-0 start-0 p-2 d-flex flex-wrap gap-1 z-2">
                         ${subcategoryBadge}
@@ -486,7 +532,7 @@ function renderProducts() {
                     <h5 class="fw-bold text-light mb-2">${item.name}</h5>
                     <p class="small text-muted mb-3">${item.short_summary || '暫無產品簡介'}</p>
                     <div class="card-incard mb-3 p-2 rounded d-flex justify-content-between align-items-center">
-                        <div class="fw-bold text-warning">${formattedPrice}</div>
+                        <div class="fw-bold text-yellow">${formattedPrice}</div>
                         <div class="fw-bold text-teal">${Number(item.sv_point).toLocaleString()} SV</div>
                     </div>
                     <a href="${detailUrl}" target="_blank" class="btn btn-outline-primary w-100 text-center fw-bold">

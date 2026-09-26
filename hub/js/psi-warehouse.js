@@ -260,7 +260,7 @@ function renderGridCards(list) {
                             ${remarksHtml}
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center pt-2 border-top border-purple-subtle">
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top border-primary">
                             <div class="d-flex gap-1">
                                 ${navUrl ? `
                                     <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm py-1 px-2" title="地圖導航">
@@ -347,7 +347,7 @@ function formatTableRow(w) {
 // ==========================================================================
 // 6. Modal 表單操作 (嚴格依據表 301 欄位物理順序寫入)
 // ==========================================================================
-function openAddModal() {
+function openAddWarehouseModal() {
     $('#warehouseModalLabel').html('<i class="fa-solid fa-plus text-primary me-1"></i>新增據點倉儲');
     $('#formMode').val('add');
     $('#warehouseForm')[0].reset();

@@ -57,13 +57,67 @@ window.addEventListener('AppReady', async function () {
  * 初始化頂部篩選下拉選單 (僅在資料載入後執行一次)
  */
 function initFilterDropdowns() {
+    // 現居地
     const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
-    UISelectOptions.geo.populateRegionsDropdown({
+    const standardSet = new Set([
+        ...UISelectOptions.geo.DATABASE.TW,
+        ...UISelectOptions.geo.DATABASE.MY
+    ]);
+
+    const regionOptions = [
+        { id: 'ALL', name: '全部地區', group: '全部' }
+    ];
+
+    UISelectOptions.geo.DATABASE.TW.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '🇹🇼 台灣' });
+    });
+    UISelectOptions.geo.DATABASE.MY.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '🇲🇾 馬來西亞' });
+    });
+
+    const validCustoms = new Set();
+    customRegions.forEach(r => {
+        if (r && !standardSet.has(r)) validCustoms.add(r);
+    });
+    validCustoms.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '📍 其他現有地區' });
+    });
+
+    UISelectOptions.core.render({
         target: '#filter-current-residence',
+        data: regionOptions,
+        valueKey: 'id',
+        textKey: 'name',
+        groupKey: 'group',
+        grouped: true,
         placeholder: '全部地區',
-        customRegions: customRegions,
+        selectedValue: $('#filter-current-residence').val() || 'ALL',
+        searchable: true,
+        allowClear: true
+    });
+
+    // 國籍
+    const natSet = new Set(['中華民國', '馬來西亞', '新加坡', '中國', '其他']);
+    personMasterList.forEach(p => {
+        let n = (p.nationality || '').trim();
+        if (n === '台灣' || n === 'TW') n = '中華民國';
+        if (n) natSet.add(n);
+    });
+    const natOptions = [
+        { id: 'ALL', name: '全部國籍' },
+        ...Array.from(natSet).map(n => ({ id: n, name: n }))
+    ];
+    UISelectOptions.core.render({
+        target: '#filter-nationality',
+        data: natOptions,
+        valueKey: 'id',
+        textKey: 'name',
+        placeholder: '全部國籍',
+        selectedValue: $('#filter-nationality').val() || 'ALL',
+        searchable: true,
         creatable: false,
-        searchable: true
+        grouped: false,
+        allowClear: true
     });
 }
 
@@ -97,6 +151,15 @@ function bindEvents() {
     $('.form-filter-control').on('change input', function () {
         renderAllViews();
     });
+
+    $('#filter-nationality, #filter-current-residence')
+        .off('select2:clear')
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     // 視圖 Tab 切換時重繪 DataTable 與 Chart.js
     $('#viewModeTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -276,7 +339,7 @@ function getFilteredPersons() {
     const fUsage = $('#filter-usage-identity').val();
     const fAge = $('#filter-age-group').val();
     const fNationality = $('#filter-nationality').val();
-    const fResidence = ($('#filter-current-residence').val() || '').trim().toLowerCase();
+    const fResidence = $('#filter-current-residence').val();
     const fGender = $('#filter-gender').val();
     const fMarital = $('#filter-marital-status').val();
     const fEducation = $('#filter-highest-education').val();
@@ -286,11 +349,10 @@ function getFilteredPersons() {
     const fLife = $('#filter-life-status').val();
 
     return personMasterList.filter(p => {
-        if (fIdentity && p.identity_type !== fIdentity) return false;
-        if (fUsage && p.usage_identity !== fUsage) return false;
+        if (fIdentity && fIdentity !== 'ALL' && p.identity_type !== fIdentity) return false;
+        if (fUsage && fUsage !== 'ALL' && p.usage_identity !== fUsage) return false;
 
-        // 年齡分層篩選
-        if (fAge) {
+        if (fAge && fAge !== 'ALL') {
             const age = AppDate.calculateAge(p.birthday, p.deceased_date);
             if (age === null) return false;
             let group = '';
@@ -304,15 +366,20 @@ function getFilteredPersons() {
             if (group !== fAge) return false;
         }
 
-        if (fNationality && p.nationality !== fNationality) return false;
-        if (fResidence && !(p.current_residence || '').toLowerCase().includes(fResidence)) return false;
-        if (fGender && p.gender !== fGender) return false;
-        if (fMarital && p.marital_status !== fMarital) return false;
-        if (fEducation && p.highest_education !== fEducation) return false;
-        if (fGraduation && p.graduation_status !== fGraduation) return false;
-        if (fHealth && p.health_status !== fHealth) return false;
-        if (fFinancial && p.financial_status !== fFinancial) return false;
-        if (fLife && p.life_status !== fLife) return false;
+        if (fResidence && fResidence !== 'ALL') {
+            const cleanFilter = fResidence.trim().replace(/台/g, '臺').toLowerCase();
+            const cleanTarget = (p.current_residence || '').trim().replace(/台/g, '臺').toLowerCase();
+            if (!cleanTarget.includes(cleanFilter)) return false;
+        }
+        
+        if (fResidence && fResidence !== 'ALL' && !(p.current_residence || '').toLowerCase().includes(fResidence)) return false;
+        if (fGender && fGender !== 'ALL' && p.gender !== fGender) return false;
+        if (fMarital && fMarital !== 'ALL' && p.marital_status !== fMarital) return false;
+        if (fEducation && fEducation !== 'ALL' && p.highest_education !== fEducation) return false;
+        if (fGraduation && fGraduation !== 'ALL' && p.graduation_status !== fGraduation) return false;
+        if (fHealth && fHealth !== 'ALL' && p.health_status !== fHealth) return false;
+        if (fFinancial && fFinancial !== 'ALL' && p.financial_status !== fFinancial) return false;
+        if (fLife && fLife !== 'ALL' && p.life_status !== fLife) return false;
         return true;
     });
 }

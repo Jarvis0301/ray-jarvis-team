@@ -26,16 +26,33 @@
             <!-- ==========================================================================
                 1. 戰備物資態勢抬頭 (Sentinel Stock HUD)
                 ========================================================================== -->
-            <header class="row align-items-center mb-3">
-                <h4 class="fw-bold mb-0 text-light">
-                    <i class="fa-solid fa-boxes-stacked text-primary me-1"></i>庫存管理
-                </h4>
+            <header class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-9 col-xl-9">
+                    <h4 class="fw-bold text-light mb-0">
+                        <i class="fa-solid fa-boxes-stacked text-primary me-1"></i>庫存管理
+                    </h4>
+                </div>
+
+                <div class="col-12 col-md-3 col-xl-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col">
+                            <button class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddStockModal()">
+                                <i class="fa-solid fa-plus me-1"></i>新增庫存
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </header>
             
-            <section class="glass-panel hud-bar mb-3">
+            <section class="glass-panel hud-bar g-3 mb-3">
                 <div class="row align-items-center g-3 mb-3">
                     <!-- 雙軌 6 聯動態指標卡 (原裝盒 + 拆零散件對稱監控) -->
-                    <div class="col-12 col-xl-10">
+                    <div class="col-12">
                         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
                             <div class="col">
                                 <div class="stat-chip">
@@ -75,14 +92,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-xl-2 d-flex justify-content-xl-end">
-                        <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddModal" onclick="openAddStockModal()">
-                            <i class="fa-solid fa-plus me-1"></i>新增庫存
-                        </button>
-                    </div>
                 </div>
 
-                <div class="row align-items-center g-3 mt-2 border-top border-purple-subtle">
+                <div class="row align-items-center g-3 mt-2 border-top border-primary">
                     <!-- 1. 據點下拉 -->
                     <div class="col-12 col-md-3 col-xl-3">
                         <label class="form-label fw-bold mb-1" for="filterWarehouse">

@@ -275,7 +275,7 @@
             <div class="col-12 col-md-5 text-md-end">
                 <div class="d-flex flex-wrap justify-content-md-end gap-2">
                     <button class="btn btn-outline-purple" id="btnSyncGoogleSheets">
-                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
                     </button>
                     <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#patentModal" onclick="openPatentModal('add')">
                         <i class="fa-solid fa-plus me-1"></i>新增專利認證
@@ -882,7 +882,7 @@
                 
                 // 模擬 GViz API 抓取與解耦轉換流程
                 setTimeout(() => {
-                    $btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表').prop('disabled', false);
+                    $btn.html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫').prop('disabled', false);
                     alert('已成功透過解耦管道同步 Google 試算表 [01_產品 - 專利認證主表] 最新數據！');
                 }, 900);
             });

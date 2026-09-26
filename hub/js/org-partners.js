@@ -54,7 +54,6 @@ let selectedTreeRootId = 'ALL';        // 預設：全域森林 ('ALL' 或指定
 // 2. 系統生命週期與初始化 (Lifecycle & Init)
 // ============================================================================
 window.addEventListener('AppReady', function () {
-    //SheetAdapter.init(GAS_DEPLOY_ID);
     populateRegionDropdowns();
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
@@ -378,18 +377,55 @@ function syncCoOperatorStatusAndRelations() {
 // ============================================================================
 function populateRegionDropdowns() {
     const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
+    const standardSet = new Set([
+        ...UISelectOptions.geo.DATABASE.TW,
+        ...UISelectOptions.geo.DATABASE.MY
+    ]);
 
-    UISelectOptions.geo.populateRegionsDropdown({
+    // 1. 頂部篩選器
+    const regionOptions = [
+        { id: 'ALL', name: '全部地區', group: '全部' }
+    ];
+    UISelectOptions.geo.DATABASE.TW.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '🇹🇼 台灣' });
+    });
+    UISelectOptions.geo.DATABASE.MY.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '🇲🇾 馬來西亞' });
+    });
+    const validCustoms = new Set();
+    customRegions.forEach(r => {
+        if (r && !standardSet.has(r)) validCustoms.add(r);
+    });
+    validCustoms.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '📍 其他現有地區' });
+    });
+
+    UISelectOptions.core.render({
         target: '#filter-current-residence',
+        data: regionOptions,
+        valueKey: 'id',
+        textKey: 'name',
+        groupKey: 'group',
+        grouped: true,
         placeholder: '全部地區',
-        customRegions: customRegions,
-        selectedValue: $('#filter-current-residence').val() || ''
+        selectedValue: $('#filter-current-residence').val() || 'ALL',
+        searchable: true,
+        allowClear: true
     });
 
-    $('#filter-current-residence').off('change.filterRegion').on('change.filterRegion', function () {
-        renderAllViews();
-    });
+    $('#filter-current-residence')
+        .off('change.filterRegion select2:clear')
+        .on('change.filterRegion', function () {
+            renderAllViews();
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
+    // 2. 表單：現居地與家鄉維持做法二
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-current-residence',
         placeholder: '請選擇或輸入居住地...',
@@ -772,19 +808,38 @@ function getRankInfo(rankId) {
 function updateRanksCacheAndUI() {
     ranksMap = {};
     ranksDatabase.forEach(rk => { ranksMap[rk.rank_id] = rk; });
-
     const sortedRanks = [...ranksDatabase].sort((a, b) => a.sort_order - b.sort_order);
+
+    const rankOptions = [
+        { rank_id: 'ALL', rank_name: '全部職級' },
+        ...sortedRanks.map(rk => ({
+            rank_id: rk.rank_id,
+            rank_name: `${rk.rank_name_zh} (${rk.rank_code})`
+        }))
+    ];
 
     UISelectOptions.core.render({
         target: '#filter-highest-rank-id',
-        data: sortedRanks,
+        data: rankOptions,
         valueKey: 'rank_id',
-        textKey: (rk) => `${rk.rank_name_zh} (${rk.rank_code})`,
+        textKey: 'rank_name',
         placeholder: '全部職級',
-        searchable: false,
-        creatable: false,
-        grouped: false
+        selectedValue: $('#filter-highest-rank-id').val() || 'ALL',
+        searchable: true,
+        allowClear: true
     });
+
+    $('#filter-highest-rank-id')
+        .off('change select2:clear')
+        .on('change', function () {
+            renderAllViews();
+        })
+        .on('select2:clear', function () {
+            const $this =$(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     ['#form-current-rank-id', '#form-highest-rank-id'].forEach(target => {
         UISelectOptions.core.render({
@@ -853,34 +908,46 @@ function getFilteredPartners() {
     const fResidence = $('#filter-current-residence').val();
     const fHighestRank = $('#filter-highest-rank-id').val();
     const fIsOurTeam = $('#filter-is-our-team').val();
-    const fActivity = $('#filter-activity-level').val();
     const fRelation = $('#filter-relation-type').val();
+    const fOperationMode = $('#filter-operation-mode').val();
+    const fActivity = $('#filter-activity-level').val();
     const fMemberStatus = $('#filter-member-status').val();
     const fOperatorStatus = $('#filter-operator-status').val();
     const fWorkStatus = $('#filter-work-status').val();
-    const fGraduationStatus = $('#filter-graduation-status').val();
+    const fJoiningMotive = $('#filter-joining-motive').val();
     const fIdentityType = $('#filter-identity-type').val();
     const fUsageIdentity = $('#filter-usage-identity').val();
+    const fGender = $('#filter-gender').val();
+    const fHighestEducation = $('#filter-highest-education').val();
+    const fGraduationStatus = $('#filter-graduation-status').val();
     const fHealthStatus = $('#filter-health-status').val();
     const fFinancialStatus = $('#filter-financial-status').val();
 
     return partnersList.filter(p => {
         const person = getPersonMaster(p.person_id);
 
-        if (fCountry && p.country_code !== fCountry) return false;
-        if (fResidence && person.current_residence !== fResidence) return false;
-        if (fHighestRank && p.highest_rank_id !== fHighestRank) return false;
-        if (fIsOurTeam && p.is_our_team !== fIsOurTeam) return false;
-        if (fActivity && p.activity_level !== fActivity) return false;
-        if (fRelation && p.relation_type !== fRelation) return false;
-        if (fMemberStatus && p.member_status !== fMemberStatus) return false;
-        if (fOperatorStatus && p.operator_status !== fOperatorStatus) return false;
-        if (fWorkStatus && p.work_status !== fWorkStatus) return false;
-        if (fGraduationStatus && person.graduation_status !== fGraduationStatus) return false;
-        if (fIdentityType && person.identity_type !== fIdentityType) return false;
-        if (fUsageIdentity && person.usage_identity !== fUsageIdentity) return false;
-        if (fHealthStatus && person.health_status !== fHealthStatus) return false;
-        if (fFinancialStatus && person.financial_status !== fFinancialStatus) return false;
+        if (fCountry && fCountry !== 'ALL' && p.country_code !== fCountry) return false;
+        if (fResidence && fResidence !== 'ALL') {
+            const cleanFilter = fResidence.trim().replace(/台/g, '臺').toLowerCase();
+            const cleanTarget = (person.current_residence || '').trim().replace(/台/g, '臺').toLowerCase();
+            if (!cleanTarget.includes(cleanFilter)) return false;
+        }
+        if (fHighestRank && fHighestRank !== 'ALL' && p.highest_rank_id !== fHighestRank) return false;
+        if (fIsOurTeam && fIsOurTeam !== 'ALL' && p.is_our_team !== fIsOurTeam) return false;
+        if (fRelation && fRelation !== 'ALL' && p.relation_type !== fRelation) return false;
+        if (fOperationMode && fOperationMode !== 'ALL' && p.operation_mode !== fOperationMode) return false;
+        if (fActivity && fActivity !== 'ALL' && p.activity_level !== fActivity) return false;
+        if (fMemberStatus && fMemberStatus !== 'ALL' && p.member_status !== fMemberStatus) return false;
+        if (fOperatorStatus && fOperatorStatus !== 'ALL' && p.operator_status !== fOperatorStatus) return false;
+        if (fWorkStatus && fWorkStatus !== 'ALL' && p.work_status !== fWorkStatus) return false;
+        if (fJoiningMotive && fJoiningMotive !== 'ALL' && p.joining_motive !== fJoiningMotive) return false;
+        if (fIdentityType && fIdentityType !== 'ALL' && person.identity_type !== fIdentityType) return false;
+        if (fUsageIdentity && fUsageIdentity !== 'ALL' && person.usage_identity !== fUsageIdentity) return false;
+        if (fGender && fGender !== 'ALL' && person.gender !== fGender) return false;
+        if (fHighestEducation && fHighestEducation !== 'ALL' && person.highest_education !== fHighestEducation) return false;
+        if (fGraduationStatus && fGraduationStatus !== 'ALL' && person.graduation_status !== fGraduationStatus) return false;
+        if (fHealthStatus && fHealthStatus !== 'ALL' && person.health_status !== fHealthStatus) return false;
+        if (fFinancialStatus && fFinancialStatus !== 'ALL' && person.financial_status !== fFinancialStatus) return false;
 
         return true;
     });
@@ -892,11 +959,15 @@ function renderAllViews() {
     const teamPartners = list.filter(p => p.is_our_team === 'Y');
     const myTeamPartners = teamPartners.filter(p => p.country_code === 'MY');
     const activeTeamPartners = teamPartners.filter(p => p.activity_level === '積極參與' || p.activity_level === '參與');
+    const validMemberPartners = list.filter(p => p.member_status === '有效且領獎金');
+    const crossTeamPartners = list.filter(p => p.is_our_team === 'N');
 
     $('#hud-total-partners').text(list.length.toLocaleString());
     $('#hud-team-partners').text(teamPartners.length.toLocaleString());
     $('#hud-my-team-partners').text(myTeamPartners.length.toLocaleString());
     $('#hud-active-team-partners').text(activeTeamPartners.length.toLocaleString());
+    $('#hud-valid-member-partners').text(validMemberPartners.length.toLocaleString());
+    $('#hud-cross-team-partners').text(crossTeamPartners.length.toLocaleString());
 
     renderCardsView(list);
     renderDataTableView(list);

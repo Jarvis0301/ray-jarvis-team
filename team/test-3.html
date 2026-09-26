@@ -224,7 +224,7 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             <button id="btnSyncGoogleSheets" class="btn btn-outline-info btn-sm">
-                <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表數據
+                <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫數據
             </button>
             <button id="btnResetBundle" class="btn btn-outline-secondary btn-sm">
                 <i class="fa-solid fa-rotate-left me-1"></i>重設配方
@@ -674,7 +674,7 @@
                 
                 // 模擬抓取非同步試算表並透過解耦字典對齊
                 setTimeout(() => {
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表數據');
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫數據');
                     alert('已成功與 Google 試算表完成欄位解耦同步！');
                 }, 1000);
             });

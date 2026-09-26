@@ -257,7 +257,7 @@ async function initAdjustApp() {
     if (isInitialized) return;
     isInitialized = true;
 
-    initEvents();
+    bindUIEvents();
     await fetchGoogleSheetsData();
 }
 
@@ -620,40 +620,75 @@ function populateSelectOptions() {
         return !type.includes('官方') && !type.includes('OFFICIAL') && w.id !== 'WH-TW-TP' && w.id !== 'WH-TW-KH';
     };
 
-    UISelectOptions.warehouse.populate({
+    // 1. 調出倉庫
+    const fromWhOptions = [
+        { id: 'ALL', name: '全部調出倉' },
+        ...appState.warehouses.filter(nonOfficialWarehouseFilter).map(w => ({
+            id: w.id,
+            name: `${w.warehouse_name || w.name || w.id} [${w.id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterFromWarehouse',
-        warehouses: appState.warehouses,
+        data: fromWhOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部調出倉',
-        selectedValue: appState.filters.fromWh === 'ALL' ? '' : appState.filters.fromWh,
-        displayMode: 1,
-        searchable: true,
-        filterFn: nonOfficialWarehouseFilter
-    });
-
-    UISelectOptions.warehouse.populate({
-        target: '#filterToWarehouse',
-        warehouses: appState.warehouses,
-        placeholder: '全部調入倉',
-        selectedValue: appState.filters.toWh === 'ALL' ? '' : appState.filters.toWh,
-        displayMode: 1,
-        searchable: true,
-        filterFn: nonOfficialWarehouseFilter
-    });
-
-    UISelectOptions.product.populate({
-        target: '#filterProduct',
-        products: appState.products,
-        placeholder: '全部產品品項',
-        selectedValue: appState.filters.productId === 'ALL' ? '' : appState.filters.productId,
+        selectedValue: appState.filters.fromWh || 'ALL',
         searchable: true
     });
 
-    UISelectOptions.partner.populate({
+    // 2. 調入倉庫
+    const toWhOptions = [
+        { id: 'ALL', name: '全部調入倉' },
+        ...appState.warehouses.filter(nonOfficialWarehouseFilter).map(w => ({
+            id: w.id,
+            name: `${w.warehouse_name || w.name || w.id} [${w.id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
+        target: '#filterToWarehouse',
+        data: toWhOptions,
+        valueKey: 'id',
+        textKey: 'name',
+        placeholder: '全部調入倉',
+        selectedValue: appState.filters.toWh || 'ALL',
+        searchable: true
+    });
+
+    // 3. 產品品項
+    const prdOptions = [
+        { code: 'ALL', name: '全部產品品項' },
+        ...appState.products.map(p => ({
+            code: p.product_code || p.official_product_code,
+            name: `${p.name} [${p.product_code || p.official_product_code}]`
+        }))
+    ];
+    UISelectOptions.core.render({
+        target: '#filterProduct',
+        data: prdOptions,
+        valueKey: 'code',
+        textKey: 'name',
+        placeholder: '全部產品品項',
+        selectedValue: appState.filters.productId || 'ALL',
+        searchable: true
+    });
+
+    // 4. 經手夥伴
+    const operatorOptions = [
+        { id: 'ALL', name: '全部經手夥伴' },
+        ...appState.partners.map(p => ({
+            id: p.partner_id,
+            name: `${EntityResolver.partner(p.partner_id, appState.partners, appState.persons, 1)} [${p.partner_id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filterOperator',
-        partners: appState.partners,
-        persons: appState.persons,
+        data: operatorOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部經手夥伴',
-        selectedValue: appState.filters.operatorId === 'ALL' ? '' : appState.filters.operatorId,
+        selectedValue: appState.filters.operatorId || 'ALL',
         searchable: true
     });
 
@@ -1286,7 +1321,7 @@ function renderCharts() {
 // ==========================================================================
 // 7. 互動事件管理與計算
 // ==========================================================================
-function initEvents() {
+function bindUIEvents() {
     $('input[name="modalPackMode"]').on('change', function () {
         const selectedMode = $(this).val();
         const adjType = $('#fieldAdjType').val();
@@ -1348,14 +1383,9 @@ function initEvents() {
         }
     });
 
-    $('#filterStartDate, #filterEndDate, #filterFromWarehouse, #filterToWarehouse, #filterProduct, #filterOperator').on('change input', function () {
+    $('#filterStartDate, #filterEndDate').on('change input', function () {
         appState.filters.startDate = $('#filterStartDate').val() || '';
         appState.filters.endDate = $('#filterEndDate').val() || '';
-        appState.filters.fromWh = $('#filterFromWarehouse').val() || 'ALL';
-        appState.filters.toWh = $('#filterToWarehouse').val() || 'ALL';
-        appState.filters.productId = $('#filterProduct').val() || 'ALL';
-        appState.filters.operatorId = $('#filterOperator').val() || 'ALL';
-
         renderMetrics();
         renderAdjustmentsTable();
         renderTransfersTable();
@@ -1363,6 +1393,28 @@ function initEvents() {
             renderCharts();
         }
     });
+
+    $('#filterFromWarehouse, #filterToWarehouse, #filterProduct, #filterOperator')
+        .off('change select2:clear')
+        .on('change', function () {
+            appState.filters.fromWh = $('#filterFromWarehouse').val() || 'ALL';
+            appState.filters.toWh = $('#filterToWarehouse').val() || 'ALL';
+            appState.filters.productId = $('#filterProduct').val() || 'ALL';
+            appState.filters.operatorId = $('#filterOperator').val() || 'ALL';
+
+            renderMetrics();
+            renderAdjustmentsTable();
+            renderTransfersTable();
+            if ($('#container-charts-view').hasClass('active')) {
+                renderCharts();
+            }
+        })
+        .on('select2:clear', function () {
+            const $this = $(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 }
 
 function calculateAuditVariance() {

@@ -203,17 +203,25 @@ function bindUIEvents() {
     });
 
     // 6 個獨立篩選條件變更事件監聽
+    $('#filter-warehouse, #filter-product')
+        .off('select2:clear')
+        .on('select2:clear', function () {
+            const $this =$(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
+
     $('#filter-warehouse, #filter-product, #filter-alert-type, #filter-alert-level, #filter-status, #filter-monitored').on('change', function() {
-        appState.filters.warehouse = $('#filter-warehouse').val();
-        appState.filters.product = $('#filter-product').val();
-        appState.filters.alertType = $('#filter-alert-type').val();
-        appState.filters.severity = $('#filter-alert-level').val();
-        appState.filters.status = $('#filter-status').val();
-        appState.filters.monitored = $('#filter-monitored').val();
+        appState.filters.warehouse = $('#filter-warehouse').val() || 'ALL';
+        appState.filters.product = $('#filter-product').val() || 'ALL';
+        appState.filters.alertType = $('#filter-alert-type').val() || 'ALL';
+        appState.filters.severity = $('#filter-alert-level').val() || 'ALL';
+        appState.filters.status = $('#filter-status').val() || 'ALL';
+        appState.filters.monitored = $('#filter-monitored').val() || 'ALL';
 
         // 雙向連動膠囊按鈕狀態
-        $('[data-alert-filter]').removeClass('active');
-        $(`[data-alert-filter="${appState.filters.alertType}"]`).addClass('active');
+        $('[data-alert-filter]').removeClass('active');$(`[data-alert-filter="${appState.filters.alertType}"]`).addClass('active');
 
         onFilterStateChanged();
     });
@@ -228,13 +236,22 @@ function bindUIEvents() {
  * 填充 6 聯篩選工具列之動態選單 (據點與產品)
  */
 function populateFilterSelectOptions() {
-    // 據點倉儲篩選器：可搜尋、顯示模式 2 (名稱 [ID])
-    UISelectOptions.warehouse.populate({
+    // 1. 據點倉儲篩選器
+    const rawWhs = Object.values(appState.warehouses || {});
+    const whOptions = [
+        { id: 'ALL', name: '全部據點倉儲' },
+        ...rawWhs.map(w => ({
+            id: w.id,
+            name: `${w.name || w.id} [${w.id}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filter-warehouse',
-        warehouses: appState.warehouses,
-        displayMode: 2,
+        data: whOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部據點倉儲',
-        selectedValue: appState.filters.warehouse === 'ALL' ? '' : appState.filters.warehouse,
+        selectedValue: appState.filters.warehouse || 'ALL',
         searchable: true,
         onChange: (val) => {
             appState.filters.warehouse = val || 'ALL';
@@ -242,48 +259,28 @@ function populateFilterSelectOptions() {
         }
     });
 
-    // 產品品項篩選器：可搜尋、依市場分組 (grouped: true)、顯示模式 2 (名稱 [代號])
-    UISelectOptions.product.populate({
+    // 2. 產品品項篩選器
+    const rawPrds = Object.values(appState.products || {});
+    const prdOptions = [
+        { code: 'ALL', name: '全部產品品項' },
+        ...rawPrds.map(p => ({
+            code: p.code,
+            name: `${p.short_name || p.name} [${p.code}]`
+        }))
+    ];
+    UISelectOptions.core.render({
         target: '#filter-product',
-        products: appState.products,
-        displayMode: 2,
+        data: prdOptions,
+        valueKey: 'code',
+        textKey: 'name',
         placeholder: '全部產品品項',
-        selectedValue: appState.filters.product === 'ALL' ? '' : appState.filters.product,
+        selectedValue: appState.filters.product || 'ALL',
         searchable: true,
-        grouped: true,
         onChange: (val) => {
             appState.filters.product = val || 'ALL';
             onFilterStateChanged();
         }
     });
-}
-
-/**
- * 重設全部篩選條件
- */
-function resetAlertFilters() {
-    // 透過 select2('val', '') 觸發 Select2 介面文字即時還原
-    $('#filter-warehouse').val('').trigger('change.select2');
-    $('#filter-product').val('').trigger('change.select2');
-    $('#filter-alert-type').val('ALL');
-    $('#filter-alert-level').val('ALL');
-    $('#filter-status').val('ALL');
-    $('#filter-monitored').val('ALL');
-
-    appState.filters = {
-        warehouse: 'ALL',
-        product: 'ALL',
-        alertType: 'ALL',
-        severity: 'ALL',
-        status: 'ALL',
-        monitored: 'ALL'
-    };
-    appState.alertFilter = 'ALL';
-    $('[data-alert-filter]').removeClass('active');
-    $('[data-alert-filter="ALL"]').addClass('active');
-
-    onFilterStateChanged();
-    AppToast.info('已重設所有篩選條件');
 }
 
 /**

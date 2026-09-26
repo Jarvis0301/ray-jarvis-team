@@ -26,7 +26,7 @@
             <!-- 頂部戰情控制台指揮列 -->
             <header class="glass-panel mb-3">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                    <div class="fs-5 fw-bold text-white">
+                    <div class="fw-bold text-light mb-0">
                         <i class="fa-solid fa-calculator text-primary me-1"></i>獎金試算
                     </div>
 
@@ -276,28 +276,41 @@
                     <div class="col-xl-6">
                         <div class="d-flex flex-column gap-4">
 
-                            <!-- 戰術數值總覽卡 (三主數值) -->
+                            <!-- 戰術數值總覽卡 (三主數值直式運算合併區塊) -->
                             <div class="card">
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-4">
-                                        <div class="card-incard h-100">
-                                            <div><i class="fa-solid fa-file-invoice-dollar text-yellow me-1"></i>應發總獎金 (稅前)</div>
-                                            <div class="fs-2 fw-bold text-yellow" id="valGrossBonus">NT$ 0</div>
-                                            <div class="small text-muted mt-1" id="valGrossBonusWan">約 0.00 萬元</div>
+                                <div class="card-incard p-3 mb-3">
+                                    <div class="d-flex flex-column gap-3">
+                                        <!-- 1. 應發總獎金 (稅前) -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="text-white fw-bold"><i class="fa-solid fa-file-invoice-dollar text-yellow me-1"></i>應發總獎金 (稅前)</div>
+                                                <div class="small text-muted mt-1" id="valGrossBonusWan">約 0.00 萬元</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fs-3 fw-bold text-yellow" id="valGrossBonus">NT$ 0</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card-incard h-100">
-                                            <div><i class="fa-solid fa-hand-holding-dollar text-danger me-1"></i>法定代扣款 (稅+費)</div>
-                                            <div class="fs-2 fw-bold text-danger" id="valTotalDeduction">NT$ 0</div>
-                                            <div class="small text-muted mt-1" id="valDeductionDetail">所得稅10% + 健保2.11%</div>
+
+                                        <!-- 2. 法定代扣款 (稅+費) -->
+                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
+                                            <div>
+                                                <div class="text-white fw-bold"><i class="fa-solid fa-hand-holding-dollar text-danger me-1"></i>法定代扣款 (稅+費)</div>
+                                                <div class="small text-muted mt-1" id="valDeductionDetail">所得稅10% + 健保2.11%</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fs-3 fw-bold text-danger" id="valTotalDeduction">- NT$ 0</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card-incard h-100">
-                                            <div><i class="fa-solid fa-wallet text-orange me-1"></i>預估實撥入帳 (淨額)</div>
-                                            <div class="fs-2 fw-bold text-orange" id="valNetPayout">NT$ 0</div>
-                                            <div class="small text-muted mt-1">次月 15 日撥款入帳</div>
+
+                                        <!-- 3. 預估實撥入帳 (淨額) -->
+                                        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
+                                            <div>
+                                                <div class="text-white fw-bold fs-6"><i class="fa-solid fa-wallet text-orange me-1"></i>預估實撥入帳 (淨額)</div>
+                                                <div class="small text-muted mt-1">次月 15 日撥款入帳</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fs-2 fw-bold text-orange" id="valNetPayout">NT$ 0</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -321,7 +334,7 @@
                             <!-- 葡眾官方八大獎金逐項穿透清冊 (DataTable.js) -->
                             <div class="card">
                                 <div class="card-header">
-                                    <span class="fw-bold text-white"><i class="fa-solid fa-table-list text-secondary me-1"></i>葡眾八大獎金明細核算清冊</span>
+                                    <span class="fw-bold text-white"><i class="fa-solid fa-table-list text-secondary me-1"></i>獎金明細</span>
                                     <span class="text-muted">即時核算</span>
                                 </div>
 
@@ -330,9 +343,9 @@
                                         <thead>
                                             <tr>
                                                 <th>獎金類別</th>
+                                                <th class="text-end">預估金額</th>
                                                 <th>官方提撥</th>
                                                 <th>核算依據與點數</th>
-                                                <th>預估金額</th>
                                             </tr>
                                         </thead>
                                         <tbody id="bonusAuditBody">
@@ -340,8 +353,9 @@
                                         </tbody>
                                         <tfoot>
                                             <tr class="fw-bold border-top border-secondary">
-                                                <td colspan="3" class="text-secondary">應發總獎金：</td>
+                                                <td class="text-secondary">應發總獎金：</td>
                                                 <td class="fs-6 text-orange text-end" id="valTableGrossTotal">NT$ 0</td>
+                                                <td colspan="2"></td>
                                             </tr>
                                         </tfoot>
                                     </table>

@@ -25,14 +25,32 @@
         <main class="container-fluid p-3 p-md-4">
 
             <!-- 1. 頂部 HUD 狀態區塊 -->
-            <header class="row align-items-center mb-3">
-                <h4 class="fw-bold mb-0 text-light">
-                    <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i>庫存預警
-                </h4>
+            <header class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-9 col-xl-9">
+                    <h4 class="fw-bold text-light mb-0">
+                        <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i>庫存預警
+                    </h4>
+                </div>
+
+                <div class="col-12 col-md-3 col-xl-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col">
+                            <button class="btn btn-outline-info btn-sm rounded-pill w-100" id="btn-manual-sync" onclick="manualSyncSheetsData(this)">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
+                                <i class="fa-solid fa-plus me-1"></i>新增門檻規則
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </header>
 
-            <section class="mb-3">
-                <div class="row align-items-center g-3">
+            <section class="glass-panel hud-bar g-3 mb-3">
+                <div class="row align-items-center g-3 mb-3">
+                    <!-- 雙軌 6 聯動態指標卡 (原裝盒 + 拆零散件對稱監控) -->
                     <div class="col-12">
                         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-2">
                             <div class="col">
@@ -74,35 +92,31 @@
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <section class="glass-panel p-3 mb-3" aria-label="多維度篩選工具列">
-                <header class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                    <span class="text-white fw-bold small">
-                        <i class="fa-solid fa-filter text-primary me-1"></i>多維度交叉篩選引擎
-                    </span>
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" id="btn-reset-filters" onclick="resetAlertFilters()">
-                        <i class="fa-solid fa-rotate-left me-1"></i>重設篩選
-                    </button>
-                </header>
-                <div class="row g-2">
+                <div class="row align-items-center g-3 mt-2 border-top border-primary">
                     <!-- 1. 據點倉儲 -->
                     <div class="col-12 col-sm-6 col-xl-2">
-                        <label class="form-label small text-secondary mb-1" for="filter-warehouse">據點倉儲</label>
+                        <label class="form-label small text-secondary mb-1" for="filter-warehouse">
+                            <i class="fa-solid fa-warehouse text-primary me-1"></i>據點倉儲
+                        </label>
                         <select class="form-select form-select-sm" id="filter-warehouse">
                             <option value="ALL">全部據點倉儲</option>
                         </select>
                     </div>
                     <!-- 2. 產品品項 -->
                     <div class="col-12 col-sm-6 col-xl-2">
-                        <label class="form-label small text-secondary mb-1" for="filter-product">產品品項</label>
+                        <label class="form-label small text-secondary mb-1" for="filter-product">
+                            <i class="fa-solid fa-box text-info me-1"></i>產品品項
+                        </label>
                         <select class="form-select form-select-sm" id="filter-product">
                             <option value="ALL">全部產品品項</option>
                         </select>
                     </div>
                     <!-- 3. 預警類型 -->
                     <div class="col-12 col-sm-6 col-xl-2">
-                        <label class="form-label small text-secondary mb-1" for="filter-alert-type">預警類型</label>
+                        <label class="form-label small text-secondary mb-1" for="filter-alert-type">
+                            <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>預警類型
+                        </label>
                         <select class="form-select form-select-sm" id="filter-alert-type">
                             <option value="ALL">全部預警類型</option>
                             <option value="低於安全水位">低於安全水位</option>
@@ -114,7 +128,9 @@
                     </div>
                     <!-- 4. 嚴重性 -->
                     <div class="col-12 col-sm-6 col-xl-2">
-                        <label class="form-label small text-secondary mb-1" for="filter-alert-level">嚴重性</label>
+                        <label class="form-label small text-secondary mb-1" for="filter-alert-level">
+                            <i class="fa-solid fa-circle-exclamation text-danger me-1"></i>嚴重性
+                        </label>
                         <select class="form-select form-select-sm" id="filter-alert-level">
                             <option value="ALL">全部嚴重性</option>
                             <option value="緊急">緊急</option>
@@ -124,7 +140,9 @@
                     </div>
                     <!-- 5. 處置狀態 -->
                     <div class="col-12 col-sm-6 col-xl-2">
-                        <label class="form-label small text-secondary mb-1" for="filter-status">處置狀態</label>
+                        <label class="form-label small text-secondary mb-1" for="filter-status">
+                            <i class="fa-solid fa-list-check text-success me-1"></i>處置狀態
+                        </label>
                         <select class="form-select form-select-sm" id="filter-status">
                             <option value="ALL">全部處置狀態</option>
                             <option value="未處理">未處理</option>
@@ -135,7 +153,9 @@
                     </div>
                     <!-- 6. 監控狀態 -->
                     <div class="col-12 col-sm-6 col-xl-2">
-                        <label class="form-label small text-secondary mb-1" for="filter-monitored">監控狀態</label>
+                        <label class="form-label small text-secondary mb-1" for="filter-monitored">
+                            <i class="fa-solid fa-bell text-secondary me-1"></i>監控狀態
+                        </label>
                         <select class="form-select form-select-sm" id="filter-monitored">
                             <option value="ALL">全部監控狀態</option>
                             <option value="Y">啟動監控中</option>
@@ -145,7 +165,7 @@
                 </div>
             </section>
 
-            <!-- 2. 主視圖切換頁籤（拉出為獨立 nav 語意化共用元件） -->
+            <!-- 2. 主視圖切換頁籤 -->
             <nav aria-label="庫存預警工作區頁籤" class="mb-3">
                 <ul class="nav nav-tabs" id="psiAlertTabs" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -235,18 +255,13 @@
 
             <section id="workspace-thresholds" class="glass-panel p-3 mb-4 d-none">
                 <div class="row align-items-center g-3 pb-3 border-bottom">
-                    <div class="col-12 col-md-10 col-xl-10">
+                    <div class="col-12">
                         <h5 class="fw-bold text-white mb-0">
                             <i class="fa-solid fa-sliders text-primary me-1"></i>各據點安全水位門檻規則
                         </h5>
                         <div class="text-secondary small mt-1">
                             <i class="fa-solid fa-info-circle me-1"></i>自由可用庫存 &le; 門檻值時自動觸發告警，支援隨時啟動/暫停即時掃描。
                         </div>
-                    </div>
-                    <div class="col-12 col-md-2 col-xl-2 d-flex justify-content-md-end">
-                        <button class="btn btn-secondary btn-sm rounded-pill w-100" id="btnOpenAddThreshold" onclick="openAddThresholdModal()">
-                            <i class="fa-solid fa-plus me-1"></i>新增門檻規則
-                        </button>
                     </div>
                 </div>
 
@@ -272,11 +287,8 @@
                 <header class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
                     <div>
                         <h5 class="fw-bold text-white mb-0">
-                            <i class="fa-solid fa-chart-pie text-primary me-1"></i>庫存預警與門檻戰術決策儀表板
+                            <i class="fa-solid fa-chart-pie text-primary me-1"></i>庫存預警統計圖表
                         </h5>
-                        <div class="text-secondary small mt-1">
-                            <i class="fa-solid fa-circle-info me-1"></i>依據當前交叉篩選條件即時動態精算各指標與各據點分佈態勢
-                        </div>
                     </div>
                 </header>
 
@@ -353,7 +365,6 @@
                                     <span class="fw-bold text-white fs-6">
                                         <i class="fa-solid fa-chart-line text-warning me-1"></i>各項產品庫存滿足率與安全警戒線對比圖
                                     </span>
-                                    <span class="badge badge-secondary small ms-2">複合圖表（Mixed Charts）</span>
                                 </div>
                                 <div class="text-secondary small">
                                     <i class="fa-solid fa-shield-halved text-warning me-1"></i>戰術決策目的：在庫存跌破安全線時自動觸發進貨提單流程

@@ -229,7 +229,7 @@
                         <i class="fa-solid fa-address-book text-info me-1"></i>直屬沉睡夥伴追蹤清單
                     </h5>
                     <button class="btn btn-sm btn-outline-info" id="btnSyncGoogleSheets">
-                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表數據
+                        <i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫數據
                     </button>
                 </div>
                 <div class="table-responsive">
@@ -501,7 +501,7 @@
                 
                 // 模擬抓取完成與重新渲染
                 setTimeout(() => {
-                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步試算表數據');
+                    $btn.prop('disabled', false).html('<i class="fa-solid fa-arrows-rotate me-1"></i>同步資料庫數據');
                     alert('已成功與 Google 試算表完成欄位解耦同步！');
                 }, 1200);
             });

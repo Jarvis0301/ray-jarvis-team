@@ -53,6 +53,7 @@ const UISelectOptions = (function () {
         searchable = false,
         creatable = false,
         placeholder = '請選擇...',
+        allowClear = true,
         dropdownParent = null,
         onCustomCreate = null
     }) {
@@ -61,9 +62,18 @@ const UISelectOptions = (function () {
         const config = {
             width: '100%',
             placeholder: placeholder,
-            allowClear: true,
+            allowClear: allowClear,
             language: {
                 noResults: () => creatable ? '鍵入文字後按 Enter 即可新增' : '查無符合資料'
+            },
+            // 🌟 新增：當 Placeholder 或選取值為「全部」時，呈現白色文字
+            templateSelection: function (data) {
+                if (!data || (!data.id && !data.text)) return '';
+                const text = data.text || '';
+                if (data.id === 'ALL' || text.startsWith('全部')) {
+                    return $('<span class="text-light"></span>').text(text);
+                }
+                return text;
             }
         };
 
@@ -116,6 +126,7 @@ const UISelectOptions = (function () {
             searchable = false,
             creatable = false,
             grouped = false,
+            allowClear = true, // 調整：新增可選參數，預設為 true
             dropdownParent = null,
             onCustomCreate = null
         }) {
@@ -193,6 +204,7 @@ const UISelectOptions = (function () {
                     searchable,
                     creatable,
                     placeholder,
+                    allowClear, // 調整：透傳 allowClear 設定
                     dropdownParent: finalDropdownParent,
                     onCustomCreate
                 });

@@ -66,7 +66,6 @@ window.addEventListener('AppReady', async function () {
     populateNationalityFilter();
     populateNationalityDropdown('中華民國');
     populateEthnicityDropdown('華人');
-    initFilterOptions();
     bindEvents();
     initDynamicTableDragAndDrop('#form-contacts-dynamic-tbody');
     initDynamicTableDragAndDrop('#form-languages-dynamic-tbody');
@@ -75,37 +74,20 @@ window.addEventListener('AppReady', async function () {
     await fetchGoogleSheetsData();
 });
 
-function initFilterOptions() {
-    UISelectOptions.core.render({
-        target: '#filter-customer-type',
-        data: ['潛在對象', '一般零售', 'VIP顧客', '事業種子', '已轉夥伴'],
-        placeholder: '全部身分'
-    });
-
-    UISelectOptions.core.render({
-        target: '#filter-pipeline-stage',
-        data: ['新線索', '需求確認', '試用體驗', '異議排除', '規律自用', '培育暫緩'],
-        placeholder: '全部階段'
-    });
-
-    UISelectOptions.core.render({
-        target: '#filter-source-channel',
-        data: ['線上陌開', '線下陌開', '社群矩陣', '健康問卷', '親朋好友', '轉介紹', '茶會活動', '其他'],
-        placeholder: '全部來源'
-    });
-
-    UISelectOptions.core.render({
-        target: '#filter-status',
-        data: ['活躍跟進', '沉睡列管', '爭議凍結', '封存歸檔'],
-        placeholder: '全部狀態'
-    });
-}
-
 function bindEvents() {
     // 監聽 10 大篩選欄位變更即時重繪視圖
     $('.form-filter-control').on('change', function () {
         refreshView();
     });
+
+    $('#filter-assigned-partner, #filter-nationality, #filter-current-residence')
+        .off('select2:clear')
+        .on('select2:clear', function () {
+            const $this =$(this);
+            setTimeout(() => {
+                $this.val('ALL').trigger('change');
+            }, 0);
+        });
 
     $('#viewModeTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const target = $(e.target).attr('data-bs-target');
@@ -263,16 +245,43 @@ async function syncOrgRelationsRecord(descendantId, ancestorId, linkType, gapCou
 // ============================================================================
 function populateRegionDropdowns() {
     const customRegions = personMasterList.map(p => (p.current_residence || '').trim()).filter(Boolean);
+    const standardSet = new Set([
+        ...UISelectOptions.geo.DATABASE.TW,
+        ...UISelectOptions.geo.DATABASE.MY
+    ]);
 
-    // 篩選區塊：現居地 / 行政區
-    UISelectOptions.geo.populateRegionsDropdown({
-        target: '#filter-current-residence',
-        placeholder: '全部地區',
-        customRegions: customRegions,
-        selectedValue: $('#filter-current-residence').val() || ''
+    // 1. 頂部篩選器
+    const regionOptions = [
+        { id: 'ALL', name: '全部地區', group: '全部' }
+    ];
+    UISelectOptions.geo.DATABASE.TW.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '🇹🇼 台灣' });
+    });
+    UISelectOptions.geo.DATABASE.MY.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '🇲🇾 馬來西亞' });
+    });
+    const validCustoms = new Set();
+    customRegions.forEach(r => {
+        if (r && !standardSet.has(r)) validCustoms.add(r);
+    });
+    validCustoms.forEach(reg => {
+        regionOptions.push({ id: reg, name: reg, group: '📍 其他現有地區' });
     });
 
-    // 表單：現居地
+    UISelectOptions.core.render({
+        target: '#filter-current-residence',
+        data: regionOptions,
+        valueKey: 'id',
+        textKey: 'name',
+        groupKey: 'group',
+        grouped: true,
+        placeholder: '全部地區',
+        selectedValue: $('#filter-current-residence').val() || 'ALL',
+        searchable: true,
+        allowClear: true
+    });
+
+    // 2. 表單：現居地與家鄉
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-current-residence',
         placeholder: '請選擇或輸入居住地...',
@@ -280,7 +289,6 @@ function populateRegionDropdowns() {
         dropdownParent: '#customerDetailModal'
     });
 
-    // 表單：家鄉
     UISelectOptions.geo.populateRegionsDropdown({
         target: '#form-hometown',
         placeholder: '請選擇或輸入家鄉...',
@@ -345,26 +353,41 @@ function populateNationalityFilter() {
         if (n) natSet.add(n);
     });
 
+    const natOptions = [
+        { id: 'ALL', name: '全部國籍' },
+        ...Array.from(natSet).map(n => ({ id: n, name: n }))
+    ];
+
     UISelectOptions.core.render({
         target: '#filter-nationality',
-        data: Array.from(natSet),
+        data: natOptions,
+        valueKey: 'id',
+        textKey: 'name',
         placeholder: '全部國籍',
-        selectedValue: $('#filter-nationality').val() || '',
-        searchable: false,
-        creatable: false,
-        grouped: false
+        selectedValue: $('#filter-nationality').val() || 'ALL',
+        searchable: true,
+        allowClear: true
     });
 }
 
 function populateDynamicSelects() {
-    // 負責夥伴快篩
-    UISelectOptions.partner.populate({
+    const partnerOptions = [
+        { id: 'ALL', name: '全體夥伴' },
+        ...partnerMasterList.map(p => ({
+            id: p.partner_id,
+            name: `${EntityResolver.partner(p.partner_id, partnerMasterList, personMasterList, 1)} [${p.partner_id}]`
+        }))
+    ];
+
+    UISelectOptions.core.render({
         target: '#filter-assigned-partner',
-        partners: partnerMasterList,
-        persons: personMasterList,
-        displayMode: 2, // 模式 2：姓名 (member no) [partner id]
-        placeholder: '(無)',
-        searchable: true
+        data: partnerOptions,
+        valueKey: 'id',
+        textKey: 'name',
+        placeholder: '全體夥伴',
+        selectedValue: $('#filter-assigned-partner').val() || 'ALL',
+        searchable: true,
+        allowClear: true
     });
 
     // 表單負責夥伴
@@ -633,19 +656,23 @@ function getFilteredCustomers() {
     return customersList.filter(c => {
         const person = getPersonMaster(c.person_id);
 
-        if (fResidence && person.current_residence !== fResidence) return false;
-        if (fType && c.customer_type !== fType) return false;
-        if (fIdentity && person.identity_type !== fIdentity) return false;
-        if (fUsage && person.usage_identity !== fUsage) return false;
-        if (fHealth && person.health_status !== fHealth) return false;
-        if (fFinancial && person.financial_status !== fFinancial) return false;
-        if (fStage && c.pipeline_stage !== fStage) return false;
-        if (fChannel && c.source_channel !== fChannel) return false;
-        if (fStatus && c.status !== fStatus) return false;
-        if (fPartner && c.assigned_partner_id !== fPartner) return false;
-        if (fGender && person.gender !== fGender) return false;
+        if (fResidence && fResidence !== 'ALL') {
+            const cleanFilter = fResidence.trim().replace(/台/g, '臺').toLowerCase();
+            const cleanTarget = (person.current_residence || '').trim().replace(/台/g, '臺').toLowerCase();
+            if (!cleanTarget.includes(cleanFilter)) return false;
+        }
+        if (fType && fType !== 'ALL' && c.customer_type !== fType) return false;
+        if (fIdentity && fIdentity !== 'ALL' && person.identity_type !== fIdentity) return false;
+        if (fUsage && fUsage !== 'ALL' && person.usage_identity !== fUsage) return false;
+        if (fHealth && fHealth !== 'ALL' && person.health_status !== fHealth) return false;
+        if (fFinancial && fFinancial !== 'ALL' && person.financial_status !== fFinancial) return false;
+        if (fStage && fStage !== 'ALL' && c.pipeline_stage !== fStage) return false;
+        if (fChannel && fChannel !== 'ALL' && c.source_channel !== fChannel) return false;
+        if (fStatus && fStatus !== 'ALL' && c.status !== fStatus) return false;
+        if (fPartner && fPartner !== 'ALL' && c.assigned_partner_id !== fPartner) return false;
+        if (fGender && fGender !== 'ALL' && person.gender !== fGender) return false;
         
-        if (fNationality) {
+        if (fNationality && fNationality !== 'ALL') {
             let pNat = (person.nationality || '').trim();
             if (pNat === '台灣' || pNat === 'TW') pNat = '中華民國';
             if (pNat !== fNationality) return false;
